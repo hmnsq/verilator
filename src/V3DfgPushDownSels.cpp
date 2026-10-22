@@ -26,108 +26,108 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3Error.h"
+#ضمن "V3Dfg.h"
+#ضمن "V3DfgPasses.h"
+#ضمن "V3Error.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class V3DfgPushDownSels final {
+صنف V3_Dfg_ڈالو_تھلے_Sels final {
     // TYPES
 
     // Each vertex has an associated State via DfgUserMap
-    struct State final {
+    بنية State final {
         // -- For Pearce-Kelly algorithm only
         // Topological ordering index. For all pair of vertices (a, b),
         // ord(a) < ord(b) iff there is no path from b to a in the graph.
         uint32_t ord = 0;
-        bool visited = false;  // Whether the vertex has been visited during DFS
+        منطقي ویکھیا = خطأ;  // Whether the vertex has been visited during DFS
         // -- For the actial optimization only management
-        bool onWorklist = false;  // Whether the vertex is in m_catps
+        منطقي onWorklist = خطأ;  // Whether the vertex is in m_catps
     };
 
     // STATE
     // The graph being processed - must be acyclic (DAG)
-    DfgGraph& m_dfg;
+    Dfg_گراف& m_dfg;
     // Context for pass
-    V3DfgPushDownSelsContext& m_ctx;
+    V3_Dfg_ڈالو_تھلے_Sels_Context& m_ctx;
     // Map from DfgVertex to State
     DfgUserMap<State> m_stateMap = m_dfg.makeUserMap<State>();
 
     // STATE - Temporaries for Pearce-Kelly algorithm - as members to avoid reallocations
-    std::vector<DfgVertex*> m_stack;  // DFS stack for various steps
-    std::vector<DfgVertex*> m_fwdVtxps;  // Vertices found during forward DFS
-    std::vector<DfgVertex*> m_bwdVtxps;  // Vertices found during backward DFS - also work buffer
-    std::vector<uint32_t> m_ords;  // Ordering numbers reassigned in current ordering update
+    std::سمتیہ<Dfg_راس*> m_ڈھیر;  // DFS stack for various steps
+    std::سمتیہ<Dfg_راس*> m_fwdVtxps;  // Vertices found during forward DFS
+    std::سمتیہ<Dfg_راس*> m_bwdVtxps;  // Vertices found during backward DFS - also work buffer
+    std::سمتیہ<uint32_t> m_ords;  // Ordering numbers reassigned in current ordering update
 
     // STATE - For vertex movement
-    std::vector<DfgConcat*> m_catps;  // DfgConcat vertices that may be optimizable
+    std::سمتیہ<DfgConcat*> m_catps;  // DfgConcat vertices that may be optimizable
 
     // METHODS - Pearce-Kelly algorithm
-    void debugCheck() {
-        if (VL_LIKELY(!v3Global.opt.debugCheck())) return;
-        m_dfg.forEachVertex([&](const DfgVertex& src) {
-            const State& srcState = m_stateMap[src];
-            UASSERT_OBJ(!srcState.visited, &src, "Visit marker not reset");
+    فراغ debugCheck() {
+        إذا (VL_LIKELY(!v3Global.opt.debugCheck())) أرجع;
+        m_dfg.for_Each_راس([&](ثابت Dfg_راس& src) {
+            ثابت State& srcState = m_stateMap[src];
+            UASSERT_OBJ(!srcState.ویکھیا, &src, "Visit marker not reset");
             UASSERT_OBJ(srcState.ord > 0, &src, "No ordering assigned");
-            src.foreachSink([&](const DfgVertex& dst) {
-                const State& dstState = m_stateMap[dst];
+            src.foreachSink([&](ثابت Dfg_راس& dst) {
+                ثابت State& dstState = m_stateMap[dst];
                 UASSERT_OBJ(srcState.ord < dstState.ord, &src, "Invalid ordering");
-                return false;
+                أرجع خطأ;
             });
         });
     }
 
     // Find initial topological ordering using reverse post order numbering via DFS
-    void initializeOrdering() {
+    فراغ initializeOrdering() {
         // Start from all vertices with no inputs
-        m_stack.reserve(m_dfg.size());
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) {
-            if (vtx.srcp() || vtx.defaultp()) continue;
-            m_stack.push_back(&vtx);
+        m_ڈھیر.reserve(m_dfg.ناپ());
+        لكل (Dfg_راس_Var& vtx : m_dfg.varVertices()) {
+            إذا (vtx.srcp() || vtx.defaultp()) استمر;
+            m_ڈھیر.ڈالو_پٹھ(&vtx);
         }
-        for (DfgConst& vtx : m_dfg.constVertices()) m_stack.push_back(&vtx);
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
-            if (!vtx.nInputs()) m_stack.push_back(&vtx);
+        لكل (DfgConst& vtx : m_dfg.constVertices()) m_ڈھیر.ڈالو_پٹھ(&vtx);
+        لكل (Dfg_راس& vtx : m_dfg.opVertices()) {
+            إذا (!vtx.nInputs()) m_ڈھیر.ڈالو_پٹھ(&vtx);
         }
 
         // Reverse post order number to assign to next vertex
-        uint32_t rpoNext = m_dfg.size();
+        uint32_t rpo_اگلا = m_dfg.ناپ();
 
         // DFS loop
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
+        طالما (!m_ڈھیر.خالی_تھاواں()) {
+            Dfg_راس& vtx = *m_ڈھیر.پٹھ();
             State& vtxState = m_stateMap[vtx];
             // If the ordering already assigned, just pop. It was visited
             // through another path through a different child.
-            if (vtxState.ord) {
-                UASSERT_OBJ(vtxState.visited, &vtx, "Not visited, but ordering assigned");
-                m_stack.pop_back();
-                continue;
+            إذا (vtxState.ord) {
+                UASSERT_OBJ(vtxState.ویکھیا, &vtx, "Not visited, but ordering assigned");
+                m_ڈھیر.نکالو_پٹھ();
+                استمر;
             }
             // When exiting a vertex, assign the reverse post order number as ordering
-            if (vtxState.visited) {
-                vtxState.ord = rpoNext--;
-                m_stack.pop_back();
-                continue;
+            إذا (vtxState.ویکھیا) {
+                vtxState.ord = rpo_اگلا--;
+                m_ڈھیر.نکالو_پٹھ();
+                استمر;
             }
             // Entering vertex. Enqueue all unvisited children.
-            vtxState.visited = true;
-            vtx.foreachSink([&](DfgVertex& dst) {
-                const State& dstState = m_stateMap[dst];
-                if (dstState.visited) return false;
-                m_stack.push_back(&dst);
-                return false;
+            vtxState.ویکھیا = سچ;
+            vtx.foreachSink([&](Dfg_راس& dst) {
+                ثابت State& dstState = m_stateMap[dst];
+                إذا (dstState.ویکھیا) أرجع خطأ;
+                m_ڈھیر.ڈالو_پٹھ(&dst);
+                أرجع خطأ;
             });
         }
 
         // Should reach exact zero
-        UASSERT(!rpoNext, "All vertics should have been visited exactly once");
+        UASSERT(!rpo_اگلا, "All vertics should have been visited exactly once");
 
         // Reset marks
-        m_dfg.forEachVertex([&](DfgVertex& vtx) { m_stateMap[vtx].visited = false; });
+        m_dfg.for_Each_راس([&](Dfg_راس& vtx) { m_stateMap[vtx].ویکھیا = خطأ; });
 
         // Make sure it's valid
         debugCheck();
@@ -137,112 +137,112 @@ class V3DfgPushDownSels final {
     // a cycle, and in that case, no state is modified, so it is safe to then
     // not add the actual edge. Otherwise returns true and updates state as
     // if the edge was indeed added, so caller must add the actual edge.
-    bool addEdge(DfgVertex& src, DfgVertex& dst) {
+    منطقي جوڑو_کنارا(Dfg_راس& src, Dfg_راس& dst) {
         UASSERT_OBJ(&src != &dst, &src, "Should be different");
-        const State& srcState = m_stateMap[src];
-        const State& dstState = m_stateMap[dst];
+        ثابت State& srcState = m_stateMap[src];
+        ثابت State& dstState = m_stateMap[dst];
         // If 'dst' is after 'src' in the topological ordering,
         // then ok to add edge and no need to update the ordering.
-        if (dstState.ord > srcState.ord) return true;
+        إذا (dstState.ord > srcState.ord) أرجع سچ;
         // Pearce-Kelly dicovery step
-        if (pkFwdDfs(src, dst)) return false;
+        إذا (pkFwdDfs(src, dst)) أرجع خطأ;
         pkBwdDfs(src, dst);
         // Pearce-Kelly update step
         pkReorder();
-        return true;
+        أرجع سچ;
     }
 
     // Pearce-Kelly forward DFS discovery step. Record visited vertices.
     // Returns true if a cycle would be created by adding the edge (src, dst).
-    bool pkFwdDfs(DfgVertex& src, DfgVertex& dst) {
-        const uint32_t srcOrd = m_stateMap[src].ord;
+    منطقي pkFwdDfs(Dfg_راس& src, Dfg_راس& dst) {
+        ثابت uint32_t srcOrd = m_stateMap[src].ord;
         // DFS forward from dst
-        m_stack.push_back(&dst);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_ڈھیر.ڈالو_پٹھ(&dst);
+        طالما (!m_ڈھیر.خالی_تھاواں()) {
+            Dfg_راس& vtx = *m_ڈھیر.پٹھ();
+            m_ڈھیر.نکالو_پٹھ();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different sink
-            if (vtxState.visited) continue;
+            إذا (vtxState.ویکھیا) استمر;
 
             // Save vertex, mark visited
-            m_fwdVtxps.push_back(&vtx);
-            vtxState.visited = true;
+            m_fwdVtxps.ڈالو_پٹھ(&vtx);
+            vtxState.ویکھیا = سچ;
 
             // Enqueue unvisited sinks in affeced area
-            const bool cyclic = vtx.foreachSink([&](DfgVertex& sink) {
-                const State& sinkState = m_stateMap[sink];
-                if (sinkState.ord == srcOrd) return true;  // Stop completely if cyclic
-                if (sinkState.visited) return false;  // Stop search if already visited
-                if (sinkState.ord > srcOrd) return false;  // Stop search if outside critical area
-                m_stack.push_back(&sink);
-                return false;
+            ثابت منطقي cyclic = vtx.foreachSink([&](Dfg_راس& sink) {
+                ثابت State& sinkState = m_stateMap[sink];
+                إذا (sinkState.ord == srcOrd) أرجع سچ;  // Stop completely if cyclic
+                إذا (sinkState.ویکھیا) أرجع خطأ;  // Stop search if already visited
+                إذا (sinkState.ord > srcOrd) أرجع خطأ;  // Stop search if outside critical area
+                m_ڈھیر.ڈالو_پٹھ(&sink);
+                أرجع خطأ;
             });
 
             // If would be cyclic, reset state and return true
-            if (cyclic) {
-                for (DfgVertex* const vtxp : m_fwdVtxps) m_stateMap[vtxp].visited = false;
+            إذا (cyclic) {
+                لكل (Dfg_راس* ثابت vtxp : m_fwdVtxps) m_stateMap[vtxp].ویکھیا = خطأ;
                 m_fwdVtxps.clear();
-                m_stack.clear();
-                return true;
+                m_ڈھیر.clear();
+                أرجع سچ;
             }
         }
         // Won't be cyclic, return false
-        return false;
+        أرجع خطأ;
     }
 
     // Pearce-Kelly backward DFS discovery step. Record visited vertices.
-    void pkBwdDfs(DfgVertex& src, DfgVertex& dst) {
-        const uint32_t dstOrd = m_stateMap[dst].ord;
+    فراغ pkBwdDfs(Dfg_راس& src, Dfg_راس& dst) {
+        ثابت uint32_t dstOrd = m_stateMap[dst].ord;
         // DFS backward from src
-        m_stack.push_back(&src);
-        while (!m_stack.empty()) {
-            DfgVertex& vtx = *m_stack.back();
-            m_stack.pop_back();
+        m_ڈھیر.ڈالو_پٹھ(&src);
+        طالما (!m_ڈھیر.خالی_تھاواں()) {
+            Dfg_راس& vtx = *m_ڈھیر.پٹھ();
+            m_ڈھیر.نکالو_پٹھ();
             State& vtxState = m_stateMap[vtx];
 
             // Ignore if already visited through another path through different source
-            if (vtxState.visited) continue;
+            إذا (vtxState.ویکھیا) استمر;
 
             // Save vertex, mark visited
-            m_bwdVtxps.push_back(&vtx);
-            vtxState.visited = true;
+            m_bwdVtxps.ڈالو_پٹھ(&vtx);
+            vtxState.ویکھیا = سچ;
 
             // Enqueue unvisited sources in affeced area
-            vtx.foreachSource([&](DfgVertex& source) {
-                const State& sourceState = m_stateMap[source];
-                if (sourceState.visited) return false;  // Stop search if already visited
-                if (sourceState.ord < dstOrd)
-                    return false;  // Stop search if outside critical area
-                m_stack.push_back(&source);
-                return false;
+            vtx.foreach_سروت([&](Dfg_راس& سروت) {
+                ثابت State& سروت_State = m_stateMap[سروت];
+                إذا (سروت_State.ویکھیا) أرجع خطأ;  // Stop search if already visited
+                إذا (سروت_State.ord < dstOrd)
+                    أرجع خطأ;  // Stop search if outside critical area
+                m_ڈھیر.ڈالو_پٹھ(&سروت);
+                أرجع خطأ;
             });
         }
     }
 
     // Pearce-Kelly reorder step
-    void pkReorder() {
+    فراغ pkReorder() {
         // Sort vertices found during forward and backward search
-        const auto cmp = [this](const DfgVertex* const ap, const DfgVertex* const bp) {
-            return m_stateMap[ap].ord < m_stateMap[bp].ord;
+        ثابت خودکار cmp = [هذا](ثابت Dfg_راس* ثابت ap, ثابت Dfg_راس* ثابت bp) {
+            أرجع m_stateMap[ap].ord < m_stateMap[bp].ord;
         };
-        std::sort(m_bwdVtxps.begin(), m_bwdVtxps.end(), cmp);
-        std::sort(m_fwdVtxps.begin(), m_fwdVtxps.end(), cmp);
+        std::ترتیب_دیو(m_bwdVtxps.begin(), m_bwdVtxps.سرا(), cmp);
+        std::ترتیب_دیو(m_fwdVtxps.begin(), m_fwdVtxps.سرا(), cmp);
         // Will use m_bwdVtxps for processing to avoid copying. Save the size.
-        const size_t bwdSize = m_bwdVtxps.size();
+        ثابت ناپ_t bwd_ناپ = m_bwdVtxps.ناپ();
         // Append forward vertices to the backward list for processing
-        m_bwdVtxps.insert(m_bwdVtxps.end(), m_fwdVtxps.begin(), m_fwdVtxps.end());
+        m_bwdVtxps.داخل_کرو(m_bwdVtxps.سرا(), m_fwdVtxps.begin(), m_fwdVtxps.سرا());
         // Save the current ordering numbers, reset visitation marks
-        for (DfgVertex* const vtxp : m_bwdVtxps) {
+        لكل (Dfg_راس* ثابت vtxp : m_bwdVtxps) {
             State& state = m_stateMap[vtxp];
-            state.visited = false;
-            m_ords.push_back(state.ord);
+            state.ویکھیا = خطأ;
+            m_ords.ڈالو_پٹھ(state.ord);
         }
         // The current ordering numbers are sorted in the two sub lists, merge them
-        std::inplace_merge(m_ords.begin(), m_ords.begin() + bwdSize, m_ords.end());
+        std::inplace_ملاؤ(m_ords.begin(), m_ords.begin() + bwd_ناپ, m_ords.سرا());
         // Assign new ordering
-        for (size_t i = 0; i < m_ords.size(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
+        لكل (ناپ_t i = 0; i < m_ords.ناپ(); ++i) m_stateMap[m_bwdVtxps[i]].ord = m_ords[i];
         // Reset sate
         m_fwdVtxps.clear();
         m_bwdVtxps.clear();
@@ -253,146 +253,146 @@ class V3DfgPushDownSels final {
 
     // METHODS - Vertex processing
 
-    static bool ignoredSink(const DfgVertex& sink) {
+    ساكن منطقي ignoredSink(ثابت Dfg_راس& sink) {
         // Ignore non-observable variable sinks. These will be eliminated.
-        if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-            if (!varp->hasSinks() && !varp->isObserved()) return true;
+        إذا (ثابت DfgVarPacked* ثابت varp = sink.cast<DfgVarPacked>()) {
+            إذا (!varp->hasSinks() && !varp->isObserved()) أرجع سچ;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // Find all concatenations that feed another concatenation and may be
     // optimizable. These are the ones that feed a DfgSel, and no other
     // observable sinks. (If there were other observable sinks, a temporary
     // would be required anyway.)
-    void findCandidatess() {
-        for (DfgVertex& vtx : m_dfg.opVertices()) {
+    فراغ لبھو_Candidatess() {
+        لكل (Dfg_راس& vtx : m_dfg.opVertices()) {
             // Consider only concatenations ...
-            DfgConcat* const catp = vtx.cast<DfgConcat>();
-            if (!catp) continue;
+            DfgConcat* ثابت catp = vtx.cast<DfgConcat>();
+            إذا (!catp) استمر;
 
             // Count the various types of sinks
             uint32_t nSels = 0;
             uint32_t nCats = 0;
             uint32_t nOther = 0;
-            vtx.foreachSink([&](const DfgVertex& sink) {
-                if (sink.is<DfgSel>()) {
+            vtx.foreachSink([&](ثابت Dfg_راس& sink) {
+                إذا (sink.is<DfgSel>()) {
                     ++nSels;
-                } else if (sink.is<DfgConcat>()) {
+                } وإلا إذا (sink.is<DfgConcat>()) {
                     ++nCats;
-                } else if (!ignoredSink(sink)) {
+                } وإلا إذا (!ignoredSink(sink)) {
                     ++nOther;
                 }
-                return false;
+                أرجع خطأ;
             });
 
             // Consider if optimizable
-            if (nSels > 0 && nCats == 1 && nOther == 0) {
-                m_catps.push_back(catp);
-                m_stateMap[catp].onWorklist = true;
+            إذا (nSels > 0 && nCats == 1 && nOther == 0) {
+                m_catps.ڈالو_پٹھ(catp);
+                m_stateMap[catp].onWorklist = سچ;
             }
         }
     }
 
-    void pushDownSels() {
+    فراغ ڈالو_تھلے_Sels() {
         // Selects driven by the current vertex. Outside loop to avoid reallocation.
-        std::vector<DfgSel*> selps;
-        selps.reserve(m_dfg.size());
+        std::سمتیہ<DfgSel*> selps;
+        selps.reserve(m_dfg.ناپ());
         // Consider each concatenation
-        while (!m_catps.empty()) {
-            DfgConcat* const catp = m_catps.back();
-            m_catps.pop_back();
-            m_stateMap[catp].onWorklist = false;
+        طالما (!m_catps.خالی_تھاواں()) {
+            DfgConcat* ثابت catp = m_catps.پٹھ();
+            m_catps.نکالو_پٹھ();
+            m_stateMap[catp].onWorklist = خطأ;
 
             // Iterate sinks, collect selects, check if should be optimized
             selps.clear();
-            DfgVertex* sinkp = nullptr;  // The only non-DfgSel sink (ignoring some DfgVars)
-            const bool multipleNonSelSinks = catp->foreachSink([&](DfgVertex& sink) {
+            Dfg_راس* sinkp = خالی_سوچک;  // The only non-DfgSel sink (ignoring some DfgVars)
+            ثابت منطقي مضرب_Non_Sel_Sinks = catp->foreachSink([&](Dfg_راس& sink) {
                 // Collect selects
-                if (DfgSel* const selp = sink.cast<DfgSel>()) {
-                    selps.emplace_back(selp);
-                    return false;
+                إذا (DfgSel* ثابت selp = sink.cast<DfgSel>()) {
+                    selps.emplace_پٹھ(selp);
+                    أرجع خطأ;
                 }
                 // Skip ignored sinks
-                if (ignoredSink(sink)) return false;
+                إذا (ignoredSink(sink)) أرجع خطأ;
                 // If already found a non-DfgSel sink, return true
-                if (sinkp) return true;
+                إذا (sinkp) أرجع سچ;
                 // Save the non-DfgSel sink
                 sinkp = &sink;
-                return false;
+                أرجع خطأ;
             });
 
             // It it has multiple non-DfgSel sinks, it will need a temporary, so don't bother
-            if (multipleNonSelSinks) continue;
+            إذا (مضرب_Non_Sel_Sinks) استمر;
             // We only add DfgConcats to the work list that drive a select.
-            UASSERT_OBJ(!selps.empty(), catp, "Should have selects");
+            UASSERT_OBJ(!selps.خالی_تھاواں(), catp, "Should have selects");
             // If no other sink, then nothing to do
-            if (!sinkp) continue;
+            إذا (!sinkp) استمر;
             // If the only other sink is not a concatenation, then nothing to do
-            DfgConcat* const sinkCatp = sinkp->cast<DfgConcat>();
-            if (!sinkCatp) continue;
+            DfgConcat* ثابت sinkCatp = sinkp->cast<DfgConcat>();
+            إذا (!sinkCatp) استمر;
 
             // Ok, we can try to push the selects down to the sink DfgConcat
-            const uint32_t offset = sinkCatp->rhsp() == catp ? 0 : sinkCatp->rhsp()->width();
-            const uint32_t pushedDownBefore = m_ctx.m_pushedDown;
-            for (DfgSel* const selp : selps) {
+            ثابت uint32_t وتھ = sinkCatp->rhsp() == catp ? 0 : sinkCatp->rhsp()->چوڑائی();
+            ثابت uint32_t pushed_تھلے_Before = m_ctx.m_pushed_تھلے;
+            لكل (DfgSel* ثابت selp : selps) {
                 // Don't do it if it would create a cycle
-                if (!addEdge(*sinkCatp, *selp)) {
+                إذا (!جوڑو_کنارا(*sinkCatp, *selp)) {
                     ++m_ctx.m_wouldBeCyclic;
-                    continue;
+                    استمر;
                 }
                 // Otherwise redirect the select
-                ++m_ctx.m_pushedDown;
-                selp->lsb(selp->lsb() + offset);
+                ++m_ctx.m_pushed_تھلے;
+                selp->lsb(selp->lsb() + وتھ);
                 selp->fromp(sinkCatp);
             }
             // If we pushed down any selects, then we need to consider the sink concatenation
             // again
             State& sinkCatState = m_stateMap[sinkCatp];
-            if (pushedDownBefore != m_ctx.m_pushedDown && !sinkCatState.onWorklist) {
-                m_catps.push_back(sinkCatp);
-                sinkCatState.onWorklist = true;
+            إذا (pushed_تھلے_Before != m_ctx.m_pushed_تھلے && !sinkCatState.onWorklist) {
+                m_catps.ڈالو_پٹھ(sinkCatp);
+                sinkCatState.onWorklist = سچ;
             }
         }
     }
 
     // CONSTRUCTOR
-    V3DfgPushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx)
+    V3_Dfg_ڈالو_تھلے_Sels(Dfg_گراف& dfg, V3_Dfg_ڈالو_تھلے_Sels_Context& ctx)
         : m_dfg{dfg}
         , m_ctx{ctx} {
 
         // Find optimization candidates
-        m_catps.reserve(m_dfg.size());
-        findCandidatess();
+        m_catps.reserve(m_dfg.ناپ());
+        لبھو_Candidatess();
         // Early exit if nothing to do
-        if (m_catps.empty()) return;
+        إذا (m_catps.خالی_تھاواں()) أرجع;
 
         // Pre-allocate storage
-        m_stack.reserve(m_dfg.size());
-        m_fwdVtxps.reserve(m_dfg.size());
-        m_bwdVtxps.reserve(m_dfg.size());
-        m_ords.reserve(m_dfg.size());
+        m_ڈھیر.reserve(m_dfg.ناپ());
+        m_fwdVtxps.reserve(m_dfg.ناپ());
+        m_bwdVtxps.reserve(m_dfg.ناپ());
+        m_ords.reserve(m_dfg.ناپ());
 
         // Initialize topologicel ordering
         initializeOrdering();
 
         // Sort candidates in topological order so we process them the least amount
-        std::sort(m_catps.begin(), m_catps.end(),
-                  [this](const DfgConcat* const ap, const DfgConcat* const bp) {
-                      return m_stateMap[ap].ord < m_stateMap[bp].ord;
+        std::ترتیب_دیو(m_catps.begin(), m_catps.سرا(),
+                  [هذا](ثابت DfgConcat* ثابت ap, ثابت DfgConcat* ثابت bp) {
+                      أرجع m_stateMap[ap].ord < m_stateMap[bp].ord;
                   });
 
         // Push selects down to the lowest concatenation
-        pushDownSels();
+        ڈالو_تھلے_Sels();
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-        V3DfgPushDownSels{dfg, ctx};
+عام:
+    ساكن فراغ apply(Dfg_گراف& dfg, V3_Dfg_ڈالو_تھلے_Sels_Context& ctx) {
+        V3_Dfg_ڈالو_تھلے_Sels{dfg, ctx};
     }
 };
 
-void V3DfgPasses::pushDownSels(DfgGraph& dfg, V3DfgPushDownSelsContext& ctx) {
-    if (!v3Global.opt.fDfgPushDownSels()) return;
-    V3DfgPushDownSels::apply(dfg, ctx);
+فراغ V3DfgPasses::ڈالو_تھلے_Sels(Dfg_گراف& dfg, V3_Dfg_ڈالو_تھلے_Sels_Context& ctx) {
+    إذا (!v3Global.opt.f_Dfg_ڈالو_تھلے_Sels()) أرجع;
+    V3_Dfg_ڈالو_تھلے_Sels::apply(dfg, ctx);
 }

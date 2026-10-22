@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DEPTH_H_
-#define VERILATOR_V3DEPTH_H_
+#جے_بنا_تعریف VERILATOR_V3_ڈونگھائی_H
+#تعریف_کرو VERILATOR_V3_ڈونگھائی_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Depth final {
-public:
-    static void depthAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ڈونگھائی final {
+عام:
+    ساكن فراغ ڈونگھائی_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جے_انت  // Guard

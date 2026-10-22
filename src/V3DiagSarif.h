@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DIAGSARIF_H_
-#define VERILATOR_V3DIAGSARIF_H_
+#جے_بنا_تعریف VERILATOR_V3DIAGSARIF_H_
+#تعریف_کرو VERILATOR_V3DIAGSARIF_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include <V3Error.h>
+#ضمن <V3Error.h>
 
 //============================================================================
 
 class V3DiagSarif final {
-public:
-    static void pushMessage(const VErrorMessage& msg) VL_MT_DISABLED;
-    static void output(bool success) VL_MT_DISABLED;
+عام:
+    ساكن فراغ ڈالو_سنیہا(ثابت VError_سنیہا& پیغام) VL_MT_DISABLED;
+    ساكن فراغ output(bool success) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جے_انت  // Guard

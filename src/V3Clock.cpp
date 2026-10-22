@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#ضمن "V3Clock.h"
 
-#include "V3Const.h"
+#ضمن "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+صنف Convert_Write_Refs_منزل_Read final : عام VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_گرہ_اظہاریہ* m_نتیجہ = خالی_سوچک;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    واضح Convert_Write_Refs_منزل_Read(Ast_گرہ_اظہاریہ* nodep) {
+        m_نتیجہ = VN_AS(iterateSubtreeReturnEdits(nodep), گرہ_اظہاریہ);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    فراغ ویکھو(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        إذا (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                جديد AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ ویکھو(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+عام:
+    ساكن Ast_گرہ_اظہاریہ* مکھ(Ast_گرہ_اظہاریہ* nodep) { أرجع Convert_Write_Refs_منزل_Read{nodep}.m_نتیجہ; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+صنف ClockVisitor final : عام VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    فراغ ویکھو(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* ثابت incp = nodep->incp()->unlink_Fr_پٹھ();
+        Ast_گرہ_اظہاریہ* ثابت origp = nodep->origp()->unlink_Fr_پٹھ();
+        Ast_گرہ_اظہاریہ* ثابت changeWrp = nodep->changep()->unlink_Fr_پٹھ();
+        Ast_گرہ_اظہاریہ* ثابت changeRdp = Convert_Write_Refs_منزل_Read::مکھ(changeWrp->clone_درخت(خطأ));
+        Ast_گرہ_اظہاریہ* comparedp = خالی_سوچک;
+        incp->toggleExprp(origp->clone_درخت(خطأ));
+        incp->toggleCovExprp(changeRdp->clone_درخت(خطأ));
+        File_سطر* ثابت flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        إذا (ثابت AstBasicDType* ثابت bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            إذا (!bdtypep->isOpaque()) {
+                Ast_گرہ_اظہاریہ* ثابت zp = جديد AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = جديد AstNeq{flp, zp, جديد AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        إذا (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* ثابت newp = جديد AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->جوڑو_Thensp(جديد Ast_سونپو{flp, changeWrp, origp->clone_درخت(خطأ)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_درخت(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    فراغ ویکھو(Ast_Sen_درخت* nodep) override {
+        VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_پٹھ()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ ویکھو(Ast_گرہ* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    واضح ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    ~ClockVisitor() override = افتراضي;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+فراغ V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_درخت("clock", 0, dump_درخت_Either_Level() >= 3);
 }

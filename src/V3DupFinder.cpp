@@ -14,81 +14,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DupFinder.h"
+#ضمن "V3DupFinder.h"
 
-#include "V3File.h"
+#ضمن "V3File.h"
 
-#include <iomanip>
-#include <memory>
+#ضمن <iomanip>
+#ضمن <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // V3DupFinder class functions
 
-V3DupFinder::size_type V3DupFinder::erase(AstNode* nodep) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        if (nodep == it->second) {
+V3DupFinder::ناپ_type V3DupFinder::erase(Ast_گرہ* nodep) {
+    ثابت خودکار& er = equal_range(m_hasher(nodep));
+    لكل (iterator it = er.پہلا; it != er.دوجا; ++it) {
+        إذا (nodep == it->دوجا) {
             erase(it);
-            return 1;
+            أرجع 1;
         }
     }
-    return 0;
+    أرجع 0;
 }
 
-V3DupFinder::iterator V3DupFinder::findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        AstNode* const node2p = it->second;
-        if (nodep == node2p) continue;  // Same node is not a duplicate
-        if (checkp && !checkp->isSame(nodep, node2p)) continue;  // User says it is not a duplicate
-        if (!nodep->sameTree(node2p)) continue;  // Not the same trees
+V3DupFinder::iterator V3DupFinder::لبھو_Duplicate(Ast_گرہ* nodep, V3DupFinderUserSame* checkp) {
+    ثابت خودکار& er = equal_range(m_hasher(nodep));
+    لكل (iterator it = er.پہلا; it != er.دوجا; ++it) {
+        Ast_گرہ* ثابت node2p = it->دوجا;
+        إذا (nodep == node2p) استمر;  // Same node is not a duplicate
+        إذا (checkp && !checkp->isSame(nodep, node2p)) استمر;  // User says it is not a duplicate
+        إذا (!nodep->same_درخت(node2p)) استمر;  // Not the same trees
         // Found duplicate
-        return it;
+        أرجع it;
     }
-    return end();
+    أرجع سرا();
 }
 
-void V3DupFinder::dumpFile(const string& filename, bool tree) {
+فراغ V3DupFinder::dumpFile(ثابت string& filename, منطقي درخت) {
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    ثابت std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    إذا (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    std::unordered_map<int, int> dist;
+    std::unordered_map<صحيح, صحيح> dist;
 
     V3Hash lasthash;
-    int num_in_bucket = 0;
-    for (auto it = cbegin(); true; ++it) {
-        if (it == cend() || lasthash != it->first) {
-            if (it != cend()) lasthash = it->first;
-            if (num_in_bucket) ++dist[num_in_bucket];
-            num_in_bucket = 0;
+    صحيح عدد_وچ_بالٹی = 0;
+    لكل (خودکار it = cbegin(); سچ; ++it) {
+        إذا (it == cend() || lasthash != it->پہلا) {
+            إذا (it != cend()) lasthash = it->پہلا;
+            إذا (عدد_وچ_بالٹی) ++dist[عدد_وچ_بالٹی];
+            عدد_وچ_بالٹی = 0;
         }
-        if (it == cend()) break;
-        num_in_bucket++;
+        إذا (it == cend()) اكسر;
+        عدد_وچ_بالٹی++;
     }
     *logp << "\n*** STATS:\n\n";
     *logp << "    #InBucket   Occurrences\n";
-    for (const auto& i : dist) {
-        *logp << "    " << std::setw(9) << i.first << "  " << std::setw(12) << i.second << '\n';
+    لكل (ثابت خودکار& i : dist) {
+        *logp << "    " << std::setw(9) << i.پہلا << "  " << std::setw(12) << i.دوجا << '\n';
     }
 
     *logp << "\n*** Dump:\n\n";
-    for (const auto& it : *this) {
-        if (lasthash != it.first) {
-            lasthash = it.first;
-            *logp << "    " << it.first << '\n';
+    لكل (ثابت خودکار& it : *هذا) {
+        إذا (lasthash != it.پہلا) {
+            lasthash = it.پہلا;
+            *logp << "    " << it.پہلا << '\n';
         }
-        *logp << "\t" << it.second << '\n';
+        *logp << "\t" << it.دوجا << '\n';
         // Dumping the entire tree may make nearly N^2 sized dumps,
         // because the nodes under this one may also be in the hash table!
-        if (tree) it.second->dumpTree(*logp, "    ");
+        إذا (درخت) it.دوجا->dump_درخت(*logp, "    ");
     }
 }
 
-void V3DupFinder::dumpFilePrefixed(const string& nameComment, bool tree) {
-    if (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", tree);
+فراغ V3DupFinder::dumpFilePrefixed(ثابت string& nameComment, منطقي درخت) {
+    إذا (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", درخت);
 }

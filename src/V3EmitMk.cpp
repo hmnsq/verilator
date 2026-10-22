@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitMk.h"
+#ضمن "V3EmitMk.h"
 
-#include "V3EmitCBase.h"
-#include "V3HierBlock.h"
-#include "V3Os.h"
+#ضمن "V3EmitCBase.h"
+#ضمن "V3HierBlock.h"
+#ضمن "V3Os.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Groups adjacent files in a list, evenly distributing sum of scores
-class EmitGroup final {
-public:
-    struct FileOrConcatenatedFilesList final {
-        const std::string m_filename;  // Filename or output group filename if grouping
-        std::vector<std::string> m_concatenatedFilenames;  // Grouped filenames if grouping
+صنف Emit_گروہ final {
+عام:
+    بنية FileOrConcatenatedFilesList final {
+        ثابت std::string m_filename;  // Filename or output group filename if grouping
+        std::سمتیہ<std::string> m_concatenatedFilenames;  // Grouped filenames if grouping
 
-        bool isConcatenatingFile() const { return !m_concatenatedFilenames.empty(); }
+        منطقي isConcatenatingFile() ثابت { أرجع !m_concatenatedFilenames.خالی_تھاواں(); }
     };
 
-    struct FilenameWithScore final {
-        const std::string m_filename;  // Input filename
-        const uint64_t m_score;  // Input file complexity
-        const uint64_t m_sizeBytes;  // Input file size
+    بنية FilenameWithScore final {
+        ثابت std::string m_filename;  // Input filename
+        ثابت uint64_t m_score;  // Input file complexity
+        ثابت uint64_t m_ناپ_بائٹاں;  // Input file size
     };
 
-private:
+خاص:
     // Data of a single work unit used in `singleConcatenatedFilesList()`.
-    struct WorkList final {
-        uint64_t m_totalScore = 0;  // Sum of scores of included files
-        std::vector<FilenameWithScore> m_files;  // Included filenames
-        int m_bucketsNum
+    بنية WorkList final {
+        uint64_t m_کل_Score = 0;  // Sum of scores of included files
+        std::سمتیہ<FilenameWithScore> m_files;  // Included filenames
+        صحيح m_buckets_عدد
             = 0;  // Number of buckets assigned for this list. Used only in concatenable lists.
-        bool m_isConcatenable = true;  // Indicated whether files on this list can be concatenated.
-        const int m_dbgId;  // Work list ID for debugging.
+        منطقي m_isConcatenable = سچ;  // Indicated whether files on this list can be concatenated.
+        ثابت صحيح m_dbgId;  // Work list ID for debugging.
 
-        WorkList() = delete;
-        explicit WorkList(int id)
+        WorkList() = مٹاؤ;
+        واضح WorkList(صحيح id)
             : m_dbgId{id} {}
     };
 
@@ -60,109 +60,109 @@ private:
     // Minimum number of input files required to perform concatenation.
     // Concatenation of a small number of files does not give any performance advantages.
     // The value has been chosen arbitrarily, most likely could be larger.
-    static constexpr size_t MIN_FILES_COUNT = 16;
+    ساكن constexpr ناپ_t MIN_FILES_گنتی = 16;
 
     // Concatenation of only a few files most likely does not increase performance.
     // The value has been chosen arbitrarily.
-    static constexpr size_t MIN_FILES_PER_BUCKET = 4;
+    ساكن constexpr ناپ_t MIN_FILES_فی_بالٹی = 4;
 
     // MEMBERS
 
-    const std::vector<FilenameWithScore>
-        m_inputFiles;  // List of filenames from initial AstCFile list
-    std::vector<FileOrConcatenatedFilesList>
+    ثابت std::سمتیہ<FilenameWithScore>
+        m_داخلہ_Files;  // List of filenames from initial AstCFile list
+    std::سمتیہ<FileOrConcatenatedFilesList>
         m_outputFiles;  // Output list of files and group files
-    const uint64_t m_totalScore;  // Sum of file scores
-    const std::string m_groupFilePrefix;  // Prefix for output group filenames
-    const uint64_t m_maxGroupBytes;  // Maximum sum of file sizes in an output group
-    std::vector<WorkList> m_workLists;  // Lists of small enough files
+    ثابت uint64_t m_کل_Score;  // Sum of file scores
+    ثابت std::string m_گروہ_File_اگیتر;  // Prefix for output group filenames
+    ثابت uint64_t m_max_گروہ_بائٹاں;  // Maximum sum of file sizes in an output group
+    std::سمتیہ<WorkList> m_workLists;  // Lists of small enough files
     std::unique_ptr<std::ofstream> m_logp;  // Dump file
-    std::vector<WorkList*> m_concatenableListsByDescSize;  // Lists sorted by size, descending
-    int m_groupNum = 0;  // Number of output groups created
+    std::سمتیہ<WorkList*> m_concatenable_Lists_By_Desc_ناپ;  // Lists sorted by size, descending
+    صحيح m_گروہ_عدد = 0;  // Number of output groups created
 
-    EmitGroup(std::vector<FilenameWithScore> inputFiles, uint64_t totalScore,
-              const std::string& groupFilePrefix, uint64_t maxGroupBytes)
-        : m_inputFiles{std::move(inputFiles)}
-        , m_totalScore{totalScore}
-        , m_groupFilePrefix{groupFilePrefix}
-        , m_maxGroupBytes{maxGroupBytes} {}
+    Emit_گروہ(std::سمتیہ<FilenameWithScore> داخلہ_Files, uint64_t کل_Score,
+              ثابت std::string& گروہ_File_اگیتر, uint64_t max_گروہ_بائٹاں)
+        : m_داخلہ_Files{std::move(داخلہ_Files)}
+        , m_کل_Score{کل_Score}
+        , m_گروہ_File_اگیتر{گروہ_File_اگیتر}
+        , m_max_گروہ_بائٹاں{max_گروہ_بائٹاں} {}
 
-    string groupFilename(int id) const {
-        return v3Global.opt.prefix() + "_" + m_groupFilePrefix + std::to_string(id);
+    string گروہ_Filename(صحيح id) ثابت {
+        أرجع v3Global.opt.اگیتر() + "_" + m_گروہ_File_اگیتر + std::منزل_string(id);
     }
 
     // Debug logging: prints scores histogram
-    void dumpLogScoreHistogram(std::ostream& os) {
-        constexpr int MAX_BAR_LENGTH = 80;
-        constexpr int MAX_INTERVALS_NUM = 60;
+    فراغ dumpLogScoreHistogram(std::ostream& os) {
+        constexpr صحيح MAX_BAR_لمائی = 80;
+        constexpr صحيح MAX_INTERVALS_عدد = 60;
 
         // All scores arranged in ascending order.
-        std::vector<uint64_t> sortedScores;
-        sortedScores.reserve(m_inputFiles.size());
-        std::transform(m_inputFiles.begin(), m_inputFiles.end(), std::back_inserter(sortedScores),
-                       [](const FilenameWithScore& inputFile) { return inputFile.m_score; });
-        std::sort(sortedScores.begin(), sortedScores.end());
+        std::سمتیہ<uint64_t> sortedScores;
+        sortedScores.reserve(m_داخلہ_Files.ناپ());
+        std::transform(m_داخلہ_Files.begin(), m_داخلہ_Files.سرا(), std::پٹھ_inserter(sortedScores),
+                       [](ثابت FilenameWithScore& داخلہ_File) { أرجع داخلہ_File.m_score; });
+        std::ترتیب_دیو(sortedScores.begin(), sortedScores.سرا());
 
-        const int64_t topScore = sortedScores.back();
-        os << "Top score: " << topScore << '\n';
-        const int maxScoreWidth = std::to_string(topScore).length();
+        ثابت int64_t چوٹی_Score = sortedScores.پٹھ();
+        os << "Top score: " << چوٹی_Score << '\n';
+        ثابت صحيح max_Score_چوڑائی = std::منزل_string(چوٹی_Score).لمائی();
 
-        const int64_t intervalsNum = std::min<int64_t>(topScore + 1, MAX_INTERVALS_NUM);
+        ثابت int64_t intervals_عدد = std::min<int64_t>(چوٹی_Score + 1, MAX_INTERVALS_عدد);
 
-        struct Interval final {
-            uint64_t m_lowerBound = 0;  // Lowest score included in this histogram bucket
-            int m_size = 0;  // Number of scores that fell into this bucket
+        بنية Interval final {
+            uint64_t m_ہیٹھلا_Bound = 0;  // Lowest score included in this histogram bucket
+            صحيح m_ناپ = 0;  // Number of scores that fell into this bucket
         };
 
-        std::vector<Interval> intervals;
-        intervals.resize(intervalsNum);
+        std::سمتیہ<Interval> intervals;
+        intervals.resize(intervals_عدد);
 
-        intervals[0].m_lowerBound = 0;
-        for (int i = 1; i < intervalsNum; i++) {
-            intervals[i].m_lowerBound = (topScore + 1) * i / intervalsNum + 1;
+        intervals[0].m_ہیٹھلا_Bound = 0;
+        لكل (صحيح i = 1; i < intervals_عدد; i++) {
+            intervals[i].m_ہیٹھلا_Bound = (چوٹی_Score + 1) * i / intervals_عدد + 1;
         }
 
-        for (const uint64_t score : sortedScores) {
-            const unsigned int ivIdx = score * intervalsNum / (topScore + 1);
-            ++intervals[ivIdx].m_size;
+        لكل (ثابت uint64_t score : sortedScores) {
+            ثابت بنانشانی صحيح ivIdx = score * intervals_عدد / (چوٹی_Score + 1);
+            ++intervals[ivIdx].m_ناپ;
         }
 
-        int topIntervalSize = 0;
-        for (const Interval& iv : intervals)
-            topIntervalSize = std::max(topIntervalSize, iv.m_size);
+        صحيح چوٹی_Interval_ناپ = 0;
+        لكل (ثابت Interval& iv : intervals)
+            چوٹی_Interval_ناپ = std::max(چوٹی_Interval_ناپ, iv.m_ناپ);
 
         os << "Input files' scores histogram:\n";
 
-        for (const Interval& iv : intervals) {
-            const int scaledSize = iv.m_size * (MAX_BAR_LENGTH + 1) / topIntervalSize;
-            const std::string line = " |" + std::string(scaledSize, '#');
+        لكل (ثابت Interval& iv : intervals) {
+            ثابت صحيح scaled_ناپ = iv.m_ناپ * (MAX_BAR_لمائی + 1) / چوٹی_Interval_ناپ;
+            ثابت std::string سطر = " |" + std::string(scaled_ناپ, '#');
 
-            os << std::setw(maxScoreWidth) << iv.m_lowerBound << line << "  " << iv.m_size << '\n';
+            os << std::setw(max_Score_چوڑائی) << iv.m_ہیٹھلا_Bound << سطر << "  " << iv.m_ناپ << '\n';
         }
-        os << std::setw(maxScoreWidth) << (topScore + 1) << '\n';
+        os << std::setw(max_Score_چوڑائی) << (چوٹی_Score + 1) << '\n';
         os << '\n';
     }
 
     // PRIVATE METHODS
 
     // Debug logging: dumps Work Lists and their lists of files
-    void dumpWorkLists(std::ostream& os) {
+    فراغ dumpWorkLists(std::ostream& os) {
         os << "Initial Work Lists with their concatenation eligibility status:\n";
-        for (const WorkList& list : m_workLists) {
+        لكل (ثابت WorkList& list : m_workLists) {
             os << "+ [" << (list.m_isConcatenable ? 'x' : ' ') << "] Work List #" << list.m_dbgId
-               << "  (num of files: " << list.m_files.size()
-               << "; total score: " << list.m_totalScore << ")\n";
-            if (debug() >= 6 || list.m_files.size() < 4) {
+               << "  (num of files: " << list.m_files.ناپ()
+               << "; total score: " << list.m_کل_Score << ")\n";
+            إذا (debug() >= 6 || list.m_files.ناپ() < 4) {
                 // Log all files
-                for (const FilenameWithScore& file : list.m_files)
+                لكل (ثابت FilenameWithScore& file : list.m_files)
                     os << "| + " << file.m_filename << "  (score: " << file.m_score << ")\n";
-            } else {
+            } وإلا {
                 // Log only first and last file
-                const FilenameWithScore& first = list.m_files.front();
-                const FilenameWithScore& last = list.m_files.back();
-                os << "| + " << first.m_filename << "  (score: " << first.m_score << ")\n";
-                os << "| | (... " << (list.m_files.size() - 2) << " files ...)\n";
-                os << "| + " << last.m_filename << "  (score: " << last.m_score << ")\n";
+                ثابت FilenameWithScore& پہلا = list.m_files.front();
+                ثابت FilenameWithScore& آخری = list.m_files.پٹھ();
+                os << "| + " << پہلا.m_filename << "  (score: " << پہلا.m_score << ")\n";
+                os << "| | (... " << (list.m_files.ناپ() - 2) << " files ...)\n";
+                os << "| + " << آخری.m_filename << "  (score: " << آخری.m_score << ")\n";
             }
         }
         os << '\n';
@@ -170,821 +170,821 @@ private:
 
     // Debug logging: dumps list of output files. List of grouped files is additionally printed
     // for each concatenating file.
-    void dumpOutputList(std::ostream& os) const {
+    فراغ dumpOutputList(std::ostream& os) ثابت {
         os << "List of output files after execution of concatenation:\n";
 
-        for (const FileOrConcatenatedFilesList& entry : m_outputFiles) {
-            if (entry.isConcatenatingFile()) {
-                os << "+ " << entry.m_filename << "  (concatenating file)\n";
-                for (const string& f : entry.m_concatenatedFilenames) {
+        لكل (ثابت FileOrConcatenatedFilesList& اندراج : m_outputFiles) {
+            إذا (اندراج.isConcatenatingFile()) {
+                os << "+ " << اندراج.m_filename << "  (concatenating file)\n";
+                لكل (ثابت string& f : اندراج.m_concatenatedFilenames) {
                     os << "| + " << f << '\n';
                 }
-            } else {
-                os << "+ " << entry.m_filename << '\n';
+            } وإلا {
+                os << "+ " << اندراج.m_filename << '\n';
             }
         }
     }
 
     // Called when the concatenation is aborted, creates an identity mapping
-    bool fallbackNoGrouping(size_t inputFilesCount) {
-        const int totalBucketsNum = v3Global.opt.outputGroups();
+    منطقي fallbackNoGrouping(ناپ_t داخلہ_Files_گنتی) {
+        ثابت صحيح کل_Buckets_عدد = v3Global.opt.outputGroups();
         // Return early if there's nothing to do.
-        bool groupingRedundant = false;
-        if (inputFilesCount < MIN_FILES_COUNT
-            && inputFilesCount <= static_cast<size_t>(totalBucketsNum)) {
-            UINFO(4, "File concatenation skipped: Too few files (" << m_inputFiles.size() << " < "
-                                                                   << MIN_FILES_COUNT << ")");
-            groupingRedundant = true;
+        منطقي groupingRedundant = خطأ;
+        إذا (داخلہ_Files_گنتی < MIN_FILES_گنتی
+            && داخلہ_Files_گنتی <= static_cast<ناپ_t>(کل_Buckets_عدد)) {
+            UINFO(4, "File concatenation skipped: Too few files (" << m_داخلہ_Files.ناپ() << " < "
+                                                                   << MIN_FILES_گنتی << ")");
+            groupingRedundant = سچ;
         }
-        if (inputFilesCount < (MIN_FILES_PER_BUCKET * totalBucketsNum)) {
+        إذا (داخلہ_Files_گنتی < (MIN_FILES_فی_بالٹی * کل_Buckets_عدد)) {
             UINFO(4, "File concatenation skipped: Too few files per bucket ("
-                         << m_inputFiles.size() << " < " << MIN_FILES_PER_BUCKET << " - "
-                         << totalBucketsNum << ")");
-            groupingRedundant = true;
+                         << m_داخلہ_Files.ناپ() << " < " << MIN_FILES_فی_بالٹی << " - "
+                         << کل_Buckets_عدد << ")");
+            groupingRedundant = سچ;
         }
-        if (!groupingRedundant) return false;
+        إذا (!groupingRedundant) أرجع خطأ;
 
-        m_outputFiles.reserve(m_inputFiles.size());
-        for (const FilenameWithScore& filename : m_inputFiles) {
-            m_outputFiles.push_back({std::move(filename.m_filename), {}});
+        m_outputFiles.reserve(m_داخلہ_Files.ناپ());
+        لكل (ثابت FilenameWithScore& filename : m_داخلہ_Files) {
+            m_outputFiles.ڈالو_پٹھ({std::move(filename.m_filename), {}});
         }
-        return true;
+        أرجع سچ;
     }
 
-    void createWorkLists() {
+    فراغ createWorkLists() {
         // Create initial Work Lists.
 
-        const int totalBucketsNum = v3Global.opt.outputGroups();
+        ثابت صحيح کل_Buckets_عدد = v3Global.opt.outputGroups();
         // Input files with a score exceeding this value are excluded from concatenation.
-        const uint64_t concatenableFileMaxScore = m_totalScore / totalBucketsNum / 2;
+        ثابت uint64_t concatenableFileMaxScore = m_کل_Score / کل_Buckets_عدد / 2;
 
-        V3Stats::addStat("Concatenation max score", concatenableFileMaxScore);
-        int nextWorkListId = 0;
+        V3Stats::جوڑو_Stat("Concatenation max score", concatenableFileMaxScore);
+        صحيح اگلا_Work_List_Id = 0;
 
-        if (m_logp) *m_logp << "Input files with their concatenation eligibility status:\n";
-        for (const FilenameWithScore& inputFile : m_inputFiles) {
-            const bool fileIsConcatenable = (inputFile.m_score <= concatenableFileMaxScore);
-            if (m_logp)
+        إذا (m_logp) *m_logp << "Input files with their concatenation eligibility status:\n";
+        لكل (ثابت FilenameWithScore& داخلہ_File : m_داخلہ_Files) {
+            ثابت منطقي fileIsConcatenable = (داخلہ_File.m_score <= concatenableFileMaxScore);
+            إذا (m_logp)
                 *m_logp << " + [" << (fileIsConcatenable ? 'x' : ' ') << "] "
-                        << inputFile.m_filename << "  (score: " << inputFile.m_score << ")\n";
-            V3Stats::addStatSum(fileIsConcatenable ? "Concatenation total grouped score"
+                        << داخلہ_File.m_filename << "  (score: " << داخلہ_File.m_score << ")\n";
+            V3Stats::جوڑو_Stat_جوڑ(fileIsConcatenable ? "Concatenation total grouped score"
                                                    : "Concatenation total non-grouped score",
-                                inputFile.m_score);
+                                داخلہ_File.m_score);
             // Add new list if the last list's concatenability does not match the inputFile's
             // concatenability
-            if (m_workLists.empty() || m_workLists.back().m_isConcatenable != fileIsConcatenable) {
-                m_workLists.emplace_back(WorkList{nextWorkListId++});
-                m_workLists.back().m_isConcatenable = fileIsConcatenable;
+            إذا (m_workLists.خالی_تھاواں() || m_workLists.پٹھ().m_isConcatenable != fileIsConcatenable) {
+                m_workLists.emplace_پٹھ(WorkList{اگلا_Work_List_Id++});
+                m_workLists.پٹھ().m_isConcatenable = fileIsConcatenable;
             }
             // Add inputFile to the last list
-            WorkList& list = m_workLists.back();
-            list.m_files.push_back(
-                {inputFile.m_filename, inputFile.m_score, inputFile.m_sizeBytes});
-            list.m_totalScore += inputFile.m_score;
+            WorkList& list = m_workLists.پٹھ();
+            list.m_files.ڈالو_پٹھ(
+                {داخلہ_File.m_filename, داخلہ_File.m_score, داخلہ_File.m_ناپ_بائٹاں});
+            list.m_کل_Score += داخلہ_File.m_score;
         }
-        if (m_logp) *m_logp << '\n';
+        إذا (m_logp) *m_logp << '\n';
     }
 
-    void assignBuckets(uint64_t concatenableFilesTotalScore) {
+    فراغ سونپو_Buckets(uint64_t concatenable_Files_کل_Score) {
         // Assign buckets to lists
 
-        const size_t totalBucketsNum = v3Global.opt.outputGroups();
+        ثابت ناپ_t کل_Buckets_عدد = v3Global.opt.outputGroups();
 
         // More concatenable lists than buckets. Exclude lists with lowest number of files.
         // Does not happen very often due to files being already filtered out by comparison of
         // their score to ConcatenableFilesMaxScore.
-        if (m_concatenableListsByDescSize.size() > totalBucketsNum) {
+        إذا (m_concatenable_Lists_By_Desc_ناپ.ناپ() > کل_Buckets_عدد) {
             // Debugging: Log which work lists will be kept
-            if (m_logp) {
+            إذا (m_logp) {
                 *m_logp << "More Work Lists than buckets; "
                            "Work Lists with statuses indicating whether the list will be kept:\n";
                 // Only lists that will be kept. List that will be removed are logged below.
-                std::for_each(m_concatenableListsByDescSize.begin(),
-                              m_concatenableListsByDescSize.begin() + totalBucketsNum,
+                std::for_each(m_concatenable_Lists_By_Desc_ناپ.begin(),
+                              m_concatenable_Lists_By_Desc_ناپ.begin() + کل_Buckets_عدد,
                               [&](WorkList* listp) {
                                   *m_logp << "+ [x] Work List #" << listp->m_dbgId
-                                          << "  (num of files: " << listp->m_files.size()
-                                          << "; total score: " << listp->m_totalScore << ")\n";
+                                          << "  (num of files: " << listp->m_files.ناپ()
+                                          << "; total score: " << listp->m_کل_Score << ")\n";
                               });
             }
             // NOTE: Not just debug logging - notice `isConcatenable` assignment in the loop.
-            std::for_each(m_concatenableListsByDescSize.begin() + totalBucketsNum,
-                          m_concatenableListsByDescSize.end(), [&](WorkList* listp) {
-                              listp->m_isConcatenable = false;
+            std::for_each(m_concatenable_Lists_By_Desc_ناپ.begin() + کل_Buckets_عدد,
+                          m_concatenable_Lists_By_Desc_ناپ.سرا(), [&](WorkList* listp) {
+                              listp->m_isConcatenable = خطأ;
 
-                              if (m_logp)
+                              إذا (m_logp)
                                   *m_logp << "+ [ ] Work List #" << listp->m_dbgId
-                                          << "  (num of files: " << listp->m_files.size()
-                                          << "; total score: " << listp->m_totalScore << ")\n";
+                                          << "  (num of files: " << listp->m_files.ناپ()
+                                          << "; total score: " << listp->m_کل_Score << ")\n";
                           });
-            if (m_logp) *m_logp << '\n';
+            إذا (m_logp) *m_logp << '\n';
 
-            m_concatenableListsByDescSize.resize(totalBucketsNum);
+            m_concatenable_Lists_By_Desc_ناپ.resize(کل_Buckets_عدد);
             // Recalculate stats
-            concatenableFilesTotalScore = 0;
-            for (const WorkList* const listp : m_concatenableListsByDescSize) {
-                concatenableFilesTotalScore += listp->m_totalScore;
+            concatenable_Files_کل_Score = 0;
+            لكل (ثابت WorkList* ثابت listp : m_concatenable_Lists_By_Desc_ناپ) {
+                concatenable_Files_کل_Score += listp->m_کل_Score;
             }
         }
 
-        const uint64_t idealBucketScore = concatenableFilesTotalScore / totalBucketsNum;
+        ثابت uint64_t ideal_بالٹی_Score = concatenable_Files_کل_Score / کل_Buckets_عدد;
 
-        V3Stats::addStat("Concatenation ideal bucket score", idealBucketScore);
+        V3Stats::جوڑو_Stat("Concatenation ideal bucket score", ideal_بالٹی_Score);
 
-        if (m_logp) *m_logp << "Buckets assigned to Work Lists:\n";
-        int availableBuckets = v3Global.opt.outputGroups();
-        for (WorkList* listp : m_concatenableListsByDescSize) {
-            if (availableBuckets > 0 && idealBucketScore > 0) {
-                listp->m_bucketsNum = std::min(
-                    availableBuckets, std::max<int>(1, listp->m_totalScore / idealBucketScore));
-                availableBuckets -= listp->m_bucketsNum;
-                if (m_logp)
-                    *m_logp << "+ [" << std::setw(2) << listp->m_bucketsNum << "] Work List #"
+        إذا (m_logp) *m_logp << "Buckets assigned to Work Lists:\n";
+        صحيح دستیاب_Buckets = v3Global.opt.outputGroups();
+        لكل (WorkList* listp : m_concatenable_Lists_By_Desc_ناپ) {
+            إذا (دستیاب_Buckets > 0 && ideal_بالٹی_Score > 0) {
+                listp->m_buckets_عدد = std::min(
+                    دستیاب_Buckets, std::max<صحيح>(1, listp->m_کل_Score / ideal_بالٹی_Score));
+                دستیاب_Buckets -= listp->m_buckets_عدد;
+                إذا (m_logp)
+                    *m_logp << "+ [" << std::setw(2) << listp->m_buckets_عدد << "] Work List #"
                             << listp->m_dbgId << '\n';
-            } else {
+            } وإلا {
                 // Out of buckets. Instead of recalculating everything just exclude the list.
-                listp->m_isConcatenable = false;
-                if (m_logp)
-                    *m_logp << "+ [ 0] Work List #" << std::left << std::setw(4) << listp->m_dbgId
-                            << std::right << " (excluding from concatenation)\n";
+                listp->m_isConcatenable = خطأ;
+                إذا (m_logp)
+                    *m_logp << "+ [ 0] Work List #" << std::کھبے << std::setw(4) << listp->m_dbgId
+                            << std::سجے << " (excluding from concatenation)\n";
             }
         }
-        if (m_logp) *m_logp << '\n';
+        إذا (m_logp) *m_logp << '\n';
     }
 
-    void buildOutputList() {
+    فراغ buildOutputList() {
         // Assign files to buckets and build final list of files
 
         // At this point the workLists contains concatenatable file lists separated by one or more
         // non-concatenable file lists. Each concatenatable list has N buckets (where N > 0)
         // assigned to it, which have to be filled with files from this list. Ideally, sum of file
         // scores in every bucket should be the same.
-        for (WorkList& list : m_workLists) {
-            if (!list.m_isConcatenable) {
-                for (const FilenameWithScore& file : list.m_files) {
-                    m_outputFiles.push_back({std::move(file.m_filename), {}});
+        لكل (WorkList& list : m_workLists) {
+            إذا (!list.m_isConcatenable) {
+                لكل (ثابت FilenameWithScore& file : list.m_files) {
+                    m_outputFiles.ڈالو_پٹھ({std::move(file.m_filename), {}});
                 }
-                continue;
+                استمر;
             }
 
             // Ideal bucket score limited to buckets and score of the current Work List.
-            const uint64_t listIdealBucketScore = list.m_totalScore / list.m_bucketsNum;
+            ثابت uint64_t list_Ideal_بالٹی_Score = list.m_کل_Score / list.m_buckets_عدد;
 
-            std::vector<std::vector<const FilenameWithScore*>> buckets;
-            auto fileIt = list.m_files.cbegin();
-            for (int i = 0; i < list.m_bucketsNum; ++i) {
-                std::vector<const FilenameWithScore*> bucket;
-                uint64_t bucketScore = 0;
+            std::سمتیہ<std::سمتیہ<ثابت FilenameWithScore*>> buckets;
+            خودکار fileIt = list.m_files.cbegin();
+            لكل (صحيح i = 0; i < list.m_buckets_عدد; ++i) {
+                std::سمتیہ<ثابت FilenameWithScore*> بالٹی;
+                uint64_t بالٹی_Score = 0;
 
-                for (; fileIt != list.m_files.cend(); ++fileIt) {
-                    const uint64_t diffNow
-                        = std::abs(static_cast<int64_t>(listIdealBucketScore - bucketScore));
-                    const uint64_t diffIfAdded = std::abs(static_cast<int64_t>(
-                        listIdealBucketScore - bucketScore - fileIt->m_score));
-                    if (bucketScore == 0 || fileIt->m_score == 0 || diffNow > diffIfAdded) {
+                لكل (; fileIt != list.m_files.cend(); ++fileIt) {
+                    ثابت uint64_t diffNow
+                        = std::مطلق_قدر(static_cast<int64_t>(list_Ideal_بالٹی_Score - بالٹی_Score));
+                    ثابت uint64_t diffIfAdded = std::مطلق_قدر(static_cast<int64_t>(
+                        list_Ideal_بالٹی_Score - بالٹی_Score - fileIt->m_score));
+                    إذا (بالٹی_Score == 0 || fileIt->m_score == 0 || diffNow > diffIfAdded) {
                         // Bucket score will be better with the file in it.
-                        bucketScore += fileIt->m_score;
-                        bucket.push_back(&*fileIt);
-                    } else {
+                        بالٹی_Score += fileIt->m_score;
+                        بالٹی.ڈالو_پٹھ(&*fileIt);
+                    } وإلا {
                         // Best possible bucket score reached, process next bucket.
-                        break;
+                        اكسر;
                     }
                 }
 
                 // Most likely no bucket will be empty in normal situations. If it happen the
                 // bucket will just be dropped, as it creates no output.
-                buckets.push_back(std::move(bucket));
+                buckets.ڈالو_پٹھ(std::move(بالٹی));
             }
-            for (; fileIt != list.m_files.cend(); ++fileIt) {
+            لكل (; fileIt != list.m_files.cend(); ++fileIt) {
                 // The Work List is out of buckets, but some files were left.
                 // Add them to the last bucket.
-                buckets.back().push_back(&*fileIt);
+                buckets.پٹھ().ڈالو_پٹھ(&*fileIt);
             }
-            for (const std::vector<const FilenameWithScore*>& bucket : buckets) {
-                addBucketGroups(bucket);
+            لكل (ثابت std::سمتیہ<ثابت FilenameWithScore*>& بالٹی : buckets) {
+                جوڑو_بالٹی_Groups(بالٹی);
             }
         }
     }
 
-    void addBucketGroups(const std::vector<const FilenameWithScore*>& bucket) {
+    فراغ جوڑو_بالٹی_Groups(ثابت std::سمتیہ<ثابت FilenameWithScore*>& بالٹی) {
         // Concatenate the files of a bucket, keeping their order. A new group is started
         // whenever the next file would make the current one larger than m_maxGroupBytes. A
         // group with only one file is not concatenated.
-        std::vector<std::vector<std::string>> groups;
-        uint64_t groupBytes = 0;
-        for (const FilenameWithScore* const filep : bucket) {
-            if (groups.empty() || groupBytes + filep->m_sizeBytes > m_maxGroupBytes) {
-                groups.emplace_back();
-                groupBytes = 0;
+        std::سمتیہ<std::سمتیہ<std::string>> groups;
+        uint64_t گروہ_بائٹاں = 0;
+        لكل (ثابت FilenameWithScore* ثابت filep : بالٹی) {
+            إذا (groups.خالی_تھاواں() || گروہ_بائٹاں + filep->m_ناپ_بائٹاں > m_max_گروہ_بائٹاں) {
+                groups.emplace_پٹھ();
+                گروہ_بائٹاں = 0;
             }
-            groupBytes += filep->m_sizeBytes;
-            groups.back().push_back(filep->m_filename);
+            گروہ_بائٹاں += filep->m_ناپ_بائٹاں;
+            groups.پٹھ().ڈالو_پٹھ(filep->m_filename);
         }
-        for (std::vector<std::string>& group : groups) {
-            if (group.size() == 1) {
-                m_outputFiles.push_back({std::move(group.front()), {}});
-            } else {
-                m_outputFiles.push_back({groupFilename(m_groupNum++), std::move(group)});
+        لكل (std::سمتیہ<std::string>& گروہ : groups) {
+            إذا (گروہ.ناپ() == 1) {
+                m_outputFiles.ڈالو_پٹھ({std::move(گروہ.front()), {}});
+            } وإلا {
+                m_outputFiles.ڈالو_پٹھ({گروہ_Filename(m_گروہ_عدد++), std::move(گروہ)});
             }
         }
     }
 
-    void assertFilesSame() const {
-        auto ifIt = m_inputFiles.begin();
-        auto ofIt = m_outputFiles.begin();
-        while (ifIt != m_inputFiles.end() && ofIt != m_outputFiles.end()) {
-            if (ofIt->isConcatenatingFile()) {
-                for (const string& ocf : ofIt->m_concatenatedFilenames) {
-                    UASSERT(ifIt != m_inputFiles.end(),
+    فراغ assertFilesSame() ثابت {
+        خودکار ifIt = m_داخلہ_Files.begin();
+        خودکار دا_It = m_outputFiles.begin();
+        طالما (ifIt != m_داخلہ_Files.سرا() && دا_It != m_outputFiles.سرا()) {
+            إذا (دا_It->isConcatenatingFile()) {
+                لكل (ثابت string& ocf : دا_It->m_concatenatedFilenames) {
+                    UASSERT(ifIt != m_داخلہ_Files.سرا(),
                             "More output files than input files. First extra file: " << ocf);
                     UASSERT(ifIt->m_filename == ocf,
                             "Name mismatch: " << ifIt->m_filename << " != " << ocf);
                     ++ifIt;
                 }
-                ++ofIt;
-            } else {
-                UASSERT(ifIt->m_filename == ofIt->m_filename,
-                        "Name mismatch: " << ifIt->m_filename << " != " << ofIt->m_filename);
+                ++دا_It;
+            } وإلا {
+                UASSERT(ifIt->m_filename == دا_It->m_filename,
+                        "Name mismatch: " << ifIt->m_filename << " != " << دا_It->m_filename);
                 ++ifIt;
-                ++ofIt;
+                ++دا_It;
             }
         }
-        UASSERT(ifIt == m_inputFiles.end(),
+        UASSERT(ifIt == m_داخلہ_Files.سرا(),
                 "More input files than input files. First extra file: " << ifIt->m_filename);
-        UASSERT(ofIt == m_outputFiles.end(),
-                "More output files than input files. First extra file: " << ofIt->m_filename);
+        UASSERT(دا_It == m_outputFiles.سرا(),
+                "More output files than input files. First extra file: " << دا_It->m_filename);
     }
 
-    void process() {
-        UINFO(4, __FUNCTION__ << " group file prefix: " << m_groupFilePrefix);
-        UINFO(5, "Number of input files: " << m_inputFiles.size());
-        UINFO(5, "Total score: " << m_totalScore);
+    فراغ process() {
+        UINFO(4, __FUNCTION__ << " group file prefix: " << m_گروہ_File_اگیتر);
+        UINFO(5, "Number of input files: " << m_داخلہ_Files.ناپ());
+        UINFO(5, "Total score: " << m_کل_Score);
 
-        const int totalBucketsNum = v3Global.opt.outputGroups();
-        UINFO(5, "Number of buckets: " << totalBucketsNum);
-        UASSERT(totalBucketsNum > 0, "More than 0 buckets required");
+        ثابت صحيح کل_Buckets_عدد = v3Global.opt.outputGroups();
+        UINFO(5, "Number of buckets: " << کل_Buckets_عدد);
+        UASSERT(کل_Buckets_عدد > 0, "More than 0 buckets required");
 
-        if (fallbackNoGrouping(m_inputFiles.size())) return;
+        إذا (fallbackNoGrouping(m_داخلہ_Files.ناپ())) أرجع;
 
-        if (debug() >= 6 || dumpLevel() >= 6) {
-            const string filename = v3Global.debugFilename("outputgroup") + ".txt";
+        إذا (debug() >= 6 || dumpLevel() >= 6) {
+            ثابت string filename = v3Global.debugFilename("outputgroup") + ".txt";
             UINFO(5, "Dumping " << filename);
             m_logp = std::unique_ptr<std::ofstream>{V3File::new_ofstream(filename)};
-            if (m_logp->fail()) v3fatal("Can't write file: " << filename);
+            إذا (m_logp->fail()) v3fatal("Can't write file: " << filename);
         }
 
-        if (m_logp) dumpLogScoreHistogram(*m_logp);
+        إذا (m_logp) dumpLogScoreHistogram(*m_logp);
 
         createWorkLists();
 
         // Collect stats and mark lists with only one file as non-concatenable
-        size_t concatenableFilesCount = 0;
-        int64_t concatenableFilesTotalScore = 0;
+        ناپ_t concatenable_Files_گنتی = 0;
+        int64_t concatenable_Files_کل_Score = 0;
 
-        for (WorkList& list : m_workLists) {
-            if (!list.m_isConcatenable) continue;
+        لكل (WorkList& list : m_workLists) {
+            إذا (!list.m_isConcatenable) استمر;
 
             // "Concatenation" of a single file is pointless
-            if (list.m_files.size() == 1) {
-                list.m_isConcatenable = false;
+            إذا (list.m_files.ناپ() == 1) {
+                list.m_isConcatenable = خطأ;
                 UINFO(5, "Excluding from concatenation: Work List contains only one file: "
                          "Work List #"
                              << list.m_dbgId);
-                continue;
+                استمر;
             }
 
-            concatenableFilesCount += list.m_files.size();
-            concatenableFilesTotalScore += list.m_totalScore;
+            concatenable_Files_گنتی += list.m_files.ناپ();
+            concatenable_Files_کل_Score += list.m_کل_Score;
             // This vector is sorted below
-            m_concatenableListsByDescSize.push_back(&list);
+            m_concatenable_Lists_By_Desc_ناپ.ڈالو_پٹھ(&list);
         }
 
-        if (m_logp) dumpWorkLists(*m_logp);
+        إذا (m_logp) dumpWorkLists(*m_logp);
 
         // Check concatenation conditions again using more precise data
-        if (fallbackNoGrouping(concatenableFilesCount)) return;
+        إذا (fallbackNoGrouping(concatenable_Files_گنتی)) أرجع;
 
-        std::sort(m_concatenableListsByDescSize.begin(), m_concatenableListsByDescSize.end(),
-                  [](const WorkList* ap, const WorkList* bp) {
+        std::ترتیب_دیو(m_concatenable_Lists_By_Desc_ناپ.begin(), m_concatenable_Lists_By_Desc_ناپ.سرا(),
+                  [](ثابت WorkList* ap, ثابت WorkList* bp) {
                       // Sort in descending order by number of files
-                      if (ap->m_files.size() != bp->m_files.size())
-                          return (ap->m_files.size() > bp->m_files.size());
+                      إذا (ap->m_files.ناپ() != bp->m_files.ناپ())
+                          أرجع (ap->m_files.ناپ() > bp->m_files.ناپ());
                       // As a fallback sort in ascending order by totalSize. This makes lists
                       // with higher score more likely to be excluded.
-                      return bp->m_totalScore > ap->m_totalScore;
+                      أرجع bp->m_کل_Score > ap->m_کل_Score;
                   });
 
-        assignBuckets(concatenableFilesTotalScore);
+        سونپو_Buckets(concatenable_Files_کل_Score);
 
         buildOutputList();
 
-        if (m_logp) dumpOutputList(*m_logp);
+        إذا (m_logp) dumpOutputList(*m_logp);
         assertFilesSame();
     }
 
-public:
-    static std::vector<FileOrConcatenatedFilesList>
-    singleConcatenatedFilesList(std::vector<FilenameWithScore> inputFiles, uint64_t totalScore,
-                                const std::string& groupFilePrefix, uint64_t maxGroupBytes) {
-        EmitGroup group{std::move(inputFiles), totalScore, groupFilePrefix, maxGroupBytes};
-        group.process();
-        return group.m_outputFiles;
+عام:
+    ساكن std::سمتیہ<FileOrConcatenatedFilesList>
+    singleConcatenatedFilesList(std::سمتیہ<FilenameWithScore> داخلہ_Files, uint64_t کل_Score,
+                                ثابت std::string& گروہ_File_اگیتر, uint64_t max_گروہ_بائٹاں) {
+        Emit_گروہ گروہ{std::move(داخلہ_Files), کل_Score, گروہ_File_اگیتر, max_گروہ_بائٹاں};
+        گروہ.process();
+        أرجع گروہ.m_outputFiles;
     }
 };
 
 // ######################################################################
 //  Emit statements and expressions
 
-class EmitMk final {
-    using FileOrConcatenatedFilesList = EmitGroup::FileOrConcatenatedFilesList;
-    using FilenameWithScore = EmitGroup::FilenameWithScore;
+صنف EmitMk final {
+    ورتوں FileOrConcatenatedFilesList = Emit_گروہ::FileOrConcatenatedFilesList;
+    ورتوں FilenameWithScore = Emit_گروہ::FilenameWithScore;
 
     // MEMBERS
-    double m_putClassCount = 0;  // Number of classEntries printed
+    مزدوج m_put_Class_گنتی = 0;  // Number of classEntries printed
 
-public:
+عام:
     // METHODS
 
-    static void emitConcatenatingFile(const FileOrConcatenatedFilesList& entry) {
-        UASSERT(entry.isConcatenatingFile(), "Passed entry does not represent concatenating file");
+    ساكن فراغ emitConcatenatingFile(ثابت FileOrConcatenatedFilesList& اندراج) {
+        UASSERT(اندراج.isConcatenatingFile(), "Passed entry does not represent concatenating file");
 
-        V3OutCFile concatenatingFile{v3Global.opt.makeDir() + "/" + entry.m_filename + ".cpp"};
-        concatenatingFile.putsHeader();
-        for (const string& file : entry.m_concatenatedFilenames) {
+        V3_باہرلا_CFile concatenatingFile{v3Global.opt.makeDir() + "/" + اندراج.m_filename + ".cpp"};
+        concatenatingFile.puts_سرخی();
+        لكل (ثابت string& file : اندراج.m_concatenatedFilenames) {
             concatenatingFile.puts("#include \"" + file + ".cpp\"\n");
         }
     }
 
-    static uint64_t fileSize(const AstCFile* cfilep) {
+    ساكن uint64_t file_ناپ(ثابت AstCFile* cfilep) {
         // All C++ files are already written, so take their size from the file system
-        std::ifstream ifs{cfilep->name(), std::ios::binary | std::ios::ate};
+        std::ifstream ifs{cfilep->name(), std::ios::ثنائی | std::ios::ate};
         UASSERT_OBJ(ifs.is_open(), cfilep, "Cannot open generated file");
-        return static_cast<uint64_t>(ifs.tellg());
+        أرجع static_cast<uint64_t>(ifs.tellg());
     }
 
-    void putMakeClassEntry(V3OutMkFile& of, const string& name) {
-        of.puts("  " + V3Os::filenameNonDirExt(name) + " \\\n");
-        ++m_putClassCount;
+    فراغ put_Make_Class_اندراج(V3_باہرلا_Mk_File& دا, ثابت string& name) {
+        دا.puts("  " + V3Os::filenameNonDirExt(name) + " \\\n");
+        ++m_put_Class_گنتی;
     }
 
-    void emitClassMake() {
-        std::vector<FileOrConcatenatedFilesList> vmClassesSlowList;
-        std::vector<FileOrConcatenatedFilesList> vmClassesFastList;
-        if (v3Global.opt.outputGroups() > 0) {
-            std::vector<FilenameWithScore> slowFiles;
-            std::vector<FilenameWithScore> fastFiles;
-            uint64_t slowTotalScore = 0;
-            uint64_t fastTotalScore = 0;
+    فراغ emitClassMake() {
+        std::سمتیہ<FileOrConcatenatedFilesList> vmClassesSlowList;
+        std::سمتیہ<FileOrConcatenatedFilesList> vmClassesFastList;
+        إذا (v3Global.opt.outputGroups() > 0) {
+            std::سمتیہ<FilenameWithScore> slowFiles;
+            std::سمتیہ<FilenameWithScore> fastFiles;
+            uint64_t slow_کل_Score = 0;
+            uint64_t fast_کل_Score = 0;
             // Generated headers are part of every translation unit through the precompiled header
-            uint64_t headerBytes = 0;
+            uint64_t سرخی_بائٹاں = 0;
 
-            for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-                 nodep = VN_AS(nodep->nextp(), NodeFile)) {
-                const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-                if (cfilep && VString::endsWith(cfilep->name(), ".h")) {
-                    headerBytes += fileSize(cfilep);
+            لكل (Ast_گرہ_File* nodep = v3Global.rootp()->filesp(); nodep;
+                 nodep = VN_AS(nodep->nextp(), گرہ_File)) {
+                ثابت AstCFile* ثابت cfilep = VN_CAST(nodep, CFile);
+                إذا (cfilep && VString::سرے_With(cfilep->name(), ".h")) {
+                    سرخی_بائٹاں += file_ناپ(cfilep);
                 }
-                if (cfilep && cfilep->source() && cfilep->support() == false) {
-                    std::vector<FilenameWithScore>& files = cfilep->slow() ? slowFiles : fastFiles;
-                    uint64_t& totalScore = cfilep->slow() ? slowTotalScore : fastTotalScore;
+                إذا (cfilep && cfilep->سروت() && cfilep->support() == خطأ) {
+                    std::سمتیہ<FilenameWithScore>& files = cfilep->slow() ? slowFiles : fastFiles;
+                    uint64_t& کل_Score = cfilep->slow() ? slow_کل_Score : fast_کل_Score;
 
-                    totalScore += cfilep->complexityScore();
-                    files.push_back({V3Os::filenameNonDirExt(cfilep->name()),
-                                     cfilep->complexityScore(), fileSize(cfilep)});
+                    کل_Score += cfilep->complexityScore();
+                    files.ڈالو_پٹھ({V3Os::filenameNonDirExt(cfilep->name()),
+                                     cfilep->complexityScore(), file_ناپ(cfilep)});
                 }
             }
             // Zero size limit means unlimited
-            uint64_t maxGroupBytes = std::numeric_limits<uint64_t>::max();
-            if (v3Global.opt.outputGroupsSize()) {
-                const uint64_t maxTuBytes = static_cast<uint64_t>(v3Global.opt.outputGroupsSize());
-                maxGroupBytes = maxTuBytes > headerBytes ? maxTuBytes - headerBytes : 0;
+            uint64_t max_گروہ_بائٹاں = std::numeric_limits<uint64_t>::max();
+            إذا (v3Global.opt.output_Groups_ناپ()) {
+                ثابت uint64_t max_Tu_بائٹاں = static_cast<uint64_t>(v3Global.opt.output_Groups_ناپ());
+                max_گروہ_بائٹاں = max_Tu_بائٹاں > سرخی_بائٹاں ? max_Tu_بائٹاں - سرخی_بائٹاں : 0;
             }
 
-            vmClassesSlowList = EmitGroup::singleConcatenatedFilesList(
-                std::move(slowFiles), slowTotalScore, "vm_classes_Slow_", maxGroupBytes);
-            vmClassesFastList = EmitGroup::singleConcatenatedFilesList(
-                std::move(fastFiles), fastTotalScore, "vm_classes_", maxGroupBytes);
+            vmClassesSlowList = Emit_گروہ::singleConcatenatedFilesList(
+                std::move(slowFiles), slow_کل_Score, "vm_classes_Slow_", max_گروہ_بائٹاں);
+            vmClassesFastList = Emit_گروہ::singleConcatenatedFilesList(
+                std::move(fastFiles), fast_کل_Score, "vm_classes_", max_گروہ_بائٹاں);
         }
 
         // Generate the makefile
-        V3OutMkFile of{v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + "_classes.mk"};
-        of.putsHeader();
-        of.puts("# DESCR"
+        V3_باہرلا_Mk_File دا{v3Global.opt.makeDir() + "/" + v3Global.opt.اگیتر() + "_classes.mk"};
+        دا.puts_سرخی();
+        دا.puts("# DESCR"
                 "IPTION: Verilator output: Make include file with class lists\n");
-        of.puts("#\n");
-        of.puts("# This file lists generated Verilated files, for including "
+        دا.puts("#\n");
+        دا.puts("# This file lists generated Verilated files, for including "
                 "in higher level makefiles.\n");
-        of.puts("# See " + v3Global.opt.prefix() + ".mk" + " for the caller.\n");
+        دا.puts("# See " + v3Global.opt.اگیتر() + ".mk" + " for the caller.\n");
 
-        of.puts("\n### Switches...\n");
-        of.puts("# C11 constructs required?  0/1 (always on now)\n");
-        of.putSet("VM_C11", "1");
-        of.puts("# Timing enabled?  0/1\n");
-        of.putSet("VM_TIMING", v3Global.usesTiming() ? "1" : "0");
-        of.puts("# Coverage output mode?  0/1 (from --coverage)\n");
-        of.putSet("VM_COVERAGE", v3Global.opt.coverage() ? "1" : "0");
-        of.puts("# Parallel builds?  0/1 (from --output-split)\n");
-        of.putSet("VM_PARALLEL_BUILDS", v3Global.useParallelBuild() ? "1" : "0");
-        of.puts("# Tracing output mode?  0/1 (from --trace-fst/--trace-saif/--trace-vcd)\n");
-        of.putSet("VM_TRACE", v3Global.opt.trace() ? "1" : "0");
-        of.puts("# Tracing output mode in FST format?  0/1 (from --trace-fst)\n");
-        of.putSet("VM_TRACE_FST", v3Global.opt.traceEnabledFst() ? "1" : "0");
-        of.puts("# Tracing output mode in SAIF format?  0/1 (from --trace-saif)\n");
-        of.putSet("VM_TRACE_SAIF", v3Global.opt.traceEnabledSaif() ? "1" : "0");
-        of.puts("# Tracing output mode in VCD format?  0/1 (from --trace-vcd)\n");
-        of.putSet("VM_TRACE_VCD", v3Global.opt.traceEnabledVcd() ? "1" : "0");
-        of.puts("# VPI enabled?  0/1 (from --vpi)\n");
-        of.putSet("VM_VPI", v3Global.opt.vpi() ? "1" : "0");
+        دا.puts("\n### Switches...\n");
+        دا.puts("# C11 constructs required?  0/1 (always on now)\n");
+        دا.put_سیٹ("VM_C11", "1");
+        دا.puts("# Timing enabled?  0/1\n");
+        دا.put_سیٹ("VM_TIMING", v3Global.ورتدا_Timing() ? "1" : "0");
+        دا.puts("# Coverage output mode?  0/1 (from --coverage)\n");
+        دا.put_سیٹ("VM_COVERAGE", v3Global.opt.coverage() ? "1" : "0");
+        دا.puts("# Parallel builds?  0/1 (from --output-split)\n");
+        دا.put_سیٹ("VM_PARALLEL_BUILDS", v3Global.useParallelBuild() ? "1" : "0");
+        دا.puts("# Tracing output mode?  0/1 (from --trace-fst/--trace-saif/--trace-vcd)\n");
+        دا.put_سیٹ("VM_TRACE", v3Global.opt.trace() ? "1" : "0");
+        دا.puts("# Tracing output mode in FST format?  0/1 (from --trace-fst)\n");
+        دا.put_سیٹ("VM_TRACE_FST", v3Global.opt.traceEnabledFst() ? "1" : "0");
+        دا.puts("# Tracing output mode in SAIF format?  0/1 (from --trace-saif)\n");
+        دا.put_سیٹ("VM_TRACE_SAIF", v3Global.opt.traceEnabledSaif() ? "1" : "0");
+        دا.puts("# Tracing output mode in VCD format?  0/1 (from --trace-vcd)\n");
+        دا.put_سیٹ("VM_TRACE_VCD", v3Global.opt.traceEnabledVcd() ? "1" : "0");
+        دا.puts("# VPI enabled?  0/1 (from --vpi)\n");
+        دا.put_سیٹ("VM_VPI", v3Global.opt.vpi() ? "1" : "0");
         // Link flags for runtime VPI library loading are emitted by emitOverallMake() after
         // verilated.mk is included (so $(CFG_LDFLAGS_DYNAMIC)/$(CFG_LDLIBS_DYNAMIC) are defined).
 
-        of.puts("\n### Object file lists...\n");
-        for (int support = 0; support < 3; ++support) {
-            for (const bool& slow : {false, true}) {
-                if (support == 2) {
-                    of.puts("# Global classes, need linked once per executable");
-                } else if (support) {
-                    of.puts("# Generated support classes");
-                } else {
-                    of.puts("# Generated module classes");
+        دا.puts("\n### Object file lists...\n");
+        لكل (صحيح support = 0; support < 3; ++support) {
+            لكل (ثابت منطقي& slow : {خطأ, سچ}) {
+                إذا (support == 2) {
+                    دا.puts("# Global classes, need linked once per executable");
+                } وإلا إذا (support) {
+                    دا.puts("# Generated support classes");
+                } وإلا {
+                    دا.puts("# Generated module classes");
                 }
-                if (slow) {
-                    of.puts(", non-fast-path, compile with low/medium optimization\n");
-                } else {
-                    of.puts(", fast-path, compile with highest optimization\n");
+                إذا (slow) {
+                    دا.puts(", non-fast-path, compile with low/medium optimization\n");
+                } وإلا {
+                    دا.puts(", fast-path, compile with highest optimization\n");
                 }
-                const string targetVar = (support == 2   ? "VM_GLOBAL"s
+                ثابت string نشانہ_Var = (support == 2   ? "VM_GLOBAL"s
                                           : support == 1 ? "VM_SUPPORT"s
                                                          : "VM_CLASSES"s)
                                          + (slow ? "_SLOW" : "_FAST");
-                m_putClassCount = 0;
-                of.puts(targetVar + " += \\\n");
-                if (support == 2 && v3Global.opt.hierChild()) {
+                m_put_Class_گنتی = 0;
+                دا.puts(نشانہ_Var + " += \\\n");
+                إذا (support == 2 && v3Global.opt.hier_بچہ()) {
                     // Do nothing because VM_GLOBAL is necessary per executable. Top module will
                     // have them.
-                } else if (support == 2 && !slow) {
-                    for (const string& cpp : v3Global.verilatedCppFiles())
-                        putMakeClassEntry(of, cpp);
-                } else if (support == 2 && slow) {
-                } else if (support == 0 && v3Global.opt.outputGroups() > 0) {
-                    const std::vector<FileOrConcatenatedFilesList>& list
+                } وإلا إذا (support == 2 && !slow) {
+                    لكل (ثابت string& cpp : v3Global.verilatedCppFiles())
+                        put_Make_Class_اندراج(دا, cpp);
+                } وإلا إذا (support == 2 && slow) {
+                } وإلا إذا (support == 0 && v3Global.opt.outputGroups() > 0) {
+                    ثابت std::سمتیہ<FileOrConcatenatedFilesList>& list
                         = slow ? vmClassesSlowList : vmClassesFastList;
-                    for (const FileOrConcatenatedFilesList& entry : list) {
-                        if (entry.isConcatenatingFile()) emitConcatenatingFile(entry);
-                        putMakeClassEntry(of, entry.m_filename);
+                    لكل (ثابت FileOrConcatenatedFilesList& اندراج : list) {
+                        إذا (اندراج.isConcatenatingFile()) emitConcatenatingFile(اندراج);
+                        put_Make_Class_اندراج(دا, اندراج.m_filename);
                     }
-                } else {
-                    for (AstNodeFile* nodep = v3Global.rootp()->filesp(); nodep;
-                         nodep = VN_AS(nodep->nextp(), NodeFile)) {
-                        const AstCFile* const cfilep = VN_CAST(nodep, CFile);
-                        if (cfilep && cfilep->source() && cfilep->slow() == (slow != 0)
+                } وإلا {
+                    لكل (Ast_گرہ_File* nodep = v3Global.rootp()->filesp(); nodep;
+                         nodep = VN_AS(nodep->nextp(), گرہ_File)) {
+                        ثابت AstCFile* ثابت cfilep = VN_CAST(nodep, CFile);
+                        إذا (cfilep && cfilep->سروت() && cfilep->slow() == (slow != 0)
                             && cfilep->support() == (support != 0)) {
-                            putMakeClassEntry(of, cfilep->name());
+                            put_Make_Class_اندراج(دا, cfilep->name());
                         }
                     }
                 }
-                of.puts("\n");
-                V3Stats::addStat("Makefile targets, " + targetVar, m_putClassCount);
+                دا.puts("\n");
+                V3Stats::جوڑو_Stat("Makefile targets, " + نشانہ_Var, m_put_Class_گنتی);
             }
         }
 
-        of.putsHeader();
+        دا.puts_سرخی();
     }
 
-    void emitOverallMake() {
+    فراغ emitOverallMake() {
         // Generate the makefile
-        V3OutMkFile of{v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + ".mk"};
-        of.putsHeader();
-        of.puts("# DESCR"
+        V3_باہرلا_Mk_File دا{v3Global.opt.makeDir() + "/" + v3Global.opt.اگیتر() + ".mk"};
+        دا.puts_سرخی();
+        دا.puts("# DESCR"
                 "IPTION: Verilator output: "
                 "Makefile for building Verilated archive or executable\n");
-        of.puts("#\n");
-        of.puts("# Execute this makefile from the object directory:\n");
-        of.puts("#    make -f " + v3Global.opt.prefix() + ".mk" + "\n");
-        of.puts("\n");
+        دا.puts("#\n");
+        دا.puts("# Execute this makefile from the object directory:\n");
+        دا.puts("#    make -f " + v3Global.opt.اگیتر() + ".mk" + "\n");
+        دا.puts("\n");
 
-        if (v3Global.opt.exe()) {
-            of.puts("default: " + v3Global.opt.exeName() + "\n");
-        } else if (!v3Global.opt.libCreate().empty()) {
-            of.puts("default: lib" + v3Global.opt.libCreate() + "\n");
-        } else {
-            of.puts("default: lib" + v3Global.opt.prefix() + "\n");
+        إذا (v3Global.opt.exe()) {
+            دا.puts("default: " + v3Global.opt.exeName() + "\n");
+        } وإلا إذا (!v3Global.opt.libCreate().خالی_تھاواں()) {
+            دا.puts("default: lib" + v3Global.opt.libCreate() + "\n");
+        } وإلا {
+            دا.puts("default: lib" + v3Global.opt.اگیتر() + "\n");
         }
-        of.puts("\n### Constants...\n");
-        of.puts("# Perl executable (from $PERL, defaults to 'perl' if not set)\n");
-        of.putSet("PERL", V3OutFormatter::quoteNameControls(V3Options::getenvPERL()));
-        of.puts("# Python3 executable (from $PYTHON3, defaults to 'python3' if not set)\n");
-        of.putSet("PYTHON3", V3OutFormatter::quoteNameControls(V3Options::getenvPYTHON3()));
-        of.puts("# Path to Verilator kit (from $VERILATOR_ROOT)\n");
-        of.putSet("VERILATOR_ROOT",
-                  V3OutFormatter::quoteNameControls(V3Options::getenvVERILATOR_ROOT()));
-        of.puts("# SystemC include directory with systemc.h (from $SYSTEMC_INCLUDE)\n");
-        of.putSetQ("SYSTEMC_INCLUDE", V3Options::getenvSYSTEMC_INCLUDE());
-        of.puts("# SystemC library directory with libsystemc.a (from $SYSTEMC_LIBDIR)\n");
-        of.putSetQ("SYSTEMC_LIBDIR", V3Options::getenvSYSTEMC_LIBDIR());
+        دا.puts("\n### Constants...\n");
+        دا.puts("# Perl executable (from $PERL, defaults to 'perl' if not set)\n");
+        دا.put_سیٹ("PERL", V3_باہرلا_Formatter::quoteNameControls(V3Options::getenvPERL()));
+        دا.puts("# Python3 executable (from $PYTHON3, defaults to 'python3' if not set)\n");
+        دا.put_سیٹ("PYTHON3", V3_باہرلا_Formatter::quoteNameControls(V3Options::getenvPYTHON3()));
+        دا.puts("# Path to Verilator kit (from $VERILATOR_ROOT)\n");
+        دا.put_سیٹ("VERILATOR_ROOT",
+                  V3_باہرلا_Formatter::quoteNameControls(V3Options::getenv_VERILATOR_جڑ()));
+        دا.puts("# SystemC include directory with systemc.h (from $SYSTEMC_INCLUDE)\n");
+        دا.put_سیٹ_Q("SYSTEMC_INCLUDE", V3Options::getenvSYSTEMC_INCLUDE());
+        دا.puts("# SystemC library directory with libsystemc.a (from $SYSTEMC_LIBDIR)\n");
+        دا.put_سیٹ_Q("SYSTEMC_LIBDIR", V3Options::getenvSYSTEMC_LIBDIR());
 
         // Only check it if we really need the value
-        if (v3Global.opt.systemC() && !V3Options::systemCFound()) {
+        إذا (v3Global.opt.systemC() && !V3Options::systemCFound()) {
             v3fatal("Need $SYSTEMC_INCLUDE in environment or when Verilator configured,\n"
                     "and need $SYSTEMC_LIBDIR in environment or when Verilator configured\n"
                     "Probably System-C isn't installed, see https://systemc.org\n");
         }
 
-        of.puts("\n### Switches...\n");
-        of.puts("# C++ code coverage  0/1 (from --prof-c)\n");
-        of.putSet("VM_PROFC", ((v3Global.opt.profC()) ? "1" : "0"));
-        of.puts("# SystemC output mode?  0/1 (from --sc)\n");
-        of.putSet("VM_SC", ((v3Global.opt.systemC()) ? "1" : "0"));
-        of.puts("# Legacy or SystemC output mode?  0/1 (from --sc)\n");
-        of.putSet("VM_SP_OR_SC", "$(VM_SC)");
-        of.puts("# Deprecated\n");
-        of.putSet("VM_PCLI", (v3Global.opt.systemC() ? "0" : "1"));
-        of.puts(
+        دا.puts("\n### Switches...\n");
+        دا.puts("# C++ code coverage  0/1 (from --prof-c)\n");
+        دا.put_سیٹ("VM_PROFC", ((v3Global.opt.profC()) ? "1" : "0"));
+        دا.puts("# SystemC output mode?  0/1 (from --sc)\n");
+        دا.put_سیٹ("VM_SC", ((v3Global.opt.systemC()) ? "1" : "0"));
+        دا.puts("# Legacy or SystemC output mode?  0/1 (from --sc)\n");
+        دا.put_سیٹ("VM_SP_OR_SC", "$(VM_SC)");
+        دا.puts("# Deprecated\n");
+        دا.put_سیٹ("VM_PCLI", (v3Global.opt.systemC() ? "0" : "1"));
+        دا.puts(
             "# Deprecated: SystemC architecture to find link library path (from $SYSTEMC_ARCH)\n");
-        of.putSet("VM_SC_TARGET_ARCH", V3Options::getenvSYSTEMC_ARCH());
+        دا.put_سیٹ("VM_SC_TARGET_ARCH", V3Options::getenvSYSTEMC_ARCH());
 
-        of.puts("\n### Vars...\n");
-        of.puts("# Module prefix (from --prefix)\n");
-        of.putSet("VM_MODPREFIX", v3Global.opt.modPrefix());
-        of.puts("# Design prefix (from --prefix)\n");
-        of.putSet("VM_PREFIX", v3Global.opt.prefix());
-        of.puts("# Design header include, for '#include VM_PREFIX_INCLUDE' (from --prefix)\n");
-        of.putSet("VM_PREFIX_INCLUDE", "<" + v3Global.opt.prefix() + ".h>");
-        if (v3Global.dpi()) {
-            of.puts("# DPI header include, for '#include VM_PREFIX_INCLUDE_DPI';"
+        دا.puts("\n### Vars...\n");
+        دا.puts("# Module prefix (from --prefix)\n");
+        دا.put_سیٹ("VM_MODPREFIX", v3Global.opt.mod_اگیتر());
+        دا.puts("# Design prefix (from --prefix)\n");
+        دا.put_سیٹ("VM_PREFIX", v3Global.opt.اگیتر());
+        دا.puts("# Design header include, for '#include VM_PREFIX_INCLUDE' (from --prefix)\n");
+        دا.put_سیٹ("VM_PREFIX_INCLUDE", "<" + v3Global.opt.اگیتر() + ".h>");
+        إذا (v3Global.dpi()) {
+            دا.puts("# DPI header include, for '#include VM_PREFIX_INCLUDE_DPI';"
                     " undefined if no DPI\n");
-            of.putSet("VM_PREFIX_INCLUDE_DPI", "<" + v3Global.opt.prefix() + "__Dpi.h>");
+            دا.put_سیٹ("VM_PREFIX_INCLUDE_DPI", "<" + v3Global.opt.اگیتر() + "__Dpi.h>");
         }
 
-        of.puts("# User CFLAGS (from -CFLAGS on Verilator command line)\n");
-        of.puts("VM_USER_CFLAGS = \\\n");
-        const std::string solver = V3Options::getenvVERILATOR_SOLVER();
-        if (v3Global.useRandomizeMethods() && solver != "")
-            of.puts("\t-DVM_SOLVER_DEFAULT='\"" + V3OutFormatter::quoteNameControls(solver)
+        دا.puts("# User CFLAGS (from -CFLAGS on Verilator command line)\n");
+        دا.puts("VM_USER_CFLAGS = \\\n");
+        ثابت std::string solver = V3Options::getenvVERILATOR_SOLVER();
+        إذا (v3Global.useRandomizeMethods() && solver != "")
+            دا.puts("\t-DVM_SOLVER_DEFAULT='\"" + V3_باہرلا_Formatter::quoteNameControls(solver)
                     + "\"' \\\n");
-        if (!v3Global.opt.libCreate().empty()) of.puts("\t-fPIC \\\n");
-        const VStringList& cFlags = v3Global.opt.cFlags();
-        for (const string& i : cFlags) of.puts("  " + i + " \\\n");
-        of.puts("\n");
+        إذا (!v3Global.opt.libCreate().خالی_تھاواں()) دا.puts("\t-fPIC \\\n");
+        ثابت VStringList& cFlags = v3Global.opt.cFlags();
+        لكل (ثابت string& i : cFlags) دا.puts("  " + i + " \\\n");
+        دا.puts("\n");
 
-        of.puts("# User LDLIBS (from -LDFLAGS on Verilator command line)\n");
-        of.puts("VM_USER_LDLIBS = \\\n");
-        const VStringList& ldLibs = v3Global.opt.ldLibs();
-        for (const string& i : ldLibs) of.puts("  " + i + " \\\n");
-        of.puts("\n");
+        دا.puts("# User LDLIBS (from -LDFLAGS on Verilator command line)\n");
+        دا.puts("VM_USER_LDLIBS = \\\n");
+        ثابت VStringList& ldLibs = v3Global.opt.ldLibs();
+        لكل (ثابت string& i : ldLibs) دا.puts("  " + i + " \\\n");
+        دا.puts("\n");
 
-        of.puts("# User library files (from .a/.o/.so on Verilator command line)\n");
-        of.puts("# These are also in VM_USER_LDLIBS, and are link dependencies\n");
-        of.puts("VM_USER_LDLIBS_FILES = \\\n");
-        for (const string& i : v3Global.opt.ldLibFiles()) of.puts("  " + i + " \\\n");
-        of.puts("\n");
+        دا.puts("# User library files (from .a/.o/.so on Verilator command line)\n");
+        دا.puts("# These are also in VM_USER_LDLIBS, and are link dependencies\n");
+        دا.puts("VM_USER_LDLIBS_FILES = \\\n");
+        لكل (ثابت string& i : v3Global.opt.ldLibFiles()) دا.puts("  " + i + " \\\n");
+        دا.puts("\n");
 
-        VStringSet dirs;
-        of.puts("# User .cpp files (from .cpp's on Verilator command line)\n");
-        of.puts("VM_USER_CLASSES = \\\n");
-        const VStringSet& cppFiles = v3Global.opt.cppFiles();
-        for (const auto& cppfile : cppFiles) {
-            of.puts("  " + V3Os::filenameNonDirExt(cppfile) + " \\\n");
-            const string dir
-                = V3Os::filenameRelativePath(V3Os::filenameDir(cppfile), v3Global.opt.makeDir());
-            dirs.insert(dir);
+        VString_سیٹ dirs;
+        دا.puts("# User .cpp files (from .cpp's on Verilator command line)\n");
+        دا.puts("VM_USER_CLASSES = \\\n");
+        ثابت VString_سیٹ& cppFiles = v3Global.opt.cppFiles();
+        لكل (ثابت خودکار& cppfile : cppFiles) {
+            دا.puts("  " + V3Os::filenameNonDirExt(cppfile) + " \\\n");
+            ثابت string dir
+                = V3Os::filename_Relative_رستہ(V3Os::filenameDir(cppfile), v3Global.opt.makeDir());
+            dirs.داخل_کرو(dir);
         }
-        dirs.insert(V3Os::filenameRelativePath(".", v3Global.opt.makeDir()));
+        dirs.داخل_کرو(V3Os::filename_Relative_رستہ(".", v3Global.opt.makeDir()));
 
-        of.puts("\n");
+        دا.puts("\n");
 
-        of.puts("# User .cpp directories (from .cpp's on Verilator command line)\n");
-        of.puts("VM_USER_DIR = \\\n");
-        for (const auto& i : dirs) of.puts("  " + i + " \\\n");
-        of.puts("\n");
+        دا.puts("# User .cpp directories (from .cpp's on Verilator command line)\n");
+        دا.puts("VM_USER_DIR = \\\n");
+        لكل (ثابت خودکار& i : dirs) دا.puts("  " + i + " \\\n");
+        دا.puts("\n");
 
-        of.puts("### Default rules...\n");
-        of.puts("# Include list of all generated classes\n");
-        of.puts("include " + v3Global.opt.prefix() + "_classes.mk\n");
-        if (v3Global.opt.hierTop()) {
-            of.puts("# Include rules for hierarchical blocks\n");
-            of.puts("include " + v3Global.opt.prefix() + "_hier.mk\n");
+        دا.puts("### Default rules...\n");
+        دا.puts("# Include list of all generated classes\n");
+        دا.puts("include " + v3Global.opt.اگیتر() + "_classes.mk\n");
+        إذا (v3Global.opt.hier_چوٹی()) {
+            دا.puts("# Include rules for hierarchical blocks\n");
+            دا.puts("include " + v3Global.opt.اگیتر() + "_hier.mk\n");
         }
-        of.puts("# Include global rules\n");
-        of.puts("include $(VERILATOR_ROOT)/include/verilated.mk\n");
+        دا.puts("# Include global rules\n");
+        دا.puts("include $(VERILATOR_ROOT)/include/verilated.mk\n");
 
-        if (v3Global.opt.exe()) {
-            of.puts("\n### Executable rules... (from --exe)\n");
-            of.puts("VPATH += $(VM_USER_DIR)\n");
-            of.puts("\n");
+        إذا (v3Global.opt.exe()) {
+            دا.puts("\n### Executable rules... (from --exe)\n");
+            دا.puts("VPATH += $(VM_USER_DIR)\n");
+            دا.puts("\n");
 
-            if (v3Global.opt.vpi()) {
+            إذا (v3Global.opt.vpi()) {
                 // Runtime VPI library loading (+verilator+vpi+<lib>) needs the executable to
                 // export its VPI symbols so the dlopen'd library can resolve them, plus the
                 // dl library for dlopen/dlsym.  The exact flags are probed at configure time
                 // (CFG_LDFLAGS_DYNAMIC / CFG_LDLIBS_DYNAMIC in verilated.mk).
-                of.puts("# Runtime VPI library loading (+verilator+vpi+) link requirements\n");
-                of.puts("LDFLAGS += $(CFG_LDFLAGS_DYNAMIC)\n");
-                of.puts("LDLIBS += $(CFG_LDLIBS_DYNAMIC)\n");
-                of.puts("\n");
+                دا.puts("# Runtime VPI library loading (+verilator+vpi+) link requirements\n");
+                دا.puts("LDFLAGS += $(CFG_LDFLAGS_DYNAMIC)\n");
+                دا.puts("LDLIBS += $(CFG_LDLIBS_DYNAMIC)\n");
+                دا.puts("\n");
             }
         }
 
-        const string compilerIncludePch
-            = v3Global.opt.compilerIncludes().empty() ? "" : "$(VK_PCH_H).fast.gch";
-        const string compilerIncludeFlag
-            = v3Global.opt.compilerIncludes().empty() ? "" : "$(VK_PCH_I_FAST)";
-        for (const string& cppfile : cppFiles) {
-            const string basename = V3Os::filenameNonDirExt(cppfile);
+        ثابت string compilerIncludePch
+            = v3Global.opt.compilerIncludes().خالی_تھاواں() ? "" : "$(VK_PCH_H).fast.gch";
+        ثابت string compilerIncludeFlag
+            = v3Global.opt.compilerIncludes().خالی_تھاواں() ? "" : "$(VK_PCH_I_FAST)";
+        لكل (ثابت string& cppfile : cppFiles) {
+            ثابت string basename = V3Os::filenameNonDirExt(cppfile);
             // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
-            of.puts(basename + ".o: " + cppfile + " " + compilerIncludePch + "\n");
+            دا.puts(basename + ".o: " + cppfile + " " + compilerIncludePch + "\n");
 
             // NOLINTNEXTLINE(performance-inefficient-string-concatenation)
-            of.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) "
+            دا.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) "
                     + compilerIncludeFlag + " -c -o $@ $<\n");
         }
 
-        if (v3Global.opt.exe()) {
-            of.puts("\n### Link rules... (from --exe)\n");
+        إذا (v3Global.opt.exe()) {
+            دا.puts("\n### Link rules... (from --exe)\n");
             // '{prefix}__ALL.a', contains all hierarchical libraries
-            of.puts(v3Global.opt.exeName()
+            دا.puts(v3Global.opt.exeName()
                     + ": $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a"
                       " $(VM_USER_LDLIBS_FILES)\n");
             // User library files are in LDLIBS, so do not also link them from $^
-            of.puts("\t$(LINK) $(LDFLAGS) $(filter-out $(VM_USER_LDLIBS_FILES),$^) $(LOADLIBES) "
+            دا.puts("\t$(LINK) $(LDFLAGS) $(filter-out $(VM_USER_LDLIBS_FILES),$^) $(LOADLIBES) "
                     "$(LDLIBS) $(LIBS) $(SC_LIBS) -o $@\n");
-            of.puts("\n");
-        } else if (!v3Global.opt.libCreate().empty()) {
-            const string libCreateDeps = "$(VK_OBJS) $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) "
+            دا.puts("\n");
+        } وإلا إذا (!v3Global.opt.libCreate().خالی_تھاواں()) {
+            ثابت string libCreateDeps = "$(VK_OBJS) $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) "
                                          + v3Global.opt.libCreate() + ".o $(VM_HIER_LIBS)";
-            of.puts("\n### Library rules from --lib-create\n");
+            دا.puts("\n### Library rules from --lib-create\n");
             // The rule to create .a is defined in verilated.mk, so just define dependency here.
-            of.puts(v3Global.opt.libCreateName(false) + ": " + libCreateDeps + "\n");
-            of.puts("\n");
-            if (v3Global.opt.hierChild()) {
+            دا.puts(v3Global.opt.libCreateName(خطأ) + ": " + libCreateDeps + "\n");
+            دا.puts("\n");
+            إذا (v3Global.opt.hier_بچہ()) {
                 // Hierarchical child does not need .so because hierTop() will create .so from .a
-                of.puts("lib" + v3Global.opt.libCreate() + ": " + v3Global.opt.libCreateName(false)
+                دا.puts("lib" + v3Global.opt.libCreate() + ": " + v3Global.opt.libCreateName(خطأ)
                         + "\n");
-            } else {
-                of.puts(v3Global.opt.libCreateName(true) + ": " + libCreateDeps + "\n");
+            } وإلا {
+                دا.puts(v3Global.opt.libCreateName(سچ) + ": " + libCreateDeps + "\n");
                 // Linker on mac emits an error if all symbols are not found here,
                 // but some symbols that are referred as "DPI-C" can not be found at this moment.
                 // So add dynamic_lookup
-                of.puts("ifeq ($(shell uname -s),Darwin)\n");
-                of.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -undefined "
+                دا.puts("ifeq ($(shell uname -s),Darwin)\n");
+                دا.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -undefined "
                         "dynamic_lookup -shared $(LDFLAGS) -flat_namespace -o $@ $^ $(LDLIBS) "
                         "$(LIBS)\n");
-                of.puts("else\n");
-                of.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -shared "
+                دا.puts("else\n");
+                دا.puts("\t$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST) -shared "
                         "$(LDFLAGS) -o $@ $^ $(LDLIBS) $(LIBS)\n");
-                of.puts("endif\n");
-                of.puts("\n");
-                of.puts("lib" + v3Global.opt.libCreate() + ": " + v3Global.opt.libCreateName(false)
-                        + " " + v3Global.opt.libCreateName(true) + "\n");
+                دا.puts("endif\n");
+                دا.puts("\n");
+                دا.puts("lib" + v3Global.opt.libCreate() + ": " + v3Global.opt.libCreateName(خطأ)
+                        + " " + v3Global.opt.libCreateName(سچ) + "\n");
             }
-        } else {
-            const string libname = "lib" + v3Global.opt.prefix() + ".a";
-            of.puts("\n### Library rules (default lib mode)\n");
+        } وإلا {
+            ثابت string libname = "lib" + v3Global.opt.اگیتر() + ".a";
+            دا.puts("\n### Library rules (default lib mode)\n");
             // The rule to create .a is defined in verilated.mk, so just define dependency here.
-            of.puts(libname + ": $(VK_OBJS) $(VK_USER_OBJS) $(VM_HIER_LIBS)\n");
-            of.puts("libverilated.a: $(VK_GLOBAL_OBJS)\n");
+            دا.puts(libname + ": $(VK_OBJS) $(VK_USER_OBJS) $(VM_HIER_LIBS)\n");
+            دا.puts("libverilated.a: $(VK_GLOBAL_OBJS)\n");
             // let default rule depend on '{prefix}__ALL.a', for compatibility
-            of.puts("lib" + v3Global.opt.prefix() + ": " + libname
+            دا.puts("lib" + v3Global.opt.اگیتر() + ": " + libname
                     + " libverilated.a $(VM_PREFIX)__ALL.a\n");
         }
 
-        of.putsHeader();
+        دا.puts_سرخی();
     }
 
-    explicit EmitMk() {
+    واضح EmitMk() {
         emitClassMake();
         emitOverallMake();
     }
-    virtual ~EmitMk() = default;
+    مجازی ~EmitMk() = افتراضي;
 };
 
 //######################################################################
 
-class EmitMkHierVerilation final {
-    const V3HierGraph* const m_graphp;
-    const string m_makefile;  // path of this makefile
-    void emitCommonOpts(V3OutMkFile& of) const {
-        of.puts("# Verilation of hierarchical blocks are executed in this directory\n");
-        of.puts("VM_HIER_RUN_DIR := " + V3Os::cwd() + "\n");
-        of.puts("# Common options for hierarchical blocks\n");
-        const string fullpath_bin = V3Os::filenameRealPath(v3Global.opt.buildDepBin());
-        const string verilator_wrapper = V3Os::filenameDir(fullpath_bin) + "/verilator";
-        of.puts("VM_HIER_VERILATOR := " + verilator_wrapper + "\n");
-        of.puts("VM_HIER_INPUT_FILES := \\\n");
-        for (const auto& i : v3Global.opt.vFiles())
-            of.puts("  " + V3Os::filenameRealPath(i.filename()) + " \\\n");
-        of.puts("\n");
-        of.puts("VM_HIER_VERILOG_LIBS := \\\n");
-        for (const auto& i : v3Global.opt.libraryFiles()) {
-            of.puts("  " + V3Os::filenameRealPath(i.filename()) + " \\\n");
+صنف EmitMkHierVerilation final {
+    ثابت V3_Hier_گراف* ثابت m_graphp;
+    ثابت string m_makefile;  // path of this makefile
+    فراغ emitCommonOpts(V3_باہرلا_Mk_File& دا) ثابت {
+        دا.puts("# Verilation of hierarchical blocks are executed in this directory\n");
+        دا.puts("VM_HIER_RUN_DIR := " + V3Os::cwd() + "\n");
+        دا.puts("# Common options for hierarchical blocks\n");
+        ثابت string fullpath_bin = V3Os::filename_Real_رستہ(v3Global.opt.buildDepBin());
+        ثابت string verilator_wrapper = V3Os::filenameDir(fullpath_bin) + "/verilator";
+        دا.puts("VM_HIER_VERILATOR := " + verilator_wrapper + "\n");
+        دا.puts("VM_HIER_INPUT_FILES := \\\n");
+        لكل (ثابت خودکار& i : v3Global.opt.vFiles())
+            دا.puts("  " + V3Os::filename_Real_رستہ(i.filename()) + " \\\n");
+        دا.puts("\n");
+        دا.puts("VM_HIER_VERILOG_LIBS := \\\n");
+        لكل (ثابت خودکار& i : v3Global.opt.libraryFiles()) {
+            دا.puts("  " + V3Os::filename_Real_رستہ(i.filename()) + " \\\n");
         }
-        of.puts("\n");
+        دا.puts("\n");
     }
-    void emitLaunchVerilator(V3OutMkFile& of, const string& argsFile) const {
-        of.puts("\t@$(MAKE) -C $(VM_HIER_RUN_DIR) -f " + m_makefile
+    فراغ emitLaunchVerilator(V3_باہرلا_Mk_File& دا, ثابت string& دلیلاں_File) ثابت {
+        دا.puts("\t@$(MAKE) -C $(VM_HIER_RUN_DIR) -f " + m_makefile
                 + " hier_launch_verilator \\\n");
-        of.puts("\t\tVM_HIER_LAUNCH_VERILATOR_ARGSFILE=\"" + argsFile + "\"\n");
+        دا.puts("\t\tVM_HIER_LAUNCH_VERILATOR_ARGSFILE=\"" + دلیلاں_File + "\"\n");
     }
-    void emit(V3OutMkFile& of) const {
-        of.puts("# Hierarchical Verilation -*- Makefile -*-\n");
-        of.puts("# DESCR"
+    فراغ emit(V3_باہرلا_Mk_File& دا) ثابت {
+        دا.puts("# Hierarchical Verilation -*- Makefile -*-\n");
+        دا.puts("# DESCR"
                 "IPTION: Verilator output: Makefile for hierarchical Verilation\n");
-        of.puts("#\n");
-        of.puts("# The main makefile " + v3Global.opt.prefix() + ".mk calls this makefile\n");
-        of.puts("\n");
-        of.puts("ifndef VM_HIER_VERILATION_INCLUDED\n");
-        of.puts("VM_HIER_VERILATION_INCLUDED = 1\n\n");
+        دا.puts("#\n");
+        دا.puts("# The main makefile " + v3Global.opt.اگیتر() + ".mk calls this makefile\n");
+        دا.puts("\n");
+        دا.puts("ifndef VM_HIER_VERILATION_INCLUDED\n");
+        دا.puts("VM_HIER_VERILATION_INCLUDED = 1\n\n");
 
-        of.puts(".SUFFIXES:\n");
-        of.puts(".PHONY: hier_build hier_verilation hier_launch_verilator\n");
+        دا.puts(".SUFFIXES:\n");
+        دا.puts(".PHONY: hier_build hier_verilation hier_launch_verilator\n");
 
-        of.puts("# Libraries of hierarchical blocks\n");
-        of.puts("VM_HIER_LIBS := \\\n");
-        for (const V3GraphVertex& vtx : m_graphp->vertices()) {
-            const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-            of.puts("  " + blockp->hierLibFilename(true) + " \\\n");
+        دا.puts("# Libraries of hierarchical blocks\n");
+        دا.puts("VM_HIER_LIBS := \\\n");
+        لكل (ثابت V3_گراف_راس& vtx : m_graphp->vertices()) {
+            ثابت V3_Hier_بلاک* ثابت blockp = vtx.as<V3_Hier_بلاک>();
+            دا.puts("  " + blockp->hierLibFilename(سچ) + " \\\n");
         }
-        of.puts("\n");
+        دا.puts("\n");
 
         // Build hierarchical libraries as soon as possible to get maximum parallelism
-        of.puts("hier_build: $(VM_HIER_LIBS) " + v3Global.opt.prefix() + ".mk\n");
-        of.puts("\t$(MAKE) -f " + v3Global.opt.prefix() + ".mk\n");
-        of.puts("hier_verilation: " + v3Global.opt.prefix() + ".mk\n");
-        emitCommonOpts(of);
+        دا.puts("hier_build: $(VM_HIER_LIBS) " + v3Global.opt.اگیتر() + ".mk\n");
+        دا.puts("\t$(MAKE) -f " + v3Global.opt.اگیتر() + ".mk\n");
+        دا.puts("hier_verilation: " + v3Global.opt.اگیتر() + ".mk\n");
+        emitCommonOpts(دا);
 
         // Instead of direct execute of "cd $(VM_HIER_RUN_DIR) && $(VM_HIER_VERILATOR)",
         // call via make to get message of "Entering directory" and "Leaving directory".
         // This will make some editors and IDEs happy when viewing a logfile.
-        of.puts("# VM_HIER_LAUNCH_VERILATOR_ARGSFILE must be passed as a command argument\n");
-        of.puts("hier_launch_verilator:\n");
-        of.puts("\t$(VM_HIER_VERILATOR) -f $(VM_HIER_LAUNCH_VERILATOR_ARGSFILE)\n");
+        دا.puts("# VM_HIER_LAUNCH_VERILATOR_ARGSFILE must be passed as a command argument\n");
+        دا.puts("hier_launch_verilator:\n");
+        دا.puts("\t$(VM_HIER_VERILATOR) -f $(VM_HIER_LAUNCH_VERILATOR_ARGSFILE)\n");
 
         // Top level module
         {
-            const string argsFile = v3Global.hierGraphp()->topCommandArgsFilename(false);
-            of.puts("\n# Verilate the top module\n");
-            of.puts(v3Global.opt.prefix()
+            ثابت string دلیلاں_File = v3Global.hierGraphp()->چوٹی_Command_دلیلاں_Filename(خطأ);
+            دا.puts("\n# Verilate the top module\n");
+            دا.puts(v3Global.opt.اگیتر()
                     + ".mk: $(VM_HIER_INPUT_FILES) $(VM_HIER_VERILOG_LIBS) ");
-            of.puts(V3Os::filenameNonDir(argsFile) + " ");
-            for (const V3GraphVertex& vtx : m_graphp->vertices()) {
-                const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-                of.puts(blockp->hierWrapperFilename(true) + " ");
+            دا.puts(V3Os::filenameNonDir(دلیلاں_File) + " ");
+            لكل (ثابت V3_گراف_راس& vtx : m_graphp->vertices()) {
+                ثابت V3_Hier_بلاک* ثابت blockp = vtx.as<V3_Hier_بلاک>();
+                دا.puts(blockp->hierWrapperFilename(سچ) + " ");
             }
-            of.puts("\n");
-            emitLaunchVerilator(of, argsFile);
+            دا.puts("\n");
+            emitLaunchVerilator(دا, دلیلاں_File);
         }
 
         // Rules to process hierarchical blocks
-        of.puts("\n# Verilate hierarchical blocks\n");
-        for (const V3GraphVertex& vtx : m_graphp->vertices()) {
-            const V3HierBlock* const blockp = vtx.as<V3HierBlock>();
-            const string prefix = blockp->hierPrefix();
-            const string argsFilename = blockp->commandArgsFilename(false);
-            of.puts(blockp->hierGeneratedFilenames(true));
-            of.puts(": $(VM_HIER_INPUT_FILES) $(VM_HIER_VERILOG_LIBS) ");
-            of.puts(V3Os::filenameNonDir(argsFilename) + " ");
-            for (const V3GraphEdge& edge : blockp->outEdges()) {
-                const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
-                of.puts(dependencyp->hierWrapperFilename(true) + " ");
+        دا.puts("\n# Verilate hierarchical blocks\n");
+        لكل (ثابت V3_گراف_راس& vtx : m_graphp->vertices()) {
+            ثابت V3_Hier_بلاک* ثابت blockp = vtx.as<V3_Hier_بلاک>();
+            ثابت string اگیتر = blockp->hier_اگیتر();
+            ثابت string دلیلاں_Filename = blockp->command_دلیلاں_Filename(خطأ);
+            دا.puts(blockp->hierGeneratedFilenames(سچ));
+            دا.puts(": $(VM_HIER_INPUT_FILES) $(VM_HIER_VERILOG_LIBS) ");
+            دا.puts(V3Os::filenameNonDir(دلیلاں_Filename) + " ");
+            لكل (ثابت V3_گراف_کنارا& کنارا : blockp->باہرلا_کنارے()) {
+                ثابت V3_Hier_بلاک* ثابت dependencyp = کنارا.چوٹی()->as<V3_Hier_بلاک>();
+                دا.puts(dependencyp->hierWrapperFilename(سچ) + " ");
             }
-            of.puts("\n");
-            emitLaunchVerilator(of, argsFilename);
+            دا.puts("\n");
+            emitLaunchVerilator(دا, دلیلاں_Filename);
 
             // Rule to build lib*.a
-            of.puts(blockp->hierLibFilename(true));
-            of.puts(": ");
-            of.puts(blockp->hierMkFilename(true));
-            of.puts(" ");
-            for (const V3GraphEdge& edge : blockp->outEdges()) {
-                const V3HierBlock* const dependencyp = edge.top()->as<V3HierBlock>();
-                of.puts(dependencyp->hierLibFilename(true));
-                of.puts(" ");
+            دا.puts(blockp->hierLibFilename(سچ));
+            دا.puts(": ");
+            دا.puts(blockp->hierMkFilename(سچ));
+            دا.puts(" ");
+            لكل (ثابت V3_گراف_کنارا& کنارا : blockp->باہرلا_کنارے()) {
+                ثابت V3_Hier_بلاک* ثابت dependencyp = کنارا.چوٹی()->as<V3_Hier_بلاک>();
+                دا.puts(dependencyp->hierLibFilename(سچ));
+                دا.puts(" ");
             }
-            of.puts("\n\t$(MAKE) -f " + blockp->hierMkFilename(false) + " -C " + prefix);
-            of.puts(" VM_PREFIX=" + prefix);
-            of.puts("\n\n");
+            دا.puts("\n\t$(MAKE) -f " + blockp->hierMkFilename(خطأ) + " -C " + اگیتر);
+            دا.puts(" VM_PREFIX=" + اگیتر);
+            دا.puts("\n\n");
         }
-        of.puts("endif  # Guard\n");
+        دا.puts("endif  # Guard\n");
     }
 
-public:
-    explicit EmitMkHierVerilation(const V3HierGraph* graphp)
+عام:
+    واضح EmitMkHierVerilation(ثابت V3_Hier_گراف* graphp)
         : m_graphp{graphp}
-        , m_makefile{v3Global.opt.makeDir() + "/" + v3Global.opt.prefix() + "_hier.mk"} {
-        V3OutMkFile of{m_makefile};
-        emit(of);
+        , m_makefile{v3Global.opt.makeDir() + "/" + v3Global.opt.اگیتر() + "_hier.mk"} {
+        V3_باہرلا_Mk_File دا{m_makefile};
+        emit(دا);
     }
 };
 
 //######################################################################
 // Gate class functions
 
-void V3EmitMk::emitmk() {
+فراغ V3EmitMk::emitmk() {
     UINFO(2, __FUNCTION__ << ":");
-    const EmitMk emitter;
+    ثابت EmitMk emitter;
 }
 
-void V3EmitMk::emitHierVerilation(const V3HierGraph* graphp) {
+فراغ V3EmitMk::emitHierVerilation(ثابت V3_Hier_گراف* graphp) {
     UINFO(2, __FUNCTION__ << ":");
     EmitMkHierVerilation{graphp};
 }

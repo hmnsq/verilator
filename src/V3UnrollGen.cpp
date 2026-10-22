@@ -18,74 +18,74 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Const.h"
-#include "V3Simulate.h"
-#include "V3Unroll.h"
+#ضمن "V3Const.h"
+#ضمن "V3Simulate.h"
+#ضمن "V3Unroll.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Unroll AstGenFor
 
-class UnrollGenVisitor final : public VNVisitor {
+صنف UnrollGenVisitor final : عام VNVisitor {
     // STATE - across all visitors
-    AstVar* m_forVarp = nullptr;  // Iterator variable
-    const AstNode* m_ignoreIncp = nullptr;  // Increment node to ignore
-    bool m_varModeCheck = false;  // Just checking RHS assignments
-    bool m_varAssignHit = false;  // Assign var hit
-    bool m_forkHit = false;  // Fork hit
+    AstVar* m_forVarp = خالی_سوچک;  // Iterator variable
+    ثابت Ast_گرہ* m_ignoreIncp = خالی_سوچک;  // Increment node to ignore
+    منطقي m_var_منوال_Check = خطأ;  // Just checking RHS assignments
+    منطقي m_var_سونپو_کامیابی = خطأ;  // Assign var hit
+    منطقي m_fork_کامیابی = خطأ;  // Fork hit
     std::string m_beginName;  // What name to give begin iterations
 
     // METHODS
-    void replaceVarRef(AstNode* bodyp, AstNode* varValuep) {
+    فراغ replaceVarRef(Ast_گرہ* bodyp, Ast_گرہ* varValuep) {
         // Replace all occurances of loop variable in bodyp and next
-        bodyp->foreachAndNext([this, varValuep](AstVarRef* refp) {
-            if (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
-                AstNode* const newconstp = varValuep->cloneTree(false);
+        bodyp->foreach_And_اگلا([هذا, varValuep](AstVarRef* refp) {
+            إذا (refp->varp() == m_forVarp && refp->access().isReadOnly()) {
+                Ast_گرہ* ثابت newconstp = varValuep->clone_درخت(خطأ);
                 refp->replaceWith(newconstp);
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+                VL_DO_DANGLING(ڈالو_Deletep(refp), refp);
             }
         });
     }
 
-    bool cantUnroll(AstNode* nodep, const char* reason) const {
+    منطقي cantUnroll(Ast_گرہ* nodep, ثابت حرف* reason) ثابت {
         UINFO(4, "   Can't Unroll: " << reason << " :" << nodep);
         nodep->v3warn(E_UNSUPPORTED, "Unsupported: Can't unroll generate for; " << reason);
-        return false;
+        أرجع خطأ;
     }
 
-    bool forUnrollCheck(
-        AstGenFor* const nodep,
-        AstNode* const initp,  // Maybe under nodep (no nextp), or standalone (ignore nextp)
-        AstNodeExpr* condp,
-        AstNode* const incp,  // Maybe under nodep or in bodysp
-        AstNode* bodysp) {
+    منطقي forUnrollCheck(
+        AstGenFor* ثابت nodep,
+        Ast_گرہ* ثابت initp,  // Maybe under nodep (no nextp), or standalone (ignore nextp)
+        Ast_گرہ_اظہاریہ* condp,
+        Ast_گرہ* ثابت incp,  // Maybe under nodep or in bodysp
+        Ast_گرہ* bodysp) {
         // To keep the IF levels low, we return as each test fails.
         UINFO(4, " FOR Check " << nodep);
-        if (initp) UINFO(6, "    Init " << initp);
-        if (condp) UINFO(6, "    Cond " << condp);
-        if (incp) UINFO(6, "    Inc  " << incp);
+        إذا (initp) UINFO(6, "    Init " << initp);
+        إذا (condp) UINFO(6, "    Cond " << condp);
+        إذا (incp) UINFO(6, "    Inc  " << incp);
 
         // Initial value check
-        AstAssign* const initAssp = VN_CAST(initp, Assign);
-        if (!initAssp) return cantUnroll(nodep, "no initial assignment");
+        Ast_سونپو* ثابت initAssp = VN_CAST(initp, سونپو);
+        إذا (!initAssp) أرجع cantUnroll(nodep, "no initial assignment");
         UASSERT_OBJ(!(initp->nextp() && initp->nextp() != nodep), nodep,
                     "initial assignment shouldn't be a list");
-        if (!VN_IS(initAssp->lhsp(), VarRef)) {
-            return cantUnroll(nodep, "no initial assignment to simple variable");
+        إذا (!VN_IS(initAssp->lhsp(), VarRef)) {
+            أرجع cantUnroll(nodep, "no initial assignment to simple variable");
         }
         //
         // Condition check
         UASSERT_OBJ(!condp->nextp(), nodep, "conditional shouldn't be a list");
         //
         // Assignment of next value check
-        const AstAssign* const incAssp = VN_CAST(incp, Assign);
-        if (!incAssp) return cantUnroll(nodep, "no increment assignment");
-        if (incAssp->nextp()) return cantUnroll(nodep, "multiple increments");
+        ثابت Ast_سونپو* ثابت incAssp = VN_CAST(incp, سونپو);
+        إذا (!incAssp) أرجع cantUnroll(nodep, "no increment assignment");
+        إذا (incAssp->nextp()) أرجع cantUnroll(nodep, "multiple increments");
 
         m_forVarp = VN_AS(initAssp->lhsp(), VarRef)->varp();
-        if (!m_forVarp->isGenVar()) {
+        إذا (!m_forVarp->isGenVar()) {
             nodep->v3error("Non-genvar used in generate for: " << m_forVarp->prettyNameQ());
         }
         V3Const::constifyParamsEdit(initAssp->rhsp());  // rhsp may change
@@ -94,199 +94,199 @@ class UnrollGenVisitor final : public VNVisitor {
         // however, for repeat loops, the loop variable is auto-generated
         // and the initp statements will reference a variable outside of the initp scope
         // alas, failing to simulate.
-        const AstConst* const constInitp = VN_CAST(initAssp->rhsp(), Const);
-        if (!constInitp) return cantUnroll(nodep, "non-constant initializer");
+        ثابت AstConst* ثابت constInitp = VN_CAST(initAssp->rhsp(), Const);
+        إذا (!constInitp) أرجع cantUnroll(nodep, "non-constant initializer");
 
         //
         // Now, make sure there's no assignment to this variable in the loop
-        m_varModeCheck = true;
-        m_varAssignHit = false;
-        m_forkHit = false;
+        m_var_منوال_Check = سچ;
+        m_var_سونپو_کامیابی = خطأ;
+        m_fork_کامیابی = خطأ;
         m_ignoreIncp = incp;
-        iterateAndNextNull(bodysp);
-        iterateAndNextNull(incp);
-        m_varModeCheck = false;
-        m_ignoreIncp = nullptr;
-        if (m_varAssignHit) return cantUnroll(nodep, "genvar assigned *inside* loop");
+        iterate_And_اگلا_Null(bodysp);
+        iterate_And_اگلا_Null(incp);
+        m_var_منوال_Check = خطأ;
+        m_ignoreIncp = خالی_سوچک;
+        إذا (m_var_سونپو_کامیابی) أرجع cantUnroll(nodep, "genvar assigned *inside* loop");
 
-        if (m_forkHit) return cantUnroll(nodep, "fork inside loop");
+        إذا (m_fork_کامیابی) أرجع cantUnroll(nodep, "fork inside loop");
 
         //
         UINFO(8, "   Loop Variable: " << m_forVarp);
         UINFOTREE(9, nodep, "", "for");
 
         // Finally, we can do it
-        if (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
-            return cantUnroll(nodep, "Unable to unroll loop");
+        إذا (!forUnroller(nodep, initAssp, condp, incp, bodysp)) {
+            أرجع cantUnroll(nodep, "Unable to unroll loop");
         }
         VL_DANGLING(nodep);
         // Cleanup
-        return true;
+        أرجع سچ;
     }
 
-    bool simulateTree(AstNodeExpr* nodep, const V3Number* loopValue, const AstNode* dtypep,
-                      V3Number& outNum) {
-        AstNode* clonep = nodep->cloneTree(true);
+    منطقي simulate_درخت(Ast_گرہ_اظہاریہ* nodep, ثابت V3_نمبر* loop_قدر, ثابت Ast_گرہ* dtypep,
+                      V3_نمبر& باہرلا_عدد) {
+        Ast_گرہ* clonep = nodep->clone_درخت(سچ);
         UASSERT_OBJ(clonep, nodep, "Failed to clone tree");
-        if (loopValue) {
-            AstConst* varValuep = new AstConst{nodep->fileline(), *loopValue};
+        إذا (loop_قدر) {
+            AstConst* varValuep = جديد AstConst{nodep->fileline(), *loop_قدر};
             // Iteration requires a back, so put under temporary node
-            AstBegin* tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", clonep, false};
+            AstBegin* tempp = جديد AstBegin{nodep->fileline(), "[EditWrapper]", clonep, خطأ};
             replaceVarRef(tempp->stmtsp(), varValuep);
-            clonep = tempp->stmtsp()->unlinkFrBackWithNext();
-            VL_DO_CLEAR(tempp->deleteTree(), tempp = nullptr);
-            VL_DO_DANGLING(pushDeletep(varValuep), varValuep);
+            clonep = tempp->stmtsp()->unlink_Fr_پٹھ_With_اگلا();
+            VL_DO_CLEAR(tempp->delete_درخت(), tempp = خالی_سوچک);
+            VL_DO_DANGLING(ڈالو_Deletep(varValuep), varValuep);
         }
         SimulateVisitor simvis;
         simvis.mainParamEmulate(clonep);
-        if (!simvis.optimizable()) {
+        إذا (!simvis.optimizable()) {
             UINFO(4, "Unable to simulate");
             UINFOTREE(9, nodep, "", "_simtree");
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            VL_DO_DANGLING(clonep->delete_درخت(), clonep);
+            أرجع خطأ;
         }
         // Fetch the result
-        const V3Number* resp = simvis.fetchNumberNull(clonep);
-        if (!resp) {
+        ثابت V3_نمبر* resp = simvis.fetch_نمبر_Null(clonep);
+        إذا (!resp) {
             UINFO(3, "No number returned from simulation");
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return false;
+            VL_DO_DANGLING(clonep->delete_درخت(), clonep);
+            أرجع خطأ;
         }
         // Patch up datatype
-        if (dtypep) {
+        إذا (dtypep) {
             AstConst new_con{clonep->fileline(), *resp};
             new_con.dtypeFrom(dtypep);
-            outNum = new_con.num();
-            outNum.isSigned(dtypep->isSigned());
-            VL_DO_DANGLING(clonep->deleteTree(), clonep);
-            return true;
+            باہرلا_عدد = new_con.عدد();
+            باہرلا_عدد.isSigned(dtypep->isSigned());
+            VL_DO_DANGLING(clonep->delete_درخت(), clonep);
+            أرجع سچ;
         }
-        outNum = *resp;
-        VL_DO_DANGLING(clonep->deleteTree(), clonep);
-        return true;
+        باہرلا_عدد = *resp;
+        VL_DO_DANGLING(clonep->delete_درخت(), clonep);
+        أرجع سچ;
     }
 
-    bool forUnroller(AstGenFor* nodep, AstAssign* initp, AstNodeExpr* condp, AstNode* incp,
-                     AstNode* bodysp) {
+    منطقي forUnroller(AstGenFor* nodep, Ast_سونپو* initp, Ast_گرہ_اظہاریہ* condp, Ast_گرہ* incp,
+                     Ast_گرہ* bodysp) {
         UINFO(9, "forUnroller " << nodep);
-        V3Number loopValue{nodep};
-        if (!simulateTree(initp->rhsp(), nullptr, initp, loopValue)) {  //
-            return false;
+        V3_نمبر loop_قدر{nodep};
+        إذا (!simulate_درخت(initp->rhsp(), خالی_سوچک, initp, loop_قدر)) {  //
+            أرجع خطأ;
         }
-        AstNode* stmtsp = nullptr;
-        if (initp) {
-            initp->unlinkFrBack();  // Always a single statement; nextp() may be nodep
+        Ast_گرہ* stmtsp = خالی_سوچک;
+        إذا (initp) {
+            initp->unlink_Fr_پٹھ();  // Always a single statement; nextp() may be nodep
             // Don't add to list, we do it once, and setting loop index isn't
             // needed if we have > 1 loop, as we're constant propagating it
-            pushDeletep(initp);  // Always cloned below.
+            ڈالو_Deletep(initp);  // Always cloned below.
         }
-        if (bodysp) {
-            bodysp->unlinkFrBackWithNext();
-            stmtsp = AstNode::addNext(stmtsp, bodysp);  // Maybe null if no body
+        إذا (bodysp) {
+            bodysp->unlink_Fr_پٹھ_With_اگلا();
+            stmtsp = Ast_گرہ::جوڑو_اگلا(stmtsp, bodysp);  // Maybe null if no body
         }
         // Mark variable to disable some later warnings
-        m_forVarp->usedLoopIdx(true);
+        m_forVarp->ورتیا_Loop_Idx(سچ);
 
-        AstNode* newbodysp = nullptr;
-        if (stmtsp) {
-            pushDeletep(stmtsp);  // Always cloned below.
-            size_t iterCount = 0;
-            const size_t iterLimit = v3Global.opt.unrollLimit();
-            while (true) {
-                UINFO(8, "      Looping " << loopValue);
-                V3Number res{nodep};
-                if (!simulateTree(condp, &loopValue, nullptr, res)) {
+        Ast_گرہ* newbodysp = خالی_سوچک;
+        إذا (stmtsp) {
+            ڈالو_Deletep(stmtsp);  // Always cloned below.
+            ناپ_t iter_گنتی = 0;
+            ثابت ناپ_t iter_حد_بندی = v3Global.opt.unroll_حد_بندی();
+            طالما (سچ) {
+                UINFO(8, "      Looping " << loop_قدر);
+                V3_نمبر res{nodep};
+                إذا (!simulate_درخت(condp, &loop_قدر, خالی_سوچک, res)) {
                     nodep->v3error("Loop unrolling failed.");
-                    return false;
+                    أرجع خطأ;
                 }
-                if (!res.isEqOne()) {
-                    break;  // Done with the loop
-                } else {
-                    if (++iterCount > iterLimit) {
+                إذا (!res.isEqOne()) {
+                    اكسر;  // Done with the loop
+                } وإلا {
+                    إذا (++iter_گنتی > iter_حد_بندی) {
                         nodep->v3error("Unrolling generate loop took too long; probably this is "
                                        "an infinite loop, otherwise set '--unroll-limit' above "
-                                       << iterLimit);
-                        break;
+                                       << iter_حد_بندی);
+                        اكسر;
                     }
 
                     // Replace iterator values with constant
-                    AstNode* oneloopp = stmtsp->cloneTree(true);
-                    AstConst* varValuep = new AstConst{nodep->fileline(), loopValue};
-                    if (oneloopp) {
+                    Ast_گرہ* oneloopp = stmtsp->clone_درخت(سچ);
+                    AstConst* varValuep = جديد AstConst{nodep->fileline(), loop_قدر};
+                    إذا (oneloopp) {
                         // Iteration requires a back, so put under temporary node
-                        AstBegin* const tempp
-                            = new AstBegin{oneloopp->fileline(), "[EditWrapper]", oneloopp, false};
+                        AstBegin* ثابت tempp
+                            = جديد AstBegin{oneloopp->fileline(), "[EditWrapper]", oneloopp, خطأ};
                         replaceVarRef(tempp->stmtsp(), varValuep);
-                        oneloopp = tempp->stmtsp()->unlinkFrBackWithNext();
-                        VL_DO_DANGLING(tempp->deleteTree(), tempp);
+                        oneloopp = tempp->stmtsp()->unlink_Fr_پٹھ_With_اگلا();
+                        VL_DO_DANGLING(tempp->delete_درخت(), tempp);
                     }
-                    const string index = AstNode::encodeNumber(varValuep->toSInt());
-                    const string nname = m_beginName + "__BRA__" + index + "__KET__";
-                    oneloopp = new AstGenBlock{oneloopp->fileline(), nname, oneloopp, false};
-                    VL_DO_DANGLING(pushDeletep(varValuep), varValuep);
-                    newbodysp = AstNode::addNextNull(newbodysp, oneloopp);
+                    ثابت string اشاریہ = Ast_گرہ::encode_نمبر(varValuep->منزل_SInt());
+                    ثابت string nname = m_beginName + "__BRA__" + اشاریہ + "__KET__";
+                    oneloopp = جديد Ast_Gen_بلاک{oneloopp->fileline(), nname, oneloopp, خطأ};
+                    VL_DO_DANGLING(ڈالو_Deletep(varValuep), varValuep);
+                    newbodysp = Ast_گرہ::جوڑو_اگلا_Null(newbodysp, oneloopp);
 
                     // loopValue += valInc
-                    const AstAssign* const incpass = VN_AS(incp, Assign);
-                    V3Number newLoopValue{nodep};
-                    if (!simulateTree(incpass->rhsp(), &loopValue, incpass, newLoopValue)) {
+                    ثابت Ast_سونپو* ثابت incpass = VN_AS(incp, سونپو);
+                    V3_نمبر new_Loop_قدر{nodep};
+                    إذا (!simulate_درخت(incpass->rhsp(), &loop_قدر, incpass, new_Loop_قدر)) {
                         nodep->v3error("Loop unrolling failed");
-                        return false;
+                        أرجع خطأ;
                     }
-                    loopValue.opAssign(newLoopValue);
+                    loop_قدر.op_سونپو(new_Loop_قدر);
                 }
             }
         }
-        if (!newbodysp) {  // initp might have effects after the loop
-            if (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
-                newbodysp = new AstInitial{initp->fileline(), initp->cloneTree(true)};
-            } else {
-                newbodysp = initp ? initp->cloneTree(true) : nullptr;
+        إذا (!newbodysp) {  // initp might have effects after the loop
+            إذا (initp) {  // GENFOR(ASSIGN(...)) need to move under a new Initial
+                newbodysp = جديد AstInitial{initp->fileline(), initp->clone_درخت(سچ)};
+            } وإلا {
+                newbodysp = initp ? initp->clone_درخت(سچ) : خالی_سوچک;
             }
         }
         // Replace the FOR()
-        if (newbodysp) {
+        إذا (newbodysp) {
             nodep->replaceWith(newbodysp);
-        } else {
-            nodep->unlinkFrBack();
+        } وإلا {
+            nodep->unlink_Fr_پٹھ();
         }
-        if (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
-        return true;
+        إذا (newbodysp) UINFOTREE(9, newbodysp, "", "_new");
+        أرجع سچ;
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
-        if (m_varModeCheck && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
+    فراغ ویکھو(AstVarRef* nodep) override {
+        إذا (m_var_منوال_Check && nodep->varp() == m_forVarp && nodep->access().isWriteOrRW()) {
             UINFO(8, "   Itervar assigned to: " << nodep);
-            m_varAssignHit = true;
+            m_var_سونپو_کامیابی = سچ;
         }
     }
 
-    void visit(AstNode* nodep) override {
-        if (m_varModeCheck && nodep == m_ignoreIncp) {
+    فراغ ویکھو(Ast_گرہ* nodep) override {
+        إذا (m_var_منوال_Check && nodep == m_ignoreIncp) {
             // Ignore subtree that is the increment
-        } else {
+        } وإلا {
             iterateChildren(nodep);
         }
     }
 
-public:
+عام:
     // CONSTRUCTORS
-    UnrollGenVisitor() = default;
+    UnrollGenVisitor() = افتراضي;
 
-    void unroll(AstGenFor* nodep, const std::string& beginName) {
-        m_forVarp = nullptr;  // Iterator variable
-        m_ignoreIncp = nullptr;  // Increment node to ignore
-        m_varModeCheck = false;  // Just checking RHS assignments
-        m_varAssignHit = false;  // Assign var hit
-        m_forkHit = false;  // Fork hit
+    فراغ unroll(AstGenFor* nodep, ثابت std::string& beginName) {
+        m_forVarp = خالی_سوچک;  // Iterator variable
+        m_ignoreIncp = خالی_سوچک;  // Increment node to ignore
+        m_var_منوال_Check = خطأ;  // Just checking RHS assignments
+        m_var_سونپو_کامیابی = خطأ;  // Assign var hit
+        m_fork_کامیابی = خطأ;  // Fork hit
         m_beginName = beginName;
 
         // Constify before unroll call, as it may change what is underneath.
-        if (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
-        if (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
-        if (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
-        if (nodep->condp()->isZero()) {
+        إذا (nodep->initsp()) V3Const::constifyEdit(nodep->initsp());  // initsp may change
+        إذا (nodep->condp()) V3Const::constifyEdit(nodep->condp());  // condp may change
+        إذا (nodep->incsp()) V3Const::constifyEdit(nodep->incsp());  // incsp may change
+        إذا (nodep->condp()->isZero()) {
             // We don't need to do any loops.  Remove the GenFor,
             // Genvar's don't care about any initial assignments.
             //
@@ -294,14 +294,14 @@ public:
             // we'd need to initialize the variable to the initial
             // condition, but they'll become while's which can be
             // deleted by V3Const.
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_پٹھ()), nodep);
+        } وإلا إذا (forUnrollCheck(nodep, nodep->initsp(), nodep->condp(), nodep->incsp(),
                                   nodep->itemsp())) {
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);  // Did replacement
-        } else {
+            VL_DO_DANGLING(ڈالو_Deletep(nodep), nodep);  // Did replacement
+        } وإلا {
             nodep->v3error("For loop doesn't have genvar index, or is malformed");
             // We will die, do it gracefully
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+            VL_DO_DANGLING(ڈالو_Deletep(nodep->unlink_Fr_پٹھ()), nodep);
         }
     }
 };
@@ -310,8 +310,8 @@ public:
 // GenForUnroller members
 
 GenForUnroller::GenForUnroller()
-    : m_unrollerp{new UnrollGenVisitor{}} {}
-GenForUnroller::~GenForUnroller() { VL_DO_DANGLING(delete m_unrollerp, m_unrollerp); }
-void GenForUnroller::unroll(AstGenFor* nodep, const std::string& beginName) {
+    : m_unrollerp{جديد UnrollGenVisitor{}} {}
+GenForUnroller::~GenForUnroller() { VL_DO_DANGLING(مٹاؤ m_unrollerp, m_unrollerp); }
+فراغ GenForUnroller::unroll(AstGenFor* nodep, ثابت std::string& beginName) {
     m_unrollerp->unroll(nodep, beginName);
 }

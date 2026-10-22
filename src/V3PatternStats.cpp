@@ -14,59 +14,59 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"
+#ضمن "V3PchAstNoMT.h"
 
-#include "V3Ast.h"
-#include "V3AstPatterns.h"
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3File.h"
+#ضمن "V3Ast.h"
+#ضمن "V3AstPatterns.h"
+#ضمن "V3Dfg.h"
+#ضمن "V3DfgPasses.h"
+#ضمن "V3File.h"
 
-#include <memory>
-#include <unordered_map>
-#include <vector>
+#ضمن <memory>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //============================================================================
 // Accumulates and dumps the pattern statistics
 
-class V3PatternStats VL_NOT_FINAL {
-public:
-    static constexpr uint32_t MIN_PATTERN_DEPTH = 1;
-    static constexpr uint32_t MAX_PATTERN_DEPTH = 4;
+صنف V3_نمونہ_Stats VL_NOT_FINAL {
+عام:
+    ساكن constexpr uint32_t MIN_نمونہ_ڈونگھائی = 1;
+    ساكن constexpr uint32_t MAX_نمونہ_ڈونگھائی = 4;
 
-private:
-    const std::string m_what;  // Description of what is being dumped
+خاص:
+    ثابت std::string m_what;  // Description of what is being dumped
     // Maps from pattern to the number of times it appears, for each pattern depth
-    std::vector<std::unordered_map<std::string, size_t>> m_patternCounts{MAX_PATTERN_DEPTH + 1};
+    std::سمتیہ<std::unordered_map<std::string, ناپ_t>> m_نمونہ_Counts{MAX_نمونہ_ڈونگھائی + 1};
 
-    void dump(std::ostream& os) {
-        using Line = std::pair<std::string, size_t>;
-        for (uint32_t i = MIN_PATTERN_DEPTH; i <= MAX_PATTERN_DEPTH; ++i) {
+    فراغ dump(std::ostream& os) {
+        ورتوں سطر_2 = std::pair<std::string, ناپ_t>;
+        لكل (uint32_t i = MIN_نمونہ_ڈونگھائی; i <= MAX_نمونہ_ڈونگھائی; ++i) {
             os << m_what << " patterns with depth " << i << '\n';
 
             // Pick up pattern accumulators with given depth
-            auto& patternCounts = m_patternCounts[i];
+            خودکار& نمونہ_Counts = m_نمونہ_Counts[i];
 
             // Remove patterns also present at shallower depths
-            for (uint32_t j = MIN_PATTERN_DEPTH; j < i; ++j) {
-                for (const auto& pair : m_patternCounts[j]) patternCounts.erase(pair.first);
+            لكل (uint32_t j = MIN_نمونہ_ڈونگھائی; j < i; ++j) {
+                لكل (ثابت خودکار& pair : m_نمونہ_Counts[j]) نمونہ_Counts.erase(pair.پہلا);
             }
 
             // Sort patterns, first by descending frequency, then lexically
-            std::vector<Line> lines;
-            lines.reserve(patternCounts.size());
-            for (const auto& pair : patternCounts) lines.emplace_back(pair);
-            std::sort(lines.begin(), lines.end(), [](const Line& a, const Line& b) {
-                if (a.second != b.second) return a.second > b.second;
-                return a.first < b.first;
+            std::سمتیہ<سطر_2> سطریں;
+            سطریں.reserve(نمونہ_Counts.ناپ());
+            لكل (ثابت خودکار& pair : نمونہ_Counts) سطریں.emplace_پٹھ(pair);
+            std::ترتیب_دیو(سطریں.begin(), سطریں.سرا(), [](ثابت سطر_2& a, ثابت سطر_2& b) {
+                إذا (a.دوجا != b.دوجا) أرجع a.دوجا > b.دوجا;
+                أرجع a.پہلا < b.پہلا;
             });
 
             // Print each pattern
-            for (const auto& line : lines) {
-                os << ' ' << std::setw(12) << std::right << line.second;
-                os << ' ' << std::left << line.first << '\n';
+            لكل (ثابت خودکار& سطر : سطریں) {
+                os << ' ' << std::setw(12) << std::سجے << سطر.دوجا;
+                os << ' ' << std::کھبے << سطر.پہلا << '\n';
             }
 
             // Trailing new-line to separate sections
@@ -74,19 +74,19 @@ private:
         }
     }
 
-public:
-    V3PatternStats(const std::string& what)
+عام:
+    V3_نمونہ_Stats(ثابت std::string& what)
         : m_what{what} {}
-    ~V3PatternStats() = default;
+    ~V3_نمونہ_Stats() = افتراضي;
 
-    void accumulate(const std::string& pattern, uint32_t depth) {
-        m_patternCounts[depth][pattern] += 1;
+    فراغ accumulate(ثابت std::string& نمونہ_2, uint32_t ڈونگھائی) {
+        m_نمونہ_Counts[ڈونگھائی][نمونہ_2] += 1;
     }
 
-    void dumpToFile(const std::string& filename) {
+    فراغ dump_منزل_File(ثابت std::string& filename) {
         // Open, write, close
-        const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-        if (ofp->fail()) v3fatal("Can't write file: " << filename);
+        ثابت std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+        إذا (ofp->fail()) v3fatal("Can't write file: " << filename);
         dump(*ofp);
     }
 };
@@ -94,36 +94,36 @@ public:
 //============================================================================
 // V3AstPatterns top level
 
-void V3AstPatterns::dumpAll(const AstNetlist* nodep, const std::string& suffix) {
+فراغ V3AstPatterns::dumpAll(ثابت AstNetlist* nodep, ثابت std::string& suffix) {
     UINFO(2, __FUNCTION__ << ":");
-    V3PatternStats patternStats{"AST"};
-    nodep->foreach([&](const AstNodeExpr* exprp) {
-        for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
-             i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
-            patternStats.accumulate(exprp->patternString(i), i);
+    V3_نمونہ_Stats نمونہ_Stats{"AST"};
+    nodep->foreach([&](ثابت Ast_گرہ_اظہاریہ* exprp) {
+        لكل (uint32_t i = V3_نمونہ_Stats::MIN_نمونہ_ڈونگھائی;
+             i <= V3_نمونہ_Stats::MAX_نمونہ_ڈونگھائی; ++i) {
+            نمونہ_Stats.accumulate(exprp->نمونہ_String(i), i);
         }
     });
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    ثابت std::string fileName = v3Global.opt.hier_چوٹی_انکڑے_Dir() + "/" + v3Global.opt.اگیتر()
                                  + "__ast_patterns_" + suffix + ".txt";
-    patternStats.dumpToFile(fileName);
-    V3Global::dumpCheckGlobalTree("astpatterns", 0, false, false);
+    نمونہ_Stats.dump_منزل_File(fileName);
+    V3Global::dump_Check_Global_درخت("astpatterns", 0, خطأ, خطأ);
 }
 
 //============================================================================
 // V3DfgPasses top level
 
-void V3DfgPasses::dumpPatterns(const std::vector<std::unique_ptr<DfgGraph>>& graphs,
-                               const std::string& suffix) {
-    V3PatternStats patternStats{"DFG"};
-    for (auto& cp : graphs) {
-        cp->forEachVertex([&](const DfgVertex& vtx) {
-            for (uint32_t i = V3PatternStats::MIN_PATTERN_DEPTH;
-                 i <= V3PatternStats::MAX_PATTERN_DEPTH; ++i) {
-                patternStats.accumulate(vtx.patternString(i), i);
+فراغ V3DfgPasses::dumpPatterns(ثابت std::سمتیہ<std::unique_ptr<Dfg_گراف>>& graphs,
+                               ثابت std::string& suffix) {
+    V3_نمونہ_Stats نمونہ_Stats{"DFG"};
+    لكل (خودکار& cp : graphs) {
+        cp->for_Each_راس([&](ثابت Dfg_راس& vtx) {
+            لكل (uint32_t i = V3_نمونہ_Stats::MIN_نمونہ_ڈونگھائی;
+                 i <= V3_نمونہ_Stats::MAX_نمونہ_ڈونگھائی; ++i) {
+                نمونہ_Stats.accumulate(vtx.نمونہ_String(i), i);
             }
         });
     }
-    const std::string fileName = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix()
+    ثابت std::string fileName = v3Global.opt.hier_چوٹی_انکڑے_Dir() + "/" + v3Global.opt.اگیتر()
                                  + "__dfg_patterns" + suffix + ".txt";
-    patternStats.dumpToFile(fileName);
+    نمونہ_Stats.dump_منزل_File(fileName);
 }

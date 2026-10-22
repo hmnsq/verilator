@@ -14,230 +14,230 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITCFUNC_H_
-#define VERILATOR_V3EMITCFUNC_H_
+#جے_بنا_تعریف VERILATOR_V3EMITCFUNC_H_
+#تعریف_کرو VERILATOR_V3EMITCFUNC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3EmitCConstInit.h"
-#include "V3Global.h"
-#include "V3MemberMap.h"
+#ضمن "V3EmitCConstInit.h"
+#ضمن "V3Global.h"
+#ضمن "V3MemberMap.h"
 
-#include <algorithm>
-#include <map>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ضمن <algorithm>
+#ضمن <map>
+#ضمن <unordered_map>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 // Number of VL_CONST_W_*X's in verilated.h (IE VL_CONST_W_8X is last)
-constexpr int EMITC_NUM_CONSTW = 8;
+constexpr صحيح EMITC_عدد_CONSTW = 8;
 
 //######################################################################
 // Emit lazy forward declarations
 
-class EmitCLazyDecls final : public VNVisitorConst {
+class EmitCLazyDecls final : عام VNVisitorConst {
     // NODE STATE/TYPES
     // None allowed to support threaded emitting
 
     // MEMBERS
-    std::unordered_set<string> m_emittedManually;  // Set of names already declared manually.
+    std::unordered_سیٹ<string> m_emittedManually;  // Set of names already declared manually.
     EmitCBaseVisitorConst& m_emitter;  // For access to file output
-    bool m_needsBlankLine = false;  // Emit blank line if any declarations were emitted (cosmetic)
-    std::set<AstNode*> m_emitted;  // -> in set. Already emitted decl for symbols.
+    bool m_needs_Blank_سطر = false;  // Emit blank line if any declarations were emitted (cosmetic)
+    std::سیٹ<Ast_گرہ*> m_emitted;  // -> in set. Already emitted decl for symbols.
 
     // METHODS
-    bool declaredOnce(AstNode* nodep) { return m_emitted.insert(nodep).second; }
+    bool declaredOnce(Ast_گرہ* nodep) { أرجع m_emitted.داخل_کرو(nodep).دوجا; }
 
-    void lazyDeclare(AstCFunc* funcp) {
+    فراغ lazyDeclare(AstCFunc* funcp) {
         // Already declared in this compilation unit
-        if (!declaredOnce(funcp)) return;
+        إذا (!declaredOnce(funcp)) أرجع;
         // Check if this kind of function is lazily declared
-        if (!(funcp->isMethod() && funcp->isLoose()) && !funcp->dpiImportPrototype()) return;
+        إذا (!(funcp->is_طریقہ() && funcp->isLoose()) && !funcp->dpiImportPrototype()) أرجع;
         // Already declared manually
-        if (m_emittedManually.count(funcp->nameProtect())) return;
+        إذا (m_emittedManually.گنتی(funcp->nameProtect())) أرجع;
         // Needs lazy declaration, emit one
         m_emitter.emitCFuncDecl(funcp, EmitCParentModule::get(funcp), funcp->dpiImportPrototype());
-        m_needsBlankLine = true;
+        m_needs_Blank_سطر = true;
     }
 
-    void lazyDeclareConstPoolVar(AstVar* varp) {
-        if (!declaredOnce(varp)) return;  // Already declared
-        const string nameProtect = EmitCUtil::constPoolName(varp);
+    فراغ lazyDeclareConstPoolVar(AstVar* varp) {
+        إذا (!declaredOnce(varp)) أرجع;  // Already declared
+        ثابت string nameProtect = EmitCUtil::constPoolName(varp);
         m_emitter.putns(varp, "extern const ");
         m_emitter.puts(varp->dtypep()->cType(nameProtect, false, false));
         m_emitter.puts(";\n");
-        m_needsBlankLine = true;
+        m_needs_Blank_سطر = true;
     }
 
     // VISITORS
-    void visit(AstNodeCCall* nodep) override {
+    فراغ ویکھو(Ast_گرہ_CCall* nodep) override {
         lazyDeclare(nodep->funcp());
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
+    فراغ ویکھو(Ast_Addr_دا_CFunc* nodep) override {
         lazyDeclare(nodep->funcp());
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstVarRef* nodep) override {
-        AstVar* const varp = nodep->varp();
+    فراغ ویکھو(AstVarRef* nodep) override {
+        AstVar* ثابت varp = nodep->varp();
         // Only constant pool symbols are lazy declared for now ...
-        if (EmitCParentModule::get(varp)->isConstPool()) lazyDeclareConstPoolVar(varp);
+        إذا (EmitCParentModule::get(varp)->isConstPool()) lazyDeclareConstPoolVar(varp);
     }
 
-    void visit(AstExecGraph* nodep) override {
-        if (!declaredOnce(nodep)) return;
-        m_emitter.putns(nodep, "extern VlExecGraph " + EmitCUtil::execGraphName(nodep) + ";\n");
-        m_needsBlankLine = true;
+    فراغ ویکھو(Ast_Exec_گراف* nodep) override {
+        إذا (!declaredOnce(nodep)) أرجع;
+        m_emitter.putns(nodep, "extern VlExecGraph " + EmitCUtil::exec_گراف_Name(nodep) + ";\n");
+        m_needs_Blank_سطر = true;
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ ویکھو(Ast_گرہ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+عام:
     explicit EmitCLazyDecls(EmitCBaseVisitorConst& emitter)
         : m_emitter{emitter} {}
-    void emit(AstNode* nodep) {
-        m_needsBlankLine = false;
+    فراغ emit(Ast_گرہ* nodep) {
+        m_needs_Blank_سطر = false;
         iterateChildrenConst(nodep);
-        if (m_needsBlankLine) m_emitter.puts("\n");
+        إذا (m_needs_Blank_سطر) m_emitter.puts("\n");
     }
-    void emit(const string& prefix, const string& name, const string& suffix) {
-        m_emittedManually.insert(name);
-        m_emitter.ensureNewLine();
-        m_emitter.puts(prefix);
+    فراغ emit(ثابت string& اگیتر, ثابت string& name, ثابت string& suffix) {
+        m_emittedManually.داخل_کرو(name);
+        m_emitter.ensure_New_سطر();
+        m_emitter.puts(اگیتر);
         m_emitter.puts(name);
         m_emitter.puts(suffix);
-        m_emitter.ensureNewLine();
+        m_emitter.ensure_New_سطر();
     }
-    void declared(AstCFunc* nodep) { m_emitted.insert(nodep); }
-    void reset() { m_emitted.clear(); }
+    فراغ declared(AstCFunc* nodep) { m_emitted.داخل_کرو(nodep); }
+    فراغ reset() { m_emitted.clear(); }
 };
 
 // ######################################################################
 //  Emit statements and expressions
 
-class EmitCFunc VL_NOT_FINAL : public EmitCConstInit {
+class EmitCFunc VL_NOT_FINAL : عام EmitCConstInit {
     VMemberMap m_memberMap;
-    AstVarRef* m_wideTempRefp = nullptr;  // Variable that _WW macros should be setting
-    std::unordered_map<AstJumpBlock*, size_t> m_labelNumbers;  // Label numbers for AstJumpBlocks
+    AstVarRef* m_wide_عارضی_Refp = nullptr;  // Variable that _WW macros should be setting
+    std::unordered_map<Ast_Jump_بلاک*, ناپ_t> m_labelNumbers;  // Label numbers for AstJumpBlocks
     bool m_createdScopeHash = false;  // Already created a scope hash
 
-protected:
+محمي:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     EmitCLazyDecls m_lazyDecls{*this};  // Visitor for emitting lazy declarations
     bool m_useSelfForThis = false;  // Replace "this" with "vlSelf"
     bool m_usevlSelfRef = false;  // Use vlSelfRef reference instead of vlSelf pointer
-    const AstNodeModule* m_modp = nullptr;  // Current module being emitted
-    const AstCFunc* m_cfuncp = nullptr;  // Current function being emitted
+    ثابت Ast_گرہ_Module* m_modp = nullptr;  // Current module being emitted
+    ثابت AstCFunc* m_cfuncp = nullptr;  // Current function being emitted
     bool m_instantiatesOwnProcess = false;
-    const AstClassPackage* m_classOrPackage = nullptr;  // Pointer to current class or package
+    ثابت AstClassPackage* m_classOrPackage = nullptr;  // Pointer to current class or package
     string m_classOrPackageHash;  // Hash of class or package name
 
-    bool constructorNeedsProcess(const AstClass* const classp) {
-        const AstNode* const newp = m_memberMap.findMember(classp, "new");
-        if (!newp) return false;
-        const AstCFunc* const ctorp = VN_CAST(newp, CFunc);
-        if (!ctorp) return false;
+    bool constructorNeedsProcess(ثابت AstClass* ثابت classp) {
+        ثابت Ast_گرہ* ثابت newp = m_memberMap.لبھو_Member(classp, "new");
+        إذا (!newp) أرجع false;
+        ثابت AstCFunc* ثابت ctorp = VN_CAST(newp, CFunc);
+        إذا (!ctorp) أرجع false;
         UASSERT_OBJ(ctorp->isConstructor(), ctorp, "`new` is not a constructor!");
-        return ctorp->needProcess();
+        أرجع ctorp->needProcess();
     }
 
-    bool constructorNeedsProcess(const AstNodeDType* const dtypep) {
-        if (const AstClassRefDType* const crefdtypep = VN_CAST(dtypep, ClassRefDType))
-            return constructorNeedsProcess(crefdtypep->classp());
-        return false;
+    bool constructorNeedsProcess(ثابت Ast_گرہ_DType* ثابت dtypep) {
+        إذا (ثابت AstClassRefDType* ثابت crefdtypep = VN_CAST(dtypep, ClassRefDType))
+            أرجع constructorNeedsProcess(crefdtypep->classp());
+        أرجع false;
     }
 
-    bool coverageUsesLocalCounter(AstNodeCoverDecl* const declp) const {
+    bool coverage_ورتدا_Local_Counter(Ast_گرہ_Cover_Decl* ثابت declp) ثابت {
         // Only functions with an object receiver can address the module-local
         // coverage array. Static/package/class helper functions still use the
         // symbol-table array, as they may have vlSymsp but no vlSelf/this.
         // Also require the coverage declaration to belong to the current
         // module; cloned task bodies can increment declarations owned by a
         // different module, and those must keep using the global array.
-        return m_cfuncp && !m_cfuncp->isStatic() && !VN_IS(m_modp, Class)
+        أرجع m_cfuncp && !m_cfuncp->isStatic() && !VN_IS(m_modp, Class)
                && !VN_IS(m_modp, ClassPackage)
-               && EmitCParentModule::get(declp->dataDeclThisp()) == m_modp;
+               && EmitCParentModule::get(declp->انکڑے_Decl_Thisp()) == m_modp;
     }
-    int coverageBinNum(AstNodeCoverDecl* const declp, bool forceGlobal = false) const {
-        return !forceGlobal && coverageUsesLocalCounter(declp)
-                   ? declp->dataDeclThisp()->localBinNum()
-                   : declp->dataDeclThisp()->binNum();
+    صحيح coverage_Bin_عدد(Ast_گرہ_Cover_Decl* ثابت declp, bool forceGlobal = false) ثابت {
+        أرجع !forceGlobal && coverage_ورتدا_Local_Counter(declp)
+                   ? declp->انکڑے_Decl_Thisp()->local_Bin_عدد()
+                   : declp->انکڑے_Decl_Thisp()->bin_عدد();
     }
-    void putCoverageArray(AstNodeCoverDecl* const declp, bool forceGlobal = false) {
-        if (!forceGlobal && coverageUsesLocalCounter(declp)) {
+    فراغ putCoverageArray(Ast_گرہ_Cover_Decl* ثابت declp, bool forceGlobal = false) {
+        إذا (!forceGlobal && coverage_ورتدا_Local_Counter(declp)) {
             // Keep counters on the module object when possible, so every
             // no-inline instance has storage available if coverage output is
             // later written with forcePerInstance.
             puts(m_cfuncp->isLoose() ? "vlSelf->__Vcoverage" : "this->__Vcoverage");
-        } else {
+        } وإلا {
             // Static/package/class helper functions do not have vlSelf, so
             // keep using the shared symbol-table coverage array there.
             puts("vlSymsp->__Vcoverage");
         }
     }
-    void emitCoverOtherDeclInsert(AstCoverOtherDecl* nodep, bool forceGlobal = false) {
+    فراغ emit_Cover_Other_Decl_داخل_کرو(AstCoverOtherDecl* nodep, bool forceGlobal = false) {
         putns(nodep, "vlSelf->__vlCoverInsert(");  // As Declared in emitCoverageDecl
         putCoverageArray(nodep, forceGlobal);
         puts(" + ");
-        puts(cvtToStr(coverageBinNum(nodep, forceGlobal)));
+        puts(cvt_منزل_Str(coverage_Bin_عدد(nodep, forceGlobal)));
         // first controls whether duplicate module instances are collapsed in
         // the default coverage view. The following flag says whether countp
         // points to an object-local counter; only those counters must be kept
         // real for later instances so forcePerInstance can split hierarchy.
         puts(", first");  // Enable, passed from __Vconfigure parameter
         puts(", ");
-        puts(!forceGlobal && coverageUsesLocalCounter(nodep) ? "true" : "false");
+        puts(!forceGlobal && coverage_ورتدا_Local_Counter(nodep) ? "true" : "false");
         puts(", ");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(", ");
-        puts(cvtToStr(nodep->offset() + nodep->fileline()->firstColumn()));
+        puts(cvt_منزل_Str(nodep->وتھ() + nodep->fileline()->پہلا_کالم()));
         puts(", ");
-        putsQuoted((!nodep->hier().empty() ? "." : "")
-                   + VIdProtect::protectWordsIf(nodep->hier(), nodep->protect()));
+        putsQuoted((!nodep->hier().خالی_تھاواں() ? "." : "")
+                   + VIdProtect::protect_الفاظ_If(nodep->hier(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->page(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->ورقہ(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->comment(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->comment(), nodep->protect()));
         puts(", ");
         putsQuoted(nodep->linescov());
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->fsmVar(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->fsmVar(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->fsmFrom(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->fsmFrom(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->fsmTo(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->fsm_منزل(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->fsmTag(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->fsm_ٹیگ(), nodep->protect()));
         puts(");\n");
     }
 
-public:
+عام:
     // METHODS
-    bool displayEmitHeader(AstNode* nodep);
-    void displayNode(AstNode* nodep, AstSFormatF* fmtp, const string& vformat, AstNode* exprsp,
-                     bool isScan);
+    bool display_Emit_سرخی(Ast_گرہ* nodep);
+    فراغ display_گرہ(Ast_گرہ* nodep, AstSFormatF* fmtp, ثابت string& vformat, Ast_گرہ* exprsp,
+                     bool is_جانچ);
 
-    bool emitSimpleOk(AstNodeExpr* nodep);
-    void emitIQW(const AstNode* nodep) {
+    bool emitSimpleOk(Ast_گرہ_اظہاریہ* nodep);
+    فراغ emitIQW(ثابت Ast_گرہ* nodep) {
         // See "Type letters" in verilated.h
         // Other abbrevs: "C"har, "S"hort, "F"loat, "D"ouble, stri"N"g, "R"=queue, "U"npacked
         puts(nodep->dtypep()->skipRefp()->charIQWN());
     }
-    void emitRU(const AstNode* nodep) {
-        const AstNodeDType* dtp = nodep->dtypep()->skipRefp();
+    فراغ emitRU(ثابت Ast_گرہ* nodep) {
+        ثابت Ast_گرہ_DType* dtp = nodep->dtypep()->skipRefp();
         // See "Type letters" in verilated.h
-        if (VN_IS(dtp, UnpackArrayDType))
+        إذا (VN_IS(dtp, UnpackArrayDType))
             puts("U");
-        else if (VN_IS(dtp, QueueDType) || VN_IS(dtp, DynArrayDType))
+        وإلا إذا (VN_IS(dtp, قطار_DType) || VN_IS(dtp, DynArrayDType))
             puts("R");
     }
-    void emitScIQW(AstVar* nodep) {
+    فراغ emitScIQW(AstVar* nodep) {
         UASSERT_OBJ(nodep->isSc(), nodep, "emitting SystemC operator on non-SC variable");
         puts(nodep->isScBigUint()                           ? "SB"
              : (nodep->isScUint() || nodep->isScUintBool()) ? "SU"
@@ -245,162 +245,162 @@ public:
              : nodep->isDouble()                            ? "SD"
                                                             : (nodep->isScQuad() ? "SQ" : "SI"));
     }
-    void emitDatap(const AstNode* nodep) {
+    فراغ emitDatap(ثابت Ast_گرہ* nodep) {
         // When passing to a function with va_args the compiler doesn't
         // know need a pointer so when wide, need to look inside VlWide
-        if (nodep->isWide()) puts(".data()");
+        إذا (nodep->isWide()) puts(".data()");
     }
-    void emitOpName(AstNode* nodep, const string& format, AstNode* lhsp, AstNode* rhsp,
-                    AstNode* thsp);
-    void emitCCallArgs(const AstNodeCCall* nodep, const string& selfPointer, bool inProcess);
-    void emitDereference(AstNode* nodep, const string& pointer);
-    std::string dereferenceString(const std::string& pointer) const;
-    void emitCvtPackStr(AstNode* nodep);
-    void emitConstant(AstConst* nodep);
-    void emitConstantString(const AstConst* nodep);
-    void emitVarReset(const string& prefix, AstVar* varp, bool constructing);
-    string emitVarResetRecurse(const AstVar* varp, bool constructing,
-                               const string& varNameProtected, AstNodeDType* dtypep, int depth,
-                               const string& suffix, const AstNode* valuep);
-    void emitVarResetScopeHash();
-    void emitChangeDet();
-    void putCommaIterateNext(AstNode* nodep, bool comma = false) {
-        for (AstNode* subnodep = nodep; subnodep; subnodep = subnodep->nextp()) {
-            if (comma) puts(", ");
+    فراغ emitOpName(Ast_گرہ* nodep, ثابت string& format, Ast_گرہ* lhsp, Ast_گرہ* rhsp,
+                    Ast_گرہ* thsp);
+    فراغ emit_CCall_دلیلاں(ثابت Ast_گرہ_CCall* nodep, ثابت string& self_اشارہ_گر, bool وچ_Process);
+    فراغ emitDereference(Ast_گرہ* nodep, ثابت string& اشارہ_گر);
+    std::string dereferenceString(ثابت std::string& اشارہ_گر) ثابت;
+    فراغ emitCvtPackStr(Ast_گرہ* nodep);
+    فراغ emitConstant(AstConst* nodep);
+    فراغ emitConstantString(ثابت AstConst* nodep);
+    فراغ emitVarReset(ثابت string& اگیتر, AstVar* varp, bool constructing);
+    string emitVarResetRecurse(ثابت AstVar* varp, bool constructing,
+                               ثابت string& varNameProtected, Ast_گرہ_DType* dtypep, صحيح ڈونگھائی,
+                               ثابت string& suffix, ثابت Ast_گرہ* valuep);
+    فراغ emitVarResetScopeHash();
+    فراغ emitChangeDet();
+    فراغ put_Comma_Iterate_اگلا(Ast_گرہ* nodep, bool comma = false) {
+        لكل (Ast_گرہ* subnodep = nodep; subnodep; subnodep = subnodep->nextp()) {
+            إذا (comma) puts(", ");
             iterateConst(subnodep);
             comma = true;
         }
     }
-    template <typename T>
-    string optionalProcArg(const T* const nodep) {
-        return (nodep && constructorNeedsProcess(nodep)) ? "vlProcess, " : "";
+    سانچا <typename T>
+    string optionalProcArg(ثابت T* ثابت nodep) {
+        أرجع (nodep && constructorNeedsProcess(nodep)) ? "vlProcess, " : "";
     }
-    const AstCNew* getSuperNewCallRecursep(AstNode* const nodep) {
+    ثابت AstCNew* getSuperNewCallRecursep(Ast_گرہ* ثابت nodep) {
         // Get the super.new call
-        if (!nodep) return nullptr;
-        if (const AstCNew* const cnewp = VN_CAST(nodep, CNew)) return cnewp;
-        if (const AstStmtExpr* const stmtp = VN_CAST(nodep, StmtExpr)) {
-            if (const AstCNew* const cnewp = VN_CAST(stmtp->exprp(), CNew)) return cnewp;
+        إذا (!nodep) أرجع nullptr;
+        إذا (ثابت AstCNew* ثابت cnewp = VN_CAST(nodep, CNew)) أرجع cnewp;
+        إذا (ثابت Ast_Stmt_اظہاریہ* ثابت stmtp = VN_CAST(nodep, Stmt_اظہاریہ)) {
+            إذا (ثابت AstCNew* ثابت cnewp = VN_CAST(stmtp->exprp(), CNew)) أرجع cnewp;
         }
-        if (const AstJumpBlock* const blockp = VN_CAST(nodep, JumpBlock)) {
-            if (const AstCNew* const cnewp = getSuperNewCallRecursep(blockp->stmtsp())) {
-                return cnewp;
+        إذا (ثابت Ast_Jump_بلاک* ثابت blockp = VN_CAST(nodep, Jump_بلاک)) {
+            إذا (ثابت AstCNew* ثابت cnewp = getSuperNewCallRecursep(blockp->stmtsp())) {
+                أرجع cnewp;
             }
         }
-        if (const AstCNew* const cnewp = getSuperNewCallRecursep(nodep->nextp())) return cnewp;
-        return nullptr;
+        إذا (ثابت AstCNew* ثابت cnewp = getSuperNewCallRecursep(nodep->nextp())) أرجع cnewp;
+        أرجع nullptr;
     }
 
-    void emitConstantW(AstConst* nodep, AstVarRef* assigntop) {
+    فراغ emitConstantW(AstConst* nodep, AstVarRef* assigntop) {
         // For tradition and compilation speed, assign each word directly into
         // output variable instead of using '='
         putns(nodep, "");
-        if (nodep->num().isFourState()) {
+        إذا (nodep->عدد().isFourState()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: 4-state numbers in this context");
-            return;
+            أرجع;
         }
 
-        int upWidth = nodep->num().widthToFit();
-        int chunks = 0;
-        if (upWidth > EMITC_NUM_CONSTW * VL_EDATASIZE) {
+        صحيح اتے_چوڑائی = nodep->عدد().چوڑائی_منزل_Fit();
+        صحيح chunks = 0;
+        إذا (اتے_چوڑائی > EMITC_عدد_CONSTW * VL_EDATASIZE) {
             // Output e.g. 8 words in groups of e.g. 8
-            chunks = (upWidth - 1) / (EMITC_NUM_CONSTW * VL_EDATASIZE);
-            upWidth %= (EMITC_NUM_CONSTW * VL_EDATASIZE);
-            if (upWidth == 0) upWidth = (EMITC_NUM_CONSTW * VL_EDATASIZE);
+            chunks = (اتے_چوڑائی - 1) / (EMITC_عدد_CONSTW * VL_EDATASIZE);
+            اتے_چوڑائی %= (EMITC_عدد_CONSTW * VL_EDATASIZE);
+            إذا (اتے_چوڑائی == 0) اتے_چوڑائی = (EMITC_عدد_CONSTW * VL_EDATASIZE);
         }
         {  // Upper e.g. 8 words
-            if (chunks) {
+            إذا (chunks) {
                 putnbs(nodep, "VL_CONSTHI_W_");
-                puts(cvtToStr(VL_WORDS_I(upWidth)));
+                puts(cvt_منزل_Str(VL_الفاظ_I(اتے_چوڑائی)));
                 puts("X(");
-                puts(cvtToStr(nodep->widthMin()));
+                puts(cvt_منزل_Str(nodep->چوڑائی_Min()));
                 puts(",");
-                puts(cvtToStr(chunks * EMITC_NUM_CONSTW * VL_EDATASIZE));
-            } else {
+                puts(cvt_منزل_Str(chunks * EMITC_عدد_CONSTW * VL_EDATASIZE));
+            } وإلا {
                 putnbs(nodep, "VL_CONST_W_");
-                puts(cvtToStr(VL_WORDS_I(upWidth)));
+                puts(cvt_منزل_Str(VL_الفاظ_I(اتے_چوڑائی)));
                 puts("X(");
-                puts(cvtToStr(nodep->widthMin()));
+                puts(cvt_منزل_Str(nodep->چوڑائی_Min()));
             }
             puts(",");
-            if (!assigntop->selfPointer().isEmpty()) {
-                emitDereference(assigntop, assigntop->selfPointerProtect(m_useSelfForThis));
+            إذا (!assigntop->self_اشارہ_گر().is_خالی_تھاواں()) {
+                emitDereference(assigntop, assigntop->self_اشارہ_گر_Protect(m_useSelfForThis));
             }
             puts(varName(assigntop->varp()));
-            for (int word = VL_WORDS_I(upWidth) - 1; word >= 0; word--) {
+            لكل (صحيح لفظ = VL_الفاظ_I(اتے_چوڑائی) - 1; لفظ >= 0; لفظ--) {
                 // Only 32 bits - llx + long long here just to appease CPP format warning
-                ofp()->printf(",0x%08" PRIx64, static_cast<uint64_t>(nodep->num().edataWord(
-                                                   word + chunks * EMITC_NUM_CONSTW)));
+                ofp()->لکھو(",0x%08" PRIx64, static_cast<uint64_t>(nodep->عدد().edata_لفظ(
+                                                   لفظ + chunks * EMITC_عدد_CONSTW)));
             }
             puts(")");
         }
-        for (chunks--; chunks >= 0; chunks--) {
+        لكل (chunks--; chunks >= 0; chunks--) {
             puts(";\n");
             putbs("VL_CONSTLO_W_");
-            puts(cvtToStr(EMITC_NUM_CONSTW));
+            puts(cvt_منزل_Str(EMITC_عدد_CONSTW));
             puts("X(");
-            puts(cvtToStr(chunks * EMITC_NUM_CONSTW * VL_EDATASIZE));
+            puts(cvt_منزل_Str(chunks * EMITC_عدد_CONSTW * VL_EDATASIZE));
             puts(",");
-            if (!assigntop->selfPointer().isEmpty()) {
-                emitDereference(assigntop, assigntop->selfPointerProtect(m_useSelfForThis));
+            إذا (!assigntop->self_اشارہ_گر().is_خالی_تھاواں()) {
+                emitDereference(assigntop, assigntop->self_اشارہ_گر_Protect(m_useSelfForThis));
             }
             puts(varName(assigntop->varp()));
-            for (int word = EMITC_NUM_CONSTW - 1; word >= 0; word--) {
+            لكل (صحيح لفظ = EMITC_عدد_CONSTW - 1; لفظ >= 0; لفظ--) {
                 // Only 32 bits - llx + long long here just to appease CPP format warning
-                ofp()->printf(",0x%08" PRIx64, static_cast<uint64_t>(nodep->num().edataWord(
-                                                   word + chunks * EMITC_NUM_CONSTW)));
+                ofp()->لکھو(",0x%08" PRIx64, static_cast<uint64_t>(nodep->عدد().edata_لفظ(
+                                                   لفظ + chunks * EMITC_عدد_CONSTW)));
             }
             puts(")");
         }
     }
 
-    void emitNodesWithText(AstNode* nodesp, bool useSelfForThis, bool tracking,
-                           const std::string& separator) {
-        for (AstNode* nodep = nodesp; nodep; nodep = nodep->nextp()) {
-            if (const AstText* const textp = VN_CAST(nodep, Text)) {
-                const std::string text
-                    = VSelfPointerText::replaceThis(useSelfForThis, textp->text());
-                if (tracking) {
-                    puts(text);
-                } else {
-                    ofp()->putsNoTracking(text);
+    فراغ emit_Nodes_With_متن(Ast_گرہ* nodesp, bool useSelfForThis, bool tracking,
+                           ثابت std::string& separator) {
+        لكل (Ast_گرہ* nodep = nodesp; nodep; nodep = nodep->nextp()) {
+            إذا (ثابت Ast_متن* ثابت textp = VN_CAST(nodep, متن_2)) {
+                ثابت std::string متن
+                    = VSelf_اشارہ_گر_متن::replaceThis(useSelfForThis, textp->متن());
+                إذا (tracking) {
+                    puts(متن);
+                } وإلا {
+                    ofp()->putsNoTracking(متن);
                 }
-            } else {
+            } وإلا {
                 iterateConst(nodep);
             }
-            if (nodep->nextp()) puts(separator);
+            إذا (nodep->nextp()) puts(separator);
         }
     }
 
-    void putConstructorSubinit(const AstClass* classp, AstCFunc* cfuncp) {
+    فراغ putConstructorSubinit(ثابت AstClass* classp, AstCFunc* cfuncp) {
         // Direct non-virtual bases in declaration order
-        for (const AstClassExtends* extp = classp->extendsp(); extp;
+        لكل (ثابت AstClassExtends* extp = classp->extendsp(); extp;
              extp = VN_AS(extp->nextp(), ClassExtends)) {
-            if (extp->classp()->isInterfaceClass()) continue;
-            if (extp->classp()->useVirtualPublic()) continue;
-            puts(EmitCUtil::prefixNameProtect(extp->classp()));
+            إذا (extp->classp()->isInterfaceClass()) استمر;
+            إذا (extp->classp()->use_Virtual_عوامی()) استمر;
+            puts(EmitCUtil::اگیتر_Name_Protect(extp->classp()));
             puts("::init");
-            if (constructorNeedsProcess(extp->classp())) {
+            إذا (constructorNeedsProcess(extp->classp())) {
                 puts("(vlProcess, vlSymsp");
-            } else {
+            } وإلا {
                 puts("(vlSymsp");
             }
             // Handle super.new() args for the concrete parent
-            if (const AstCNew* const superNewCallp = getSuperNewCallRecursep(cfuncp->stmtsp())) {
-                putCommaIterateNext(superNewCallp->argsp(), true);
+            إذا (ثابت AstCNew* ثابت superNewCallp = getSuperNewCallRecursep(cfuncp->stmtsp())) {
+                put_Comma_Iterate_اگلا(superNewCallp->argsp(), true);
             }
             puts(");\n");
             // Since SystemVerilog allows only for extending from one class, for sure there won't
             // be any more constructors to be called. Even if there are some classes which are
             // "implemented", those are interface classes which do not have constructors.
-            break;
+            اكسر;
         }
     }
 
     // VISITORS
-    using EmitCConstInit::visit;
-    void visit(AstCFunc* const nodep) override {
-        if (nodep->emptyBody() && !nodep->isLoose()) return;
+    using EmitCConstInit::ویکھو;
+    فراغ ویکھو(AstCFunc* ثابت nodep) override {
+        إذا (nodep->خالی_تھاواں_Body() && !nodep->isLoose()) أرجع;
         VL_RESTORER(m_useSelfForThis);
         VL_RESTORER(m_cfuncp);
         VL_RESTORER(m_instantiatesOwnProcess);
@@ -409,73 +409,73 @@ public:
         m_instantiatesOwnProcess = false;
         m_labelNumbers.clear();  // No need to save/restore, all Jumps must be within the function
 
-        splitSizeInc(nodep);
+        ونڈو_ناپ_Inc(nodep);
 
         puts("\n");
         m_lazyDecls.emit(nodep);
-        if (nodep->ifdef() != "") putns(nodep, "#ifdef " + nodep->ifdef() + "\n");
-        emitCFuncHeader(nodep, m_modp, /* withScope: */ true);
+        إذا (nodep->ifdef() != "") putns(nodep, "#ifdef " + nodep->ifdef() + "\n");
+        emit_CFunc_سرخی(nodep, m_modp, /* withScope: */ true);
 
         puts(" {\n");
-        if (nodep->isConstructor()) {
-            const AstClass* const classp = VN_CAST(nodep->scopep()->modp(), Class);
-            if (classp && classp->extendsp()) putConstructorSubinit(classp, nodep);
+        إذا (nodep->isConstructor()) {
+            ثابت AstClass* ثابت classp = VN_CAST(nodep->scopep()->modp(), Class);
+            إذا (classp && classp->extendsp()) putConstructorSubinit(classp, nodep);
         }
 
         // "+" in the debug indicates a print from the model
         puts("VL_DEBUG_IF(VL_DBG_MSGF(\"+  ");
-        for (int i = 0; i < m_modp->level(); ++i) puts("  ");
-        puts(EmitCUtil::prefixNameProtect(m_modp));
+        لكل (صحيح i = 0; i < m_modp->level(); ++i) puts("  ");
+        puts(EmitCUtil::اگیتر_Name_Protect(m_modp));
         puts(nodep->isLoose() ? "__" : "::");
         puts(nodep->nameProtect() + "\\n\"); );\n");
 
-        if (nodep->isLoose()) {
+        إذا (nodep->isLoose()) {
             m_lazyDecls.declared(nodep);  // Defined here, so no longer needs declaration
-            if (!nodep->isStatic()) {  // Standard prologue
+            إذا (!nodep->isStatic()) {  // Standard prologue
                 m_useSelfForThis = true;
-                if (nodep->voidSelf()) {
-                    const string className = EmitCUtil::prefixNameProtect(m_modp);
+                إذا (nodep->voidSelf()) {
+                    ثابت string className = EmitCUtil::اگیتر_Name_Protect(m_modp);
                     puts(className + "* const vlSelf = static_cast<" + className
                          + "*>(vlVoidSelf);\n");
                 }
-                if (!VN_IS(m_modp, Class)) {
-                    puts(EmitCUtil::symClassAssign());  // Uses vlSelf
-                } else {
+                إذا (!VN_IS(m_modp, Class)) {
+                    puts(EmitCUtil::sym_Class_سونپو());  // Uses vlSelf
+                } وإلا {
                     puts("(void)vlSelf;  // Prevent unused variable warning\n");
                 }
             }
         }
 
         // Instantiate a process class if it's going to be needed somewhere later
-        nodep->forall([&](const AstNodeCCall* ccallp) -> bool {
-            if (ccallp->funcp()->needProcess()
+        nodep->forall([&](ثابت Ast_گرہ_CCall* ccallp) -> bool {
+            إذا (ccallp->funcp()->needProcess()
                 && (ccallp->funcp()->isCoroutine() == VN_IS(ccallp->backp(), CAwait))) {
-                if (!nodep->needProcess() && !m_instantiatesOwnProcess) {
+                إذا (!nodep->needProcess() && !m_instantiatesOwnProcess) {
                     m_instantiatesOwnProcess = true;
-                    return false;
+                    أرجع false;
                 }
             }
-            return true;
+            أرجع true;
         });
-        if (m_instantiatesOwnProcess) {
-            AstCStmt* const vlprocp = new AstCStmt{nodep->fileline()};
-            vlprocp->add("VlProcessRef vlProcess = std::make_shared<VlProcess>();\n");
-            vlprocp->add("VlProcess::currentp(vlProcess.get());");
+        إذا (m_instantiatesOwnProcess) {
+            AstCStmt* ثابت vlprocp = new AstCStmt{nodep->fileline()};
+            vlprocp->جوڑو("VlProcessRef vlProcess = std::make_shared<VlProcess>();\n");
+            vlprocp->جوڑو("VlProcess::currentp(vlProcess.get());");
             nodep->prependStmtsp(vlprocp);
-        } else if (nodep->needProcess() && nodep->stmtsp()) {
+        } وإلا إذا (nodep->needProcess() && nodep->stmtsp()) {
             // Set current process so VlRNG() constructors in this function seed from it
-            AstCStmt* const setProcessp = new AstCStmt{nodep->fileline()};
-            setProcessp->add("VlProcess::currentp(vlProcess.get());");
-            nodep->prependStmtsp(setProcessp);
+            AstCStmt* ثابت سیٹ_Processp = new AstCStmt{nodep->fileline()};
+            سیٹ_Processp->جوڑو("VlProcess::currentp(vlProcess.get());");
+            nodep->prependStmtsp(سیٹ_Processp);
         }
 
-        for (AstNode* subnodep = nodep->argsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(subnodep, Var)) {
-                if (varp->isFuncReturn()) emitVarDecl(varp);
+        لكل (Ast_گرہ* subnodep = nodep->argsp(); subnodep; subnodep = subnodep->nextp()) {
+            إذا (AstVar* ثابت varp = VN_CAST(subnodep, Var)) {
+                إذا (varp->isFuncReturn()) emitVarDecl(varp);
             }
         }
 
-        if (m_useSelfForThis) {
+        إذا (m_useSelfForThis) {
             m_usevlSelfRef = true;
             // Using reference to the vlSelf pointer will help the C++
             // compiler to have dereferenceable hints, which can help to
@@ -487,189 +487,189 @@ public:
             puts("auto& vlSelfRef = std::ref(*vlSelf).get();\n");
         }
 
-        if (nodep->varsp()) {
+        إذا (nodep->varsp()) {
             putsDecoration(nodep, "// Locals\n");
-            iterateAndNextConstNull(nodep->varsp());
+            iterate_And_اگلا_Const_Null(nodep->varsp());
         }
 
-        if (nodep->stmtsp()) {
+        إذا (nodep->stmtsp()) {
             putsDecoration(nodep, "// Body\n");
-            iterateAndNextConstNull(nodep->stmtsp());
+            iterate_And_اگلا_Const_Null(nodep->stmtsp());
         }
 
         m_usevlSelfRef = false;
 
-        if (nodep->isCoroutine()) {
+        إذا (nodep->isCoroutine()) {
             // Sometimes coroutines don't have co_awaits,
             // so emit a co_return at the end to avoid compile errors.
             puts("co_return;\n");
         }
 
         puts("}\n");
-        if (nodep->ifdef() != "") puts("#endif  // " + nodep->ifdef() + "\n");
+        إذا (nodep->ifdef() != "") puts("#endif  // " + nodep->ifdef() + "\n");
     }
 
-    void visit(AstVar* nodep) override {
+    فراغ ویکھو(AstVar* nodep) override {
         UASSERT_OBJ(m_cfuncp, nodep, "Cannot emit non-local variable");
         emitVarDecl(nodep);
     }
 
-    void visit(AstCvtArrayToArray* nodep) override {
-        if (nodep->reverse()) {
+    فراغ ویکھو(Ast_Cvt_Array_منزل_Array* nodep) override {
+        إذا (nodep->الٹ()) {
             puts("VL_REVCLONE_Q(");
-        } else {
+        } وإلا {
             puts("VL_CLONE_Q(");
         }
-        iterateAndNextConstNull(nodep->fromp());
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         puts(", ");
-        puts(cvtToStr(nodep->blockSize()));
+        puts(cvt_منزل_Str(nodep->بلاک_ناپ()));
         puts(", ");
-        puts(cvtToStr(nodep->srcElementBits()));
+        puts(cvt_منزل_Str(nodep->src_Element_بٹ()));
         puts(", ");
-        puts(cvtToStr(nodep->dstElementBits()));
+        puts(cvt_منزل_Str(nodep->dst_Element_بٹ()));
         puts(")");
     }
 
-    void visit(AstCvtArrayToPacked* nodep) override {
-        AstNodeDType* const fromDtp = nodep->fromp()->dtypep()->skipRefp();
-        AstNodeDType* const elemDtp = fromDtp->subDTypep()->skipRefp();
-        const bool descending = [&]() {
-            if (const AstUnpackArrayDType* const unpackDtp = VN_CAST(fromDtp, UnpackArrayDType))
-                return !unpackDtp->declRange().ascending();
-            return false;
+    فراغ ویکھو(Ast_Cvt_Array_منزل_Packed* nodep) override {
+        Ast_گرہ_DType* ثابت fromDtp = nodep->fromp()->dtypep()->skipRefp();
+        Ast_گرہ_DType* ثابت elemDtp = fromDtp->subDTypep()->skipRefp();
+        ثابت bool descending = [&]() {
+            إذا (ثابت AstUnpackArrayDType* ثابت unpackDtp = VN_CAST(fromDtp, UnpackArrayDType))
+                أرجع !unpackDtp->declRange().ascending();
+            أرجع false;
         }();
         puts("VL_PACK_");
         emitIQW(nodep);
         puts("_");
         emitRU(fromDtp);
         emitIQW(elemDtp);
-        if (descending) {
+        إذا (descending) {
             // Wrap source in VL_PACK_REVERSED so VL_PACK sees ascending order
             emitOpName(nodep, "(%nw, %rw, %P, VL_PACK_REVERSED(%li))", nodep->fromp(), elemDtp,
                        nullptr);
-        } else {
+        } وإلا {
             emitOpName(nodep, "(%nw, %rw, %P, %li)", nodep->fromp(), elemDtp, nullptr);
         }
     }
 
-    void visit(AstCvtUnpackToQueue* nodep) override {
-        AstNodeDType* const elemDTypep = nodep->fromp()->dtypep()->subDTypep();
+    فراغ ویکھو(Ast_Cvt_Unpack_منزل_قطار* nodep) override {
+        Ast_گرہ_DType* ثابت elemDTypep = nodep->fromp()->dtypep()->subDTypep();
         emitOpName(nodep, nodep->emitC(), nodep->fromp(), elemDTypep, nullptr);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
+    فراغ ویکھو(Ast_Cvt_Unpack_منزل_Unpack* nodep) override {
         // Whether each dimension is reversed, the first for the outermost, up to the last that is
-        std::vector<bool> reverses;
-        const AstUnpackArrayDType* top = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const AstUnpackArrayDType* fromp
+        std::سمتیہ<bool> reverses;
+        ثابت AstUnpackArrayDType* چوٹی = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
+        ثابت AstUnpackArrayDType* fromp
             = VN_AS(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType);
-        while (top) {
-            reverses.push_back(top->declRange().ascending() != fromp->declRange().ascending());
-            top = VN_CAST(top->subDTypep()->skipRefp(), UnpackArrayDType);
+        طالما (چوٹی) {
+            reverses.ڈالو_پٹھ(چوٹی->declRange().ascending() != fromp->declRange().ascending());
+            چوٹی = VN_CAST(چوٹی->subDTypep()->skipRefp(), UnpackArrayDType);
             fromp = VN_CAST(fromp->subDTypep()->skipRefp(), UnpackArrayDType);
         }
-        while (!reverses.back()) reverses.pop_back();
+        طالما (!reverses.پٹھ()) reverses.نکالو_پٹھ();
         putns(nodep, "VL_CVT_UNPACK_TO_UNPACK<");
-        for (size_t i = 0; i < reverses.size(); ++i) {
-            if (i) puts(", ");
+        لكل (ناپ_t i = 0; i < reverses.ناپ(); ++i) {
+            إذا (i) puts(", ");
             puts(reverses[i] ? "1" : "0");
         }
         puts(">(");
-        iterateAndNextConstNull(nodep->fromp());
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         puts(")");
     }
 
-    void visit(AstNodeAssign* nodep) override {
-        if (AstCReset* const resetp = VN_CAST(nodep->rhsp(), CReset)) {
+    فراغ ویکھو(Ast_گرہ_سونپو* nodep) override {
+        إذا (AstCReset* ثابت resetp = VN_CAST(nodep->rhsp(), CReset)) {
             // TODO get rid of emitVarReset and instead let AstNodeAssign understand how to init
             // anything
-            AstNode* fromp = nodep->lhsp();
+            Ast_گرہ* fromp = nodep->lhsp();
             // Fork needs to use a member select.  Nothing else should be possible before VarRef.
-            if (AstMemberSel* const sfromp = VN_CAST(fromp, MemberSel)) {
+            إذا (AstMemberSel* ثابت sfromp = VN_CAST(fromp, MemberSel)) {
                 // Fork-DynScope generated pointer to previously automatic variable
-                AstVar* const memberVarp = sfromp->varp();
+                AstVar* ثابت memberVarp = sfromp->varp();
                 fromp = sfromp->fromp();
-                if (AstNullCheck* const sfromp = VN_CAST(fromp, NullCheck)) fromp = sfromp->lhsp();
-                AstNodeVarRef* const fromVarRefp = VN_AS(fromp, NodeVarRef);
+                إذا (AstNullCheck* ثابت sfromp = VN_CAST(fromp, NullCheck)) fromp = sfromp->lhsp();
+                Ast_گرہ_Var_Ref* ثابت fromVarRefp = VN_AS(fromp, گرہ_Var_Ref);
                 emitVarReset(
                     ("VL_NULL_CHECK("s
-                     + (fromVarRefp->selfPointer().isEmpty()
+                     + (fromVarRefp->self_اشارہ_گر().is_خالی_تھاواں()
                             ? ""
-                            : dereferenceString(fromVarRefp->selfPointerProtect(m_useSelfForThis)))
+                            : dereferenceString(fromVarRefp->self_اشارہ_گر_Protect(m_useSelfForThis)))
                      + varName(fromVarRefp->varp()) + ", \""
-                     + V3OutFormatter::quoteNameControls(protect(nodep->fileline()->filename()))
-                     + "\", " + std::to_string(nodep->fileline()->lineno()) + ")->"),
+                     + V3_باہرلا_Formatter::quoteNameControls(protect(nodep->fileline()->filename()))
+                     + "\", " + std::منزل_string(nodep->fileline()->lineno()) + ")->"),
                     memberVarp, resetp->constructing());
-            } else {
-                AstNodeVarRef* const fromVarRefp = VN_AS(fromp, NodeVarRef);
-                AstVar* const varp = fromVarRefp->varp();
-                const string prefix
-                    = fromVarRefp->selfPointer().isEmpty()
+            } وإلا {
+                Ast_گرہ_Var_Ref* ثابت fromVarRefp = VN_AS(fromp, گرہ_Var_Ref);
+                AstVar* ثابت varp = fromVarRefp->varp();
+                ثابت string اگیتر
+                    = fromVarRefp->self_اشارہ_گر().is_خالی_تھاواں()
                           ? ""
                           : dereferenceString(
-                                VN_AS(fromp, NodeVarRef)->selfPointerProtect(m_useSelfForThis));
-                emitVarReset(prefix, varp, resetp->constructing());
+                                VN_AS(fromp, گرہ_Var_Ref)->self_اشارہ_گر_Protect(m_useSelfForThis));
+                emitVarReset(اگیتر, varp, resetp->constructing());
             }
-            return;
+            أرجع;
         }
         bool paren = true;
         bool decind = false;
         bool rhs = true;
-        bool reverseUnpack = false;  // Set for descending CvtPackedToArray
-        const AstUnpackArrayDType* const unpackDtp
+        bool الٹ_Unpack = false;  // Set for descending CvtPackedToArray
+        ثابت AstUnpackArrayDType* ثابت unpackDtp
             = VN_CAST(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        if (AstSel* const selp = VN_CAST(nodep->lhsp(), Sel)) {
-            UASSERT_OBJ(selp->widthMin() == selp->widthConst(), selp, "Width mismatch");
-            if (selp->widthMin() == 1) {
+        إذا (AstSel* ثابت selp = VN_CAST(nodep->lhsp(), Sel)) {
+            UASSERT_OBJ(selp->چوڑائی_Min() == selp->چوڑائی_Const(), selp, "Width mismatch");
+            إذا (selp->چوڑائی_Min() == 1) {
                 putnbs(nodep, "VL_ASSIGNBIT_");
                 emitIQW(selp->fromp());
-                if (nodep->rhsp()->isAllOnesV()) {
+                إذا (nodep->rhsp()->isAllOnesV()) {
                     puts("O(");
                     rhs = false;
-                } else {
+                } وإلا {
                     puts("I(");
                 }
-                iterateAndNextConstNull(selp->lsbp());
+                iterate_And_اگلا_Const_Null(selp->lsbp());
                 puts(", ");
-                iterateAndNextConstNull(selp->fromp());
-                if (rhs) puts(", ");
-            } else {
+                iterate_And_اگلا_Const_Null(selp->fromp());
+                إذا (rhs) puts(", ");
+            } وإلا {
                 putnbs(nodep, "VL_ASSIGNSEL_");
                 emitIQW(selp->fromp());
                 emitIQW(nodep->rhsp());
                 puts("(");
-                putns(selp->fromp(), cvtToStr(selp->fromp()->widthMin()) + ", ");
-                puts(cvtToStr(nodep->widthMin()) + ", ");
-                iterateAndNextConstNull(selp->lsbp());
+                putns(selp->fromp(), cvt_منزل_Str(selp->fromp()->چوڑائی_Min()) + ", ");
+                puts(cvt_منزل_Str(nodep->چوڑائی_Min()) + ", ");
+                iterate_And_اگلا_Const_Null(selp->lsbp());
                 puts(", ");
-                iterateAndNextConstNull(selp->fromp());
+                iterate_And_اگلا_Const_Null(selp->fromp());
                 puts(", ");
             }
-        } else if (const AstGetcRefN* const selp = VN_CAST(nodep->lhsp(), GetcRefN)) {
-            iterateAndNextConstNull(selp->lhsp());
+        } وإلا إذا (ثابت AstGetcRefN* ثابت selp = VN_CAST(nodep->lhsp(), GetcRefN)) {
+            iterate_And_اگلا_Const_Null(selp->lhsp());
             puts(" = ");
             putnbs(selp, "VL_PUTC_N(");
-            iterateAndNextConstNull(selp->lhsp());
+            iterate_And_اگلا_Const_Null(selp->lhsp());
             puts(", ");
-            iterateAndNextConstNull(selp->rhsp());
+            iterate_And_اگلا_Const_Null(selp->rhsp());
             puts(", ");
-        } else if (AstVar* const varp = AstVar::scVarRecurse(nodep->lhsp())) {
+        } وإلا إذا (AstVar* ثابت varp = AstVar::scVarRecurse(nodep->lhsp())) {
             putnbs(varp, "VL_ASSIGN_");  // Set a systemC variable
             emitScIQW(varp);
             emitIQW(nodep);
             puts("(");
-            puts(cvtToStr(nodep->widthMin()) + ", ");
-            iterateAndNextConstNull(nodep->lhsp());
+            puts(cvt_منزل_Str(nodep->چوڑائی_Min()) + ", ");
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(", ");
-        } else if (AstVar* const varp = AstVar::scVarRecurse(nodep->rhsp())) {
+        } وإلا إذا (AstVar* ثابت varp = AstVar::scVarRecurse(nodep->rhsp())) {
             putnbs(varp, "VL_ASSIGN_");  // Get a systemC variable
             emitIQW(nodep);
             emitScIQW(varp);
             puts("(");
-            puts(cvtToStr(nodep->widthMin()) + ", ");
-            iterateAndNextConstNull(nodep->lhsp());
+            puts(cvt_منزل_Str(nodep->چوڑائی_Min()) + ", ");
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(", ");
-        } else if (const AstCvtPackedToArray* const castp
-                   = VN_CAST(nodep->rhsp(), CvtPackedToArray)) {
+        } وإلا إذا (ثابت Ast_Cvt_Packed_منزل_Array* ثابت castp
+                   = VN_CAST(nodep->rhsp(), Cvt_Packed_منزل_Array)) {
             putns(castp, "VL_UNPACK_");
             emitRU(nodep);
             emitIQW(nodep->dtypep()->subDTypep());
@@ -677,34 +677,34 @@ public:
             emitRU(castp->fromp());
             emitIQW(castp->fromp());
             puts("(");
-            putns(castp->dtypep(), cvtToStr(castp->dtypep()->subDTypep()->widthMin()));
+            putns(castp->dtypep(), cvt_منزل_Str(castp->dtypep()->subDTypep()->چوڑائی_Min()));
             puts(", ");
-            puts(cvtToStr(castp->fromp()->widthMin()));
+            puts(cvt_منزل_Str(castp->fromp()->چوڑائی_Min()));
             puts(", ");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(", ");
             rhs = false;
-            iterateAndNextConstNull(castp->fromp());
+            iterate_And_اگلا_Const_Null(castp->fromp());
             // Descending unpacked dest: reverse after unpack
-            if (unpackDtp && !unpackDtp->declRange().ascending()) reverseUnpack = true;
-        } else if (const AstCvtArrayToArray* const castp
-                   = VN_CAST(nodep->rhsp(), CvtArrayToArray)) {
-            if (castp->reverse()) {
+            إذا (unpackDtp && !unpackDtp->declRange().ascending()) الٹ_Unpack = true;
+        } وإلا إذا (ثابت Ast_Cvt_Array_منزل_Array* ثابت castp
+                   = VN_CAST(nodep->rhsp(), Cvt_Array_منزل_Array)) {
+            إذا (castp->الٹ()) {
                 putns(castp, "VL_REVCOPY_Q(");
-            } else {
+            } وإلا {
                 putns(castp, "VL_COPY_Q(");
             }
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(", ");
             rhs = false;
-            iterateAndNextConstNull(castp->fromp());
+            iterate_And_اگلا_Const_Null(castp->fromp());
             puts(", ");
-            puts(cvtToStr(castp->blockSize()));
+            puts(cvt_منزل_Str(castp->بلاک_ناپ()));
             puts(", ");
-            puts(cvtToStr(castp->srcElementBits()));
+            puts(cvt_منزل_Str(castp->src_Element_بٹ()));
             puts(", ");
-            puts(cvtToStr(castp->dstElementBits()));
-        } else if (nodep->isWide() && VN_IS(nodep->lhsp(), VarRef)  //
+            puts(cvt_منزل_Str(castp->dst_Element_بٹ()));
+        } وإلا إذا (nodep->isWide() && VN_IS(nodep->lhsp(), VarRef)  //
                    && !VN_IS(nodep->rhsp(), CExpr)  //
                    && !VN_IS(nodep->rhsp(), CMethodHard)  //
                    // Although not here currently, note putting !VN_IS(Const) works,
@@ -716,297 +716,297 @@ public:
                    && !VN_IS(nodep->rhsp(), MemberSel)  //
                    && !VN_IS(nodep->rhsp(), StructSel)  //
                    && !VN_IS(nodep->rhsp(), ArraySel)  //
-                   && !VN_IS(nodep->rhsp(), ExprStmt)) {
+                   && !VN_IS(nodep->rhsp(), اظہاریہ_Stmt)) {
             // Wide functions assign into the array directly, don't need separate assign statement
-            m_wideTempRefp = VN_AS(nodep->lhsp(), VarRef);
+            m_wide_عارضی_Refp = VN_AS(nodep->lhsp(), VarRef);
             paren = false;
-        } else if (nodep->isWide() && !unpackDtp && !VN_IS(nodep->rhsp(), Const)) {
+        } وإلا إذا (nodep->isWide() && !unpackDtp && !VN_IS(nodep->rhsp(), Const)) {
             putnbs(nodep, "VL_ASSIGN_W(");
-            puts(cvtToStr(nodep->widthMin()) + ", ");
-            iterateAndNextConstNull(nodep->lhsp());
+            puts(cvt_منزل_Str(nodep->چوڑائی_Min()) + ", ");
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(", ");
-        } else if (VN_IS(nodep->lhsp()->dtypep()->skipRefp(), QueueDType)
-                   && (VN_IS(nodep->rhsp(), StreamL) || VN_IS(nodep->lhsp(), StreamL)
-                       || VN_IS(nodep->rhsp(), StreamR) || VN_IS(nodep->lhsp(), StreamR)
-                       || VN_IS(nodep->rhsp(), StreamR))) {
+        } وإلا إذا (VN_IS(nodep->lhsp()->dtypep()->skipRefp(), قطار_DType)
+                   && (VN_IS(nodep->rhsp(), دھارا_L) || VN_IS(nodep->lhsp(), دھارا_L)
+                       || VN_IS(nodep->rhsp(), دھارا_R) || VN_IS(nodep->lhsp(), دھارا_R)
+                       || VN_IS(nodep->rhsp(), دھارا_R))) {
             //if either side is streamL or streamR don't emit lhsp everything will be passed by
             //reference
 
             paren = false;
 
-        } else {
+        } وإلا {
             paren = false;
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(" ");
-            ofp()->blockInc();
+            ofp()->بلاک_Inc();
             decind = true;
-            if (!VN_IS(nodep->rhsp(), Const)) ofp()->putBreak();
+            إذا (!VN_IS(nodep->rhsp(), Const)) ofp()->putBreak();
             putns(nodep, "= ");
         }
-        if (rhs) iterateAndNextConstNull(nodep->rhsp());
-        if (paren) puts(")");
-        if (decind) ofp()->blockDec();
+        إذا (rhs) iterate_And_اگلا_Const_Null(nodep->rhsp());
+        إذا (paren) puts(")");
+        إذا (decind) ofp()->بلاک_Dec();
         puts(";\n");
-        if (reverseUnpack) {
+        إذا (الٹ_Unpack) {
             puts("VL_UNPACK_REVERSED(");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(");\n");
         }
     }
-    void visit(AstAssocSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        const std::string atFunc = nodep->isLValue() ? ".atWrite(" : ".at(";
+    فراغ ویکھو(AstAssocSel* nodep) override {
+        iterate_And_اگلا_Const_Null(nodep->fromp());
+        ثابت std::string atFunc = nodep->isLValue() ? ".atWrite(" : ".at(";
         putnbs(nodep, atFunc);
-        AstAssocArrayDType* const adtypep
+        AstAssocArrayDType* ثابت adtypep
             = VN_AS(nodep->fromp()->dtypep()->skipRefp(), AssocArrayDType);
         UASSERT_OBJ(adtypep, nodep, "Associative select on non-associative type");
-        iterateAndNextConstNull(nodep->bitp());
+        iterate_And_اگلا_Const_Null(nodep->bitp());
         puts(")");
     }
-    void visit(AstWildcardSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
-        const std::string atFunc = nodep->isLValue() ? ".atWrite(" : ".at(";
+    فراغ ویکھو(AstWildcardSel* nodep) override {
+        iterate_And_اگلا_Const_Null(nodep->fromp());
+        ثابت std::string atFunc = nodep->isLValue() ? ".atWrite(" : ".at(";
         putnbs(nodep, atFunc);
-        AstWildcardArrayDType* const adtypep
+        AstWildcardArrayDType* ثابت adtypep
             = VN_AS(nodep->fromp()->dtypep()->skipRefp(), WildcardArrayDType);
         UASSERT_OBJ(adtypep, nodep, "Wildcard select on non-wildcard-associative type");
-        iterateAndNextConstNull(nodep->bitp());
+        iterate_And_اگلا_Const_Null(nodep->bitp());
         puts(")");
     }
-    void visit(AstCCall* nodep) override {
-        const AstCFunc* const funcp = nodep->funcp();
-        const AstNodeModule* const funcModp = EmitCParentModule::get(funcp);
+    فراغ ویکھو(AstCCall* nodep) override {
+        ثابت AstCFunc* ثابت funcp = nodep->funcp();
+        ثابت Ast_گرہ_Module* ثابت funcModp = EmitCParentModule::get(funcp);
         putnbs(nodep, "");
-        if (funcp->dpiImportPrototype()) {
+        إذا (funcp->dpiImportPrototype()) {
             // Calling DPI import
             putns(nodep, funcp->name());
-        } else if (funcp->isProperMethod() && funcp->isStatic()) {
+        } وإلا إذا (funcp->is_Proper_طریقہ() && funcp->isStatic()) {
             // Call static method via the containing class
-            putns(funcModp, EmitCUtil::prefixNameProtect(funcModp) + "::");
+            putns(funcModp, EmitCUtil::اگیتر_Name_Protect(funcModp) + "::");
             putns(nodep, funcp->nameProtect());
-        } else if (nodep->superReference()) {
+        } وإلا إذا (nodep->superReference()) {
             // Calling superclass method
-            putns(funcModp, EmitCUtil::prefixNameProtect(funcModp) + "::");
+            putns(funcModp, EmitCUtil::اگیتر_Name_Protect(funcModp) + "::");
             putns(nodep, funcp->nameProtect());
-        } else if (funcp->isLoose()) {
+        } وإلا إذا (funcp->isLoose()) {
             // Calling loose method
             putns(nodep, funcNameProtect(funcp));
-        } else {
+        } وإلا {
             // Calling regular method/function
-            if (!nodep->selfPointer().isEmpty()) {
-                emitDereference(nodep, nodep->selfPointerProtect(m_useSelfForThis));
+            إذا (!nodep->self_اشارہ_گر().is_خالی_تھاواں()) {
+                emitDereference(nodep, nodep->self_اشارہ_گر_Protect(m_useSelfForThis));
             }
             putns(nodep, funcp->nameProtect());
         }
-        emitCCallArgs(nodep, nodep->selfPointerProtect(m_useSelfForThis), m_cfuncp->needProcess());
+        emit_CCall_دلیلاں(nodep, nodep->self_اشارہ_گر_Protect(m_useSelfForThis), m_cfuncp->needProcess());
     }
-    void visit(AstCMethodCall* nodep) override {
-        const AstCFunc* const funcp = nodep->funcp();
+    فراغ ویکھو(AstCMethodCall* nodep) override {
+        ثابت AstCFunc* ثابت funcp = nodep->funcp();
         UASSERT_OBJ(!funcp->isLoose(), nodep, "Loose method called via AstCMethodCall");
         iterateConst(nodep->fromp());
         putnbs(nodep, "->");
-        if (nodep->superReference()) {
+        إذا (nodep->superReference()) {
             // Super call, so the base implementation is used rather than the override
-            const AstNodeModule* const funcModp = EmitCParentModule::get(funcp);
-            putns(funcModp, EmitCUtil::prefixNameProtect(funcModp) + "::");
+            ثابت Ast_گرہ_Module* ثابت funcModp = EmitCParentModule::get(funcp);
+            putns(funcModp, EmitCUtil::اگیتر_Name_Protect(funcModp) + "::");
         }
         putns(funcp, funcp->nameProtect());
-        emitCCallArgs(nodep, "", m_cfuncp->needProcess());
+        emit_CCall_دلیلاں(nodep, "", m_cfuncp->needProcess());
     }
-    void visit(AstCAwait* nodep) override {
+    فراغ ویکھو(AstCAwait* nodep) override {
         putns(nodep, "co_await ");
         iterateConst(nodep->exprp());
         puts(";\n");
     }
-    void visit(AstCNew* nodep) override {
-        if (VN_IS(nodep->dtypep(), VoidDType)) {  // super.new case
+    فراغ ویکھو(AstCNew* nodep) override {
+        إذا (VN_IS(nodep->dtypep(), VoidDType)) {  // super.new case
             putsDecoration(nodep, "/*super.new*/");
-            return;
+            أرجع;
         }
         // assignment case;
-        putns(nodep, "VL_NEW(" + EmitCUtil::prefixNameProtect(nodep->dtypep()) + ", "
+        putns(nodep, "VL_NEW(" + EmitCUtil::اگیتر_Name_Protect(nodep->dtypep()) + ", "
                          + optionalProcArg(nodep->dtypep()) + "vlSymsp");
-        putCommaIterateNext(nodep->argsp(), true);
+        put_Comma_Iterate_اگلا(nodep->argsp(), true);
         puts(")");
     }
-    void visit(AstCMethodHard* nodep) override {
+    فراغ ویکھو(AstCMethodHard* nodep) override {
         iterateConst(nodep->fromp());
         putns(nodep, nodep->usePtr() ? "->" : ".");
         putns(nodep, nodep->name());
-        if (nodep->method() == VCMethod::FORCE_READ_SEL) {
+        إذا (nodep->طریقہ() == VCMethod::FORCE_READ_SEL) {
             emitIQW(nodep);
-            if (nodep->isWide()) puts("<" + cvtToStr(nodep->dtypep()->widthWords()) + ">");
-        } else if (nodep->method() == VCMethod::ARRAY_SLICE) {
+            إذا (nodep->isWide()) puts("<" + cvt_منزل_Str(nodep->dtypep()->چوڑائی_الفاظ()) + ">");
+        } وإلا إذا (nodep->طریقہ() == VCMethod::ARRAY_ٹکڑا) {
             // VlUnpacked::slice<N_Out>(loIdx) - N_Out is the (fixed) result array size
-            const AstUnpackArrayDType* const adtypep
+            ثابت AstUnpackArrayDType* ثابت adtypep
                 = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-            puts("<" + cvtToStr(adtypep->elementsConst()) + ">");
-        } else if (nodep->method() == VCMethod::COVERGROUP_ADD_COVERPOINT) {
+            puts("<" + cvt_منزل_Str(adtypep->elementsConst()) + ">");
+        } وإلا إذا (nodep->طریقہ() == VCMethod::COVERGROUP_جوڑو_COVERPOINT) {
             // The hit-list bound is a template argument of the returned VlCoverpointT<>, and the
             // node's own dtype is that type, so it is the one source of truth for both.
-            const AstCoverpointDType* const cpdtypep
+            ثابت AstCoverpointDType* ثابت cpdtypep
                 = VN_AS(nodep->dtypep()->skipRefp(), CoverpointDType);
-            puts("<" + cvtToStr(cpdtypep->hitBound()) + ">");
-        } else if (nodep->method() == VCMethod::COVERGROUP_ADD_CROSS) {
-            const AstCoverCrossDType* const cxdtypep
+            puts("<" + cvt_منزل_Str(cpdtypep->کامیابی_Bound()) + ">");
+        } وإلا إذا (nodep->طریقہ() == VCMethod::COVERGROUP_جوڑو_CROSS) {
+            ثابت AstCoverCrossDType* ثابت cxdtypep
                 = VN_AS(nodep->dtypep()->skipRefp(), CoverCrossDType);
-            puts("<" + cxdtypep->cppTemplateArgs() + ">");
+            puts("<" + cxdtypep->cpp_Template_دلیلاں() + ">");
         }
         puts("(");
         bool comma = false;
-        int argNum = 0;
-        for (AstNode* subnodep = nodep->pinsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (comma) puts(", ");
-            if (nodep->method() == VCMethod::RANDOMIZER_HARD && argNum == 1) {
+        صحيح arg_عدد = 0;
+        لكل (Ast_گرہ* subnodep = nodep->pinsp(); subnodep; subnodep = subnodep->nextp()) {
+            إذا (comma) puts(", ");
+            إذا (nodep->طریقہ() == VCMethod::RANDOMIZER_HARD && arg_عدد == 1) {
                 // For RANDOMIZER_HARD's filename argument (2nd arg after constraint),
                 // apply protect() similar to VL_STOP to handle --protected flag
-                if (const AstCExpr* const cexprp = VN_CAST(subnodep, CExpr)) {
+                إذا (ثابت AstCExpr* ثابت cexprp = VN_CAST(subnodep, CExpr)) {
                     // Extract filename from the CExpr (which contains "filename")
                     std::string filename;
-                    for (const AstNode* textnodep = cexprp->nodesp(); textnodep;
+                    لكل (ثابت Ast_گرہ* textnodep = cexprp->nodesp(); textnodep;
                          textnodep = textnodep->nextp()) {
-                        if (const AstText* const textp = VN_CAST(textnodep, Text)) {
-                            filename = textp->text();
-                            break;
+                        إذا (ثابت Ast_متن* ثابت textp = VN_CAST(textnodep, متن_2)) {
+                            filename = textp->متن();
+                            اكسر;
                         }
                     }
                     // Remove surrounding quotes if present
-                    if (filename.size() >= 2 && filename.front() == '"'
-                        && filename.back() == '"') {
-                        filename = filename.substr(1, filename.size() - 2);
+                    إذا (filename.ناپ() >= 2 && filename.front() == '"'
+                        && filename.پٹھ() == '"') {
+                        filename = filename.substr(1, filename.ناپ() - 2);
                     }
                     // Emit with protect()
                     putsQuoted(protect(filename));
-                } else {
+                } وإلا {
                     iterateConst(subnodep);
                 }
-            } else {
+            } وإلا {
                 iterateConst(subnodep);
             }
             comma = true;
-            argNum++;
+            arg_عدد++;
         }
-        if (nodep->withp()) {
-            if (comma) puts(", ");
+        إذا (nodep->withp()) {
+            إذا (comma) puts(", ");
             iterateConst(nodep->withp());
         }
         puts(")");
     }
-    void visit(AstCFuncHard* nodep) override {
+    فراغ ویکھو(AstCFuncHard* nodep) override {
         putns(nodep, nodep->name());
         puts("(");
-        putCommaIterateNext(nodep->pinsp());
+        put_Comma_Iterate_اگلا(nodep->pinsp());
         puts(")");
     }
-    void visit(AstLambdaArgRef* nodep) override { putbs(nodep->nameProtect()); }
-    void visit(AstWith* nodep) override {
+    فراغ ویکھو(AstLambdaArgRef* nodep) override { putbs(nodep->nameProtect()); }
+    فراغ ویکھو(AstWith* nodep) override {
         // With uses a C++11 lambda
         putnbs(nodep, "[&](");
-        if (auto* const argrefp = nodep->indexArgRefp()) {
+        إذا (خودکار* ثابت argrefp = nodep->اشاریہ_Arg_Refp()) {
             putnbs(argrefp, argrefp->dtypep()->cType(argrefp->nameProtect(), false, false));
             puts(", ");
         }
-        if (auto* const argrefp = nodep->valueArgRefp()) {
+        إذا (خودکار* ثابت argrefp = nodep->قدر_Arg_Refp()) {
             putnbs(argrefp, argrefp->dtypep()->cType(argrefp->nameProtect(), false, false));
         }
         puts(") -> ");
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         puts(" {\n");
         VL_RESTORER(m_createdScopeHash);
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_اگلا_Const_Null(nodep->exprp());
         puts("}\n");
     }
-    void visit(AstCase* nodep) override {  // LCOV_EXCL_LINE
+    فراغ ویکھو(AstCase* nodep) override {  // LCOV_EXCL_LINE
         // In V3Case...
         nodep->v3fatalSrc("Case statements should have been reduced out");
     }
-    void visit(AstComment* nodep) override {
+    فراغ ویکھو(AstComment* nodep) override {
         string at;
-        if (nodep->showAt()) {
+        إذا (nodep->showAt()) {
             at = " at " + nodep->fileline()->ascii();
             // If protecting, passthru less information about the design
-            if (!v3Global.opt.protectIds()) return;
+            إذا (!v3Global.opt.protectIds()) أرجع;
         }
-        if (!(nodep->protect() && v3Global.opt.protectIds())) {
+        إذا (!(nodep->protect() && v3Global.opt.protectIds())) {
             putsDecoration(nodep, "// "s + nodep->name() + at + "\n");
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstCoverOtherDecl* nodep) override {
-        emitCoverOtherDeclInsert(nodep);
-        if (coverageUsesLocalCounter(nodep)) {
+    فراغ ویکھو(AstCoverOtherDecl* nodep) override {
+        emit_Cover_Other_Decl_داخل_کرو(nodep);
+        إذا (coverage_ورتدا_Local_Counter(nodep)) {
             // Some task bodies are cloned into a caller module where the
             // original instance-local counter is not addressable. Those clones
             // fall back to the global bin number, so register that slot too.
-            emitCoverOtherDeclInsert(nodep, true);
+            emit_Cover_Other_Decl_داخل_کرو(nodep, true);
         }
     }
-    void visit(AstCoverToggleDecl* nodep) override {
+    فراغ ویکھو(AstCoverToggleDecl* nodep) override {
         putns(nodep, "vlSelf->__vlCoverToggleInsert(");  // As Declared in emitCoverageDecl
-        puts(cvtToStr(nodep->range().right()));
+        puts(cvt_منزل_Str(nodep->range().دایاں()));
         puts(", ");
-        puts(cvtToStr(nodep->range().left()));
+        puts(cvt_منزل_Str(nodep->range().بایاں()));
         puts(", ");
-        puts(cvtToStr(nodep->range().ranged()));
+        puts(cvt_منزل_Str(nodep->range().ranged()));
         puts(", ");
         putCoverageArray(nodep);
         puts(" + ");
-        puts(cvtToStr(coverageBinNum(nodep)));
+        puts(cvt_منزل_Str(coverage_Bin_عدد(nodep)));
         // first controls whether duplicate module instances are collapsed in
         // the default coverage view. The following flag says whether countp
         // points to an object-local counter; only those counters must be kept
         // real for later instances so forcePerInstance can split hierarchy.
         puts(", first");  // Enable, passed from __Vconfigure parameter
         puts(", ");
-        puts(coverageUsesLocalCounter(nodep) ? "true" : "false");
+        puts(coverage_ورتدا_Local_Counter(nodep) ? "true" : "false");
         puts(", ");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->firstColumn()));
+        puts(cvt_منزل_Str(nodep->fileline()->پہلا_کالم()));
         puts(", ");
-        putsQuoted((!nodep->hier().empty() ? "." : "")
-                   + VIdProtect::protectWordsIf(nodep->hier(), nodep->protect()));
+        putsQuoted((!nodep->hier().خالی_تھاواں() ? "." : "")
+                   + VIdProtect::protect_الفاظ_If(nodep->hier(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->page(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->ورقہ(), nodep->protect()));
         puts(", ");
-        putsQuoted(VIdProtect::protectWordsIf(nodep->comment(), nodep->protect()));
+        putsQuoted(VIdProtect::protect_الفاظ_If(nodep->comment(), nodep->protect()));
         puts(");\n");
     }
-    void visit(AstCoverInc* nodep) override {
-        if (VN_IS(nodep->declp(), CoverOtherDecl)) {
-            if (v3Global.opt.threads() > 1) {
+    فراغ ویکھو(AstCoverInc* nodep) override {
+        إذا (VN_IS(nodep->declp(), CoverOtherDecl)) {
+            إذا (v3Global.opt.دھاگے() > 1) {
                 putns(nodep, "");
                 putCoverageArray(nodep->declp());
                 puts("[");
-                puts(cvtToStr(coverageBinNum(nodep->declp())));
+                puts(cvt_منزل_Str(coverage_Bin_عدد(nodep->declp())));
                 puts("].fetch_add(1, std::memory_order_relaxed);\n");
-            } else {
+            } وإلا {
                 putns(nodep, "++(");
                 putCoverageArray(nodep->declp());
                 puts("[");
-                puts(cvtToStr(coverageBinNum(nodep->declp())));
+                puts(cvt_منزل_Str(coverage_Bin_عدد(nodep->declp())));
                 puts("]);\n");
             }
-        } else {
+        } وإلا {
             puts("VL_COV_TOGGLE_CHG_");
-            if (v3Global.opt.threads() > 1) {
+            إذا (v3Global.opt.دھاگے() > 1) {
                 puts("MT_");
-            } else {
+            } وإلا {
                 puts("ST_");
             }
             emitIQW(nodep->toggleExprp());
             puts("(");
             // Each bit of variable has 2 counters, so the size of variable is half of the size of
             // coverpoint
-            puts(cvtToStr(nodep->declp()->size() / 2));
+            puts(cvt_منزل_Str(nodep->declp()->ناپ() / 2));
             puts(", ");
             // Toggle update uses the same object-local counter array that
             // __vlCoverToggleInsert registered.
             putCoverageArray(nodep->declp());
             puts(" + ");
-            puts(cvtToStr(coverageBinNum(nodep->declp())));
+            puts(cvt_منزل_Str(coverage_Bin_عدد(nodep->declp())));
             puts(", ");
             iterateConst(nodep->toggleExprp());
             puts(", ");
@@ -1014,146 +1014,146 @@ public:
             puts(");\n");
         }
     }
-    void visit(AstDisableFork* nodep) override { putns(nodep, "vlProcess->disableFork();\n"); }
-    void visit(AstCReturn* nodep) override {
+    فراغ ویکھو(AstDisableFork* nodep) override { putns(nodep, "vlProcess->disableFork();\n"); }
+    فراغ ویکھو(AstCReturn* nodep) override {
         putns(nodep, "return (");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(");\n");
     }
-    void visit(AstDisplay* nodep) override {
-        string text = nodep->fmtp()->text();
-        if (nodep->addNewline()) text += "\n";
-        displayNode(nodep, nodep->fmtp(), text, nodep->fmtp()->exprsp(), false);
+    فراغ ویکھو(AstDisplay* nodep) override {
+        string متن = nodep->fmtp()->متن();
+        إذا (nodep->جوڑو_Newline()) متن += "\n";
+        display_گرہ(nodep, nodep->fmtp(), متن, nodep->fmtp()->exprsp(), false);
     }
-    void visit(AstDumpCtl* nodep) override {
-        switch (nodep->ctlType()) {
-        case VDumpCtlType::FILE:
+    فراغ ویکھو(AstDumpCtl* nodep) override {
+        بدل (nodep->ctlType()) {
+        حالة VDumpCtlType::FILE:
             putns(nodep, "vlSymsp->_vm_contextp__->dumpfile(");
             iterateConst(nodep->exprp());
             puts(");\n");
-            break;
-        case VDumpCtlType::VARS:
+            اكسر;
+        حالة VDumpCtlType::VARS:
             // We ignore number of levels to dump in exprp()
-            if (v3Global.opt.trace()) {
+            إذا (v3Global.opt.trace()) {
                 putns(nodep, "vlSymsp->_traceDumpOpen();\n");
-            } else {
+            } وإلا {
                 putns(nodep, "VL_PRINTF_MT(\"-Info: ");
-                puts(V3OutFormatter::quoteNameControls(protect(nodep->fileline()->filename())));
+                puts(V3_باہرلا_Formatter::quoteNameControls(protect(nodep->fileline()->filename())));
                 puts(":");
-                puts(cvtToStr(nodep->fileline()->lineno()));
+                puts(cvt_منزل_Str(nodep->fileline()->lineno()));
                 puts(": $dumpvar ignored, as Verilated without --trace");
                 puts("\\n\");\n");
             }
-            break;
-        case VDumpCtlType::ALL:
+            اكسر;
+        حالة VDumpCtlType::ALL:
             // $dumpall currently ignored
-            break;
-        case VDumpCtlType::FLUSH:
+            اكسر;
+        حالة VDumpCtlType::FLUSH:
             // $dumpall currently ignored; would need rework of VCD single thread,
             // or flag we pass-through to next eval() iteration
-            break;
-        case VDumpCtlType::LIMIT:
+            اكسر;
+        حالة VDumpCtlType::حد_بندی_2:
             // $dumplimit currently ignored
-            break;
-        case VDumpCtlType::OFF:
+            اكسر;
+        حالة VDumpCtlType::OFF:
             // Currently ignored as both Vcd and Fst do not support them, as would need "X" dump
-            break;
-        case VDumpCtlType::ON:
+            اكسر;
+        حالة VDumpCtlType::ON:
             // Currently ignored as $dumpoff is also ignored
-            break;
-        default: nodep->v3fatalSrc("Bad case, unexpected " << nodep->ctlType().ascii());
+            اكسر;
+        افتراضي: nodep->v3fatalSrc("Bad case, unexpected " << nodep->ctlType().ascii());
         }
     }
-    void visit(AstScopeName* nodep) override {
+    فراغ ویکھو(AstScopeName* nodep) override {
         // For use under AstCCalls for dpiImports.  ScopeNames under
         // displays are handled in AstDisplay
-        if (!nodep->dpiExport()) {
+        إذا (!nodep->dpiExport()) {
             // this is where the DPI import context scope is set
-            const string scope = nodep->scopeDpiName();
+            ثابت string scope = nodep->scopeDpiName();
             putnbs(nodep, "(vlSymsp->" + protect("__Vscopep_" + scope) + ")");
         }
     }
-    void visit(AstSFormat* nodep) override {
-        displayNode(nodep, nodep->fmtp(), nodep->fmtp()->text(), nodep->fmtp()->exprsp(), false);
+    فراغ ویکھو(AstSFormat* nodep) override {
+        display_گرہ(nodep, nodep->fmtp(), nodep->fmtp()->متن(), nodep->fmtp()->exprsp(), false);
     }
-    void visit(AstSFormatF* nodep) override {
-        displayNode(nodep, nodep, nodep->text(), nodep->exprsp(), false);
+    فراغ ویکھو(AstSFormatF* nodep) override {
+        display_گرہ(nodep, nodep, nodep->متن(), nodep->exprsp(), false);
     }
-    void visit(AstFScanF* nodep) override {
-        displayNode(nodep, nullptr, nodep->text(), nodep->exprsp(), true);
+    فراغ ویکھو(AstFScanF* nodep) override {
+        display_گرہ(nodep, nullptr, nodep->متن(), nodep->exprsp(), true);
     }
-    void visit(AstSScanF* nodep) override {
-        displayNode(nodep, nullptr, nodep->text(), nodep->exprsp(), true);
+    فراغ ویکھو(AstSScanF* nodep) override {
+        display_گرہ(nodep, nullptr, nodep->متن(), nodep->exprsp(), true);
     }
-    void visit(AstValuePlusArgs* nodep) override {
+    فراغ ویکھو(Ast_قدر_Plus_دلیلاں* nodep) override {
         putns(nodep, "VL_VALUEPLUSARGS_IN");
         emitIQW(nodep->outp());
         puts("(");
-        puts(cvtToStr(nodep->outp()->widthMin()));
+        puts(cvt_منزل_Str(nodep->outp()->چوڑائی_Min()));
         puts(", ");
         iterateConst(nodep->searchp());
         puts(", ");
         putbs("");
-        iterateAndNextConstNull(nodep->outp());
+        iterate_And_اگلا_Const_Null(nodep->outp());
         puts(")");
     }
-    void visit(AstTestPlusArgs* nodep) override {
+    فراغ ویکھو(Ast_Test_Plus_دلیلاں* nodep) override {
         putns(nodep, "VL_TESTPLUSARGS_I(");
         iterateConst(nodep->searchp());
         puts(")");
     }
-    void visit(AstFError* nodep) override {
+    فراغ ویکھو(AstFError* nodep) override {
         putns(nodep, "VL_FERROR_I");
         puts(nodep->strp()->isString() ? "N(" : "W(");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         putbs(", ");
-        if (nodep->strp()->isWide()) {
-            puts(cvtToStr(nodep->strp()->widthWords()));
+        إذا (nodep->strp()->isWide()) {
+            puts(cvt_منزل_Str(nodep->strp()->چوڑائی_الفاظ()));
             putbs(", ");
         }
-        iterateAndNextConstNull(nodep->strp());
+        iterate_And_اگلا_Const_Null(nodep->strp());
         puts(")");
     }
-    void visit(AstFGetS* nodep) override {
+    فراغ ویکھو(AstFGetS* nodep) override {
         emitOpName(nodep, nodep->emitC(), nodep->strgp(), nodep->filep(), nullptr);
     }
-    void visit(AstFOpen* nodep) override {
+    فراغ ویکھو(AstFOpen* nodep) override {
         putns(nodep, "VL_FOPEN_NN(");
         iterateConst(nodep->filenamep());
         putbs(", ");
         iterateConst(nodep->modep());
         puts(");\n");
     }
-    void visit(AstFOpenMcd* nodep) override {
+    فراغ ویکھو(AstFOpenMcd* nodep) override {
         putns(nodep, "VL_FOPEN_MCD_N(");
         iterateConst(nodep->filenamep());
         puts(");\n");
     }
-    void visit(AstNodeReadWriteMem* nodep) override {
+    فراغ ویکھو(Ast_گرہ_Read_Write_Mem* nodep) override {
         putns(nodep, nodep->cFuncPrefixp());
         puts("N(");
         puts(nodep->isHex() ? "true" : "false");
         putbs(", ");
         // Need real storage width
-        puts(cvtToStr(nodep->memp()->dtypep()->skipRefp()->subDTypep()->widthMin()));
+        puts(cvt_منزل_Str(nodep->memp()->dtypep()->skipRefp()->subDTypep()->چوڑائی_Min()));
         uint32_t array_lo = 0;
         bool memUsePtr = true;
         {
-            const AstVarRef* const varrefp = VN_CAST(nodep->memp(), VarRef);
-            if (!varrefp) {
+            ثابت AstVarRef* ثابت varrefp = VN_CAST(nodep->memp(), VarRef);
+            إذا (!varrefp) {
                 nodep->v3error(nodep->verilogKwd() << " loading non-variable");
-            } else if (VN_IS(varrefp->varp()->dtypeSkipRefp(), AssocArrayDType)
+            } وإلا إذا (VN_IS(varrefp->varp()->dtypeSkipRefp(), AssocArrayDType)
                        || VN_IS(varrefp->varp()->dtypeSkipRefp(), DynArrayDType)) {
                 // nodep->memp() below will when verilated code is compiled create a C++ template
                 memUsePtr = false;
-            } else if (const AstUnpackArrayDType* const adtypep
+            } وإلا إذا (ثابت AstUnpackArrayDType* ثابت adtypep
                        = VN_CAST(varrefp->varp()->dtypeSkipRefp(), UnpackArrayDType)) {
                 putbs(", ");
-                puts(cvtToStr(varrefp->varp()->dtypep()->arrayUnpackedElements()));
+                puts(cvt_منزل_Str(varrefp->varp()->dtypep()->arrayUnpackedElements()));
                 array_lo = adtypep->lo();
                 putbs(", ");
-                puts(cvtToStr(array_lo));
-            } else {
+                puts(cvt_منزل_Str(array_lo));
+            } وإلا {
                 nodep->v3error(
                     nodep->verilogKwd()
                     << " loading other than unpacked/dynamic/associative-array variable");
@@ -1163,777 +1163,777 @@ public:
         iterateConst(nodep->filenamep());
         putbs(", ");
         {
-            if (memUsePtr) puts(" &(");
-            iterateAndNextConstNull(nodep->memp());
-            if (memUsePtr) puts(")");
+            إذا (memUsePtr) puts(" &(");
+            iterate_And_اگلا_Const_Null(nodep->memp());
+            إذا (memUsePtr) puts(")");
         }
         putbs(", ");
-        if (nodep->lsbp()) {
-            iterateAndNextConstNull(nodep->lsbp());
-        } else {
-            puts(cvtToStr(array_lo));
+        إذا (nodep->lsbp()) {
+            iterate_And_اگلا_Const_Null(nodep->lsbp());
+        } وإلا {
+            puts(cvt_منزل_Str(array_lo));
         }
         putbs(", ");
-        if (nodep->msbp()) {
-            iterateAndNextConstNull(nodep->msbp());
-        } else {
+        إذا (nodep->msbp()) {
+            iterate_And_اگلا_Const_Null(nodep->msbp());
+        } وإلا {
             puts("~0ULL");
         }
         puts(");\n");
     }
-    void visit(AstFClose* nodep) override {
+    فراغ ویکھو(AstFClose* nodep) override {
         putns(nodep, "VL_FCLOSE_I(");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         puts("); ");
     }
-    void visit(AstFFlush* nodep) override {
-        if (!nodep->filep()) {
+    فراغ ویکھو(AstFFlush* nodep) override {
+        إذا (!nodep->filep()) {
             putns(nodep, "VL_FFLUSH_MT();");
-        } else {
+        } وإلا {
             putns(nodep, "VL_FFLUSH_I(");
-            iterateAndNextConstNull(nodep->filep());
+            iterate_And_اگلا_Const_Null(nodep->filep());
             puts(");\n");
         }
     }
-    void visit(AstFSeek* nodep) override {
+    فراغ ویکھو(AstFSeek* nodep) override {
         putns(nodep, "(VL_FSEEK_I(");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         puts(", ");
-        iterateAndNextConstNull(nodep->offset());
+        iterate_And_اگلا_Const_Null(nodep->وتھ());
         puts(", ");
-        iterateAndNextConstNull(nodep->operation());
+        iterate_And_اگلا_Const_Null(nodep->operation());
         puts(") == -1 ? -1 : 0)");
     }
-    void visit(AstFTell* nodep) override {
+    فراغ ویکھو(AstFTell* nodep) override {
         putns(nodep, "VL_FTELL_I(");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         puts(")");
     }
-    void visit(AstFRewind* nodep) override {
+    فراغ ویکھو(AstFRewind* nodep) override {
         putns(nodep, "(VL_FSEEK_I(");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         puts(", 0, 0) == -1 ? -1 : 0)");
     }
-    void visit(AstFRead* nodep) override {
+    فراغ ویکھو(AstFRead* nodep) override {
         putns(nodep, "VL_FREAD_I(");
-        puts(cvtToStr(nodep->memp()->widthMin()));  // Need real storage width
+        puts(cvt_منزل_Str(nodep->memp()->چوڑائی_Min()));  // Need real storage width
         putbs(", ");
         uint32_t array_lo = 0;
-        uint32_t array_size = 0;
+        uint32_t array_ناپ = 0;
         {
-            const AstVarRef* const varrefp = VN_CAST(nodep->memp(), VarRef);
-            if (!varrefp) {
+            ثابت AstVarRef* ثابت varrefp = VN_CAST(nodep->memp(), VarRef);
+            إذا (!varrefp) {
                 nodep->v3error(nodep->verilogKwd() << " loading non-variable");
-            } else if (VN_CAST(varrefp->varp()->dtypeSkipRefp(), BasicDType)) {
-            } else if (const AstUnpackArrayDType* const adtypep
+            } وإلا إذا (VN_CAST(varrefp->varp()->dtypeSkipRefp(), BasicDType)) {
+            } وإلا إذا (ثابت AstUnpackArrayDType* ثابت adtypep
                        = VN_CAST(varrefp->varp()->dtypeSkipRefp(), UnpackArrayDType)) {
                 array_lo = adtypep->lo();
-                array_size = adtypep->elementsConst();
-            } else {
+                array_ناپ = adtypep->elementsConst();
+            } وإلا {
                 nodep->v3error(nodep->verilogKwd()
                                << " loading other than unpacked-array variable");
             }
         }
-        puts(cvtToStr(array_lo));
+        puts(cvt_منزل_Str(array_lo));
         putbs(", ");
-        puts(cvtToStr(array_size));
+        puts(cvt_منزل_Str(array_ناپ));
         putbs(", ");
         puts("&(");
-        iterateAndNextConstNull(nodep->memp());
+        iterate_And_اگلا_Const_Null(nodep->memp());
         puts(")");
         putbs(", ");
-        iterateAndNextConstNull(nodep->filep());
+        iterate_And_اگلا_Const_Null(nodep->filep());
         putbs(", ");
-        if (nodep->startp()) {
-            iterateAndNextConstNull(nodep->startp());
-        } else {
-            puts(cvtToStr(array_lo));
+        إذا (nodep->startp()) {
+            iterate_And_اگلا_Const_Null(nodep->startp());
+        } وإلا {
+            puts(cvt_منزل_Str(array_lo));
         }
         putbs(", ");
-        if (nodep->countp()) {
-            iterateAndNextConstNull(nodep->countp());
-        } else {
-            puts(cvtToStr(array_size));
+        إذا (nodep->countp()) {
+            iterate_And_اگلا_Const_Null(nodep->countp());
+        } وإلا {
+            puts(cvt_منزل_Str(array_ناپ));
         }
         puts(")");
     }
-    void visit(AstStackTraceF* nodep) override { putns(nodep, "VL_STACKTRACE_N()"); }
-    void visit(AstStackTraceT* nodep) override { putns(nodep, "VL_STACKTRACE();\n"); }
-    void visit(AstSystemT* nodep) override {
+    فراغ ویکھو(Ast_ڈھیر_Trace_F* nodep) override { putns(nodep, "VL_STACKTRACE_N()"); }
+    فراغ ویکھو(Ast_ڈھیر_Trace_T* nodep) override { putns(nodep, "VL_STACKTRACE();\n"); }
+    فراغ ویکھو(AstSystemT* nodep) override {
         putns(nodep, "(void)VL_SYSTEM_I");
         emitIQW(nodep->lhsp());
         puts("(");
-        if (nodep->lhsp()->isWide()) {
-            puts(cvtToStr(nodep->lhsp()->widthWords()));
+        إذا (nodep->lhsp()->isWide()) {
+            puts(cvt_منزل_Str(nodep->lhsp()->چوڑائی_الفاظ()));
             putbs(", ");
         }
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(");\n");
     }
-    void visit(AstSystemF* nodep) override {
+    فراغ ویکھو(AstSystemF* nodep) override {
         putns(nodep, "VL_SYSTEM_I");
         emitIQW(nodep->lhsp());
         puts("(");
-        if (nodep->lhsp()->isWide()) {
-            puts(cvtToStr(nodep->lhsp()->widthWords()));
+        إذا (nodep->lhsp()->isWide()) {
+            puts(cvt_منزل_Str(nodep->lhsp()->چوڑائی_الفاظ()));
             putbs(", ");
         }
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(")");
     }
-    void visit(AstStmtExpr* nodep) override {
-        if (VN_IS(nodep->exprp()->dtypep()->skipRefp(), VoidDType)) {
+    فراغ ویکھو(Ast_Stmt_اظہاریہ* nodep) override {
+        إذا (VN_IS(nodep->exprp()->dtypep()->skipRefp(), VoidDType)) {
             putns(nodep, "");
-        } else {
+        } وإلا {
             putns(nodep, "std::ignore = ");
         }
         iterateConst(nodep->exprp());
         puts(";\n");
     }
-    void visit(AstJumpBlock* nodep) override {
+    فراغ ویکھو(Ast_Jump_بلاک* nodep) override {
         // Allocate label number
-        const size_t n = m_labelNumbers.size();
-        const bool newEntry = m_labelNumbers.emplace(nodep, n).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twide");
+        ثابت ناپ_t n = m_labelNumbers.ناپ();
+        ثابت bool new_اندراج = m_labelNumbers.emplace(nodep, n).دوجا;
+        UASSERT_OBJ(new_اندراج, nodep, "AstJumpBlock visited twide");
         // Emit
         putns(nodep, "{\n");  // Make it visually obvious label jumps outside these
         VL_RESTORER(m_createdScopeHash);
-        iterateAndNextConstNull(nodep->stmtsp());
-        puts("__Vlabel" + std::to_string(n) + ": ;\n");
+        iterate_And_اگلا_Const_Null(nodep->stmtsp());
+        puts("__Vlabel" + std::منزل_string(n) + ": ;\n");
         puts("}\n");
     }
-    void visit(AstJumpGo* nodep) override {
+    فراغ ویکھو(AstJumpGo* nodep) override {
         // Retrieve target label number - must already exist (from enclosing AstJumpBlock)
-        const size_t n = m_labelNumbers.at(nodep->blockp());
+        ثابت ناپ_t n = m_labelNumbers.at(nodep->blockp());
         // Emit
-        putns(nodep, "goto __Vlabel" + std::to_string(n) + ";\n");
+        putns(nodep, "goto __Vlabel" + std::منزل_string(n) + ";\n");
     }
-    void visit(AstLoop* nodep) override {
+    فراغ ویکھو(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
         VL_RESTORER(m_createdScopeHash);
         // Special case when the AstLoopTest is first for output readability
-        if (AstLoopTest* const testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
+        إذا (AstLoopTest* ثابت testp = VN_CAST(nodep->stmtsp(), LoopTest)) {
             putns(nodep, "while (");
             iterateConst(testp->condp());
             puts(") {\n");
-            iterateAndNextConstNull(testp->nextp());
+            iterate_And_اگلا_Const_Null(testp->nextp());
             puts("}\n");
-            return;
+            أرجع;
         }
         // Special case when the AstLoopTest is last for output readability
-        if (AstNode* lastp = nodep->stmtsp()) {
-            while (AstNode* const nextp = lastp->nextp()) lastp = nextp;
-            if (AstLoopTest* const testp = VN_CAST(lastp, LoopTest)) {
+        إذا (Ast_گرہ* lastp = nodep->stmtsp()) {
+            طالما (Ast_گرہ* ثابت nextp = lastp->nextp()) lastp = nextp;
+            إذا (AstLoopTest* ثابت testp = VN_CAST(lastp, LoopTest)) {
                 putns(nodep, "do {\n");
-                for (AstNode* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
+                لكل (Ast_گرہ* p = nodep->stmtsp(); p != lastp; p = p->nextp()) iterateConst(p);
                 puts("} while (");
                 iterateConst(testp->condp());
                 puts(");\n");
-                return;
+                أرجع;
             }
         }
         // Emit generic case directly
         putns(nodep, "while (true) {\n");
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_اگلا_Const_Null(nodep->stmtsp());
         puts("}\n");
     }
-    void visit(AstLoopTest* nodep) override {
+    فراغ ویکھو(AstLoopTest* nodep) override {
         VL_RESTORER(m_createdScopeHash);
         putns(nodep, "if (!(");
-        iterateAndNextConstNull(nodep->condp());
+        iterate_And_اگلا_Const_Null(nodep->condp());
         puts(")) break;\n");
     }
-    void visit(AstCLocalScope* nodep) override {
+    فراغ ویکھو(AstCLocalScope* nodep) override {
         putns(nodep, "{\n");
         VL_RESTORER(m_createdScopeHash);
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_اگلا_Const_Null(nodep->stmtsp());
         puts("}\n");
     }
-    void visit(AstNodeIf* nodep) override {
+    فراغ ویکھو(Ast_گرہ_If* nodep) override {
         putns(nodep, "if (");
-        if (!nodep->branchPred().unknown()) {
+        إذا (!nodep->branchPred().unknown()) {
             puts(nodep->branchPred().ascii());
             puts("((");  // Two parens, so that VL_UNLIKELY((class<foo,bar>)) works
         }
-        iterateAndNextConstNull(nodep->condp());
-        if (!nodep->branchPred().unknown()) puts("))");
+        iterate_And_اگلا_Const_Null(nodep->condp());
+        إذا (!nodep->branchPred().unknown()) puts("))");
         puts(") {\n");
         {
             VL_RESTORER(m_createdScopeHash);
-            iterateAndNextConstNull(nodep->thensp());
+            iterate_And_اگلا_Const_Null(nodep->thensp());
         }
         puts("}");
-        if (!nodep->elsesp()) {
+        إذا (!nodep->elsesp()) {
             puts("\n");
-        } else {
-            if (VN_IS(nodep->elsesp(), NodeIf) && !nodep->elsesp()->nextp()) {
+        } وإلا {
+            إذا (VN_IS(nodep->elsesp(), گرہ_If) && !nodep->elsesp()->nextp()) {
                 puts(" else ");
-                iterateAndNextConstNull(nodep->elsesp());
-            } else {
+                iterate_And_اگلا_Const_Null(nodep->elsesp());
+            } وإلا {
                 VL_RESTORER(m_createdScopeHash);
                 puts(" else {\n");
-                iterateAndNextConstNull(nodep->elsesp());
+                iterate_And_اگلا_Const_Null(nodep->elsesp());
                 puts("}\n");
             }
         }
     }
-    void visit(AstExprStmt* nodep) override {
+    فراغ ویکھو(Ast_اظہاریہ_Stmt* nodep) override {
         VL_RESTORER(m_createdScopeHash);
-        const bool containsAwait = nodep->exists([](AstCAwait*) -> bool { return true; });
-        if (containsAwait) {
+        ثابت bool شامل_اے_Await = nodep->exists([](AstCAwait*) -> bool { أرجع true; });
+        إذا (شامل_اے_Await) {
             UASSERT_OBJ(m_cfuncp && m_cfuncp->isCoroutine(), nodep,
                         "AstExprStmt with CAwait must be in coroutine");
             putnbs(nodep, "(co_await ([&]() -> VlCoroutine {\n");
-            iterateAndNextConstNull(nodep->stmtsp());
+            iterate_And_اگلا_Const_Null(nodep->stmtsp());
             puts("co_return;\n");
-            if (!nodep->hasResult()) {
+            إذا (!nodep->has_نتیجہ()) {
                 puts("}()))");
-                return;
+                أرجع;
             }
             puts("}()), ");
-            iterateAndNextConstNull(nodep->resultp());
+            iterate_And_اگلا_Const_Null(nodep->resultp());
             puts(")");
-            return;
+            أرجع;
         }
         // GCC allows compound statements in expressions, but this is not standard.
         // So we use an immediate-evaluation lambda and comma operator
         putnbs(nodep, "([&]() {\n");
-        if (!nodep->hasResult()) {
-            iterateAndNextConstNull(nodep->stmtsp());
+        إذا (!nodep->has_نتیجہ()) {
+            iterate_And_اگلا_Const_Null(nodep->stmtsp());
             puts("}())");
-            return;
+            أرجع;
         }
-        iterateAndNextConstNull(nodep->stmtsp());
+        iterate_And_اگلا_Const_Null(nodep->stmtsp());
         puts("}(), ");
-        iterateAndNextConstNull(nodep->resultp());
+        iterate_And_اگلا_Const_Null(nodep->resultp());
         puts(")");
     }
-    void visit(AstStop* nodep) override {
+    فراغ ویکھو(AstStop* nodep) override {
         putns(nodep, "VL_STOP_MT(");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(", \"\"");
-        if (nodep->isFatal()) puts(", false");
+        إذا (nodep->isFatal()) puts(", false");
         puts(");\n");
     }
-    void visit(AstFinish* nodep) override {
+    فراغ ویکھو(Ast_انت* nodep) override {
         // Disable all the forks so they don't operate after simulation is finished.
-        if (m_cfuncp && m_cfuncp->needProcess()) putns(nodep, "vlProcess->disableFork();\n");
+        إذا (m_cfuncp && m_cfuncp->needProcess()) putns(nodep, "vlProcess->disableFork();\n");
         putns(nodep, "VL_FINISH_MT(");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(", \"\");\n");
     }
-    void visit(AstFinishFork* nodep) override {
+    فراغ ویکھو(Ast_انت_Fork* nodep) override {
         // Disable all the forks so they don't operate after simulation is finished.
-        if (m_cfuncp && m_cfuncp->needProcess()) putns(nodep, "vlProcess->disableFork();\n");
+        إذا (m_cfuncp && m_cfuncp->needProcess()) putns(nodep, "vlProcess->disableFork();\n");
         putns(nodep, "VL_FINISH_MT(");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(", \"\");\n");
-        if (m_cfuncp->isCoroutine()) {
+        إذا (m_cfuncp->isCoroutine()) {
             putns(nodep, "co_return;\n");
-        } else {
+        } وإلا {
             putns(nodep, "return;\n");
         }
     }
-    void visit(AstPrintTimeScale* nodep) override {
+    فراغ ویکھو(Ast_Print_ویلا_Scale* nodep) override {
         putns(nodep, "VL_PRINTTIMESCALE(");
         putsQuoted(protect(nodep->prettyName()));
         puts(", ");
         putsQuoted(nodep->timeunit().ascii());
         puts(", vlSymsp->_vm_contextp__);\n");
     }
-    void visit(AstRand* nodep) override {
+    فراغ ویکھو(AstRand* nodep) override {
         emitOpName(nodep, nodep->emitC(), nodep->seedp(), nullptr, nullptr);
     }
-    void visit(AstRandRNG* nodep) override {
+    فراغ ویکھو(AstRandRNG* nodep) override {
         emitOpName(nodep, nodep->emitC(), nullptr, nullptr, nullptr);
     }
-    void visit(AstTime* nodep) override {
+    فراغ ویکھو(Ast_ویلا* nodep) override {
         putns(nodep, "VL_TIME_UNITED_Q(");
         UASSERT_OBJ(!nodep->timeunit().isNone(), nodep, "$time has no units");
-        const double time
+        ثابت مزدوج ویلا_2
             = nodep->timeunit().multiplier() / v3Global.rootp()->timeprecision().multiplier();
-        UASSERT_OBJ(time >= 1, nodep, "TimeQ is less than 1, will result in division by zero");
-        puts(cvtToStr(time));
+        UASSERT_OBJ(ویلا_2 >= 1, nodep, "TimeQ is less than 1, will result in division by zero");
+        puts(cvt_منزل_Str(ویلا_2));
         puts(")");
     }
-    void visit(AstTimeD* nodep) override {
+    فراغ ویکھو(Ast_ویلا_D* nodep) override {
         putns(nodep, "VL_TIME_UNITED_D(");
         UASSERT_OBJ(!nodep->timeunit().isNone(), nodep, "$realtime has no units");
-        puts(cvtToStr(nodep->timeunit().multiplier()
+        puts(cvt_منزل_Str(nodep->timeunit().multiplier()
                       / v3Global.rootp()->timeprecision().multiplier()));
         puts(")");
     }
-    void visit(AstGetInitialRandomSeed* nodep) override {
+    فراغ ویکھو(Ast_Get_Initial_Random_بیج* nodep) override {
         putns(nodep, "vlSymsp->_vm_contextp__->randSeed()");
     }
-    void visit(AstTimeFormat* nodep) override {
+    فراغ ویکھو(Ast_ویلا_Format* nodep) override {
         putns(nodep, "VL_TIMEFORMAT_IINI(");
-        if (nodep->unitsp()) {
+        إذا (nodep->unitsp()) {
             puts("true, ");
-            iterateAndNextConstNull(nodep->unitsp());
-        } else {
+            iterate_And_اگلا_Const_Null(nodep->unitsp());
+        } وإلا {
             puts("false, 0");
         }
         puts(", ");
-        if (nodep->precisionp()) {
+        إذا (nodep->precisionp()) {
             puts("true, ");
-            iterateAndNextConstNull(nodep->precisionp());
-        } else {
+            iterate_And_اگلا_Const_Null(nodep->precisionp());
+        } وإلا {
             puts("false, 0");
         }
         puts(", ");
-        if (nodep->suffixp()) {
+        إذا (nodep->suffixp()) {
             puts("true, ");
-            iterateAndNextConstNull(nodep->suffixp());
-        } else {
+            iterate_And_اگلا_Const_Null(nodep->suffixp());
+        } وإلا {
             puts("false, \"\"");
         }
         puts(", ");
-        if (nodep->widthp()) {
+        إذا (nodep->widthp()) {
             puts("true, ");
-            iterateAndNextConstNull(nodep->widthp());
-        } else {
+            iterate_And_اگلا_Const_Null(nodep->widthp());
+        } وإلا {
             puts("false, 0");
         }
         puts(", vlSymsp->_vm_contextp__);\n");
     }
-    void visit(AstTimePrecision* nodep) override {
+    فراغ ویکھو(Ast_ویلا_Precision* nodep) override {
         putns(nodep, "vlSymsp->_vm_contextp__->timeprecision()");
     }
 
     // Nodes involing AstText
-    void visit(AstText* nodep) override {
+    فراغ ویکھو(Ast_متن* nodep) override {
         // All Text should be under TextBlock/CStmt/CStmtUser/CExpr/CExprUser
         nodep->v3fatalSrc("Text node in unexpected position");
     }
-    void visit(AstTextBlock* nodep) override {
+    فراغ ویکھو(Ast_متن_بلاک* nodep) override {
         putnbs(nodep, "");
-        puts(nodep->prefix());
-        emitNodesWithText(nodep->nodesp(), false, true, nodep->separator());
+        puts(nodep->اگیتر());
+        emit_Nodes_With_متن(nodep->nodesp(), false, true, nodep->separator());
         puts(nodep->suffix());
     }
-    void visit(AstCStmt* nodep) override {
+    فراغ ویکھو(AstCStmt* nodep) override {
         putnbs(nodep, "");
-        emitNodesWithText(nodep->nodesp(), false, true, "");
-        ensureNewLine();
+        emit_Nodes_With_متن(nodep->nodesp(), false, true, "");
+        ensure_New_سطر();
     }
-    void visit(AstCExpr* nodep) override {
+    فراغ ویکھو(AstCExpr* nodep) override {
         putnbs(nodep, "");
-        emitNodesWithText(nodep->nodesp(), false, true, "");
+        emit_Nodes_With_متن(nodep->nodesp(), false, true, "");
     }
-    void visit(AstCStmtUser* nodep) override {
+    فراغ ویکھو(AstCStmtUser* nodep) override {
         putnbs(nodep, "");
         ofp()->putsNoTracking("\n");
-        if (nodep->fromDollarC() && v3Global.opt.decoration() && !v3Global.opt.protectIds()) {
+        إذا (nodep->fromDollarC() && v3Global.opt.decoration() && !v3Global.opt.protectIds()) {
             ofp()->putsNoTracking("// $c statement at " + nodep->fileline()->ascii() + "\n");
         }
-        emitNodesWithText(nodep->nodesp(), m_useSelfForThis, false, "");
+        emit_Nodes_With_متن(nodep->nodesp(), m_useSelfForThis, false, "");
         puts("\n");
     }
-    void visit(AstCExprUser* nodep) override {
+    فراغ ویکھو(AstCExprUser* nodep) override {
         putnbs(nodep, "");
         ofp()->putsNoTracking("\n");
-        if (/* is always from $c */ v3Global.opt.decoration() && !v3Global.opt.protectIds()) {
+        إذا (/* is always from $c */ v3Global.opt.decoration() && !v3Global.opt.protectIds()) {
             ofp()->putsNoTracking(
-                (nodep->isPure() ? "// $cpure expression at " : "// $c expression at ")
+                (nodep->is_خالص() ? "// $cpure expression at " : "// $c expression at ")
                 + nodep->fileline()->ascii() + "\n");
         }
-        emitNodesWithText(nodep->nodesp(), m_useSelfForThis, false, "");
+        emit_Nodes_With_متن(nodep->nodesp(), m_useSelfForThis, false, "");
         puts("\n");
     }
 
     // Operators
-    void visit(AstNodeTermop* nodep) override {
+    فراغ ویکھو(Ast_گرہ_Termop* nodep) override {
         emitOpName(nodep, nodep->emitC(), nullptr, nullptr, nullptr);
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (nodep->emitCheckMaxWords()
-            && (nodep->widthWords() > VL_MULS_MAX_WORDS
-                || nodep->lhsp()->widthWords() > VL_MULS_MAX_WORDS)) {
+    فراغ ویکھو(Ast_گرہ_Uniop* nodep) override {
+        إذا (nodep->emit_Check_Max_الفاظ()
+            && (nodep->چوڑائی_الفاظ() > VL_MULS_MAX_الفاظ
+                || nodep->lhsp()->چوڑائی_الفاظ() > VL_MULS_MAX_الفاظ)) {
             nodep->v3warn(
                 E_UNSUPPORTED,
                 "Unsupported: "
-                    << nodep->prettyOperatorName() << " operator of " << nodep->width()
+                    << nodep->prettyOperatorName() << " operator of " << nodep->چوڑائی()
                     << " bits exceeds hardcoded limit VL_MULS_MAX_WORDS in verilatedos.h");
         }
-        if (emitSimpleOk(nodep)) {
+        إذا (emitSimpleOk(nodep)) {
             putnbs(nodep, "(");
             puts(nodep->emitSimpleOperator());
             puts(" ");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(")");
-        } else {
+        } وإلا {
             emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nullptr, nullptr);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (nodep->emitCheckMaxWords() && nodep->widthWords() > VL_MULS_MAX_WORDS) {
+    فراغ ویکھو(Ast_گرہ_Biop* nodep) override {
+        إذا (nodep->emit_Check_Max_الفاظ() && nodep->چوڑائی_الفاظ() > VL_MULS_MAX_الفاظ) {
             nodep->v3warn(
                 E_UNSUPPORTED,
                 "Unsupported: "
-                    << nodep->prettyOperatorName() << " operator of " << nodep->width()
+                    << nodep->prettyOperatorName() << " operator of " << nodep->چوڑائی()
                     << " bits exceeds hardcoded limit VL_MULS_MAX_WORDS in verilatedos.h");
         }
-        if (emitSimpleOk(nodep)) {
+        إذا (emitSimpleOk(nodep)) {
             putnbs(nodep, "(");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(" ");
             putbs(nodep->emitSimpleOperator());
             puts(" ");
-            iterateAndNextConstNull(nodep->rhsp());
+            iterate_And_اگلا_Const_Null(nodep->rhsp());
             puts(")");
-        } else {
+        } وإلا {
             emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nullptr);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
+    فراغ ویکھو(Ast_گرہ_Triop* nodep) override {
         UASSERT_OBJ(!emitSimpleOk(nodep), nodep, "Triop cannot be described in a simple way");
         emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nodep->thsp());
     }
-    void visit(AstCvtPackString* nodep) override { emitCvtPackStr(nodep->lhsp()); }
-    void visit(AstRedXor* nodep) override {
-        if (nodep->lhsp()->isWide()) {
-            visit(static_cast<AstNodeUniop*>(nodep));
-        } else {
-            const AstVarRef* const vrefp = VN_CAST(nodep->lhsp(), VarRef);
-            const int widthPow2 = vrefp ? vrefp->varp()->dtypep()->widthPow2()
-                                        : nodep->lhsp()->dtypep()->widthPow2();
-            UASSERT_OBJ(widthPow2 > 1, nodep,
+    فراغ ویکھو(AstCvtPackString* nodep) override { emitCvtPackStr(nodep->lhsp()); }
+    فراغ ویکھو(AstRedXor* nodep) override {
+        إذا (nodep->lhsp()->isWide()) {
+            ویکھو(static_cast<Ast_گرہ_Uniop*>(nodep));
+        } وإلا {
+            ثابت AstVarRef* ثابت vrefp = VN_CAST(nodep->lhsp(), VarRef);
+            ثابت صحيح چوڑائی_Pow2 = vrefp ? vrefp->varp()->dtypep()->چوڑائی_Pow2()
+                                        : nodep->lhsp()->dtypep()->چوڑائی_Pow2();
+            UASSERT_OBJ(چوڑائی_Pow2 > 1, nodep,
                         "Reduction over single bit value should have been folded");
             putnbs(nodep, "VL_REDXOR_");
-            puts(cvtToStr(widthPow2));
+            puts(cvt_منزل_Str(چوڑائی_Pow2));
             puts("(");
-            iterateAndNextConstNull(nodep->lhsp());
+            iterate_And_اگلا_Const_Null(nodep->lhsp());
             puts(")");
         }
     }
-    void visit(AstCCast* nodep) override {
+    فراغ ویکھو(AstCCast* nodep) override {
         // Extending a value of the same word width is just a NOP.
-        if (const AstClassRefDType* const classDtypep
+        إذا (ثابت AstClassRefDType* ثابت classDtypep
             = VN_CAST(nodep->dtypep()->skipRefp(), ClassRefDType)) {
             putns(nodep, "(" + classDtypep->cType("", false, false) + ")(");
-        } else if (nodep->size() <= VL_BYTESIZE) {
+        } وإلا إذا (nodep->ناپ() <= VL_BYTESIZE) {
             putns(nodep, "(::CData)(");
-        } else if (nodep->size() <= VL_SHORTSIZE) {
+        } وإلا إذا (nodep->ناپ() <= VL_SHORTSIZE) {
             putns(nodep, "(::SData)(");
-        } else if (nodep->size() <= VL_IDATASIZE) {
+        } وإلا إذا (nodep->ناپ() <= VL_IDATASIZE) {
             putns(nodep, "(::IData)(");
-        } else {
+        } وإلا {
             putns(nodep, "(::QData)(");
         }
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(")");
     }
-    void visit(AstCond* nodep) override {
+    فراغ ویکھو(AstCond* nodep) override {
         // Widths match up already, so we'll just use C++'s operator w/o any temps.
-        if (nodep->thenp()->isWide()) {
+        إذا (nodep->thenp()->isWide()) {
             emitOpName(nodep, nodep->emitC(), nodep->condp(), nodep->thenp(), nodep->elsep());
-        } else {
+        } وإلا {
             putnbs(nodep, "(");
-            iterateAndNextConstNull(nodep->condp());
+            iterate_And_اگلا_Const_Null(nodep->condp());
             putbs(" ? ");
-            iterateAndNextConstNull(nodep->thenp());
+            iterate_And_اگلا_Const_Null(nodep->thenp());
             putbs(" : ");
-            iterateAndNextConstNull(nodep->elsep());
+            iterate_And_اگلا_Const_Null(nodep->elsep());
             puts(")");
         }
     }
-    void visit(AstMatchMasked* nodep) override {
+    فراغ ویکھو(Ast_میل_Masked* nodep) override {
         emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->matchp(), nullptr);
     }
-    void visit(AstMemberSel* nodep) override {
-        const AstVar* const varp = nodep->varp();
-        const bool dereferenceCovergroupRef
+    فراغ ویکھو(AstMemberSel* nodep) override {
+        ثابت AstVar* ثابت varp = nodep->varp();
+        ثابت bool dereferenceCovergroupRef
             = varp->covergroupRefMember() && nodep->access().isReadOrRW();
-        if (dereferenceCovergroupRef) putnbs(nodep, "(*");
-        iterateAndNextConstNull(nodep->fromp());
+        إذا (dereferenceCovergroupRef) putnbs(nodep, "(*");
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         putnbs(nodep, "->");
-        if (varp->isIfaceRef()) {
+        إذا (varp->isIfaceRef()) {
             // varp is the __Viftop companion (e.g. "tx__Viftop"); use the
             // MemberSel name which matches the cell's C++ member (e.g. "tx").
             puts(nodep->nameProtect());
-        } else {
+        } وإلا {
             puts(varName(varp));
         }
-        if (dereferenceCovergroupRef) puts(")");
+        إذا (dereferenceCovergroupRef) puts(")");
     }
-    void visit(AstStructSel* nodep) override {
-        iterateAndNextConstNull(nodep->fromp());
+    فراغ ویکھو(AstStructSel* nodep) override {
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         putnbs(nodep, ".");
         puts(nodep->nameProtect());
     }
-    void visit(AstNullCheck* nodep) override {
+    فراغ ویکھو(AstNullCheck* nodep) override {
         putns(nodep, "VL_NULL_CHECK(");
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(", ");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(")");
     }
-    void visit(AstNewCopy* nodep) override {
+    فراغ ویکھو(AstNewCopy* nodep) override {
         // Polymorphic shallow clone: preserves runtime type via virtual clone()
         // VL_NULL_CHECK enforces null check per IEEE 1800-2023 8.7
         putns(nodep, "VL_NULL_CHECK(");
-        if (VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->isNull()) {
+        إذا (VN_IS(nodep->rhsp(), Const) && VN_AS(nodep->rhsp(), Const)->isNull()) {
             // V3Const folded rhs to null: emit a typed empty ref so VL_NULL_CHECK fires
-            const AstClassRefDType* const refDTypep
+            ثابت AstClassRefDType* ثابت refDTypep
                 = VN_CAST(nodep->dtypep()->skipRefp(), ClassRefDType);
             puts(refDTypep->cType("", false, false) + "{}");
-        } else {
-            iterateAndNextConstNull(nodep->rhsp());
+        } وإلا {
+            iterate_And_اگلا_Const_Null(nodep->rhsp());
         }
         puts(", ");
         putsQuoted(protect(nodep->fileline()->filename()));
         puts(", ");
-        puts(cvtToStr(nodep->fileline()->lineno()));
+        puts(cvt_منزل_Str(nodep->fileline()->lineno()));
         puts(").clone(vlSymsp->__Vm_deleter)");
     }
-    void visit(AstSel* nodep) override {
+    فراغ ویکھو(AstSel* nodep) override {
         // Note ASSIGN checks for this on a LHS
-        UASSERT_OBJ(nodep->widthMin() == nodep->widthConst(), nodep, "Width mismatch");
+        UASSERT_OBJ(nodep->چوڑائی_Min() == nodep->چوڑائی_Const(), nodep, "Width mismatch");
         emitOpName(nodep, nodep->emitC(), nodep->fromp(), nodep->lsbp(), nullptr);
     }
-    void visit(AstReplicate* nodep) override {
-        if (nodep->srcp()->widthMin() == 1 && !nodep->isWide()) {
-            UASSERT_OBJ((static_cast<int>(VN_AS(nodep->countp(), Const)->toUInt())
-                         * nodep->srcp()->widthMin())
-                            == nodep->widthMin(),
+    فراغ ویکھو(AstReplicate* nodep) override {
+        إذا (nodep->srcp()->چوڑائی_Min() == 1 && !nodep->isWide()) {
+            UASSERT_OBJ((static_cast<صحيح>(VN_AS(nodep->countp(), Const)->منزل_UInt())
+                         * nodep->srcp()->چوڑائی_Min())
+                            == nodep->چوڑائی_Min(),
                         nodep, "Replicate non-constant or width miscomputed");
             putns(nodep, "VL_REPLICATE_");
             emitIQW(nodep);
             puts("OI(");
-            if (nodep->srcp()) puts(cvtToStr(nodep->srcp()->widthMin()));
+            إذا (nodep->srcp()) puts(cvt_منزل_Str(nodep->srcp()->چوڑائی_Min()));
             puts(", ");
-            iterateAndNextConstNull(nodep->srcp());
+            iterate_And_اگلا_Const_Null(nodep->srcp());
             puts(", ");
-            iterateAndNextConstNull(nodep->countp());
+            iterate_And_اگلا_Const_Null(nodep->countp());
             puts(")");
-        } else {
+        } وإلا {
             emitOpName(nodep, nodep->emitC(), nodep->srcp(), nodep->countp(), nullptr);
         }
     }
-    void emitStreamR(AstStreamR* nodep, AstNode* parent) {
+    فراغ emit_دھارا_R(Ast_دھارا_R* nodep, Ast_گرہ* ماپا) {
         //TODO: This might need to handle more cases like the visit(AstStreamR) function
         emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nullptr);
     }
-    void visit(AstStreamR* nodep) override {
+    فراغ ویکھو(Ast_دھارا_R* nodep) override {
         //The parrent node of our AstStreamR will give just enough info for what streamR should
         //output if nodep->backp() is not the parent then emitStreamR should have been used. throw
         //an error
-        bool backpIsParent = (nodep->backp()->op1p() == nodep || nodep->backp()->op2p() == nodep);
-        UASSERT(backpIsParent, "can not find return type for streamR");
-        if (const AstQueueDType* const qdtp
-            = VN_CAST(nodep->backp()->dtypep()->skipRefp(), QueueDType)) {
-            if (nodep->lhsp()->isWide()) {
+        bool backp_Is_ماپا = (nodep->backp()->op1p() == nodep || nodep->backp()->op2p() == nodep);
+        UASSERT(backp_Is_ماپا, "can not find return type for streamR");
+        إذا (ثابت Ast_قطار_DType* ثابت qdtp
+            = VN_CAST(nodep->backp()->dtypep()->skipRefp(), قطار_DType)) {
+            إذا (nodep->lhsp()->isWide()) {
                 emitOpName(nodep,
-                           "VL_STREAMR_%nq%lq%rq(%lw," + std::to_string(qdtp->subDTypep()->width())
+                           "VL_STREAMR_%nq%lq%rq(%lw," + std::منزل_string(qdtp->subDTypep()->چوڑائی())
                                + ", %P, %li, %ri)",
                            nodep->lhsp(), nodep->rhsp(), nullptr);
-            } else {
+            } وإلا {
                 emitOpName(nodep, "VL_STREAMR_%nq%lq%rq(%lw, %P, %li, %ri)", nodep->lhsp(),
                            nodep->rhsp(), nullptr);
             }
-        } else if (VN_IS(nodep->lhsp()->dtypep()->skipRefp(), QueueDType)) {
-            if (!((nodep->backp()->op1p() && nodep->backp()->op1p()->isWide())
+        } وإلا إذا (VN_IS(nodep->lhsp()->dtypep()->skipRefp(), قطار_DType)) {
+            إذا (!((nodep->backp()->op1p() && nodep->backp()->op1p()->isWide())
                   || (nodep->backp()->op2p() && nodep->backp()->op2p()->isWide()))) {
                 //If our lhsp is a queue make sure we streamR and return the correct type.
                 //If either side is wide or the previous node is string type dont use this case
                 emitOpName(nodep->backp(), "VL_STREAMR_%nq%lq%rq(%lw, %P, %li, %ri)",
                            nodep->lhsp(), nodep->rhsp(), nullptr);
-            } else {
+            } وإلا {
                 emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nullptr);
             }
-        } else {
+        } وإلا {
             emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nullptr);
         }
     }
-    void visit(AstStreamL* nodep) override {
+    فراغ ویکھو(Ast_دھارا_L* nodep) override {
         // Attempt to use a "fast" stream function for slice size = power of 2
-        if (!nodep->isWide()) {
-            const uint32_t isPow2 = VN_AS(nodep->rhsp(), Const)->num().countOnes() == 1;
-            const uint32_t sliceSize = VN_AS(nodep->rhsp(), Const)->toUInt();
-            if (isPow2 && sliceSize <= (nodep->isQuad() ? sizeof(uint64_t) : sizeof(uint32_t))) {
+        إذا (!nodep->isWide()) {
+            ثابت uint32_t isPow2 = VN_AS(nodep->rhsp(), Const)->عدد().گنتی_Ones() == 1;
+            ثابت uint32_t ٹکڑا_ناپ = VN_AS(nodep->rhsp(), Const)->منزل_UInt();
+            إذا (isPow2 && ٹکڑا_ناپ <= (nodep->isQuad() ? حجم(uint64_t) : حجم(uint32_t))) {
                 putns(nodep, "VL_STREAML_FAST_");
-                bool usesQueue = false;
-                AstQueueDType* qtypep
+                bool ورتدا_قطار = false;
+                Ast_قطار_DType* qtypep
                     = nodep->backp()->op2p()
-                          ? VN_CAST(nodep->backp()->op2p()->dtypep()->skipRefp(), QueueDType)
+                          ? VN_CAST(nodep->backp()->op2p()->dtypep()->skipRefp(), قطار_DType)
                           : nullptr;
-                if (VN_IS(nodep->backp(), Assign)
+                إذا (VN_IS(nodep->backp(), سونپو)
                     && qtypep) {  // If we are assigning to a queue then emit the correct symbol
                     puts("R");  // R for queue
-                    usesQueue = true;
-                } else {
+                    ورتدا_قطار = true;
+                } وإلا {
                     emitIQW(nodep);
                 }
                 emitIQW(nodep->lhsp());
                 puts("I(");
-                puts(cvtToStr(nodep->lhsp()->widthMin()));
+                puts(cvt_منزل_Str(nodep->lhsp()->چوڑائی_Min()));
                 puts(", ");
-                if (usesQueue) {
-                    iterateAndNextConstNull(nodep->backp()->op2p());
+                إذا (ورتدا_قطار) {
+                    iterate_And_اگلا_Const_Null(nodep->backp()->op2p());
                     puts(", ");
                 }
-                iterateAndNextConstNull(nodep->lhsp());
+                iterate_And_اگلا_Const_Null(nodep->lhsp());
                 puts(", ");
-                const uint32_t rd_log2 = V3Number::log2b(VN_AS(nodep->rhsp(), Const)->toUInt());
-                puts(cvtToStr(rd_log2) + ")");
-                return;
+                ثابت uint32_t rd_log2 = V3_نمبر::log2b(VN_AS(nodep->rhsp(), Const)->منزل_UInt());
+                puts(cvt_منزل_Str(rd_log2) + ")");
+                أرجع;
             }
         }
-        if (VN_IS(nodep->backp(), Assign)
-            && VN_IS(nodep->backp()->op2p()->dtypep()->skipRefp(), QueueDType)) {
-            int queueWidth
-                = nodep->backp()->op2p()->dtypep()->subDTypep()->width();  //We need to know the
+        إذا (VN_IS(nodep->backp(), سونپو)
+            && VN_IS(nodep->backp()->op2p()->dtypep()->skipRefp(), قطار_DType)) {
+            صحيح قطار_چوڑائی
+                = nodep->backp()->op2p()->dtypep()->subDTypep()->چوڑائی();  //We need to know the
                                                                            //width of both sides
             emitOpName(nodep,
-                       "VL_STREAML_%nq%lq%rq(%lw," + std::to_string(queueWidth)
+                       "VL_STREAML_%nq%lq%rq(%lw," + std::منزل_string(قطار_چوڑائی)
                            + ", %P, %li, %ri)",
                        nodep->lhsp(), nodep->rhsp(), nullptr);
-        } else {
+        } وإلا {
             emitOpName(nodep, nodep->emitC(), nodep->lhsp(), nodep->rhsp(), nullptr);
         }
     }
-    void visit(AstCastDynamic* nodep) override {
+    فراغ ویکھو(AstCastDynamic* nodep) override {
         putnbs(nodep, "VL_CAST_DYNAMIC(");
-        iterateAndNextConstNull(nodep->fromp());
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         puts(", ");
-        iterateAndNextConstNull(nodep->top());
+        iterate_And_اگلا_Const_Null(nodep->چوٹی());
         puts(")");
     }
-    void visit(AstCountBits* nodep) override {
+    فراغ ویکھو(Ast_گنتی_بٹ* nodep) override {
         putnbs(nodep, "VL_COUNTBITS_");
         emitIQW(nodep->lhsp());
         puts("(");
-        puts(cvtToStr(nodep->lhsp()->widthMin()));
+        puts(cvt_منزل_Str(nodep->lhsp()->چوڑائی_Min()));
         puts(", ");
-        if (nodep->lhsp()->isWide()) {
-            puts(cvtToStr(nodep->lhsp()->widthWords()));  // Note argument width, not node width
+        إذا (nodep->lhsp()->isWide()) {
+            puts(cvt_منزل_Str(nodep->lhsp()->چوڑائی_الفاظ()));  // Note argument width, not node width
                                                           // (which is always 32)
             puts(", ");
         }
-        iterateAndNextConstNull(nodep->lhsp());
+        iterate_And_اگلا_Const_Null(nodep->lhsp());
         puts(", ");
-        iterateAndNextConstNull(nodep->rhsp());
+        iterate_And_اگلا_Const_Null(nodep->rhsp());
         puts(", ");
-        iterateAndNextConstNull(nodep->thsp());
+        iterate_And_اگلا_Const_Null(nodep->thsp());
         puts(", ");
-        iterateAndNextConstNull(nodep->fhsp());
+        iterate_And_اگلا_Const_Null(nodep->fhsp());
         puts(")");
     }
-    void visit(AstTriggered* nodep) override {
+    فراغ ویکھو(AstTriggered* nodep) override {
         // Test each word of the trigger vector with a mask of the relevant bits
-        std::map<uint32_t, uint64_t> wordMasks;
-        for (const uint32_t index : nodep->indices()) {
-            wordMasks[VL_BITWORD_Q(index)] |= VL_BIT_Q(index);
+        std::map<uint32_t, uint64_t> لفظ_Masks;
+        لكل (ثابت uint32_t اشاریہ : nodep->indices()) {
+            لفظ_Masks[VL_BITWORD_Q(اشاریہ)] |= VL_ثنائی_ہندسہ_Q(اشاریہ);
         }
         putns(nodep, "((");
-        bool first = true;
-        for (const auto& wordMask : wordMasks) {
-            if (!first) puts("\n| ");
-            first = false;
-            const bool allOnes = wordMask.second == ~0ULL;
-            if (!allOnes) puts("(" + V3Number{nodep, 64}.setQuad(wordMask.second).emitC() + " & ");
+        bool پہلا = true;
+        لكل (ثابت خودکار& لفظ_نقاب : لفظ_Masks) {
+            إذا (!پہلا) puts("\n| ");
+            پہلا = false;
+            ثابت bool allOnes = لفظ_نقاب.دوجا == ~0ULL;
+            إذا (!allOnes) puts("(" + V3_نمبر{nodep, 64}.سیٹ_Quad(لفظ_نقاب.دوجا).emitC() + " & ");
             iterateConst(nodep->trigRefp());
-            puts("[" + std::to_string(wordMask.first) + "U]");
-            if (!allOnes) puts(")");
+            puts("[" + std::منزل_string(لفظ_نقاب.پہلا) + "U]");
+            إذا (!allOnes) puts(")");
         }
         puts(") != 0ULL)");
     }
     // Terminals
-    void visit(AstVarRef* nodep) override {
-        const AstVar* const varp = nodep->varp();
+    فراغ ویکھو(AstVarRef* nodep) override {
+        ثابت AstVar* ثابت varp = nodep->varp();
 
         // Reference to constant pool variable is special
-        if (varp->constPoolEntry()) {
+        إذا (varp->const_Pool_اندراج()) {
             putns(nodep, EmitCUtil::constPoolName(varp));
-            return;
+            أرجع;
         }
 
-        const AstNodeModule* const varModp = EmitCParentModule::get(varp);
-        const bool dereferenceCovergroupRef
+        ثابت Ast_گرہ_Module* ثابت varModp = EmitCParentModule::get(varp);
+        ثابت bool dereferenceCovergroupRef
             = varp->covergroupRefMember() && nodep->access().isReadOrRW();
-        if (dereferenceCovergroupRef) putns(nodep, "(*");
-        if (VN_IS(varModp, Class) && varModp != m_modp) {
+        إذا (dereferenceCovergroupRef) putns(nodep, "(*");
+        إذا (VN_IS(varModp, Class) && varModp != m_modp) {
             // Superclass member reference
-            putns(nodep, EmitCUtil::prefixNameProtect(varModp) + "::");
-        } else if (varp->isIfaceRef()) {
-            putns(nodep, nodep->selfPointerProtect(m_useSelfForThis));
-            return;
-        } else if (!nodep->selfPointer().isEmpty()) {
-            emitDereference(nodep, nodep->selfPointerProtect(m_useSelfForThis));
+            putns(nodep, EmitCUtil::اگیتر_Name_Protect(varModp) + "::");
+        } وإلا إذا (varp->isIfaceRef()) {
+            putns(nodep, nodep->self_اشارہ_گر_Protect(m_useSelfForThis));
+            أرجع;
+        } وإلا إذا (!nodep->self_اشارہ_گر().is_خالی_تھاواں()) {
+            emitDereference(nodep, nodep->self_اشارہ_گر_Protect(m_useSelfForThis));
         }
         putns(nodep, varName(varp));
-        if (dereferenceCovergroupRef) puts(")");
+        إذا (dereferenceCovergroupRef) puts(")");
     }
-    void visit(AstAddrOfCFunc* nodep) override {
+    فراغ ویکھو(Ast_Addr_دا_CFunc* nodep) override {
         // Note: Can be thought to handle more, but this is all that is needed right now
-        const AstCFunc* const funcp = nodep->funcp();
+        ثابت AstCFunc* ثابت funcp = nodep->funcp();
         UASSERT_OBJ(funcp->isLoose(), nodep, "Cannot take address of non-loose method");
         putns(nodep, "&");
         puts(funcNameProtect(funcp));
     }
-    void visit(AstConst* nodep) override {  //
-        if (m_wideTempRefp && nodep->isWide()) {
-            UASSERT_OBJ(m_wideTempRefp, nodep, "Wide Constant w/ no temp");
-            emitConstantW(nodep, m_wideTempRefp);
-            m_wideTempRefp = nullptr;  // We used it, fail if set it a second time
-        } else {
+    فراغ ویکھو(AstConst* nodep) override {  //
+        إذا (m_wide_عارضی_Refp && nodep->isWide()) {
+            UASSERT_OBJ(m_wide_عارضی_Refp, nodep, "Wide Constant w/ no temp");
+            emitConstantW(nodep, m_wide_عارضی_Refp);
+            m_wide_عارضی_Refp = nullptr;  // We used it, fail if set it a second time
+        } وإلا {
             emitConstant(nodep);
         }
     }
-    void visit(AstNodeCons* nodep) override { emitValCons(nodep); }
-    void visit(AstThisRef* nodep) override {
+    فراغ ویکھو(Ast_گرہ_Cons* nodep) override { emitValCons(nodep); }
+    فراغ ویکھو(AstThisRef* nodep) override {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         puts("{");
-        puts(VSelfPointerText::replaceThis(m_useSelfForThis, "this"));
+        puts(VSelf_اشارہ_گر_متن::replaceThis(m_useSelfForThis, "this"));
         puts("}");
     }
-    void visit(AstNodeSel* nodep) override {
-        if (!VN_IS(nodep, ArraySel) && !VN_IS(nodep, WordSel)) {
-            visit(static_cast<AstNodeBiop*>(nodep));
-            return;
+    فراغ ویکھو(Ast_گرہ_Sel* nodep) override {
+        إذا (!VN_IS(nodep, ArraySel) && !VN_IS(nodep, لفظ_Sel)) {
+            ویکھو(static_cast<Ast_گرہ_Biop*>(nodep));
+            أرجع;
         }
         // ArraySel or WordSel
-        iterateAndNextConstNull(nodep->fromp());
+        iterate_And_اگلا_Const_Null(nodep->fromp());
         // Special case constant index for readability
-        if (AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
-            puts("[" + std::to_string(idxp->toUInt()) + "U]");
-            return;
+        إذا (AstConst* ثابت idxp = VN_CAST(nodep->bitp(), Const)) {
+            puts("[" + std::منزل_string(idxp->منزل_UInt()) + "U]");
+            أرجع;
         }
         putbs("[");
-        iterateAndNextConstNull(nodep->bitp());
+        iterate_And_اگلا_Const_Null(nodep->bitp());
         puts("]");
     }
 
     //
-    void visit(AstExecGraph* nodep) override {
+    فراغ ویکھو(Ast_Exec_گراف* nodep) override {
         // The location of the AstExecGraph within the containing AstCFunc is where we want to
         // invoke the graph and wait for it to complete. The run-time library does just that.
-        putns(nodep, "vl_invokeExecGraph(" + EmitCUtil::execGraphName(nodep) + ", vlSelf, ");
+        putns(nodep, "vl_invokeExecGraph(" + EmitCUtil::exec_گراف_Name(nodep) + ", vlSelf, ");
         iterateConst(nodep->triggerp());
         puts(".data());\n");
     }
 
     // Default
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_START
+    فراغ ویکھو(Ast_گرہ* nodep) override {  // LCOV_EXCL_START
         putns(nodep, "\n???? // "s + nodep->prettyTypeName() + "\n");
         iterateChildrenConst(nodep);
-        if (!v3Global.opt.lintOnly()) {  // An internal problem, so suppress
+        إذا (!v3Global.opt.lintOnly()) {  // An internal problem, so suppress
             nodep->v3fatalSrc("Unknown node type reached emitter: " << nodep->prettyTypeName());
         }
     }  // LCOV_EXCL_STOP
 
-protected:
-    EmitCFunc() = default;
-    ~EmitCFunc() override = default;
+محمي:
+    EmitCFunc() = افتراضي;
+    ~EmitCFunc() override = افتراضي;
 };
 
-#endif  // guard
+#جے_انت  // guard

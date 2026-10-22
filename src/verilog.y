@@ -18,109 +18,109 @@
 // clang-format off
 
 %{
-#ifdef NEVER_JUST_FOR_CLANG_FORMAT
+#جے_تعریف_شدہ NEVER_JUST_FOR_CLANG_FORMAT
  }
-#endif
+#جے_انت
 // clang-format on
-#include "V3ParseGrammar.h"  // Defines YYTYPE; before including bison header
+#ضمن "V3ParseGrammar.h"  // Defines YYTYPE; before including bison header
 
-#define YYERROR_VERBOSE 1  // For prior to Bison 3.6
-#define YYINITDEPTH 10000  // Older bisons ignore YYMAXDEPTH
-#define YYMAXDEPTH 10000
-#define YYNEWLINE "\n"
+#تعریف_کرو YYERROR_VERBOSE 1  // For prior to Bison 3.6
+#تعریف_کرو YYINITDEPTH 10000  // Older bisons ignore YYMAXDEPTH
+#تعریف_کرو YYMAXDEPTH 10000
+#تعریف_کرو YYNEWLINE "\n"
 
 // Pick up new lexer
-#define yylex PARSEP->tokenToBison
+#تعریف_کرو yylex PARSEP->token_منزل_Bison
 
-#define BBCOVERIGN(fl, msg) (fl)->v3warn(COVERIGN, msg)
-#define BBUNSUP(fl, msg) (fl)->v3warn(E_UNSUPPORTED, msg)
-#define GATEUNSUP(fl, tok) \
+#تعریف_کرو BBCOVERIGN(fl, پیغام) (fl)->v3warn(COVERIGN, پیغام)
+#تعریف_کرو BBUNSUP(fl, پیغام) (fl)->v3warn(E_UNSUPPORTED, پیغام)
+#تعریف_کرو GATEUNSUP(fl, tok) \
     { BBUNSUP((fl), "Unsupported: Verilog 1995 gate primitive: " << (tok)); }
-#define RISEFALLDLYUNSUP(nodep) \
-    if (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
+#تعریف_کرو RISEFALLDLYUNSUP(nodep) \
+    إذا (nodep->fileline()->timingOn() && v3Global.opt.timing().is_سیٹ_True()) { \
         nodep->v3warn(RISEFALLDLY, "Unsupported: turn-off delays. Ignoring the third delay"); \
     }
-#define MINTYPMAXDLYUNSUP(nodep) \
-    if (nodep->fileline()->timingOn() && v3Global.opt.timing().isSetTrue()) { \
+#تعریف_کرو MINTYPMAXDLYUNSUP(nodep) \
+    إذا (nodep->fileline()->timingOn() && v3Global.opt.timing().is_سیٹ_True()) { \
         nodep->v3warn( \
             MINTYPMAXDLY, \
             "Unsupported: minimum/typical/maximum delay expressions. Using the typical delay"); \
     }
 // Apply a delay to all continuous assignments under listp
-static void DELAY_LIST(AstNode* listp, AstDelay* delayp) {
-    if (!delayp) return;
-    for (AstNode* nodep = listp; nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Implicit)) continue;
-        AstAlways* const alwaysp = VN_AS(nodep, Always);
-        AstAssignW* const assignp = VN_AS(alwaysp->stmtsp(), AssignW);
-        assignp->timingControlp(delayp->backp() ? delayp->cloneTree(false) : delayp);
+ساكن فراغ DELAY_LIST(Ast_گرہ* listp, AstDelay* delayp) {
+    إذا (!delayp) أرجع;
+    لكل (Ast_گرہ* nodep = listp; nodep; nodep = nodep->nextp()) {
+        إذا (VN_IS(nodep, Implicit)) استمر;
+        AstAlways* ثابت alwaysp = VN_AS(nodep, Always);
+        Ast_سونپو_W* ثابت assignp = VN_AS(alwaysp->stmtsp(), سونپو_W);
+        assignp->timingControlp(delayp->backp() ? delayp->clone_درخت(false) : delayp);
     }
 }
 // Apply a strength to all continuous assignments under listp
-static void STRENGTH_LIST(AstNode* listp, AstStrengthSpec* specp) {
-    if (!specp) return;
-    for (AstNode* nodep = listp; nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Implicit)) continue;
-        AstAlways* const alwaysp = VN_AS(nodep, Always);
-        AstAssignW* const assignp = VN_AS(alwaysp->stmtsp(), AssignW);
-        assignp->strengthSpecp(specp->backp() ? specp->cloneTree(false) : specp);
+ساكن فراغ STRENGTH_LIST(Ast_گرہ* listp, AstStrengthSpec* specp) {
+    إذا (!specp) أرجع;
+    لكل (Ast_گرہ* nodep = listp; nodep; nodep = nodep->nextp()) {
+        إذا (VN_IS(nodep, Implicit)) استمر;
+        AstAlways* ثابت alwaysp = VN_AS(nodep, Always);
+        Ast_سونپو_W* ثابت assignp = VN_AS(alwaysp->stmtsp(), سونپو_W);
+        assignp->strengthSpecp(specp->backp() ? specp->clone_درخت(false) : specp);
     }
 }
 //======================================================================
 // Statics (for here only)
 
-#define PARSEP V3ParseImp::parsep()
-#define GRAMMARP V3ParseGrammar::singletonp()
+#تعریف_کرو PARSEP V3ParseImp::parsep()
+#تعریف_کرو GRAMMARP V3ParseGrammar::singletonp()
 
-const VBasicDTypeKwd LOGIC = VBasicDTypeKwd::LOGIC;  // Shorthand "LOGIC"
-const VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
+ثابت VBasicDTypeKwd LOGIC = VBasicDTypeKwd::LOGIC;  // Shorthand "LOGIC"
+ثابت VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
 
 //======================================================================
 // Macro functions
 
 // Only use in empty rules, so lines point at beginnings
-#define CRELINE() (PARSEP->bisonLastFileline()->copyOrSameFileLineApplied())
-#define FILELINE_OR_CRE(nodep) ((nodep) ? (nodep)->fileline() : CRELINE())
+#تعریف_کرو CRELINE() (PARSEP->bison_آخری_Fileline()->copy_Or_Same_File_سطر_Applied())
+#تعریف_کرو FILELINE_OR_CRE(nodep) ((nodep) ? (nodep)->fileline() : CRELINE())
 
-#define VARRESET_LIST(decl) VARRESET__PVT(decl, 1)  // Start of pinlist
-#define VARRESET_NONLIST(decl) VARRESET__PVT(decl, 0);  // Not in a pinlist
-#define VARRESET__PVT(decl, pinNumStart) \
+#تعریف_کرو VARRESET_LIST(decl) VARRESET__PVT(decl, 1)  // Start of pinlist
+#تعریف_کرو VARRESET_NONLIST(decl) VARRESET__PVT(decl, 0);  // Not in a pinlist
+#تعریف_کرو VARRESET__PVT(decl, pin_عدد_شروع) \
     { \
         VARDECL(decl); \
         VARIO(NONE); \
         VARDTYPE_NDECL(nullptr); \
-        GRAMMARP->m_pinNum = (pinNumStart); \
+        GRAMMARP->m_pin_عدد = (pin_عدد_شروع); \
         GRAMMARP->m_varLifetime = VLifetime::NONE; \
         GRAMMARP->m_varDeclTyped = false; \
     }
-#define VARDECL(type) \
-    { GRAMMARP->m_varDecl = VVarType::type; }
-#define VARIO(type) \
-    { GRAMMARP->m_varIO = VDirection::type; }
+#تعریف_کرو VARDECL(نوع) \
+    { GRAMMARP->m_varDecl = VVarType::نوع; }
+#تعریف_کرو VARIO(نوع) \
+    { GRAMMARP->m_varIO = VDirection::نوع; }
 // Set direction to default-input when detect inside an ANSI port list
-#define VARIOANSI() \
+#تعریف_کرو VARIOANSI() \
     { \
-        if (GRAMMARP->m_varIO == VDirection::NONE) VARIO(INPUT); \
+        إذا (GRAMMARP->m_varIO == VDirection::NONE) VARIO(داخلہ); \
     }
-#define VARLIFE(flag) \
+#تعریف_کرو VARLIFE(flag) \
     { GRAMMARP->m_varLifetime = flag; }
-#define VARDTYPE(dtypep) \
+#تعریف_کرو VARDTYPE(dtypep) \
     { \
-        GRAMMARP->setDType(dtypep); \
+        GRAMMARP->سیٹ_DType(dtypep); \
         GRAMMARP->m_varDeclTyped = true; \
     }
-#define VARDTYPE_NDECL(dtypep) \
-    { GRAMMARP->setDType(dtypep); }  // Port that is range or signed only (not a decl)
+#تعریف_کرو VARDTYPE_NDECL(dtypep) \
+    { GRAMMARP->سیٹ_DType(dtypep); }  // Port that is range or signed only (not a decl)
 
-#define VARDONEA(fl, name, array, attrs) GRAMMARP->createVariable((fl), (name), (array), (attrs))
-#define VARDONEP(portp, array, attrs) \
+#تعریف_کرو VARDONEA(fl, name, array, attrs) GRAMMARP->createVariable((fl), (name), (array), (attrs))
+#تعریف_کرو VARDONEP(portp, array, attrs) \
     GRAMMARP->createVariable((portp)->fileline(), (portp)->name(), (array), (attrs))
-#define PINNUMINC() (GRAMMARP->m_pinNum++)
+#تعریف_کرو PINNUMINC() (GRAMMARP->m_pin_عدد++)
 
-#define GATERANGE(rangep) \
+#تعریف_کرو GATERANGE(rangep) \
     { GRAMMARP->m_gateRangep = rangep; }
 
-#define INSTPREP(modfl, modname, paramsp) \
+#تعریف_کرو INSTPREP(modfl, modname, paramsp) \
     { \
         GRAMMARP->m_impliedDecl = true; \
         GRAMMARP->m_instModuleFl = modfl; \
@@ -128,54 +128,54 @@ const VBasicDTypeKwd LOGIC_IMPLICIT = VBasicDTypeKwd::LOGIC_IMPLICIT;
         GRAMMARP->m_instParamp = paramsp; \
     }
 
-#define DEL(...) \
+#تعریف_کرو DEL(...) \
     { \
         /* cppcheck-suppress constVariable */ \
-        AstNode* const nodeps[] = {__VA_ARGS__}; \
-        for (AstNode* const nodep : nodeps) \
-            if (nodep) nodep->deleteTree(); \
+        Ast_گرہ* ثابت nodeps[] = {__VA_ARGS__}; \
+        لكل (Ast_گرہ* ثابت nodep : nodeps) \
+            إذا (nodep) nodep->delete_درخت(); \
     }
 
-static void ERRSVKWD(FileLine* fileline, const string& tokname) {
-    static int s_toldonce = 0;
+ساكن فراغ ERRSVKWD(File_سطر* fileline, ثابت string& tokname) {
+    ساكن صحيح s_toldonce = 0;
     fileline->v3error(
         "Unexpected '"s + tokname + "': '" + tokname
         + "' is a SystemVerilog keyword misused as an identifier."
-        + (!s_toldonce++ ? "\n" + fileline->warnMore()
+        + (!s_toldonce++ ? "\n" + fileline->warn_ہور()
                                + "... Suggest modify the Verilog-2001 code to avoid SV keywords,"
                                + " or use `begin_keywords or --language."
                          : ""));
 }
 
-static void ASSIGNEQEXPR(FileLine* fileline) {
+ساكن فراغ ASSIGNEQEXPR(File_سطر* fileline) {
     fileline->v3warn(ASSIGNEQEXPR,
                      "Assignment '=' inside expression\n"
-                         << fileline->warnMore()
+                         << fileline->warn_ہور()
                          << "... Was a '==' intended, or suggest use a separate statement");
 }
 
-static void UNSUPREAL(FileLine* fileline) {
+ساكن فراغ UNSUPREAL(File_سطر* fileline) {
     fileline->v3warn(SHORTREAL,
                      "Unsupported: shortreal being promoted to real (suggest use real instead)");
 }
 
 //======================================================================
 
-void yyerror(const char* errmsg) { PARSEP->bisonLastFileline()->v3error(errmsg); }
+فراغ yyerror(ثابت حرف* errmsg) { PARSEP->bison_آخری_Fileline()->v3error(errmsg); }
 
-template <typename T_Node, typename T_Next>
-static T_Node* addNextNull(T_Node* nodep, T_Next* nextp) {
-    return AstNode::addNextNull<T_Node, T_Next>(nodep, nextp);
+سانچا <typename T_گرہ, typename T_اگلا>
+ساكن T_گرہ* جوڑو_اگلا_Null(T_گرہ* nodep, T_اگلا* nextp) {
+    أرجع Ast_گرہ::جوڑو_اگلا_Null<T_گرہ, T_اگلا>(nodep, nextp);
 }
 
 //======================================================================
 
-class AstSenTree;
+class Ast_Sen_درخت;
 // clang-format off
 %}
 
 // Bison 3.0 and newer
-BISONPRE_VERSION(3.0,%define parse.error verbose)
+BISONPRE_نسخہ(3.0,%define parse.error verbose)
 
 // We run bison with the -d argument. This tells it to generate a
 // header file with token names. Old versions of bison pasted the
@@ -184,7 +184,7 @@ BISONPRE_VERSION(3.0,%define parse.error verbose)
 //
 // Since we run bison through ../bisonpre, it doesn't know the correct
 // header file name, so we need to tell it.
-BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
+BISONPRE_نسخہ(3.7,%define api.سرخی.include {"V3ParseBison.h"})
 
 // When writing Bison patterns we use yTOKEN instead of "token",
 // so Bison will error out on unknown "token"s.
@@ -221,9 +221,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 
 %token<fl>              ygenSTRENGTH    "STRENGTH keyword (strong1/etc)"
 
-%token<strp>            yaTABLE_FIELD   "UDP table field"
-%token<fl>              yaTABLE_LRSEP   ":"
-%token<fl>              yaTABLE_LINEEND "UDP table line end"
+%token<strp>            ya_جدول_میدان   "UDP table field"
+%token<fl>              ya_جدول_LRSEP   ":"
+%token<fl>              ya_جدول_LINEEND "UDP table line end"
 
 %token<strp>            yaSCCTOR        "`systemc_ctor block"
 %token<strp>            yaSCDTOR        "`systemc_dtor block"
@@ -235,13 +235,13 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 
 %token<fl>              yVLT_CLOCKER                "clocker"
 %token<fl>              yVLT_CLOCK_ENABLE           "clock_enable"
-%token<fl>              yVLT_COVERAGE_BLOCK_OFF     "coverage_block_off"
+%token<fl>              y_VLT_COVERAGE_بلاک_OFF     "coverage_block_off"
 %token<fl>              yVLT_COVERAGE_OFF           "coverage_off"
 %token<fl>              yVLT_COVERAGE_ON            "coverage_on"
 %token<fl>              yVLT_FORCEABLE              "forceable"
-%token<fl>              yVLT_FSM_REGISTER_WRAPPER   "fsm_register_wrapper"
-%token<fl>              yVLT_FULL_CASE              "full_case"
-%token<fl>              yVLT_HIER_BLOCK             "hier_block"
+%token<fl>              y_VLT_FSM_رجسٹر_WRAPPER   "fsm_register_wrapper"
+%token<fl>              y_VLT_بھریا_CASE              "full_case"
+%token<fl>              y_VLT_HIER_بلاک             "hier_block"
 %token<fl>              yVLT_HIER_PARAMS            "hier_params"
 %token<fl>              yVLT_HIER_WORKERS           "hier_workers"
 %token<fl>              yVLT_INLINE                 "inline"
@@ -251,42 +251,42 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yVLT_NO_CLOCKER             "no_clocker"
 %token<fl>              yVLT_NO_INLINE              "no_inline"
 %token<fl>              yVLT_PARALLEL_CASE          "parallel_case"
-%token<fl>              yVLT_PROFILE_DATA           "profile_data"
-%token<fl>              yVLT_PUBLIC                 "public"
-%token<fl>              yVLT_PUBLIC_FLAT            "public_flat"
-%token<fl>              yVLT_PUBLIC_FLAT_RD         "public_flat_rd"
-%token<fl>              yVLT_PUBLIC_FLAT_RW         "public_flat_rw"
-%token<fl>              yVLT_PUBLIC_MODULE          "public_module"
+%token<fl>              y_VLT_PROFILE_انکڑے           "profile_data"
+%token<fl>              y_VLT_عوامی                 "public"
+%token<fl>              y_VLT_عوامی_FLAT            "public_flat"
+%token<fl>              y_VLT_عوامی_FLAT_RD         "public_flat_rd"
+%token<fl>              y_VLT_عوامی_FLAT_RW         "public_flat_rw"
+%token<fl>              y_VLT_عوامی_MODULE          "public_module"
 %token<fl>              yVLT_SC_BIGUINT             "sc_biguint"
 %token<fl>              yVLT_SC_BV                  "sc_bv"
 %token<fl>              yVLT_SFORMAT                "sformat"
-%token<fl>              yVLT_SPLIT_VAR              "split_var"
+%token<fl>              y_VLT_ونڈو_VAR              "split_var"
 %token<fl>              yVLT_TIMING_OFF             "timing_off"
 %token<fl>              yVLT_TIMING_ON              "timing_on"
 %token<fl>              yVLT_TRACING_OFF            "tracing_off"
 %token<fl>              yVLT_TRACING_ON             "tracing_on"
 %token<fl>              yVLT_VERILATOR_LIB          "verilator_lib"
 
-%token<fl>              yVLT_D_BLOCK    "--block"
+%token<fl>              y_VLT_D_بلاک    "--block"
 %token<fl>              yVLT_D_CONTENTS "--contents"
-%token<fl>              yVLT_D_COST     "--cost"
+%token<fl>              y_VLT_D_لاگت     "--cost"
 %token<fl>              yVLT_D_CLOCK    "--clock"
 %token<fl>              yVLT_D_D        "--d"
 %token<fl>              yVLT_D_FILE     "--file"
 %token<fl>              yVLT_D_FUNCTION "--function"
 %token<fl>              yVLT_D_HIER_DPI "--hier-dpi"
-%token<fl>              yVLT_D_LEVELS   "--levels"
-%token<fl>              yVLT_D_LINES    "--lines"
-%token<fl>              yVLT_D_MATCH    "--match"
+%token<fl>              y_VLT_D_پدھراں   "--levels"
+%token<fl>              y_VLT_D_سطریں    "--lines"
+%token<fl>              y_VLT_D_میل    "--match"
 %token<fl>              yVLT_D_MODEL    "--model"
 %token<fl>              yVLT_D_MODULE   "--module"
 %token<fl>              yVLT_D_MTASK    "--mtask"
 %token<fl>              yVLT_D_PARAM    "--param"
-%token<fl>              yVLT_D_PORT     "--port"
-%token<fl>              yVLT_D_RULE     "--rule"
+%token<fl>              y_VLT_D_پورٹ     "--port"
+%token<fl>              y_VLT_D_قاعدہ     "--rule"
 %token<fl>              yVLT_D_Q        "--q"
 %token<fl>              yVLT_D_RESET    "--reset"
-%token<fl>              yVLT_D_RESET_VALUE "--reset_value"
+%token<fl>              y_VLT_D_RESET_قدر "--reset_value"
 %token<fl>              yVLT_D_SCOPE    "--scope"
 %token<fl>              yVLT_D_TASK     "--task"
 %token<fl>              yVLT_D_VAR      "--var"
@@ -333,7 +333,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 // for example yP_ for punctuation based operators.
 // Double underscores "yX__Y" means token X followed by Y,
 // and "yX__ETC" means X folled by everything but Y(s).
-%token<fl>              y1STEP          "1step"
+%token<fl>              y1_قدم          "1step"
 %token<fl>              yACCEPT_ON      "accept_on"
 %token<fl>              yALIAS          "alias"
 %token<fl>              yALWAYS         "always"
@@ -342,7 +342,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yALWAYS_LATCH   "always_latch"
 %token<fl>              yAND            "and"
 %token<fl>              yASSERT         "assert"
-%token<fl>              yASSIGN         "assign"
+%token<fl>              y_سونپو         "assign"
 %token<fl>              yASSUME         "assume"
 %token<fl>              yAUTOMATIC      "automatic"
 %token<fl>              yBEFORE         "before"
@@ -350,7 +350,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yBIND           "bind"
 %token<fl>              yBINS           "bins"
 %token<fl>              yBINSOF         "binsof"
-%token<fl>              yBIT            "bit"
+%token<fl>              y_ثنائی_ہندسہ            "bit"
 %token<fl>              yBREAK          "break"
 %token<fl>              yBUF            "buf"
 %token<fl>              yBUFIF0         "bufif0"
@@ -383,9 +383,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yDISABLE        "disable"
 %token<fl>              yDIST           "dist"
 %token<fl>              yDO             "do"
-%token<fl>              yEDGE           "edge"
+%token<fl>              y_کنارا           "edge"
 %token<fl>              yELSE           "else"
-%token<fl>              yEND            "end"
+%token<fl>              y_سرا            "end"
 %token<fl>              yENDCASE        "endcase"
 %token<fl>              yENDCHECKER     "endchecker"
 %token<fl>              yENDCLASS       "endclass"
@@ -412,7 +412,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yEXTENDS        "extends"
 %token<fl>              yEXTERN         "extern"
 %token<fl>              yFINAL          "final"
-%token<fl>              yFIRST_MATCH    "first_match"
+%token<fl>              y_پہلا_میل    "first_match"
 %token<fl>              yFOR            "for"
 %token<fl>              yFORCE          "force"
 %token<fl>              yFOREACH        "foreach"
@@ -432,13 +432,13 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yIGNORE_BINS    "ignore_bins"
 %token<fl>              yILLEGAL_BINS   "illegal_bins"
 %token<fl>              yIMPLEMENTS     "implements"
-%token<fl>              yIMPLIES        "implies"
+%token<fl>              y_سٹا_دیندا        "implies"
 %token<fl>              yIMPORT         "import"
 %token<fl>              yINCDIR         "incdir"
 %token<fl>              yINCLUDE        "include"
 %token<fl>              yINITIAL        "initial"
 %token<fl>              yINOUT          "inout"
-%token<fl>              yINPUT          "input"
+%token<fl>              y_داخلہ          "input"
 %token<fl>              yINSIDE         "inside"
 %token<fl>              yINSTANCE       "instance"
 %token<fl>              yINT            "int"
@@ -482,15 +482,15 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yPMOS           "pmos"
 %token<fl>              yPOSEDGE        "posedge"
 %token<fl>              yPRIMITIVE      "primitive"
-%token<fl>              yPRIORITY       "priority"
-%token<fl>              yPROGRAM        "program"
+%token<fl>              y_ترجیح       "priority"
+%token<fl>              y_پروگرام        "program"
 %token<fl>              yPROPERTY       "property"
 %token<fl>              yPROTECTED      "protected"
 %token<fl>              yPULL0          "pull0"
 %token<fl>              yPULL1          "pull1"
 %token<fl>              yPULLDOWN       "pulldown"
 %token<fl>              yPULLUP         "pullup"
-%token<fl>              yPURE           "pure"
+%token<fl>              y_خالص           "pure"
 %token<fl>              yRAND           "rand"
 %token<fl>              yRANDC          "randc"
 %token<fl>              yRANDCASE       "randcase"
@@ -538,14 +538,14 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yS_NEXTTIME     "s_nexttime"
 %token<fl>              yS_UNTIL        "s_until"
 %token<fl>              yS_UNTIL_WITH   "s_until_with"
-%token<fl>              yTABLE          "table"
+%token<fl>              y_جدول          "table"
 %token<fl>              yTAGGED         "tagged"
 %token<fl>              yTAGGED__LEX    "tagged-in-lex"
 %token<fl>              yTAGGED__NONPRIMARY   "tagged-nonprimary"
 %token<fl>              yTASK           "task"
 %token<fl>              yTHIS           "this"
 %token<fl>              yTHROUGHOUT     "throughout"
-%token<fl>              yTIME           "time"
+%token<fl>              y_ویلا           "time"
 %token<fl>              yTIMEPRECISION  "timeprecision"
 %token<fl>              yTIMEUNIT       "timeunit"
 %token<fl>              yTRAN           "tran"
@@ -579,7 +579,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yVIRTUAL__anyID "virtual-then-identifier"
 %token<fl>              yVOID           "void"
 %token<fl>              yWAIT           "wait"
-%token<fl>              yWAIT_ORDER     "wait_order"
+%token<fl>              y_WAIT_ترتیب     "wait_order"
 %token<fl>              yWAND           "wand"
 %token<fl>              yWEAK           "weak"
 %token<fl>              yWEAK0          "weak0"
@@ -616,15 +616,15 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_ATAN         "$atan"
 %token<fl>              yD_ATAN2        "$atan2"
 %token<fl>              yD_ATANH        "$atanh"
-%token<fl>              yD_BITS         "$bits"
+%token<fl>              y_D_بٹ         "$bits"
 %token<fl>              yD_BITSTOREAL   "$bitstoreal"
 %token<fl>              yD_BITSTOSHORTREAL "$bitstoshortreal"
 %token<fl>              yD_C            "$c"
 %token<fl>              yD_CPURE        "$cpure"
 %token<fl>              yD_CAST         "$cast"
 %token<fl>              yD_CEIL         "$ceil"
-%token<fl>              yD_CHANGED      "$changed"
-%token<fl>              yD_CHANGED_GCLK "$changed_gclk"
+%token<fl>              y_D_بدلیا      "$changed"
+%token<fl>              y_D_بدلیا_GCLK "$changed_gclk"
 %token<fl>              yD_CHANGING_GCLK  "$changing_gclk"
 %token<fl>              yD_CLOG2        "$clog2"
 %token<fl>              yD_COS          "$cos"
@@ -636,13 +636,13 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_DISPLAYB     "$displayb"
 %token<fl>              yD_DISPLAYH     "$displayh"
 %token<fl>              yD_DISPLAYO     "$displayo"
-%token<fl>              yD_DIST_CHI_SQUARE "$dist_chi_square"
+%token<fl>              y_D_DIST_CHI_مربع "$dist_chi_square"
 %token<fl>              yD_DIST_ERLANG  "$dist_erlang"
-%token<fl>              yD_DIST_EXPONENTIAL "$dist_exponential"
-%token<fl>              yD_DIST_NORMAL  "$dist_normal"
-%token<fl>              yD_DIST_POISSON "$dist_poisson"
+%token<fl>              y_D_DIST_قوت_نمائی "$dist_exponential"
+%token<fl>              y_D_DIST_عام  "$dist_normal"
+%token<fl>              y_D_DIST_پواسوں "$dist_poisson"
 %token<fl>              yD_DIST_T       "$dist_t"
-%token<fl>              yD_DIST_UNIFORM "$dist_uniform"
+%token<fl>              y_D_DIST_اکسار "$dist_uniform"
 %token<fl>              yD_DUMPALL      "$dumpall"
 %token<fl>              yD_DUMPFILE     "$dumpfile"
 %token<fl>              yD_DUMPFLUSH    "$dumpflush"
@@ -668,7 +668,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_FFLUSH       "$fflush"
 %token<fl>              yD_FGETC        "$fgetc"
 %token<fl>              yD_FGETS        "$fgets"
-%token<fl>              yD_FINISH       "$finish"
+%token<fl>              y_D_انت       "$finish"
 %token<fl>              yD_FLOOR        "$floor"
 %token<fl>              yD_FMONITOR     "$fmonitor"
 %token<fl>              yD_FMONITORB    "$fmonitorb"
@@ -689,9 +689,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_FWRITEB      "$fwriteb"
 %token<fl>              yD_FWRITEH      "$fwriteh"
 %token<fl>              yD_FWRITEO      "$fwriteo"
-%token<fl>              yD_GET_INITIAL_RANDOM_SEED "$get_initial_random_seed"
+%token<fl>              y_D_GET_INITIAL_RANDOM_بیج "$get_initial_random_seed"
 %token<fl>              yD_GLOBAL_CLOCK "$global_clock"
-%token<fl>              yD_HIGH         "$high"
+%token<fl>              y_D_بلند         "$high"
 %token<fl>              yD_HYPOT        "$hypot"
 %token<fl>              yD_INCREMENT    "$increment"
 %token<fl>              yD_INFERRED_DISABLE "$inferred_disable"
@@ -699,10 +699,10 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_ISUNBOUNDED  "$isunbounded"
 %token<fl>              yD_ISUNKNOWN    "$isunknown"
 %token<fl>              yD_ITOR         "$itor"
-%token<fl>              yD_LEFT         "$left"
+%token<fl>              y_D_بایاں         "$left"
 %token<fl>              yD_LN           "$ln"
 %token<fl>              yD_LOG10        "$log10"
-%token<fl>              yD_LOW          "$low"
+%token<fl>              y_D_کم          "$low"
 %token<fl>              yD_MONITOR      "$monitor"
 %token<fl>              yD_MONITORB     "$monitorb"
 %token<fl>              yD_MONITORH     "$monitorh"
@@ -721,9 +721,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_REALTIME     "$realtime"
 %token<fl>              yD_REALTOBITS   "$realtobits"
 %token<fl>              yD_REWIND       "$rewind"
-%token<fl>              yD_RIGHT        "$right"
+%token<fl>              y_D_دایاں        "$right"
 %token<fl>              yD_RISING_GCLK  "$rising_gclk"
-%token<fl>              yD_ROOT         "$root"
+%token<fl>              y_D_جڑ         "$root"
 %token<fl>              yD_ROSE         "$rose"
 %token<fl>              yD_ROSE_GCLK    "$rose_gclk"
 %token<fl>              yD_RTOI         "$rtoi"
@@ -736,7 +736,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_SIGNED       "$signed"
 %token<fl>              yD_SIN          "$sin"
 %token<fl>              yD_SINH         "$sinh"
-%token<fl>              yD_SIZE         "$size"
+%token<fl>              y_D_ناپ         "$size"
 %token<fl>              yD_SQRT         "$sqrt"
 %token<fl>              yD_SSCANF       "$sscanf"
 %token<fl>              yD_STABLE       "$stable"
@@ -757,7 +757,7 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>              yD_TAN          "$tan"
 %token<fl>              yD_TANH         "$tanh"
 %token<fl>              yD_TESTPLUSARGS "$test$plusargs"
-%token<fl>              yD_TIME         "$time"
+%token<fl>              y_D_ویلا         "$time"
 %token<fl>              yD_TIMEFORMAT   "$timeformat"
 %token<fl>              yD_TIMEPRECISION "$timeprecision"
 %token<fl>              yD_TIMEUNIT     "$timeunit"
@@ -779,43 +779,43 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 
 %token<fl>              yVL_CLOCKER               "/*verilator clocker*/"
 %token<fl>              yVL_CLOCK_ENABLE          "/*verilator clock_enable*/"
-%token<fl>              yVL_COVERAGE_BLOCK_OFF    "/*verilator coverage_block_off*/"
+%token<fl>              y_VL_COVERAGE_بلاک_OFF    "/*verilator coverage_block_off*/"
 %token<fl>              yVL_DPI_C_DECL            "/*verilator dpi_c_decl*/"
 %token<fl>              yVL_FORCEABLE             "/*verilator forceable*/"
-%token<fl>              yVL_FULL_CASE             "/*verilator full_case*/"
-%token<fl>              yVL_HIER_BLOCK            "/*verilator hier_block*/"
+%token<fl>              y_VL_بھریا_CASE             "/*verilator full_case*/"
+%token<fl>              y_VL_HIER_بلاک            "/*verilator hier_block*/"
 %token<fl>              yVL_INLINE_MODULE         "/*verilator inline_module*/"
 %token<fl>              yVL_ISOLATE_ASSIGNMENTS   "/*verilator isolate_assignments*/"
 %token<fl>              yVL_NO_CLOCKER            "/*verilator no_clocker*/"
 %token<fl>              yVL_NO_INLINE_MODULE      "/*verilator no_inline_module*/"
 %token<fl>              yVL_NO_INLINE_TASK        "/*verilator no_inline_task*/"
 %token<fl>              yVL_PARALLEL_CASE         "/*verilator parallel_case*/"
-%token<fl>              yVL_PUBLIC                "/*verilator public*/"
-%token<fl>              yVL_PUBLIC_FLAT           "/*verilator public_flat*/"
-%token<fl>              yVL_PUBLIC_FLAT_ON        "/*verilator public_flat_on*/"
-%token<fl>              yVL_PUBLIC_FLAT_RD        "/*verilator public_flat_rd*/"
-%token<fl>              yVL_PUBLIC_FLAT_RD_ON     "/*verilator public_flat_rd_on*/"
-%token<fl>              yVL_PUBLIC_FLAT_RW        "/*verilator public_flat_rw*/"
-%token<fl>              yVL_PUBLIC_FLAT_RW_ON     "/*verilator public_flat_rw_on*/"
-%token<fl>              yVL_PUBLIC_FLAT_RW_ON_SNS "/*verilator public_flat_rw_on_sns*/"
-%token<fl>              yVL_PUBLIC_ON             "/*verilator public_on*/"
-%token<fl>              yVL_PUBLIC_OFF            "/*verilator public_off*/"
-%token<fl>              yVL_PUBLIC_MODULE         "/*verilator public_module*/"
+%token<fl>              y_VL_عوامی                "/*verilator public*/"
+%token<fl>              y_VL_عوامی_FLAT           "/*verilator public_flat*/"
+%token<fl>              y_VL_عوامی_FLAT_ON        "/*verilator public_flat_on*/"
+%token<fl>              y_VL_عوامی_FLAT_RD        "/*verilator public_flat_rd*/"
+%token<fl>              y_VL_عوامی_FLAT_RD_ON     "/*verilator public_flat_rd_on*/"
+%token<fl>              y_VL_عوامی_FLAT_RW        "/*verilator public_flat_rw*/"
+%token<fl>              y_VL_عوامی_FLAT_RW_ON     "/*verilator public_flat_rw_on*/"
+%token<fl>              y_VL_عوامی_FLAT_RW_ON_SNS "/*verilator public_flat_rw_on_sns*/"
+%token<fl>              y_VL_عوامی_ON             "/*verilator public_on*/"
+%token<fl>              y_VL_عوامی_OFF            "/*verilator public_off*/"
+%token<fl>              y_VL_عوامی_MODULE         "/*verilator public_module*/"
 %token<fl>              yVL_SC_BIGUINT            "/*verilator sc_biguint*/"
 %token<fl>              yVL_SC_BV                 "/*verilator sc_bv*/"
 %token<fl>              yVL_SFORMAT               "/*verilator sformat*/"
-%token<fl>              yVL_SPLIT_VAR             "/*verilator split_var*/"
+%token<fl>              y_VL_ونڈو_VAR             "/*verilator split_var*/"
 %token<fl>              yVL_FSM_ARC_INCL_COND     "/*verilator fsm_arc_include_cond*/"
 %token<fl>              yVL_FSM_ARC_INCL_COND_AUTO        "/*verilator fsm_arc_include_cond_auto*/"
 %token<fl>              yVL_FSM_ARC_INCL_COND_AUTO_EXPAND "/*verilator fsm_arc_include_cond_auto_expand*/"
-%token<fl>              yVL_FSM_ARC_INCL_COND_FULL        "/*verilator fsm_arc_include_cond_full*/"
+%token<fl>              y_VL_FSM_ARC_INCL_COND_بھریا        "/*verilator fsm_arc_include_cond_full*/"
 %token<fl>              yVL_FSM_STATE             "/*verilator fsm_state*/"
 %token<fl>              yVL_FSM_STATE_AUTO        "/*verilator fsm_state_auto*/"
 %token<fl>              yVL_FSM_STATE_AUTO_EXPAND "/*verilator fsm_state_auto_expand*/"
-%token<fl>              yVL_FSM_STATE_FULL        "/*verilator fsm_state_full*/"
-%token<strp>            yVL_TAG                   "/*verilator tag*/"
+%token<fl>              y_VL_FSM_STATE_بھریا        "/*verilator fsm_state_full*/"
+%token<strp>            y_VL_ٹیگ                   "/*verilator tag*/"
 %token<fl>              yVL_UNROLL_DISABLE        "/*verilator unroll_disable*/"
-%token<fl>              yVL_UNROLL_FULL           "/*verilator unroll_full*/"
+%token<fl>              y_VL_UNROLL_بھریا           "/*verilator unroll_full*/"
 
 %token<fl>              yP_TICK         "'"
 %token<fl>              yP_TICKBRA      "'{"
@@ -898,9 +898,9 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 %token<fl>      prTAGGED
 
 // These prevent other conflicts
-%left           yP_ANDANDAND
-%left           yMATCHES
-%left           prTAGGED
+%کھبے           yP_ANDANDAND
+%کھبے           yMATCHES
+%کھبے           prTAGGED
 //UNSUP %left   prSEQ_CLOCKING
 
 // PSL op precedence
@@ -909,18 +909,18 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 // These are in IEEE 17.7.1
 %nonassoc       prALWAYS prS_ALWAYS prEVENTUALLY prS_EVENTUALLY prIF prACCEPT_ON prREJECT_ON prSYNC_ACCEPT_ON prSYNC_REJECT_ON
 
-%right          yP_ORMINUSGT yP_OREQGT yP_POUNDMINUSPD yP_POUNDEQPD
-%right          yUNTIL yS_UNTIL yUNTIL_WITH yS_UNTIL_WITH yIMPLIES
-%right          yIFF
-%left           yOR
-%left           yAND
+%سجے          yP_ORMINUSGT yP_OREQGT yP_POUNDMINUSPD yP_POUNDEQPD
+%سجے          yUNTIL yS_UNTIL yUNTIL_WITH yS_UNTIL_WITH y_سٹا_دیندا
+%سجے          yIFF
+%کھبے           yOR
+%کھبے           yAND
 %nonassoc       yNOT yNEXTTIME yS_NEXTTIME
-%left           yINTERSECT
-%left           yWITHIN
-%right          yTHROUGHOUT
-%left           prPOUNDPOUND_MULTI
-%left           yP_POUNDPOUND
-%left           yP_BRASTAR yP_BRAEQ yP_BRAMINUSGT yP_BRAPLUSKET
+%کھبے           yINTERSECT
+%کھبے           yWITHIN
+%سجے          yTHROUGHOUT
+%کھبے           prPOUNDPOUND_MULTI
+%کھبے           yP_POUNDPOUND
+%کھبے           yP_BRASTAR yP_BRAEQ yP_BRAMINUSGT yP_BRAPLUSKET
 
 // Not specified, but needed higher than yOR, lower than normal non-pexpr expressions
 //UNSUP %left           yPOSEDGE yNEGEDGE yEDGE
@@ -928,26 +928,26 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 //UNSUP %left           '{' '}'
 
 // Verilog op precedence
-%right          yP_MINUSGT yP_LTMINUSGT
-%right          '?' ':' yP_COLON__BEGIN yP_COLON__FORK
-%left           yP_OROR
-%left           yP_ANDAND
-%left           '|' yP_NOR
-%left           '^' yP_XNOR
-%left           '&' yP_NAND
-%left           yP_EQUAL yP_NOTEQUAL yP_CASEEQUAL yP_CASENOTEQUAL yP_WILDEQUAL yP_WILDNOTEQUAL
-%left           '>' '<' yP_GTE yP_LTE yP_LTE__IGNORE yINSIDE yDIST
-%left           yP_SLEFT yP_SRIGHT yP_SSRIGHT
-%left           '+' '-'
-%left           '*' '/' '%'
-%left           yP_POW
-%left           prUNARYARITH yP_MINUSMINUS yP_PLUSPLUS prREDUCTION prNEGATION
-%left           '.'
+%سجے          yP_MINUSGT yP_LTMINUSGT
+%سجے          '?' ':' yP_COLON__BEGIN yP_COLON__FORK
+%کھبے           yP_OROR
+%کھبے           yP_ANDAND
+%کھبے           '|' yP_NOR
+%کھبے           '^' yP_XNOR
+%کھبے           '&' yP_NAND
+%کھبے           yP_EQUAL yP_NOTEQUAL yP_CASEEQUAL yP_CASENOTEQUAL yP_WILDEQUAL yP_WILDNOTEQUAL
+%کھبے           '>' '<' yP_GTE yP_LTE yP_LTE__IGNORE yINSIDE yDIST
+%کھبے           yP_SLEFT yP_SRIGHT yP_SSRIGHT
+%کھبے           '+' '-'
+%کھبے           '*' '/' '%'
+%کھبے           yP_POW
+%کھبے           prUNARYARITH yP_MINUSMINUS yP_PLUSPLUS prREDUCTION prNEGATION
+%کھبے           '.'
 // Not in IEEE, but need to avoid conflicts; TICK should bind tightly just lower than COLONCOLON
-%left           yP_TICK
+%کھبے           yP_TICK
 //%left         '(' ')' '[' ']' yP_COLONCOLON '.'
 
-%nonassoc prLOWER_THAN_ELSE
+%nonassoc pr_ہیٹھلا_THAN_ELSE
 %nonassoc yELSE
 
 //BISONPRE_TYPES
@@ -1024,14 +1024,14 @@ BISONPRE_VERSION(3.7,%define api.header.include {"V3ParseBison.h"})
 //  Blank lines for type insertion
 //  Blank lines for type insertion
 
-%start source_text
+%start سروت_متن
 
 %%
 //**********************************************************************
 // Files
 
-source_text:                    // ==IEEE: source_text
-                /* empty */                             { }
+سروت_متن:                    // ==IEEE: source_text
+                /*خالی_تھاواں*/                             { }
         //                      // timeunits_declaration moved into description:package_item
         |       descriptionList                         { }
         ;
@@ -1045,20 +1045,20 @@ description:                    // ==IEEE: description
                 module_declaration                      { }
         //                      // udp_declaration moved into module_declaration
         //                      // library_declaration and include_statement moved from library_description
-        |       library_declaration                     { PARSEP->rootp()->addMiscsp($1); }
+        |       library_declaration                     { PARSEP->rootp()->جوڑو_Miscsp($1); }
         |       include_statement                       { }
         |       interface_declaration                   { }
-        |       program_declaration                     { }
+        |       پروگرام_declaration                     { }
         |       package_declaration                     { }
-        |       package_itemTop                         { if ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
-        |       bind_directive                          { if ($1) PARSEP->unitPackage($1->fileline())->addStmtsp($1); }
+        |       package_شے_چوٹی                         { إذا ($1) PARSEP->unitPackage($1->fileline())->جوڑو_Stmtsp($1); }
+        |       bind_directive                          { إذا ($1) PARSEP->unitPackage($1->fileline())->جوڑو_Stmtsp($1); }
         |       config_declaration                      { }
         //                      // Verilator only
         |       yaT_RESETALL                            { }  // Else, under design, and illegal based on IEEE 22.3
         |       yaT_NOUNCONNECTED                       { PARSEP->unconnectedDrive(VOptionBool::OPT_DEFAULT_FALSE); }
         |       yaT_UNCONNECTED_PULL0                   { PARSEP->unconnectedDrive(VOptionBool::OPT_FALSE); }
         |       yaT_UNCONNECTED_PULL1                   { PARSEP->unconnectedDrive(VOptionBool::OPT_TRUE); }
-        |       vltItem                                 { }
+        |       vlt_شے                                 { }
         |       error                                   { }  // LCOV_EXCL_LINE
         ;
 
@@ -1075,72 +1075,72 @@ timeunits_declaration<nodep>:   // ==IEEE: timeunits_declaration
 // Packages
 
 package_declaration:            // ==IEEE: package_declaration
-                packageFront package_itemListE yENDPACKAGE endLabelE
+                packageFront package_شے_List_E yENDPACKAGE سرا_Label_E
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
-                          if ($2) $1->addStmtsp($2);
-                          GRAMMARP->endLabel($<fl>4, $1, $4); }
+                          إذا ($2) $1->جوڑو_Stmtsp($2);
+                          GRAMMARP->سرا_Label($<fl>4, $1, $4); }
         ;
 
-packageFront<nodeModulep>:
+packageFront<گرہ_Modulep>:
                 yPACKAGE lifetimeE idAny ';'
                         { $$ = new AstPackage{$<fl>3, *$3, PARSEP->libname()};
-                          if ($$->name() == "std") {
-                              if ($$->fileline()->filename() != V3Options::getStdPackagePath()) {
+                          إذا ($$->name() == "std") {
+                              إذا ($$->fileline()->filename() != V3Options::get_Std_Package_رستہ()) {
                                   $$->v3error("Redeclaring the 'std' package is not allowed");
-                              } else {
+                              } وإلا {
                                   PARSEP->rootp()->stdPackagep(VN_AS($$, Package));
                               }
                           }
-                          $$->inLibrary(true);  // packages are always libraries; don't want to make them a "top"
+                          $$->وچ_Library(true);  // packages are always libraries; don't want to make them a "top"
                           $$->lifetime($2);
                           $$->modTrace(GRAMMARP->allTracingOn($$->fileline()));
-                          $$->timeunit(PARSEP->timeLastUnit());
-                          PARSEP->rootp()->timeprecisionMerge($$->fileline(),
-                                                              PARSEP->timeLastPrec());
-                          PARSEP->rootp()->addModulesp($$); }
+                          $$->timeunit(PARSEP->ویلا_آخری_Unit());
+                          PARSEP->rootp()->timeprecision_ملاؤ($$->fileline(),
+                                                              PARSEP->ویلا_آخری_Prec());
+                          PARSEP->rootp()->جوڑو_Modulesp($$); }
         ;
 
-package_itemListE<nodep>:       // IEEE: [{ package_item }]
-                /* empty */                             { $$ = nullptr; }
-        |       package_itemList                        { $$ = $1; }
+package_شے_List_E<nodep>:       // IEEE: [{ package_item }]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       package_شے_List                        { $$ = $1; }
         ;
 
-package_itemList<nodep>:        // IEEE: { package_item }
-                package_item                            { $$ = $1; }
-        |       package_itemList package_item           { $$ = addNextNull($1, $2); }
+package_شے_List<nodep>:        // IEEE: { package_item }
+                package_شے                            { $$ = $1; }
+        |       package_شے_List package_شے           { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-package_item<nodep>:            // ==IEEE: package_item
-                package_or_generate_item_declaration    { $$ = $1; }
-        |       anonymous_program                       { $$ = $1; }
+package_شے<nodep>:            // ==IEEE: package_item
+                package_or_generate_شے_declaration    { $$ = $1; }
+        |       anonymous_پروگرام                       { $$ = $1; }
         |       package_export_declaration              { $$ = $1; }
         |       timeunits_declaration                   { $$ = $1; }
         |       sigAttrScope                            { $$ = nullptr; }
         ;
 
-package_itemTop<nodep>:         // ==IEEE: package_item
+package_شے_چوٹی<nodep>:         // ==IEEE: package_item
 
-                package_or_generate_item_declNoChecker  { $$ = $1; }
+                package_or_generate_شے_decl_No_Checker  { $$ = $1; }
         |       checker_declaration
-                       { PARSEP->rootp()->addModulesp($1);
+                       { PARSEP->rootp()->جوڑو_Modulesp($1);
                          $$ = nullptr; }
-        |       anonymous_program                       { $$ = $1; }
+        |       anonymous_پروگرام                       { $$ = $1; }
         |       package_export_declaration              { $$ = $1; }
         |       timeunits_declaration                   { $$ = $1; }
         |       sigAttrScope                            { $$ = nullptr; }
         ;
 
-package_or_generate_item_declaration<nodep>:    // ==IEEE: package_or_generate_item_declaration
-                package_or_generate_item_declNoChecker  { $$ = $1; }
+package_or_generate_شے_declaration<nodep>:    // ==IEEE: package_or_generate_item_declaration
+                package_or_generate_شے_decl_No_Checker  { $$ = $1; }
         |       checker_declaration
                         { $1->v3warn(E_UNSUPPORTED, "Unsupported: 'checker' below unit-level");
-                          PARSEP->rootp()->addModulesp($1);
+                          PARSEP->rootp()->جوڑو_Modulesp($1);
                           $$ = nullptr; }
         ;
 
-package_or_generate_item_declNoChecker<nodep>:
+package_or_generate_شے_decl_No_Checker<nodep>:
                 net_declaration                         { $$ = $1; }
-        |       data_declaration                        { $$ = $1; }
+        |       انکڑے_declaration                        { $$ = $1; }
         |       task_declaration                        { $$ = $1; }
         |       function_declaration                    { $$ = $1; }
         //                      // IEEE checker_declaration excluded, to handle Top, see other rules
@@ -1154,48 +1154,48 @@ package_or_generate_item_declNoChecker<nodep>:
         //                      // local_parameter_declaration under parameter_declaration
         |       parameter_declaration ';'               { $$ = $1; }
         |       covergroup_declaration                  { $$ = $1; }
-        |       assertion_item_declaration              { $$ = $1; }
+        |       assertion_شے_declaration              { $$ = $1; }
         |       ';'                                     { $$ = nullptr; }
         ;
 
 package_import_declarationList<nodep>:
                 package_import_declaration              { $$ = $1; }
         |       package_import_declarationList package_import_declaration
-                        { $$ = addNextNull($1, $2); }
+                        { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 package_import_declaration<nodep>:      // ==IEEE: package_import_declaration
-                yIMPORT package_import_itemList ';'     { $$ = $2; }
+                yIMPORT package_import_شے_List ';'     { $$ = $2; }
         ;
 
-package_import_itemList<nodep>:
-                package_import_item                     { $$ = $1; }
-        |       package_import_itemList ',' package_import_item { $$ = addNextNull($1, $3); }
+package_import_شے_List<nodep>:
+                package_import_شے                     { $$ = $1; }
+        |       package_import_شے_List ',' package_import_شے { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-package_import_item<nodep>:     // ==IEEE: package_import_item
-                idCC/*package_identifier*/ yP_COLONCOLON package_import_itemObj
+package_import_شے<nodep>:     // ==IEEE: package_import_item
+                idCC/*package_identifier*/ yP_COLONCOLON package_import_شے_Obj
                         { $$ = new AstPackageImport{$<fl>1, *$<strp>1, *$3}; }
         ;
 
-package_import_itemObj<strp>:   // IEEE: part of package_import_item
+package_import_شے_Obj<strp>:   // IEEE: part of package_import_item
                 idAny/*package_identifier*/             { $<fl>$ = $<fl>1; $$ = $1; }
-        |       '*'                                     { $<fl>$ = $<fl>1; static string star = "*"; $$ = &star; }
+        |       '*'                                     { $<fl>$ = $<fl>1; ساكن string تارا = "*"; $$ = &تارا; }
         ;
 
 package_export_declaration<nodep>: // IEEE: package_export_declaration
                 yEXPORT '*' yP_COLONCOLON '*' ';'
-                        { $$ = new AstPackageExportStarStar{$<fl>2}; }
-        |       yEXPORT package_export_itemList ';'     { $$ = $2; }
+                        { $$ = new Ast_Package_Export_تارا_تارا{$<fl>2}; }
+        |       yEXPORT package_export_شے_List ';'     { $$ = $2; }
         ;
 
-package_export_itemList<nodep>:
-                package_export_item                     { $$ = $1; }
-        |       package_export_itemList ',' package_export_item { $$ = addNextNull($1, $3); }
+package_export_شے_List<nodep>:
+                package_export_شے                     { $$ = $1; }
+        |       package_export_شے_List ',' package_export_شے { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-package_export_item<nodep>:     // ==IEEE: package_export_item
-                idCC yP_COLONCOLON package_import_itemObj
+package_export_شے<nodep>:     // ==IEEE: package_export_item
+                idCC yP_COLONCOLON package_import_شے_Obj
                         { $$ = new AstPackageExport{$<fl>3, *$<strp>1, *$3}; }
         ;
 
@@ -1205,94 +1205,94 @@ package_export_item<nodep>:     // ==IEEE: package_export_item
 module_declaration:             // ==IEEE: module_declaration
         //                      // timeunits_declaration instead in module_item
         //                      // IEEE: module_nonansi_header + module_ansi_header
-                modFront importsAndParametersE portsStarE ';'
-        /*cont*/    module_itemListE yENDMODULE endLabelE
+                modFront importsAndParametersE ports_تارا_E ';'
+        /*cont*/    module_شے_List_E yENDMODULE سرا_Label_E
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
                           $1->hasParameterList($<flag>2);
-                          if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
-                          GRAMMARP->endLabel($<fl>7, $1, $7); }
-        |       udpFront portsStarE ';'
-        /*cont*/    module_itemListE yENDPRIMITIVE endLabelE
+                          إذا ($2) $1->جوڑو_Stmtsp($2);
+                          إذا ($3) $1->جوڑو_Stmtsp($3);
+                          إذا ($5) $1->جوڑو_Stmtsp($5);
+                          GRAMMARP->سرا_Label($<fl>7, $1, $7); }
+        |       udpFront ports_تارا_E ';'
+        /*cont*/    module_شے_List_E yENDPRIMITIVE سرا_Label_E
                         { $1->modTrace(false);  // Stash for implicit wires, etc
-                          if ($2) $1->addStmtsp($2);
-                          if ($4) $1->addStmtsp($4);
+                          إذا ($2) $1->جوڑو_Stmtsp($2);
+                          إذا ($4) $1->جوڑو_Stmtsp($4);
                           GRAMMARP->m_tracingParse = true;
-                          GRAMMARP->endLabel($<fl>6, $1, $6); }
+                          GRAMMARP->سرا_Label($<fl>6, $1, $6); }
         //
-        |       yEXTERN modFront parameter_port_listE portsStarE ';'
-                        { DEL($2->unlinkFrBack()); }
+        |       yEXTERN modFront parameter_پورٹ_list_E ports_تارا_E ';'
+                        { DEL($2->unlink_Fr_پٹھ()); }
                         // We allow modules to be declared after instantiations, so harmless
         ;
 
-modFront<nodeModulep>:
+modFront<گرہ_Modulep>:
         //                      // General note: all *Front functions must call symPushNew before
         //                      // any formal arguments, as the arguments must land in the new scope.
                 yMODULE lifetimeE idAny
                         { $$ = new AstModule{$<fl>3, *$3, PARSEP->libname()};
                           $$->lifetime($2);
-                          $$->inLibrary(PARSEP->inLibrary() || $$->fileline()->celldefineOn());
+                          $$->وچ_Library(PARSEP->وچ_Library() || $$->fileline()->celldefineOn());
                           $$->modTrace(GRAMMARP->allTracingOn($$->fileline()));
-                          $$->timeunit(PARSEP->timeLastUnit());
-                          PARSEP->rootp()->timeprecisionMerge($$->fileline(),
-                                                              PARSEP->timeLastPrec());
+                          $$->timeunit(PARSEP->ویلا_آخری_Unit());
+                          PARSEP->rootp()->timeprecision_ملاؤ($$->fileline(),
+                                                              PARSEP->ویلا_آخری_Prec());
                           $$->unconnectedDrive(PARSEP->unconnectedDrive());
-                          PARSEP->rootp()->addModulesp($$); }
+                          PARSEP->rootp()->جوڑو_Modulesp($$); }
         |       modFront sigAttrScope                   { $$ = $1; }
         ;
 
 importsAndParametersE<nodep>:   // IEEE: common part of module_declaration, interface_declaration, program_declaration
         //                      // { package_import_declaration } [ parameter_port_list ]
-                parameter_port_listE
+                parameter_پورٹ_list_E
                         { $$ = $1; $<flag>$ = $<flag>1; }  // hasParameterList
-        |       package_import_declarationList parameter_port_listE
-                        { $$ = addNextNull($1, $2);
+        |       package_import_declarationList parameter_پورٹ_list_E
+                        { $$ = جوڑو_اگلا_Null($1, $2);
                           $<flag>$ = $<flag>2; }  // hasParameterList
         ;
 
-udpFront<nodeModulep>:
+udpFront<گرہ_Modulep>:
                 yPRIMITIVE lifetimeE idAny
                         { $$ = new AstPrimitive{$<fl>3, *$3, PARSEP->libname()};
-                          $$->inLibrary(true);
+                          $$->وچ_Library(true);
                           $$->lifetime($2);
                           $$->modTrace(false);
-                          $$->addStmtsp(new AstPragma{$<fl>3, VPragmaType::INLINE_MODULE});
+                          $$->جوڑو_Stmtsp(new AstPragma{$<fl>3, VPragmaType::INLINE_MODULE});
                           GRAMMARP->m_tracingParse = false;
-                          PARSEP->rootp()->addModulesp($$); }
+                          PARSEP->rootp()->جوڑو_Modulesp($$); }
         ;
 
-parameter_value_assignmentInstE<pinp>:      // IEEE: [ parameter_value_assignment ] for instance
-                /* empty */                             { $$ = nullptr; }
-        |       parameter_value_assignmentInst          { $$ = $1; }
+parameter_قدر_assignment_Inst_E<pinp>:      // IEEE: [ parameter_value_assignment ] for instance
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       parameter_قدر_assignment_Inst          { $$ = $1; }
         ;
 
-parameter_value_assignmentClassE<pinp>:      // IEEE: [ parameter_value_assignment ] for classes
-                /* empty */                             { $$ = nullptr; }
-        |       parameter_value_assignmentClass         { $$ = $1; }
+parameter_قدر_assignment_Class_E<pinp>:      // IEEE: [ parameter_value_assignment ] for classes
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       parameter_قدر_assignment_Class         { $$ = $1; }
         ;
 
-parameter_value_assignmentInst<pinp>:       // IEEE: parameter_value_assignment for instance
+parameter_قدر_assignment_Inst<pinp>:       // IEEE: parameter_value_assignment for instance
                 '#' '(' instParamListE ')'              { $$ = $3; }
         //                      // Parentheses are optional around a single parameter
         //                      // IMPORTANT: Below hardcoded in tokenPipeScanParam
         |       '#' yaINTNUM                            { $$ = new AstPin{$<fl>2, 1, "", new AstConst{$<fl>2, *$2}}; }
         |       '#' yaFLOATNUM                          { $$ = new AstPin{$<fl>2, 1, "",
                                                                           new AstConst{$<fl>2, AstConst::RealDouble{}, $2}}; }
-        |       '#' timeNumAdjusted                     { $$ = new AstPin{$<fl>2, 1, "", $2}; }
+        |       '#' ویلا_عدد_Adjusted                     { $$ = new AstPin{$<fl>2, 1, "", $2}; }
         |       '#' idClassSel                          { $$ = new AstPin{$<fl>2, 1, "", $2}; }
         //                      // Not needed in Verilator:
         //                      // Side effect of combining *_instantiations
         //                      // '#' delay_value      { UNSUP }
         ;
 
-parameter_value_assignmentClass<pinp>:  // IEEE: parameter_value_assignment (for classes)
+parameter_قدر_assignment_Class<pinp>:  // IEEE: parameter_value_assignment (for classes)
         //                      // Like parameter_value_assignment, but for classes only, which always have #()
                 '#' '(' instParamListE ')'              { $$ = $3; }
         ;
 
-parameter_port_listE<nodep>:    // IEEE: parameter_port_list + empty == parameter_value_assignment
-                /* empty */                             { $$ = nullptr; $<flag>$ = false; }  // hasParameterList
+parameter_پورٹ_list_E<nodep>:    // IEEE: parameter_port_list + empty == parameter_value_assignment
+                /*خالی_تھاواں*/                             { $$ = nullptr; $<flag>$ = false; }  // hasParameterList
         |       '#' '(' ')'                             { $$ = nullptr;
                                                           $<flag>$ = true; }  // hasParameterList
         //                      // IEEE: '#' '(' list_of_param_assignments { ',' parameter_port_declaration } ')'
@@ -1301,77 +1301,77 @@ parameter_port_listE<nodep>:    // IEEE: parameter_port_list + empty == paramete
         //                      // split into pre-comma and post-comma parts
         |       '#' '('                                 { VARRESET_LIST(GPARAM);
                                                           GRAMMARP->m_pinAnsi = true; }
-        /*cont*/    paramPortDeclOrArgList ')'          { $$ = $4;
+        /*cont*/    param_پورٹ_Decl_Or_Arg_List ')'          { $$ = $4;
                                                           $<flag>$ = true;  // hasParameterList
                                                           VARRESET_NONLIST(UNKNOWN);
                                                           GRAMMARP->m_pinAnsi = false; }
         //                      // Note legal to start with "a=b" with no parameter statement
         ;
 
-paramPortDeclOrArgList<nodep>:  // IEEE: list_of_param_assignments + { parameter_port_declaration }
-                paramPortDeclOrArg                              { $$ = $1; }
-        |       paramPortDeclOrArgList ',' paramPortDeclOrArg   { $$ = $1->addNext($3); }
-        |       paramPortDeclOrArgList sigAttrScope             { $$ = $1; }
+param_پورٹ_Decl_Or_Arg_List<nodep>:  // IEEE: list_of_param_assignments + { parameter_port_declaration }
+                param_پورٹ_Decl_Or_Arg                              { $$ = $1; }
+        |       param_پورٹ_Decl_Or_Arg_List ',' param_پورٹ_Decl_Or_Arg   { $$ = $1->جوڑو_اگلا($3); }
+        |       param_پورٹ_Decl_Or_Arg_List sigAttrScope             { $$ = $1; }
         ;
 
-paramPortDeclOrArg<nodep>:      // IEEE: param_assignment + parameter_port_declaration
+param_پورٹ_Decl_Or_Arg<nodep>:      // IEEE: param_assignment + parameter_port_declaration
         //                      // We combine the two as we can't tell which follows a comma
-                paramPortDeclOrArgSub                   { $$ = $1; }
-        |       vlTag                                   { $$ = nullptr; }
+                param_پورٹ_Decl_Or_Arg_Sub                   { $$ = $1; }
+        |       vl_ٹیگ                                   { $$ = nullptr; }
         ;
 
-paramPortDeclOrArgSub<nodep>:
-                parameter_port_declarationFrontE param_assignment       { $$ = $2; }
-        |       parameter_port_declarationTypeFrontE type_assignment    { $$ = $2; }
-        |       sigAttrScope paramPortDeclOrArgSub                      { $$ = $2; }
+param_پورٹ_Decl_Or_Arg_Sub<nodep>:
+                parameter_پورٹ_declaration_Front_E param_assignment       { $$ = $2; }
+        |       parameter_پورٹ_declaration_Type_Front_E type_assignment    { $$ = $2; }
+        |       sigAttrScope param_پورٹ_Decl_Or_Arg_Sub                      { $$ = $2; }
         ;
 
-portsStarE<nodep>:              // IEEE: .* + list_of_ports + list_of_port_declarations + empty
-                /* empty */                             { $$ = nullptr; }
+ports_تارا_E<nodep>:              // IEEE: .* + list_of_ports + list_of_port_declarations + empty
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       '(' ')'                                 { $$ = nullptr; }
         //                      // .* expanded from module_declaration
         //UNSUP '(' yP_DOTSTAR ')'                              { UNSUP }
         |       '('
-        /*mid*/         { VARRESET_LIST(PORT); GRAMMARP->m_pinAnsi = true; }
-        /*cont*/    list_of_ports ')'
+        /*mid*/         { VARRESET_LIST(پورٹ); GRAMMARP->m_pinAnsi = true; }
+        /*cont*/    list_دا_ports ')'
                        { $$ = $3; VARRESET_NONLIST(UNKNOWN); GRAMMARP->m_pinAnsi = false; }
         ;
 
-list_of_portsE<nodep>:          // IEEE: [ list_of_ports + list_of_port_declarations ]
-                portAndTagE                             { $$ = $1; }
-        |       list_of_portsE ',' portAndTagE          { $$ = addNextNull($1, $3); }
+list_دا_ports_E<nodep>:          // IEEE: [ list_of_ports + list_of_port_declarations ]
+                پورٹ_And_ٹیگ_E                             { $$ = $1; }
+        |       list_دا_ports_E ',' پورٹ_And_ٹیگ_E          { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-list_of_ports<nodep>:           // IEEE: list_of_ports + list_of_port_declarations
-                portAndTag                              { $$ = $1; }
-        |       list_of_portsE ',' portAndTagE          { $$ = addNextNull($1, $3); }
+list_دا_ports<nodep>:           // IEEE: list_of_ports + list_of_port_declarations
+                پورٹ_And_ٹیگ                              { $$ = $1; }
+        |       list_دا_ports_E ',' پورٹ_And_ٹیگ_E          { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-portAndTagE<nodep>:
-                /* empty */
-                        { const int p = PINNUMINC();
-                          const string name = "__pinNumber" + cvtToStr(p);
-                          $$ = new AstPort{CRELINE(), p, name};
-                          AstVar* varp = new AstVar{CRELINE(), VVarType::WIRE, name, VFlagChildDType{},
+پورٹ_And_ٹیگ_E<nodep>:
+                /*خالی_تھاواں*/
+                        { ثابت صحيح p = PINNUMINC();
+                          ثابت string name = "__pinNumber" + cvt_منزل_Str(p);
+                          $$ = new Ast_پورٹ{CRELINE(), p, name};
+                          AstVar* varp = new AstVar{CRELINE(), VVarType::WIRE, name, VFlag_بچہ_DType{},
                                                     new AstBasicDType{CRELINE(), LOGIC_IMPLICIT}};
-                          varp->declDirection(VDirection::INPUT);
-                          varp->direction(VDirection::INPUT);
+                          varp->declDirection(VDirection::داخلہ);
+                          varp->direction(VDirection::داخلہ);
                           varp->ansi(false);
                           varp->declTyped(true);
                           varp->trace(false);
-                          $$ = $$->addNext(varp);
+                          $$ = $$->جوڑو_اگلا(varp);
                           $$->v3warn(NULLPORT, "Null port on module (perhaps extraneous comma)"); }
-        |       portAndTag                              { $$ = $1; }
-        |       portAndTag sigAttrScope                 { $$ = $1; }
+        |       پورٹ_And_ٹیگ                              { $$ = $1; }
+        |       پورٹ_And_ٹیگ sigAttrScope                 { $$ = $1; }
         ;
 
-portAndTag<nodep>:
-                port                                    { $$ = $1; }
-        |       vlTag port                              { $$ = $2; }  // Tag will associate with previous port
-        |       sigAttrScope portAndTag                 { $$ = $2; }
+پورٹ_And_ٹیگ<nodep>:
+                پورٹ_3                                    { $$ = $1; }
+        |       vl_ٹیگ پورٹ_3                              { $$ = $2; }  // Tag will associate with previous port
+        |       sigAttrScope پورٹ_And_ٹیگ                 { $$ = $2; }
         ;
 
-port<nodep>:                    // ==IEEE: port
+پورٹ_3<nodep>:                    // ==IEEE: port
         //                      // SEE ALSO port_declaration, tf_port_declaration,
         //                      // data_declarationVarFront
         //
@@ -1385,24 +1385,24 @@ port<nodep>:                    // ==IEEE: port
         //                      // Looks identical to variable_declaration, so V3LinkDot must resolve when ID known
         //                      // NO: portDirNetE id/*interface*/ portSig variable_dimensionListE sigAttrListE
         //
-                portDirNetE id/*interface*/ '.' idAny/*modport*/ portSig variable_dimensionListE sigAttrListE
+                پورٹ_Dir_Net_E id/*interface*/ '.' idAny/*modport*/ پورٹ_Sig variable_dimensionListE sigAttrListE
                         { // VAR for now, but V3LinkCells may call setIfcaeRef on it later
                           $$ = $5; VARDECL(VAR); VARIO(NONE);
-                          AstNodeDType* const dtp = new AstIfaceRefDType{$<fl>2, $<fl>4, "", *$2, *$4};
+                          Ast_گرہ_DType* ثابت dtp = new AstIfaceRefDType{$<fl>2, $<fl>4, "", *$2, *$4};
                           VARDTYPE(dtp); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $6, $7)); }
-        |       portDirNetE yINTERFACE                           portSig variable_dimensionListE sigAttrListE
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $6, $7)); }
+        |       پورٹ_Dir_Net_E yINTERFACE                           پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $3; GRAMMARP->createGenericIface($3, $4, $5); }
-        |       portDirNetE yINTERFACE      '.' idAny/*modport*/ portSig variable_dimensionListE sigAttrListE
+        |       پورٹ_Dir_Net_E yINTERFACE      '.' idAny/*modport*/ پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $5; GRAMMARP->createGenericIface($5, $6, $7, $<fl>4, *$4); }
         //
-        |       portDirNetE yINTERCONNECT signingE rangeListE portSig variable_dimensionListE sigAttrListE
+        |       پورٹ_Dir_Net_E yINTERCONNECT signingE rangeListE پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $5;
                           BBUNSUP($<fl>2, "Unsupported: interconnect");
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                                     new AstBasicDType{$2, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $6, $7)); }
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $6, $7)); }
         //
         //                      // IEEE: ansi_port_declaration, with [port_direction] removed
         //                      //   IEEE: [ net_port_header | interface_port_header ]
@@ -1439,87 +1439,87 @@ port<nodep>:                    // ==IEEE: port
         //                      // No VARDECL("port") for implicit, as we don't want to declare variables for them
         //                      // IEEE: portDirNetE data_type '.' portSig -> handled with AstDot in expr.
         //
-        |       portDirNetE data_type           portSig variable_dimensionListE sigAttrListE
+        |       پورٹ_Dir_Net_E انکڑے_type           پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $3; VARDTYPE($2); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $4, $5)); }
-        |       portDirNetE data_type           portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $4, $5)); }
+        |       پورٹ_Dir_Net_E انکڑے_type           پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $3; VARDTYPE($2); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
-        |       portDirNetE yVAR data_type      portSig variable_dimensionListE sigAttrListE
+                          إذا (AstVar* vp = VARDONEP($$, $4, $5)) { جوڑو_اگلا_Null($$, vp); vp->valuep($7); } }
+        |       پورٹ_Dir_Net_E yVAR انکڑے_type      پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE yVAR data_type      portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $5, $6)); }
+        |       پورٹ_Dir_Net_E yVAR انکڑے_type      پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
-        |       portDirNetE yVAR implicit_typeE portSig variable_dimensionListE sigAttrListE
+                          إذا (AstVar* vp = VARDONEP($$, $5, $6)) { جوڑو_اگلا_Null($$, vp); vp->valuep($8); } }
+        |       پورٹ_Dir_Net_E yVAR implicit_typeE پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE yVAR implicit_typeE portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $5, $6)); }
+        |       پورٹ_Dir_Net_E yVAR implicit_typeE پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $4; VARDECL(VAR); VARDTYPE($3); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
-        |       portDirNetE signing             portSig variable_dimensionListE sigAttrListE
+                          إذا (AstVar* vp = VARDONEP($$, $5, $6)) { جوڑو_اگلا_Null($$, vp); vp->valuep($8); } }
+        |       پورٹ_Dir_Net_E signing             پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $3;
-                          AstNodeDType* const dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
+                          Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
                           VARDTYPE_NDECL(dtp); VARIOANSI();
-                          addNextNull($$, VARDONEP($$, $4, $5)); }
-        |       portDirNetE signing             portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $4, $5)); }
+        |       پورٹ_Dir_Net_E signing             پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $3;
-                          AstNodeDType* const dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
+                          Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2};
                           VARDTYPE_NDECL(dtp); VARIOANSI();
-                          if (AstVar* vp = VARDONEP($$, $4, $5)) { addNextNull($$, vp); vp->valuep($7); } }
-        |       portDirNetE signingE rangeList  portSig variable_dimensionListE sigAttrListE
+                          إذا (AstVar* vp = VARDONEP($$, $4, $5)) { جوڑو_اگلا_Null($$, vp); vp->valuep($7); } }
+        |       پورٹ_Dir_Net_E signingE rangeList  پورٹ_Sig variable_dimensionListE sigAttrListE
                         { $$ = $4;
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                                     new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE_NDECL(dtp);
-                          addNextNull($$, VARDONEP($$, $5, $6)); }
-        |       portDirNetE signingE rangeList  portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          جوڑو_اگلا_Null($$, VARDONEP($$, $5, $6)); }
+        |       پورٹ_Dir_Net_E signingE rangeList  پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $4;
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                                     new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE_NDECL(dtp);
-                          if (AstVar* vp = VARDONEP($$, $5, $6)) { addNextNull($$, vp); vp->valuep($8); } }
-        |       portDirNetE /*implicit*/        portSig variable_dimensionListE sigAttrListE
-                        { $$ = $2; /*VARDTYPE-same*/ addNextNull($$, VARDONEP($$, $3, $4)); }
-        |       portDirNetE /*implicit*/        portSig variable_dimensionListE sigAttrListE '=' constExpr
+                          إذا (AstVar* vp = VARDONEP($$, $5, $6)) { جوڑو_اگلا_Null($$, vp); vp->valuep($8); } }
+        |       پورٹ_Dir_Net_E /*implicit*/        پورٹ_Sig variable_dimensionListE sigAttrListE
+                        { $$ = $2; /*VARDTYPE-same*/ جوڑو_اگلا_Null($$, VARDONEP($$, $3, $4)); }
+        |       پورٹ_Dir_Net_E /*implicit*/        پورٹ_Sig variable_dimensionListE sigAttrListE '=' const_اظہاریہ
                         { $$ = $2; /*VARDTYPE-same*/
-                          if (AstVar* vp = VARDONEP($$, $3, $4)) { addNextNull($$, vp); vp->valuep($6); } }
+                          إذا (AstVar* vp = VARDONEP($$, $3, $4)) { جوڑو_اگلا_Null($$, vp); vp->valuep($6); } }
         //                      //   IEEE: '.' port_identifier '(' [ expression ] ')'
-        |       portDirNetE /*implicit*/ '.' portSig '(' expr ')'
+        |       پورٹ_Dir_Net_E /*implicit*/ '.' پورٹ_Sig '(' اظہاریہ ')'
                         { $$ = $3; DEL($5);
                           BBUNSUP($<fl>2, "Unsupported: complex ports (IEEE 1800-2023 23.2.2.1/2)"); }
         //                      // IEEE: part of (non-ansi) port_reference
-        |       '{' port_expressionList '}'
+        |       '{' پورٹ_عبارت_List '}'
                         { $$ = $2; }
         ;
 
-portDirNetE:                    // IEEE: part of port, optional net type and/or direction
-                /* empty */                             { }
+پورٹ_Dir_Net_E:                    // IEEE: part of port, optional net type and/or direction
+                /*خالی_تھاواں*/                             { }
         //                      // Per spec, if direction given default the nettype.
         //                      // The higher level rule may override this VARDTYPE with one later in the parse.
-        |       port_direction                                  { VARDECL(PORT); VARDTYPE_NDECL(nullptr); }
-        |       port_direction { VARDECL(PORT); } net_type      { VARDTYPE_NDECL(nullptr); }  // net_type calls VARDECL
+        |       پورٹ_direction                                  { VARDECL(پورٹ); VARDTYPE_NDECL(nullptr); }
+        |       پورٹ_direction { VARDECL(پورٹ); } net_type      { VARDTYPE_NDECL(nullptr); }  // net_type calls VARDECL
         |       net_type                                        { VARDTYPE_NDECL(nullptr); }  // net_type calls VARDECL
         ;
 
-port_declNetE:                  // IEEE: part of port_declaration, optional net type
-                /* empty */                             { }
+پورٹ_decl_Net_E:                  // IEEE: part of port_declaration, optional net type
+                /*خالی_تھاواں*/                             { }
         |       net_type                                { } // net_type calls VARDECL
         ;
 
-portSig<nodep>:
-                id/*port*/
-                        { $$ = new AstPort{$<fl>1, PINNUMINC(), *$1}; }
+پورٹ_Sig<nodep>:
+                id/*پورٹ*/
+                        { $$ = new Ast_پورٹ{$<fl>1, PINNUMINC(), *$1}; }
         |       idSVKwd
-                        { $$ = new AstPort{$<fl>1, PINNUMINC(), *$1}; }
+                        { $$ = new Ast_پورٹ{$<fl>1, PINNUMINC(), *$1}; }
         ;
 
-port_expressionList<nodep>:  // IEEE: part of (non-ansi) port_reference
-                port_reference                          { $$ = $1; }
-        |       port_expressionList ',' port_reference  { $$ = addNextNull($1, $3); }
+پورٹ_عبارت_List<nodep>:  // IEEE: part of (non-ansi) port_reference
+                پورٹ_reference                          { $$ = $1; }
+        |       پورٹ_عبارت_List ',' پورٹ_reference  { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-port_reference<nodep>:  // IEEE: (non-ansi) port-reference
+پورٹ_reference<nodep>:  // IEEE: (non-ansi) port-reference
         //                      // IEEE: port_identifier constant_select
         //                      // constant_select ::= [ '[' constant_part_select_range ']' ]
                 id/*port_identifier*/                   { $$ = nullptr; }  // UNSUP above here
@@ -1531,43 +1531,43 @@ port_reference<nodep>:  // IEEE: (non-ansi) port-reference
 
 interface_declaration:          // IEEE: interface_declaration + interface_nonansi_header + interface_ansi_header:
         //                      // timeunits_declarationE is instead in interface_item
-                intFront importsAndParametersE portsStarE ';'
-                        interface_itemListE yENDINTERFACE endLabelE
-                        { if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
+                intFront importsAndParametersE ports_تارا_E ';'
+                        interface_شے_List_E yENDINTERFACE سرا_Label_E
+                        { إذا ($2) $1->جوڑو_Stmtsp($2);
+                          إذا ($3) $1->جوڑو_Stmtsp($3);
+                          إذا ($5) $1->جوڑو_Stmtsp($5);
                           $1->hasParameterList($<flag>2); }
-        |       yEXTERN intFront parameter_port_listE portsStarE ';'
-                        { DEL($2->unlinkFrBack()); }
+        |       yEXTERN intFront parameter_پورٹ_list_E ports_تارا_E ';'
+                        { DEL($2->unlink_Fr_پٹھ()); }
                         // We allow interfaces to be declared after instantiations, so harmless
         ;
 
-intFront<nodeModulep>:
+intFront<گرہ_Modulep>:
                 yINTERFACE lifetimeE idAny/*new_interface*/
                         { $$ = new AstIface{$<fl>3, *$3, PARSEP->libname()};
-                          $$->inLibrary(true);
+                          $$->وچ_Library(true);
                           $$->lifetime($2);
-                          PARSEP->rootp()->addModulesp($$); }
+                          PARSEP->rootp()->جوڑو_Modulesp($$); }
         |       intFront sigAttrScope                   { $$ = $1; }
         ;
 
-interface_itemListE<nodep>:
-                /* empty */                             { $$ = nullptr; }
-        |       interface_itemList                      { $$ = $1; }
+interface_شے_List_E<nodep>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       interface_شے_List                      { $$ = $1; }
         ;
 
-interface_itemList<nodep>:
-                interface_item                          { $$ = $1; }
-        |       interface_itemList interface_item       { $$ = addNextNull($1, $2); }
+interface_شے_List<nodep>:
+                interface_شے                          { $$ = $1; }
+        |       interface_شے_List interface_شے       { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-interface_item<nodep>:          // IEEE: interface_item + non_port_interface_item
-                port_declaration ';'                    { $$ = $1; }
+interface_شے<nodep>:          // IEEE: interface_item + non_port_interface_item
+                پورٹ_declaration ';'                    { $$ = $1; }
         //                      // IEEE: non_port_interface_item
         //                      // IEEE: generate_region
         |       i_generate_region                       { $$ = $1; }
-        |       interface_or_generate_item              { $$ = $1; }
-        |       program_declaration
+        |       interface_or_generate_شے              { $$ = $1; }
+        |       پروگرام_declaration
                         { $$ = nullptr; BBUNSUP(CRELINE(), "Unsupported: program decls within interface decls"); }
         //                      // IEEE 1800-2017: modport_item
         //                      // See instead old 2012 position in interface_or_generate_item
@@ -1575,10 +1575,10 @@ interface_item<nodep>:          // IEEE: interface_item + non_port_interface_ite
                         { $$ = nullptr; BBUNSUP(CRELINE(), "Unsupported: interface decls within interface decls"); }
         |       timeunits_declaration                   { $$ = $1; }
         //                      // See note in interface_or_generate item
-        |       module_common_item                      { $$ = $1; }
+        |       module_common_شے                      { $$ = $1; }
         ;
 
-interface_or_generate_item<nodep>:  // ==IEEE: interface_or_generate_item
+interface_or_generate_شے<nodep>:  // ==IEEE: interface_or_generate_item
         //                      // module_common_item in interface_item, as otherwise duplicated
         //                      // with module_or_generate_item's module_common_item
                 modport_declaration                     { $$ = $1; }
@@ -1588,26 +1588,26 @@ interface_or_generate_item<nodep>:  // ==IEEE: interface_or_generate_item
 //**********************************************************************
 // Program headers
 
-anonymous_program<nodep>:       // ==IEEE: anonymous_program
+anonymous_پروگرام<nodep>:       // ==IEEE: anonymous_program
         //                      // See the spec - this doesn't change the scope, items still go up "top"
-                yPROGRAM ';' anonymous_program_itemListE yENDPROGRAM
+                y_پروگرام ';' anonymous_پروگرام_شے_List_E yENDPROGRAM
                         { $$ = nullptr;
                          BBUNSUP($<fl>1, "Unsupported: Anonymous programs");
                          VARDTYPE_NDECL(nullptr);
                          DEL($3); }
         ;
 
-anonymous_program_itemListE<nodep>:     // IEEE: { anonymous_program_item }
-                /* empty */                             { $$ = nullptr; }
-        |       anonymous_program_itemList              { $$ = $1; }
+anonymous_پروگرام_شے_List_E<nodep>:     // IEEE: { anonymous_program_item }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       anonymous_پروگرام_شے_List              { $$ = $1; }
         ;
 
-anonymous_program_itemList<nodep>:      // IEEE: { anonymous_program_item }
-                anonymous_program_item                  { $$ = $1; }
-        |       anonymous_program_itemList anonymous_program_item       { $$ = addNextNull($1, $2); }
+anonymous_پروگرام_شے_List<nodep>:      // IEEE: { anonymous_program_item }
+                anonymous_پروگرام_شے                  { $$ = $1; }
+        |       anonymous_پروگرام_شے_List anonymous_پروگرام_شے       { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-anonymous_program_item<nodep>:  // ==IEEE: anonymous_program_item
+anonymous_پروگرام_شے<nodep>:  // ==IEEE: anonymous_program_item
                 task_declaration                        { $$ = $1; }
         |       function_declaration                    { $$ = $1; }
         |       class_declaration                       { $$ = $1; }
@@ -1618,64 +1618,64 @@ anonymous_program_item<nodep>:  // ==IEEE: anonymous_program_item
         |       ';'                                     { $$ = nullptr; }
         ;
 
-program_declaration:            // IEEE: program_declaration + program_nonansi_header + program_ansi_header:
+پروگرام_declaration:            // IEEE: program_declaration + program_nonansi_header + program_ansi_header:
         //                      // timeunits_declarationE is instead in program_item
-                pgmFront parameter_port_listE portsStarE ';'
-        /*cont*/    program_itemListE yENDPROGRAM endLabelE
+                pgmFront parameter_پورٹ_list_E ports_تارا_E ';'
+        /*cont*/    پروگرام_شے_List_E yENDPROGRAM سرا_Label_E
                         { $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));  // Stash for implicit wires, etc
                           $1->hasParameterList($<flag>2);
-                          if ($2) $1->addStmtsp($2);
-                          if ($3) $1->addStmtsp($3);
-                          if ($5) $1->addStmtsp($5);
-                          GRAMMARP->endLabel($<fl>7, $1, $7); }
-        |       yEXTERN pgmFront parameter_port_listE portsStarE ';'
-                        { DEL($2->unlinkFrBack()); }
+                          إذا ($2) $1->جوڑو_Stmtsp($2);
+                          إذا ($3) $1->جوڑو_Stmtsp($3);
+                          إذا ($5) $1->جوڑو_Stmtsp($5);
+                          GRAMMARP->سرا_Label($<fl>7, $1, $7); }
+        |       yEXTERN pgmFront parameter_پورٹ_list_E ports_تارا_E ';'
+                        { DEL($2->unlink_Fr_پٹھ()); }
                         // We allow programs to be declared after instantiations, so harmless
         ;
 
-pgmFront<nodeModulep>:
-                yPROGRAM lifetimeE idAny/*new_program*/
-                        { $$ = new AstModule{$<fl>3, *$3, PARSEP->libname(), AstModule::Program{}};
+pgmFront<گرہ_Modulep>:
+                y_پروگرام lifetimeE idAny/*new_program*/
+                        { $$ = new AstModule{$<fl>3, *$3, PARSEP->libname(), AstModule::پروگرام{}};
                           $$->lifetime($2);
-                          $$->inLibrary(PARSEP->inLibrary() || $$->fileline()->celldefineOn());
+                          $$->وچ_Library(PARSEP->وچ_Library() || $$->fileline()->celldefineOn());
                           $$->modTrace(GRAMMARP->allTracingOn($$->fileline()));
-                          $$->timeunit(PARSEP->timeLastUnit());
-                          PARSEP->rootp()->timeprecisionMerge($$->fileline(),
-                                                              PARSEP->timeLastPrec());
-                          PARSEP->rootp()->addModulesp($$); }
+                          $$->timeunit(PARSEP->ویلا_آخری_Unit());
+                          PARSEP->rootp()->timeprecision_ملاؤ($$->fileline(),
+                                                              PARSEP->ویلا_آخری_Prec());
+                          PARSEP->rootp()->جوڑو_Modulesp($$); }
         ;
 
-program_itemListE<nodep>:       // ==IEEE: [{ program_item }]
-                /* empty */                             { $$ = nullptr; }
-        |       program_itemList                        { $$ = $1; }
+پروگرام_شے_List_E<nodep>:       // ==IEEE: [{ program_item }]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       پروگرام_شے_List                        { $$ = $1; }
         ;
 
-program_itemList<nodep>:        // ==IEEE: { program_item }
-                program_item                            { $$ = $1; }
-        |       program_itemList program_item           { $$ = addNextNull($1, $2); }
+پروگرام_شے_List<nodep>:        // ==IEEE: { program_item }
+                پروگرام_شے                            { $$ = $1; }
+        |       پروگرام_شے_List پروگرام_شے           { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-program_item<nodep>:            // ==IEEE: program_item
-                port_declaration ';'                    { $$ = $1; }
-        |       non_port_program_item                   { $$ = $1; }
+پروگرام_شے<nodep>:            // ==IEEE: program_item
+                پورٹ_declaration ';'                    { $$ = $1; }
+        |       non_پورٹ_پروگرام_شے                   { $$ = $1; }
         ;
 
-non_port_program_item<nodep>:   // ==IEEE: non_port_program_item
-                continuous_assign                       { $$ = $1; }
-        |       module_or_generate_item_declaration     { $$ = $1; }
+non_پورٹ_پروگرام_شے<nodep>:   // ==IEEE: non_port_program_item
+                continuous_سونپو                       { $$ = $1; }
+        |       module_or_generate_شے_declaration     { $$ = $1; }
         |       initial_construct                       { $$ = $1; }
         |       final_construct                         { $$ = $1; }
-        |       concurrent_assertion_item               { $$ = $1; }
+        |       concurrent_assertion_شے               { $$ = $1; }
         |       timeunits_declaration                   { $$ = $1; }
-        |       program_generate_item                   { $$ = $1; }
+        |       پروگرام_generate_شے                   { $$ = $1; }
         ;
 
-program_generate_item<nodep>:           // ==IEEE: program_generate_item
+پروگرام_generate_شے<nodep>:           // ==IEEE: program_generate_item
                 loop_generate_construct                 { $$ = $1; }
         |       conditional_generate_construct          { $$ = $1; }
         |       generate_region                         { $$ = $1; }
                                 // not in IEEE, but presumed so can do yBEGIN ... yEND
-        |       genItemBegin                            { $$ = $1; }
+        |       gen_شے_Begin                            { $$ = $1; }
         |       severity_system_task                    { $$ = $1; }
         ;
 
@@ -1689,23 +1689,23 @@ extern_tf_declaration<nodep>:           // ==IEEE: extern_tf_declaration
         ;
 
 modport_declaration<nodep>:             // ==IEEE: modport_declaration
-                yMODPORT modport_itemList ';'           { $$ = $2; }
+                yMODPORT modport_شے_List ';'           { $$ = $2; }
         ;
 
-modport_itemList<nodep>:                // IEEE: part of modport_declaration
-                modport_item                            { $$ = $1; }
-        |       modport_itemList ',' modport_item       { $$ = addNextNull($1, $3); }
+modport_شے_List<nodep>:                // IEEE: part of modport_declaration
+                modport_شے                            { $$ = $1; }
+        |       modport_شے_List ',' modport_شے       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-modport_item<nodep>:                    // ==IEEE: modport_item
+modport_شے<nodep>:                    // ==IEEE: modport_item
                 idAny/*new-modport*/ '('
         /*mid*/         { VARRESET_NONLIST(UNKNOWN); VARIO(INOUT);
                           GRAMMARP->m_modportProtoTasksp = nullptr; }
         /*cont*/    modportPortsDeclList ')'
                         { $$ = new AstModport{$<fl>1, *$1, $4};
                           // Append any prototype tasks from import/export as interface siblings
-                          if (GRAMMARP->m_modportProtoTasksp) {
-                              $$ = AstNode::addNextNull(
+                          إذا (GRAMMARP->m_modportProtoTasksp) {
+                              $$ = Ast_گرہ::جوڑو_اگلا_Null(
                                   GRAMMARP->m_modportProtoTasksp, $$);
                               GRAMMARP->m_modportProtoTasksp = nullptr;
                           } }
@@ -1713,7 +1713,7 @@ modport_item<nodep>:                    // ==IEEE: modport_item
 
 modportPortsDeclList<nodep>:
                 modportPortsDecl                            { $$ = $1; }
-        |       modportPortsDeclList ',' modportPortsDecl   { $$ = addNextNull($1, $3); }
+        |       modportPortsDeclList ',' modportPortsDecl   { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 // IEEE: modport_ports_declaration  + modport_simple_ports_declaration
@@ -1722,7 +1722,7 @@ modportPortsDeclList<nodep>:
 // We track the type as with the V2k series of defines, then create as each ID is seen.
 modportPortsDecl<nodep>:
         //                      // IEEE: modport_simple_ports_declaration
-                port_direction { GRAMMARP->m_modportImpExpActive = false; } modportSimplePortOrTFPort { $$ = $3; }
+                پورٹ_direction { GRAMMARP->m_modport_Imp_Exp_سرگرم = false; } modport_Simple_پورٹ_Or_TFPort { $$ = $3; }
         //                      // IEEE: modport_clocking_declaration
         |       yCLOCKING idAny/*clocking_identifier*/ { $$ = new AstModportClockingRef{$1, *$2}; }
         //                      // IEEE: yIMPORT modport_tf_port
@@ -1730,60 +1730,60 @@ modportPortsDecl<nodep>:
         //                      // modport_tf_port expanded here
         |       yIMPORT idAny/*tf_identifier*/
                         { $$ = new AstModportFTaskRef{$<fl>2, *$2, false};
-                          GRAMMARP->m_modportImpExpActive = true;
-                          GRAMMARP->m_modportImpExpLastIsExport = false; }
+                          GRAMMARP->m_modport_Imp_Exp_سرگرم = true;
+                          GRAMMARP->m_modport_Imp_Exp_آخری_Is_Export = false; }
         |       yEXPORT idAny/*tf_identifier*/
                         { $$ = new AstModportFTaskRef{$<fl>2, *$2, true};
-                          GRAMMARP->m_modportImpExpActive = true;
-                          GRAMMARP->m_modportImpExpLastIsExport = true; }
-        |       yIMPORT method_prototype
+                          GRAMMARP->m_modport_Imp_Exp_سرگرم = true;
+                          GRAMMARP->m_modport_Imp_Exp_آخری_Is_Export = true; }
+        |       yIMPORT طریقہ_prototype
                         { $$ = new AstModportFTaskRef{$<fl>2, $2->name(), false};
-                          GRAMMARP->m_modportImpExpActive = true;
-                          GRAMMARP->m_modportImpExpLastIsExport = false;
+                          GRAMMARP->m_modport_Imp_Exp_سرگرم = true;
+                          GRAMMARP->m_modport_Imp_Exp_آخری_Is_Export = false;
                           // Import prototype: task should already exist in interface
                           // (from export or direct declaration). Delete the prototype.
                           DEL($2); }
-        |       yEXPORT method_prototype
+        |       yEXPORT طریقہ_prototype
                         { $$ = new AstModportFTaskRef{$<fl>2, $2->name(), true};
-                          GRAMMARP->m_modportImpExpActive = true;
-                          GRAMMARP->m_modportImpExpLastIsExport = true;
+                          GRAMMARP->m_modport_Imp_Exp_سرگرم = true;
+                          GRAMMARP->m_modport_Imp_Exp_آخری_Is_Export = true;
                           // Export: add prototype task to interface (as sibling of modport)
                           GRAMMARP->m_modportProtoTasksp
-                              = AstNode::addNextNull(GRAMMARP->m_modportProtoTasksp, $2); }
+                              = Ast_گرہ::جوڑو_اگلا_Null(GRAMMARP->m_modportProtoTasksp, $2); }
         // Continuations of above after a comma.
         //                      // IEEE: modport_simple_ports_declaration
-        |       modportSimplePortOrTFPort                { $$ = $1; }
+        |       modport_Simple_پورٹ_Or_TFPort                { $$ = $1; }
         ;
 
-modportSimplePortOrTFPort<nodep>:// IEEE: modport_simple_port or modport_tf_port, depending what keyword was earlier
-                idAny                                   { $$ = GRAMMARP->m_modportImpExpActive ?
-                                                                static_cast<AstNode*>(
+modport_Simple_پورٹ_Or_TFPort<nodep>:// IEEE: modport_simple_port or modport_tf_port, depending what keyword was earlier
+                idAny                                   { $$ = GRAMMARP->m_modport_Imp_Exp_سرگرم ?
+                                                                static_cast<Ast_گرہ*>(
                                                                   new AstModportFTaskRef{
-                                                                    $<fl>1, *$1, GRAMMARP->m_modportImpExpLastIsExport} ) :
-                                                                static_cast<AstNode*>(
+                                                                    $<fl>1, *$1, GRAMMARP->m_modport_Imp_Exp_آخری_Is_Export} ) :
+                                                                static_cast<Ast_گرہ*>(
                                                                   new AstModportVarRef{
                                                                     $<fl>1, *$1, GRAMMARP->m_varIO} ); }
         |       '.' idAny '(' ')'                       { $$ = new AstModportVarRef{$<fl>2, *$2, GRAMMARP->m_varIO};
                                                           BBUNSUP($<fl>4, "Unsupported: Modport empty expression"); }
-        |       '.' idAny '(' expr ')'                  { $$ = new AstModportVarRef{$<fl>2, *$2, $4, GRAMMARP->m_varIO}; }
+        |       '.' idAny '(' اظہاریہ ')'                  { $$ = new AstModportVarRef{$<fl>2, *$2, $4, GRAMMARP->m_varIO}; }
         ;
 
 //************************************************
 // Variable Declarations
 
 genvar_declaration<nodep>:      // ==IEEE: genvar_declaration
-                yGENVAR list_of_genvar_identifiers ';'  { $$ = $2; }
+                yGENVAR list_دا_genvar_identifiers ';'  { $$ = $2; }
         ;
 
-list_of_genvar_identifiers<nodep>:      // IEEE: list_of_genvar_identifiers (for declaration)
+list_دا_genvar_identifiers<nodep>:      // IEEE: list_of_genvar_identifiers (for declaration)
                 genvar_identifierDecl                   { $$ = $1; }
-        |       list_of_genvar_identifiers ',' genvar_identifierDecl    { $$ = $1->addNext($3); }
+        |       list_دا_genvar_identifiers ',' genvar_identifierDecl    { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 genvar_identifierDecl<varp>:            // IEEE: genvar_identifier (for declaration)
                 idAny/*new-genvar_identifier*/ sigAttrListE
                         { VARRESET_NONLIST(GENVAR);
-                          AstNodeDType* const dtp = new AstBasicDType{$<fl>1, VBasicDTypeKwd::INTEGER};
+                          Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$<fl>1, VBasicDTypeKwd::INTEGER};
                           VARDTYPE(dtp);
                           $$ = VARDONEA($<fl>1, *$1, nullptr, $2); }
         ;
@@ -1794,14 +1794,14 @@ parameter_declaration<nodep>:   // IEEE: local_ or parameter_declaration and typ
         //                      // we use list_of_param_assignments because for port handling
         //                      // it already must accept types, so simpler to have code only one place
         //                      // Front must execute first so VARDTYPE is ready before list of vars
-                parameter_declarationFront list_of_param_assignments            { $$ = $2; }
-        |       parameter_declarationTypeFront list_of_type_assignments         { $$ = $2; }
+                parameter_declarationFront list_دا_param_assignments            { $$ = $2; }
+        |       parameter_declarationTypeFront list_دا_type_assignments         { $$ = $2; }
         ;
 
 parameter_declarationFront:     // IEEE: local_ or parameter_declaration w/o assignment
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 varParamReset implicit_typeE            { /*VARRESET-in-varParam*/ VARDTYPE($2); }
-        |       varParamReset data_type                 { /*VARRESET-in-varParam*/ VARDTYPE($2); }
+        |       varParamReset انکڑے_type                 { /*VARRESET-in-varParam*/ VARDTYPE($2); }
         ;
 
 parameter_declarationTypeFront: // IEEE: local_ or parameter_declaration w/o assignment
@@ -1810,44 +1810,44 @@ parameter_declarationTypeFront: // IEEE: local_ or parameter_declaration w/o ass
                         { /*VARRESET-in-varParam*/ VARDTYPE(new AstParseTypeDType{$2}); }
         |       varParamReset yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
+                          Ast_گرہ_DType* ثابت dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
         ;
 
-parameter_port_declarationFrontE: // IEEE: local_ or parameter_port_declaration w/o assignment
+parameter_پورٹ_declaration_Front_E: // IEEE: local_ or parameter_port_declaration w/o assignment
         //                      // IEEE: parameter_declaration (minus assignment)
         //                      // IEEE: local_parameter_declaration (minus assignment)
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 varParamReset implicit_typeE            { /*VARRESET-in-varParam*/ VARDTYPE($2); }
-        |       varParamReset data_type                 { /*VARRESET-in-varParam*/ VARDTYPE($2); }
+        |       varParamReset انکڑے_type                 { /*VARRESET-in-varParam*/ VARDTYPE($2); }
         |       implicit_typeE
                         { /*VARRESET-in-varParam*/
                           // Keep previous type to handle subsequent declarations.
                           // This rule is also used when the previous parameter is a type parameter
-                          if ($1) $1->v3error("parameter port declarations require 'parameter'"
+                          إذا ($1) $1->v3error("parameter port declarations require 'parameter'"
                                               " keyword before implicit data types"
                                               " (IEEE 1800-2023 6.20.1/A.2.1.1)\n"
-                                              + $1->warnMore()
+                                              + $1->warn_ہور()
                                               + "... Suggest add 'parameter' before here");
                        }
-        |       data_type                               { /*VARRESET-in-varParam*/ VARDTYPE($1); }
+        |       انکڑے_type                               { /*VARRESET-in-varParam*/ VARDTYPE($1); }
         ;
 
-parameter_port_declarationTypeFrontE: // IEEE: parameter_port_declaration w/o assignment
+parameter_پورٹ_declaration_Type_Front_E: // IEEE: parameter_port_declaration w/o assignment
         //                      // IEEE: parameter_declaration (minus assignment)
         //                      // IEEE: local_parameter_declaration (minus assignment)
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 varParamReset yTYPE__ETC
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2}; VARDTYPE(dtp); }
+                          Ast_گرہ_DType* ثابت dtp = new AstParseTypeDType{$2}; VARDTYPE(dtp); }
         |       varParamReset yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
+                          Ast_گرہ_DType* ثابت dtp = new AstParseTypeDType{$2, $3}; VARDTYPE(dtp); }
         |       yTYPE__ETC
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$1}; VARDTYPE(dtp); }
+                          Ast_گرہ_DType* ثابت dtp = new AstParseTypeDType{$1}; VARDTYPE(dtp); }
         |       yTYPE__ETC forward_type
                         { /*VARRESET-in-varParam*/
-                          AstNodeDType* const dtp = new AstParseTypeDType{$1, $2}; VARDTYPE(dtp); }
+                          Ast_گرہ_DType* ثابت dtp = new AstParseTypeDType{$1, $2}; VARDTYPE(dtp); }
         ;
 
 forward_type<fwdtype>:  // ==IEEE: forward_type
@@ -1861,49 +1861,49 @@ forward_type<fwdtype>:  // ==IEEE: forward_type
 net_declaration<nodep>:         // IEEE: net_declaration - excluding implict
                 net_declarationFront netSigList ';'
                         { $$ = $2;
-                          if (GRAMMARP->m_netStrengthp) {
+                          إذا (GRAMMARP->m_netStrengthp) {
                               VL_DO_CLEAR(delete GRAMMARP->m_netStrengthp, GRAMMARP->m_netStrengthp = nullptr);
                           }
-                          GRAMMARP->setNetDelay(nullptr); }
+                          GRAMMARP->سیٹ_Net_Delay(nullptr); }
         ;
 
 net_declarationFront:           // IEEE: beginning of net_declaration
-                net_declRESET net_type driveStrengthE net_scalaredE net_dataTypeE
+                net_declRESET net_type driveStrengthE net_scalaredE net_انکڑے_Type_E
                         { VARDTYPE_NDECL($5);
-                          GRAMMARP->setNetStrength($3); }
+                          GRAMMARP->سیٹ_Net_Strength($3); }
         |       net_declRESET yINTERCONNECT signingE rangeListE
                         { BBUNSUP($<fl>2, "Unsupported: interconnect");
                           VARDECL(WIRE);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                                     new AstBasicDType{$2, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE_NDECL(dtp); }
         ;
 
 net_declRESET:
-                /* empty */                             { VARRESET_NONLIST(UNKNOWN); }
+                /*خالی_تھاواں*/                             { VARRESET_NONLIST(UNKNOWN); }
         ;
 
 net_scalaredE:
-                /* empty */                             { }
+                /*خالی_تھاواں*/                             { }
         //                      //UNSUP: ySCALARED/yVECTORED ignored
         |       ySCALARED                               { }
         |       yVECTORED                               { }
         ;
 
-net_dataTypeE<nodeDTypep>:
+net_انکڑے_Type_E<گرہ_DTypep>:
         //                      // If there's a SV data type there shouldn't be a delay on this wire
         //                      // Otherwise #(...) can't be determined to be a delay or parameters
         //                      // Submit this as a footnote to the committee
-                var_data_type                           { $$ = $1; }
+                var_انکڑے_type                           { $$ = $1; }
         |       signingE rangeList delay_controlE
-                        { $$ = GRAMMARP->addRange(new AstBasicDType{$2->fileline(), LOGIC, $1},
+                        { $$ = GRAMMARP->جوڑو_Range(new AstBasicDType{$2->fileline(), LOGIC, $1},
                                                                     $2, true);
-                          GRAMMARP->setNetDelay($3); }  // not implicit
+                          GRAMMARP->سیٹ_Net_Delay($3); }  // not implicit
         |       signing
                         { $$ = new AstBasicDType{$<fl>1, LOGIC, $1}; }  // not implicit
         |       /*implicit*/ delay_controlE
                         { $$ = new AstBasicDType{CRELINE(), LOGIC};
-                          GRAMMARP->setNetDelay($1); }  // not implicit
+                          GRAMMARP->سیٹ_Net_Delay($1); }  // not implicit
         ;
 
 net_type:                       // ==IEEE: net_type
@@ -1928,10 +1928,10 @@ varParamReset:
         // Note that the type of these params could be modified later according to context (see V3LinkParse)
         ;
 
-port_direction:                 // ==IEEE: port_direction + tf_port_direction
+پورٹ_direction:                 // ==IEEE: port_direction + tf_port_direction
         //                      // IEEE 19.8 just "input" FIRST forces type to wire - we'll ignore that here
         //                      // Only used for ANSI declarations
-                yINPUT                                  { VARIO(INPUT); }
+                y_داخلہ                                  { VARIO(داخلہ); }
         |       yOUTPUT                                 { VARIO(OUTPUT); }
         |       yINOUT                                  { VARIO(INOUT); }
         |       yREF                                    { VARIO(REF); }
@@ -1943,16 +1943,16 @@ port_direction:                 // ==IEEE: port_direction + tf_port_direction
                                                           BBUNSUP($1, "Unsupported: 'ref static' ports"); }
         ;
 
-port_directionReset:            // IEEE: port_direction that starts a port_declaraiton
+پورٹ_direction_Reset:            // IEEE: port_direction that starts a port_declaraiton
         //                      // Used only for declarations outside the port list
-                yINPUT                                  { VARRESET_NONLIST(UNKNOWN); VARIO(INPUT); }
+                y_داخلہ                                  { VARRESET_NONLIST(UNKNOWN); VARIO(داخلہ); }
         |       yOUTPUT                                 { VARRESET_NONLIST(UNKNOWN); VARIO(OUTPUT); }
         |       yINOUT                                  { VARRESET_NONLIST(UNKNOWN); VARIO(INOUT); }
         |       yREF                                    { VARRESET_NONLIST(UNKNOWN); VARIO(REF); }
         |       yCONST__REF yREF                        { VARRESET_NONLIST(UNKNOWN); VARIO(CONSTREF); }
         ;
 
-port_declaration<nodep>:        // ==IEEE: port_declaration
+پورٹ_declaration<nodep>:        // ==IEEE: port_declaration
         //                      // Non-ANSI; used inside block followed by ';'
         //                      // SEE ALSO port, tf_port_declaration, data_declarationVarFront
         //
@@ -1960,27 +1960,27 @@ port_declaration<nodep>:        // ==IEEE: port_declaration
         //                      // IEEE: input_declaration
         //                      // IEEE: output_declaration
         //                      // IEEE: ref_declaration
-                port_directionReset port_declNetE data_type
+                پورٹ_direction_Reset پورٹ_decl_Net_E انکڑے_type
         /*mid*/         { VARDTYPE($3); }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $5; }
-        |       port_directionReset port_declNetE yVAR data_type
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $5; }
+        |       پورٹ_direction_Reset پورٹ_decl_Net_E yVAR انکڑے_type
         /*mid*/         { VARDECL(VAR); VARDTYPE($4); }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $6; }
-        |       port_directionReset port_declNetE yVAR implicit_typeE
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $6; }
+        |       پورٹ_direction_Reset پورٹ_decl_Net_E yVAR implicit_typeE
         /*mid*/         { VARDECL(VAR); VARDTYPE($4); }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $6; }
-        |       port_directionReset port_declNetE signingE rangeList
-        /*mid*/         { AstNodeDType* const dtp = GRAMMARP->addRange(
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $6; }
+        |       پورٹ_direction_Reset پورٹ_decl_Net_E signingE rangeList
+        /*mid*/         { Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                               new AstBasicDType{$4->fileline(), LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE_NDECL(dtp); }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $6; }
-        |       port_directionReset port_declNetE signing
-        /*mid*/         { AstNodeDType* const dtp = new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $3};
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $6; }
+        |       پورٹ_direction_Reset پورٹ_decl_Net_E signing
+        /*mid*/         { Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $3};
                           VARDTYPE_NDECL(dtp); }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $5; }
-        |       port_directionReset port_declNetE /*implicit*/
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $5; }
+        |       پورٹ_direction_Reset پورٹ_decl_Net_E /*implicit*/
         /*mid*/         { VARDTYPE_NDECL(nullptr); /*default_nettype*/ }
-        /*cont*/    list_of_variable_decl_assignments                   { $$ = $4; }
+        /*cont*/    list_دا_variable_decl_assignments                   { $$ = $4; }
         //
         //                      // IEEE: interface_port_declaration
         //                      // IEEE: interface_identifier list_of_interface_identifiers
@@ -1992,24 +1992,24 @@ port_declaration<nodep>:        // ==IEEE: port_declaration
         //                      // IEEE: interface_identifier '.' modport_identifier list_of_interface_identifiers
         |       id/*interface*/ '.' idAny/*modport*/
         /*mid*/         { VARRESET_NONLIST(VVarType::IFACEREF);
-                          AstIfaceRefDType* const dtp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
+                          AstIfaceRefDType* ثابت dtp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
                           VARDTYPE(dtp); }
         /*cont*/    mpInstnameList
                         { $$ = VARDONEP($5, nullptr, nullptr); DEL($5); }
         //UNSUP: strengthSpecE for udp_instantiations
         ;
 
-tf_port_declaration<nodep>:     // ==IEEE: tf_port_declaration
+tf_پورٹ_declaration<nodep>:     // ==IEEE: tf_port_declaration
         //                      // Used inside function; followed by ';'
         //                      // SEE ALSO port_declaration, port, data_declarationVarFront
         //
-                port_directionReset      data_type      { VARDTYPE($2); }  list_of_tf_variable_identifiers ';'
+                پورٹ_direction_Reset      انکڑے_type      { VARDTYPE($2); }  list_دا_tf_variable_identifiers ';'
                         { $$ = $4; }
-        |       port_directionReset      implicit_typeE { VARDTYPE_NDECL($2); }  list_of_tf_variable_identifiers ';'
+        |       پورٹ_direction_Reset      implicit_typeE { VARDTYPE_NDECL($2); }  list_دا_tf_variable_identifiers ';'
                         { $$ = $4; }
-        |       port_directionReset yVAR data_type      { VARDTYPE($3); }  list_of_tf_variable_identifiers ';'
+        |       پورٹ_direction_Reset yVAR انکڑے_type      { VARDTYPE($3); }  list_دا_tf_variable_identifiers ';'
                         { $$ = $5; }
-        |       port_directionReset yVAR implicit_typeE { VARDTYPE($3); }  list_of_tf_variable_identifiers ';'
+        |       پورٹ_direction_Reset yVAR implicit_typeE { VARDTYPE($3); }  list_دا_tf_variable_identifiers ';'
                         { $$ = $5; }
         ;
 
@@ -2019,11 +2019,11 @@ integer_atom_type<basicDTypep>: // ==IEEE: integer_atom_type
         |       yINT                                    { $$ = new AstBasicDType{$1, VBasicDTypeKwd::INT}; }
         |       yLONGINT                                { $$ = new AstBasicDType{$1, VBasicDTypeKwd::LONGINT}; }
         |       yINTEGER                                { $$ = new AstBasicDType{$1, VBasicDTypeKwd::INTEGER}; }
-        |       yTIME                                   { $$ = new AstBasicDType{$1, VBasicDTypeKwd::TIME}; }
+        |       y_ویلا                                   { $$ = new AstBasicDType{$1, VBasicDTypeKwd::ویلا}; }
         ;
 
-integer_vector_type<basicDTypep>:       // ==IEEE: integer_atom_type
-                yBIT                                    { $$ = new AstBasicDType{$1, VBasicDTypeKwd::BIT}; }
+integer_سمتیہ_type<basicDTypep>:       // ==IEEE: integer_atom_type
+                y_ثنائی_ہندسہ                                    { $$ = new AstBasicDType{$1, VBasicDTypeKwd::ثنائی_ہندسہ}; }
         |       yLOGIC                                  { $$ = new AstBasicDType{$1, VBasicDTypeKwd::LOGIC}; }
         |       yREG                                    { $$ = new AstBasicDType{$1, VBasicDTypeKwd::LOGIC}; } // logic==reg
         ;
@@ -2047,21 +2047,21 @@ signing<signstate>:             // ==IEEE: signing
 //************************************************
 // Data Types
 
-simple_typeNoRef<nodeDTypep>:   // IEEE: simple_type without idType
+simple_typeNoRef<گرہ_DTypep>:   // IEEE: simple_type without idType
         //                      // IEEE: integer_type
                 integer_atom_type                       { $$ = $1; }
-        |       integer_vector_type                     { $$ = $1; }
+        |       integer_سمتیہ_type                     { $$ = $1; }
         |       non_integer_type                        { $$ = $1; }
         //
         //                      // { generate_block_identifer ... } '.'
         //                      // Need to determine if generate_block_identifier can be lex-detected
         ;
 
-data_type<nodeDTypep>:          // ==IEEE: data_type
+انکڑے_type<گرہ_DTypep>:          // ==IEEE: data_type
         //                      // IEEE: data_type_or_incomplete_class_scoped_type parses same as this
         //                      // as can't tell them apart until link
         //                      // This expansion also replicated elsewhere, IE data_type__AndID
-                data_typeNoRef                          { $$ = $1; }
+                انکڑے_type_No_Ref                          { $$ = $1; }
         //
         //                      // REFERENCES
         //
@@ -2070,18 +2070,18 @@ data_type<nodeDTypep>:          // ==IEEE: data_type
         //                      // IEEE: ps_covergroup_identifier
         //                      // Don't distinguish between types and classes so all these combined
         |       packageClassScopeE idType packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = GRAMMARP->createArray(refp, $3, true); }
-        |       packageClassScopeE idType parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idType parameter_قدر_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         ;
 
-data_typeAny<nodeDTypep>:       // ==IEEE: data_type (accepting idAny)
+انکڑے_type_Any<گرہ_DTypep>:       // ==IEEE: data_type (accepting idAny)
         //                      // IEEE: data_type_or_incomplete_class_scoped_type parses same as this
         //                      // as can't tell them apart until link
         //                      // This expansion also replicated elsewhere, IE data_type__AndID
-                data_typeNoRef                          { $$ = $1; }
+                انکڑے_type_No_Ref                          { $$ = $1; }
         //
         //                      // REFERENCES
         //
@@ -2090,112 +2090,112 @@ data_typeAny<nodeDTypep>:       // ==IEEE: data_type (accepting idAny)
         //                      // IEEE: ps_covergroup_identifier
         //                      // Don't distinguish between types and classes so all these combined
         |       packageClassScopeE idAny packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = GRAMMARP->createArray(refp, $3, true); }
-        |       packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idAny parameter_قدر_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         ;
 
-data_typeBasic<nodeDTypep>:             // IEEE: part of data_type
-                integer_vector_type signingE rangeListE { $1->setSignedState($2); $$ = GRAMMARP->addRange($1, $3, true); }
+انکڑے_type_Basic<گرہ_DTypep>:             // IEEE: part of data_type
+                integer_سمتیہ_type signingE rangeListE { $1->سیٹ_Signed_State($2); $$ = GRAMMARP->جوڑو_Range($1, $3, true); }
         //                      // IEEE: packed_dimension: unsized_dimension, legal only in DPI import
-        |       integer_vector_type signingE '[' ']'
-                        { $1->setSignedState($2);
-                          $$ = new AstUnsizedArrayDType{$3, VFlagChildDType{}, $1}; }
-        |       integer_atom_type signingE              { $1->setSignedState($2); $$ = $1; }
+        |       integer_سمتیہ_type signingE '[' ']'
+                        { $1->سیٹ_Signed_State($2);
+                          $$ = new AstUnsizedArrayDType{$3, VFlag_بچہ_DType{}, $1}; }
+        |       integer_atom_type signingE              { $1->سیٹ_Signed_State($2); $$ = $1; }
         |       non_integer_type                        { $$ = $1; }
         ;
 
-data_typeNoRef<nodeDTypep>:             // ==IEEE: data_type, excluding class_type etc references
-                data_typeBasic                          { $$ = $1; }
+انکڑے_type_No_Ref<گرہ_DTypep>:             // ==IEEE: data_type, excluding class_type etc references
+                انکڑے_type_Basic                          { $$ = $1; }
         |       struct_unionDecl packed_dimensionListE
                         { $$ = GRAMMARP->createArray(
                                    new AstDefImplicitDType{$1->fileline(),
-                                                           "__typeimpsu" + cvtToStr(GRAMMARP->s_typeImpNum++),
-                                                           VFlagChildDType{}, $1}, $2, true); }
+                                                           "__typeimpsu" + cvt_منزل_Str(GRAMMARP->s_type_Imp_عدد++),
+                                                           VFlag_بچہ_DType{}, $1}, $2, true); }
         |       enumDecl packed_dimensionListE
                         { $$ = GRAMMARP->createArray(
                                    new AstDefImplicitDType{$1->fileline(),
-                                                           "__typeimpenum" + cvtToStr(GRAMMARP->s_typeImpNum++),
-                                                           VFlagChildDType{}, $1}, $2, true); }
+                                                           "__typeimpenum" + cvt_منزل_Str(GRAMMARP->s_type_Imp_عدد++),
+                                                           VFlag_بچہ_DType{}, $1}, $2, true); }
         |       ySTRING
                         { $$ = new AstBasicDType{$1, VBasicDTypeKwd::STRING}; }
         |       yCHANDLE
                         { $$ = new AstBasicDType{$1, VBasicDTypeKwd::CHANDLE}; }
         |       yEVENT
-                        { $$ = new AstBasicDType{$1, VBasicDTypeKwd::EVENT}; v3Global.setHasEvents(); }
+                        { $$ = new AstBasicDType{$1, VBasicDTypeKwd::EVENT}; v3Global.سیٹ_Has_Events(); }
         |       type_referenceDecl                      { $$ = $1; }
         //                      // IEEE: class_scope: see data_type above
         //                      // IEEE: class_type: see data_type above
         //                      // IEEE: ps_covergroup: see data_type above
         //                      // Rules overlap virtual_interface_declaration
-        |       yVIRTUAL__INTERFACE yINTERFACE data_typeVirtual
+        |       yVIRTUAL__INTERFACE yINTERFACE انکڑے_type_Virtual
                         { $$ = $3; }
-        |       yVIRTUAL__anyID                data_typeVirtual
+        |       yVIRTUAL__anyID                انکڑے_type_Virtual
                         { $$ = $2; }
         ;
 
-data_typeVirtual<nodeDTypep>:           // ==IEEE: data_type after yVIRTUAL [ yINTERFACE ]
+انکڑے_type_Virtual<گرہ_DTypep>:           // ==IEEE: data_type after yVIRTUAL [ yINTERFACE ]
         //                      // Parameters here are SV2009
                 idAny/*interface*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, "", *$1};
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, "", *$1};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
         |       idAny/*interface*/ '.' idAny/*modport*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>3, "", *$1, *$3};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
-        |       idAny/*interface*/ parameter_value_assignmentClass
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, nullptr, "", *$1, "", $2};
+        |       idAny/*interface*/ parameter_قدر_assignment_Class
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, nullptr, "", *$1, "", $2};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
-        |       idAny/*interface*/ parameter_value_assignmentClass '.' idAny/*modport*/
-                        { AstIfaceRefDType* const ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>4, "", *$1, *$4, $2};
+        |       idAny/*interface*/ parameter_قدر_assignment_Class '.' idAny/*modport*/
+                        { AstIfaceRefDType* ثابت ifrefp = new AstIfaceRefDType{$<fl>1, $<fl>4, "", *$1, *$4, $2};
                           ifrefp->isVirtual(true);
                           $$ = ifrefp; }
         ;
 
-data_type_or_void<nodeDTypep>:  // ==IEEE: data_type_or_void
-                data_typeAny                            { $$ = $1; }
+انکڑے_type_or_void<گرہ_DTypep>:  // ==IEEE: data_type_or_void
+                انکڑے_type_Any                            { $$ = $1; }
         |       yVOID
                         { $$ = new AstBasicDType{$1, VBasicDTypeKwd::CVOID}; }
         ;
 
-var_data_type<nodeDTypep>:              // ==IEEE: var_data_type
-                data_type                               { $$ = $1; }
-        |       yVAR data_type                          { $$ = $2; }
+var_انکڑے_type<گرہ_DTypep>:              // ==IEEE: var_data_type
+                انکڑے_type                               { $$ = $1; }
+        |       yVAR انکڑے_type                          { $$ = $2; }
         |       yVAR implicit_typeE                     { $$ = $2; }
         ;
 
-type_referenceBoth<nodeExprp>:          // IEEE: type_reference
-                yTYPE__ETC '(' exprOrDataType ')'
-                        { $$ = new AstAttrOf{$1, VAttrType::TYPEID, $3}; }
+type_referenceBoth<گرہ_Exprp>:          // IEEE: type_reference
+                yTYPE__ETC '(' اظہاریہ_Or_انکڑے_Type ')'
+                        { $$ = new Ast_Attr_دا{$1, VAttrType::TYPEID, $3}; }
         ;
 
-type_referenceDecl<nodeDTypep>:         // IEEE: type_reference (as a data type for declaration)
-                yTYPE__ETC '(' exprOrDataType ')'
-                        { $$ = new AstRefDType{$1, AstRefDType::FlagTypeOfExpr{}, $3}; }
+type_referenceDecl<گرہ_DTypep>:         // IEEE: type_reference (as a data type for declaration)
+                yTYPE__ETC '(' اظہاریہ_Or_انکڑے_Type ')'
+                        { $$ = new AstRefDType{$1, AstRefDType::Flag_Type_دا_اظہاریہ{}, $3}; }
         ;
 
-type_referenceEq<nodeExprp>:            // IEEE: type_reference (as an ==/!== expression)
-                yTYPE__EQ '(' exprOrDataType ')'
-                        { $$ = new AstAttrOf{$1, VAttrType::TYPEID, $3}; }
+type_referenceEq<گرہ_Exprp>:            // IEEE: type_reference (as an ==/!== expression)
+                yTYPE__EQ '(' اظہاریہ_Or_انکڑے_Type ')'
+                        { $$ = new Ast_Attr_دا{$1, VAttrType::TYPEID, $3}; }
         ;
 
-struct_unionDecl<nodeUOrStructDTypep>:  // IEEE: part of data_type
+struct_unionDecl<گرہ_UOr_Struct_DTypep>:  // IEEE: part of data_type
         //                      // packedSigningE is NOP for unpacked
                 ySTRUCT        packedSigningE '{'
-        /*mid*/         { $<nodeUOrStructDTypep>$ = new AstStructDType{$1, $2}; }
-        /*cont*/    struct_union_memberListEnd
-                        { $$ = $<nodeUOrStructDTypep>4; $$->addMembersp($5); }
+        /*mid*/         { $<گرہ_UOr_Struct_DTypep>$ = new AstStructDType{$1, $2}; }
+        /*cont*/    struct_union_member_List_سرا
+                        { $$ = $<گرہ_UOr_Struct_DTypep>4; $$->جوڑو_Membersp($5); }
         |       yUNION taggedSoftE packedSigningE '{'
-        /*mid*/         { $<nodeUOrStructDTypep>$ = new AstUnionDType{$1, $2 == tagged_SOFT, $2 == tagged_TAGGED, $3}; }
-        /*cont*/    struct_union_memberListEnd
-                        { $$ = $<nodeUOrStructDTypep>5; $$->addMembersp($6); }
+        /*mid*/         { $<گرہ_UOr_Struct_DTypep>$ = new AstUnionDType{$1, $2 == tagged_SOFT, $2 == tagged_TAGGED, $3}; }
+        /*cont*/    struct_union_member_List_سرا
+                        { $$ = $<گرہ_UOr_Struct_DTypep>5; $$->جوڑو_Membersp($6); }
         ;
 
-struct_union_memberListEnd<memberDTypep>: // IEEE: { struct_union_member } '}'
+struct_union_member_List_سرا<memberDTypep>: // IEEE: { struct_union_member } '}'
                 struct_union_memberList '}'                     { $$ = $1; }
         //
         |       struct_union_memberList error '}'               { $$ = $1; }  // LCOV_EXCL_LINE
@@ -2205,48 +2205,48 @@ struct_union_memberListEnd<memberDTypep>: // IEEE: { struct_union_member } '}'
 struct_union_memberList<memberDTypep>: // IEEE: { struct_union_member }
                 struct_union_member                             { $$ = $1; }
 
-        |       struct_union_memberList struct_union_member     { $$ = addNextNull($1, $2); }
+        |       struct_union_memberList struct_union_member     { $$ = جوڑو_اگلا_Null($1, $2); }
         //
         |       struct_union_memberList error ';'               { $$ = $1; }  // LCOV_EXCL_LINE
         |       error ';'                                       { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
 struct_union_member<memberDTypep>:     // ==IEEE: struct_union_member
-                random_qualifierE data_type_or_void
+                random_qualifierE انکڑے_type_or_void
         /*mid*/         { GRAMMARP->m_memDTypep = $2;  // As a list follows, need to attach this dtype to each member.
                           GRAMMARP->m_memRand = $1.randAttr(); }
-        /*cont*/    list_of_member_decl_assignments ';'
+        /*cont*/    list_دا_member_decl_assignments ';'
                         { $$ = $4;
                           DEL(GRAMMARP->m_memDTypep); GRAMMARP->m_memDTypep = nullptr;
                           GRAMMARP->m_memRand = VRandAttr::NONE; }
-        |       vlTag                                   { $$ = nullptr; }
+        |       vl_ٹیگ                                   { $$ = nullptr; }
         ;
 
-list_of_member_decl_assignments<memberDTypep>: // Derived from IEEE: list_of_variable_decl_assignments
+list_دا_member_decl_assignments<memberDTypep>: // Derived from IEEE: list_of_variable_decl_assignments
                 member_decl_assignment                  { $$ = $1; }
-        |       list_of_member_decl_assignments ',' member_decl_assignment      { $$ = addNextNull($1, $3); }
+        |       list_دا_member_decl_assignments ',' member_decl_assignment      { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 member_decl_assignment<memberDTypep>:   // Derived from IEEE: variable_decl_assignment
         //                      // At present we allow only packed structures/unions.
         //                      // So this is different from variable_decl_assignment
                 idAny variable_dimensionListE
-                        { $$ = new AstMemberDType{$<fl>1, *$1, VFlagChildDType{},
+                        { $$ = new AstMemberDType{$<fl>1, *$1, VFlag_بچہ_DType{},
                                                   GRAMMARP->createArray((GRAMMARP->m_memDTypep
-                                                                         ? GRAMMARP->m_memDTypep->cloneTree(true) : nullptr),
+                                                                         ? GRAMMARP->m_memDTypep->clone_درخت(true) : nullptr),
                                                                         $2, false),
                                                   nullptr};
                           $$->rand(GRAMMARP->m_memRand);
-                          PARSEP->tagNodep($$);
+                          PARSEP->ٹیگ_Nodep($$);
                         }
-        |       idAny variable_dimensionListE '=' variable_declExpr
-                        { $$ = new AstMemberDType{$<fl>1, *$1, VFlagChildDType{},
+        |       idAny variable_dimensionListE '=' variable_decl_اظہاریہ
+                        { $$ = new AstMemberDType{$<fl>1, *$1, VFlag_بچہ_DType{},
                                                   GRAMMARP->createArray((GRAMMARP->m_memDTypep
-                                                                         ? GRAMMARP->m_memDTypep->cloneTree(true) : nullptr),
+                                                                         ? GRAMMARP->m_memDTypep->clone_درخت(true) : nullptr),
                                                                         $2, false),
                                                   $4};
                           $$->rand(GRAMMARP->m_memRand);
-                          PARSEP->tagNodep($$);
+                          PARSEP->ٹیگ_Nodep($$);
                         }
         |       idSVKwd                                 { $$ = nullptr; }
         //
@@ -2257,15 +2257,15 @@ member_decl_assignment<memberDTypep>:   // Derived from IEEE: variable_decl_assi
         //                      // Pushed into variable_declExpr:dynamic_array_new
         ;
 
-list_of_variable_decl_assignments<varp>:        // ==IEEE: list_of_variable_decl_assignments
+list_دا_variable_decl_assignments<varp>:        // ==IEEE: list_of_variable_decl_assignments
                 variable_decl_assignment                { $$ = $1; }
-        |       list_of_variable_decl_assignments ',' variable_decl_assignment  { $$ = addNextNull($1, $3); }
+        |       list_دا_variable_decl_assignments ',' variable_decl_assignment  { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 variable_decl_assignment<varp>: // ==IEEE: variable_decl_assignment
                 id variable_dimensionListE sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); }
-        |       id variable_dimensionListE sigAttrListE '=' variable_declExpr
+        |       id variable_dimensionListE sigAttrListE '=' variable_decl_اظہاریہ
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); $$->valuep($5); }
         |       idSVKwd                                 { $$ = nullptr; }
         //
@@ -2278,35 +2278,35 @@ variable_decl_assignment<varp>: // ==IEEE: variable_decl_assignment
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); $$->valuep($5); }
         ;
 
-list_of_tf_variable_identifiers<nodep>: // ==IEEE: list_of_tf_variable_identifiers
+list_دا_tf_variable_identifiers<nodep>: // ==IEEE: list_of_tf_variable_identifiers
                 tf_variable_identifier                  { $$ = $1; }
-        |       list_of_tf_variable_identifiers ',' tf_variable_identifier      { $$ = $1->addNext($3); }
+        |       list_دا_tf_variable_identifiers ',' tf_variable_identifier      { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 tf_variable_identifier<varp>:           // IEEE: part of list_of_tf_variable_identifiers
-                id variable_dimensionListE sigAttrListE exprEqE
+                id variable_dimensionListE sigAttrListE اظہاریہ_Eq_E
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          if ($4) AstNode::addNext<AstNode, AstNode>(
-                                      $$, new AstAssign{$4->fileline(), new AstParseRef{$<fl>1, *$1}, $4}); }
+                          إذا ($4) Ast_گرہ::جوڑو_اگلا<Ast_گرہ, Ast_گرہ>(
+                                      $$, new Ast_سونپو{$4->fileline(), new AstParseRef{$<fl>1, *$1}, $4}); }
         ;
 
-variable_declExpr<nodep>:               // IEEE: part of variable_decl_assignment - rhs of expr
-                expr                                    { $$ = $1; }
+variable_decl_اظہاریہ<nodep>:               // IEEE: part of variable_decl_assignment - rhs of expr
+                اظہاریہ                                    { $$ = $1; }
         |       dynamic_array_new                       { $$ = $1; }
         |       class_newNoScope                        { $$ = $1; }
         ;
 
-variable_dimensionListE<nodeRangep>:    // IEEE: variable_dimension + empty
+variable_dimensionListE<گرہ_Rangep>:    // IEEE: variable_dimension + empty
                 /*empty*/                               { $$ = nullptr; }
         |       variable_dimensionList                  { $$ = $1; }
         ;
 
-variable_dimensionList<nodeRangep>:     // IEEE: variable_dimension + empty
+variable_dimensionList<گرہ_Rangep>:     // IEEE: variable_dimension + empty
                 variable_dimension                      { $$ = $1; }
-        |       variable_dimensionList variable_dimension       { $$ = $1->addNext($2); }
+        |       variable_dimensionList variable_dimension       { $$ = $1->جوڑو_اگلا($2); }
         ;
 
-variable_dimension<nodeRangep>: // ==IEEE: variable_dimension
+variable_dimension<گرہ_Rangep>: // ==IEEE: variable_dimension
         //                      // IEEE: unsized_dimension
                 '[' ']'                                 { $$ = new AstUnsizedRange{$1}; }
         //                      // IEEE: unpacked_dimension
@@ -2314,7 +2314,7 @@ variable_dimension<nodeRangep>: // ==IEEE: variable_dimension
         //                      // IEEE: unpacked_dimension (if const_expr)
         //                      // IEEE: associative_dimension (if data_type)
         //                      // Can't tell which until see if expr is data type or not
-        |       '[' exprOrDataType ']'                  { $$ = new AstBracketRange{$1, $2}; }
+        |       '[' اظہاریہ_Or_انکڑے_Type ']'                  { $$ = new AstBracketRange{$1, $2}; }
         |       yP_BRASTAR ']'                          { $$ = new AstWildcardRange{$1}; }
         |       '[' '*' ']'                             { $$ = new AstWildcardRange{$1}; }
         //                      // IEEE: queue_dimension
@@ -2341,33 +2341,33 @@ taggedSoftE<taggedstate>:
 packedSigningE<signstate>:
         //                      // VSigning::NOSIGN overloaded to indicate not packed
                 /*empty*/                               { $$ = VSigning::NOSIGN; }
-        |       yPACKED signingE                        { $$ = $2; if ($$ == VSigning::NOSIGN) $$ = VSigning::UNSIGNED; }
+        |       yPACKED signingE                        { $$ = $2; إذا ($$ == VSigning::NOSIGN) $$ = VSigning::UNSIGNED; }
         ;
 
 //************************************************
 // enum
 
 // IEEE: part of data_type
-enumDecl<nodeDTypep>:
-                yENUM enum_base_typeE '{' enum_nameList '}'
-                        { $$ = new AstEnumDType{$1, VFlagChildDType{}, $2, $4}; }
+enumDecl<گرہ_DTypep>:
+                yENUM enum_ادھار_type_E '{' enum_nameList '}'
+                        { $$ = new AstEnumDType{$1, VFlag_بچہ_DType{}, $2, $4}; }
         ;
 
-enum_base_typeE<nodeDTypep>:    // IEEE: enum_base_type
-                /* empty */
+enum_ادھار_type_E<گرہ_DTypep>:    // IEEE: enum_base_type
+                /*خالی_تھاواں*/
                         { $$ = new AstBasicDType{CRELINE(), VBasicDTypeKwd::INT}; }
         //                      // Not in spec, but obviously "enum [1:0]" should work
         //                      // implicit_type expanded, without empty
         //                      // Note enum base types are always packed data types
         |       signingE rangeList
-                        { $$ = GRAMMARP->addRange(new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true); }
+                        { $$ = GRAMMARP->جوڑو_Range(new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true); }
         |       signing
                         { $$ = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1}; }
         //
         |       integer_atom_type signingE
-                        { $1->setSignedState($2); $$ = $1; }
-        |       integer_vector_type signingE rangeListE
-                        { $1->setSignedState($2); $$ = GRAMMARP->addRange($1, $3, true); }
+                        { $1->سیٹ_Signed_State($2); $$ = $1; }
+        |       integer_سمتیہ_type signingE rangeListE
+                        { $1->سیٹ_Signed_State($2); $$ = GRAMMARP->جوڑو_Range($1, $3, true); }
         //                      // below can be idAny or yaID__aTYPE
         //                      // IEEE requires a type, though no shift conflict if idAny
         //                      // IEEE: type_identifier [ packed_dimension ]
@@ -2381,26 +2381,26 @@ enum_base_typeE<nodeDTypep>:    // IEEE: enum_base_type
 
 enum_nameList<enumItemp>:
                 enum_name_declaration                   { $$ = $1; }
-        |       enum_nameList ',' enum_name_declaration { $$ = addNextNull($1, $3); }
+        |       enum_nameList ',' enum_name_declaration { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 enum_name_declaration<enumItemp>:   // ==IEEE: enum_name_declaration
-                idAny/*enum_identifier*/ enumNameRangeE enumNameStartE
-                        { $$ = new AstEnumItem{$<fl>1, *$1, $2, $3}; }
+                idAny/*enum_identifier*/ enumNameRangeE enum_Name_شروع_E
+                        { $$ = new Ast_Enum_شے{$<fl>1, *$1, $2, $3}; }
         ;
 
 enumNameRangeE<rangep>:          // IEEE: second part of enum_name_declaration
-                /* empty */
+                /*خالی_تھاواں*/
                         { $$ = nullptr; }
         |       '[' intnumAsConst ']'
-                        { $$ = new AstRange{$1, new AstConst{$1, 0}, new AstConst($1, $2->toSInt() - 1)}; DEL($2); }
+                        { $$ = new AstRange{$1, new AstConst{$1, 0}, new AstConst($1, $2->منزل_SInt() - 1)}; DEL($2); }
         |       '[' intnumAsConst ':' intnumAsConst ']'
                         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
-enumNameStartE<nodeExprp>:      // IEEE: third part of enum_name_declaration
-                /* empty */                             { $$ = nullptr; }
-        |       '=' constExpr                           { $$ = $2; }
+enum_Name_شروع_E<گرہ_Exprp>:      // IEEE: third part of enum_name_declaration
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       '=' const_اظہاریہ                           { $$ = $2; }
         ;
 
 intnumAsConst<constp>:
@@ -2410,9 +2410,9 @@ intnumAsConst<constp>:
 //************************************************
 // Typedef
 
-data_declaration<nodep>:        // ==IEEE: data_declaration
+انکڑے_declaration<nodep>:        // ==IEEE: data_declaration
         //                      // VARRESET can't be called here - conflicts
-                data_declarationVar                     { $$ = $1; }
+                انکڑے_declaration_Var                     { $$ = $1; }
         |       type_declaration                        { $$ = $1; }
         |       package_import_declaration              { $$ = $1; }
         //                      // IEEE: virtual_interface_declaration
@@ -2420,14 +2420,14 @@ data_declaration<nodep>:        // ==IEEE: data_declaration
         //                      // Therefore the virtual_interface_declaration term isn't used
         //                      // 1800-2009:
         |       nettype_declaration                     { $$ = $1; }
-        |       vlTag                                   { $$ = nullptr; }
+        |       vl_ٹیگ                                   { $$ = nullptr; }
         ;
 
 class_property<nodep>:          // ==IEEE: class_property, which is {property_qualifier} data_declaration
-                memberQualListE data_declarationVarClass
-                        { $$ = $2; $1.applyToNodes($2); }
+                memberQualListE انکڑے_declaration_Var_Class
+                        { $$ = $2; $1.apply_منزل_Nodes($2); }
         |       memberQualListE type_declaration
-                        { $$ = $2; if (VN_IS($2, Typedef)) $1.applyToNodes(VN_AS($2, Typedef)); }
+                        { $$ = $2; إذا (VN_IS($2, Typedef)) $1.apply_منزل_Nodes(VN_AS($2, Typedef)); }
         //                      // UNSUP: Import needs to apply local/protected from memberQualList, and error on others
         |       memberQualListE package_import_declaration
                         { $$ = $2; }
@@ -2436,78 +2436,78 @@ class_property<nodep>:          // ==IEEE: class_property, which is {property_qu
         //                      // Therefore the virtual_interface_declaration term isn't used
         ;
 
-data_declarationVar<varp>:      // IEEE: part of data_declaration
+انکڑے_declaration_Var<varp>:      // IEEE: part of data_declaration
         //                      // The first declaration has complications between assuming what's
         //                      // the type vs ID declaring
-                data_declarationVarFront list_of_variable_decl_assignments ';'  { $$ = $2; }
+                انکڑے_declaration_Var_Front list_دا_variable_decl_assignments ';'  { $$ = $2; }
         ;
 
-data_declarationVarClass<varp>: // IEEE: part of data_declaration (for class_property)
+انکڑے_declaration_Var_Class<varp>: // IEEE: part of data_declaration (for class_property)
         //                      // The first declaration has complications between assuming what's
         //                      // the type vs ID declaring
-                data_declarationVarFrontClass list_of_variable_decl_assignments ';'     { $$ = $2; }
+                انکڑے_declaration_Var_Front_Class list_دا_variable_decl_assignments ';'     { $$ = $2; }
         ;
 
-data_declarationVarFront:       // IEEE: part of data_declaration
+انکڑے_declaration_Var_Front:       // IEEE: part of data_declaration
         //                      // Non-ANSI; used inside block followed by ';'
         //                      // SEE ALSO port_declaration, tf_port_declaration, port
         //
         //                      // Expanded: "constE yVAR lifetimeE data_type"
         //                      // implicit_type expanded into /*empty*/ or "signingE rangeList"
-                yVAR lifetimeE data_type
+                yVAR lifetimeE انکڑے_type
                         { VARRESET_NONLIST(VAR); VARLIFE($2); VARDTYPE($3); }
         |       yVAR lifetimeE
                         { VARRESET_NONLIST(VAR); VARLIFE($2);
-                          AstNodeDType* const dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT};
+                          Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT};
                           VARDTYPE(dtp); }
         |       yVAR lifetimeE signingE rangeList
                         { /*VARRESET-in-ddVar*/ VARLIFE($2);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                               new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp); }
         //
         //                      // implicit_type expanded into /*empty*/ or "signingE rangeList"
-        |       yCONST__ETC yVAR lifetimeE data_type
+        |       yCONST__ETC yVAR lifetimeE انکڑے_type
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{}, $4};
+                          Ast_گرہ_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlag_بچہ_DType{}, $4};
                           VARDTYPE(dtp); }
         |       yCONST__ETC yVAR lifetimeE
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
+                          Ast_گرہ_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlag_بچہ_DType{},
                                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           VARDTYPE(dtp); }
         |       yCONST__ETC yVAR lifetimeE signingE rangeList
                         { VARRESET_NONLIST(VAR); VARLIFE($3);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>2, VFlagChildDType{},
-                                  GRAMMARP->addRange(new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $4}, $5, true)};
+                          Ast_گرہ_DType* ثابت dtp = new AstConstDType{$<fl>2, VFlag_بچہ_DType{},
+                                  GRAMMARP->جوڑو_Range(new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $4}, $5, true)};
                           VARDTYPE(dtp); }
         //
         //                      // Expanded: "constE lifetimeE data_type"
-        |       /**/                  data_type
+        |       /**/                  انکڑے_type
                         { VARRESET_NONLIST(VAR); VARDTYPE($1); }
-        |       /**/        lifetime  data_type
+        |       /**/        lifetime  انکڑے_type
                         { VARRESET_NONLIST(VAR); VARLIFE($1); VARDTYPE($2); }
-        |       yCONST__ETC lifetimeE data_type
+        |       yCONST__ETC lifetimeE انکڑے_type
                         { VARRESET_NONLIST(VAR); VARLIFE($2);
-                          AstNodeDType* const dtp = new AstConstDType{$<fl>1, VFlagChildDType{}, $3};
+                          Ast_گرہ_DType* ثابت dtp = new AstConstDType{$<fl>1, VFlag_بچہ_DType{}, $3};
                           VARDTYPE(dtp); }
         //                      // = class_new is in variable_decl_assignment
         ;
 
-data_declarationVarFrontClass:  // IEEE: part of data_declaration (for class_property)
+انکڑے_declaration_Var_Front_Class:  // IEEE: part of data_declaration (for class_property)
         //                      // VARRESET called before this rule
         //                      // yCONST is removed, added to memberQual rules
         //                      // implicit_type expanded into /*empty*/ or "signingE rangeList"
-                yVAR lifetimeE data_type        { VARRESET_NONLIST(VAR); VARLIFE($2); VARDTYPE($3); }
+                yVAR lifetimeE انکڑے_type        { VARRESET_NONLIST(VAR); VARLIFE($2); VARDTYPE($3); }
         |       yVAR lifetimeE                  { VARRESET_NONLIST(VAR); VARLIFE($2); }
         |       yVAR lifetimeE signingE rangeList
                         { /*VARRESET-in-ddVar*/
-                          AstNodeDType* const dtp = GRAMMARP->addRange(new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $3}, $4, true);
                           VARDTYPE(dtp);
                           VARLIFE($2); }
         //
         //                      // Expanded: "constE lifetimeE data_type"
-        |       data_type                       { VARRESET_NONLIST(VAR); VARDTYPE($1); }
+        |       انکڑے_type                       { VARRESET_NONLIST(VAR); VARDTYPE($1); }
         //                      // lifetime is removed, added to memberQual rules to avoid conflict
         //                      // yCONST is removed, added to memberQual rules to avoid conflict
         //                      // = class_new is in variable_decl_assignment
@@ -2515,10 +2515,10 @@ data_declarationVarFrontClass:  // IEEE: part of data_declaration (for class_pro
 
 nettype_declaration<nodep>:  // IEEE: nettype_declaration/net_type_declaration
         //                      // Union of data_typeAny and nettype_identifier matching
-                yNETTYPE data_typeNoRef
+                yNETTYPE انکڑے_type_No_Ref
         /*cont*/   idAny/*nettype_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>3, *$3); BBUNSUP($<fl>1, "Unsupported: nettype"); }
-        |       yNETTYPE data_typeNoRef
+        |       yNETTYPE انکڑے_type_No_Ref
         /*cont*/   idAny/*nettype_identifier*/
         /*cont*/   yWITH__ETC packageClassScopeE id/*tf_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>3, *$3); BBUNSUP($<fl>1, "Unsupported: nettype with"); }
@@ -2529,36 +2529,36 @@ nettype_declaration<nodep>:  // IEEE: nettype_declaration/net_type_declaration
         /*cont*/   idAny/*nettype_identifier*/
         /*cont*/   yWITH__ETC packageClassScopeE id/*tf_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>5, *$5); BBUNSUP($<fl>1, "Unsupported: nettype with"); }
-        |       yNETTYPE packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yNETTYPE packageClassScopeE idAny parameter_قدر_assignment_Class packed_dimensionListE
         /*cont*/   idAny/*nettype_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>6, *$6); BBUNSUP($<fl>1, "Unsupported: nettype"); }
-        |       yNETTYPE packageClassScopeE idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yNETTYPE packageClassScopeE idAny parameter_قدر_assignment_Class packed_dimensionListE
         /*cont*/   idAny/*nettype_identifier*/
         /*cont*/   yWITH__ETC packageClassScopeE id/*tf_identifier*/ ';'
                         { $$ = GRAMMARP->createNettype($<fl>6, *$6); BBUNSUP($<fl>1, "Unsupported: nettype with"); }
         ;
 
-implicit_typeE<nodeDTypep>:             // IEEE: part of *data_type_or_implicit
+implicit_typeE<گرہ_DTypep>:             // IEEE: part of *data_type_or_implicit
         //                      // Also expanded in data_declaration
-                /* empty */
+                /*خالی_تھاواں*/
                         { $$ = nullptr; }
         |       signingE rangeList
-                        { $$ = GRAMMARP->addRange(new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true); }
+                        { $$ = GRAMMARP->جوڑو_Range(new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true); }
         |       signing
                         { $$ = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1}; }
         ;
 
 assertion_variable_declaration<nodep>:  // IEEE: assertion_variable_declaration
         //                      // IEEE: var_data_type expanded
-                var_data_type                        { VARRESET_NONLIST(VAR); VARDTYPE_NDECL($1); }
-        /*cont*/    list_of_variable_decl_assignments ';'     { $$ = $3; }
+                var_انکڑے_type                        { VARRESET_NONLIST(VAR); VARDTYPE_NDECL($1); }
+        /*cont*/    list_دا_variable_decl_assignments ';'     { $$ = $3; }
         ;
 
 type_declaration<nodep>:        // ==IEEE: type_declaration
                                 // Data_type expanded
-                yTYPEDEF data_typeNoRef
+                yTYPEDEF انکڑے_type_No_Ref
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstNodeDType* const dtp = $2;
+                        { Ast_گرہ_DType* ثابت dtp = $2;
                           $$ = GRAMMARP->createTypedef($<fl>3, *$3, $5, dtp, $4); }
 
         // IEEE 1800-2023 6.18 typedef: dotted or arrayed type identifier
@@ -2566,9 +2566,9 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
         |       yTYPEDEF idDottedOrArrayed
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
               { VARRESET_NONLIST(LPARAM);
-                AstParseTypeDType* const ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
+                AstParseTypeDType* ثابت ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
                 VARDTYPE(ptypep);
-                AstVar* const varp = VARDONEA($<fl>3, *$3, $4, $5);
+                AstVar* ثابت varp = VARDONEA($<fl>3, *$3, $4, $5);
                 // idDottedOrArrayed produces Dot/SelBit tree for hierarchical refs like if0[0].rq_t
                 varp->valuep($2);
                 $$ = varp; }
@@ -2576,54 +2576,54 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
         // IEEE 1800-2023 6.18 typedef with hierarchical type identifier
         // Special-case array on first component requiring a '.' after ']' to disambiguate from packed dims
         // Examples: typedef if0[0].rq_t my_t; typedef if0[0].x_if.rq_t my_t;
-        |       yTYPEDEF id '[' expr ']' '.' idDottedSelMore
+        |       yTYPEDEF id '[' اظہاریہ ']' '.' id_Dotted_Sel_ہور
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
               { VARRESET_NONLIST(LPARAM);
-                AstParseTypeDType* const ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
+                AstParseTypeDType* ثابت ptypep = new AstParseTypeDType{$<fl>2, VFwdType::NONE};
                 VARDTYPE(ptypep);
-                AstVar* const varp = VARDONEA($<fl>8, *$8, $9, $10);
-                AstNodeExpr* const arrp = new AstSelBit{$3, new AstParseRef{$<fl>2, *$2, nullptr, nullptr}, $4};
+                AstVar* ثابت varp = VARDONEA($<fl>8, *$8, $9, $10);
+                Ast_گرہ_اظہاریہ* ثابت arrp = new Ast_Sel_ثنائی_ہندسہ{$3, new AstParseRef{$<fl>2, *$2, nullptr, nullptr}, $4};
                 varp->valuep(new AstDot{$6, false, arrp, $7});
                 $$ = varp; }
 
         |       yTYPEDEF packageClassScope idAny packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>3, *$3, $2, nullptr};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $4, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>3, *$3, $2, nullptr};
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->createArray(refp, $4, true);
                           $$ = GRAMMARP->createTypedef($<fl>5, *$5, $7, dtp, $6); }
-        |       yTYPEDEF packageClassScope idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yTYPEDEF packageClassScope idAny parameter_قدر_assignment_Class packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>3, *$3, $2, $4};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $5, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>3, *$3, $2, $4};
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->createArray(refp, $5, true);
                           $$ = GRAMMARP->createTypedef($<fl>6, *$6, $8, dtp, $7); }
 
         // Type alias without packed dimensions: typedef existing_t new_t;
         |       yTYPEDEF idAny idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
                           $$ = GRAMMARP->createTypedef($<fl>3, *$3, $5, refp, $4); }
 
         // IEEE 1800-2023 6.18.2 typedef with packed dimensions on an existing type identifier
         // Disambiguated from interface array access by requiring ':' inside the brackets
         // (applies to both plain identifiers and type identifiers)
-        |       yTYPEDEF id '[' constExpr ':' constExpr ']' packed_dimensionListE
+        |       yTYPEDEF id '[' const_اظہاریہ ':' const_اظہاریہ ']' packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
-                          AstNodeRange* const rangep = new AstRange{$3, $4, $6};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                          Ast_گرہ_Range* ثابت rangep = new AstRange{$3, $4, $6};
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->createArray(refp, جوڑو_اگلا_Null(rangep, $8), true);
                           $$ = GRAMMARP->createTypedef($<fl>9, *$9, $11, dtp, $10); }
 
         // Same as above but for type identifiers (parameter types, etc.)
-        |       yTYPEDEF idType '[' constExpr ':' constExpr ']' packed_dimensionListE
+        |       yTYPEDEF idType '[' const_اظہاریہ ':' const_اظہاریہ ']' packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
-                          AstNodeRange* const rangep = new AstRange{$3, $4, $6};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, addNextNull(rangep, $8), true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, nullptr};
+                          Ast_گرہ_Range* ثابت rangep = new AstRange{$3, $4, $6};
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->createArray(refp, جوڑو_اگلا_Null(rangep, $8), true);
                           $$ = GRAMMARP->createTypedef($<fl>9, *$9, $11, dtp, $10); }
 
-        |       yTYPEDEF idAny parameter_value_assignmentClass packed_dimensionListE
+        |       yTYPEDEF idAny parameter_قدر_assignment_Class packed_dimensionListE
         /*cont*/    idAny variable_dimensionListE dtypeAttrListE ';'
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, nullptr, $3};
-                          AstNodeDType* const dtp = GRAMMARP->createArray(refp, $4, true);
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, nullptr, $3};
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->createArray(refp, $4, true);
                           $$ = GRAMMARP->createTypedef($<fl>5, *$5, $7, dtp, $6); }
 
         //                      // idAny as also allows redeclaring same typedef again
@@ -2639,49 +2639,49 @@ type_declaration<nodep>:        // ==IEEE: type_declaration
         ;
 
 dtypeAttrListE<nodep>:
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       dtypeAttrList                           { $$ = $1; }
         ;
 
 dtypeAttrList<nodep>:
                 dtypeAttr                               { $$ = $1; }
-        |       dtypeAttrList dtypeAttr                 { $$ = addNextNull($1, $2); }
+        |       dtypeAttrList dtypeAttr                 { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 dtypeAttr<nodep>:
-                yVL_PUBLIC                              { $$ = new AstAttrOf{$1, VAttrType::DT_PUBLIC}; }
+                y_VL_عوامی                              { $$ = new Ast_Attr_دا{$1, VAttrType::DT_عوامی}; }
         ;
 
-vlTag:                          // verilator tag handling
-                yVL_TAG                                 { if (PARSEP->tagNodep()) PARSEP->tagNodep()->tag(*$1); }
+vl_ٹیگ:                          // verilator tag handling
+                y_VL_ٹیگ                                 { إذا (PARSEP->ٹیگ_Nodep()) PARSEP->ٹیگ_Nodep()->ٹیگ(*$1); }
         ;
 
 //************************************************
 // Module Items
 
-module_itemListE<nodep>:        // IEEE: Part of module_declaration
-                /* empty */                             { $$ = nullptr; }
-        |       module_itemList                         { $$ = $1; }
+module_شے_List_E<nodep>:        // IEEE: Part of module_declaration
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       module_شے_List                         { $$ = $1; }
         ;
 
-module_itemList<nodep>:         // IEEE: Part of module_declaration
-                module_item                             { $$ = $1; }
-        |       module_itemList module_item             { $$ = addNextNull($1, $2); }
+module_شے_List<nodep>:         // IEEE: Part of module_declaration
+                module_شے                             { $$ = $1; }
+        |       module_شے_List module_شے             { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-module_item<nodep>:             // ==IEEE: module_item
-                port_declaration ';'                    { $$ = $1; }
-        |       non_port_module_item                    { $$ = $1; }
+module_شے<nodep>:             // ==IEEE: module_item
+                پورٹ_declaration ';'                    { $$ = $1; }
+        |       non_پورٹ_module_شے                    { $$ = $1; }
         ;
 
-non_port_module_item<nodep>:    // ==IEEE: non_port_module_item
+non_پورٹ_module_شے<nodep>:    // ==IEEE: non_port_module_item
                 generate_region                         { $$ = $1; }
                                 // not in IEEE, but presumed so can do yBEGIN ... yEND
-        |       genItemBegin                            { $$ = $1; }
-        |       module_or_generate_item                 { $$ = $1; }
-        |       specify_block                           { $$ = $1; }
+        |       gen_شے_Begin                            { $$ = $1; }
+        |       module_or_generate_شے                 { $$ = $1; }
+        |       specify_بلاک                           { $$ = $1; }
         |       specparam_declaration                   { $$ = $1; }
-        |       program_declaration
+        |       پروگرام_declaration
                         { $$ = nullptr; BBUNSUP(CRELINE(), "Unsupported: program decls within module decls"); }
         |       module_declaration
                         { $$ = nullptr; BBUNSUP(CRELINE(), "Unsupported: module decls within module decls"); }
@@ -2689,14 +2689,14 @@ non_port_module_item<nodep>:    // ==IEEE: non_port_module_item
                         { $$ = nullptr; BBUNSUP(CRELINE(), "Unsupported: interface decls within module decls"); }
         |       timeunits_declaration                   { $$ = $1; }
         //                      // Verilator specific
-        |       vlScBlock                               { $$ = $1; }
-        |       yVL_HIER_BLOCK                          { $$ = new AstPragma{$1, VPragmaType::HIER_BLOCK}; }
+        |       vl_Sc_بلاک                               { $$ = $1; }
+        |       y_VL_HIER_بلاک                          { $$ = new AstPragma{$1, VPragmaType::HIER_بلاک}; }
         |       yVL_INLINE_MODULE                       { $$ = new AstPragma{$1, VPragmaType::INLINE_MODULE}; }
         |       yVL_NO_INLINE_MODULE                    { $$ = new AstPragma{$1, VPragmaType::NO_INLINE_MODULE}; }
-        |       yVL_PUBLIC_MODULE                       { $$ = new AstPragma{$1, VPragmaType::PUBLIC_MODULE}; v3Global.dpi(true); }
+        |       y_VL_عوامی_MODULE                       { $$ = new AstPragma{$1, VPragmaType::عوامی_MODULE}; v3Global.dpi(true); }
         ;
 
-vlScBlock<nodep>:  // Verilator-specific `systemc_* blocks
+vl_Sc_بلاک<nodep>:  // Verilator-specific `systemc_* blocks
                 yaSCHDR     { $$ = new AstSystemCSection{$<fl>1, VSystemCSectionType::HDR, *$1};  }
         |       yaSCHDRP    { $$ = new AstSystemCSection{$<fl>1, VSystemCSectionType::HDR_POST, *$1}; }
         |       yaSCINT     { $$ = new AstSystemCSection{$<fl>1, VSystemCSectionType::INT, *$1}; }
@@ -2707,27 +2707,27 @@ vlScBlock<nodep>:  // Verilator-specific `systemc_* blocks
         ;
 
 
-module_or_generate_item<nodep>: // ==IEEE: module_or_generate_item
+module_or_generate_شے<nodep>: // ==IEEE: module_or_generate_item
         //                      // IEEE: parameter_override
-                yDEFPARAM list_of_defparam_assignments ';'      { $$ = $2; }
+                yDEFPARAM list_دا_defparam_assignments ';'      { $$ = $2; }
         //                      // IEEE: gate_instantiation + udp_instantiation + module_instantiation
         //                      // not here, see etcInst in module_common_item
         //                      // We joined udp & module definitions, so this goes here
         |       combinational_body                      { $$ = $1; }
         //                      // This module_common_item shared with
         //                      // interface_or_generate_item:module_common_item
-        |       module_common_item                      { $$ = $1; }
+        |       module_common_شے                      { $$ = $1; }
         ;
 
-module_common_item<nodep>:      // ==IEEE: module_common_item
-                module_or_generate_item_declaration     { $$ = $1; }
+module_common_شے<nodep>:      // ==IEEE: module_common_item
+                module_or_generate_شے_declaration     { $$ = $1; }
         //                      // IEEE: interface_instantiation
         //                      // + IEEE: program_instantiation
         //                      // + module_instantiation from module_or_generate_item
         |       etcInst                                 { $$ = $1; }
-        |       assertion_item                          { $$ = $1; }
+        |       assertion_شے                          { $$ = $1; }
         |       bind_directive                          { $$ = $1; }
-        |       continuous_assign                       { $$ = $1; }
+        |       continuous_سونپو                       { $$ = $1; }
         |       net_alias                               { $$ = $1; }
         |       initial_construct                       { $$ = $1; }
         |       final_construct                         { $$ = $1; }
@@ -2747,8 +2747,8 @@ always_construct<nodep>:        // IEEE: == always_construct
         |       yALWAYS_COMB  stmt                 { $$ = new AstAlways{$1, VAlwaysKwd::ALWAYS_COMB, nullptr, $2}; }
         ;
 
-continuous_assign<nodep>:       // IEEE: continuous_assign
-                yASSIGN driveStrengthE delay_controlE assignList ';'
+continuous_سونپو<nodep>:       // IEEE: continuous_assign
+                y_سونپو driveStrengthE delay_controlE سونپو_List ';'
                         { $$ = $4;
                           STRENGTH_LIST($4, $2);
                           DELAY_LIST($4, $3); }
@@ -2761,21 +2761,21 @@ initial_construct<nodep>:       // IEEE: initial_construct
 
 net_alias<nodep>:               // IEEE: net_alias
                 yALIAS variable_lvalue aliasEqList ';'
-                        { $2->addNext($3);
+                        { $2->جوڑو_اگلا($3);
                           $$ = new AstAlias{$1, $2}; }
         ;
 
-aliasEqList<nodeExprp>:                    // IEEE: part of net_alias
+aliasEqList<گرہ_Exprp>:                    // IEEE: part of net_alias
                 '=' variable_lvalue                     { $$ = $2; }
-        |       aliasEqList '=' variable_lvalue         { $$ = $1->addNext($3); }
+        |       aliasEqList '=' variable_lvalue         { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 final_construct<nodep>:         // IEEE: final_construct
                 yFINAL stmt                        { $$ = new AstFinal{$1, $2}; }
         ;
 
-module_or_generate_item_declaration<nodep>:     // ==IEEE: module_or_generate_item_declaration
-                package_or_generate_item_declaration    { $$ = $1; }
+module_or_generate_شے_declaration<nodep>:     // ==IEEE: module_or_generate_item_declaration
+                package_or_generate_شے_declaration    { $$ = $1; }
         |       genvar_declaration                      { $$ = $1; }
         |       clocking_declaration                    { $$ = $1; }
         |       modDefaultClocking                      { $$ = $1; }
@@ -2788,7 +2788,7 @@ modDefaultClocking<nodep>:  // IEEE: part of module_or_generate_item_declaration
         ;
 
 defaultDisable<nodep>:  // IEEE: part of module_/checker_or_generate_item_declaration
-                yDEFAULT yDISABLE yIFF expr/*expression_or_dist*/ ';'
+                yDEFAULT yDISABLE yIFF اظہاریہ/*expression_or_dist*/ ';'
                         { $$ = new AstDefaultDisable{$1, $4}; }
         ;
 
@@ -2797,17 +2797,17 @@ bind_directive<nodep>:          // ==IEEE: bind_directive + bind_target_scope
         //                      // - it's already in module_instantiation
         //                      // We merged the rules - id may be a bind_target_instance or
         //                      // module_identifier or interface_identifier
-                yBIND bind_target_instance bind_instantiation   { $$ = new AstBind{$<fl>2, *$2, $3}; }
-        |       yBIND bind_target_instance ':' bind_target_instance_list bind_instantiation
+                yBIND bind_نشانہ_instance bind_instantiation   { $$ = new AstBind{$<fl>2, *$2, $3}; }
+        |       yBIND bind_نشانہ_instance ':' bind_نشانہ_instance_list bind_instantiation
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: Bind with instance list"); DEL($5); }
         ;
 
-bind_target_instance_list:      // ==IEEE: bind_target_instance_list
-                bind_target_instance                    { }
-        |       bind_target_instance_list ',' bind_target_instance      { }
+bind_نشانہ_instance_list:      // ==IEEE: bind_target_instance_list
+                bind_نشانہ_instance                    { }
+        |       bind_نشانہ_instance_list ',' bind_نشانہ_instance      { }
         ;
 
-bind_target_instance<strp>:     // ==IEEE: bind_target_instance
+bind_نشانہ_instance<strp>:     // ==IEEE: bind_target_instance
         //UNSUP hierarchical_identifierBit              { }
                 idAny                                   { $$ = $1; }
         ;
@@ -2829,7 +2829,7 @@ bind_instantiation<nodep>:      // ==IEEE: bind_instantiation
 // different, so we copy all rules for checkers.
 
 generate_region<nodep>:         // ==IEEE: generate_region
-                yGENERATE ~c~genItemList yENDGENERATE   { $$ = $2; }
+                yGENERATE ~c~gen_شے_List yENDGENERATE   { $$ = $2; }
         |       yGENERATE yENDGENERATE                  { $$ = nullptr; }
         ;
 
@@ -2841,74 +2841,74 @@ i_generate_region<nodep>:  // IEEE: generate_region (for interface)
                 BISONPRE_COPY(generate_region,{s/~c~/i_/g})     // {copied}
         ;
 
-generate_block_or_null<nodep>:  // IEEE: generate_block_or_null (called from gencase/genif/genfor)
+generate_بلاک_or_null<nodep>:  // IEEE: generate_block_or_null (called from gencase/genif/genfor)
         //      ';'             // is included in
         //                      // IEEE: generate_block
         //                      // Must always return a BEGIN node, or nullptr - see GenFor construction
-                ~c~generate_item
-                        { $$ = $1 ? (new AstGenBlock{$1->fileline(), "", $1, true}) : nullptr; }
-        |       ~c~genItemBegin                         { $$ = $1; }
+                ~c~generate_شے
+                        { $$ = $1 ? (new Ast_Gen_بلاک{$1->fileline(), "", $1, true}) : nullptr; }
+        |       ~c~gen_شے_Begin                         { $$ = $1; }
         ;
 
-c_generate_block_or_null<nodep>:  // IEEE: generate_block_or_null (for checkers)
-                BISONPRE_COPY(generate_block_or_null,{s/~c~/c_/g})      // {copied}
+c_generate_بلاک_or_null<nodep>:  // IEEE: generate_block_or_null (for checkers)
+                BISONPRE_COPY(generate_بلاک_or_null,{s/~c~/c_/g})      // {copied}
         ;
 
-genItemBegin<nodep>:            // IEEE: part of generate_block
-                yBEGIN ~c~genItemList yEND              { $$ = new AstGenBlock{$1, "", $2, false}; }
-        |       yBEGIN yEND                             { $$ = nullptr; }
-        |       id yP_COLON__BEGIN yBEGIN ~c~genItemList yEND endLabelE
-                        { $$ = new AstGenBlock{$<fl>1, *$1, $4, false};
-                          GRAMMARP->endLabel($<fl>6, *$1, $6); }
-        |       id yP_COLON__BEGIN yBEGIN yEND endLabelE
-                        { $$ = new AstGenBlock{$<fl>1, *$1, nullptr, false};
-                          GRAMMARP->endLabel($<fl>5, *$1, $5); }
-        |       yBEGIN ':' idAny ~c~genItemList yEND endLabelE
-                        { $$ = new AstGenBlock{$<fl>3, *$3, $4, false};
-                          GRAMMARP->endLabel($<fl>6, *$3, $6); }
-        |       yBEGIN ':' idAny yEND endLabelE
-                        { $$ = new AstGenBlock{$<fl>3, *$3, nullptr, false};
-                          GRAMMARP->endLabel($<fl>5, *$3, $5); }
+gen_شے_Begin<nodep>:            // IEEE: part of generate_block
+                yBEGIN ~c~gen_شے_List y_سرا              { $$ = new Ast_Gen_بلاک{$1, "", $2, false}; }
+        |       yBEGIN y_سرا                             { $$ = nullptr; }
+        |       id yP_COLON__BEGIN yBEGIN ~c~gen_شے_List y_سرا سرا_Label_E
+                        { $$ = new Ast_Gen_بلاک{$<fl>1, *$1, $4, false};
+                          GRAMMARP->سرا_Label($<fl>6, *$1, $6); }
+        |       id yP_COLON__BEGIN yBEGIN y_سرا سرا_Label_E
+                        { $$ = new Ast_Gen_بلاک{$<fl>1, *$1, nullptr, false};
+                          GRAMMARP->سرا_Label($<fl>5, *$1, $5); }
+        |       yBEGIN ':' idAny ~c~gen_شے_List y_سرا سرا_Label_E
+                        { $$ = new Ast_Gen_بلاک{$<fl>3, *$3, $4, false};
+                          GRAMMARP->سرا_Label($<fl>6, *$3, $6); }
+        |       yBEGIN ':' idAny y_سرا سرا_Label_E
+                        { $$ = new Ast_Gen_بلاک{$<fl>3, *$3, nullptr, false};
+                          GRAMMARP->سرا_Label($<fl>5, *$3, $5); }
         ;
 
-c_genItemBegin<nodep>:  // IEEE: part of generate_block (for checkers)
-                BISONPRE_COPY(genItemBegin,{s/~c~/c_/g})                // {copied}
+c_gen_شے_Begin<nodep>:  // IEEE: part of generate_block (for checkers)
+                BISONPRE_COPY(gen_شے_Begin,{s/~c~/c_/g})                // {copied}
         ;
 
-i_genItemBegin<nodep>:  // IEEE: part of generate_block (for interfaces)
-                BISONPRE_COPY(genItemBegin,{s/~c~/i_/g})                // {copied}
+i_gen_شے_Begin<nodep>:  // IEEE: part of generate_block (for interfaces)
+                BISONPRE_COPY(gen_شے_Begin,{s/~c~/i_/g})                // {copied}
         ;
 
-genItemOrBegin<nodep>:          // Not in IEEE, but our begin isn't under generate_item
-                ~c~generate_item                        { $$ = $1; }
-        |       ~c~genItemBegin                         { $$ = $1; }
+gen_شے_Or_Begin<nodep>:          // Not in IEEE, but our begin isn't under generate_item
+                ~c~generate_شے                        { $$ = $1; }
+        |       ~c~gen_شے_Begin                         { $$ = $1; }
         ;
 
-c_genItemOrBegin<nodep>:  // (for checkers)
-                BISONPRE_COPY(genItemOrBegin,{s/~c~/c_/g})      // {copied}
+c_gen_شے_Or_Begin<nodep>:  // (for checkers)
+                BISONPRE_COPY(gen_شے_Or_Begin,{s/~c~/c_/g})      // {copied}
         ;
 
-i_genItemOrBegin<nodep>:  // (for interfaces)
-                interface_item                          { $$ = $1; }
-        |       i_genItemBegin                          { $$ = $1; }
+i_gen_شے_Or_Begin<nodep>:  // (for interfaces)
+                interface_شے                          { $$ = $1; }
+        |       i_gen_شے_Begin                          { $$ = $1; }
         ;
 
-genItemList<nodep>:
-                ~c~genItemOrBegin                       { $$ = $1; }
-        |       ~c~genItemList ~c~genItemOrBegin        { $$ = addNextNull($1, $2); }
+gen_شے_List<nodep>:
+                ~c~gen_شے_Or_Begin                       { $$ = $1; }
+        |       ~c~gen_شے_List ~c~gen_شے_Or_Begin        { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-c_genItemList<nodep>:  // (for checkers)
-                BISONPRE_COPY(genItemList,{s/~c~/c_/g})         // {copied}
+c_gen_شے_List<nodep>:  // (for checkers)
+                BISONPRE_COPY(gen_شے_List,{s/~c~/c_/g})         // {copied}
         ;
 
-i_genItemList<nodep>:  // (for interfaces)
-                BISONPRE_COPY(genItemList,{s/~c~/i_/g})         // {copied}
+i_gen_شے_List<nodep>:  // (for interfaces)
+                BISONPRE_COPY(gen_شے_List,{s/~c~/i_/g})         // {copied}
         ;
 
-generate_item<nodep>:           // IEEE: module_or_interface_or_generate_item
+generate_شے<nodep>:           // IEEE: module_or_interface_or_generate_item
         //                      // Only legal when in a generate under a module (or interface under a module)
-                module_or_generate_item                 { $$ = $1; }
+                module_or_generate_شے                 { $$ = $1; }
         //                      // Only legal when in a generate under an interface
         //UNSUP interface_or_generate_item              { $$ = $1; }
         //                      // IEEE: checker_or_generate_item
@@ -2916,16 +2916,16 @@ generate_item<nodep>:           // IEEE: module_or_interface_or_generate_item
         //                      // so below in c_generate_item
         ;
 
-c_generate_item<nodep>:  // IEEE: generate_item (for checkers)
-                checker_or_generate_item                { $$ = $1; }
+c_generate_شے<nodep>:  // IEEE: generate_item (for checkers)
+                checker_or_generate_شے                { $$ = $1; }
         ;
 
 conditional_generate_construct<nodep>:  // ==IEEE: conditional_generate_construct
-                yCASE '(' exprTypeCompare ')' ~c~case_generate_itemList yENDCASE
+                yCASE '(' اظہاریہ_Type_Compare ')' ~c~case_generate_شے_List yENDCASE
                         { $$ = new AstGenCase{$1, $3, $5}; }
-        |       yIF '(' exprTypeCompare ')' ~c~generate_block_or_null %prec prLOWER_THAN_ELSE
+        |       yIF '(' اظہاریہ_Type_Compare ')' ~c~generate_بلاک_or_null %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstGenIf{$1, $3, $5, nullptr}; }
-        |       yIF '(' exprTypeCompare ')' ~c~generate_block_or_null yELSE ~c~generate_block_or_null
+        |       yIF '(' اظہاریہ_Type_Compare ')' ~c~generate_بلاک_or_null yELSE ~c~generate_بلاک_or_null
                         { $$ = new AstGenIf{$1, $3, $5, $7}; }
         ;
 
@@ -2934,19 +2934,19 @@ c_conditional_generate_construct<nodep>:  // IEEE: conditional_generate_construc
         ;
 
 loop_generate_construct<nodep>: // ==IEEE: loop_generate_construct
-                yFOR '(' genvar_initialization ';' expr ';' genvar_iteration ')' ~c~generate_block_or_null
+                yFOR '(' genvar_initialization ';' اظہاریہ ';' genvar_iteration ')' ~c~generate_بلاک_or_null
                         { // Convert BEGIN(...) to BEGIN(GENFOR(...)), as we need the BEGIN to hide the local genvar
-                          AstGenBlock* lowerp = VN_CAST($9, GenBlock);
+                          Ast_Gen_بلاک* lowerp = VN_CAST($9, Gen_بلاک);
                           UASSERT_OBJ(!$9 || lowerp, $9, "Child of GENFOR should have been begin");
-                          AstNode* const itemsp = lowerp && lowerp->itemsp() ? lowerp->itemsp()->unlinkFrBackWithNext() : nullptr;
-                          AstGenBlock* const blkp = new AstGenBlock{$1, lowerp ? lowerp->name() : "", nullptr, true};
+                          Ast_گرہ* ثابت itemsp = lowerp && lowerp->itemsp() ? lowerp->itemsp()->unlink_Fr_پٹھ_With_اگلا() : nullptr;
+                          Ast_Gen_بلاک* ثابت blkp = new Ast_Gen_بلاک{$1, lowerp ? lowerp->name() : "", nullptr, true};
                           // V3LinkDot detects BEGIN(GENFOR(...)) as a special case
-                          AstNode* initp = $3;
-                          AstNode* const varp = $3;
-                          if (VN_IS(varp, Var)) {  // Genvar
+                          Ast_گرہ* initp = $3;
+                          Ast_گرہ* ثابت varp = $3;
+                          إذا (VN_IS(varp, Var)) {  // Genvar
                                 initp = varp->nextp();
-                                initp->unlinkFrBackWithNext();  // Detach 2nd from varp, make 1st init
-                                blkp->addItemsp(varp);
+                                initp->unlink_Fr_پٹھ_With_اگلا();  // Detach 2nd from varp, make 1st init
+                                blkp->جوڑو_Itemsp(varp);
                           }
                           // Statements are under 'genforp' as instances under this
                           // for loop won't get an extra layer of hierarchy tacked on
@@ -2961,99 +2961,99 @@ c_loop_generate_construct<nodep>:  // IEEE: loop_generate_construct (for checker
         ;
 
 genvar_initialization<nodep>:   // ==IEEE: genvar_initialization
-                parseRefBase '=' expr                     { $$ = new AstAssign{$2, $1, $3}; }
-        |       yGENVAR genvar_identifierDecl '=' constExpr
-                        { $$ = $2; AstNode::addNext<AstNode, AstNode>($$,
-                                       new AstAssign{$3, new AstVarRef{$2->fileline(), $2, VAccess::WRITE}, $4}); }
+                parse_Ref_ادھار '=' اظہاریہ                     { $$ = new Ast_سونپو{$2, $1, $3}; }
+        |       yGENVAR genvar_identifierDecl '=' const_اظہاریہ
+                        { $$ = $2; Ast_گرہ::جوڑو_اگلا<Ast_گرہ, Ast_گرہ>($$,
+                                       new Ast_سونپو{$3, new AstVarRef{$2->fileline(), $2, VAccess::WRITE}, $4}); }
         ;
 
 genvar_iteration<nodep>:        // ==IEEE: genvar_iteration
-                parseRefBase '='          expr
-                        { $$ = new AstAssign{$2, $1, $3}; }
-        |       parseRefBase yP_PLUSEQ    expr
-                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_MINUSEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_TIMESEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstMul{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_DIVEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstDiv{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_MODEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstModDiv{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_ANDEQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstAnd{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_OREQ      expr
-                        { $$ = new AstAssign{$2, $1, new AstOr{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_XOREQ     expr
-                        { $$ = new AstAssign{$2, $1, new AstXor{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SLEFTEQ   expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftL{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SRIGHTEQ  expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftR{$2, $1->cloneTreePure(true), $3}}; }
-        |       parseRefBase yP_SSRIGHTEQ expr
-                        { $$ = new AstAssign{$2, $1, new AstShiftRS{$2, $1->cloneTreePure(true), $3}}; }
+                parse_Ref_ادھار '='          اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, $3}; }
+        |       parse_Ref_ادھار yP_PLUSEQ    اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new Ast_جوڑو{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_MINUSEQ   اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstSub{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_TIMESEQ   اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstMul{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_DIVEQ     اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstDiv{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_MODEQ     اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstModDiv{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_ANDEQ     اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstAnd{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_OREQ      اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstOr{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_XOREQ     اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new AstXor{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_SLEFTEQ   اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new Ast_کھسکاؤ_L{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_SRIGHTEQ  اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new Ast_کھسکاؤ_R{$2, $1->clone_درخت_خالص(true), $3}}; }
+        |       parse_Ref_ادھار yP_SSRIGHTEQ اظہاریہ
+                        { $$ = new Ast_سونپو{$2, $1, new Ast_کھسکاؤ_RS{$2, $1->clone_درخت_خالص(true), $3}}; }
         //                      // inc_or_dec_operator
-        |       yP_PLUSPLUS   parseRefBase
-                        { $$ = new AstAssign{$1, $2, new AstAdd{$1, $2->cloneTreePure(true),
-                                                                new AstConst{$1, AstConst::StringToParse{}, "'b1"}}}; }
-        |       yP_MINUSMINUS parseRefBase
-                        { $$ = new AstAssign{$1, $2, new AstSub{$1, $2->cloneTreePure(true),
-                                                                new AstConst{$1, AstConst::StringToParse{}, "'b1"}}}; }
-        |       parseRefBase yP_PLUSPLUS
-                        { $$ = new AstAssign{$2, $1, new AstAdd{$2, $1->cloneTreePure(true),
-                                                                new AstConst{$2, AstConst::StringToParse{}, "'b1"}}}; }
-        |       parseRefBase yP_MINUSMINUS
-                        { $$ = new AstAssign{$2, $1, new AstSub{$2, $1->cloneTreePure(true),
-                                                                new AstConst{$2, AstConst::StringToParse{}, "'b1"}}}; }
+        |       yP_PLUSPLUS   parse_Ref_ادھار
+                        { $$ = new Ast_سونپو{$1, $2, new Ast_جوڑو{$1, $2->clone_درخت_خالص(true),
+                                                                new AstConst{$1, AstConst::String_منزل_Parse{}, "'b1"}}}; }
+        |       yP_MINUSMINUS parse_Ref_ادھار
+                        { $$ = new Ast_سونپو{$1, $2, new AstSub{$1, $2->clone_درخت_خالص(true),
+                                                                new AstConst{$1, AstConst::String_منزل_Parse{}, "'b1"}}}; }
+        |       parse_Ref_ادھار yP_PLUSPLUS
+                        { $$ = new Ast_سونپو{$2, $1, new Ast_جوڑو{$2, $1->clone_درخت_خالص(true),
+                                                                new AstConst{$2, AstConst::String_منزل_Parse{}, "'b1"}}}; }
+        |       parse_Ref_ادھار yP_MINUSMINUS
+                        { $$ = new Ast_سونپو{$2, $1, new AstSub{$2, $1->clone_درخت_خالص(true),
+                                                                new AstConst{$2, AstConst::String_منزل_Parse{}, "'b1"}}}; }
         ;
 
-case_generate_itemList<genCaseItemp>:  // IEEE: { case_generate_itemList }
-                ~c~case_generate_item                   { $$ = $1; }
-        |       ~c~case_generate_itemList ~c~case_generate_item         { $$ = $1; $1->addNext($2); }
+case_generate_شے_List<genCaseItemp>:  // IEEE: { case_generate_itemList }
+                ~c~case_generate_شے                   { $$ = $1; }
+        |       ~c~case_generate_شے_List ~c~case_generate_شے         { $$ = $1; $1->جوڑو_اگلا($2); }
         ;
 
-c_case_generate_itemList<genCaseItemp>:  // IEEE: { case_generate_item } (for checkers)
-                BISONPRE_COPY(case_generate_itemList,{s/~c~/c_/g})      // {copied}
+c_case_generate_شے_List<genCaseItemp>:  // IEEE: { case_generate_item } (for checkers)
+                BISONPRE_COPY(case_generate_شے_List,{s/~c~/c_/g})      // {copied}
         ;
 
-case_generate_item<genCaseItemp>:      // ==IEEE: case_generate_item
-                caseCondList colon ~c~generate_block_or_null    { $$ = new AstGenCaseItem{$2, $1, $3}; }
-        |       yDEFAULT colon ~c~generate_block_or_null        { $$ = new AstGenCaseItem{$1, nullptr, $3}; }
-        |       yDEFAULT ~c~generate_block_or_null              { $$ = new AstGenCaseItem{$1, nullptr, $2}; }
+case_generate_شے<genCaseItemp>:      // ==IEEE: case_generate_item
+                caseCondList colon ~c~generate_بلاک_or_null    { $$ = new Ast_Gen_Case_شے{$2, $1, $3}; }
+        |       yDEFAULT colon ~c~generate_بلاک_or_null        { $$ = new Ast_Gen_Case_شے{$1, nullptr, $3}; }
+        |       yDEFAULT ~c~generate_بلاک_or_null              { $$ = new Ast_Gen_Case_شے{$1, nullptr, $2}; }
         ;
 
-c_case_generate_item<genCaseItemp>:  // IEEE: case_generate_item (for checkers)
-                BISONPRE_COPY(case_generate_item,{s/~c~/c_/g})  // {copied}
+c_case_generate_شے<genCaseItemp>:  // IEEE: case_generate_item (for checkers)
+                BISONPRE_COPY(case_generate_شے,{s/~c~/c_/g})  // {copied}
         ;
 
 //************************************************
 // Assignments and register declarations
 
-assignList<alwaysp>:
-                assignOne                               { $$ = $1; }
-        |       assignList ',' assignOne                { $$ = $1->addNext($3); }
+سونپو_List<alwaysp>:
+                سونپو_One                               { $$ = $1; }
+        |       سونپو_List ',' سونپو_One                { $$ = $1->جوڑو_اگلا($3); }
         ;
 
-assignOne<alwaysp>:
-                variable_lvalue '=' expr                { AstAssignW* const ap = new AstAssignW{$2, $1, $3};
+سونپو_One<alwaysp>:
+                variable_lvalue '=' اظہاریہ                { Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$2, $1, $3};
                                                           $$ = new AstAlways{ap}; }
         ;
 
 delay_or_event_controlE<nodep>:  // IEEE: delay_or_event_control plus empty
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       delay_control                           { $$ = $1; }
         |       event_control                           { $$ = $1; }
-        |       yREPEAT '(' expr ')' event_control
+        |       yREPEAT '(' اظہاریہ ')' event_control
                         { $$ = $5; BBUNSUP($1, "Unsupported: repeat event control"); }
         ;
 
 delay_controlE<delayp>:
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       delay_control                           { $$ = $1; }
         ;
 
 delay_control<delayp>:   //== IEEE: delay_control
-                '#' delay_value
+                '#' delay_قدر
                         { $$ = new AstDelay{$<fl>1, $2, false}; }
         |       '#' '(' minTypMax ')'
                         { $$ = new AstDelay{$<fl>1, $3, false}; }
@@ -3064,39 +3064,39 @@ delay_control<delayp>:   //== IEEE: delay_control
                         { $$ = new AstDelay{$<fl>1, $3, false}; $$->fallDelay($5); RISEFALLDLYUNSUP($7); DEL($7); }
         ;
 
-delay_value<nodeExprp>:         // ==IEEE:delay_value
+delay_قدر<گرہ_Exprp>:         // ==IEEE:delay_value
         //                      // IEEE: ps_identifier
                 idClass                                 { $$ = $1; }
         |       yaINTNUM                                { $$ = new AstConst{$<fl>1, *$1}; }
         |       yaFLOATNUM                              { $$ = new AstConst{$<fl>1, AstConst::RealDouble{}, $1}; }
-        |       timeNumAdjusted                         { $$ = $1; }
-        |       y1STEP                                  { $$ = new AstConst{$<fl>1, AstConst::OneStep{}}; }
+        |       ویلا_عدد_Adjusted                         { $$ = $1; }
+        |       y1_قدم                                  { $$ = new AstConst{$<fl>1, AstConst::One_قدم{}}; }
         ;
 
-minTypMax<nodeExprp>:           // IEEE: mintypmax_expression and constant_mintypmax_expression
-                expr                               { $$ = $1; }
-        |       expr ':' expr ':' expr { $$ = $3; MINTYPMAXDLYUNSUP($3); DEL($1); DEL($5); }
+minTypMax<گرہ_Exprp>:           // IEEE: mintypmax_expression and constant_mintypmax_expression
+                اظہاریہ                               { $$ = $1; }
+        |       اظہاریہ ':' اظہاریہ ':' اظہاریہ { $$ = $3; MINTYPMAXDLYUNSUP($3); DEL($1); DEL($5); }
         ;
 
-minTypMaxE<nodeExprp>:
+minTypMaxE<گرہ_Exprp>:
                 /*empty*/                               { $$ = nullptr; }
         |       minTypMax                               { $$ = $1; }
         ;
 
 netSigList<varp>:               // IEEE: list_of_port_identifiers
                 netSig                                  { $$ = $1; }
-        |       netSigList ',' netSig                   { $$ = $1; $1->addNext($3); }
+        |       netSigList ',' netSig                   { $$ = $1; $1->جوڑو_اگلا($3); }
         ;
 
 netSig<varp>:                   // IEEE: net_decl_assignment -  one element from list_of_port_identifiers
                 netId variable_dimensionListE sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3); }
-        |       netId variable_dimensionListE sigAttrListE '=' expr
+        |       netId variable_dimensionListE sigAttrListE '=' اظہاریہ
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          AstDelay* const delayp = $$->delayp() ? $$->delayp()->unlinkFrBack() : nullptr;
-                          AstAssignW* const assignp = new AstAssignW{$4, new AstParseRef{$<fl>1, *$1}, $5, delayp};
-                          if (GRAMMARP->m_netStrengthp) assignp->strengthSpecp(GRAMMARP->m_netStrengthp->cloneTree(false));
-                          AstNode::addNext<AstNode, AstNode>($$, new AstAlways{assignp}); }
+                          AstDelay* ثابت delayp = $$->delayp() ? $$->delayp()->unlink_Fr_پٹھ() : nullptr;
+                          Ast_سونپو_W* ثابت assignp = new Ast_سونپو_W{$4, new AstParseRef{$<fl>1, *$1}, $5, delayp};
+                          إذا (GRAMMARP->m_netStrengthp) assignp->strengthSpecp(GRAMMARP->m_netStrengthp->clone_درخت(false));
+                          Ast_گرہ::جوڑو_اگلا<Ast_گرہ, Ast_گرہ>($$, new AstAlways{assignp}); }
         ;
 
 netId<strp>:
@@ -3105,91 +3105,91 @@ netId<strp>:
         ;
 
 sigAttrScope:
-                yVL_PUBLIC_FLAT_RW_ON_SNS attr_event_control
-                                                        { GRAMMARP->createScopedSigAttr(VAttrType::VAR_PUBLIC_FLAT_RW);
+                y_VL_عوامی_FLAT_RW_ON_SNS attr_event_control
+                                                        { GRAMMARP->createScopedSigAttr(VAttrType::VAR_عوامی_FLAT_RW);
                                                           v3Global.dpi(true); DEL($2); }
-        |       yVL_PUBLIC_ON                           { GRAMMARP->createScopedSigAttr(VAttrType::VAR_PUBLIC); }
-        |       yVL_PUBLIC_FLAT_ON                      { GRAMMARP->createScopedSigAttr(VAttrType::VAR_PUBLIC_FLAT); }
-        |       yVL_PUBLIC_FLAT_RD_ON                   { GRAMMARP->createScopedSigAttr(VAttrType::VAR_PUBLIC_FLAT_RD); }
-        |       yVL_PUBLIC_FLAT_RW_ON                   { GRAMMARP->createScopedSigAttr(VAttrType::VAR_PUBLIC_FLAT_RW); }
-        |       yVL_PUBLIC_OFF                          { GRAMMARP->setScopedSigAttr(nullptr); }
+        |       y_VL_عوامی_ON                           { GRAMMARP->createScopedSigAttr(VAttrType::VAR_عوامی); }
+        |       y_VL_عوامی_FLAT_ON                      { GRAMMARP->createScopedSigAttr(VAttrType::VAR_عوامی_FLAT); }
+        |       y_VL_عوامی_FLAT_RD_ON                   { GRAMMARP->createScopedSigAttr(VAttrType::VAR_عوامی_FLAT_RD); }
+        |       y_VL_عوامی_FLAT_RW_ON                   { GRAMMARP->createScopedSigAttr(VAttrType::VAR_عوامی_FLAT_RW); }
+        |       y_VL_عوامی_OFF                          { GRAMMARP->سیٹ_Scoped_Sig_Attr(nullptr); }
         ;
 
 sigAttrListE<nodep>: // Scoped Attributes are added to explicit attributes
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       sigAttrList                             { $$ = $1; }
         ;
 
 sigAttrList<nodep>:
                 sigAttr                                 { $$ = $1; }
-        |       sigAttrList sigAttr                     { $$ = addNextNull($1, $2); }
+        |       sigAttrList sigAttr                     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 sigAttr<nodep>:
                 yVL_CLOCKER                             { $$ = nullptr; /* Historical, now has no effect */ }
         |       yVL_NO_CLOCKER                          { $$ = nullptr; /* Historical, now has no effect */ }
         |       yVL_CLOCK_ENABLE                        { $$ = nullptr; /* Historical, now has no effect */ }
-        |       yVL_FORCEABLE                           { $$ = new AstAttrOf{$1, VAttrType::VAR_FORCEABLE}; }
-        |       yVL_PUBLIC                              { $$ = new AstAttrOf{$1, VAttrType::VAR_PUBLIC}; v3Global.dpi(true); }
-        |       yVL_PUBLIC_FLAT                         { $$ = new AstAttrOf{$1, VAttrType::VAR_PUBLIC_FLAT}; v3Global.dpi(true); }
-        |       yVL_PUBLIC_FLAT_RD                      { $$ = new AstAttrOf{$1, VAttrType::VAR_PUBLIC_FLAT_RD}; v3Global.dpi(true); }
-        |       yVL_PUBLIC_FLAT_RW attr_event_controlE  { $$ = new AstAttrOf{$1, VAttrType::VAR_PUBLIC_FLAT_RW}; v3Global.dpi(true); DEL($2); }
+        |       yVL_FORCEABLE                           { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FORCEABLE}; }
+        |       y_VL_عوامی                              { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_عوامی}; v3Global.dpi(true); }
+        |       y_VL_عوامی_FLAT                         { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_عوامی_FLAT}; v3Global.dpi(true); }
+        |       y_VL_عوامی_FLAT_RD                      { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_عوامی_FLAT_RD}; v3Global.dpi(true); }
+        |       y_VL_عوامی_FLAT_RW attr_event_controlE  { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_عوامی_FLAT_RW}; v3Global.dpi(true); DEL($2); }
         |       yVL_ISOLATE_ASSIGNMENTS                 { $$ = nullptr; /* Historical, now has no effect */ }
-        |       yVL_SC_BIGUINT                          { $$ = new AstAttrOf{$1, VAttrType::VAR_SC_BIGUINT}; }
-        |       yVL_SC_BV                               { $$ = new AstAttrOf{$1, VAttrType::VAR_SC_BV}; }
-        |       yVL_SFORMAT                             { $$ = new AstAttrOf{$1, VAttrType::VAR_SFORMAT}; }
-        |       yVL_SPLIT_VAR                           { $$ = new AstAttrOf{$1, VAttrType::VAR_SPLIT_VAR}; }
-        |       yVL_FSM_ARC_INCL_COND                   { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND}; }
-        |       yVL_FSM_ARC_INCL_COND_AUTO              { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_AUTO}; }
-        |       yVL_FSM_ARC_INCL_COND_AUTO_EXPAND       { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_AUTO_EXPAND}; }
-        |       yVL_FSM_ARC_INCL_COND_FULL              { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_FULL}; }
-        |       yVL_FSM_STATE                           { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_STATE}; }
-        |       yVL_FSM_STATE_AUTO                      { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_STATE_AUTO}; }
-        |       yVL_FSM_STATE_AUTO_EXPAND               { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_STATE_AUTO_EXPAND}; }
-        |       yVL_FSM_STATE_FULL                      { $$ = new AstAttrOf{$1, VAttrType::VAR_FSM_STATE_FULL}; }
+        |       yVL_SC_BIGUINT                          { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_SC_BIGUINT}; }
+        |       yVL_SC_BV                               { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_SC_BV}; }
+        |       yVL_SFORMAT                             { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_SFORMAT}; }
+        |       y_VL_ونڈو_VAR                           { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_ونڈو_VAR}; }
+        |       yVL_FSM_ARC_INCL_COND                   { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND}; }
+        |       yVL_FSM_ARC_INCL_COND_AUTO              { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_AUTO}; }
+        |       yVL_FSM_ARC_INCL_COND_AUTO_EXPAND       { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_AUTO_EXPAND}; }
+        |       y_VL_FSM_ARC_INCL_COND_بھریا              { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_ARC_INCLUDE_COND_بھریا}; }
+        |       yVL_FSM_STATE                           { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_STATE}; }
+        |       yVL_FSM_STATE_AUTO                      { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_STATE_AUTO}; }
+        |       yVL_FSM_STATE_AUTO_EXPAND               { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_STATE_AUTO_EXPAND}; }
+        |       y_VL_FSM_STATE_بھریا                      { $$ = new Ast_Attr_دا{$1, VAttrType::VAR_FSM_STATE_بھریا}; }
         ;
 
-rangeListE<nodeRangep>:         // IEEE: [{packed_dimension}]
-                /* empty */                             { $$ = nullptr; }
+rangeListE<گرہ_Rangep>:         // IEEE: [{packed_dimension}]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       rangeList                               { $$ = $1; }
         ;
 
-rangeList<nodeRangep>:          // IEEE: {packed_dimension}
+rangeList<گرہ_Rangep>:          // IEEE: {packed_dimension}
                 anyrange                                { $$ = $1; }
-        |       rangeList anyrange                      { $$ = $1->addNext($2); }
+        |       rangeList anyrange                      { $$ = $1->جوڑو_اگلا($2); }
         ;
 
-anyrange<nodeRangep>:
-                '[' constExpr ':' constExpr ']'         { $$ = new AstRange{$1, $2, $4}; }
+anyrange<گرہ_Rangep>:
+                '[' const_اظہاریہ ':' const_اظہاریہ ']'         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
-part_select_rangeList<nodePreSelp>:  // IEEE: part_select_range (as used after function calls)
+part_select_rangeList<گرہ_Pre_Selp>:  // IEEE: part_select_range (as used after function calls)
                 part_select_range                        { $$ = $1; }
         |       part_select_rangeList part_select_range  { $$ = GRAMMARP->scrubSel($1, $2); }
         ;
 
-part_select_range<nodePreSelp>:
-                '[' expr ']'
-                        { $$ = new AstSelBit{$1, new AstParseHolder{$1}, $2}; }
-        |       '[' constExpr ':' constExpr ']'
-                        { $$ = new AstSelExtract{$1, new AstParseHolder{$1}, $2, $4}; }
-        |       '[' expr yP_PLUSCOLON constExpr ']'
+part_select_range<گرہ_Pre_Selp>:
+                '[' اظہاریہ ']'
+                        { $$ = new Ast_Sel_ثنائی_ہندسہ{$1, new AstParseHolder{$1}, $2}; }
+        |       '[' const_اظہاریہ ':' const_اظہاریہ ']'
+                        { $$ = new Ast_Sel_کڈھو{$1, new AstParseHolder{$1}, $2, $4}; }
+        |       '[' اظہاریہ yP_PLUSCOLON const_اظہاریہ ']'
                         { $$ = new AstSelPlus{$1, new AstParseHolder{$1}, $2, $4}; }
-        |       '[' expr yP_MINUSCOLON constExpr ']'
+        |       '[' اظہاریہ yP_MINUSCOLON const_اظہاریہ ']'
                         { $$ = new AstSelMinus{$1, new AstParseHolder{$1}, $2, $4}; }
         ;
 
-packed_dimensionListE<nodeRangep>:      // IEEE: [{ packed_dimension }]
-                /* empty */                             { $$ = nullptr; }
+packed_dimensionListE<گرہ_Rangep>:      // IEEE: [{ packed_dimension }]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       packed_dimensionList                    { $$ = $1; }
         ;
 
-packed_dimensionList<nodeRangep>:       // IEEE: { packed_dimension }
+packed_dimensionList<گرہ_Rangep>:       // IEEE: { packed_dimension }
                 packed_dimension                        { $$ = $1; }
-        |       packed_dimensionList packed_dimension   { $$ = $1->addNext($2); }
+        |       packed_dimensionList packed_dimension   { $$ = $1->جوڑو_اگلا($2); }
         ;
 
-packed_dimension<nodeRangep>:   // ==IEEE: packed_dimension
+packed_dimension<گرہ_Rangep>:   // ==IEEE: packed_dimension
                 anyrange                                { $$ = $1; }
         |       '[' ']'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: [] dimensions"); }
@@ -3201,18 +3201,18 @@ packed_dimension<nodeRangep>:   // ==IEEE: packed_dimension
 param_assignment<varp>:         // ==IEEE: param_assignment
         //                      // IEEE: constant_param_expression
         //                      // constant_param_expression: '$' is in expr
-                id/*new-parameter*/ variable_dimensionListE sigAttrListE exprOrDataTypeEqE
+                id/*new-parameter*/ variable_dimensionListE sigAttrListE اظہاریہ_Or_انکڑے_Type_Eq_E
                         { $$ = VARDONEA($<fl>1, *$1, $2, $3);
-                          if ($4) $$->valuep($4);
-                          else if (!GRAMMARP->m_pinAnsi)
+                          إذا ($4) $$->valuep($4);
+                          وإلا إذا (!GRAMMARP->m_pinAnsi)
                               $$->v3warn(PARAMNODEFAULT, "Parameter without default requires"
                                          " ANSI-style parameter list (IEEE 1800-2023 6.20.1): "
                                          << $$->prettyNameQ()); }
         ;
 
-list_of_param_assignments<varp>:        // ==IEEE: list_of_param_assignments
+list_دا_param_assignments<varp>:        // ==IEEE: list_of_param_assignments
                 param_assignment                        { $$ = $1; }
-        |       list_of_param_assignments ',' param_assignment  { $$ = $1->addNext($3); }
+        |       list_دا_param_assignments ',' param_assignment  { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 type_assignment<varp>:          // ==IEEE: type_assignment
@@ -3221,39 +3221,39 @@ type_assignment<varp>:          // ==IEEE: type_assignment
         //                      // which get resolved to types during linking
                 idAny/*new-parameter*/ sigAttrListE
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2); }
-        |       idAny/*new-parameter*/ sigAttrListE '=' exprOrDataType
+        |       idAny/*new-parameter*/ sigAttrListE '=' اظہاریہ_Or_انکڑے_Type
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
                           // V3LinkParse will wrap this in RequireDType when creating ParamTypeDType
                           $$->valuep($4); }
         ;
 
-list_of_type_assignments<varp>:         // ==IEEE: list_of_type_assignments
+list_دا_type_assignments<varp>:         // ==IEEE: list_of_type_assignments
                 type_assignment                         { $$ = $1; }
-        |       list_of_type_assignments ',' type_assignment
-                        { $$ = addNextNull($1, $3); }
+        |       list_دا_type_assignments ',' type_assignment
+                        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-list_of_defparam_assignments<nodep>:    //== IEEE: list_of_defparam_assignments
+list_دا_defparam_assignments<nodep>:    //== IEEE: list_of_defparam_assignments
                 defparam_assignment                     { $$ = $1; }
-        |       list_of_defparam_assignments ',' defparam_assignment
-                        { $$ = addNextNull($1, $3); }
+        |       list_دا_defparam_assignments ',' defparam_assignment
+                        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 defparam_assignment<nodep>:     // ==IEEE: defparam_assignment
-                defparamIdRangeList '.' defparamIdRange '=' expr
+                defparamIdRangeList '.' defparamIdRange '=' اظہاریہ
                         { $$ = new AstDefParam{$4, $1, *$3, $5}; }
-        |       defparamIdRange '=' expr
+        |       defparamIdRange '=' اظہاریہ
                         { $$ = nullptr; BBUNSUP($2, "Unsupported: defparam with no dot");
                           DEL($3); }
         ;
 
-defparamIdRangeList<nodeExprp>:  // IEEE: part of defparam_assignment
-                defparamIdRangeExpr                     { $$ = $1; }
-        |       defparamIdRangeList '.' defparamIdRangeExpr
+defparamIdRangeList<گرہ_Exprp>:  // IEEE: part of defparam_assignment
+                defparam_Id_Range_اظہاریہ                     { $$ = $1; }
+        |       defparamIdRangeList '.' defparam_Id_Range_اظہاریہ
                         { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-defparamIdRangeExpr<nodeExprp>:  // IEEE: part of defparam_assignment
+defparam_Id_Range_اظہاریہ<گرہ_Exprp>:  // IEEE: part of defparam_assignment
                 idAny
                         { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
         |       idAny part_select_rangeList
@@ -3287,13 +3287,13 @@ etcInst<nodep>:                 // IEEE: module_instantiation + gate_instantiati
 instDecl<nodep>:
         //                      // Disambigurated from data_declaration based on
         //                      // idInst which is found as IEEE requires a later '('
-                idInst parameter_value_assignmentInstE
+                idInst parameter_قدر_assignment_Inst_E
         /*mid*/         { INSTPREP($<fl>1, *$1, $2); }
         /*cont*/    instnameList ';'
                         { $$ = $4;
                           GRAMMARP->m_impliedDecl = false;
-                          if (GRAMMARP->m_instParamp) {
-                              VL_DO_CLEAR(GRAMMARP->m_instParamp->deleteTree(),
+                          إذا (GRAMMARP->m_instParamp) {
+                              VL_DO_CLEAR(GRAMMARP->m_instParamp->delete_درخت(),
                                           GRAMMARP->m_instParamp = nullptr);
                           } }
         //
@@ -3307,7 +3307,7 @@ instDecl<nodep>:
 
 mpInstnameList<nodep>:          // Similar to instnameList, but for modport instantiations which have no parenthesis
                 mpInstnameParen                         { $$ = $1; }
-        |       mpInstnameList ',' mpInstnameParen      { $$ = $1->addNext($3); }
+        |       mpInstnameList ',' mpInstnameParen      { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 mpInstnameParen<nodep>:         // Similar to instnameParen, but for modport instantiations which have no parenthesis
@@ -3316,7 +3316,7 @@ mpInstnameParen<nodep>:         // Similar to instnameParen, but for modport ins
 
 instnameList<nodep>:
                 instnameParen                           { $$ = $1; }
-        |       instnameList ',' instnameParen          { $$ = $1->addNext($3); }
+        |       instnameList ',' instnameParen          { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 instnameParen<nodep>:
@@ -3329,25 +3329,25 @@ instnameParenUdpn<nodep>:  // IEEE: part of udp_instance when no name_of_instanc
                         { $$ = GRAMMARP->createCell($<fl>1, "", $2, nullptr); }
         ;
 
-instRangeListE<nodeRangep>:
-                /* empty */                             { $$ = nullptr; }
+instRangeListE<گرہ_Rangep>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       instRangeList                           { $$ = $1; }
         ;
 
-instRangeList<nodeRangep>:
+instRangeList<گرہ_Rangep>:
                 instRange                               { $$ = $1; }
-        |       instRangeList instRange                 { $$ = addNextNull($1, $2); }
+        |       instRangeList instRange                 { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-instRange<nodeRangep>:
-                '[' constExpr ']'
+instRange<گرہ_Rangep>:
+                '[' const_اظہاریہ ']'
                         { $$ = new AstRange{$1, new AstConst{$1, 0}, new AstSub{$1, $2, new AstConst{$1, 1}}, true}; }
-        |       '[' constExpr ':' constExpr ']'
+        |       '[' const_اظہاریہ ':' const_اظہاریہ ']'
                         { $$ = new AstRange{$1, $2, $4}; }
         ;
 
 instParamListE<pinp>:
-                { GRAMMARP->pinPush(); } instParamItListE   { $$ = $2; GRAMMARP->pinPop(CRELINE()); }
+                { GRAMMARP->pin_ڈالو(); } instParamItListE   { $$ = $2; GRAMMARP->pin_نکالو(CRELINE()); }
         ;
 
 instPinListE<pinp>:
@@ -3361,16 +3361,16 @@ instParamItListE<pinp>:         // IEEE: list_of_parameter_value_assignments/lis
         ;
 
 instParamItList<pinp>:          // IEEE: list_of_parameter_value_assignments/list_of_parameter_assignments
-                instParamItem                           { $$ = $1; }
-        |       instParamItList ',' instParamItem       { $$ = addNextNull($1, $3); }
+                inst_Param_شے                           { $$ = $1; }
+        |       instParamItList ',' inst_Param_شے       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 instPinItListE<pinp>:           // IEEE: list_of_port_connections
-                instPinItemE                            { $$ = $1; }
-        |       instPinItListE ',' instPinItemE         { $$ = addNextNull($1, $3); }
+                inst_Pin_شے_E                            { $$ = $1; }
+        |       instPinItListE ',' inst_Pin_شے_E         { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
+inst_Param_شے<pinp>:            // IEEE: named_parameter_assignment + empty
         //                      // Note empty is not allowed in parameter lists
                 yP_DOTSTAR                              { $$ = new AstPin{$1, PINNUMINC(), ".*", nullptr}; }
         |       '.' idAny '(' ')'
@@ -3386,7 +3386,7 @@ instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
                           $$->svDotName(true); $$->svImplicit(true); }
         //                      // mintypmax is expanded here, as it might be a UDP or gate primitive
         //                      // data_type for 'parameter type' hookups
-        |       '.' idAny '(' exprOrDataType ')'
+        |       '.' idAny '(' اظہاریہ_Or_انکڑے_Type ')'
                         { $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $4};
                           $$->svDotName(true); }
         //UNSUP | '.' idAny '(' exprOrDataType/*expr*/ ':' expr ')'
@@ -3398,7 +3398,7 @@ instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
         //UNSUP            $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $6};
         //UNSUP            $$->svDotName(true); }
         //                      // data_type for 'parameter type' hookups
-        |       exprOrDataType
+        |       اظہاریہ_Or_انکڑے_Type
                         { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
         //UNSUP | exprOrDataType/*expr*/ ':' expr
         //UNSUP          { MINTYPMAXDLYUNSUP($1); DEL($1);
@@ -3408,7 +3408,7 @@ instParamItem<pinp>:            // IEEE: named_parameter_assignment + empty
         //UNSUP            $$ = new AstPin{FILELINE_OR_CRE($3), PINNUMINC(), "", $3}; }
         ;
 
-instPinItemE<pinp>:             // IEEE: named_port_connection + empty
+inst_Pin_شے_E<pinp>:             // IEEE: named_port_connection + empty
         //                      // Note empty can match either () or (,); V3LinkCells cleans up ()
                 /* empty: ',,' is legal */              { $$ = new AstPin{CRELINE(), PINNUMINC(), "", nullptr}; }
         |       yP_DOTSTAR                              { $$ = new AstPin{$1, PINNUMINC(), ".*", nullptr}; }
@@ -3425,13 +3425,13 @@ instPinItemE<pinp>:             // IEEE: named_port_connection + empty
                           $$->svDotName(true); $$->svImplicit(true); }
         //                      // mintypmax is expanded here, as it might be a UDP or gate primitive
         //UNSUP               pev_expr below
-        |       '.' idAny '(' expr ')'
+        |       '.' idAny '(' اظہاریہ ')'
                         { $$ = new AstPin{$<fl>2, PINNUMINC(), *$2, $4};
                           $$->svDotName(true); }
         //UNSUP '.' idAny '(' pev_expr ':' expr ')'     { }
         //UNSUP '.' idAny '(' pev_expr ':' expr ':' expr ')' { }
         //
-        |       expr                                    { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
+        |       اظہاریہ                                    { $$ = new AstPin{FILELINE_OR_CRE($1), PINNUMINC(), "", $1}; }
         //UNSUP expr ':' expr                           { }
         //UNSUP expr ':' expr ':' expr                  { }
         ;
@@ -3440,25 +3440,25 @@ instPinItemE<pinp>:             // IEEE: named_port_connection + empty
 // EventControl lists
 
 attr_event_controlE<senTreep>:
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       attr_event_control                      { $$ = $1; }
         ;
 
 attr_event_control<senTreep>:   // ==IEEE: event_control
-                '@' '(' event_expression ')'            { $$ = new AstSenTree{$1, $3}; }
-        |       '@' '(' '*' ')'                         { $$ = GRAMMARP->createSenTreeDotStar($1); }
-        |       '@' '*'                                 { $$ = GRAMMARP->createSenTreeDotStar($1); }
+                '@' '(' event_عبارت ')'            { $$ = new Ast_Sen_درخت{$1, $3}; }
+        |       '@' '(' '*' ')'                         { $$ = GRAMMARP->create_Sen_درخت_Dot_تارا($1); }
+        |       '@' '*'                                 { $$ = GRAMMARP->create_Sen_درخت_Dot_تارا($1); }
         ;
 
 event_control<senTreep>:        // ==IEEE: event_control
         // UNSUP: Needs alignment with IEEE event_control and clocking_event
-                '@' '(' '*' ')'                         { $$ = GRAMMARP->createSenTreeDotStar($1); }
-        |       '@' '*'                                 { $$ = GRAMMARP->createSenTreeDotStar($1); }
+                '@' '(' '*' ')'                         { $$ = GRAMMARP->create_Sen_درخت_Dot_تارا($1); }
+        |       '@' '*'                                 { $$ = GRAMMARP->create_Sen_درخت_Dot_تارا($1); }
         //                      // IEEE: clocking_event
-        |       '@' '(' event_expression ')'            { $$ = new AstSenTree{$1, $3}; }
+        |       '@' '(' event_عبارت ')'            { $$ = new Ast_Sen_درخت{$1, $3}; }
         //                      // IEEE: hierarchical_event_identifier
         //                      // UNSUP below should be idClassSel
-        |       '@' senitemVar                          { $$ = new AstSenTree{$1, $2}; } /* For events only */
+        |       '@' senitemVar                          { $$ = new Ast_Sen_درخت{$1, $2}; } /* For events only */
         //                      // IEEE: sequence_instance
         //                      // sequence_instance without parens matches idClassSel above.
         //                      // Ambiguity: "'@' sequence (-for-sequence" versus
@@ -3470,197 +3470,197 @@ event_control<senTreep>:        // ==IEEE: event_control
         //UNSUP '@' idClassSel '(' list_of_argumentsE ')'       { }
         ;
 
-event_expression<senItemp>:     // IEEE: event_expression - split over several
+event_عبارت<senItemp>:     // IEEE: event_expression - split over several
         //UNSUP                 // Below are all removed
                 senitem                                 { $$ = $1; }
-        |       event_expression yOR senitem            { $$ = addNextNull($1, $3); }
-        |       event_expression ',' senitem            { $$ = addNextNull($1, $3); } /* Verilog 2001 */
+        |       event_عبارت yOR senitem            { $$ = جوڑو_اگلا_Null($1, $3); }
+        |       event_عبارت ',' senitem            { $$ = جوڑو_اگلا_Null($1, $3); } /* Verilog 2001 */
         //UNSUP                 // Above are all removed, replace with:
         //UNSUP ev_expr                                 { $$ = $1; }
         //UNSUP event_expression ',' ev_expr %prec yOR  { $$ = addNextNull($1, $3); }
         ;
 
 senitem<senItemp>:              // IEEE: part of event_expression, non-'OR' ',' terms
-                senitemEdge                             { $$ = $1; }
-        |       expr
-                        { $$ = new AstSenItem{$<fl>1, VEdgeType::ET_CHANGED, $1}; }
-        |       expr yIFF expr
-                        { $$ = new AstSenItem{$<fl>1, VEdgeType::ET_CHANGED, $1, $3}; }
+                senitem_کنارا                             { $$ = $1; }
+        |       اظہاریہ
+                        { $$ = new Ast_Sen_شے{$<fl>1, VEdgeType::ET_بدلیا, $1}; }
+        |       اظہاریہ yIFF اظہاریہ
+                        { $$ = new Ast_Sen_شے{$<fl>1, VEdgeType::ET_بدلیا, $1, $3}; }
         ;
 
 senitemVar<senItemp>:
                 idClassSel
-                        { $$ = new AstSenItem{$1->fileline(), VEdgeType::ET_CHANGED, $1}; }
+                        { $$ = new Ast_Sen_شے{$1->fileline(), VEdgeType::ET_بدلیا, $1}; }
         ;
 
-senitemEdge<senItemp>:          // IEEE: part of event_expression
-                yPOSEDGE expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_POSEDGE, $2}; }
-        |       yNEGEDGE expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_NEGEDGE, $2}; }
-        |       yEDGE expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_BOTHEDGE, $2}; }
-        |       yPOSEDGE expr yIFF expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_POSEDGE, $2, $4}; }
-        |       yNEGEDGE expr yIFF expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_NEGEDGE, $2, $4}; }
-        |       yEDGE expr yIFF expr
-                        { $$ = new AstSenItem{$1, VEdgeType::ET_BOTHEDGE, $2, $4}; }
+senitem_کنارا<senItemp>:          // IEEE: part of event_expression
+                yPOSEDGE اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_POSEDGE, $2}; }
+        |       yNEGEDGE اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_NEGEDGE, $2}; }
+        |       y_کنارا اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_BOTHEDGE, $2}; }
+        |       yPOSEDGE اظہاریہ yIFF اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_POSEDGE, $2, $4}; }
+        |       yNEGEDGE اظہاریہ yIFF اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_NEGEDGE, $2, $4}; }
+        |       y_کنارا اظہاریہ yIFF اظہاریہ
+                        { $$ = new Ast_Sen_شے{$1, VEdgeType::ET_BOTHEDGE, $2, $4}; }
         ;
 
 //************************************************
 // Statements
 
-seq_block<beginp>:               // ==IEEE: seq_block
+seq_بلاک<beginp>:               // ==IEEE: seq_block
         //                      // IEEE doesn't allow declarations in unnamed blocks, but several simulators do.
         //                      // So need AstBegin's even if unnamed to scope variables down
-                yBEGIN startLabelE blockDeclListE stmtListE yEND endLabelE
+                yBEGIN شروع_Label_E بلاک_Decl_List_E stmtListE y_سرا سرا_Label_E
                         {
                             $$ = new AstBegin{$1, $2 ? *$2 : "", nullptr, false};
-                            GRAMMARP->endLabel($<fl>6, $$, $6);
-                            $$->addDeclsp($3);
-                            $$->addStmtsp($4);
+                            GRAMMARP->سرا_Label($<fl>6, $$, $6);
+                            $$->جوڑو_Declsp($3);
+                            $$->جوڑو_Stmtsp($4);
                         }
         ;
 
-seq_blockPreId<beginp>:          // IEEE: seq_block, but called with leading ID
-                id yP_COLON__BEGIN yBEGIN blockDeclListE stmtListE yEND endLabelE
+seq_بلاک_Pre_Id<beginp>:          // IEEE: seq_block, but called with leading ID
+                id yP_COLON__BEGIN yBEGIN بلاک_Decl_List_E stmtListE y_سرا سرا_Label_E
                         {
                             $$ = new AstBegin{$3, *$1, nullptr, false};
-                            GRAMMARP->endLabel($<fl>7, $$, $7);
-                            $$->addDeclsp($4);
-                            $$->addStmtsp($5);
+                            GRAMMARP->سرا_Label($<fl>7, $$, $7);
+                            $$->جوڑو_Declsp($4);
+                            $$->جوڑو_Stmtsp($5);
                         }
         ;
 
-par_blockJoin<joinType>:
+par_بلاک_Join<joinType>:
                 yJOIN       { $$ = VJoinType::JOIN; }
         |       yJOIN_ANY   { $$ = VJoinType::JOIN_ANY; }
         |       yJOIN_NONE  { $$ = VJoinType::JOIN_NONE; }
         ;
 
-par_block<forkp>:               // ==IEEE: par_block
-                yFORK startLabelE blockDeclListE stmtListE par_blockJoin endLabelE
+par_بلاک<forkp>:               // ==IEEE: par_block
+                yFORK شروع_Label_E بلاک_Decl_List_E stmtListE par_بلاک_Join سرا_Label_E
                         {
                             $$ = new AstFork{$1, $5, $2 ? *$2 : ""};
-                            GRAMMARP->endLabel($<fl>6, $$, $6);
-                            $$->addDeclsp($3);
-                            $$->addForksp(V3ParseGrammar::wrapInBegin($4));
+                            GRAMMARP->سرا_Label($<fl>6, $$, $6);
+                            $$->جوڑو_Declsp($3);
+                            $$->جوڑو_Forksp(V3ParseGrammar::wrap_وچ_Begin($4));
                         }
         ;
 
-par_blockPreId<forkp>:          // ==IEEE: par_block but called with leading ID
-                id yP_COLON__FORK yFORK blockDeclListE stmtListE par_blockJoin endLabelE
+par_بلاک_Pre_Id<forkp>:          // ==IEEE: par_block but called with leading ID
+                id yP_COLON__FORK yFORK بلاک_Decl_List_E stmtListE par_بلاک_Join سرا_Label_E
                         {
                             $$ = new AstFork{$3, $6, *$1};
-                            GRAMMARP->endLabel($<fl>7, $$, $7);
-                            $$->addDeclsp($4);
-                            $$->addForksp(V3ParseGrammar::wrapInBegin($5));
+                            GRAMMARP->سرا_Label($<fl>7, $$, $7);
+                            $$->جوڑو_Declsp($4);
+                            $$->جوڑو_Forksp(V3ParseGrammar::wrap_وچ_Begin($5));
                         }
             ;
 
-blockDeclListE<nodep>:      // IEEE: [ block_item_declaration ]
+بلاک_Decl_List_E<nodep>:      // IEEE: [ block_item_declaration ]
                 /*empty*/                               { $$ = nullptr; }
-        |       blockDeclListE block_item_declaration   { $$ = addNextNull($1, $2); }
+        |       بلاک_Decl_List_E بلاک_شے_declaration   { $$ = جوڑو_اگلا_Null($1, $2); }
         |       error ';'                               { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-block_item_declaration<nodep>:  // ==IEEE: block_item_declaration
-                data_declaration                        { $$ = $1; }
+بلاک_شے_declaration<nodep>:  // ==IEEE: block_item_declaration
+                انکڑے_declaration                        { $$ = $1; }
         |       parameter_declaration ';'               { $$ = $1; }
         |       let_declaration                         { $$ = $1; }
         ;
 
-stmtListE<nodeStmtp>:
+stmtListE<گرہ_Stmtp>:
                 /*empty*/                               { $$ = nullptr; }
         |       stmtList                                { $$ = $1; }
         ;
 
-stmtList<nodeStmtp>:
+stmtList<گرہ_Stmtp>:
                 stmt                               { $$ = $1; }
-        |       stmtList stmt                      { $$ = addNextNull($1, $2); }
+        |       stmtList stmt                      { $$ = جوڑو_اگلا_Null($1, $2); }
         //
         |       stmtList error ';'                      { $$ = $1; }  // LCOV_EXCL_LINE
         ;
 
-stmt<nodeStmtp>:                    // IEEE: statement + statement_or_null + seq_block + par_block
-                statement_item                          { $$ = $1; }
+stmt<گرہ_Stmtp>:                    // IEEE: statement + statement_or_null + seq_block + par_block
+                statement_شے                          { $$ = $1; }
         //                      // S05 block creation rule
-        |       id/*block_identifier*/ ':' statement_item       { $$ = new AstBegin{$<fl>1, *$1, $3, false}; }
+        |       id/*block_identifier*/ ':' statement_شے       { $$ = new AstBegin{$<fl>1, *$1, $3, false}; }
         //                      // from _or_null
         |       ';'                                     { $$ = nullptr; }
         //                      // labeled par_block/seq_block with leading ':'
-        |       seq_blockPreId                          { $$ = $1; }
-        |       par_blockPreId                          { $$ = $1; }
+        |       seq_بلاک_Pre_Id                          { $$ = $1; }
+        |       par_بلاک_Pre_Id                          { $$ = $1; }
         ;
 
-statement_item<nodeStmtp>:          // IEEE: statement_item
+statement_شے<گرہ_Stmtp>:          // IEEE: statement_item
         //                      // IEEE: operator_assignment
                 foperator_assignment ';'                { $$ = $1; }
         //
         //                      // IEEE: blocking_assignment
         //                      // 1800-2009 restricts LHS of assignment to new to not have a range
         //                      // This is ignored to avoid conflicts
-        |       fexprLvalue yP_EQ__NEW dynamic_array_new ';'   { $$ = new AstAssign{$2, $1, $3}; }
-        |       fexprLvalue yP_EQ__NEW class_new ';'    { $$ = new AstAssign{$2, $1, $3}; }
+        |       fexprLvalue yP_EQ__NEW dynamic_array_new ';'   { $$ = new Ast_سونپو{$2, $1, $3}; }
+        |       fexprLvalue yP_EQ__NEW class_new ';'    { $$ = new Ast_سونپو{$2, $1, $3}; }
         //                      // IEEE: inc_or_dec_expression
-        |       finc_or_dec_expression ';'              { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       finc_or_dec_عبارت ';'              { $$ = new Ast_Stmt_اظہاریہ{$<fl>1, $1}; }
         //
         //                      // IEEE: nonblocking_assignment
-        |       fexprLvalue yP_LTE delay_or_event_controlE expr ';'
-                        { $$ = new AstAssignDly{$2, $1, $4, $3}; }
+        |       fexprLvalue yP_LTE delay_or_event_controlE اظہاریہ ';'
+                        { $$ = new Ast_سونپو_Dly{$2, $1, $4, $3}; }
         //                      // IEEE: clocking_drive ';'
-        |       fexprLvalue yP_LTE cycle_delay expr ';'
-                        { $$ = new AstAssignDly{$2, $1, $4, $3}; }
+        |       fexprLvalue yP_LTE چکر_delay اظہاریہ ';'
+                        { $$ = new Ast_سونپو_Dly{$2, $1, $4, $3}; }
         //UNSUP cycle_delay fexprLvalue yP_LTE ';'      { UNSUP }
-        |       yASSIGN variable_lvalue '=' delay_or_event_controlE expr ';'
-                        { $$ = new AstAssignCont{$1, $2, $5, $4};
-                          $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.setHasAssignDeassign(); }
+        |       y_سونپو variable_lvalue '=' delay_or_event_controlE اظہاریہ ';'
+                        { $$ = new Ast_سونپو_Cont{$1, $2, $5, $4};
+                          $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.سیٹ_Has_سونپو_Deassign(); }
         |       yDEASSIGN variable_lvalue ';'
                         { $$ = new AstDeassign{$1, $2};
-                          $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.setHasAssignDeassign(); }
-        |       yFORCE variable_lvalue '=' expr ';'
-                        { $$ = new AstAssignForce{$1, $2, $4}; v3Global.setHasForceableSignals(); }
+                          $1->v3warn(IEEEMAYDEPRECATE, "Feature may be deprecated in future IEEE standard"); v3Global.سیٹ_Has_سونپو_Deassign(); }
+        |       yFORCE variable_lvalue '=' اظہاریہ ';'
+                        { $$ = new Ast_سونپو_Force{$1, $2, $4}; v3Global.سیٹ_Has_Forceable_اشارے(); }
         |       yRELEASE variable_lvalue ';'
-                        { $$ = new AstRelease{$1, $2}; v3Global.setHasForceableSignals(); }
+                        { $$ = new AstRelease{$1, $2}; v3Global.سیٹ_Has_Forceable_اشارے(); }
         //
         //                      // IEEE: case_statement
-        |       unique_priorityE caseStart caseAttrE case_itemList yENDCASE
-                        { $$ = $2; if ($4) $2->addItemsp($4);
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
+        |       unique_ترجیح_E case_شروع caseAttrE case_شے_List yENDCASE
+                        { $$ = $2; إذا ($4) $2->جوڑو_Itemsp($4);
+                          إذا ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          إذا ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          إذا ($1 == uniq_ترجیح) $2->ترجیح_Pragma(true); }
         // case matches uses patterns, not expressions
-        |       unique_priorityE caseStart caseAttrE yMATCHES case_matches_itemList yENDCASE
-                        { $$ = $2; if ($5) $2->addItemsp($5);
-                          $2->caseMatchesSet();
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
-        |       unique_priorityE caseStart caseAttrE yINSIDE case_inside_itemList yENDCASE
-                        { $$ = $2; if ($5) $2->addItemsp($5);
-                          if (!$2->caseSimple()) $4->v3error("Illegal to have inside on a casex/casez");
-                          $2->caseInsideSet();
-                          if ($1 == uniq_UNIQUE) $2->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) $2->priorityPragma(true); }
+        |       unique_ترجیح_E case_شروع caseAttrE yMATCHES case_matches_شے_List yENDCASE
+                        { $$ = $2; إذا ($5) $2->جوڑو_Itemsp($5);
+                          $2->case_Matches_سیٹ();
+                          إذا ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          إذا ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          إذا ($1 == uniq_ترجیح) $2->ترجیح_Pragma(true); }
+        |       unique_ترجیح_E case_شروع caseAttrE yINSIDE case_inside_شے_List yENDCASE
+                        { $$ = $2; إذا ($5) $2->جوڑو_Itemsp($5);
+                          إذا (!$2->caseSimple()) $4->v3error("Illegal to have inside on a casex/casez");
+                          $2->case_Inside_سیٹ();
+                          إذا ($1 == uniq_UNIQUE) $2->uniquePragma(true);
+                          إذا ($1 == uniq_UNIQUE0) $2->unique0Pragma(true);
+                          إذا ($1 == uniq_ترجیح) $2->ترجیح_Pragma(true); }
         //
         //                      // IEEE: conditional_statement
-        |       unique_priorityE yIF '(' expr ')' stmt     %prec prLOWER_THAN_ELSE
-                        { AstIf* const newp = new AstIf{$2, $4,
-                              PARSEP->newBlock($2, $6)};
+        |       unique_ترجیح_E yIF '(' اظہاریہ ')' stmt     %prec pr_ہیٹھلا_THAN_ELSE
+                        { AstIf* ثابت newp = new AstIf{$2, $4,
+                              PARSEP->new_بلاک($2, $6)};
                           $$ = newp;
-                          if ($1 == uniq_UNIQUE) newp->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
-        |       unique_priorityE yIF '(' expr ')' stmt yELSE stmt
-                        { AstIf* const newp = new AstIf{$2, $4,
-                              PARSEP->newBlock($2, $6),
-                              PARSEP->newBlock($2, $8)};
+                          إذا ($1 == uniq_UNIQUE) newp->uniquePragma(true);
+                          إذا ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
+                          إذا ($1 == uniq_ترجیح) newp->ترجیح_Pragma(true); }
+        |       unique_ترجیح_E yIF '(' اظہاریہ ')' stmt yELSE stmt
+                        { AstIf* ثابت newp = new AstIf{$2, $4,
+                              PARSEP->new_بلاک($2, $6),
+                              PARSEP->new_بلاک($2, $8)};
                           $$ = newp;
-                          if ($1 == uniq_UNIQUE) newp->uniquePragma(true);
-                          if ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
-                          if ($1 == uniq_PRIORITY) newp->priorityPragma(true); }
+                          إذا ($1 == uniq_UNIQUE) newp->uniquePragma(true);
+                          إذا ($1 == uniq_UNIQUE0) newp->unique0Pragma(true);
+                          إذا ($1 == uniq_ترجیح) newp->ترجیح_Pragma(true); }
         //
         //                      // IEEE: subroutine_call_statement
         //                      // IEEE says we then expect a function call
@@ -3668,30 +3668,30 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         //                      // the code expects an AstTask when used as a statement,
         //                      // so parse as if task
         //                      // Alternative would be shim with new AstVoidStmt.
-        |       yVOID yP_TICK '(' task_subroutine_callNoMethod ')' ';'
-                        { AstNodeExpr* const exprp = $4;
-                          AstNode* callp = exprp;
-                          while (AstDot* const dotp = VN_CAST(callp, Dot)) callp = dotp->rhsp();
-                          FileLine* const newfl = new FileLine{callp->fileline()};
-                          newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
+        |       yVOID yP_TICK '(' task_subroutine_call_No_طریقہ ')' ';'
+                        { Ast_گرہ_اظہاریہ* ثابت exprp = $4;
+                          Ast_گرہ* callp = exprp;
+                          طالما (AstDot* ثابت dotp = VN_CAST(callp, Dot)) callp = dotp->rhsp();
+                          File_سطر* ثابت newfl = new File_سطر{callp->fileline()};
+                          newfl->warnOff(V3_Error_کوڈ::IGNOREDRETURN, true);
                           callp->fileline(newfl);
                           $$ = exprp->makeStmt(); }
-        |       yVOID yP_TICK '(' expr '.' task_subroutine_callNoMethod ')' ';'
-                        { AstNodeExpr* const exprp = new AstDot{$5, false, $4, $6};
-                          FileLine* const newfl = new FileLine{$6->fileline()};
-                          newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
+        |       yVOID yP_TICK '(' اظہاریہ '.' task_subroutine_call_No_طریقہ ')' ';'
+                        { Ast_گرہ_اظہاریہ* ثابت exprp = new AstDot{$5, false, $4, $6};
+                          File_سطر* ثابت newfl = new File_سطر{$6->fileline()};
+                          newfl->warnOff(V3_Error_کوڈ::IGNOREDRETURN, true);
                           $6->fileline(newfl);
                           $$ = exprp->makeStmt(); }
-        |       yVOID yP_TICK '(' system_f_only_expr_call ')' ';'
-                        { $$ = new AstStmtExpr{$<fl>4, $4};
-                          FileLine* const newfl = new FileLine{$$->fileline()};
-                          newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
+        |       yVOID yP_TICK '(' system_f_only_اظہاریہ_call ')' ';'
+                        { $$ = new Ast_Stmt_اظہاریہ{$<fl>4, $4};
+                          File_سطر* ثابت newfl = new File_سطر{$$->fileline()};
+                          newfl->warnOff(V3_Error_کوڈ::IGNOREDRETURN, true);
                           $$->fileline(newfl); }
         //                      // Any system function as a task
-        |       yVOID yP_TICK '(' system_f_or_t_expr_call ')' ';'
-                        { $$ = new AstStmtExpr{$<fl>4, $4};
-                          FileLine* const newfl = new FileLine{$$->fileline()};
-                          newfl->warnOff(V3ErrorCode::IGNOREDRETURN, true);
+        |       yVOID yP_TICK '(' system_f_or_t_اظہاریہ_call ')' ';'
+                        { $$ = new Ast_Stmt_اظہاریہ{$<fl>4, $4};
+                          File_سطر* ثابت newfl = new File_سطر{$$->fileline()};
+                          newfl->warnOff(V3_Error_کوڈ::IGNOREDRETURN, true);
                           $$->fileline(newfl); }
         //
         |       task_subroutine_callNoSemi ';'          { $$ = $1; }
@@ -3702,81 +3702,81 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         |       yDISABLE yFORK ';'                      { $$ = new AstDisableFork{$1}; }
         |       yDISABLE idDottedSel ';'
                         { $$ = new AstDisable{$1, $2};
-                          PARSEP->importIfInStd($1, "process", true);
+                          PARSEP->import_If_وچ_Std($1, "process", true);
                         }
         //                      // IEEE: event_trigger
-        |       yP_MINUSGT expr ';'
+        |       yP_MINUSGT اظہاریہ ';'
                         { $$ = new AstFireEvent{$1, $2, false}; }
-        |       yP_MINUSGTGT delay_or_event_controlE expr ';'
+        |       yP_MINUSGTGT delay_or_event_controlE اظہاریہ ';'
                         { $$ = new AstFireEvent{$1, $3, true}; }
         //
         // do/for/forever/while loops all modelled as AstLoop
-        |       yDO stmt yWHILE '(' expr ')' ';'
-                        { AstLoop* const loopp = new AstLoop{$1, $2};
-                          loopp->addContsp(new AstLoopTest{$<fl>5, loopp, $5});
+        |       yDO stmt yWHILE '(' اظہاریہ ')' ';'
+                        { AstLoop* ثابت loopp = new AstLoop{$1, $2};
+                          loopp->جوڑو_Contsp(new AstLoopTest{$<fl>5, loopp, $5});
                           $$ = loopp; }
-        |       yFOR  '(' { VARRESET_NONLIST(UNKNOWN); } for_initializationE ';' exprE ';' for_stepE ')' stmt
-                        { AstBegin* const blockp = new AstBegin{$1, "", $4, true};
-                          AstLoop* const loopp = new AstLoop{$1};
-                          if ($6) loopp->addStmtsp(new AstLoopTest{$<fl>6, loopp, $6});
-                          loopp->addStmtsp($10);
-                          loopp->addContsp($8);
-                          blockp->addStmtsp(loopp);
+        |       yFOR  '(' { VARRESET_NONLIST(UNKNOWN); } for_initializationE ';' اظہاریہ_E ';' for_قدم_E ')' stmt
+                        { AstBegin* ثابت blockp = new AstBegin{$1, "", $4, true};
+                          AstLoop* ثابت loopp = new AstLoop{$1};
+                          إذا ($6) loopp->جوڑو_Stmtsp(new AstLoopTest{$<fl>6, loopp, $6});
+                          loopp->جوڑو_Stmtsp($10);
+                          loopp->جوڑو_Contsp($8);
+                          blockp->جوڑو_Stmtsp(loopp);
                           $$ = blockp; }
         |       yFOREVER stmt
-                        { AstLoop* const loopp = new AstLoop{$1, $2};
+                        { AstLoop* ثابت loopp = new AstLoop{$1, $2};
                           $$ = loopp; }
-        |       yWHILE '(' expr ')' stmt
-                        { AstLoop* const loopp = new AstLoop{$1};
-                          loopp->addStmtsp(new AstLoopTest{$<fl>3, loopp, $3});
-                          loopp->addStmtsp($5);
+        |       yWHILE '(' اظہاریہ ')' stmt
+                        { AstLoop* ثابت loopp = new AstLoop{$1};
+                          loopp->جوڑو_Stmtsp(new AstLoopTest{$<fl>3, loopp, $3});
+                          loopp->جوڑو_Stmtsp($5);
                           $$ = loopp; }
         // Other loop statements
-        |       yREPEAT '(' expr ')' stmt          { $$ = new AstRepeat{$1, $3, $5}; }
+        |       yREPEAT '(' اظہاریہ ')' stmt          { $$ = new AstRepeat{$1, $3, $5}; }
         //                      // IEEE says array_identifier here, but dotted accepted in VMM and 1800-2009
         |       yFOREACH '(' idClassSelForeach ')' stmt
                         { $$ = new AstBegin{$1, "", new AstForeach{$1, $3, $5}, true}; }
         //
         //                      // IEEE: jump_statement
         |       yRETURN ';'                             { $$ = new AstReturn{$1}; }
-        |       yRETURN expr ';'                        { $$ = new AstReturn{$1, $2}; }
+        |       yRETURN اظہاریہ ';'                        { $$ = new AstReturn{$1, $2}; }
         |       yBREAK ';'                              { $$ = new AstBreak{$1}; }
         |       yCONTINUE ';'                           { $$ = new AstContinue{$1}; }
         //
-        |       par_block                               { $$ = $1; }
+        |       par_بلاک                               { $$ = $1; }
         //                      // IEEE: procedural_timing_control_statement + procedural_timing_control
         |       delay_control stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2) {
-                              if ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
-                              $1->addStmtsp($2);
+                        { Ast_گرہ_Stmt* nextp = nullptr;
+                          إذا ($2) {
+                              إذا ($2->nextp()) nextp = VN_AS($2->nextp()->unlink_Fr_پٹھ_With_اگلا(), گرہ_Stmt);
+                              $1->جوڑو_Stmtsp($2);
                           }
                           $$ = $1;
-                          addNextNull($$, nextp); }
+                          جوڑو_اگلا_Null($$, nextp); }
         |       event_control stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2 && $2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
+                        { Ast_گرہ_Stmt* nextp = nullptr;
+                          إذا ($2 && $2->nextp()) nextp = VN_AS($2->nextp()->unlink_Fr_پٹھ_With_اگلا(), گرہ_Stmt);
                           $$ = new AstEventControl{FILELINE_OR_CRE($1), $1, $2};
-                          addNextNull($$, nextp); }
-        |       cycle_delay stmt
-                        { AstNodeStmt* nextp = nullptr;
-                          if ($2) {
-                              if ($2->nextp()) nextp = VN_AS($2->nextp()->unlinkFrBackWithNext(), NodeStmt);
-                              $1->addStmtsp($2);
+                          جوڑو_اگلا_Null($$, nextp); }
+        |       چکر_delay stmt
+                        { Ast_گرہ_Stmt* nextp = nullptr;
+                          إذا ($2) {
+                              إذا ($2->nextp()) nextp = VN_AS($2->nextp()->unlink_Fr_پٹھ_With_اگلا(), گرہ_Stmt);
+                              $1->جوڑو_Stmtsp($2);
                           }
                           $$ = $1;
-                          addNextNull($$, nextp); }
-        |       seq_block                               { $$ = $1; }
+                          جوڑو_اگلا_Null($$, nextp); }
+        |       seq_بلاک                               { $$ = $1; }
         //
         //                      // IEEE: wait_statement
-        |       yWAIT '(' expr ')' stmt            { $$ = new AstWait{$1, $3, $5}; }
+        |       yWAIT '(' اظہاریہ ')' stmt            { $$ = new AstWait{$1, $3, $5}; }
         |       yWAIT yFORK ';'                         { $$ = new AstWaitFork{$1}; }
         //                      // action_block expanded here
-        |       yWAIT_ORDER '(' vrdList ')' stmt %prec prLOWER_THAN_ELSE
+        |       y_WAIT_ترتیب '(' vrdList ')' stmt %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = nullptr; BBUNSUP($4, "Unsupported: wait_order"); DEL($3, $5); }
-        |       yWAIT_ORDER '(' vrdList ')' stmt yELSE stmt
+        |       y_WAIT_ترتیب '(' vrdList ')' stmt yELSE stmt
                         { $$ = nullptr; BBUNSUP($4, "Unsupported: wait_order"); DEL($3, $5, $7);}
-        |       yWAIT_ORDER '(' vrdList ')' yELSE stmt
+        |       y_WAIT_ترتیب '(' vrdList ')' yELSE stmt
                         { $$ = nullptr; BBUNSUP($4, "Unsupported: wait_order"); DEL($3, $6); }
         //
         //                      // IEEE: procedural_assertion_statement
@@ -3785,11 +3785,11 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         |       randsequence_statement                  { $$ = $1; }
         //
         //                      // IEEE: randcase_statement
-        |       yRANDCASE rand_case_itemList yENDCASE   { $$ = new AstRandCase{$1, $2}; }
+        |       yRANDCASE rand_case_شے_List yENDCASE   { $$ = new AstRandCase{$1, $2}; }
         //
         //                      // IEEE: expect_property_statement
         //                      // action_block expanded here
-        |       yEXPECT '(' property_spec ')' stmt %prec prLOWER_THAN_ELSE
+        |       yEXPECT '(' property_spec ')' stmt %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: expect"); DEL($3, $5); }
         |       yEXPECT '(' property_spec ')' stmt yELSE stmt
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: expect"); DEL($3, $5, $7); }
@@ -3798,64 +3798,64 @@ statement_item<nodeStmtp>:          // IEEE: statement_item
         ;
 
 statementVerilatorPragmas<pragmap>:
-                yVL_COVERAGE_BLOCK_OFF
-                        { $$ = new AstPragma{$1, VPragmaType::COVERAGE_BLOCK_OFF}; }
+                y_VL_COVERAGE_بلاک_OFF
+                        { $$ = new AstPragma{$1, VPragmaType::COVERAGE_بلاک_OFF}; }
         |       yVL_UNROLL_DISABLE
                         { $$ = new AstPragma{$1, VPragmaType::UNROLL_DISABLE}; }
-        |       yVL_UNROLL_FULL
-                        { $$ = new AstPragma{$1, VPragmaType::UNROLL_FULL}; }
+        |       y_VL_UNROLL_بھریا
+                        { $$ = new AstPragma{$1, VPragmaType::UNROLL_بھریا}; }
         ;
 
-foperator_assignment<nodeStmtp>:    // IEEE: operator_assignment (for first part of expression)
-                fexprLvalue '=' delay_or_event_controlE expr    { $$ = new AstAssign{$2, $1, $4, $3}; }
+foperator_assignment<گرہ_Stmtp>:    // IEEE: operator_assignment (for first part of expression)
+                fexprLvalue '=' delay_or_event_controlE اظہاریہ    { $$ = new Ast_سونپو{$2, $1, $4, $3}; }
         //
-        |       fexprLvalue yP_PLUSEQ    expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Add, $2, $1, $3}; }
-        |       fexprLvalue yP_MINUSEQ   expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Sub, $2, $1, $3}; }
-        |       fexprLvalue yP_TIMESEQ   expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Mul, $2, $1, $3}; }
-        |       fexprLvalue yP_DIVEQ     expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Div, $2, $1, $3}; }
-        |       fexprLvalue yP_MODEQ     expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::ModDiv, $2, $1, $3}; }
-        |       fexprLvalue yP_ANDEQ     expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::And, $2, $1, $3}; }
-        |       fexprLvalue yP_OREQ      expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Or, $2, $1, $3}; }
-        |       fexprLvalue yP_XOREQ     expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::Xor, $2, $1, $3}; }
-        |       fexprLvalue yP_SLEFTEQ   expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftL, $2, $1, $3}; }
-        |       fexprLvalue yP_SRIGHTEQ  expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftR, $2, $1, $3}; }
-        |       fexprLvalue yP_SSRIGHTEQ expr
-                        { $$ = new AstAssignCompound{AstAssignCompound::operation::ShiftRS, $2, $1, $3}; }
+        |       fexprLvalue yP_PLUSEQ    اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::جوڑو_2, $2, $1, $3}; }
+        |       fexprLvalue yP_MINUSEQ   اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::Sub, $2, $1, $3}; }
+        |       fexprLvalue yP_TIMESEQ   اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::Mul, $2, $1, $3}; }
+        |       fexprLvalue yP_DIVEQ     اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::Div, $2, $1, $3}; }
+        |       fexprLvalue yP_MODEQ     اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::ModDiv, $2, $1, $3}; }
+        |       fexprLvalue yP_ANDEQ     اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::And, $2, $1, $3}; }
+        |       fexprLvalue yP_OREQ      اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::Or, $2, $1, $3}; }
+        |       fexprLvalue yP_XOREQ     اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::Xor, $2, $1, $3}; }
+        |       fexprLvalue yP_SLEFTEQ   اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::کھسکاؤ_L, $2, $1, $3}; }
+        |       fexprLvalue yP_SRIGHTEQ  اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::کھسکاؤ_R, $2, $1, $3}; }
+        |       fexprLvalue yP_SSRIGHTEQ اظہاریہ
+                        { $$ = new Ast_سونپو_Compound{Ast_سونپو_Compound::operation::کھسکاؤ_RS, $2, $1, $3}; }
         ;
 
-inc_or_dec_expression<nodeExprp>:   // ==IEEE: inc_or_dec_expression
+inc_or_dec_عبارت<گرہ_Exprp>:   // ==IEEE: inc_or_dec_expression
         //                      // Need fexprScope instead of variable_lvalue to prevent conflict
-                ~l~exprScope yP_PLUSPLUS
+                ~l~اظہاریہ_Scope yP_PLUSPLUS
                         { $<fl>$ = $<fl>1; $$ = new AstPostInc{$2, $1}; }
-        |       ~l~exprScope yP_MINUSMINUS
+        |       ~l~اظہاریہ_Scope yP_MINUSMINUS
                         { $<fl>$ = $<fl>1; $$ = new AstPostDec{$2, $1}; }
         //                      // Need expr instead of variable_lvalue to prevent conflict
-        |       yP_PLUSPLUS     expr
+        |       yP_PLUSPLUS     اظہاریہ
                         { $<fl>$ = $<fl>1; $$ = new AstPreInc{$1, $2}; }
-        |       yP_MINUSMINUS   expr
+        |       yP_MINUSMINUS   اظہاریہ
                         { $<fl>$ = $<fl>1; $$ = new AstPreDec{$1, $2}; }
         ;
 
-finc_or_dec_expression<nodeExprp>:  // ==IEEE: inc_or_dec_expression
-                BISONPRE_COPY(inc_or_dec_expression,{s/~l~/f/g})        // {copied}
+finc_or_dec_عبارت<گرہ_Exprp>:  // ==IEEE: inc_or_dec_expression
+                BISONPRE_COPY(inc_or_dec_عبارت,{s/~l~/f/g})        // {copied}
         ;
 
-sinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for sequence_expression)
-                BISONPRE_COPY(inc_or_dec_expression,{s/~l~/s/g})        // {copied}
+sinc_or_dec_عبارت<گرہ_Exprp>:  // IEEE: inc_or_dec_expression (for sequence_expression)
+                BISONPRE_COPY(inc_or_dec_عبارت,{s/~l~/s/g})        // {copied}
         ;
 
-pinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for property_expression)
-                BISONPRE_COPY(inc_or_dec_expression,{s/~l~/p/g})        // {copied}
+pinc_or_dec_عبارت<گرہ_Exprp>:  // IEEE: inc_or_dec_expression (for property_expression)
+                BISONPRE_COPY(inc_or_dec_عبارت,{s/~l~/p/g})        // {copied}
         ;
 
 //UNSUPev_inc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for ev_expr)
@@ -3866,7 +3866,7 @@ pinc_or_dec_expression<nodeExprp>:  // IEEE: inc_or_dec_expression (for property
 //UNSUP         BISONPRE_COPY(inc_or_dec_expression,{s/~l~/pev_/g})     // {copied}
 //UNSUP ;
 
-class_new<nodeExprp>:    // IEEE: class_new
+class_new<گرہ_Exprp>:    // IEEE: class_new
         //                      // See V3ParseImp::tokenPipeScanEqNew that searches for '=' ... yNEW__LEX
                 class_newNoScope
                         { $$ = $1; }
@@ -3874,106 +3874,106 @@ class_new<nodeExprp>:    // IEEE: class_new
         //                      // A scope is not legal in front of a AstNewCopy
         |       packageClassScopeNoId yNEW__ETC
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstNew{$2,  nullptr, true}); }
-        |       packageClassScopeNoId yNEW__PAREN '(' list_of_argumentsE ')'
+        |       packageClassScopeNoId yNEW__PAREN '(' list_دا_arguments_E ')'
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstNew{$2, $4, true}); }
         ;
 
-class_newNoScope<nodeExprp>:    // IEEE: class_new but no packageClassScope
+class_newNoScope<گرہ_Exprp>:    // IEEE: class_new but no packageClassScope
         //                      // Special precedence so (...) doesn't match expr
                 yNEW__ETC                               { $$ = new AstNew{$1}; }
-        |       yNEW__ETC expr                          { $$ = new AstNewCopy{$1, $2}; }
-        |       yNEW__PAREN '(' list_of_argumentsE ')'  { $$ = new AstNew{$1, $3}; }
+        |       yNEW__ETC اظہاریہ                          { $$ = new AstNewCopy{$1, $2}; }
+        |       yNEW__PAREN '(' list_دا_arguments_E ')'  { $$ = new AstNew{$1, $3}; }
         ;
 
-dynamic_array_new<nodeExprp>:   // ==IEEE: dynamic_array_new
-                yNEW__ETC '[' expr ']'                  { $$ = new AstNewDynamic{$1, $3, nullptr}; }
-        |       yNEW__ETC '[' expr ']' '(' expr ')'     { $$ = new AstNewDynamic{$1, $3, $6}; }
+dynamic_array_new<گرہ_Exprp>:   // ==IEEE: dynamic_array_new
+                yNEW__ETC '[' اظہاریہ ']'                  { $$ = new AstNewDynamic{$1, $3, nullptr}; }
+        |       yNEW__ETC '[' اظہاریہ ']' '(' اظہاریہ ')'     { $$ = new AstNewDynamic{$1, $3, $6}; }
         ;
 
 //************************************************
 // Case/If
 
-unique_priorityE<uniqstate>:    // IEEE: unique_priority + empty
+unique_ترجیح_E<uniqstate>:    // IEEE: unique_priority + empty
                 /*empty*/                               { $$ = uniq_NONE; }
-        |       yPRIORITY                               { $$ = uniq_PRIORITY; }
+        |       y_ترجیح                               { $$ = uniq_ترجیح; }
         |       yUNIQUE                                 { $$ = uniq_UNIQUE; }
         |       yUNIQUE0                                { $$ = uniq_UNIQUE0; }
         ;
 
-caseStart<casep>:               // IEEE: part of case_statement
-                yCASE  '(' exprTypeCompare ')'
+case_شروع<casep>:               // IEEE: part of case_statement
+                yCASE  '(' اظہاریہ_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASE, $3, nullptr}; }
-        |       yCASEX '(' exprTypeCompare ')'
+        |       yCASEX '(' اظہاریہ_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASEX, $3, nullptr}; }
-        |       yCASEZ '(' exprTypeCompare ')'
+        |       yCASEZ '(' اظہاریہ_Type_Compare ')'
                         { $$ = GRAMMARP->m_caseAttrp = new AstCase{$1, VCaseType::CT_CASEZ, $3, nullptr}; }
         ;
 
 caseAttrE:
                 /*empty*/                               { }
-        |       caseAttrE yVL_FULL_CASE                 { GRAMMARP->m_caseAttrp->fullPragma(true); }
+        |       caseAttrE y_VL_بھریا_CASE                 { GRAMMARP->m_caseAttrp->بھریا_Pragma(true); }
         |       caseAttrE yVL_PARALLEL_CASE             { GRAMMARP->m_caseAttrp->parallelPragma(true); }
         ;
 
-case_itemList<caseItemp>:       // IEEE: { case_item + ... }
-                caseCondList colon stmt                    { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       yDEFAULT colon stmt                        { $$ = new AstCaseItem{$1, nullptr, $3}; }
-        |       yDEFAULT stmt                              { $$ = new AstCaseItem{$1, nullptr, $2}; }
-        |       case_itemList caseCondList colon stmt      { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
-        |       case_itemList yDEFAULT stmt                { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $3}); }
-        |       case_itemList yDEFAULT colon stmt          { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $4}); }
+case_شے_List<caseItemp>:       // IEEE: { case_item + ... }
+                caseCondList colon stmt                    { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       yDEFAULT colon stmt                        { $$ = new Ast_Case_شے{$1, nullptr, $3}; }
+        |       yDEFAULT stmt                              { $$ = new Ast_Case_شے{$1, nullptr, $2}; }
+        |       case_شے_List caseCondList colon stmt      { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$3, $2, $4}); }
+        |       case_شے_List yDEFAULT stmt                { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $3}); }
+        |       case_شے_List yDEFAULT colon stmt          { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $4}); }
         ;
 
-case_inside_itemList<caseItemp>:        // IEEE: { case_inside_item + range_list ... }
-                range_list colon stmt                      { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       yDEFAULT colon stmt                        { $$ = new AstCaseItem{$1, nullptr, $3}; }
-        |       yDEFAULT stmt                              { $$ = new AstCaseItem{$1, nullptr, $2}; }
-        |       case_inside_itemList range_list colon stmt { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
-        |       case_inside_itemList yDEFAULT stmt         { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $3}); }
-        |       case_inside_itemList yDEFAULT colon stmt   { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $4}); }
+case_inside_شے_List<caseItemp>:        // IEEE: { case_inside_item + range_list ... }
+                range_list colon stmt                      { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       yDEFAULT colon stmt                        { $$ = new Ast_Case_شے{$1, nullptr, $3}; }
+        |       yDEFAULT stmt                              { $$ = new Ast_Case_شے{$1, nullptr, $2}; }
+        |       case_inside_شے_List range_list colon stmt { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$3, $2, $4}); }
+        |       case_inside_شے_List yDEFAULT stmt         { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $3}); }
+        |       case_inside_شے_List yDEFAULT colon stmt   { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $4}); }
         ;
 
-case_matches_itemList<caseItemp>:    // IEEE: { case_pattern_item + ... }
+case_matches_شے_List<caseItemp>:    // IEEE: { case_pattern_item + ... }
         //                      // IEEE: case_pattern_item ::= pattern [&&& expr] : stmt
         //                      // pattern includes expr for tagged void members (tagged id)
-                patternNoExpr colon stmt                   { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       expr colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       yDEFAULT colon stmt                        { $$ = new AstCaseItem{$1, nullptr, $3}; }
-        |       yDEFAULT stmt                              { $$ = new AstCaseItem{$1, nullptr, $2}; }
-        |       case_matches_itemList patternNoExpr colon stmt
-                        { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
-        |       case_matches_itemList expr colon stmt
-                        { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
-        |       case_matches_itemList yDEFAULT stmt        { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $3}); }
-        |       case_matches_itemList yDEFAULT colon stmt  { $$ = $1->addNext(new AstCaseItem{$2, nullptr, $4}); }
+                نمونہ_No_اظہاریہ colon stmt                   { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       اظہاریہ colon stmt                            { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       yDEFAULT colon stmt                        { $$ = new Ast_Case_شے{$1, nullptr, $3}; }
+        |       yDEFAULT stmt                              { $$ = new Ast_Case_شے{$1, nullptr, $2}; }
+        |       case_matches_شے_List نمونہ_No_اظہاریہ colon stmt
+                        { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$3, $2, $4}); }
+        |       case_matches_شے_List اظہاریہ colon stmt
+                        { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$3, $2, $4}); }
+        |       case_matches_شے_List yDEFAULT stmt        { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $3}); }
+        |       case_matches_شے_List yDEFAULT colon stmt  { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$2, nullptr, $4}); }
         ;
 
-rand_case_itemList<caseItemp>:       // IEEE: { rand_case_item + ... }
+rand_case_شے_List<caseItemp>:       // IEEE: { rand_case_item + ... }
         //                      // Randcase syntax doesn't have default, or expression lists
-                expr colon stmt                            { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       rand_case_itemList expr colon stmt         { $$ = $1->addNext(new AstCaseItem{$3, $2, $4}); }
+                اظہاریہ colon stmt                            { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       rand_case_شے_List اظہاریہ colon stmt         { $$ = $1->جوڑو_اگلا(new Ast_Case_شے{$3, $2, $4}); }
         ;
 
-range_list<nodeExprp>:     // ==IEEE: range_list/open_range_list + value_range/open_value_range
-                value_range                             { $$ = $1; }
-        |       range_list ',' value_range              { $$ = $1->addNext($3); }
+range_list<گرہ_Exprp>:     // ==IEEE: range_list/open_range_list + value_range/open_value_range
+                قدر_range                             { $$ = $1; }
+        |       range_list ',' قدر_range              { $$ = $1->جوڑو_اگلا($3); }
         ;
 
-value_range<nodeExprp>:         // ==IEEE: value_range/open_value_range
-                expr                                    { $$ = $1; }
-        |       '[' expr ':' expr ']'                   { $$ = new AstInsideRange{$1, $2, $4}; }
+قدر_range<گرہ_Exprp>:         // ==IEEE: value_range/open_value_range
+                اظہاریہ                                    { $$ = $1; }
+        |       '[' اظہاریہ ':' اظہاریہ ']'                   { $$ = new AstInsideRange{$1, $2, $4}; }
         //                      // IEEE-2023: added all four:
         //                      // Skipped as '$' is part of our expr
         //                      // IEEE-2023: '[' '$' ':' expr ']'
         //                      // Skipped as '$' is part of our expr
         //                      // IEEE-2023: '[' expr ':' '$' ']'
-        |       '[' expr yP_PLUSSLASHMINUS expr ']'
+        |       '[' اظہاریہ yP_PLUSSLASHMINUS اظہاریہ ']'
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: +/- range"); DEL($2, $4); }
-        |       '[' expr yP_PLUSPCTMINUS expr ']'
+        |       '[' اظہاریہ yP_PLUSPCTMINUS اظہاریہ ']'
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: +%- range"); DEL($2, $4); }
         ;
 
-covergroup_value_range<nodeExprp>:  // ==IEEE-2012: covergroup_value_range
+covergroup_قدر_range<گرہ_Exprp>:  // ==IEEE-2012: covergroup_value_range
                 cgexpr                                  { $$ = $1; }
         |       '[' cgexpr ':' cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: covergroup value range '[...]'"); DEL($2, $4); }
@@ -3988,53 +3988,53 @@ covergroup_value_range<nodeExprp>:  // ==IEEE-2012: covergroup_value_range
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: covergroup value range '[...]'"); DEL($2, $4); }
         ;
 
-caseCondList<nodeExprp>:        // IEEE: part of case_item
-                exprTypeCompare                         { $$ = $1; }
-        |       caseCondList ',' exprTypeCompare        { $$ = $1->addNext($3); }
+caseCondList<گرہ_Exprp>:        // IEEE: part of case_item
+                اظہاریہ_Type_Compare                         { $$ = $1; }
+        |       caseCondList ',' اظہاریہ_Type_Compare        { $$ = $1->جوڑو_اگلا($3); }
         ;
 
-patternNoExpr<nodeExprp>:       // IEEE: pattern **Excluding Expr*
+نمونہ_No_اظہاریہ<گرہ_Exprp>:       // IEEE: pattern **Excluding Expr*
                 '.' idAny/*variable*/
-                        { $$ = new AstPatternVar{$1, *$2}; }
+                        { $$ = new Ast_نمونہ_Var{$1, *$2}; }
         |       yP_DOTSTAR
-                        { $$ = new AstPatternStar{$1}; }
+                        { $$ = new Ast_نمونہ_تارا{$1}; }
         //                      // IEEE: "expr" excluded; expand in callers
         //                      // IEEE: tagged member_identifier [ pattern ]
         //                      // Standalone "yTAGGED__NONPRIMARY idAny" is handled via expr in patternOne
         //                      // Here, we need to treat yTAGGED and yTAGGED__NONPRIMARY identically.
-        |       yTAGGED idAny/*member_identifier*/ patternNoExpr
-                        { $$ = new AstTaggedPattern{$1, *$2, $3}; }
-        |       yTAGGED__NONPRIMARY idAny/*member_identifier*/ patternNoExpr
-                        { $$ = new AstTaggedPattern{$1, *$2, $3}; }
+        |       yTAGGED idAny/*member_identifier*/ نمونہ_No_اظہاریہ
+                        { $$ = new Ast_Tagged_نمونہ{$1, *$2, $3}; }
+        |       yTAGGED__NONPRIMARY idAny/*member_identifier*/ نمونہ_No_اظہاریہ
+                        { $$ = new Ast_Tagged_نمونہ{$1, *$2, $3}; }
         //                      // "yP_TICKBRA patternList '}'" part of expr under assignment_pattern
         ;
 
-patternList<nodep>:             // IEEE: part of pattern
-                patternOne                              { $$ = $1; }
-        |       patternList ',' patternOne              { $$ = addNextNull($1, $3); }
+نمونہ_List<nodep>:             // IEEE: part of pattern
+                نمونہ_One                              { $$ = $1; }
+        |       نمونہ_List ',' نمونہ_One              { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-patternOne<nodep>:              // IEEE: part of pattern
-                expr
-                        { if ($1) $$ = new AstPatMember{$1->fileline(), $1, nullptr, nullptr}; else $$ = nullptr; }
-        |       expr '{' argsExprList '}'               { $$ = new AstPatMember{$2, $3, nullptr, $1}; }
-        |       patternNoExpr                           { $$ = $1; }
+نمونہ_One<nodep>:              // IEEE: part of pattern
+                اظہاریہ
+                        { إذا ($1) $$ = new AstPatMember{$1->fileline(), $1, nullptr, nullptr}; وإلا $$ = nullptr; }
+        |       اظہاریہ '{' دلیلاں_اظہاریہ_List '}'               { $$ = new AstPatMember{$2, $3, nullptr, $1}; }
+        |       نمونہ_No_اظہاریہ                           { $$ = $1; }
         ;
 
-patternMemberList<nodep>:       // IEEE: part of pattern and assignment_pattern
-                patternMemberOne                        { $$ = $1; }
-        |       patternMemberList ',' patternMemberOne  { $$ = addNextNull($1, $3); }
+نمونہ_Member_List<nodep>:       // IEEE: part of pattern and assignment_pattern
+                نمونہ_Member_One                        { $$ = $1; }
+        |       نمونہ_Member_List ',' نمونہ_Member_One  { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-patternMemberOne<patMemberp>:   // IEEE: part of pattern and assignment_pattern
-                patternKey ':' expr                     { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
-        |       patternKey ':' patternNoExpr            { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
+نمونہ_Member_One<patMemberp>:   // IEEE: part of pattern and assignment_pattern
+                نمونہ_کلید ':' اظہاریہ                     { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
+        |       نمونہ_کلید ':' نمونہ_No_اظہاریہ            { $$ = new AstPatMember{$1->fileline(), $3, $1, nullptr}; }
         //                      // From assignment_pattern_key
-        |       yDEFAULT ':' expr                       { $$ = new AstPatMember{$1, $3, nullptr, nullptr}; $$->isDefault(true); }
-        |       yDEFAULT ':' patternNoExpr              { AstPatMember* const patp = new AstPatMember{$1, $3, nullptr, nullptr}; patp->isDefault(true); $$ = patp; }
+        |       yDEFAULT ':' اظہاریہ                       { $$ = new AstPatMember{$1, $3, nullptr, nullptr}; $$->isDefault(true); }
+        |       yDEFAULT ':' نمونہ_No_اظہاریہ              { AstPatMember* ثابت patp = new AstPatMember{$1, $3, nullptr, nullptr}; patp->isDefault(true); $$ = patp; }
         ;
 
-patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_pattern_key, assignment_pattern_key
+نمونہ_کلید<nodep>:              // IEEE: merge structure_pattern_key, array_pattern_key, assignment_pattern_key
         //                      // IEEE: structure_pattern_key: member_identifier | assignment_pattern_key
         //                      // IEEE: array_pattern_key: constant_expression | assignment_pattern_key
         //                      // Verilator:
@@ -4043,8 +4043,8 @@ patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_patt
         //                      //   (if structure).  Both spell the same in expr, so the
         //                      //   bare-identifier case becomes a Text node and V3LinkDot
         //                      //   resolves which one it is.
-                expr
-                        { $$ = GRAMMARP->createPatternKey($1); }
+                اظہاریہ
+                        { $$ = GRAMMARP->create_نمونہ_کلید($1); }
         //                      // IEEE: assignment_pattern_key
         |       simple_typeNoRef
                         { $$ = $1; }
@@ -4052,104 +4052,104 @@ patternKey<nodep>:              // IEEE: merge structure_pattern_key, array_patt
         //                      // expanded from simple_type ps_parameter_identifier (part of simple_type)
         //                      // (simple_type ps_parameter_identifier is part of expr above)
         |       packageClassScopeE idType
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = refp; }
         ;
 
-assignment_pattern<patternp>:   // ==IEEE: assignment_pattern
+assignment_نمونہ<patternp>:   // ==IEEE: assignment_pattern
         // This doesn't match the text of the spec.  I think a : is missing, or example code needed
         // yP_TICKBRA constExpr exprList '}'    { $$="'{"+$2+" "+$3"}"; }
         //                      // "'{ const_expression }" is same as patternList with one entry
         //                      // From patternNoExpr
         //                      // also IEEE: "''{' expression { ',' expression } '}'"
         //                      //      matches since patternList includes expr
-                yP_TICKBRA patternList '}'              { $$ = new AstPattern{$1, $2}; }
+                yP_TICKBRA نمونہ_List '}'              { $$ = new Ast_نمونہ{$1, $2}; }
         //                      // From patternNoExpr
         //                      // also IEEE "''{' structure_pattern_key ':' ...
         //                      // also IEEE "''{' array_pattern_key ':' ...
-        |       yP_TICKBRA patternMemberList '}'        { $$ = new AstPattern{$1, $2}; }
+        |       yP_TICKBRA نمونہ_Member_List '}'        { $$ = new Ast_نمونہ{$1, $2}; }
         //                      // IEEE: Not in grammar, but in VMM
-        |       yP_TICKBRA '}'                          { $$ = new AstPattern{$1, nullptr}; }
+        |       yP_TICKBRA '}'                          { $$ = new Ast_نمونہ{$1, nullptr}; }
         ;
 
 // "datatype id = x {, id = x }"  |  "yaId = x {, id=x}" is legal
 for_initializationE<nodep>:      // ==IEEE: for_initialization + for_variable_declaration
-                /* empty */                     { $$ = nullptr; }
-        |       for_initializationItemList      { $$ = $1; }
+                /*خالی_تھاواں*/                     { $$ = nullptr; }
+        |       for_initialization_شے_List      { $$ = $1; }
         ;
 
-for_initializationItemList<nodep>:      // IEEE: [for_variable_declaration...]
-                for_initializationItem                  { $$ = $1; }
-        |       for_initializationItemList ',' for_initializationItem   { $$ = addNextNull($1, $3); }
+for_initialization_شے_List<nodep>:      // IEEE: [for_variable_declaration...]
+                for_initialization_شے                  { $$ = $1; }
+        |       for_initialization_شے_List ',' for_initialization_شے   { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-for_initializationItem<nodep>:          // IEEE: variable_assignment + for_variable_declaration
+for_initialization_شے<nodep>:          // IEEE: variable_assignment + for_variable_declaration
         //                      // IEEE: for_variable_declaration
-                data_type idAny/*new*/ '=' expr
+                انکڑے_type idAny/*new*/ '=' اظہاریہ
                         { VARRESET_NONLIST(VAR); VARDTYPE($1);
-                          AstVar* const varp = VARDONEA($<fl>2, *$2, nullptr, nullptr);
+                          AstVar* ثابت varp = VARDONEA($<fl>2, *$2, nullptr, nullptr);
                           varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                           $$ = varp;
-                          $$->addNext(new AstAssign{$3, new AstParseRef{$<fl>2, *$2}, $4}); }
+                          $$->جوڑو_اگلا(new Ast_سونپو{$3, new AstParseRef{$<fl>2, *$2}, $4}); }
         //                      // IEEE-2012:
-        |       yVAR data_type idAny/*new*/ '=' expr
+        |       yVAR انکڑے_type idAny/*new*/ '=' اظہاریہ
                         { VARRESET_NONLIST(VAR); VARDTYPE($2);
-                          AstVar* const varp = VARDONEA($<fl>3, *$3, nullptr, nullptr);
+                          AstVar* ثابت varp = VARDONEA($<fl>3, *$3, nullptr, nullptr);
                           varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                           $$ = varp;
-                          $$->addNext(new AstAssign{$4, new AstParseRef{$<fl>3, *$3}, $5}); }
+                          $$->جوڑو_اگلا(new Ast_سونپو{$4, new AstParseRef{$<fl>3, *$3}, $5}); }
         //                      // IEEE: variable_assignment
         //                      // UNSUP variable_lvalue below
-        |       id/*newOrExisting*/ '=' expr
-                        { if (GRAMMARP->m_varDecl) {
-                              AstVar* const varp = VARDONEA($<fl>1, *$1, nullptr, nullptr);
+        |       id/*newOrExisting*/ '=' اظہاریہ
+                        { إذا (GRAMMARP->m_varDecl) {
+                              AstVar* ثابت varp = VARDONEA($<fl>1, *$1, nullptr, nullptr);
                               varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                               $$ = varp;
-                              $$->addNext(new AstAssign{$2, new AstParseRef{$<fl>1, *$1}, $3});
-                          } else {
-                              $$ = new AstAssign{$2, new AstParseRef{$<fl>1, *$1}, $3};
+                              $$->جوڑو_اگلا(new Ast_سونپو{$2, new AstParseRef{$<fl>1, *$1}, $3});
+                          } وإلا {
+                              $$ = new Ast_سونپو{$2, new AstParseRef{$<fl>1, *$1}, $3};
                           }
                         }
         ;
 
-for_stepE<nodep>:               // IEEE: for_step + empty
-                /* empty */                             { $$ = nullptr; }
-        |       for_step                                { $$ = $1; }
+for_قدم_E<nodep>:               // IEEE: for_step + empty
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       for_قدم                                { $$ = $1; }
         ;
 
-for_step<nodep>:                // IEEE: for_step
-                for_step_assignment                     { $$ = $1; }
-        |       for_step ',' for_step_assignment        { $$ = addNextNull($1, $3); }
+for_قدم<nodep>:                // IEEE: for_step
+                for_قدم_assignment                     { $$ = $1; }
+        |       for_قدم ',' for_قدم_assignment        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-for_step_assignment<nodep>:     // ==IEEE: for_step_assignment
+for_قدم_assignment<nodep>:     // ==IEEE: for_step_assignment
                 foperator_assignment                    { $$ = $1; }
-        |       finc_or_dec_expression                  { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       finc_or_dec_عبارت                  { $$ = new Ast_Stmt_اظہاریہ{$<fl>1, $1}; }
         //                      // IEEE: function_subroutine_call
         |       task_subroutine_callNoSemi              { $$ = $1; }
         ;
 
 loop_variables<nodep>:          // IEEE: loop_variables
                 loop_variableE                          { $$ = $1; }
-        |       loop_variables ',' loop_variableE       { $$ = $1->addNext($3); }
+        |       loop_variables ',' loop_variableE       { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 loop_variableE<nodep>:          // IEEE: part of loop_variables
-                /* empty */                             { $$ = new AstEmpty{CRELINE()}; }
-        |       parseRefBase                            { $$ = $1; }
+                /*خالی_تھاواں*/                             { $$ = new Ast_خالی_تھاواں{CRELINE()}; }
+        |       parse_Ref_ادھار                            { $$ = $1; }
         ;
 
 //************************************************
 // Functions/tasks
 
-taskRef<nodeExprp>:            // IEEE: part of tf_call
+taskRef<گرہ_Exprp>:            // IEEE: part of tf_call
                 id                                      { $$ = new AstTaskRef{$<fl>1, *$1}; }
-        |       id '(' list_of_argumentsE ')'           { $$ = new AstTaskRef{$<fl>1, *$1, $3}; }
-        |       packageClassScope id '(' list_of_argumentsE ')'
+        |       id '(' list_دا_arguments_E ')'           { $$ = new AstTaskRef{$<fl>1, *$1, $3}; }
+        |       packageClassScope id '(' list_دا_arguments_E ')'
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstTaskRef{$<fl>2, *$2, $4}); }
         ;
 
-funcRef<nodeExprp>:             // IEEE: part of tf_call
+funcRef<گرہ_Exprp>:             // IEEE: part of tf_call
         //                      // package_scope/hierarchical_... is part of expr, so just need ID
         //                      //      making-a                id-is-a
         //                      //      -----------------       ------------------
@@ -4159,22 +4159,22 @@ funcRef<nodeExprp>:             // IEEE: part of tf_call
         //                      //      sequence_instance       sequence_identifier     sequence_actual_arg
         //                      //      let_expression          let_identifier          let_actual_arg
         //
-                id '(' list_of_argumentsE ')'
+                id '(' list_دا_arguments_E ')'
                         { $$ = new AstFuncRef{$<fl>1, *$1, $3}; }
-        |       packageClassScope id '(' list_of_argumentsE ')'
+        |       packageClassScope id '(' list_دا_arguments_E ')'
                         { $$ = AstDot::newIfPkg($<fl>2, $1, new AstFuncRef{$<fl>2, *$2, $4}); }
         //UNSUP list_of_argumentE should be pev_list_of_argumentE
         //UNSUP: idDottedSel is really just id to allow dotted method calls
         ;
 
-task_subroutine_callNoSemi<nodeStmtp>:  // similar to IEEE task_subroutine_call but without ';'
+task_subroutine_callNoSemi<گرہ_Stmtp>:  // similar to IEEE task_subroutine_call but without ';'
         //                      // Expr included here to resolve our not knowing what is a method call
         //                      // Expr here must result in a subroutine_call
-                task_subroutine_callNoMethod            { $$ = $1->makeStmt(); }
-        |       fexpr '.' task_subroutine_callNoMethod  { $$ = (new AstDot{$<fl>2, false, $1, $3})->makeStmt(); }
+                task_subroutine_call_No_طریقہ            { $$ = $1->makeStmt(); }
+        |       fexpr '.' task_subroutine_call_No_طریقہ  { $$ = (new AstDot{$<fl>2, false, $1, $3})->makeStmt(); }
         |       system_t_stmt_call                      { $$ = $1; }
         //                      // Any system function as a task
-        |       system_f_or_t_expr_call                 { $$ = new AstStmtExpr{$<fl>1, $1}; }
+        |       system_f_or_t_اظہاریہ_call                 { $$ = new Ast_Stmt_اظہاریہ{$<fl>1, $1}; }
         //                      // Not here in IEEE; from class_constructor_declaration
         //                      // Because we've joined class_constructor_declaration into generic functions
         //                      // Way over-permissive;
@@ -4182,397 +4182,397 @@ task_subroutine_callNoSemi<nodeStmtp>:  // similar to IEEE task_subroutine_call 
         |       fexpr '.' class_newNoScope              { $$ = (new AstDot{$<fl>2, false, $1, $3})->makeStmt(); }
         ;
 
-task_subroutine_callNoMethod<nodeExprp>:    // function_subroutine_callNoMethod (as task)
+task_subroutine_call_No_طریقہ<گرہ_Exprp>:    // function_subroutine_callNoMethod (as task)
         //                      // IEEE: tf_call
                 taskRef                                 { $$ = $1; }
         //                      // funcref below not task ref to avoid conflict, must later handle either
-        |       funcRef yWITH__PAREN '(' expr ')'       { $$ = new AstWithParse{$2, $1, $4}; }
+        |       funcRef yWITH__PAREN '(' اظہاریہ ')'       { $$ = new AstWithParse{$2, $1, $4}; }
         //                      // can call as method and yWITH without parenthesis
-        |       id yWITH__PAREN '(' expr ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
+        |       id yWITH__PAREN '(' اظہاریہ ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
         //                      // IEEE: method_call requires a "." so is in expr
         //                      // IEEE: ['std::'] not needed, as normal std package resolution will find it
         //                      // IEEE: randomize_call
         //                      // We implement randomize as a normal funcRef, since randomize isn't a keyword
         //                      // Note yNULL is already part of expressions, so they come for free
-        |       funcRef yWITH__CUR constraint_block     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
-        |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_block
-                                                        { AstWithParse* const withParsep
+        |       funcRef yWITH__CUR constraint_بلاک     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
+        |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_بلاک
+                                                        { AstWithParse* ثابت withParsep
                                                               = new AstWithParse{$2, $1, $4, $6};
                                                           withParsep->restricted(true);
                                                           $$ = withParsep; }
         ;
 
-function_subroutine_callNoMethod<nodeExprp>:        // IEEE: function_subroutine_call (as function)
+function_subroutine_call_No_طریقہ<گرہ_Exprp>:        // IEEE: function_subroutine_call (as function)
         //                      // IEEE: tf_call
                 funcRef                                 { $$ = $1; }
-        |       funcRef yWITH__PAREN '(' expr ')'       { $$ = new AstWithParse{$2, $1, $4}; }
+        |       funcRef yWITH__PAREN '(' اظہاریہ ')'       { $$ = new AstWithParse{$2, $1, $4}; }
         //                      // can call as method and yWITH without parenthesis
-        |       id yWITH__PAREN '(' expr ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
-        |       system_f_only_expr_call                 { $$ = $1; }
-        |       system_f_or_t_expr_call                 { $$ = $1; }
+        |       id yWITH__PAREN '(' اظہاریہ ')'            { $$ = new AstWithParse{$2, new AstFuncRef{$<fl>1, *$1}, $4}; }
+        |       system_f_only_اظہاریہ_call                 { $$ = $1; }
+        |       system_f_or_t_اظہاریہ_call                 { $$ = $1; }
         //                      // IEEE: method_call requires a "." so is in expr
         //                      // IEEE: ['std::'] not needed, as normal std package resolution will find it
         //                      // IEEE: randomize_call
         //                      // We implement randomize as a normal funcRef, since randomize isn't a keyword
         //                      // Note yNULL is already part of expressions, so they come for free
-        |       funcRef yWITH__CUR constraint_block     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
-        |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_block
-                                                        { AstWithParse* const withParsep
+        |       funcRef yWITH__CUR constraint_بلاک     { $$ = new AstWithParse{$2, $1, nullptr, $3}; }
+        |       funcRef yWITH__PAREN_CUR '(' inlineConstraintIdListE ')' constraint_بلاک
+                                                        { AstWithParse* ثابت withParsep
                                                               = new AstWithParse{$2, $1, $4, $6};
                                                           withParsep->restricted(true);
                                                           $$ = withParsep; }
         ;
 
-system_t_stmt_call<nodeStmtp>:  // IEEE: part of system_tf_call (as task returning statement)
+system_t_stmt_call<گرہ_Stmtp>:  // IEEE: part of system_tf_call (as task returning statement)
         //
-                yaD_PLI systemDpiArgsE                  { AstTaskRef* const refp = new AstTaskRef{$<fl>1, *$1, $2};
+                yaD_PLI system_Dpi_دلیلاں_E                  { AstTaskRef* ثابت refp = new AstTaskRef{$<fl>1, *$1, $2};
                                                           refp->pli(true);
                                                           $$ = refp->makeStmt(); }
         //
-        |       yD_DUMPPORTS '(' idDottedSel ',' expr ')'  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $5}; DEL($3);
-                                                          $$->addNext(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
+        |       yD_DUMPPORTS '(' idDottedSel ',' اظہاریہ ')'  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $5}; DEL($3);
+                                                          $$->جوڑو_اگلا(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                                      new AstConst{$<fl>1, 1}}); }
-        |       yD_DUMPPORTS '(' ',' expr ')'           { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $4};
-                                                          $$->addNext(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
+        |       yD_DUMPPORTS '(' ',' اظہاریہ ')'           { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $4};
+                                                          $$->جوڑو_اگلا(new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                                      new AstConst{$<fl>1, 1}}); }
-        |       yD_DUMPFILE '(' expr ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $3}; }
+        |       yD_DUMPFILE '(' اظہاریہ ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FILE, $3}; }
         |       yD_DUMPVARS parenE                      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS,
                                                                               new AstConst{$<fl>1, 0}}; }
-        |       yD_DUMPVARS '(' expr ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; }
-        |       yD_DUMPVARS '(' expr ',' exprList ')'   { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; DEL($5); }
+        |       yD_DUMPVARS '(' اظہاریہ ')'                { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; }
+        |       yD_DUMPVARS '(' اظہاریہ ',' اظہاریہ_List ')'   { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::VARS, $3}; DEL($5); }
         |       yD_DUMPALL parenE                       { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; }
-        |       yD_DUMPALL '(' expr ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; DEL($3); }
+        |       yD_DUMPALL '(' اظہاریہ ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ALL}; DEL($3); }
         |       yD_DUMPFLUSH parenE                     { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; }
-        |       yD_DUMPFLUSH '(' expr ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; DEL($3); }
-        |       yD_DUMPLIMIT '(' expr ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; }
-        |       yD_DUMPLIMIT '(' expr ',' expr ')'      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::LIMIT, $3}; DEL($5); }
+        |       yD_DUMPFLUSH '(' اظہاریہ ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::FLUSH}; DEL($3); }
+        |       yD_DUMPLIMIT '(' اظہاریہ ')'               { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::حد_بندی_2, $3}; }
+        |       yD_DUMPLIMIT '(' اظہاریہ ',' اظہاریہ ')'      { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::حد_بندی_2, $3}; DEL($5); }
         |       yD_DUMPOFF parenE                       { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; }
-        |       yD_DUMPOFF '(' expr ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; DEL($3); }
+        |       yD_DUMPOFF '(' اظہاریہ ')'                 { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::OFF}; DEL($3); }
         |       yD_DUMPON parenE                        { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; }
-        |       yD_DUMPON '(' expr ')'                  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; DEL($3); }
+        |       yD_DUMPON '(' اظہاریہ ')'                  { $$ = new AstDumpCtl{$<fl>1, VDumpCtlType::ON}; DEL($3); }
         //
         |       yD_C '(' cStrList ')' {
                     AstCStmtUser* cstmtp = nullptr;
-                    if (!v3Global.opt.ignc()) {
+                    إذا (!v3Global.opt.ignc()) {
                         cstmtp = new AstCStmtUser{$1, true};
-                        cstmtp->add($3);
+                        cstmtp->جوڑو($3);
                     }
                     $$ = cstmtp;
                 }
-        |       yD_SDF_ANNOTATE '(' exprEListE ')'      { $$ = nullptr; $1->v3warn(SPECIFYIGN, "Ignoring unsupported: $sdf_annotate"); DEL($3); }
-        |       yD_STACKTRACE parenE                    { $$ = new AstStackTraceT{$1}; }
-        |       yD_SYSTEM '(' expr ')'                  { $$ = new AstSystemT{$1, $3}; }
+        |       yD_SDF_ANNOTATE '(' اظہاریہ_EList_E ')'      { $$ = nullptr; $1->v3warn(SPECIFYIGN, "Ignoring unsupported: $sdf_annotate"); DEL($3); }
+        |       yD_STACKTRACE parenE                    { $$ = new Ast_ڈھیر_Trace_T{$1}; }
+        |       yD_SYSTEM '(' اظہاریہ ')'                  { $$ = new AstSystemT{$1, $3}; }
         //
-        |       yD_EXIT parenE                          { $$ = new AstFinish{$1}; }
+        |       yD_EXIT parenE                          { $$ = new Ast_انت{$1}; }
         //
-        |       yD_FCLOSE '(' expr ')'                  { $$ = new AstFClose{$1, $3}; }
+        |       yD_FCLOSE '(' اظہاریہ ')'                  { $$ = new AstFClose{$1, $3}; }
         |       yD_FFLUSH parenE                        { $$ = new AstFFlush{$1, nullptr}; }
-        |       yD_FFLUSH '(' expr ')'                  { $$ = new AstFFlush{$1, $3}; }
-        |       yD_FINISH parenE                        { $$ = new AstFinish{$1}; }
-        |       yD_FINISH '(' expr ')'                  { $$ = new AstFinish{$1}; DEL($3); }
+        |       yD_FFLUSH '(' اظہاریہ ')'                  { $$ = new AstFFlush{$1, $3}; }
+        |       y_D_انت parenE                        { $$ = new Ast_انت{$1}; }
+        |       y_D_انت '(' اظہاریہ ')'                  { $$ = new Ast_انت{$1}; DEL($3); }
         |       yD_STOP parenE                          { $$ = new AstStop{$1, false}; }
-        |       yD_STOP '(' expr ')'                    { $$ = new AstStop{$1, false}; DEL($3); }
+        |       yD_STOP '(' اظہاریہ ')'                    { $$ = new AstStop{$1, false}; DEL($3); }
         //
-        |       yD_SFORMAT '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, false, $3, $5}; }
-        |       yD_SWRITE  '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'd'}; }
-        |       yD_SWRITEB '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'b'}; }
-        |       yD_SWRITEH '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'h'}; }
-        |       yD_SWRITEO '(' expr ',' exprDispList ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'o'}; }
+        |       yD_SFORMAT '(' اظہاریہ ',' اظہاریہ_Disp_List ')'        { $$ = new AstSFormat{$1, false, $3, $5}; }
+        |       yD_SWRITE  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'd'}; }
+        |       yD_SWRITEB '(' اظہاریہ ',' اظہاریہ_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'b'}; }
+        |       yD_SWRITEH '(' اظہاریہ ',' اظہاریہ_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'h'}; }
+        |       yD_SWRITEO '(' اظہاریہ ',' اظہاریہ_Disp_List ')'        { $$ = new AstSFormat{$1, true, $3, $5, 'o'}; }
         //
         |       yD_DISPLAY parenE                               { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr}; }
-        |       yD_DISPLAY '(' commasE exprDispList ')'         { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4}; }
+        |       yD_DISPLAY '(' commasE اظہاریہ_Disp_List ')'         { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4}; }
         |       yD_DISPLAYB parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'b'}; }
-        |       yD_DISPLAYB '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'b'}; }
+        |       yD_DISPLAYB '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'b'}; }
         |       yD_DISPLAYH parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'h'}; }
-        |       yD_DISPLAYH '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'h'}; }
+        |       yD_DISPLAYH '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'h'}; }
         |       yD_DISPLAYO parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, nullptr, 'o'}; }
-        |       yD_DISPLAYO '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'o'}; }
-        |       yD_MONITOR  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4}; }
-        |       yD_MONITORB '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'b'}; }
-        |       yD_MONITORH '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'h'}; }
-        |       yD_MONITORO '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'o'}; }
-        |       yD_STROBE   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4}; }
-        |       yD_STROBEB  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'b'}; }
-        |       yD_STROBEH  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'h'}; }
-        |       yD_STROBEO  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'o'}; }
+        |       yD_DISPLAYO '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, nullptr, $4, 'o'}; }
+        |       yD_MONITOR  '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4}; }
+        |       yD_MONITORB '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'b'}; }
+        |       yD_MONITORH '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'h'}; }
+        |       yD_MONITORO '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, nullptr, $4, 'o'}; }
+        |       yD_STROBE   '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4}; }
+        |       yD_STROBEB  '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'b'}; }
+        |       yD_STROBEH  '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'h'}; }
+        |       yD_STROBEO  '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, nullptr, $4, 'o'}; }
         |       yD_WRITE    parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITE    '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4}; }
+        |       yD_WRITE    '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4}; }
         |       yD_WRITEB   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEB   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'b'}; }
+        |       yD_WRITEB   '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'b'}; }
         |       yD_WRITEH   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEH   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'h'}; }
+        |       yD_WRITEH   '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'h'}; }
         |       yD_WRITEO   parenE                              { $$ = nullptr; }  // NOP
-        |       yD_WRITEO   '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'o'}; }
-        |       yD_FDISPLAY '(' expr ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr}; }
-        |       yD_FDISPLAY '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5}; }
-        |       yD_FDISPLAYB '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'b'}; }
-        |       yD_FDISPLAYB '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'b'}; }
-        |       yD_FDISPLAYH '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'h'}; }
-        |       yD_FDISPLAYH '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'h'}; }
-        |       yD_FDISPLAYO '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'o'}; }
-        |       yD_FDISPLAYO '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'o'}; }
-        |       yD_FMONITOR  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5}; }
-        |       yD_FMONITORB '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'b'}; }
-        |       yD_FMONITORH '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'h'}; }
-        |       yD_FMONITORO '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'o'}; }
-        |       yD_FSTROBE   '(' expr ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, nullptr}; }
-        |       yD_FSTROBE   '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5}; }
-        |       yD_FSTROBEB  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'b'}; }
-        |       yD_FSTROBEH  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'h'}; }
-        |       yD_FSTROBEO  '(' expr ',' exprDispList ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'o'}; }
-        |       yD_FWRITE   '(' expr ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, nullptr}; }
-        |       yD_FWRITE   '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5}; }
-        |       yD_FWRITEB  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'b'}; }
-        |       yD_FWRITEH  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'h'}; }
-        |       yD_FWRITEO  '(' expr ',' exprDispList ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'o'}; }
+        |       yD_WRITEO   '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, nullptr, $4, 'o'}; }
+        |       yD_FDISPLAY '(' اظہاریہ ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr}; }
+        |       yD_FDISPLAY '(' اظہاریہ ',' اظہاریہ_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5}; }
+        |       yD_FDISPLAYB '(' اظہاریہ ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'b'}; }
+        |       yD_FDISPLAYB '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'b'}; }
+        |       yD_FDISPLAYH '(' اظہاریہ ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'h'}; }
+        |       yD_FDISPLAYH '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'h'}; }
+        |       yD_FDISPLAYO '(' اظہاریہ ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, nullptr, 'o'}; }
+        |       yD_FDISPLAYO '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_DISPLAY, $3, $5, 'o'}; }
+        |       yD_FMONITOR  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5}; }
+        |       yD_FMONITORB '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'b'}; }
+        |       yD_FMONITORH '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'h'}; }
+        |       yD_FMONITORO '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_MONITOR, $3, $5, 'o'}; }
+        |       yD_FSTROBE   '(' اظہاریہ ')'                       { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, nullptr}; }
+        |       yD_FSTROBE   '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5}; }
+        |       yD_FSTROBEB  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'b'}; }
+        |       yD_FSTROBEH  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'h'}; }
+        |       yD_FSTROBEO  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'      { $$ = new AstDisplay{$1, VDisplayType::DT_STROBE, $3, $5, 'o'}; }
+        |       yD_FWRITE   '(' اظہاریہ ')'                        { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, nullptr}; }
+        |       yD_FWRITE   '(' اظہاریہ ',' اظہاریہ_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5}; }
+        |       yD_FWRITEB  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'b'}; }
+        |       yD_FWRITEH  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'h'}; }
+        |       yD_FWRITEO  '(' اظہاریہ ',' اظہاریہ_Disp_List ')'       { $$ = new AstDisplay{$1, VDisplayType::DT_WRITE, $3, $5, 'o'}; }
         |       yD_INFO     parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, nullptr}; }
-        |       yD_INFO     '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, $4}; }
+        |       yD_INFO     '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_INFO, nullptr, $4}; }
         |       yD_WARNING  parenE                              { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, nullptr}; }
-        |       yD_WARNING  '(' commasE exprDispList ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, $4}; }
+        |       yD_WARNING  '(' commasE اظہاریہ_Disp_List ')'        { $$ = new AstDisplay{$1, VDisplayType::DT_WARNING, nullptr, $4}; }
         |       yD_ERROR    parenE                              { $$ = GRAMMARP->createDisplayError($1); }
-        |       yD_ERROR    '(' commasE exprDispList ')'
+        |       yD_ERROR    '(' commasE اظہاریہ_Disp_List ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_ERROR, nullptr, $4};
-                          $$->addNext(new AstStop{$1, false}); }
+                          $$->جوڑو_اگلا(new AstStop{$1, false}); }
         |       yD_FATAL    parenE
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, nullptr};
-                          $$->addNext(new AstStop{$1, true}); }
-        |       yD_FATAL    '(' expr ')'
+                          $$->جوڑو_اگلا(new AstStop{$1, true}); }
+        |       yD_FATAL    '(' اظہاریہ ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, nullptr};
-                          $$->addNext(new AstStop{$1, true}); DEL($3); }
-        |       yD_FATAL    '(' expr ',' exprDispList ')'
+                          $$->جوڑو_اگلا(new AstStop{$1, true}); DEL($3); }
+        |       yD_FATAL    '(' اظہاریہ ',' اظہاریہ_Disp_List ')'
                         { $$ = new AstDisplay{$1, VDisplayType::DT_FATAL, nullptr, $5};
-                          $$->addNext(new AstStop{$1, true}); DEL($3); }
+                          $$->جوڑو_اگلا(new AstStop{$1, true}); DEL($3); }
         //
-        |       yD_ASSERTCTL '(' expr ')'                                            { $$ = new AstAssertCtl{$1, $3}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ')'                                  { $$ = new AstAssertCtl{$1, $3, $5}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ')'                        { $$ = new AstAssertCtl{$1, $3, $5, $7}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ',' exprE ')'              { $$ = new AstAssertCtl{$1, $3, $5, $7, $9}; }
-        |       yD_ASSERTCTL '(' expr ',' exprE ',' exprE ',' exprE ',' exprList ')' { $$ = new AstAssertCtl{$1, $3, $5, $7, $9, $11}; }
-        |       yD_ASSERTFAILOFF '(' expr ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3}; }
-        |       yD_ASSERTFAILOFF '(' exprE ',' exprList ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTCTL '(' اظہاریہ ')'                                            { $$ = new AstAssertCtl{$1, $3}; }
+        |       yD_ASSERTCTL '(' اظہاریہ ',' اظہاریہ_E ')'                                  { $$ = new AstAssertCtl{$1, $3, $5}; }
+        |       yD_ASSERTCTL '(' اظہاریہ ',' اظہاریہ_E ',' اظہاریہ_E ')'                        { $$ = new AstAssertCtl{$1, $3, $5, $7}; }
+        |       yD_ASSERTCTL '(' اظہاریہ ',' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_E ')'              { $$ = new AstAssertCtl{$1, $3, $5, $7, $9}; }
+        |       yD_ASSERTCTL '(' اظہاریہ ',' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_List ')' { $$ = new AstAssertCtl{$1, $3, $5, $7, $9, $11}; }
+        |       yD_ASSERTFAILOFF '(' اظہاریہ ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3}; }
+        |       yD_ASSERTFAILOFF '(' اظہاریہ_E ',' اظہاریہ_List ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTFAILOFF parenE                         { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_OFF, 31, 7}; }
-        |       yD_ASSERTFAILON '(' expr ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3}; }
-        |       yD_ASSERTFAILON '(' exprE ',' exprList ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTFAILON '(' اظہاریہ ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3}; }
+        |       yD_ASSERTFAILON '(' اظہاریہ_E ',' اظہاریہ_List ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTFAILON parenE                          { $$ = new AstAssertCtl{$1, VAssertCtlType::FAIL_ON, 31, 7}; }
-        |       yD_ASSERTKILL '(' expr ')'                      { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3}; }
-        |       yD_ASSERTKILL '(' exprE ',' exprList ')'        { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3, $5}; }
+        |       yD_ASSERTKILL '(' اظہاریہ ')'                      { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3}; }
+        |       yD_ASSERTKILL '(' اظہاریہ_E ',' اظہاریہ_List ')'        { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7, $3, $5}; }
         |       yD_ASSERTKILL parenE                            { $$ = new AstAssertCtl{$1, VAssertCtlType::KILL, 15, 7}; }
-        |       yD_ASSERTNONVACUOUSON '(' expr ')'                 { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3}; }
-        |       yD_ASSERTNONVACUOUSON '(' exprE ',' exprList ')'   { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTNONVACUOUSON '(' اظہاریہ ')'                 { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3}; }
+        |       yD_ASSERTNONVACUOUSON '(' اظہاریہ_E ',' اظہاریہ_List ')'   { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTNONVACUOUSON parenE                       { $$ = new AstAssertCtl{$1, VAssertCtlType::NONVACUOUS_ON, 31, 7}; }
-        |       yD_ASSERTOFF '(' expr ')'                       { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3}; }
-        |       yD_ASSERTOFF '(' exprE ',' exprList ')'         { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3, $5}; }
+        |       yD_ASSERTOFF '(' اظہاریہ ')'                       { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3}; }
+        |       yD_ASSERTOFF '(' اظہاریہ_E ',' اظہاریہ_List ')'         { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7, $3, $5}; }
         |       yD_ASSERTOFF parenE                             { $$ = new AstAssertCtl{$1, VAssertCtlType::OFF, 15, 7}; }
-        |       yD_ASSERTON '(' expr ')'                        { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3}; }
-        |       yD_ASSERTON '(' exprE ',' exprList ')'          { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3, $5}; }
+        |       yD_ASSERTON '(' اظہاریہ ')'                        { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3}; }
+        |       yD_ASSERTON '(' اظہاریہ_E ',' اظہاریہ_List ')'          { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7, $3, $5}; }
         |       yD_ASSERTON parenE                              { $$ = new AstAssertCtl{$1, VAssertCtlType::ON, 15, 7}; }
-        |       yD_ASSERTPASSOFF '(' expr ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3}; }
-        |       yD_ASSERTPASSOFF '(' exprE ',' exprList ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTPASSOFF '(' اظہاریہ ')'                   { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3}; }
+        |       yD_ASSERTPASSOFF '(' اظہاریہ_E ',' اظہاریہ_List ')'     { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTPASSOFF parenE                         { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_OFF, 31, 7}; }
-        |       yD_ASSERTPASSON '(' expr ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3}; }
-        |       yD_ASSERTPASSON '(' exprE ',' exprList ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3, $5}; }
+        |       yD_ASSERTPASSON '(' اظہاریہ ')'                    { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3}; }
+        |       yD_ASSERTPASSON '(' اظہاریہ_E ',' اظہاریہ_List ')'      { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7, $3, $5}; }
         |       yD_ASSERTPASSON parenE                          { $$ = new AstAssertCtl{$1, VAssertCtlType::PASS_ON, 31, 7}; }
-        |       yD_ASSERTVACUOUSOFF '(' expr ')'                { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3}; }
-        |       yD_ASSERTVACUOUSOFF '(' exprE ',' exprList ')'  { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3, $5}; }
+        |       yD_ASSERTVACUOUSOFF '(' اظہاریہ ')'                { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3}; }
+        |       yD_ASSERTVACUOUSOFF '(' اظہاریہ_E ',' اظہاریہ_List ')'  { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7, $3, $5}; }
         |       yD_ASSERTVACUOUSOFF parenE                      { $$ = new AstAssertCtl{$1, VAssertCtlType::VACUOUS_OFF, 31, 7}; }
         //
         |       yD_MONITOROFF parenE                    { $$ = new AstMonitorOff{$1, true}; }
         |       yD_MONITORON parenE                     { $$ = new AstMonitorOff{$1, false}; }
         //
-        |       yD_PRINTTIMESCALE                       { $$ = new AstPrintTimeScale{$1}; }
-        |       yD_PRINTTIMESCALE '(' ')'               { $$ = new AstPrintTimeScale{$1}; }
-        |       yD_PRINTTIMESCALE '(' idClassSel ')'    { $$ = new AstPrintTimeScale{$1}; DEL($3); }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ',' exprE ',' exprE ')'
-                        { $$ = new AstTimeFormat{$1, $3, $5, $7, $9}; }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ',' exprE ')'
-                        { $$ = new AstTimeFormat{$1, $3, $5, $7, nullptr}; }
-        |       yD_TIMEFORMAT '(' exprE ',' exprE ')'
-                        { $$ = new AstTimeFormat{$1, $3, $5, nullptr, nullptr}; }
-        |       yD_TIMEFORMAT '(' exprE ')'
-                        { $$ = new AstTimeFormat{$1, $3, nullptr, nullptr, nullptr}; }
+        |       yD_PRINTTIMESCALE                       { $$ = new Ast_Print_ویلا_Scale{$1}; }
+        |       yD_PRINTTIMESCALE '(' ')'               { $$ = new Ast_Print_ویلا_Scale{$1}; }
+        |       yD_PRINTTIMESCALE '(' idClassSel ')'    { $$ = new Ast_Print_ویلا_Scale{$1}; DEL($3); }
+        |       yD_TIMEFORMAT '(' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_E ')'
+                        { $$ = new Ast_ویلا_Format{$1, $3, $5, $7, $9}; }
+        |       yD_TIMEFORMAT '(' اظہاریہ_E ',' اظہاریہ_E ',' اظہاریہ_E ')'
+                        { $$ = new Ast_ویلا_Format{$1, $3, $5, $7, nullptr}; }
+        |       yD_TIMEFORMAT '(' اظہاریہ_E ',' اظہاریہ_E ')'
+                        { $$ = new Ast_ویلا_Format{$1, $3, $5, nullptr, nullptr}; }
+        |       yD_TIMEFORMAT '(' اظہاریہ_E ')'
+                        { $$ = new Ast_ویلا_Format{$1, $3, nullptr, nullptr, nullptr}; }
         //
-        |       yD_READMEMB '(' expr ',' idClassSel ')'                         { $$ = new AstReadMem{$1, false, $3, $5, nullptr, nullptr}; }
-        |       yD_READMEMB '(' expr ',' idClassSel ',' expr ')'                { $$ = new AstReadMem{$1, false, $3, $5, $7, nullptr}; }
-        |       yD_READMEMB '(' expr ',' idClassSel ',' expr ',' expr ')'       { $$ = new AstReadMem{$1, false, $3, $5, $7, $9}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ')'                         { $$ = new AstReadMem{$1, true,  $3, $5, nullptr, nullptr}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ',' expr ')'                { $$ = new AstReadMem{$1, true,  $3, $5, $7, nullptr}; }
-        |       yD_READMEMH '(' expr ',' idClassSel ',' expr ',' expr ')'       { $$ = new AstReadMem{$1, true,  $3, $5, $7, $9}; }
+        |       yD_READMEMB '(' اظہاریہ ',' idClassSel ')'                         { $$ = new AstReadMem{$1, false, $3, $5, nullptr, nullptr}; }
+        |       yD_READMEMB '(' اظہاریہ ',' idClassSel ',' اظہاریہ ')'                { $$ = new AstReadMem{$1, false, $3, $5, $7, nullptr}; }
+        |       yD_READMEMB '(' اظہاریہ ',' idClassSel ',' اظہاریہ ',' اظہاریہ ')'       { $$ = new AstReadMem{$1, false, $3, $5, $7, $9}; }
+        |       yD_READMEMH '(' اظہاریہ ',' idClassSel ')'                         { $$ = new AstReadMem{$1, true,  $3, $5, nullptr, nullptr}; }
+        |       yD_READMEMH '(' اظہاریہ ',' idClassSel ',' اظہاریہ ')'                { $$ = new AstReadMem{$1, true,  $3, $5, $7, nullptr}; }
+        |       yD_READMEMH '(' اظہاریہ ',' idClassSel ',' اظہاریہ ',' اظہاریہ ')'       { $$ = new AstReadMem{$1, true,  $3, $5, $7, $9}; }
         //
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, false, $3, $5, nullptr, nullptr}; }
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ',' expr ')'               { $$ = new AstWriteMem{$1, false, $3, $5, $7, nullptr}; }
-        |       yD_WRITEMEMB '(' expr ',' idClassSel ',' expr ',' expr ')'      { $$ = new AstWriteMem{$1, false, $3, $5, $7, $9}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, true,  $3, $5, nullptr, nullptr}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ',' expr ')'               { $$ = new AstWriteMem{$1, true,  $3, $5, $7, nullptr}; }
-        |       yD_WRITEMEMH '(' expr ',' idClassSel ',' expr ',' expr ')'      { $$ = new AstWriteMem{$1, true,  $3, $5, $7, $9}; }
+        |       yD_WRITEMEMB '(' اظہاریہ ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, false, $3, $5, nullptr, nullptr}; }
+        |       yD_WRITEMEMB '(' اظہاریہ ',' idClassSel ',' اظہاریہ ')'               { $$ = new AstWriteMem{$1, false, $3, $5, $7, nullptr}; }
+        |       yD_WRITEMEMB '(' اظہاریہ ',' idClassSel ',' اظہاریہ ',' اظہاریہ ')'      { $$ = new AstWriteMem{$1, false, $3, $5, $7, $9}; }
+        |       yD_WRITEMEMH '(' اظہاریہ ',' idClassSel ')'                        { $$ = new AstWriteMem{$1, true,  $3, $5, nullptr, nullptr}; }
+        |       yD_WRITEMEMH '(' اظہاریہ ',' idClassSel ',' اظہاریہ ')'               { $$ = new AstWriteMem{$1, true,  $3, $5, $7, nullptr}; }
+        |       yD_WRITEMEMH '(' اظہاریہ ',' idClassSel ',' اظہاریہ ',' اظہاریہ ')'      { $$ = new AstWriteMem{$1, true,  $3, $5, $7, $9}; }
         //
-        |       yD_CAST '(' expr ',' expr ')'
-                        { FileLine* const fl_nowarn = new FileLine{$1};
-                          fl_nowarn->warnOff(V3ErrorCode::WIDTH, true);
+        |       yD_CAST '(' اظہاریہ ',' اظہاریہ ')'
+                        { File_سطر* ثابت fl_nowarn = new File_سطر{$1};
+                          fl_nowarn->warnOff(V3_Error_کوڈ::چوڑائی_2, true);
                           $$ = new AstAssertIntrinsic{fl_nowarn, new AstCastDynamic{fl_nowarn, $5, $3},
                                                       nullptr, nullptr}; }
         ;
 
-system_f_only_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (for functions returning expressions)
-                yaD_PLI systemDpiArgsE                  { $$ = new AstFuncRef{$<fl>1, *$1, $2}; VN_CAST($$, FuncRef)->pli(true); }
+system_f_only_اظہاریہ_call<گرہ_Exprp>:  // IEEE: part of system_tf_call (for functions returning expressions)
+                yaD_PLI system_Dpi_دلیلاں_E                  { $$ = new AstFuncRef{$<fl>1, *$1, $2}; VN_CAST($$, FuncRef)->pli(true); }
         //
         |       yD_C '(' cStrList ')' {
                     AstCExprUser* cexprp = nullptr;
-                    if (!v3Global.opt.ignc()) {
+                    إذا (!v3Global.opt.ignc()) {
                         cexprp = new AstCExprUser{$1};
-                        cexprp->add($3);
+                        cexprp->جوڑو($3);
                     }
                     $$ = cexprp;
                 }
         |       yD_CPURE '(' cStrList ')' {
                     AstCExprUser* cexprp = nullptr;
-                    if (!v3Global.opt.ignc()) {
-                        cexprp = new AstCExprUser{$1, AstCExprUser::Pure{}};
-                        cexprp->add($3);
+                    إذا (!v3Global.opt.ignc()) {
+                        cexprp = new AstCExprUser{$1, AstCExprUser::خالص{}};
+                        cexprp->جوڑو($3);
                     }
                     $$ = cexprp;
                 }
-        |       yD_CAST '(' expr ',' expr ')'           { $$ = new AstCastDynamic{$1, $5, $3}; }
-        |       yD_STACKTRACE parenE                    { $$ = new AstStackTraceF{$1}; }
-        |       yD_SYSTEM  '(' expr ')'                 { $$ = new AstSystemF{$1, $3}; }
+        |       yD_CAST '(' اظہاریہ ',' اظہاریہ ')'           { $$ = new AstCastDynamic{$1, $5, $3}; }
+        |       yD_STACKTRACE parenE                    { $$ = new Ast_ڈھیر_Trace_F{$1}; }
+        |       yD_SYSTEM  '(' اظہاریہ ')'                 { $$ = new AstSystemF{$1, $3}; }
         ;
 
-system_f_or_t_expr_call<nodeExprp>:  // IEEE: part of system_tf_call (can be task or func)
-                yD_ACOS '(' expr ')'                    { $$ = new AstAcosD{$1, $3}; }
-        |       yD_ACOSH '(' expr ')'                   { $$ = new AstAcoshD{$1, $3}; }
-        |       yD_ASIN '(' expr ')'                    { $$ = new AstAsinD{$1, $3}; }
-        |       yD_ASINH '(' expr ')'                   { $$ = new AstAsinhD{$1, $3}; }
-        |       yD_ATAN '(' expr ')'                    { $$ = new AstAtanD{$1, $3}; }
-        |       yD_ATAN2 '(' expr ',' expr ')'          { $$ = new AstAtan2D{$1, $3, $5}; }
-        |       yD_ATANH '(' expr ')'                   { $$ = new AstAtanhD{$1, $3}; }
-        |       yD_BITS '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3}; }
-        |       yD_BITS '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_BITS, $3, $5}; }
-        |       yD_BITSTOREAL '(' expr ')'              { $$ = new AstBitsToRealD{$1, $3}; }
-        |       yD_BITSTOSHORTREAL '(' expr ')'         { $$ = new AstBitsToRealD{$1, $3}; UNSUPREAL($1); }
-        |       yD_CEIL '(' expr ')'                    { $$ = new AstCeilD{$1, $3}; }
-        |       yD_CHANGED '(' expr ')'                 { $$ = new AstLogNot{$1, new AstStable{$1, $3, nullptr}}; }
-        |       yD_CHANGED '(' expr ',' expr ')'
-                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}}; }
-        |       yD_CHANGED_GCLK '(' expr ')'
-                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}}; }
-        |       yD_CHANGING_GCLK '(' expr ')'
+system_f_or_t_اظہاریہ_call<گرہ_Exprp>:  // IEEE: part of system_tf_call (can be task or func)
+                yD_ACOS '(' اظہاریہ ')'                    { $$ = new AstAcosD{$1, $3}; }
+        |       yD_ACOSH '(' اظہاریہ ')'                   { $$ = new AstAcoshD{$1, $3}; }
+        |       yD_ASIN '(' اظہاریہ ')'                    { $$ = new AstAsinD{$1, $3}; }
+        |       yD_ASINH '(' اظہاریہ ')'                   { $$ = new AstAsinhD{$1, $3}; }
+        |       yD_ATAN '(' اظہاریہ ')'                    { $$ = new AstAtanD{$1, $3}; }
+        |       yD_ATAN2 '(' اظہاریہ ',' اظہاریہ ')'          { $$ = new AstAtan2D{$1, $3, $5}; }
+        |       yD_ATANH '(' اظہاریہ ')'                   { $$ = new AstAtanhD{$1, $3}; }
+        |       y_D_بٹ '(' اظہاریہ_Or_انکڑے_Type ')'          { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بٹ, $3}; }
+        |       y_D_بٹ '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')' { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بٹ, $3, $5}; }
+        |       yD_BITSTOREAL '(' اظہاریہ ')'              { $$ = new Ast_بٹ_منزل_Real_D{$1, $3}; }
+        |       yD_BITSTOSHORTREAL '(' اظہاریہ ')'         { $$ = new Ast_بٹ_منزل_Real_D{$1, $3}; UNSUPREAL($1); }
+        |       yD_CEIL '(' اظہاریہ ')'                    { $$ = new AstCeilD{$1, $3}; }
+        |       y_D_بدلیا '(' اظہاریہ ')'                 { $$ = new AstLogNot{$1, new AstStable{$1, $3, nullptr}}; }
+        |       y_D_بدلیا '(' اظہاریہ ',' اظہاریہ ')'
+                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->create_Sen_درخت_بدلیا($1, $5)}}; }
+        |       y_D_بدلیا_GCLK '(' اظہاریہ ')'
+                        { $$ = new AstLogNot{$1, new AstStable{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}}; }
+        |       yD_CHANGING_GCLK '(' اظہاریہ ')'
                         { $$ = new AstLogNot{$1, new AstSteady{$1, $3}}; }
-        |       yD_CLOG2 '(' expr ')'                   { $$ = new AstCLog2{$1, $3}; }
-        |       yD_COS '(' expr ')'                     { $$ = new AstCosD{$1, $3}; }
-        |       yD_COSH '(' expr ')'                    { $$ = new AstCoshD{$1, $3}; }
-        |       yD_COUNTBITS '(' expr ',' expr ')'              { $$ = new AstCountBits{$1, $3, $5}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ')'             { $$ = new AstCountBits{$1, $3, $5, $7}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ',' expr ')'    { $$ = new AstCountBits{$1, $3, $5, $7, $9}; }
-        |       yD_COUNTBITS '(' expr ',' expr ',' expr ',' expr ',' exprList ')'
-                        { $$ = new AstCountBits{$1, $3, $5, $7, $9};
+        |       yD_CLOG2 '(' اظہاریہ ')'                   { $$ = new AstCLog2{$1, $3}; }
+        |       yD_COS '(' اظہاریہ ')'                     { $$ = new AstCosD{$1, $3}; }
+        |       yD_COSH '(' اظہاریہ ')'                    { $$ = new AstCoshD{$1, $3}; }
+        |       yD_COUNTBITS '(' اظہاریہ ',' اظہاریہ ')'              { $$ = new Ast_گنتی_بٹ{$1, $3, $5}; }
+        |       yD_COUNTBITS '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'             { $$ = new Ast_گنتی_بٹ{$1, $3, $5, $7}; }
+        |       yD_COUNTBITS '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'    { $$ = new Ast_گنتی_بٹ{$1, $3, $5, $7, $9}; }
+        |       yD_COUNTBITS '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ',' اظہاریہ ',' اظہاریہ_List ')'
+                        { $$ = new Ast_گنتی_بٹ{$1, $3, $5, $7, $9};
                           BBUNSUP($11, "Unsupported: $countbits with more than 3 control fields"); }
-        |       yD_COUNTONES '(' expr ')'               { $$ = new AstCountOnes{$1, $3}; }
-        |       yD_DIMENSIONS '(' exprOrDataType ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_DIMENSIONS, $3}; }
-        |       yD_DIST_CHI_SQUARE '(' expr ',' expr ')'        { $$ = new AstDistChiSquare{$1, $3, $5}; }
-        |       yD_DIST_ERLANG '(' expr ',' expr ',' expr ')'   { $$ = new AstDistErlang{$1, $3, $5, $7}; }
-        |       yD_DIST_EXPONENTIAL '(' expr ',' expr ')'       { $$ = new AstDistExponential{$1, $3, $5}; }
-        |       yD_DIST_NORMAL '(' expr ',' expr ',' expr ')'   { $$ = new AstDistNormal{$1, $3, $5, $7}; }
-        |       yD_DIST_POISSON '(' expr ',' expr ')'   { $$ = new AstDistPoisson{$1, $3, $5}; }
-        |       yD_DIST_T '(' expr ',' expr ')'         { $$ = new AstDistT{$1, $3, $5}; }
-        |       yD_DIST_UNIFORM '(' expr ',' expr ',' expr ')'  { $$ = new AstDistUniform{$1, $3, $5, $7}; }
-        |       yD_EXP '(' expr ')'                     { $$ = new AstExpD{$1, $3}; }
-        |       yD_FALLING_GCLK '(' expr ')'            { $$ = new AstFalling{$1, $3}; }
-        |       yD_FELL '(' expr ')'                    { $$ = new AstFell{$1, $3, nullptr}; }
-        |       yD_FELL '(' expr ',' expr ')'           { $$ = new AstFell{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_FELL_GCLK '(' expr ')'               { $$ = new AstFell{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_FEOF '(' expr ')'                    { $$ = new AstFEof{$1, $3}; }
-        |       yD_FERROR '(' expr ',' idClassSel ')'   { $$ = new AstFError{$1, $3, $5}; }
-        |       yD_FGETC '(' expr ')'                   { $$ = new AstFGetC{$1, $3}; }
-        |       yD_FGETS '(' expr ',' expr ')'          { $$ = new AstFGetS{$1, $3, $5}; }
-        |       yD_FOPEN '(' expr ')'                   { $$ = new AstFOpenMcd{$1, $3}; }
-        |       yD_FOPEN '(' expr ',' expr ')'          { $$ = new AstFOpen{$1, $3, $5}; }
-        |       yD_FREAD '(' expr ',' expr ')'          { $$ = new AstFRead{$1, $3, $5, nullptr, nullptr}; }
-        |       yD_FREAD '(' expr ',' expr ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, $7, nullptr}; }
-        |       yD_FREAD '(' expr ',' expr ',' expr ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, $7, $9}; }
-        |       yD_FREAD '(' expr ',' expr ',' ',' expr ')'  { $$ = new AstFRead{$1, $3, $5, nullptr, $8}; }
-        |       yD_FREWIND '(' expr ')'                 { $$ = new AstFRewind{$1, $3}; }
-        |       yD_FUTURE_GCLK '(' expr ')'             { $$ = new AstFuture{$1, $3, nullptr}; }
-        |       yD_FLOOR '(' expr ')'                   { $$ = new AstFloorD{$1, $3}; }
-        |       yD_FSCANF '(' expr ',' str commaVRDListE ')'    { $$ = new AstFScanF{$1, *$5, $3, $6}; }
-        |       yD_FSEEK '(' expr ',' expr ',' expr ')' { $$ = new AstFSeek{$1, $3, $5, $7}; }
-        |       yD_FTELL '(' expr ')'                   { $$ = new AstFTell{$1, $3}; }
-        |       yD_GET_INITIAL_RANDOM_SEED parenE      { $$ = new AstGetInitialRandomSeed{$1}; }
+        |       yD_COUNTONES '(' اظہاریہ ')'               { $$ = new Ast_گنتی_Ones{$1, $3}; }
+        |       yD_DIMENSIONS '(' اظہاریہ_Or_انکڑے_Type ')'    { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_DIMENSIONS, $3}; }
+        |       y_D_DIST_CHI_مربع '(' اظہاریہ ',' اظہاریہ ')'        { $$ = new Ast_Dist_Chi_مربع{$1, $3, $5}; }
+        |       yD_DIST_ERLANG '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'   { $$ = new AstDistErlang{$1, $3, $5, $7}; }
+        |       y_D_DIST_قوت_نمائی '(' اظہاریہ ',' اظہاریہ ')'       { $$ = new Ast_Dist_قوت_نمائی{$1, $3, $5}; }
+        |       y_D_DIST_عام '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'   { $$ = new Ast_Dist_عام{$1, $3, $5, $7}; }
+        |       y_D_DIST_پواسوں '(' اظہاریہ ',' اظہاریہ ')'   { $$ = new Ast_Dist_پواسوں{$1, $3, $5}; }
+        |       yD_DIST_T '(' اظہاریہ ',' اظہاریہ ')'         { $$ = new AstDistT{$1, $3, $5}; }
+        |       y_D_DIST_اکسار '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'  { $$ = new Ast_Dist_اکسار{$1, $3, $5, $7}; }
+        |       yD_EXP '(' اظہاریہ ')'                     { $$ = new AstExpD{$1, $3}; }
+        |       yD_FALLING_GCLK '(' اظہاریہ ')'            { $$ = new AstFalling{$1, $3}; }
+        |       yD_FELL '(' اظہاریہ ')'                    { $$ = new AstFell{$1, $3, nullptr}; }
+        |       yD_FELL '(' اظہاریہ ',' اظہاریہ ')'           { $$ = new AstFell{$1, $3, GRAMMARP->create_Sen_درخت_بدلیا($1, $5)}; }
+        |       yD_FELL_GCLK '(' اظہاریہ ')'               { $$ = new AstFell{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_FEOF '(' اظہاریہ ')'                    { $$ = new AstFEof{$1, $3}; }
+        |       yD_FERROR '(' اظہاریہ ',' idClassSel ')'   { $$ = new AstFError{$1, $3, $5}; }
+        |       yD_FGETC '(' اظہاریہ ')'                   { $$ = new AstFGetC{$1, $3}; }
+        |       yD_FGETS '(' اظہاریہ ',' اظہاریہ ')'          { $$ = new AstFGetS{$1, $3, $5}; }
+        |       yD_FOPEN '(' اظہاریہ ')'                   { $$ = new AstFOpenMcd{$1, $3}; }
+        |       yD_FOPEN '(' اظہاریہ ',' اظہاریہ ')'          { $$ = new AstFOpen{$1, $3, $5}; }
+        |       yD_FREAD '(' اظہاریہ ',' اظہاریہ ')'          { $$ = new AstFRead{$1, $3, $5, nullptr, nullptr}; }
+        |       yD_FREAD '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'  { $$ = new AstFRead{$1, $3, $5, $7, nullptr}; }
+        |       yD_FREAD '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')'  { $$ = new AstFRead{$1, $3, $5, $7, $9}; }
+        |       yD_FREAD '(' اظہاریہ ',' اظہاریہ ',' ',' اظہاریہ ')'  { $$ = new AstFRead{$1, $3, $5, nullptr, $8}; }
+        |       yD_FREWIND '(' اظہاریہ ')'                 { $$ = new AstFRewind{$1, $3}; }
+        |       yD_FUTURE_GCLK '(' اظہاریہ ')'             { $$ = new AstFuture{$1, $3, nullptr}; }
+        |       yD_FLOOR '(' اظہاریہ ')'                   { $$ = new AstFloorD{$1, $3}; }
+        |       yD_FSCANF '(' اظہاریہ ',' str commaVRDListE ')'    { $$ = new AstFScanF{$1, *$5, $3, $6}; }
+        |       yD_FSEEK '(' اظہاریہ ',' اظہاریہ ',' اظہاریہ ')' { $$ = new AstFSeek{$1, $3, $5, $7}; }
+        |       yD_FTELL '(' اظہاریہ ')'                   { $$ = new AstFTell{$1, $3}; }
+        |       y_D_GET_INITIAL_RANDOM_بیج parenE      { $$ = new Ast_Get_Initial_Random_بیج{$1}; }
         |       yD_GLOBAL_CLOCK parenE                  { $$ = GRAMMARP->createGlobalClockParseRef($1); }
-        |       yD_HIGH '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_HIGH, $3, nullptr}; }
-        |       yD_HIGH '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_HIGH, $3, $5}; }
-        |       yD_HYPOT '(' expr ',' expr ')'          { $$ = new AstHypotD{$1, $3, $5}; }
-        |       yD_INCREMENT '(' exprOrDataType ')'     { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, nullptr}; }
-        |       yD_INCREMENT '(' exprOrDataType ',' expr ')'    { $$ = new AstAttrOf{$1, VAttrType::DIM_INCREMENT, $3, $5}; }
+        |       y_D_بلند '(' اظہاریہ_Or_انکڑے_Type ')'          { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بلند, $3, nullptr}; }
+        |       y_D_بلند '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')' { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بلند, $3, $5}; }
+        |       yD_HYPOT '(' اظہاریہ ',' اظہاریہ ')'          { $$ = new AstHypotD{$1, $3, $5}; }
+        |       yD_INCREMENT '(' اظہاریہ_Or_انکڑے_Type ')'     { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_INCREMENT, $3, nullptr}; }
+        |       yD_INCREMENT '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')'    { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_INCREMENT, $3, $5}; }
         |       yD_INFERRED_DISABLE parenE              { $$ = new AstInferredDisable{$1}; }
-        |       yD_ISUNBOUNDED '(' expr ')'             { $$ = new AstIsUnbounded{$1, $3}; }
-        |       yD_ISUNKNOWN '(' expr ')'               { $$ = new AstIsUnknown{$1, $3}; }
-        |       yD_ITOR '(' expr ')'                    { $$ = new AstIToRD{$1, $3}; }
-        |       yD_LEFT '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_LEFT, $3, nullptr}; }
-        |       yD_LEFT '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_LEFT, $3, $5}; }
-        |       yD_LN '(' expr ')'                      { $$ = new AstLogD{$1, $3}; }
-        |       yD_LOG10 '(' expr ')'                   { $$ = new AstLog10D{$1, $3}; }
-        |       yD_LOW '(' exprOrDataType ')'           { $$ = new AstAttrOf{$1, VAttrType::DIM_LOW, $3, nullptr}; }
-        |       yD_LOW '(' exprOrDataType ',' expr ')'  { $$ = new AstAttrOf{$1, VAttrType::DIM_LOW, $3, $5}; }
-        |       yD_ONEHOT '(' expr ')'                  { $$ = new AstOneHot{$1, $3}; }
-        |       yD_ONEHOT0 '(' expr ')'                 { $$ = new AstOneHot0{$1, $3}; }
-        |       yD_PAST '(' expr ')'                    { $$ = new AstPast{$1, $3}; }
-        |       yD_PAST '(' expr ',' exprE ')'          { $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST '(' expr ',' exprE ',' exprE ')'
-                        { if ($7) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
+        |       yD_ISUNBOUNDED '(' اظہاریہ ')'             { $$ = new AstIsUnbounded{$1, $3}; }
+        |       yD_ISUNKNOWN '(' اظہاریہ ')'               { $$ = new AstIsUnknown{$1, $3}; }
+        |       yD_ITOR '(' اظہاریہ ')'                    { $$ = new AstIToRD{$1, $3}; }
+        |       y_D_بایاں '(' اظہاریہ_Or_انکڑے_Type ')'          { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بایاں, $3, nullptr}; }
+        |       y_D_بایاں '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')' { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_بایاں, $3, $5}; }
+        |       yD_LN '(' اظہاریہ ')'                      { $$ = new AstLogD{$1, $3}; }
+        |       yD_LOG10 '(' اظہاریہ ')'                   { $$ = new AstLog10D{$1, $3}; }
+        |       y_D_کم '(' اظہاریہ_Or_انکڑے_Type ')'           { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_کم, $3, nullptr}; }
+        |       y_D_کم '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')'  { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_کم, $3, $5}; }
+        |       yD_ONEHOT '(' اظہاریہ ')'                  { $$ = new AstOneHot{$1, $3}; }
+        |       yD_ONEHOT0 '(' اظہاریہ ')'                 { $$ = new AstOneHot0{$1, $3}; }
+        |       yD_PAST '(' اظہاریہ ')'                    { $$ = new AstPast{$1, $3}; }
+        |       yD_PAST '(' اظہاریہ ',' اظہاریہ_E ')'          { $$ = new AstPast{$1, $3, $5}; }
+        |       yD_PAST '(' اظہاریہ ',' اظہاریہ_E ',' اظہاریہ_E ')'
+                        { إذا ($7) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
                           DEL($7);
                           $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST '(' expr ',' exprE ',' exprE ',' clocking_eventE ')'
-                        { if ($7 || $9) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
+        |       yD_PAST '(' اظہاریہ ',' اظہاریہ_E ',' اظہاریہ_E ',' clocking_eventE ')'
+                        { إذا ($7 || $9) BBUNSUP($1, "Unsupported: $past expr2 and/or clock arguments");
                           DEL($7, $9);
                           $$ = new AstPast{$1, $3, $5}; }
-        |       yD_PAST_GCLK '(' expr ')'               { $$ = new AstPast{$1, $3, nullptr, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_POW '(' expr ',' expr ')'            { $$ = new AstPowD{$1, $3, $5}; }
-        |       yD_RANDOM '(' expr ')'                  { $$ = new AstRand{$1, $3, false}; }
+        |       yD_PAST_GCLK '(' اظہاریہ ')'               { $$ = new AstPast{$1, $3, nullptr, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_POW '(' اظہاریہ ',' اظہاریہ ')'            { $$ = new AstPowD{$1, $3, $5}; }
+        |       yD_RANDOM '(' اظہاریہ ')'                  { $$ = new AstRand{$1, $3, false}; }
         |       yD_RANDOM parenE                        { $$ = new AstRand{$1, nullptr, false}; }
-        |       yD_REALTIME parenE                      { $$ = new AstTimeD{$1, VTimescale{VTimescale::NONE}}; }
-        |       yD_REALTOBITS '(' expr ')'              { $$ = new AstRealToBits{$1, $3}; }
-        |       yD_REWIND '(' expr ')'                  { $$ = new AstFSeek{$1, $3, new AstConst{$1, 0}, new AstConst{$1, 0}}; }
-        |       yD_RIGHT '(' exprOrDataType ')'         { $$ = new AstAttrOf{$1, VAttrType::DIM_RIGHT, $3, nullptr}; }
-        |       yD_RIGHT '(' exprOrDataType ',' expr ')'        { $$ = new AstAttrOf{$1, VAttrType::DIM_RIGHT, $3, $5}; }
-        |       yD_RISING_GCLK '(' expr ')'             { $$ = new AstRising{$1, $3}; }
-        |       yD_ROSE '(' expr ')'                    { $$ = new AstRose{$1, $3, nullptr}; }
-        |       yD_ROSE '(' expr ',' expr ')'           { $$ = new AstRose{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_ROSE_GCLK '(' expr ')'               { $$ = new AstRose{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_RTOI '(' expr ')'                    { $$ = new AstRToIS{$1, $3}; }
-        |       yD_SAMPLED '(' expr ')'                 { $$ = new AstSampled{$1, $3, $3->dtypep()}; }
-        |       yD_SFORMATF '(' exprDispList ')'        { $$ = new AstSFormatF{$1, AstSFormatF::ExprFormat{}, $3, 'd', false}; }
-        |       yD_SHORTREALTOBITS '(' expr ')'         { $$ = new AstRealToBits{$1, $3}; UNSUPREAL($1); }
-        |       yD_SIGNED '(' expr ')'                  { $$ = new AstSigned{$1, $3}; }
-        |       yD_SIN '(' expr ')'                     { $$ = new AstSinD{$1, $3}; }
-        |       yD_SINH '(' expr ')'                    { $$ = new AstSinhD{$1, $3}; }
-        |       yD_SIZE '(' exprOrDataType ')'          { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, nullptr}; }
-        |       yD_SIZE '(' exprOrDataType ',' expr ')' { $$ = new AstAttrOf{$1, VAttrType::DIM_SIZE, $3, $5}; }
-        |       yD_SQRT '(' expr ')'                    { $$ = new AstSqrtD{$1, $3}; }
-        |       yD_SSCANF '(' expr ',' str commaVRDListE ')'    { $$ = new AstSScanF{$1, *$5, $3, $6}; }
-        |       yD_STABLE '(' expr ')'                  { $$ = new AstStable{$1, $3, nullptr}; }
-        |       yD_STABLE '(' expr ',' expr ')'         { $$ = new AstStable{$1, $3, GRAMMARP->createSenTreeChanged($1, $5)}; }
-        |       yD_STABLE_GCLK '(' expr ')'             { $$ = new AstStable{$1, $3, GRAMMARP->createGlobalClockSenTree($1)}; }
-        |       yD_STEADY_GCLK '(' expr ')'             { $$ = new AstSteady{$1, $3}; }
+        |       yD_REALTIME parenE                      { $$ = new Ast_ویلا_D{$1, VTimescale{VTimescale::NONE}}; }
+        |       yD_REALTOBITS '(' اظہاریہ ')'              { $$ = new Ast_Real_منزل_بٹ{$1, $3}; }
+        |       yD_REWIND '(' اظہاریہ ')'                  { $$ = new AstFSeek{$1, $3, new AstConst{$1, 0}, new AstConst{$1, 0}}; }
+        |       y_D_دایاں '(' اظہاریہ_Or_انکڑے_Type ')'         { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_دایاں, $3, nullptr}; }
+        |       y_D_دایاں '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')'        { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_دایاں, $3, $5}; }
+        |       yD_RISING_GCLK '(' اظہاریہ ')'             { $$ = new AstRising{$1, $3}; }
+        |       yD_ROSE '(' اظہاریہ ')'                    { $$ = new AstRose{$1, $3, nullptr}; }
+        |       yD_ROSE '(' اظہاریہ ',' اظہاریہ ')'           { $$ = new AstRose{$1, $3, GRAMMARP->create_Sen_درخت_بدلیا($1, $5)}; }
+        |       yD_ROSE_GCLK '(' اظہاریہ ')'               { $$ = new AstRose{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_RTOI '(' اظہاریہ ')'                    { $$ = new AstRToIS{$1, $3}; }
+        |       yD_SAMPLED '(' اظہاریہ ')'                 { $$ = new AstSampled{$1, $3, $3->dtypep()}; }
+        |       yD_SFORMATF '(' اظہاریہ_Disp_List ')'        { $$ = new AstSFormatF{$1, AstSFormatF::اظہاریہ_Format{}, $3, 'd', false}; }
+        |       yD_SHORTREALTOBITS '(' اظہاریہ ')'         { $$ = new Ast_Real_منزل_بٹ{$1, $3}; UNSUPREAL($1); }
+        |       yD_SIGNED '(' اظہاریہ ')'                  { $$ = new AstSigned{$1, $3}; }
+        |       yD_SIN '(' اظہاریہ ')'                     { $$ = new AstSinD{$1, $3}; }
+        |       yD_SINH '(' اظہاریہ ')'                    { $$ = new AstSinhD{$1, $3}; }
+        |       y_D_ناپ '(' اظہاریہ_Or_انکڑے_Type ')'          { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_ناپ, $3, nullptr}; }
+        |       y_D_ناپ '(' اظہاریہ_Or_انکڑے_Type ',' اظہاریہ ')' { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_ناپ, $3, $5}; }
+        |       yD_SQRT '(' اظہاریہ ')'                    { $$ = new AstSqrtD{$1, $3}; }
+        |       yD_SSCANF '(' اظہاریہ ',' str commaVRDListE ')'    { $$ = new AstSScanF{$1, *$5, $3, $6}; }
+        |       yD_STABLE '(' اظہاریہ ')'                  { $$ = new AstStable{$1, $3, nullptr}; }
+        |       yD_STABLE '(' اظہاریہ ',' اظہاریہ ')'         { $$ = new AstStable{$1, $3, GRAMMARP->create_Sen_درخت_بدلیا($1, $5)}; }
+        |       yD_STABLE_GCLK '(' اظہاریہ ')'             { $$ = new AstStable{$1, $3, GRAMMARP->create_Global_Clock_Sen_درخت($1)}; }
+        |       yD_STEADY_GCLK '(' اظہاریہ ')'             { $$ = new AstSteady{$1, $3}; }
         |       yD_STIME parenE
-                        { $$ = new AstSel{$1, new AstTime{$1, VTimescale{VTimescale::NONE}}, 0, 32}; }
-        |       yD_TAN '(' expr ')'                     { $$ = new AstTanD{$1, $3}; }
-        |       yD_TANH '(' expr ')'                    { $$ = new AstTanhD{$1, $3}; }
-        |       yD_TESTPLUSARGS '(' expr ')'            { $$ = new AstTestPlusArgs{$1, $3}; }
-        |       yD_TIME parenE                          { $$ = new AstTime{$1, VTimescale{VTimescale::NONE}}; }
-        |       yD_TIMEPRECISION                        { $$ = new AstTimePrecision{$1}; }
-        |       yD_TIMEPRECISION '(' ')'                { $$ = new AstTimePrecision{$1}; }
-        |       yD_TIMEPRECISION '(' idClassSel ')'     { $$ = new AstTimePrecision{$1}; DEL($3); }
-        |       yD_TIMEUNIT                             { $$ = new AstTimeUnit{$1}; }
-        |       yD_TIMEUNIT '(' ')'                     { $$ = new AstTimeUnit{$1}; }
-        |       yD_TIMEUNIT '(' idClassSel ')'          { $$ = new AstTimeUnit{$1}; DEL($3); }
-        |       yD_TYPENAME '(' exprOrDataType ')'      { $$ = new AstAttrOf{$1, VAttrType::TYPENAME, $3}; }
-        |       yD_UNGETC '(' expr ',' expr ')'         { $$ = new AstFUngetC{$1, $5, $3}; }  // Arg swap to file first
-        |       yD_UNPACKED_DIMENSIONS '(' exprOrDataType ')'   { $$ = new AstAttrOf{$1, VAttrType::DIM_UNPK_DIMENSIONS, $3}; }
-        |       yD_UNSIGNED '(' expr ')'                { $$ = new AstUnsigned{$1, $3}; }
-        |       yD_URANDOM '(' expr ')'                 { $$ = new AstRand{$1, $3, true}; }
+                        { $$ = new AstSel{$1, new Ast_ویلا{$1, VTimescale{VTimescale::NONE}}, 0, 32}; }
+        |       yD_TAN '(' اظہاریہ ')'                     { $$ = new AstTanD{$1, $3}; }
+        |       yD_TANH '(' اظہاریہ ')'                    { $$ = new AstTanhD{$1, $3}; }
+        |       yD_TESTPLUSARGS '(' اظہاریہ ')'            { $$ = new Ast_Test_Plus_دلیلاں{$1, $3}; }
+        |       y_D_ویلا parenE                          { $$ = new Ast_ویلا{$1, VTimescale{VTimescale::NONE}}; }
+        |       yD_TIMEPRECISION                        { $$ = new Ast_ویلا_Precision{$1}; }
+        |       yD_TIMEPRECISION '(' ')'                { $$ = new Ast_ویلا_Precision{$1}; }
+        |       yD_TIMEPRECISION '(' idClassSel ')'     { $$ = new Ast_ویلا_Precision{$1}; DEL($3); }
+        |       yD_TIMEUNIT                             { $$ = new Ast_ویلا_Unit{$1}; }
+        |       yD_TIMEUNIT '(' ')'                     { $$ = new Ast_ویلا_Unit{$1}; }
+        |       yD_TIMEUNIT '(' idClassSel ')'          { $$ = new Ast_ویلا_Unit{$1}; DEL($3); }
+        |       yD_TYPENAME '(' اظہاریہ_Or_انکڑے_Type ')'      { $$ = new Ast_Attr_دا{$1, VAttrType::TYPENAME, $3}; }
+        |       yD_UNGETC '(' اظہاریہ ',' اظہاریہ ')'         { $$ = new AstFUngetC{$1, $5, $3}; }  // Arg swap to file first
+        |       yD_UNPACKED_DIMENSIONS '(' اظہاریہ_Or_انکڑے_Type ')'   { $$ = new Ast_Attr_دا{$1, VAttrType::DIM_UNPK_DIMENSIONS, $3}; }
+        |       yD_UNSIGNED '(' اظہاریہ ')'                { $$ = new AstUnsigned{$1, $3}; }
+        |       yD_URANDOM '(' اظہاریہ ')'                 { $$ = new AstRand{$1, $3, true}; }
         |       yD_URANDOM parenE                       { $$ = new AstRand{$1, nullptr, true}; }
-        |       yD_URANDOM_RANGE '(' expr ')'           { $$ = new AstURandomRange{$1, $3, new AstConst{$1, 0}}; }
-        |       yD_URANDOM_RANGE '(' expr ',' expr ')'  { $$ = new AstURandomRange{$1, $3, $5}; }
-        |       yD_VALUEPLUSARGS '(' expr ',' expr ')'  { $$ = new AstValuePlusArgs{$1, $3, $5}; }
+        |       yD_URANDOM_RANGE '(' اظہاریہ ')'           { $$ = new AstURandomRange{$1, $3, new AstConst{$1, 0}}; }
+        |       yD_URANDOM_RANGE '(' اظہاریہ ',' اظہاریہ ')'  { $$ = new AstURandomRange{$1, $3, $5}; }
+        |       yD_VALUEPLUSARGS '(' اظہاریہ ',' اظہاریہ ')'  { $$ = new Ast_قدر_Plus_دلیلاں{$1, $3, $5}; }
         ;
 
 severity_system_task<nodep>: // IEEE: severity_system_task/elaboration_severity_system_task (1800-2009)
@@ -4583,22 +4583,22 @@ severity_system_task<nodep>: // IEEE: severity_system_task/elaboration_severity_
 severity_system_task_guts<nodep>:    // IEEE: part of severity_system_task (1800-2009)
         //                      // $fatal first argument is exit number, must be constant
                 yD_INFO parenE                          { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, nullptr}; }
-        |       yD_INFO '(' exprList ')'                { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, $3}; }
+        |       yD_INFO '(' اظہاریہ_List ')'                { $$ = new AstElabDisplay{$1, VDisplayType::DT_INFO, $3}; }
         |       yD_WARNING parenE                       { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, nullptr}; }
-        |       yD_WARNING '(' exprList ')'             { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, $3}; }
+        |       yD_WARNING '(' اظہاریہ_List ')'             { $$ = new AstElabDisplay{$1, VDisplayType::DT_WARNING, $3}; }
         |       yD_ERROR parenE                         { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, nullptr}; }
-        |       yD_ERROR '(' exprList ')'               { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, $3}; }
+        |       yD_ERROR '(' اظہاریہ_List ')'               { $$ = new AstElabDisplay{$1, VDisplayType::DT_ERROR, $3}; }
         |       yD_FATAL parenE                         { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; }
-        |       yD_FATAL '(' expr ')'                   { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; DEL($3); }
-        |       yD_FATAL '(' expr ',' exprListE ')'     { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, $5}; DEL($3); }
+        |       yD_FATAL '(' اظہاریہ ')'                   { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, nullptr}; DEL($3); }
+        |       yD_FATAL '(' اظہاریہ ',' اظہاریہ_List_E ')'     { $$ = new AstElabDisplay{$1, VDisplayType::DT_FATAL, $5}; DEL($3); }
         ;
 
-systemDpiArgsE<argp>:           // IEEE: part of system_if_call for arguments of $dpi call
+system_Dpi_دلیلاں_E<argp>:           // IEEE: part of system_if_call for arguments of $dpi call
                 parenE                                  { $$ = nullptr; }
-        |       '(' exprList ')'                        { $$ = GRAMMARP->argWrapList($2); }
+        |       '(' اظہاریہ_List ')'                        { $$ = GRAMMARP->argWrapList($2); }
         ;
 
-property_actual_arg<nodeExprp>:  // ==IEEE: property_actual_arg
+property_actual_arg<گرہ_Exprp>:  // ==IEEE: property_actual_arg
         //                      // IEEE: property_expr
         //                      // IEEE: sequence_actual_arg
         //UNSUP pev_expr                                { $$ = $1; }
@@ -4608,17 +4608,17 @@ property_actual_arg<nodeExprp>:  // ==IEEE: property_actual_arg
         //                      // property_expr already includes sequence_expr
         ;
 
-exprOrDataType<nodep>:          // expr | data_type: combined to prevent conflicts
-                expr                                    { $$ = $1; }
+اظہاریہ_Or_انکڑے_Type<nodep>:          // expr | data_type: combined to prevent conflicts
+                اظہاریہ                                    { $$ = $1; }
         //                      // data_type includes id that overlaps expr, so special flavor
         //                      // data_type expanded:
-        |       data_typeNoRef                          { $$ = $1; }
+        |       انکڑے_type_No_Ref                          { $$ = $1; }
         //
         //                      // Conflicts with non-type id, resolved in V3LinkDot
         //                      // NO: packageClassScopeE idType packed_dimensionListE
         //
-        |       packageClassScopeE idType parameter_value_assignmentClass packed_dimensionListE
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idType parameter_قدر_assignment_Class packed_dimensionListE
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = GRAMMARP->createArray(refp, $4, true); }
         //                      // not in spec, but needed for $past(sig,1,,@(posedge clk))
         //UNSUP event_control                           { }
@@ -4638,71 +4638,71 @@ exprOrDataType<nodep>:          // expr | data_type: combined to prevent conflic
 //UNSUP |       exprOrDataTypeList ',' exprOrDataType   { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-list_of_argumentsE<argp>:  // IEEE: [list_of_arguments]
-                argsDottedList                          { $$ = $1; }
-        |       argsExprListE
-                        { if ($1->emptyConnectNoNext()) {
-                              $1->deleteTree(); $$ = nullptr;  // Mis-created when have 'func()'
-                          } else { $$ = $1; } }
-        |       argsExprListE ',' argsDottedList        { $$ = addNextNull($1, $3); }
+list_دا_arguments_E<argp>:  // IEEE: [list_of_arguments]
+                دلیلاں_Dotted_List                          { $$ = $1; }
+        |       دلیلاں_اظہاریہ_List_E
+                        { إذا ($1->خالی_تھاواں_Connect_No_اگلا()) {
+                              $1->delete_درخت(); $$ = nullptr;  // Mis-created when have 'func()'
+                          } وإلا { $$ = $1; } }
+        |       دلیلاں_اظہاریہ_List_E ',' دلیلاں_Dotted_List        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-task_declaration<nodeFTaskp>:   // ==IEEE: task_declaration
-                yTASK dynamic_override_specifiersE lifetimeE taskId tfGuts yENDTASK endLabelE
-                        { $$ = $4; $$->addStmtsp($5);
-                          $$->baseOverride($2);
+task_declaration<گرہ_FTaskp>:   // ==IEEE: task_declaration
+                yTASK dynamic_override_specifiersE lifetimeE taskId tfGuts yENDTASK سرا_Label_E
+                        { $$ = $4; $$->جوڑو_Stmtsp($5);
+                          $$->ادھار_Override($2);
                           $$->lifetime($3);
-                          GRAMMARP->endLabel($<fl>7, $$, $7); }
+                          GRAMMARP->سرا_Label($<fl>7, $$, $7); }
         ;
 
-task_prototype<nodeFTaskp>:             // ==IEEE: task_prototype
-                yTASK dynamic_override_specifiersE taskId '(' tf_port_listE ')'
-                        { $$ = $3; $$->addStmtsp($5); $$->prototype(true); }
+task_prototype<گرہ_FTaskp>:             // ==IEEE: task_prototype
+                yTASK dynamic_override_specifiersE taskId '(' tf_پورٹ_list_E ')'
+                        { $$ = $3; $$->جوڑو_Stmtsp($5); $$->prototype(true); }
         |       yTASK dynamic_override_specifiersE taskId
                         { $$ = $3; $$->prototype(true); }
         ;
 
-function_declaration<nodeFTaskp>:       // IEEE: function_declaration + function_body_declaration
-                yFUNCTION dynamic_override_specifiersE lifetimeE funcId funcIsolateE tfGuts yENDFUNCTION endLabelE
-                        { $$ = $4; $$->addStmtsp($6);
-                          $$->baseOverride($2);
+function_declaration<گرہ_FTaskp>:       // IEEE: function_declaration + function_body_declaration
+                yFUNCTION dynamic_override_specifiersE lifetimeE funcId funcIsolateE tfGuts yENDFUNCTION سرا_Label_E
+                        { $$ = $4; $$->جوڑو_Stmtsp($6);
+                          $$->ادھار_Override($2);
                           $$->lifetime($3);
-                          GRAMMARP->endLabel($<fl>8, $$, $8); }
-        |       yFUNCTION dynamic_override_specifiersE lifetimeE funcIdNew funcIsolateE tfNewGuts yENDFUNCTION endLabelE
-                        { $$ = $4; $$->addStmtsp($6);
-                          $$->baseOverride($2);
+                          GRAMMARP->سرا_Label($<fl>8, $$, $8); }
+        |       yFUNCTION dynamic_override_specifiersE lifetimeE funcIdNew funcIsolateE tfNewGuts yENDFUNCTION سرا_Label_E
+                        { $$ = $4; $$->جوڑو_Stmtsp($6);
+                          $$->ادھار_Override($2);
                           $$->lifetime($3);
-                          GRAMMARP->endLabel($<fl>8, $$, $8); }
+                          GRAMMARP->سرا_Label($<fl>8, $$, $8); }
         ;
 
-function_prototype<nodeFTaskp>: // IEEE: function_prototype
-                yFUNCTION dynamic_override_specifiersE funcId '(' tf_port_listE ')'
-                        { $$ = $3; $$->addStmtsp($5); $$->prototype(true); }
+function_prototype<گرہ_FTaskp>: // IEEE: function_prototype
+                yFUNCTION dynamic_override_specifiersE funcId '(' tf_پورٹ_list_E ')'
+                        { $$ = $3; $$->جوڑو_Stmtsp($5); $$->prototype(true); }
         |       yFUNCTION dynamic_override_specifiersE funcId
                         { $$ = $3; $$->prototype(true); }
         ;
 
-class_constructor_prototype<nodeFTaskp>:        // ==IEEE: class_constructor_prototype
+class_constructor_prototype<گرہ_FTaskp>:        // ==IEEE: class_constructor_prototype
         //                      // IEEE has no dynamic_override_specifiersE,
         //                      // but required to avoid conflicts, so we must check after parsing
                 yFUNCTION dynamic_override_specifiersE funcIdNew '(' class_constructor_arg_listE ')' ';'
-                        { $$ = $3; $$->addStmtsp($5); $$->prototype(true); }
+                        { $$ = $3; $$->جوڑو_Stmtsp($5); $$->prototype(true); }
         |       yFUNCTION dynamic_override_specifiersE funcIdNew ';'
                         { $$ = $3; $$->prototype(true); }
         ;
 
 funcIsolateE<cint>:
-                /* empty */                             { $$ = 0; }
+                /*خالی_تھاواں*/                             { $$ = 0; }
         |       yVL_ISOLATE_ASSIGNMENTS                 { $$ = 1; }
         ;
 
-method_prototype<nodeFTaskp>:
+طریقہ_prototype<گرہ_FTaskp>:
                 task_prototype                          { $$ = $1; }
         |       function_prototype                      { $$ = $1; }
         ;
 
 lifetimeE<lifetime>:            // IEEE: [lifetime]
-                /* empty */                             { $$ = VLifetime::NONE; }
+                /*خالی_تھاواں*/                             { $$ = VLifetime::NONE; }
         |       lifetime                                { $$ = $1; }
         ;
 
@@ -4712,7 +4712,7 @@ lifetime<lifetime>:             // ==IEEE: lifetime
         |       yAUTOMATIC                              { $$ = VLifetime::AUTOMATIC_EXPLICIT; }
         ;
 
-taskId<nodeFTaskp>:
+taskId<گرہ_FTaskp>:
                 id
                         { $$ = new AstTask{$<fl>$, *$1, nullptr};
                           $$->verilogTask(true); }
@@ -4720,16 +4720,16 @@ taskId<nodeFTaskp>:
         |       id/*interface_identifier*/ '.' idAny
                         { $$ = new AstTask{$<fl>$, *$3, nullptr};
                           $$->verilogTask(true);
-                          $$->ifacePortName(*$1); }
+                          $$->iface_پورٹ_Name(*$1); }
         //
         |       packageClassScope id
                         { $$ = new AstTask{$<fl>$, *$2, nullptr};
                           $$->verilogTask(true);
                           $$->classOrPackagep($1);
-                          $$->classMethod(true); }
+                          $$->class_طریقہ(true); }
         ;
 
-funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part of function_body_declaration
+funcId<گرہ_FTaskp>:             // IEEE: function_data_type_or_implicit + part of function_body_declaration
         //                      // IEEE: function_data_type_or_implicit must be expanded here to prevent conflict
         //                      // function_data_type expanded here to prevent conflicts with
         //                      // implicit_type:empty vs data_type:ID
@@ -4738,19 +4738,19 @@ funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part o
                           $$->fvarp(new AstBasicDType{$<fl>1, LOGIC_IMPLICIT}); }
         |       signingE rangeList fIdScoped
                         { $$ = $3;
-                          $$->fvarp(GRAMMARP->addRange(new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $1}, $2, true)); }
+                          $$->fvarp(GRAMMARP->جوڑو_Range(new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $1}, $2, true)); }
         |       signing fIdScoped
                         { $$ = $2;
                           $$->fvarp(new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $1}); }
-        |       data_typeNoRef fIdScoped
+        |       انکڑے_type_No_Ref fIdScoped
                         { $$ = $2;
                           $$->fvarp($1); }
         |       packageClassScopeE idInstType packed_dimensionListE fIdScoped
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, nullptr};
                           $$ = $4;
                           $$->fvarp(GRAMMARP->createArray(refp, $3, true)); }
-        |       packageClassScopeE idInstType parameter_value_assignmentClass packed_dimensionListE fIdScoped
-                        { AstRefDType* const refp = new AstRefDType{$<fl>2, *$2, $1, $3};
+        |       packageClassScopeE idInstType parameter_قدر_assignment_Class packed_dimensionListE fIdScoped
+                        { AstRefDType* ثابت refp = new AstRefDType{$<fl>2, *$2, $1, $3};
                           $$ = $5;
                           $$->fvarp(GRAMMARP->createArray(refp, $4, true)); }
         //                      // To verilator tasks are the same as void functions (we separately detect time passing)
@@ -4760,7 +4760,7 @@ funcId<nodeFTaskp>:             // IEEE: function_data_type_or_implicit + part o
                           $$->verilogFunction(true); }
         ;
 
-funcIdNew<nodeFTaskp>:          // IEEE: from class_constructor_declaration
+funcIdNew<گرہ_FTaskp>:          // IEEE: from class_constructor_declaration
                 yNEW__ETC
                         { $$ = new AstFunc{$<fl>1, "new", nullptr, nullptr};
                           $$->verilogFunction(true);
@@ -4774,7 +4774,7 @@ funcIdNew<nodeFTaskp>:          // IEEE: from class_constructor_declaration
                           $$->verilogFunction(true);
                           $$->classOrPackagep($1);
                           $$->isConstructor(true);
-                          $$->classMethod(true); }
+                          $$->class_طریقہ(true); }
         ;
 
 fIdScoped<funcp>:               // IEEE: part of function_body_declaration/task_body_declaration
@@ -4788,120 +4788,120 @@ fIdScoped<funcp>:               // IEEE: part of function_body_declaration/task_
                         { $<fl>$ = $<fl>1;
                           $$ = new AstFunc{$<fl>$, *$3, nullptr, nullptr};
                           $$->verilogFunction(true);
-                          $$->ifacePortName(*$1); }
+                          $$->iface_پورٹ_Name(*$1); }
         //
         |       packageClassScope id
                         { $<fl>$ = $<fl>1;
                           $$ = new AstFunc{$<fl>$, *$2, nullptr, nullptr};
                           $$->verilogFunction(true);
-                          $$->classMethod(true);
+                          $$->class_طریقہ(true);
                           $$->classOrPackagep($1); }
         ;
 
 tfGuts<nodep>:
-                '(' tf_port_listE ')' ';' tfBodyE       { $$ = addNextNull($2, $5); }
+                '(' tf_پورٹ_list_E ')' ';' tfBodyE       { $$ = جوڑو_اگلا_Null($2, $5); }
         |       ';' tfBodyE                             { $$ = $2; }
         ;
 
 tfNewGuts<nodep>:
-                '(' class_constructor_arg_listE ')' ';' tfBodyE       { $$ = addNextNull($2, $5); }
+                '(' class_constructor_arg_listE ')' ';' tfBodyE       { $$ = جوڑو_اگلا_Null($2, $5); }
         |       ';' tfBodyE                             { $$ = $2; }
         ;
 
 tfBodyE<nodep>:                 // IEEE: part of function_body_declaration/task_body_declaration
-                /* empty */                             { $$ = nullptr; }
-        |       tf_item_declarationList                 { $$ = $1; }
-        |       tf_item_declarationList stmtList        { $$ = addNextNull($1, $2); }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       tf_شے_declaration_List                 { $$ = $1; }
+        |       tf_شے_declaration_List stmtList        { $$ = جوڑو_اگلا_Null($1, $2); }
         |       stmtList                                { $$ = $1; }
         ;
 
-tf_item_declarationList<nodep>:
-                tf_item_declaration                     { $$ = $1; }
-        |       tf_item_declarationList tf_item_declaration     { $$ = addNextNull($1, $2); }
+tf_شے_declaration_List<nodep>:
+                tf_شے_declaration                     { $$ = $1; }
+        |       tf_شے_declaration_List tf_شے_declaration     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-tf_item_declaration<nodep>:     // ==IEEE: tf_item_declaration
-                block_item_declaration                  { $$ = $1; }
-        |       tf_port_declaration                     { $$ = $1; }
-        |       tf_item_declarationVerilator            { $$ = $1; }
+tf_شے_declaration<nodep>:     // ==IEEE: tf_item_declaration
+                بلاک_شے_declaration                  { $$ = $1; }
+        |       tf_پورٹ_declaration                     { $$ = $1; }
+        |       tf_شے_declaration_Verilator            { $$ = $1; }
         ;
 
-tf_item_declarationVerilator<nodep>:    // Verilator extensions
-                yVL_PUBLIC                              { $$ = new AstPragma{$1, VPragmaType::PUBLIC_TASK}; v3Global.dpi(true); }
+tf_شے_declaration_Verilator<nodep>:    // Verilator extensions
+                y_VL_عوامی                              { $$ = new AstPragma{$1, VPragmaType::عوامی_TASK}; v3Global.dpi(true); }
         |       yVL_NO_INLINE_TASK                      { $$ = new AstPragma{$1, VPragmaType::NO_INLINE_TASK}; }
         ;
 
-tf_port_listE<nodep>:           // IEEE: tf_port_list + empty
+tf_پورٹ_list_E<nodep>:           // IEEE: tf_port_list + empty
         //                      // Empty covered by tf_port_item
                 /*empty*/
-        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(INPUT); }
-        /*cont*/    tf_port_listList                    { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
+        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(داخلہ); }
+        /*cont*/    tf_پورٹ_list_List                    { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
         ;
 
-tf_port_listList<nodep>:        // IEEE: part of tf_port_list
-                tf_port_item                            { $$ = $1; }
-        |       tf_port_listList ',' tf_port_item       { $$ = addNextNull($1, $3); }
+tf_پورٹ_list_List<nodep>:        // IEEE: part of tf_port_list
+                tf_پورٹ_شے                            { $$ = $1; }
+        |       tf_پورٹ_list_List ',' tf_پورٹ_شے       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 class_constructor_arg_listE<nodep>:  // IEEE: class_constructor_arg_list or empty
                 /*empty*/
-        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(INPUT); }
+        /*mid*/         { VARRESET_LIST(UNKNOWN); VARIO(داخلہ); }
         /*cont*/    class_constructor_arg_listList      { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
         ;
 
 class_constructor_arg_listList<nodep>:  // IEEE: part of class_constructor_arg_list
                 class_constructor_arg                   { $$ = $1; }
-        |       class_constructor_arg_listList ',' class_constructor_arg       { $$ = addNextNull($1, $3); }
+        |       class_constructor_arg_listList ',' class_constructor_arg       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 class_constructor_arg<nodep>:  // ==IEEE: class_constructor_arg
-                tf_port_item                            { $$ = $1; }
+                tf_پورٹ_شے                            { $$ = $1; }
         |       yDEFAULT                                { $$ = nullptr; BBUNSUP($1, "Unsupported: new constructor 'default' argument"); }
         ;
 
-tf_port_item<nodep>:            // ==IEEE: tf_port_item
+tf_پورٹ_شے<nodep>:            // ==IEEE: tf_port_item
         //                      // We split tf_port_item into the type and assignment as don't know what follows a comma
-                /* empty */                             { $$ = nullptr; PINNUMINC(); }  // For example a ",," port
-        |       tf_port_itemFront tf_port_itemAssignment { $$ = $2; }
-        |       tf_port_itemAssignment                  { $$ = $1; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; PINNUMINC(); }  // For example a ",," port
+        |       tf_پورٹ_شے_Front tf_پورٹ_شے_Assignment { $$ = $2; }
+        |       tf_پورٹ_شے_Assignment                  { $$ = $1; }
         ;
 
-tf_port_itemFront:              // IEEE: part of tf_port_item, which has the data type
-                data_type                               { VARDTYPE($1); }
+tf_پورٹ_شے_Front:              // IEEE: part of tf_port_item, which has the data type
+                انکڑے_type                               { VARDTYPE($1); }
         |       signingE rangeList
-                        { AstNodeDType* const dtp = GRAMMARP->addRange(
+                        { Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                               new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT, $1}, $2, true);
                           VARDTYPE(dtp); }
         |       signing
-                        { AstNodeDType* const dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1};
+                        { Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$<fl>1, LOGIC_IMPLICIT, $1};
                           VARDTYPE(dtp); }
-        |       yVAR data_type                          { VARDTYPE($2); }
+        |       yVAR انکڑے_type                          { VARDTYPE($2); }
         |       yVAR implicit_typeE                     { VARDTYPE($2); }
         //
-        |       tf_port_itemDir /*implicit*/            { VARDTYPE(nullptr); /*default_nettype-see spec*/ }
-        |       tf_port_itemDir data_type               { VARDTYPE($2); }
-        |       tf_port_itemDir signingE rangeList
-                        { AstNodeDType* const dtp = GRAMMARP->addRange(
+        |       tf_پورٹ_شے_Dir /*implicit*/            { VARDTYPE(nullptr); /*default_nettype-see spec*/ }
+        |       tf_پورٹ_شے_Dir انکڑے_type               { VARDTYPE($2); }
+        |       tf_پورٹ_شے_Dir signingE rangeList
+                        { Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                               new AstBasicDType{$3->fileline(), LOGIC_IMPLICIT, $2}, $3, true);
                           VARDTYPE(dtp); }
-        |       tf_port_itemDir signing
-                        { AstNodeDType* const dtp = new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $2};
+        |       tf_پورٹ_شے_Dir signing
+                        { Ast_گرہ_DType* ثابت dtp = new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $2};
                           VARDTYPE(dtp); }
-        |       tf_port_itemDir yVAR data_type          { VARDTYPE($3); }
-        |       tf_port_itemDir yVAR implicit_typeE     { VARDTYPE($3); }
+        |       tf_پورٹ_شے_Dir yVAR انکڑے_type          { VARDTYPE($3); }
+        |       tf_پورٹ_شے_Dir yVAR implicit_typeE     { VARDTYPE($3); }
         ;
 
-tf_port_itemDir:                // IEEE: part of tf_port_item, direction
-                port_direction                          { }  // port_direction sets VARIO
+tf_پورٹ_شے_Dir:                // IEEE: part of tf_port_item, direction
+                پورٹ_direction                          { }  // port_direction sets VARIO
         ;
 
-tf_port_itemAssignment<varp>:   // IEEE: part of tf_port_item, which has assignment
-                id variable_dimensionListE sigAttrListE exprEqE
-                        { $$ = VARDONEA($<fl>1, *$1, $2, $3); if ($4) $$->valuep($4); }
+tf_پورٹ_شے_Assignment<varp>:   // IEEE: part of tf_port_item, which has assignment
+                id variable_dimensionListE sigAttrListE اظہاریہ_Eq_E
+                        { $$ = VARDONEA($<fl>1, *$1, $2, $3); إذا ($4) $$->valuep($4); }
         ;
 
 parenE:
-                /* empty */                             { }
+                /*خالی_تھاواں*/                             { }
         |       '(' ')'                                 { }
         ;
 
@@ -4912,42 +4912,42 @@ parenE:
 //                              // IEEE: built_in_method_call
 //                              //   method_call_root not needed, part of expr resolution
 //                              // What's left is below array_methodNoRoot
-array_methodNoRoot<nodeFTaskRefp>:
+array_طریقہ_No_جڑ<گرہ_FTask_Refp>:
                 yOR                                     { $$ = new AstFuncRef{$1, "or"}; }
         |       yAND                                    { $$ = new AstFuncRef{$1, "and"}; }
         |       yXOR                                    { $$ = new AstFuncRef{$1, "xor"}; }
         |       yUNIQUE                                 { $$ = new AstFuncRef{$1, "unique"}; }
         ;
 
-array_methodWith<nodeExprp>:
-                array_methodNoRoot parenE               { $$ = $1; }
-        |       array_methodNoRoot parenE yWITH__PAREN '(' expr ')'
+array_طریقہ_With<گرہ_Exprp>:
+                array_طریقہ_No_جڑ parenE               { $$ = $1; }
+        |       array_طریقہ_No_جڑ parenE yWITH__PAREN '(' اظہاریہ ')'
                         { $$ = new AstWithParse{$3, $1, $5}; }
-        |       array_methodNoRoot '(' expr ')' yWITH__PAREN '(' expr ')'
-                        { $$ = new AstWithParse{$5, $1, $7}; $1->addArgsp(new AstArg{$<fl>3, "", $3}); }
+        |       array_طریقہ_No_جڑ '(' اظہاریہ ')' yWITH__PAREN '(' اظہاریہ ')'
+                        { $$ = new AstWithParse{$5, $1, $7}; $1->جوڑو_Argsp(new AstArg{$<fl>3, "", $3}); }
         ;
 
 dpi_import_export<nodep>:       // ==IEEE: dpi_import_export
                 yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE function_prototype ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          إذا (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
-                          $5->dpiPure($3 == iprop_PURE);
+                          $5->dpi_خالص($3 == iprop_خالص);
                           $5->dpiImport(true);
                           GRAMMARP->checkDpiVer($1, *$2); v3Global.dpi(true); }
         |       yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE function_prototype yVL_DPI_C_DECL yaSTRING ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          إذا (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
-                          $5->dpiPure($3 == iprop_PURE);
+                          $5->dpi_خالص($3 == iprop_خالص);
                           $5->dpiImport(true);
-                          if (*$7 != "") $5->dpiCDecl(*$7);
+                          إذا (*$7 != "") $5->dpiCDecl(*$7);
                           GRAMMARP->checkDpiVer($1, *$2); v3Global.dpi(true); }
         |       yIMPORT yaSTRING dpi_tf_import_propertyE dpi_importLabelE task_prototype ';'
                         { $$ = $5;
-                          if (*$4 != "") $5->cname(*$4);
+                          إذا (*$4 != "") $5->cname(*$4);
                           $5->dpiContext($3 == iprop_CONTEXT);
-                          $5->dpiPure($3 == iprop_PURE);
+                          $5->dpi_خالص($3 == iprop_خالص);
                           $5->dpiImport(true);
                           $5->dpiTask(true);
                           GRAMMARP->checkDpiVer($1, *$2); v3Global.dpi(true); }
@@ -4960,14 +4960,14 @@ dpi_import_export<nodep>:       // ==IEEE: dpi_import_export
         ;
 
 dpi_importLabelE<strp>:         // IEEE: part of dpi_import_export
-                /* empty */                             { static string s; $$ = &s; }
+                /*خالی_تھاواں*/                             { ساكن string s; $$ = &s; }
         |       idAny/*c_identifier*/ '='               { $$ = $1; $<fl>$ = $<fl>1; }
         ;
 
 dpi_tf_import_propertyE<iprop>: // IEEE: [ dpi_function_import_property + dpi_task_import_property ]
-                /* empty */                             { $$ = iprop_NONE; }
+                /*خالی_تھاواں*/                             { $$ = iprop_NONE; }
         |       yCONTEXT                                { $$ = iprop_CONTEXT; }
-        |       yPURE                                   { $$ = iprop_PURE; }
+        |       y_خالص                                   { $$ = iprop_خالص; }
         ;
 
 
@@ -4982,119 +4982,119 @@ dpi_tf_import_propertyE<iprop>: // IEEE: [ dpi_function_import_property + dpi_ta
 // ~p~ means this is a (p)arenthetized expression
 //     it will get replaced by "", or "s"equence
 
-exprEqE<nodeExprp>:             // IEEE: optional '=' expression (part of param_assignment)
+اظہاریہ_Eq_E<گرہ_Exprp>:             // IEEE: optional '=' expression (part of param_assignment)
         //                      // constant_param_expression: '$' is in expr
                 /*empty*/                               { $$ = nullptr; }
-        |       '=' expr                                { $$ = $2; }
+        |       '=' اظہاریہ                                { $$ = $2; }
         ;
 
-exprOrDataTypeEqE<nodep>:       // IEEE: optional '=' expression (part of param_assignment)
+اظہاریہ_Or_انکڑے_Type_Eq_E<nodep>:       // IEEE: optional '=' expression (part of param_assignment)
         //                      // constant_param_expression: '$' is in expr
                 /*empty*/                               { $$ = nullptr; }
-        |       '=' exprOrDataType                      { $$ = $2; }
+        |       '=' اظہاریہ_Or_انکڑے_Type                      { $$ = $2; }
         ;
 
-constExpr<nodeExprp>:
-                expr                                    { $$ = $1; }
+const_اظہاریہ<گرہ_Exprp>:
+                اظہاریہ                                    { $$ = $1; }
         ;
 
-exprE<nodeExprp>:               // IEEE: optional expression
+اظہاریہ_E<گرہ_Exprp>:               // IEEE: optional expression
                 /*empty*/                               { $$ = nullptr; }
-        |       expr                                    { $$ = $1; }
+        |       اظہاریہ                                    { $$ = $1; }
         ;
 
-expr<nodeExprp>:                // IEEE: part of expression/constant_expression/primary
+اظہاریہ<گرہ_Exprp>:                // IEEE: part of expression/constant_expression/primary
         // *SEE BELOW*          // IEEE: primary/constant_primary
         //
         //                      // IEEE: unary_operator primary
-                '+' ~r~expr     %prec prUNARYARITH      { $$ = $2; }
-        |       '-' ~r~expr     %prec prUNARYARITH      { $$ = new AstNegate{$1, $2}; }
-        |       '!' ~r~expr     %prec prNEGATION        { $$ = new AstLogNot{$1, $2}; }
-        |       '&' ~r~expr     %prec prREDUCTION       { $$ = new AstRedAnd{$1, $2}; }
-        |       '~' ~r~expr     %prec prNEGATION        { $$ = new AstNot{$1, $2}; }
-        |       '|' ~r~expr     %prec prREDUCTION       { $$ = new AstRedOr{$1, $2}; }
-        |       '^' ~r~expr     %prec prREDUCTION       { $$ = new AstRedXor{$1, $2}; }
-        |       yP_NAND ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedAnd{$1, $2}}; }
-        |       yP_NOR  ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedOr{$1, $2}}; }
-        |       yP_XNOR ~r~expr %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedXor{$1, $2}}; }
+                '+' ~r~اظہاریہ     %prec prUNARYARITH      { $$ = $2; }
+        |       '-' ~r~اظہاریہ     %prec prUNARYARITH      { $$ = new AstNegate{$1, $2}; }
+        |       '!' ~r~اظہاریہ     %prec prNEGATION        { $$ = new AstLogNot{$1, $2}; }
+        |       '&' ~r~اظہاریہ     %prec prREDUCTION       { $$ = new AstRedAnd{$1, $2}; }
+        |       '~' ~r~اظہاریہ     %prec prNEGATION        { $$ = new AstNot{$1, $2}; }
+        |       '|' ~r~اظہاریہ     %prec prREDUCTION       { $$ = new AstRedOr{$1, $2}; }
+        |       '^' ~r~اظہاریہ     %prec prREDUCTION       { $$ = new AstRedXor{$1, $2}; }
+        |       yP_NAND ~r~اظہاریہ %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedAnd{$1, $2}}; }
+        |       yP_NOR  ~r~اظہاریہ %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedOr{$1, $2}}; }
+        |       yP_XNOR ~r~اظہاریہ %prec prREDUCTION       { $$ = new AstLogNot{$1, new AstRedXor{$1, $2}}; }
         //
         //                      // IEEE: inc_or_dec_expression
-        |       ~l~inc_or_dec_expression                { $<fl>$ = $<fl>1; $$ = $1; }
+        |       ~l~inc_or_dec_عبارت                { $<fl>$ = $<fl>1; $$ = $1; }
         //
         //                      // IEEE: '(' operator_assignment ')'
         //                      // Need exprScope of variable_lvalue to prevent conflict
-        |       '(' ~p~exprScope '='          expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, $4},
-                                               $2->cloneTreePure(true)};
+        |       '(' ~p~اظہاریہ_Scope '='          اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, $4},
+                                               $2->clone_درخت_خالص(true)};
                           ASSIGNEQEXPR($<fl>3); }
-        |       '(' ~p~exprScope yP_PLUSEQ    expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstAdd{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_MINUSEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstSub{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_TIMESEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstMul{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_DIVEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstDiv{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_MODEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstModDiv{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_ANDEQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstAnd{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_OREQ      expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstOr{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_XOREQ     expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstXor{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SLEFTEQ   expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftL{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SRIGHTEQ  expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftR{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
-        |       '(' ~p~exprScope yP_SSRIGHTEQ expr ')'
-                        { $$ = new AstExprStmt{$1, new AstAssign{$3, $2, new AstShiftRS{$3, $2->cloneTreePure(true), $4}},
-                                               $2->cloneTreePure(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_PLUSEQ    اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new Ast_جوڑو{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_MINUSEQ   اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstSub{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_TIMESEQ   اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstMul{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_DIVEQ     اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstDiv{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_MODEQ     اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstModDiv{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_ANDEQ     اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstAnd{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_OREQ      اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstOr{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_XOREQ     اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new AstXor{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_SLEFTEQ   اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new Ast_کھسکاؤ_L{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_SRIGHTEQ  اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new Ast_کھسکاؤ_R{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
+        |       '(' ~p~اظہاریہ_Scope yP_SSRIGHTEQ اظہاریہ ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$1, new Ast_سونپو{$3, $2, new Ast_کھسکاؤ_RS{$3, $2->clone_درخت_خالص(true), $4}},
+                                               $2->clone_درخت_خالص(true)}; }
         //
         //                      // IEEE: expression binary_operator expression
-        |       ~l~expr '+' ~r~expr                     { $$ = new AstAdd{$2, $1, $3}; }
-        |       ~l~expr '-' ~r~expr                     { $$ = new AstSub{$2, $1, $3}; }
-        |       ~l~expr '*' ~r~expr                     { $$ = new AstMul{$2, $1, $3}; }
-        |       ~l~expr '/' ~r~expr                     { $$ = new AstDiv{$2, $1, $3}; }
-        |       ~l~expr '%' ~r~expr                     { $$ = new AstModDiv{$2, $1, $3}; }
-        |       ~l~expr yP_EQUAL ~r~expr                { $$ = new AstEq{$2, $1, $3}; }
-        |       ~l~expr yP_NOTEQUAL ~r~expr             { $$ = new AstNeq{$2, $1, $3}; }
-        |       ~l~expr yP_CASEEQUAL ~r~expr            { $$ = new AstEqCase{$2, $1, $3}; }
-        |       ~l~expr yP_CASENOTEQUAL ~r~expr         { $$ = new AstNeqCase{$2, $1, $3}; }
-        |       ~l~expr yP_WILDEQUAL ~r~expr            { $$ = new AstEqWild{$2, $1, $3}; }
-        |       ~l~expr yP_WILDNOTEQUAL ~r~expr         { $$ = new AstNeqWild{$2, $1, $3}; }
-        |       ~l~expr yP_ANDAND ~r~expr               { $$ = new AstLogAnd{$2, $1, $3}; }
-        |       ~l~expr yP_OROR ~r~expr                 { $$ = new AstLogOr{$2, $1, $3}; }
-        |       ~l~expr yP_POW ~r~expr                  { $$ = new AstPow{$2, $1, $3}; }
-        |       ~l~expr '<' ~r~expr                     { $$ = new AstLt{$2, $1, $3}; }
-        |       ~l~expr '>' ~r~expr                     { $$ = new AstGt{$2, $1, $3}; }
-        |       ~l~expr yP_GTE ~r~expr                  { $$ = new AstGte{$2, $1, $3}; }
-        |       ~l~expr '&' ~r~expr                     { $$ = new AstAnd{$2, $1, $3}; }
-        |       ~l~expr '|' ~r~expr                     { $$ = new AstOr{$2, $1, $3}; }
-        |       ~l~expr '^' ~r~expr                     { $$ = new AstXor{$2, $1, $3}; }
-        |       ~l~expr yP_XNOR ~r~expr                 { $$ = new AstNot{$2, new AstXor{$2, $1, $3}}; }
-        |       ~l~expr yP_NOR ~r~expr
+        |       ~l~اظہاریہ '+' ~r~اظہاریہ                     { $$ = new Ast_جوڑو{$2, $1, $3}; }
+        |       ~l~اظہاریہ '-' ~r~اظہاریہ                     { $$ = new AstSub{$2, $1, $3}; }
+        |       ~l~اظہاریہ '*' ~r~اظہاریہ                     { $$ = new AstMul{$2, $1, $3}; }
+        |       ~l~اظہاریہ '/' ~r~اظہاریہ                     { $$ = new AstDiv{$2, $1, $3}; }
+        |       ~l~اظہاریہ '%' ~r~اظہاریہ                     { $$ = new AstModDiv{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_EQUAL ~r~اظہاریہ                { $$ = new AstEq{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_NOTEQUAL ~r~اظہاریہ             { $$ = new AstNeq{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_CASEEQUAL ~r~اظہاریہ            { $$ = new AstEqCase{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_CASENOTEQUAL ~r~اظہاریہ         { $$ = new AstNeqCase{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_WILDEQUAL ~r~اظہاریہ            { $$ = new AstEqWild{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_WILDNOTEQUAL ~r~اظہاریہ         { $$ = new AstNeqWild{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_ANDAND ~r~اظہاریہ               { $$ = new AstLogAnd{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_OROR ~r~اظہاریہ                 { $$ = new AstLogOr{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_POW ~r~اظہاریہ                  { $$ = new AstPow{$2, $1, $3}; }
+        |       ~l~اظہاریہ '<' ~r~اظہاریہ                     { $$ = new AstLt{$2, $1, $3}; }
+        |       ~l~اظہاریہ '>' ~r~اظہاریہ                     { $$ = new AstGt{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_GTE ~r~اظہاریہ                  { $$ = new AstGte{$2, $1, $3}; }
+        |       ~l~اظہاریہ '&' ~r~اظہاریہ                     { $$ = new AstAnd{$2, $1, $3}; }
+        |       ~l~اظہاریہ '|' ~r~اظہاریہ                     { $$ = new AstOr{$2, $1, $3}; }
+        |       ~l~اظہاریہ '^' ~r~اظہاریہ                     { $$ = new AstXor{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_XNOR ~r~اظہاریہ                 { $$ = new AstNot{$2, new AstXor{$2, $1, $3}}; }
+        |       ~l~اظہاریہ yP_NOR ~r~اظہاریہ
                         { $$ = new AstNot{$2, new AstOr{$2, $1, $3}};
                           $2->v3error("Syntax error: '~|' is not a 'nor' binary operator, but a unary '~ |'"
-                                      << YYNEWLINE << $<fl>1->warnMore() << "... Suggest '~ (... | ...)'"); }
-        |       ~l~expr yP_NAND ~r~expr
+                                      << YYNEWLINE << $<fl>1->warn_ہور() << "... Suggest '~ (... | ...)'"); }
+        |       ~l~اظہاریہ yP_NAND ~r~اظہاریہ
                         { $$ = new AstNot{$2, new AstAnd{$2, $1, $3}};
                           $2->v3error("Syntax error: '~&' is not a 'nand' binary operator, but a unary '~ &'"
-                                      << YYNEWLINE << $<fl>1->warnMore() << "... Suggest '~ (... & ...)'"); }
-        |       ~l~expr yP_SLEFT ~r~expr                { $$ = new AstShiftL{$2, $1, $3}; }
-        |       ~l~expr yP_SRIGHT ~r~expr               { $$ = new AstShiftR{$2, $1, $3}; }
-        |       ~l~expr yP_SSRIGHT ~r~expr              { $$ = new AstShiftRS{$2, $1, $3}; }
-        |       ~l~expr yP_LTMINUSGT ~r~expr            { $$ = new AstLogEq{$2, $1, $3}; }
+                                      << YYNEWLINE << $<fl>1->warn_ہور() << "... Suggest '~ (... & ...)'"); }
+        |       ~l~اظہاریہ yP_SLEFT ~r~اظہاریہ                { $$ = new Ast_کھسکاؤ_L{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_SRIGHT ~r~اظہاریہ               { $$ = new Ast_کھسکاؤ_R{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_SSRIGHT ~r~اظہاریہ              { $$ = new Ast_کھسکاؤ_RS{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_LTMINUSGT ~r~اظہاریہ            { $$ = new AstLogEq{$2, $1, $3}; }
         //
         //                      // IEEE: expression binary_operator expression (type compare see IEEE footnote)
         |       type_referenceEq yP_CASEEQUAL type_referenceBoth     { $$ = new AstEqT{$2, $1, $3}; }
@@ -5107,124 +5107,124 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         //                      // the bare-expression RHS as a boolean
         //                      // (AstLogIf), constraint_expression has one
         //                      // production per non-expression RHS shape.
-        |       ~l~expr yP_MINUSGT ~r~expr              { $$ = new AstLogIf{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_MINUSGT ~r~اظہاریہ              { $$ = new AstLogIf{$2, $1, $3}; }
         //
         //                      // <= is special, as we need to disambiguate it with <= assignment
         //                      // We copy all of expr to fexpr and rename this token to a fake one.
-        |       ~l~expr yP_LTE~f__IGNORE~ ~r~expr       { $$ = new AstLte{$2, $1, $3}; }
+        |       ~l~اظہاریہ yP_LTE~f__IGNORE~ ~r~اظہاریہ       { $$ = new AstLte{$2, $1, $3}; }
         //
         //                      // IEEE: conditional_expression
-        |       ~l~expr '?' ~r~expr ':' ~r~expr         { $$ = new AstCond{$2, $1, $3, $5}; }
+        |       ~l~اظہاریہ '?' ~r~اظہاریہ ':' ~r~اظہاریہ         { $$ = new AstCond{$2, $1, $3, $5}; }
         //
         //                      // IEEE: inside_expression
-        |       ~l~expr yINSIDE '{' range_list '}'      { $$ = new AstInside{$2, $1, $4}; }
+        |       ~l~اظہاریہ yINSIDE '{' range_list '}'      { $$ = new AstInside{$2, $1, $4}; }
         //
         //                      // IEEE: tagged_union_expression
         //                      // yTAGGED__NONPRIMARY = tokenPipeline determined no primary follows
         |       yTAGGED__NONPRIMARY idAny/*member*/ %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, nullptr}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, nullptr}; }
         //                      // yTAGGED = primary follows; handle specific primary types
         //                      // Parenthesized expression
-        |       yTAGGED idAny/*member*/ '(' expr ')' %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $4}; }
+        |       yTAGGED idAny/*member*/ '(' اظہاریہ ')' %prec prTAGGED
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, $4}; }
         //                      // Assignment patterns like tagged Add '{a, b, c}
-        |       yTAGGED idAny/*member*/ assignment_pattern %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $3}; }
+        |       yTAGGED idAny/*member*/ assignment_نمونہ %prec prTAGGED
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, $3}; }
         //                      // Integer literal
         |       yTAGGED idAny/*member*/ yaINTNUM %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, *$3}}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, new AstConst{$<fl>3, *$3}}; }
         //                      // Float literal
         |       yTAGGED idAny/*member*/ yaFLOATNUM %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, AstConst::RealDouble{}, $3}}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, new AstConst{$<fl>3, AstConst::RealDouble{}, $3}}; }
         //                      // String literal
         |       yTAGGED idAny/*member*/ yaSTRING %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$<fl>3, AstConst::VerilogStringLiteral{}, *$3}}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, new AstConst{$<fl>3, AstConst::VerilogStringLiteral{}, *$3}}; }
         //                      // null literal
         |       yTAGGED idAny/*member*/ yNULL %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstConst{$3, AstConst::Null{}}}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, new AstConst{$3, AstConst::Null{}}}; }
         //                      // Identifier as value
         |       yTAGGED idAny/*member*/ idAny %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, new AstParseRef{$<fl>3, *$3, nullptr, nullptr}}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, new AstParseRef{$<fl>3, *$3, nullptr, nullptr}}; }
         //                      // Concatenation
         |       yTAGGED idAny/*member*/ '{' cateList '}' %prec prTAGGED
-                        { $$ = new AstTaggedExpr{$1, *$2, $4}; }
+                        { $$ = new Ast_Tagged_اظہاریہ{$1, *$2, $4}; }
         //
         //======================// IEEE: primary/constant_primary
         //
         //                      // IEEE: primary_literal (minus string, which is handled specially)
         |       yaINTNUM                                { $$ = new AstConst{$<fl>1, *$1}; }
         |       yaFLOATNUM                              { $$ = new AstConst{$<fl>1, AstConst::RealDouble{}, $1}; }
-        |       timeNumAdjusted                         { $$ = $1; }
+        |       ویلا_عدد_Adjusted                         { $$ = $1; }
         |       strAsInt~noStr__IGNORE~                 { $$ = $1; }
         //
         //                      // IEEE: "... hierarchical_identifier select"  see below
         //
         //                      // IEEE: empty_unpacked_array_concatenation
         //                      // IEEE: (aka empty_queue, empty_unpacked_array_concatenation)
-        |       '{' '}'                                 { $$ = new AstEmptyQueue{$1}; }
+        |       '{' '}'                                 { $$ = new Ast_خالی_تھاواں_قطار{$1}; }
         //
         //                      // IEEE: concatenation/constant_concatenation
         //                      // Part of exprOkLvalue below
         //
         //                      // IEEE: multiple_concatenation/constant_multiple_concatenation
-        |       '{' constExpr '{' cateList '}' '}'
+        |       '{' const_اظہاریہ '{' cateList '}' '}'
                         { $$ = new AstReplicate{$3, $4, $2}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr ']'
-                        { $$ = new AstSelBit{$7, new AstReplicate{$3, $4, $2}, $8}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' constExpr ':' constExpr ']'
-                        { $$ = new AstSelExtract{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr yP_PLUSCOLON constExpr ']'
+        |       '{' const_اظہاریہ '{' cateList '}' '}' '[' اظہاریہ ']'
+                        { $$ = new Ast_Sel_ثنائی_ہندسہ{$7, new AstReplicate{$3, $4, $2}, $8}; }
+        |       '{' const_اظہاریہ '{' cateList '}' '}' '[' const_اظہاریہ ':' const_اظہاریہ ']'
+                        { $$ = new Ast_Sel_کڈھو{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
+        |       '{' const_اظہاریہ '{' cateList '}' '}' '[' اظہاریہ yP_PLUSCOLON const_اظہاریہ ']'
                         { $$ = new AstSelPlus{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
-        |       '{' constExpr '{' cateList '}' '}' '[' expr yP_MINUSCOLON constExpr ']'
+        |       '{' const_اظہاریہ '{' cateList '}' '}' '[' اظہاریہ yP_MINUSCOLON const_اظہاریہ ']'
                         { $$ = new AstSelMinus{$7, new AstReplicate{$3, $4, $2}, $8, $10}; }
         //                      // UNSUP some other rules above
         //
         //                      // IEEE grammar error: function_subroutine_call [ range_expression ]
         //                      // should be instead:  function_subroutine_call [ part_select_range ]
-        |       function_subroutine_callNoMethod
+        |       function_subroutine_call_No_طریقہ
                         { $$ = $1; }
-        |       function_subroutine_callNoMethod part_select_rangeList
+        |       function_subroutine_call_No_طریقہ part_select_rangeList
                         { $$ = GRAMMARP->scrubSel($1, $2); }
         //                      // method_call
-        |       ~l~expr '.' function_subroutine_callNoMethod
+        |       ~l~اظہاریہ '.' function_subroutine_call_No_طریقہ
                         { $$ = new AstDot{$2, false, $1, $3}; }
-        |       ~l~expr '.' function_subroutine_callNoMethod part_select_rangeList
+        |       ~l~اظہاریہ '.' function_subroutine_call_No_طریقہ part_select_rangeList
                         { $$ = GRAMMARP->scrubSel(new AstDot{$2, false, $1, $3}, $4); }
         //                      // method_call:array_method requires a '.'
-        |       ~l~expr '.' array_methodWith
+        |       ~l~اظہاریہ '.' array_طریقہ_With
                         { $$ = new AstDot{$2, false, $1, $3}; }
-        |       ~l~expr '.' array_methodWith part_select_rangeList
+        |       ~l~اظہاریہ '.' array_طریقہ_With part_select_rangeList
                         { $$ = GRAMMARP->scrubSel(new AstDot{$2, false, $1, $3}, $4); }
         //
         //                      // IEEE: let_expression
         //                      // see funcRef
         //
         //                      // IEEE: '(' mintypmax_expression ')'
-        |       ~noPar__IGNORE~'(' expr ')'             { $$ = $2; }
-        |       ~noPar__IGNORE~'(' expr ':' expr ':' expr ')'
+        |       ~noPar__IGNORE~'(' اظہاریہ ')'             { $$ = $2; }
+        |       ~noPar__IGNORE~'(' اظہاریہ ':' اظہاریہ ':' اظہاریہ ')'
                         { $$ = $4; MINTYPMAXDLYUNSUP($4); DEL($2); DEL($6); }
         //                      // PSL rule
-        |       '_' '(' expr ')'                        { $$ = $3; }    // Arbitrary Verilog inside PSL
+        |       '_' '(' اظہاریہ ')'                        { $$ = $3; }    // Arbitrary Verilog inside PSL
         //
         //                      // IEEE: cast/constant_cast
         //                      // expanded from casting_type
-        |       simple_typeNoRef yP_TICK '(' expr ')'
-                        { $$ = new AstCast{$2, $4, VFlagChildDType{}, $1}; }
+        |       simple_typeNoRef yP_TICK '(' اظہاریہ ')'
+                        { $$ = new AstCast{$2, $4, VFlag_بچہ_DType{}, $1}; }
         //                      // expanded from simple_type ps_type_identifier (part of simple_type)
         //                      // expanded from simple_type ps_parameter_identifier (part of simple_type)
         //                      // Causes conflict, so handled post-parse
         //                      // NO: packageClassScopeE idType yP_TICK '(' expr ')'
         //
-        |       yTYPE__ETC '(' exprOrDataType ')' yP_TICK '(' expr ')'
-                        { $$ = new AstCast{$1, $7, VFlagChildDType{},
-                                           new AstRefDType{$1, AstRefDType::FlagTypeOfExpr{}, $3}}; }
-        |       ySIGNED yP_TICK '(' expr ')'            { $$ = new AstSigned{$1, $4}; }
-        |       yUNSIGNED yP_TICK '(' expr ')'          { $$ = new AstUnsigned{$1, $4}; }
-        |       ySTRING yP_TICK '(' expr ')'            { $$ = new AstCvtPackString{$1, $4}; }
-        |       yCONST__ETC yP_TICK '(' expr ')'        { $$ = $4; }  // Not linting const presently
+        |       yTYPE__ETC '(' اظہاریہ_Or_انکڑے_Type ')' yP_TICK '(' اظہاریہ ')'
+                        { $$ = new AstCast{$1, $7, VFlag_بچہ_DType{},
+                                           new AstRefDType{$1, AstRefDType::Flag_Type_دا_اظہاریہ{}, $3}}; }
+        |       ySIGNED yP_TICK '(' اظہاریہ ')'            { $$ = new AstSigned{$1, $4}; }
+        |       yUNSIGNED yP_TICK '(' اظہاریہ ')'          { $$ = new AstUnsigned{$1, $4}; }
+        |       ySTRING yP_TICK '(' اظہاریہ ')'            { $$ = new AstCvtPackString{$1, $4}; }
+        |       yCONST__ETC yP_TICK '(' اظہاریہ ')'        { $$ = $4; }  // Not linting const presently
         //                      // Spec only allows primary with addition of a type reference
         //                      // We'll be more general, and later assert LHS was a type.
-        |       ~l~expr yP_TICK '(' expr ')'            { $$ = new AstCastParse{$2, $4, $1}; }
+        |       ~l~اظہاریہ yP_TICK '(' اظہاریہ ')'            { $$ = new AstCastParse{$2, $4, $1}; }
         //
         //                      // IEEE: assignment_pattern_expression
         //                      // IEEE: streaming_concatenation
@@ -5241,28 +5241,28 @@ expr<nodeExprp>:                // IEEE: part of expression/constant_expression/
         //----------------------
         //
         //                      // Part of expr that may also be used as lvalue
-        |       ~l~exprOkLvalue                         { $$ = $1; }
+        |       ~l~اظہاریہ_Ok_Lvalue                         { $$ = $1; }
         //
         //----------------------
         //
         //                      // IEEE: cond_predicate - here to avoid reduce problems
         //                      // Note expr includes cond_pattern
-        |       ~l~expr yP_ANDANDAND ~r~expr            { $$ = new AstConst{$2, AstConst::BitFalse{}};
+        |       ~l~اظہاریہ yP_ANDANDAND ~r~اظہاریہ            { $$ = new AstConst{$2, AstConst::ثنائی_ہندسہ_False{}};
                                                           BBUNSUP($<fl>2, "Unsupported: &&& expression"); }
         //
         //                      // IEEE: cond_pattern - here to avoid reduce problems
         //                      // "expr yMATCHES pattern"
         //                      // IEEE: pattern - expanded here to avoid conflicts
-        |       ~l~expr yMATCHES patternNoExpr          { $$ = new AstMatches{$2, $1, $3}; }
-        |       ~l~expr yMATCHES ~r~expr                { $$ = new AstMatches{$2, $1, $3}; }
+        |       ~l~اظہاریہ yMATCHES نمونہ_No_اظہاریہ          { $$ = new AstMatches{$2, $1, $3}; }
+        |       ~l~اظہاریہ yMATCHES ~r~اظہاریہ                { $$ = new AstMatches{$2, $1, $3}; }
         //
         //                      // IEEE: expression_or_dist - here to avoid reduce problems
         //                      // "expr yDIST '{' dist_list '}'"
-        |       ~l~expr yDIST '{' dist_list '}'         { $$ = new AstDist{$2, $1, $4}; }
+        |       ~l~اظہاریہ yDIST '{' dist_list '}'         { $$ = new AstDist{$2, $1, $4}; }
         ;
 
-fexpr<nodeExprp>:                   // For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(expr,{s/~l~/f/g; s/~r~/f/g; s/~f__IGNORE~/__IGNORE/g;})   // {copied}
+fexpr<گرہ_Exprp>:                   // For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(اظہاریہ,{s/~l~/f/g; s/~r~/f/g; s/~f__IGNORE~/__IGNORE/g;})   // {copied}
         ;
 
 //UNSUPpev_expr<nodeExprp>:  // IEEE: event_expression
@@ -5294,42 +5294,42 @@ fexpr<nodeExprp>:                   // For use as first part of statement (disam
 //UNSUP |       '(' event_expression ':' expr ':' expr ')'      { $<fl>$ = $<fl>1; $$ = "(...)"; }
 //UNSUP ;
 
-exprNoStr<nodeExprp>:               // expression with string removed
-                BISONPRE_COPY(expr,{s/~noStr__IGNORE~/Ignore/g;})       // {copied}
+اظہاریہ_No_Str<گرہ_Exprp>:               // expression with string removed
+                BISONPRE_COPY(اظہاریہ,{s/~noStr__IGNORE~/Ignore/g;})       // {copied}
         ;
 
-exprOkLvalue<nodeExprp>:            // expression that's also OK to use as a variable_lvalue
-                ~l~exprScope                            { $$ = $1; }
+اظہاریہ_Ok_Lvalue<گرہ_Exprp>:            // expression that's also OK to use as a variable_lvalue
+                ~l~اظہاریہ_Scope                            { $$ = $1; }
         //                      // IEEE: concatenation/constant_concatenation
         //                      // Replicate(1) required as otherwise "{a}" would not be self-determined
         |       '{' cateList '}'                        { $$ = new AstReplicate{$1, $2, 1}; }
-        |       '{' cateList '}' '[' expr ']'           { $$ = new AstSelBit{$4, new AstReplicate{$1, $2, 1}, $5}; }
-        |       '{' cateList '}' '[' constExpr ':' constExpr ']'
-                                                        { $$ = new AstSelExtract{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
-        |       '{' cateList '}' '[' expr yP_PLUSCOLON constExpr ']'
+        |       '{' cateList '}' '[' اظہاریہ ']'           { $$ = new Ast_Sel_ثنائی_ہندسہ{$4, new AstReplicate{$1, $2, 1}, $5}; }
+        |       '{' cateList '}' '[' const_اظہاریہ ':' const_اظہاریہ ']'
+                                                        { $$ = new Ast_Sel_کڈھو{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
+        |       '{' cateList '}' '[' اظہاریہ yP_PLUSCOLON const_اظہاریہ ']'
                                                         { $$ = new AstSelPlus{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
-        |       '{' cateList '}' '[' expr yP_MINUSCOLON constExpr ']'
+        |       '{' cateList '}' '[' اظہاریہ yP_MINUSCOLON const_اظہاریہ ']'
                                                         { $$ = new AstSelMinus{$4, new AstReplicate{$1, $2, 1}, $5, $7}; }
         //                      // IEEE: assignment_pattern_expression
         //                      // IEEE: [ assignment_pattern_expression_type ] == [ ps_type_id /ps_paremeter_id/data_type]
         //                      // We allow more here than the spec requires
         //UNSUP ~l~exprScope assignment_pattern         { UNSUP }
-        |       data_type assignment_pattern            { $$ = $2; if ($2) $2->childDTypep($1); }
-        |       assignment_pattern                      { $$ = $1; }
+        |       انکڑے_type assignment_نمونہ            { $$ = $2; إذا ($2) $2->بچہ_DTypep($1); }
+        |       assignment_نمونہ                      { $$ = $1; }
         //
         |       streaming_concatenation                 { $$ = $1; }
         ;
 
-fexprOkLvalue<nodeExprp>:           // exprOkLValue, For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/f/g}) // {copied}
+fexprOkLvalue<گرہ_Exprp>:           // exprOkLValue, For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(اظہاریہ_Ok_Lvalue,{s/~l~/f/g}) // {copied}
         ;
 
-sexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by sequence_expr
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/s/g}) // {copied}
+sexprOkLvalue<گرہ_Exprp>:  // exprOkLValue, For use by sequence_expr
+                BISONPRE_COPY(اظہاریہ_Ok_Lvalue,{s/~l~/s/g}) // {copied}
         ;
 
-pexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by property_expr
-                BISONPRE_COPY(exprOkLvalue,{s/~l~/p/g}) // {copied}
+pexprOkLvalue<گرہ_Exprp>:  // exprOkLValue, For use by property_expr
+                BISONPRE_COPY(اظہاریہ_Ok_Lvalue,{s/~l~/p/g}) // {copied}
         ;
 
 //UNSUPev_exprOkLvalue<nodeExprp>:  // exprOkLValue, For use by ev_expr
@@ -5340,11 +5340,11 @@ pexprOkLvalue<nodeExprp>:  // exprOkLValue, For use by property_expr
 //UNSUP         BISONPRE_COPY(exprOkLvalue,{s/~l~/pev_/g})      // {copied}
 //UNSUP ;
 
-fexprLvalue<nodeExprp>:             // For use as first part of statement (disambiguates <=)
+fexprLvalue<گرہ_Exprp>:             // For use as first part of statement (disambiguates <=)
                 fexprOkLvalue                           { $<fl>$ = $<fl>1; $$ = $1; }
         ;
 
-exprScope<nodeExprp>:               // scope and variable for use to inside an expression
+اظہاریہ_Scope<گرہ_Exprp>:               // scope and variable for use to inside an expression
         //                      // Here we've split method_call_root | implicit_class_handle | class_scope | package_scope
         //                      // from the object being called and let expr's "." deal with resolving it.
         //                      // (note method_call_root was simplified to require a primary in 1800-2009)
@@ -5353,17 +5353,17 @@ exprScope<nodeExprp>:               // scope and variable for use to inside an e
         //                      // Or method_call_body without parenthesis
         //                      // See also varRefClassBit, which is the non-expr version of most of this
                 yTHIS                                   { $$ = new AstParseRef{$<fl>1, "this"}; }
-        |       yD_ROOT                                 { $$ = new AstParseRef{$<fl>1, "$root"}; }
+        |       y_D_جڑ                                 { $$ = new AstParseRef{$<fl>1, "$root"}; }
         |       idArrayed                               { $$ = $1; }
         |       packageClassScope idArrayed             { $$ = AstDot::newIfPkg($2->fileline(), $1, $2); }
-        |       ~l~expr '.' idArrayed                   { $$ = new AstDot{$<fl>2, false, $1, $3}; }
+        |       ~l~اظہاریہ '.' idArrayed                   { $$ = new AstDot{$<fl>2, false, $1, $3}; }
         //                      // expr below must be a "yTHIS"
-        |       ~l~expr '.' ySUPER
-                        { AstParseRef* const anodep = VN_CAST($1, ParseRef);
-                          if (anodep && anodep->name() == "this") {
+        |       ~l~اظہاریہ '.' ySUPER
+                        { AstParseRef* ثابت anodep = VN_CAST($1, ParseRef);
+                          إذا (anodep && anodep->name() == "this") {
                               $$ = new AstParseRef{$<fl>1, "super"};
-                              $1->deleteTree();
-                          } else {
+                              $1->delete_درخت();
+                          } وإلا {
                               $$ = $1;  $$->v3error("Syntax error: 'super' must be first name component, or after 'this.'");
                           }
                         }
@@ -5371,16 +5371,16 @@ exprScope<nodeExprp>:               // scope and variable for use to inside an e
         |       ySUPER                                  { $$ = new AstParseRef{$<fl>1, "super"}; }
         ;
 
-fexprScope<nodeExprp>:              // exprScope, For use as first part of statement (disambiguates <=)
-                BISONPRE_COPY(exprScope,{s/~l~/f/g})    // {copied}
+fexprScope<گرہ_Exprp>:              // exprScope, For use as first part of statement (disambiguates <=)
+                BISONPRE_COPY(اظہاریہ_Scope,{s/~l~/f/g})    // {copied}
         ;
 
-sexprScope<nodeExprp>:  // exprScope, For use by sequence_expr
-                BISONPRE_COPY(exprScope,{s/~l~/s/g})    // {copied}
+sexprScope<گرہ_Exprp>:  // exprScope, For use by sequence_expr
+                BISONPRE_COPY(اظہاریہ_Scope,{s/~l~/s/g})    // {copied}
         ;
 
-pexprScope<nodeExprp>:  // exprScope, For use by property_expr
-                BISONPRE_COPY(exprScope,{s/~l~/p/g})    // {copied}
+pexprScope<گرہ_Exprp>:  // exprScope, For use by property_expr
+                BISONPRE_COPY(اظہاریہ_Scope,{s/~l~/p/g})    // {copied}
         ;
 
 //UNSUPev_exprScope<nodeExprp>:  // exprScope, For use by ev_expr
@@ -5393,88 +5393,88 @@ pexprScope<nodeExprp>:  // exprScope, For use by property_expr
 
 // PLI calls exclude "" as integers, they're strings
 // For $c("foo","bar") we want "bar" as a string, not a Verilog integer.
-exprStrText<nodep>:
-                exprNoStr                               { $$ = $1; }
-        |       yaSTRING                                { $$ = new AstText{$<fl>1, GRAMMARP->textQuoted($<fl>1, *$1)}; }
+اظہاریہ_Str_متن<nodep>:
+                اظہاریہ_No_Str                               { $$ = $1; }
+        |       yaSTRING                                { $$ = new Ast_متن{$<fl>1, GRAMMARP->متن_Quoted($<fl>1, *$1)}; }
         ;
 
-exprTypeCompare<nodeExprp>:
-                expr                                    { $$ = $1; }
+اظہاریہ_Type_Compare<گرہ_Exprp>:
+                اظہاریہ                                    { $$ = $1; }
         |       type_referenceBoth                      { $$ = $1; }
         ;
 
 cStrList<nodep>:
-                exprStrText                             { $$ = $1; }
-        |       exprStrText ',' cStrList                { $$ = $1->addNext($3); }
+                اظہاریہ_Str_متن                             { $$ = $1; }
+        |       اظہاریہ_Str_متن ',' cStrList                { $$ = $1->جوڑو_اگلا($3); }
         ;
 
-cateList<nodeExprp>:
+cateList<گرہ_Exprp>:
         //                      // Not just 'expr' to prevent conflict via stream_concOrExprOrType
-                stream_expression                       { $$ = $1; }
-        |       cateList ',' stream_expression          { $$ = new AstConcat{$2, $1, $3}; }
+                دھارا_عبارت                       { $$ = $1; }
+        |       cateList ',' دھارا_عبارت          { $$ = new AstConcat{$2, $1, $3}; }
         ;
 
-exprListE<nodeExprp>:
-                /* empty */                             { $$ = nullptr; }
-        |       exprList                                { $$ = $1; }
+اظہاریہ_List_E<گرہ_Exprp>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       اظہاریہ_List                                { $$ = $1; }
         ;
 
-exprList<nodeExprp>:
-                expr                                    { $$ = $1; }
-        |       exprList ',' expr                       { $$ = $1->addNext($3); }
+اظہاریہ_List<گرہ_Exprp>:
+                اظہاریہ                                    { $$ = $1; }
+        |       اظہاریہ_List ',' اظہاریہ                       { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 // identifier_list for 'with' in inline randomize constraints (IEEE 1800-2023 18.7).
 // Only simple identifiers; non-identifier expressions are parse errors.
-inlineConstraintIdList<nodeExprp>:
+inlineConstraintIdList<گرہ_Exprp>:
                 id                                      { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
-        |       inlineConstraintIdList ',' id           { $$ = $1->addNext(
+        |       inlineConstraintIdList ',' id           { $$ = $1->جوڑو_اگلا(
                                                              new AstParseRef{$<fl>3, *$3, nullptr, nullptr}); }
         ;
 
 // Optional identifier_list. Empty 'with () {...}' differs from bare 'with {...}'
 // via AstWithParse::restricted().
-inlineConstraintIdListE<nodeExprp>:
-                /* empty */                             { $$ = nullptr; }
+inlineConstraintIdListE<گرہ_Exprp>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       inlineConstraintIdList                  { $$ = $1; }
         ;
 
-exprEListE<nodep>:  // expression list with empty commas allowed
-                exprE                                   { $$ = $1; }
-        |       exprEListE ',' exprE                    { $$ = addNextNull($1, $3); }
+اظہاریہ_EList_E<nodep>:  // expression list with empty commas allowed
+                اظہاریہ_E                                   { $$ = $1; }
+        |       اظہاریہ_EList_E ',' اظہاریہ_E                    { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-exprDispList<nodeExprp>:            // exprList for within $display
-                expr                                    { $$ = $1; }
-        |       exprDispList ',' expr                   { $$ = $1->addNext($3); }
+اظہاریہ_Disp_List<گرہ_Exprp>:            // exprList for within $display
+                اظہاریہ                                    { $$ = $1; }
+        |       اظہاریہ_Disp_List ',' اظہاریہ                   { $$ = $1->جوڑو_اگلا($3); }
         //                      // ,, creates a space in $display
-        |       exprDispList ',' /*empty*/
-                        { $$ = $1->addNext(new AstConst{$<fl>2, AstConst::VerilogStringLiteral{}, " "}); }
+        |       اظہاریہ_Disp_List ',' /*empty*/
+                        { $$ = $1->جوڑو_اگلا(new AstConst{$<fl>2, AstConst::VerilogStringLiteral{}, " "}); }
         ;
 
-vrdList<nodeExprp>:
+vrdList<گرہ_Exprp>:
                 idClassSel                              { $$ = $1; }
-        |       vrdList ',' idClassSel                  { $$ = $1->addNext($3); }
+        |       vrdList ',' idClassSel                  { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 commasE:
-                /* empty */                             { } /* ignored */
+                /*خالی_تھاواں*/                             { } /* ignored */
         |       ',' commasE                             { } /* ignored */
         ;
 
-commaVRDListE<nodeExprp>:
-                /* empty */                             { $$ = nullptr; }
+commaVRDListE<گرہ_Exprp>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       ',' vrdList                             { $$ = $2; }
         ;
 
-argsExprList<nodeExprp>:        // IEEE: part of list_of_arguments (used where ,, isn't legal)
-                expr                                    { $$ = $1; }
-        |       argsExprList ',' expr                   { $$ = $1->addNext($3); }
+دلیلاں_اظہاریہ_List<گرہ_Exprp>:        // IEEE: part of list_of_arguments (used where ,, isn't legal)
+                اظہاریہ                                    { $$ = $1; }
+        |       دلیلاں_اظہاریہ_List ',' اظہاریہ                   { $$ = $1->جوڑو_اگلا($3); }
         ;
 
-argsExprListE<argp>:       // IEEE: part of list_of_arguments
-                argsExprOneE                            { $$ = $1; }
-        |       argsExprListE ',' argsExprOneE          { $$ = $1->addNext($3); }
+دلیلاں_اظہاریہ_List_E<argp>:       // IEEE: part of list_of_arguments
+                دلیلاں_اظہاریہ_One_E                            { $$ = $1; }
+        |       دلیلاں_اظہاریہ_List_E ',' دلیلاں_اظہاریہ_One_E          { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 //UNSUPpev_argsExprListE<nodeExprp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5482,9 +5482,9 @@ argsExprListE<argp>:       // IEEE: part of list_of_arguments
 //UNSUP |       pev_argsExprListE ',' pev_argsExprOneE  { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-argsExprOneE<argp>:        // IEEE: part of list_of_arguments
+دلیلاں_اظہاریہ_One_E<argp>:        // IEEE: part of list_of_arguments
                 /*empty*/                               { $$ = new AstArg{CRELINE(), "", nullptr}; }
-        |       expr                                    { $$ = new AstArg{$1->fileline(), "", $1}; }
+        |       اظہاریہ                                    { $$ = new AstArg{$1->fileline(), "", $1}; }
         ;
 
 //UNSUPpev_argsExprOneE<nodeExprp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5492,9 +5492,9 @@ argsExprOneE<argp>:        // IEEE: part of list_of_arguments
 //UNSUP |       pev_expr                                { $$ = $1; }
 //UNSUP ;
 
-argsDottedList<argp>:      // IEEE: part of list_of_arguments
-                argsDotted                              { $$ = $1; }
-        |       argsDottedList ',' argsDotted           { $$ = addNextNull($1, $3); }
+دلیلاں_Dotted_List<argp>:      // IEEE: part of list_of_arguments
+                دلیلاں_Dotted                              { $$ = $1; }
+        |       دلیلاں_Dotted_List ',' دلیلاں_Dotted           { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 //UNSUPpev_argsDottedList<nodeExprp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5502,9 +5502,9 @@ argsDottedList<argp>:      // IEEE: part of list_of_arguments
 //UNSUP |       pev_argsDottedList ',' pev_argsDotted   { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-argsDotted<argp>:          // IEEE: part of list_of_arguments
+دلیلاں_Dotted<argp>:          // IEEE: part of list_of_arguments
                 '.' idAny '(' ')'                       { $$ = new AstArg{$<fl>2, *$2, nullptr}; }
-        |       '.' idAny '(' expr ')'                  { $$ = new AstArg{$<fl>2, *$2, $4}; }
+        |       '.' idAny '(' اظہاریہ ')'                  { $$ = new AstArg{$<fl>2, *$2, $4}; }
         ;
 
 //UNSUPpev_argsDotted<argp>:  // IEEE: part of list_of_arguments - pev_expr at bottom
@@ -5512,7 +5512,7 @@ argsDotted<argp>:          // IEEE: part of list_of_arguments
 //UNSUP |       '.' idAny '(' pev_expr ')'              { $$ = new AstArg{$<fl>2, *$2, $4}; }
 //UNSUP ;
 
-streaming_concatenation<nodeStreamp>: // ==IEEE: streaming_concatenation
+streaming_concatenation<گرہ_Streamp>: // ==IEEE: streaming_concatenation
         //                      // Need to disambiguate {<< expr-{ ... expr-} stream_concat }
         //                      // From                 {<< stream-{ ... stream-} }
         //                      // Likewise simple_type's idScoped from constExpr's idScope
@@ -5520,43 +5520,43 @@ streaming_concatenation<nodeStreamp>: // ==IEEE: streaming_concatenation
         //                      // IEEE: "'{' yP_SL/R             stream_concatenation '}'"
         //                      // IEEE: "'{' yP_SL/R simple_type stream_concatenation '}'"
         //                      // IEEE: "'{' yP_SL/R constExpr   stream_concatenation '}'"
-                '{' yP_SLEFT  stream_concatenation '}'
-                        { $$ = new AstStreamL{$2, $3, new AstConst{$2, 1}}; }
-        |       '{' yP_SRIGHT stream_concatenation '}'
-                        { $$ = new AstStreamR{$2, $3, new AstConst{$2, 1}}; }
-        |       '{' yP_SLEFT  stream_expressionOrDataType stream_concatenation '}'
-                        { $$ = new AstStreamL{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_NUMBER, $3}}; }
-        |       '{' yP_SRIGHT stream_expressionOrDataType stream_concatenation '}'
-                        { $$ = new AstStreamR{$2, $4, new AstAttrOf{$1, VAttrType::DIM_BITS_OR_NUMBER, $3}}; }
+                '{' yP_SLEFT  دھارا_concatenation '}'
+                        { $$ = new Ast_دھارا_L{$2, $3, new AstConst{$2, 1}}; }
+        |       '{' yP_SRIGHT دھارا_concatenation '}'
+                        { $$ = new Ast_دھارا_R{$2, $3, new AstConst{$2, 1}}; }
+        |       '{' yP_SLEFT  دھارا_عبارت_Or_انکڑے_Type دھارا_concatenation '}'
+                        { $$ = new Ast_دھارا_L{$2, $4, new Ast_Attr_دا{$1, VAttrType::DIM_بٹ_OR_نمبر, $3}}; }
+        |       '{' yP_SRIGHT دھارا_عبارت_Or_انکڑے_Type دھارا_concatenation '}'
+                        { $$ = new Ast_دھارا_R{$2, $4, new Ast_Attr_دا{$1, VAttrType::DIM_بٹ_OR_نمبر, $3}}; }
         ;
 
-stream_concatenation<nodeExprp>:    // ==IEEE: stream_concatenation
+دھارا_concatenation<گرہ_Exprp>:    // ==IEEE: stream_concatenation
         //                      // '{' { stream_expression } '}'
                 '{' cateList '}'                        { $$ = $2; }
         ;
 
-stream_expression<nodeExprp>:   // ==IEEE: stream_expression
+دھارا_عبارت<گرہ_Exprp>:   // ==IEEE: stream_expression
         //                      // IEEE: array_range_expression expanded below
-                expr                                    { $$ = $1; }
-        |       expr yWITH__BRA '[' expr ']'
+                اظہاریہ                                    { $$ = $1; }
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr ':' expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ ':' اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_PLUSCOLON  expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ yP_PLUSCOLON  اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_MINUSCOLON expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ yP_MINUSCOLON اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
         ;
 
-stream_expressionOrDataType<nodep>:     // IEEE: from streaming_concatenation
-                exprOrDataType                          { $$ = $1; }
-        |       expr yWITH__BRA '[' expr ']'
+دھارا_عبارت_Or_انکڑے_Type<nodep>:     // IEEE: from streaming_concatenation
+                اظہاریہ_Or_انکڑے_Type                          { $$ = $1; }
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr ':' expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ ':' اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_PLUSCOLON  expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ yP_PLUSCOLON  اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
-        |       expr yWITH__BRA '[' expr yP_MINUSCOLON expr ']'
+        |       اظہاریہ yWITH__BRA '[' اظہاریہ yP_MINUSCOLON اظہاریہ ']'
                         { $$ = $1; BBUNSUP($2, "Unsupported: with[] stream expression"); }
         ;
 
@@ -5570,51 +5570,51 @@ letId<letp>:  // IEEE: pert of let_declaration
         ;
 
 let_declaration<letp>:  // IEEE: let_declaration
-                yLET letId '=' expr ';'
+                yLET letId '=' اظہاریہ ';'
                         { $$ = $2;
-                          $$->addStmtsp(new AstStmtExpr{$1, $4}); }
-        |       yLET letId '(' let_port_listE ')' '=' expr ';'
+                          $$->جوڑو_Stmtsp(new Ast_Stmt_اظہاریہ{$1, $4}); }
+        |       yLET letId '(' let_پورٹ_list_E ')' '=' اظہاریہ ';'
                         { $$ = $2;
-                          $$->addStmtsp(new AstStmtExpr{$1, $7});
-                          $$->addStmtsp($4); }
+                          $$->جوڑو_Stmtsp(new Ast_Stmt_اظہاریہ{$1, $7});
+                          $$->جوڑو_Stmtsp($4); }
         ;
 
-let_port_listE<nodep>:   // IEEE: [ let_port_list ]
+let_پورٹ_list_E<nodep>:   // IEEE: [ let_port_list ]
                 /*empty*/                               { $$ = nullptr; }
         |       /*emptyStart*/
         /*mid*/         { VARRESET_LIST(VAR); VARIO(INOUT); }
-        /*cont*/  let_port_list                         { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
+        /*cont*/  let_پورٹ_list                         { $$ = $2; VARRESET_NONLIST(UNKNOWN); }
         ;
 
-let_port_list<nodep>:   // IEEE: let_port_list
-                let_port_item                           { $$ = $1; }
-        |       let_port_list ',' let_port_item         { $$ = addNextNull($1, $3); }
+let_پورٹ_list<nodep>:   // IEEE: let_port_list
+                let_پورٹ_شے                           { $$ = $1; }
+        |       let_پورٹ_list ',' let_پورٹ_شے         { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-let_port_item<varp>:  // IEEE: let_port_Item
+let_پورٹ_شے<varp>:  // IEEE: let_port_Item
         //                      // IEEE: Expanded let_formal_type
-                yUNTYPED idAny/*formal_port_identifier*/ variable_dimensionListE exprEqE
-                        { $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
+                yUNTYPED idAny/*formal_port_identifier*/ variable_dimensionListE اظہاریہ_Eq_E
+                        { $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlag_بچہ_DType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          إذا ($4) $$->valuep($4);
                           PINNUMINC(); }
-        |       data_type idAny/*formal_port_identifier*/ variable_dimensionListE exprEqE
+        |       انکڑے_type idAny/*formal_port_identifier*/ variable_dimensionListE اظہاریہ_Eq_E
                         { BBUNSUP($<fl>1, "Unsupported: let typed ports");
-                          $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
+                          $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlag_بچہ_DType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          إذا ($4) $$->valuep($4);
                           PINNUMINC(); }
-        |       implicit_typeE id/*formal_port_identifier*/ variable_dimensionListE exprEqE
-                        { if ($1) BBUNSUP($<fl>1, "Unsupported: let typed ports");
-                          $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlagChildDType{},
+        |       implicit_typeE id/*formal_port_identifier*/ variable_dimensionListE اظہاریہ_Eq_E
+                        { إذا ($1) BBUNSUP($<fl>1, "Unsupported: let typed ports");
+                          $$ = new AstVar{$<fl>2, VVarType::VAR, *$2, VFlag_بچہ_DType{},
                                           new AstBasicDType{$<fl>2, LOGIC_IMPLICIT}};
                           $$->direction(VDirection::INOUT);
                           $$->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                          if ($4) $$->valuep($4);
+                          إذا ($4) $$->valuep($4);
                           PINNUMINC(); }
         ;
 
@@ -5653,63 +5653,63 @@ gateDecl<nodep>:
 
 gateBufList<nodep>:
                 gateBuf                                 { $$ = $1; }
-        |       gateBufList ',' gateBuf                 { $$ = $1->addNext($3); }
+        |       gateBufList ',' gateBuf                 { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateBufif0List<nodep>:
                 gateBufif0                              { $$ = $1; }
-        |       gateBufif0List ',' gateBufif0           { $$ = $1->addNext($3); }
+        |       gateBufif0List ',' gateBufif0           { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateBufif1List<nodep>:
                 gateBufif1                              { $$ = $1; }
-        |       gateBufif1List ',' gateBufif1           { $$ = $1->addNext($3); }
+        |       gateBufif1List ',' gateBufif1           { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateNotList<nodep>:
                 gateNot                                 { $$ = $1; }
-        |       gateNotList ',' gateNot                 { $$ = $1->addNext($3); }
+        |       gateNotList ',' gateNot                 { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateNotif0List<nodep>:
                 gateNotif0                              { $$ = $1; }
-        |       gateNotif0List ',' gateNotif0           { $$ = $1->addNext($3); }
+        |       gateNotif0List ',' gateNotif0           { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateNotif1List<nodep>:
                 gateNotif1                              { $$ = $1; }
-        |       gateNotif1List ',' gateNotif1           { $$ = $1->addNext($3); }
+        |       gateNotif1List ',' gateNotif1           { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateAndList<nodep>:
                 gateAnd                                 { $$ = $1; }
-        |       gateAndList ',' gateAnd                 { $$ = $1->addNext($3); }
+        |       gateAndList ',' gateAnd                 { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateNandList<nodep>:
                 gateNand                                { $$ = $1; }
-        |       gateNandList ',' gateNand               { $$ = $1->addNext($3); }
+        |       gateNandList ',' gateNand               { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateOrList<nodep>:
                 gateOr                                  { $$ = $1; }
-        |       gateOrList ',' gateOr                   { $$ = $1->addNext($3); }
+        |       gateOrList ',' gateOr                   { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateNorList<nodep>:
                 gateNor                                 { $$ = $1; }
-        |       gateNorList ',' gateNor                 { $$ = $1->addNext($3); }
+        |       gateNorList ',' gateNor                 { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateXorList<nodep>:
                 gateXor                                 { $$ = $1; }
-        |       gateXorList ',' gateXor                 { $$ = $1->addNext($3); }
+        |       gateXorList ',' gateXor                 { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateXnorList<nodep>:
                 gateXnor                                { $$ = $1; }
-        |       gateXnorList ',' gateXnor               { $$ = $1->addNext($3); }
+        |       gateXnorList ',' gateXnor               { $$ = $1->جوڑو_اگلا($3); }
         ;
 gatePullupList<nodep>:
                 gatePullup                              { $$ = $1; }
-        |       gatePullupList ',' gatePullup           { $$ = $1->addNext($3); }
+        |       gatePullupList ',' gatePullup           { $$ = $1->جوڑو_اگلا($3); }
         ;
 gatePulldownList<nodep>:
                 gatePulldown                            { $$ = $1; }
-        |       gatePulldownList ',' gatePulldown       { $$ = $1->addNext($3); }
+        |       gatePulldownList ',' gatePulldown       { $$ = $1->جوڑو_اگلا($3); }
         ;
 gateUnsupList<nodep>:
                 gateUnsup                               { $$ = $1; }
-        |       gateUnsupList ',' gateUnsup             { $$ = $1->addNext($3); }
+        |       gateUnsupList ',' gateUnsup             { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 gateRangeE<nodep>:
@@ -5717,117 +5717,117 @@ gateRangeE<nodep>:
         ;
 
 gateBuf<nodep>:
-                gateFront variable_lvalue ',' exprList ')'
-                        { AstNodeExpr* inp = $4;
-                          while (inp->nextp()) inp = VN_AS(inp->nextp(), NodeExpr);
-                          $$ = new AstImplicit{$<fl>1, inp->cloneTree(false)};
-                          AstNodeExpr* const rhsp = GRAMMARP->createGatePin(inp->cloneTree(false));
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
-                          for (AstNodeExpr* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), NodeExpr)) {
-                              AstNodeExpr* const pinRhsp = GRAMMARP->createGatePin(inp->cloneTree(false));
-                              AstAssignW* const pinAssp = new AstAssignW{$<fl>1, outp->cloneTree(false), pinRhsp};
-                              $$->addNext(new AstAlways{pinAssp});
+                gateFront variable_lvalue ',' اظہاریہ_List ')'
+                        { Ast_گرہ_اظہاریہ* inp = $4;
+                          طالما (inp->nextp()) inp = VN_AS(inp->nextp(), گرہ_اظہاریہ);
+                          $$ = new AstImplicit{$<fl>1, inp->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = GRAMMARP->createGatePin(inp->clone_درخت(false));
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
+                          لكل (Ast_گرہ_اظہاریہ* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), گرہ_اظہاریہ)) {
+                              Ast_گرہ_اظہاریہ* ثابت pinRhsp = GRAMMARP->createGatePin(inp->clone_درخت(false));
+                              Ast_سونپو_W* ثابت pinAssp = new Ast_سونپو_W{$<fl>1, outp->clone_درخت(false), pinRhsp};
+                              $$->جوڑو_اگلا(new AstAlways{pinAssp});
                           }
                           DEL($1); DEL($4); }
         ;
 gateNot<nodep>:
-                gateFront variable_lvalue ',' exprList ')'
-                        { AstNodeExpr* inp = $4;
-                          while (inp->nextp()) inp = VN_AS(inp->nextp(), NodeExpr);
-                          $$ = new AstImplicit{$<fl>1, inp->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->cloneTree(false))};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
-                          for (AstNodeExpr* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), NodeExpr)) {
-                              AstNodeExpr* const pinRhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->cloneTree(false))};
-                              AstAssignW* const pinAssp = new AstAssignW{$<fl>1, outp->cloneTree(false), pinRhsp};
-                              $$->addNext(new AstAlways{pinAssp});
+                gateFront variable_lvalue ',' اظہاریہ_List ')'
+                        { Ast_گرہ_اظہاریہ* inp = $4;
+                          طالما (inp->nextp()) inp = VN_AS(inp->nextp(), گرہ_اظہاریہ);
+                          $$ = new AstImplicit{$<fl>1, inp->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->clone_درخت(false))};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
+                          لكل (Ast_گرہ_اظہاریہ* outp = $4; outp->nextp(); outp = VN_CAST(outp->nextp(), گرہ_اظہاریہ)) {
+                              Ast_گرہ_اظہاریہ* ثابت pinRhsp = new AstNot{$<fl>1, GRAMMARP->createGatePin(inp->clone_درخت(false))};
+                              Ast_سونپو_W* ثابت pinAssp = new Ast_سونپو_W{$<fl>1, outp->clone_درخت(false), pinRhsp};
+                              $$->جوڑو_اگلا(new AstAlways{pinAssp});
                           }
                           DEL($1, $4); }
         ;
 gateBufif0<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                gateFront variable_lvalue ',' gate_Pin_اظہاریہ ',' gate_Pin_اظہاریہ ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->جوڑو_Exprsp($4->clone_درخت(false));
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, $4};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateBufif1<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, $6, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                gateFront variable_lvalue ',' gate_Pin_اظہاریہ ',' gate_Pin_اظہاریہ ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->جوڑو_Exprsp($4->clone_درخت(false));
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstBufIf1{$<fl>1, $6, $4};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNotif0<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, new AstNot{$<fl>1, $4}};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                gateFront variable_lvalue ',' gate_Pin_اظہاریہ ',' gate_Pin_اظہاریہ ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->جوڑو_Exprsp($4->clone_درخت(false));
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstBufIf1{$<fl>1, new AstNot{$<fl>1, $6}, new AstNot{$<fl>1, $4}};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNotif1<nodep>:
-                gateFront variable_lvalue ',' gatePinExpr ',' gatePinExpr ')'
-                        { $$ = new AstImplicit{$<fl>1, $6->cloneTree(false)};
-                          $<implicitp>$->addExprsp($4->cloneTree(false));
-                          AstNodeExpr* const rhsp = new AstBufIf1{$<fl>1, $6, new AstNot{$<fl>1, $4}};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                gateFront variable_lvalue ',' gate_Pin_اظہاریہ ',' gate_Pin_اظہاریہ ')'
+                        { $$ = new AstImplicit{$<fl>1, $6->clone_درخت(false)};
+                          $<implicitp>$->جوڑو_Exprsp($4->clone_درخت(false));
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstBufIf1{$<fl>1, $6, new AstNot{$<fl>1, $4}};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateAnd<nodep>:
                 gateFront variable_lvalue ',' gateAndPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = $4;
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNand<nodep>:
                 gateFront variable_lvalue ',' gateAndPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateOr<nodep>:
                 gateFront variable_lvalue ',' gateOrPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = $4;
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateNor<nodep>:
                 gateFront variable_lvalue ',' gateOrPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateXor<nodep>:
                 gateFront variable_lvalue ',' gateXorPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = $4;
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = $4;
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gateXnor<nodep>:
                 gateFront variable_lvalue ',' gateXorPinList ')'
-                        { $$ = new AstImplicit{$<fl>1, $4->cloneTree(false)};
-                          AstNodeExpr* const rhsp = new AstNot{$<fl>1, $4};
-                          AstAssignW* const ap = new AstAssignW{$<fl>1, $2, rhsp};
-                          $$->addNext(new AstAlways{ap});
+                        { $$ = new AstImplicit{$<fl>1, $4->clone_درخت(false)};
+                          Ast_گرہ_اظہاریہ* ثابت rhsp = new AstNot{$<fl>1, $4};
+                          Ast_سونپو_W* ثابت ap = new Ast_سونپو_W{$<fl>1, $2, rhsp};
+                          $$->جوڑو_اگلا(new AstAlways{ap});
                           DEL($1); }
         ;
 gatePullup<nodep>:
@@ -5845,25 +5845,25 @@ gateFront<nodep>:
         |       gateRangeE '('                          { $$ = $1; $<fl>$ = $<fl>2; }
         ;
 
-gateAndPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateAndPinList ',' gatePinExpr          { $$ = new AstAnd{$2, $1, $3}; }
+gateAndPinList<گرہ_Exprp>:
+                gate_Pin_اظہاریہ                             { $$ = $1; }
+        |       gateAndPinList ',' gate_Pin_اظہاریہ          { $$ = new AstAnd{$2, $1, $3}; }
         ;
-gateOrPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateOrPinList ',' gatePinExpr           { $$ = new AstOr{$2, $1, $3}; }
+gateOrPinList<گرہ_Exprp>:
+                gate_Pin_اظہاریہ                             { $$ = $1; }
+        |       gateOrPinList ',' gate_Pin_اظہاریہ           { $$ = new AstOr{$2, $1, $3}; }
         ;
-gateXorPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateXorPinList ',' gatePinExpr          { $$ = new AstXor{$2, $1, $3}; }
+gateXorPinList<گرہ_Exprp>:
+                gate_Pin_اظہاریہ                             { $$ = $1; }
+        |       gateXorPinList ',' gate_Pin_اظہاریہ          { $$ = new AstXor{$2, $1, $3}; }
         ;
-gateUnsupPinList<nodeExprp>:
-                gatePinExpr                             { $$ = $1; }
-        |       gateUnsupPinList ',' gatePinExpr        { $$ = addNextNull($1, $3); }
+gateUnsupPinList<گرہ_Exprp>:
+                gate_Pin_اظہاریہ                             { $$ = $1; }
+        |       gateUnsupPinList ',' gate_Pin_اظہاریہ        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-gatePinExpr<nodeExprp>:
-                expr                                    { $$ = GRAMMARP->createGatePin($1); }
+gate_Pin_اظہاریہ<گرہ_Exprp>:
+                اظہاریہ                                    { $$ = GRAMMARP->createGatePin($1); }
         ;
 
 strength0<strength>:
@@ -5881,7 +5881,7 @@ strength1<strength>:
         ;
 
 driveStrengthE<strengthSpecp>:
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       driveStrength                           { $$ = $1; }
         ;
 
@@ -5895,7 +5895,7 @@ driveStrength<strengthSpecp>:
         ;
 
 pulldown_strengthE<nodep>:  // IEEE: [ pulldown_strength ]
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       pulldown_strength                       { $$ = $1; }
         ;
 
@@ -5906,7 +5906,7 @@ pulldown_strength<nodep>:  // IEEE: pulldown_strength
         ;
 
 pullup_strengthE<nodep>:  // IEEE: [ pullup_strength ]
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       pullup_strength                         { $$ = $1; }
         ;
 
@@ -5920,36 +5920,36 @@ pullup_strength<nodep>:  // IEEE: pullup_strength
 // Tables
 
 combinational_body<nodep>:      // IEEE: combinational_body + sequential_body
-                yTABLE tableEntryList yENDTABLE         { $$ = new AstUdpTable{$1, $2}; }
+                y_جدول جدول_اندراج_List yENDTABLE         { $$ = new Ast_Udp_جدول{$1, $2}; }
         ;
 
-tableEntryList<udpTableLinep>:  // IEEE: { combinational_entry + sequential_entry }
-                tableLine                              { $$ = $1; }
-        |       tableEntryList tableLine               { $$ = addNextNull($1, $2); }
+جدول_اندراج_List<udp_جدول_Linep>:  // IEEE: { combinational_entry + sequential_entry }
+                جدول_سطر                              { $$ = $1; }
+        |       جدول_اندراج_List جدول_سطر               { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-tableLine<udpTableLinep>:
-                tableInputList yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
-                        { $$ = new AstUdpTableLine{AstUdpTableLine::UdpCombo{}, $<fl>1, $1, $3}; }
-        |       tableInputList yaTABLE_LRSEP tablelVal yaTABLE_LRSEP tablelVal yaTABLE_LINEEND
-                        { $$ = new AstUdpTableLine{AstUdpTableLine::UdpSequential{}, $<fl>1, $1, $3, $5}; }
+جدول_سطر<udp_جدول_Linep>:
+                جدول_داخلہ_List ya_جدول_LRSEP tablelVal ya_جدول_LINEEND
+                        { $$ = new Ast_Udp_جدول_سطر{Ast_Udp_جدول_سطر::UdpCombo{}, $<fl>1, $1, $3}; }
+        |       جدول_داخلہ_List ya_جدول_LRSEP tablelVal ya_جدول_LRSEP tablelVal ya_جدول_LINEEND
+                        { $$ = new Ast_Udp_جدول_سطر{Ast_Udp_جدول_سطر::UdpSequential{}, $<fl>1, $1, $3, $5}; }
         ;
 
-tableInputList<udpTableLineValp>:
+جدول_داخلہ_List<udp_جدول_سطر_Valp>:
                 tablelVal                            { $$ = $1; }
-        |       tableInputList tablelVal             { $$ = addNextNull($1, $2); }
+        |       جدول_داخلہ_List tablelVal             { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-tablelVal<udpTableLineValp>:
-                yaTABLE_FIELD                          { $$ = new AstUdpTableLineVal{$<fl>1, *$1}; }
-        |       '(' yaTABLE_FIELD yaTABLE_FIELD ')'    { $$ = new AstUdpTableLineVal{$<fl>2, *$2 + *$3}; }
+tablelVal<udp_جدول_سطر_Valp>:
+                ya_جدول_میدان                          { $$ = new Ast_Udp_جدول_سطر_Val{$<fl>1, *$1}; }
+        |       '(' ya_جدول_میدان ya_جدول_میدان ')'    { $$ = new Ast_Udp_جدول_سطر_Val{$<fl>2, *$2 + *$3}; }
         ;
 
 //************************************************
 // Specify
 
-specify_block<nodep>:               // ==IEEE: specify_block
-                specifyFront specify_itemList yENDSPECIFY   { $$ = $2; }
+specify_بلاک<nodep>:               // ==IEEE: specify_block
+                specifyFront specify_شے_List yENDSPECIFY   { $$ = $2; }
         |       specifyFront yENDSPECIFY                { $$ = nullptr; }
         ;
 
@@ -5957,17 +5957,17 @@ specifyFront:  // IEEE: specify_block front
                 ySPECIFY                                { GRAMMARP->m_specifyignWarned = false; }
         ;
 
-specify_itemList<nodep>:            // IEEE: { specify_item }
-                specify_item                            { $$ = $1; }
-        |       specify_itemList specify_item           { $$ = addNextNull($1, $2); }
+specify_شے_List<nodep>:            // IEEE: { specify_item }
+                specify_شے                            { $$ = $1; }
+        |       specify_شے_List specify_شے           { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-specify_item<nodep>:                // ==IEEE: specify_item
+specify_شے<nodep>:                // ==IEEE: specify_item
                 specparam_declaration                   { $$ = $1; }
         |       system_timing_check                     { $$ = $1; }
-        |       junkToSemiList ';'
+        |       junk_منزل_Semi_List ';'
                         { $$ = nullptr;
-                          if (!GRAMMARP->m_specifyignWarned) {
+                          إذا (!GRAMMARP->m_specifyignWarned) {
                               GRAMMARP->m_specifyignWarned = true;
                               $1->v3warn(SPECIFYIGN, "Ignoring unsupported: specify block construct");
                           }
@@ -5975,7 +5975,7 @@ specify_item<nodep>:                // ==IEEE: specify_item
         ;
 
 specparam_declaration<nodep>:       // ==IEEE: specparam_declaration
-                specparam_declarationFront list_of_specparam_assignments ';'
+                specparam_declarationFront list_دا_specparam_assignments ';'
                         { $$ = $2; }
         ;
 
@@ -5983,34 +5983,34 @@ specparam_declarationFront:     // IEEE: part of specparam_declaration
         //                      // Front must execute first so VARDTYPE is ready before list of vars
                 ySPECPARAM
                         { VARRESET_NONLIST(SPECPARAM);
-                          AstNodeDType* dtp = new AstBasicDType{$1, VBasicDTypeKwd::DOUBLE};
+                          Ast_گرہ_DType* dtp = new AstBasicDType{$1, VBasicDTypeKwd::DOUBLE};
                           VARDTYPE(dtp); }
         |       ySPECPARAM packed_dimension
                         { VARRESET_NONLIST(SPECPARAM);
-                          AstNodeDType* const dtp = GRAMMARP->addRange(
+                          Ast_گرہ_DType* ثابت dtp = GRAMMARP->جوڑو_Range(
                                     new AstBasicDType{$2->fileline(), LOGIC_IMPLICIT}, $2, true);
                           VARDTYPE(dtp); }
         ;
 
-list_of_specparam_assignments<varp>:  // ==IEEE: list_of_specparam_assignments
+list_دا_specparam_assignments<varp>:  // ==IEEE: list_of_specparam_assignments
                 specparam_assignment                    { $$ = $1; }
-        |       list_of_specparam_assignments ',' specparam_assignment  { $$ = $1->addNext($3); }
+        |       list_دا_specparam_assignments ',' specparam_assignment  { $$ = $1->جوڑو_اگلا($3); }
         ;
 
 specparam_assignment<varp>:     // ==IEEE: specparam_assignment
                 idNotPathpulse sigAttrListE '=' minTypMax
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($4) $$->valuep($4); }
+                          إذا ($4) $$->valuep($4); }
         //                      // IEEE: pulse_control_specparam
         //                      // LRM grammar requires '(' as the first token after assignment,
         //                      // but IEEE provides an example in 30.7.1 where it is omitted.
         //                      // Other simulators also support it.
         |       idPathpulse sigAttrListE '=' minTypMax
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($4) $$->valuep($4); }
+                          إذا ($4) $$->valuep($4); }
         |       idPathpulse sigAttrListE '=' '(' minTypMax ',' minTypMax ')'
                         { $$ = VARDONEA($<fl>1, *$1, nullptr, $2);
-                          if ($5) $$->valuep($5);
+                          إذا ($5) $$->valuep($5);
                           DEL($7); }
         ;
 
@@ -6019,49 +6019,49 @@ system_timing_check<nodep>:         // ==IEEE: system_timing_check
         ;
 
 setuphold_timing_check<nodep>:      // ==IEEE: $setuphold_timing_check
-                yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ')' ';'
+                yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ')' ';'
                         { $$ = nullptr; DEL($3, $5, $7, $9); }
-        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ',' idAnyE ')' ';'
+        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ',' idAnyE ')' ';'
                         { $$ = nullptr; DEL($3, $5, $7, $9); }
-        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ',' idAnyE ',' minTypMaxE ')' ';'
+        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ',' idAnyE ',' minTypMaxE ')' ';'
                         { $$ = nullptr; DEL($3, $5, $7, $9, $13); }
-        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ',' idAnyE ',' minTypMaxE ',' minTypMaxE ')' ';'
+        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ',' idAnyE ',' minTypMaxE ',' minTypMaxE ')' ';'
                         { $$ = nullptr; DEL($3, $5, $7, $9, $13, $15); }
-        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ',' idAnyE ',' minTypMaxE ',' minTypMaxE ',' delayed_referenceE ')' ';'
+        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ',' idAnyE ',' minTypMaxE ',' minTypMaxE ',' delayed_referenceE ')' ';'
                         { $$ = new AstSetuphold{$1, $3, $5, $17}; DEL($7, $9, $13, $15);  }
-        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_limit ',' timing_check_limit ',' idAnyE ',' minTypMaxE ',' minTypMaxE ',' delayed_referenceE ',' delayed_referenceE ')' ';'
+        |       yD_SETUPHOLD '(' timing_check_event ',' timing_check_event ',' timing_check_حد_بندی ',' timing_check_حد_بندی ',' idAnyE ',' minTypMaxE ',' minTypMaxE ',' delayed_referenceE ',' delayed_referenceE ')' ';'
                         { $$ = new AstSetuphold{$1, $3, $5, $17, $19}; DEL($7, $9, $13, $15); }
         ;
 
-timing_check_event<nodeExprp>:      // ==IEEE: $timing_check_event
+timing_check_event<گرہ_Exprp>:      // ==IEEE: $timing_check_event
                 terminal_identifier                                                         { $$ = $1; }
         |       yPOSEDGE terminal_identifier                                                { $$ = $2; }
         |       yNEGEDGE terminal_identifier                                                { $$ = $2; }
-        |       yEDGE terminal_identifier                                                   { $$ = $2; }
-        |       yEDGE '[' edge_descriptor_list ']' terminal_identifier                      { $$ = $5; }
-        |       terminal_identifier yP_ANDANDAND expr                                       { $$ = $1; DEL($3); }
-        |       yPOSEDGE terminal_identifier yP_ANDANDAND expr                              { $$ = $2; DEL($4); }
-        |       yNEGEDGE terminal_identifier yP_ANDANDAND expr                              { $$ = $2; DEL($4); }
-        |       yEDGE terminal_identifier yP_ANDANDAND expr                                 { $$ = $2; DEL($4); }
-        |       yEDGE '[' edge_descriptor_list ']' terminal_identifier yP_ANDANDAND expr    { $$ = $5; DEL($7); }
+        |       y_کنارا terminal_identifier                                                   { $$ = $2; }
+        |       y_کنارا '[' کنارا_descriptor_list ']' terminal_identifier                      { $$ = $5; }
+        |       terminal_identifier yP_ANDANDAND اظہاریہ                                       { $$ = $1; DEL($3); }
+        |       yPOSEDGE terminal_identifier yP_ANDANDAND اظہاریہ                              { $$ = $2; DEL($4); }
+        |       yNEGEDGE terminal_identifier yP_ANDANDAND اظہاریہ                              { $$ = $2; DEL($4); }
+        |       y_کنارا terminal_identifier yP_ANDANDAND اظہاریہ                                 { $$ = $2; DEL($4); }
+        |       y_کنارا '[' کنارا_descriptor_list ']' terminal_identifier yP_ANDANDAND اظہاریہ    { $$ = $5; DEL($7); }
         ;
 
-edge_descriptor_list:
+کنارا_descriptor_list:
                 yaEDGEDESC                            {  }
-        |       edge_descriptor_list ',' yaEDGEDESC   {  }
+        |       کنارا_descriptor_list ',' yaEDGEDESC   {  }
         ;
 
-timing_check_limit<nodeExprp>:
-                expr                      { $$ = $1; }
-        |       expr ':' expr ':' expr    { $$ = $3; DEL($1, $5); }
+timing_check_حد_بندی<گرہ_Exprp>:
+                اظہاریہ                      { $$ = $1; }
+        |       اظہاریہ ':' اظہاریہ ':' اظہاریہ    { $$ = $3; DEL($1, $5); }
         ;
 
-delayed_referenceE<nodeExprp>:
+delayed_referenceE<گرہ_Exprp>:
                 /*empty*/                               { $$ = nullptr; }
         |       terminal_identifier                     { $$ = $1; }
         ;
 
-terminal_identifier<nodeExprp>:
+terminal_identifier<گرہ_Exprp>:
                 idArrayed     { $$ = $1; }
         ;
 
@@ -6070,12 +6070,12 @@ idAnyE<strp>:
         |       idAny                                   { $$ = $1; }
         ;
 
-junkToSemiList<fl>:
-                junkToSemi                              { $$ = CRELINE(); }
-        |       junkToSemiList junkToSemi               { $$ = CRELINE(); }
+junk_منزل_Semi_List<fl>:
+                junk_منزل_Semi                              { $$ = CRELINE(); }
+        |       junk_منزل_Semi_List junk_منزل_Semi               { $$ = CRELINE(); }
         ;
 
-junkToSemi:
+junk_منزل_Semi:
                 BISONPRE_NOT(';',yD_SETUPHOLD,yENDMODULE,yENDSPECIFY,ySPECPARAM)        { }
         |       error                                   { }  // LCOV_EXCL_LINE
         ;
@@ -6135,18 +6135,18 @@ idCC<strp>:                     // IEEE: class/package then ::
         ;
 
 idRandomize<strp>:              // Keyword as an identifier
-                yRANDOMIZE                              { static string s = "randomize"; $$ = &s; $<fl>$ = $<fl>1; }
+                yRANDOMIZE                              { ساكن string s = "randomize"; $$ = &s; $<fl>$ = $<fl>1; }
         ;
 
 idSVKwd<strp>:                  // Warn about non-forward compatible Verilog 2001 code
         //                      // yBIT, yBYTE won't work here as causes conflicts
                 yDO
-                        { static string s = "do"   ; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
+                        { ساكن string s = "do"   ; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
         |       yFINAL
-                        { static string s = "final"; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
+                        { ساكن string s = "final"; $$ = &s; ERRSVKWD($1, *$$); $<fl>$ = $<fl>1; }
         ;
 
-variable_lvalue<nodeExprp>:     // IEEE: variable_lvalue or net_lvalue
+variable_lvalue<گرہ_Exprp>:     // IEEE: variable_lvalue or net_lvalue
         //                      // Note many variable_lvalue's must use exprOkLvalue when arbitrary expressions may also exist
                 idClassSel                              { $$ = $1; }
         |       '{' variable_lvalueConcList '}'         { $$ = $2; }
@@ -6158,7 +6158,7 @@ variable_lvalue<nodeExprp>:     // IEEE: variable_lvalue or net_lvalue
         |       streaming_concatenation                 { $$ = $1; }
         ;
 
-variable_lvalueConcList<nodeExprp>:  // IEEE: part of variable_lvalue: '{' variable_lvalue { ',' variable_lvalue } '}'
+variable_lvalueConcList<گرہ_Exprp>:  // IEEE: part of variable_lvalue: '{' variable_lvalue { ',' variable_lvalue } '}'
                 variable_lvalue                                 { $$ = $1; }
         |       variable_lvalueConcList ',' variable_lvalue     { $$ = new AstConcat{$2, $1, $3}; }
         ;
@@ -6168,7 +6168,7 @@ variable_lvalueConcList<nodeExprp>:  // IEEE: part of variable_lvalue: '{' varia
 //UNSUP |       variable_lvalueList ',' variable_lvalue { $$ = addNextNull($1, $3); }
 //UNSUP ;
 
-idClass<nodeExprp>:             // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
+idClass<گرہ_Exprp>:             // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
                 idDotted                                { $$ = $1; }
         //                      // IEEE: [ implicit_class_handle . | package_scope ] hierarchical_variable_identifier select
         |       yTHIS '.' idDotted
@@ -6181,7 +6181,7 @@ idClass<nodeExprp>:             // Misc Ref to dotted, and/or arrayed, and/or bi
         |       packageClassScope idDotted              { $$ = new AstDot{$<fl>2, true, $1, $2}; }
         ;
 
-idClassSel<nodeExprp>:          // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
+idClassSel<گرہ_Exprp>:          // Misc Ref to dotted, and/or arrayed, and/or bit-ranged variable
                 idDottedSel                             { $$ = $1; }
         //                      // IEEE: [ implicit_class_handle . | package_scope ] hierarchical_variable_identifier select
         |       yTHIS '.' idDottedSel
@@ -6198,58 +6198,58 @@ idClassSelForeach<foreachHeaderp>:
                 idDottedForeach                         { $$ = $1; }
         //                      // IEEE: [ implicit_class_handle . | package_scope ] hierarchical_variable_identifier select
         |       yTHIS '.' idDottedForeach
-                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "this"}, $3->fromp()->unlinkFrBack()}); $$ = $3; }
+                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "this"}, $3->fromp()->unlink_Fr_پٹھ()}); $$ = $3; }
         |       ySUPER '.' idDottedForeach
-                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "super"}, $3->fromp()->unlinkFrBack()}); $$ = $3; }
+                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "super"}, $3->fromp()->unlink_Fr_پٹھ()}); $$ = $3; }
         |       yTHIS '.' ySUPER '.' idDottedForeach
-                        { $5->fromp(new AstDot{$4, false, new AstParseRef{$<fl>3, "super"}, $5->fromp()->unlinkFrBack()}); $$ = $5; }
+                        { $5->fromp(new AstDot{$4, false, new AstParseRef{$<fl>3, "super"}, $5->fromp()->unlink_Fr_پٹھ()}); $$ = $5; }
         //                      // Expanded: package_scope idForeach
         |       packageClassScope idDottedForeach
-                       { $2->fromp(new AstDot{$<fl>2, true, $1, $2->fromp()->unlinkFrBack()}); $$ = $2; }
+                       { $2->fromp(new AstDot{$<fl>2, true, $1, $2->fromp()->unlink_Fr_پٹھ()}); $$ = $2; }
         ;
 
 
 // Dotted identifier for typedef - must have at least one '.'
 // First component is plain id or id with array index, subsequent components can have arrays
-idDottedOrArrayed<nodeExprp>:
+idDottedOrArrayed<گرہ_Exprp>:
                 id '.' idArrayed
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, *$1, nullptr, nullptr}, $3}; }
         |       idDottedOrArrayed '.' idArrayed
                         { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-idDotted<nodeExprp>:
-                yD_ROOT '.' idDottedMore
+idDotted<گرہ_Exprp>:
+                y_D_جڑ '.' id_Dotted_ہور
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3}; }
-        |       idDottedMore                            { $$ = $1; }
+        |       id_Dotted_ہور                            { $$ = $1; }
         ;
 
-idDottedSel<nodeExprp>:
-                yD_ROOT '.' idDottedSelMore
+idDottedSel<گرہ_Exprp>:
+                y_D_جڑ '.' id_Dotted_Sel_ہور
                         { $$ = new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3}; }
-        |       idDottedSelMore                         { $$ = $1; }
+        |       id_Dotted_Sel_ہور                         { $$ = $1; }
         ;
 
 idDottedForeach<foreachHeaderp>:
-                yD_ROOT '.' idDottedMoreForeach
-                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3->fromp()->unlinkFrBack()}); $$ = $3; }
-        |       idDottedMoreForeach                     { $$ = $1; }
+                y_D_جڑ '.' id_Dotted_ہور_Foreach
+                        { $3->fromp(new AstDot{$2, false, new AstParseRef{$<fl>1, "$root"}, $3->fromp()->unlink_Fr_پٹھ()}); $$ = $3; }
+        |       id_Dotted_ہور_Foreach                     { $$ = $1; }
         ;
 
-idDottedMore<nodeExprp>:
-                parseRefBase                            { $$ = $1; }
-        |       idDottedMore '.' parseRefBase           { $$ = new AstDot{$2, false, $1, $3}; }
+id_Dotted_ہور<گرہ_Exprp>:
+                parse_Ref_ادھار                            { $$ = $1; }
+        |       id_Dotted_ہور '.' parse_Ref_ادھار           { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-idDottedSelMore<nodeExprp>:
+id_Dotted_Sel_ہور<گرہ_Exprp>:
                 idArrayed                               { $$ = $1; }
-        |       idDottedSelMore '.' idArrayed           { $$ = new AstDot{$2, false, $1, $3}; }
+        |       id_Dotted_Sel_ہور '.' idArrayed           { $$ = new AstDot{$2, false, $1, $3}; }
         ;
 
-idDottedMoreForeach<foreachHeaderp>:
+id_Dotted_ہور_Foreach<foreachHeaderp>:
                 idArrayedForeach                        { $$ = $1; }
-        |       idDottedSelMore '.' idArrayedForeach
-                        { $3->fromp(new AstDot{$2, false, $1, $3->fromp()->unlinkFrBack()}); $$ = $3; }
+        |       id_Dotted_Sel_ہور '.' idArrayedForeach
+                        { $3->fromp(new AstDot{$2, false, $1, $3->fromp()->unlink_Fr_پٹھ()}); $$ = $3; }
         ;
 
 // Single component of dotted path, maybe [#].
@@ -6257,32 +6257,32 @@ idDottedMoreForeach<foreachHeaderp>:
 // we'll assume so and cleanup later.
 // id below includes:
 //       enum_identifier
-idArrayed<nodeExprp>:               // IEEE: id + select
+idArrayed<گرہ_Exprp>:               // IEEE: id + select
                 id
                         { $$ = new AstParseRef{$<fl>1, *$1, nullptr, nullptr}; }
         //                      // IEEE: id + part_select_range/constant_part_select_range
-        |       idArrayed '[' expr ']'                          { $$ = new AstSelBit{$2, $1, $3}; }  // Or AstArraySel, don't know yet.
-        |       idArrayed '[' constExpr ':' constExpr ']'       { $$ = new AstSelExtract{$2, $1, $3, $5}; }
+        |       idArrayed '[' اظہاریہ ']'                          { $$ = new Ast_Sel_ثنائی_ہندسہ{$2, $1, $3}; }  // Or AstArraySel, don't know yet.
+        |       idArrayed '[' const_اظہاریہ ':' const_اظہاریہ ']'       { $$ = new Ast_Sel_کڈھو{$2, $1, $3, $5}; }
         //                      // IEEE: id + indexed_range/constant_indexed_range
-        |       idArrayed '[' expr yP_PLUSCOLON  constExpr ']'  { $$ = new AstSelPlus{$2, $1, $3, $5}; }
-        |       idArrayed '[' expr yP_MINUSCOLON constExpr ']'  { $$ = new AstSelMinus{$2, $1, $3, $5}; }
+        |       idArrayed '[' اظہاریہ yP_PLUSCOLON  const_اظہاریہ ']'  { $$ = new AstSelPlus{$2, $1, $3, $5}; }
+        |       idArrayed '[' اظہاریہ yP_MINUSCOLON const_اظہاریہ ']'  { $$ = new AstSelMinus{$2, $1, $3, $5}; }
         ;
 
 idArrayedForeach<foreachHeaderp>:    // IEEE: id + select (under foreach expression)
-                parseRefBase  // Malformed, but accept for better error reporting
-                        { $$ = new AstForeachHeader{$<fl>1, $1, nullptr}; }
-        |       idArrayed '[' expr ']'
-                        { $$ = new AstForeachHeader{$2, $1, $3}; }
+                parse_Ref_ادھار  // Malformed, but accept for better error reporting
+                        { $$ = new Ast_Foreach_سرخی{$<fl>1, $1, nullptr}; }
+        |       idArrayed '[' اظہاریہ ']'
+                        { $$ = new Ast_Foreach_سرخی{$2, $1, $3}; }
         |       idArrayed '[' ']'
-                        { $$ = new AstForeachHeader{$2, $1, new AstEmpty{$3}}; }
-        |       idArrayed '[' parseRefBase ',' loop_variables ']'
-                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<AstNode*>($3), $5)}; }
+                        { $$ = new Ast_Foreach_سرخی{$2, $1, new Ast_خالی_تھاواں{$3}}; }
+        |       idArrayed '[' parse_Ref_ادھار ',' loop_variables ']'
+                        { $$ = new Ast_Foreach_سرخی{$2, $1, جوڑو_اگلا_Null(static_cast<Ast_گرہ*>($3), $5)}; }
         |       idArrayed '[' ',' loop_variables ']'
-                        { $$ = new AstForeachHeader{$2, $1, addNextNull(static_cast<AstNode*>(new AstEmpty{$3}), $4)}; }
+                        { $$ = new Ast_Foreach_سرخی{$2, $1, جوڑو_اگلا_Null(static_cast<Ast_گرہ*>(new Ast_خالی_تھاواں{$3}), $4)}; }
         ;
 
 // ParseRef without any dots or vectorizaion
-parseRefBase<parseRefp>:
+parse_Ref_ادھار<parseRefp>:
                 id                                      { $$ = new AstParseRef{$<fl>1, *$1}; }
         ;
 
@@ -6291,45 +6291,45 @@ str<strp>:                      // yaSTRING but with \{escapes} need decoded
                 yaSTRING                                { $$ = PARSEP->newString(GRAMMARP->unquoteString($<fl>1, *$1)); }
         ;
 
-strAsInt<nodeExprp>:
+strAsInt<گرہ_Exprp>:
                 yaSTRING
                         { // Numeric context, so IEEE 1800-2017 11.10.3 "" is a "\000"
                           $$ = new AstConst{$<fl>1, AstConst::VerilogStringLiteral{}, GRAMMARP->unquoteString($<fl>1, *$1)}; }
         ;
 
-strAsIntIgnore<nodeExprp>:          // strAsInt, but never matches for when expr shouldn't parse strings
+strAsIntIgnore<گرہ_Exprp>:          // strAsInt, but never matches for when expr shouldn't parse strings
                 yaSTRING__IGNORE                        { $$ = nullptr; yyerror("Impossible token"); }
         ;
 
-startLabelE<strp>:
-                /* empty */                             { $$ = nullptr; $<fl>$ = nullptr; }
+شروع_Label_E<strp>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; $<fl>$ = nullptr; }
         |       ':' idAny                               { $$ = $2; $<fl>$ = $<fl>2; }
         ;
 
-endLabelE<strp>:
-                /* empty */                             { $$ = nullptr; $<fl>$ = nullptr; }
+سرا_Label_E<strp>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; $<fl>$ = nullptr; }
         |       ':' idAny                               { $$ = $2; $<fl>$ = $<fl>2; }
-        |       ':' yNEW__ETC                           { static string n = "new"; $$ = &n; $<fl>$ = $<fl>2; }
+        |       ':' yNEW__ETC                           { ساكن string n = "new"; $$ = &n; $<fl>$ = $<fl>2; }
         ;
 
 //************************************************
 // Clocking
 
 clocking_declaration<nodep>:            // IEEE: clocking_declaration
-                yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, *$2, new AstSenTree{$<fl>2, $3}, $5, false, false}; }
-        |       yDEFAULT yCLOCKING clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, "", new AstSenTree{$<fl>2, $3}, $5, true, false}; }
-        |       yDEFAULT yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>3, *$3, new AstSenTree{$<fl>3, $4}, $6, true, false}; }
-        |       yGLOBAL__CLOCKING yCLOCKING clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>2, "", new AstSenTree{$<fl>2, $3}, $5, false, true}; }
-        |       yGLOBAL__CLOCKING yCLOCKING idAny clocking_event ';' clocking_itemListE yENDCLOCKING endLabelE
-                        { $$ = new AstClocking{$<fl>3, *$3, new AstSenTree{$<fl>3, $4}, $6, false, true}; }
+                yCLOCKING idAny clocking_event ';' clocking_شے_List_E yENDCLOCKING سرا_Label_E
+                        { $$ = new AstClocking{$<fl>2, *$2, new Ast_Sen_درخت{$<fl>2, $3}, $5, false, false}; }
+        |       yDEFAULT yCLOCKING clocking_event ';' clocking_شے_List_E yENDCLOCKING سرا_Label_E
+                        { $$ = new AstClocking{$<fl>2, "", new Ast_Sen_درخت{$<fl>2, $3}, $5, true, false}; }
+        |       yDEFAULT yCLOCKING idAny clocking_event ';' clocking_شے_List_E yENDCLOCKING سرا_Label_E
+                        { $$ = new AstClocking{$<fl>3, *$3, new Ast_Sen_درخت{$<fl>3, $4}, $6, true, false}; }
+        |       yGLOBAL__CLOCKING yCLOCKING clocking_event ';' clocking_شے_List_E yENDCLOCKING سرا_Label_E
+                        { $$ = new AstClocking{$<fl>2, "", new Ast_Sen_درخت{$<fl>2, $3}, $5, false, true}; }
+        |       yGLOBAL__CLOCKING yCLOCKING idAny clocking_event ';' clocking_شے_List_E yENDCLOCKING سرا_Label_E
+                        { $$ = new AstClocking{$<fl>3, *$3, new Ast_Sen_درخت{$<fl>3, $4}, $6, false, true}; }
         ;
 
 clocking_eventE<senItemp>:      // IEEE: optional clocking_event
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       clocking_event                          { $$ = $1; }
         ;
 
@@ -6338,131 +6338,131 @@ clocking_event<senItemp>:       // IEEE: clocking_event
         //                      // IEEE: '@' hierarchical_identifier
         //UNSUP: '@' idClassSel/*ps_identifier*/
                 '@' id
-                        { $$ = new AstSenItem{$<fl>2, VEdgeType::ET_CHANGED,
+                        { $$ = new Ast_Sen_شے{$<fl>2, VEdgeType::ET_بدلیا,
                                               new AstParseRef{$<fl>2, *$2, nullptr, nullptr}}; }
-        |       '@' '(' event_expression ')'            { $$ = $3; }
+        |       '@' '(' event_عبارت ')'            { $$ = $3; }
         ;
 
-clocking_itemListE<nodep>:
-                /* empty */                             { $$ = nullptr; }
-        |       clocking_itemList                       { $$ = $1; }
+clocking_شے_List_E<nodep>:
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       clocking_شے_List                       { $$ = $1; }
         ;
 
-clocking_itemList<nodep>:  // IEEE: [ clocking_item ]
-                clocking_item                           { $$ = $1; }
-        |       clocking_itemList clocking_item         { if ($1) $$ = addNextNull($1, $2); }
+clocking_شے_List<nodep>:  // IEEE: [ clocking_item ]
+                clocking_شے                           { $$ = $1; }
+        |       clocking_شے_List clocking_شے         { إذا ($1) $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-clocking_item<nodep>:   // IEEE: clocking_item
-                yDEFAULT yINPUT clocking_skew ';'       { $$ = new AstClockingItem{$<fl>1, VDirection::INPUT, $3, nullptr}; }
-        |       yDEFAULT yOUTPUT clocking_skew ';'      { $$ = new AstClockingItem{$<fl>1, VDirection::OUTPUT, $3, nullptr}; }
-        |       yDEFAULT yINPUT clocking_skew yOUTPUT clocking_skew ';'
-                        { $$ = new AstClockingItem{$<fl>1, VDirection::INPUT, $3, nullptr};
-                          $$->addNext(new AstClockingItem{$<fl>4, VDirection::OUTPUT, $5, nullptr}); }
-        |       yINPUT clocking_skewE list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, $2, $3); }
-        |       yOUTPUT clocking_skewE list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::OUTPUT, $2, $3); }
-        |       yINPUT clocking_skewE yOUTPUT clocking_skewE list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, $2, $5->cloneTree(true));
-                          $$->addNext(GRAMMARP->makeClockingItemList($<fl>3, VDirection::OUTPUT, $4, $5)); }
-        |       yINOUT list_of_clocking_decl_assign ';'
-                        { $$ = GRAMMARP->makeClockingItemList($<fl>1, VDirection::INPUT, nullptr, $2->cloneTree(true));
-                          $$->addNext(GRAMMARP->makeClockingItemList($<fl>1, VDirection::OUTPUT, nullptr, $2)); }
-        |       assertion_item_declaration
+clocking_شے<nodep>:   // IEEE: clocking_item
+                yDEFAULT y_داخلہ clocking_skew ';'       { $$ = new Ast_Clocking_شے{$<fl>1, VDirection::داخلہ, $3, nullptr}; }
+        |       yDEFAULT yOUTPUT clocking_skew ';'      { $$ = new Ast_Clocking_شے{$<fl>1, VDirection::OUTPUT, $3, nullptr}; }
+        |       yDEFAULT y_داخلہ clocking_skew yOUTPUT clocking_skew ';'
+                        { $$ = new Ast_Clocking_شے{$<fl>1, VDirection::داخلہ, $3, nullptr};
+                          $$->جوڑو_اگلا(new Ast_Clocking_شے{$<fl>4, VDirection::OUTPUT, $5, nullptr}); }
+        |       y_داخلہ clocking_skewE list_دا_clocking_decl_سونپو ';'
+                        { $$ = GRAMMARP->make_Clocking_شے_List($<fl>1, VDirection::داخلہ, $2, $3); }
+        |       yOUTPUT clocking_skewE list_دا_clocking_decl_سونپو ';'
+                        { $$ = GRAMMARP->make_Clocking_شے_List($<fl>1, VDirection::OUTPUT, $2, $3); }
+        |       y_داخلہ clocking_skewE yOUTPUT clocking_skewE list_دا_clocking_decl_سونپو ';'
+                        { $$ = GRAMMARP->make_Clocking_شے_List($<fl>1, VDirection::داخلہ, $2, $5->clone_درخت(true));
+                          $$->جوڑو_اگلا(GRAMMARP->make_Clocking_شے_List($<fl>3, VDirection::OUTPUT, $4, $5)); }
+        |       yINOUT list_دا_clocking_decl_سونپو ';'
+                        { $$ = GRAMMARP->make_Clocking_شے_List($<fl>1, VDirection::داخلہ, nullptr, $2->clone_درخت(true));
+                          $$->جوڑو_اگلا(GRAMMARP->make_Clocking_شے_List($<fl>1, VDirection::OUTPUT, nullptr, $2)); }
+        |       assertion_شے_declaration
                         { $$ = $1;
-                          for (AstNode* nodep = $1; nodep; nodep = nodep->nextp()) {
-                              if (!VN_IS(nodep, Sequence)) {
+                          لكل (Ast_گرہ* nodep = $1; nodep; nodep = nodep->nextp()) {
+                              إذا (!VN_IS(nodep, Sequence)) {
                                   $$ = nullptr;
                                   BBUNSUP(nodep, "Unsupported: assertion items in clocking blocks");
                                   DEL($1);
-                                  break;
+                                  اكسر;
                               }
                           }
                         }
         ;
 
-list_of_clocking_decl_assign<nodep>:  // IEEE: list_of_clocking_decl_assign
-                clocking_decl_assign                    { $$ = $1; }
-        |       list_of_clocking_decl_assign ',' clocking_decl_assign
-                        { $$ = addNextNull($1, $3); }
+list_دا_clocking_decl_سونپو<nodep>:  // IEEE: list_of_clocking_decl_assign
+                clocking_decl_سونپو                    { $$ = $1; }
+        |       list_دا_clocking_decl_سونپو ',' clocking_decl_سونپو
+                        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-clocking_decl_assign<nodep>:    // IEEE: clocking_decl_assign
-                idAnyAsParseRef/*new-signal_identifier*/ exprEqE
-                        { AstParseRef* const refp = $1;
+clocking_decl_سونپو<nodep>:    // IEEE: clocking_decl_assign
+                idAnyAsParseRef/*new-signal_identifier*/ اظہاریہ_Eq_E
+                        { AstParseRef* ثابت refp = $1;
                           $$ = refp;
-                          if ($2) $$ = new AstAssign{$<fl>2, refp, $2}; }
+                          إذا ($2) $$ = new Ast_سونپو{$<fl>2, refp, $2}; }
         ;
 
-clocking_skewE<nodeExprp>:          // IEEE: [clocking_skew]
-                /* empty */                             { $$ = nullptr; }
+clocking_skewE<گرہ_Exprp>:          // IEEE: [clocking_skew]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       clocking_skew                           { $$ = $1; }
         ;
 
-clocking_skew<nodeExprp>:           // IEEE: clocking_skew
-                delay_control                           { $$ = $1->lhsp()->unlinkFrBack(); $1->deleteTree(); }
+clocking_skew<گرہ_Exprp>:           // IEEE: clocking_skew
+                delay_control                           { $$ = $1->lhsp()->unlink_Fr_پٹھ(); $1->delete_درخت(); }
         |      yPOSEDGE delay_controlE                  { $$ = nullptr;
                                                           BBUNSUP($1, "Unsupported: clocking event edge override"); DEL($2); }
         |      yNEGEDGE delay_controlE                  { $$ = nullptr;
                                                           BBUNSUP($1, "Unsupported: clocking event edge override"); DEL($2); }
-        |      yEDGE delay_controlE                     { $$ = nullptr;
+        |      y_کنارا delay_controlE                     { $$ = nullptr;
                                                           BBUNSUP($1, "Unsupported: clocking event edge override"); DEL($2); }
         ;
 
-cycle_delay<delayp>:  // IEEE: cycle_delay
+چکر_delay<delayp>:  // IEEE: cycle_delay
                yP_POUNDPOUND yaINTNUM
                         { $$ = new AstDelay{$<fl>1, new AstConst{$<fl>2, *$2}, true}; }
         |      yP_POUNDPOUND idAnyAsParseRef
                         { $$ = new AstDelay{$<fl>1, $2, true}; }
-        |      yP_POUNDPOUND '(' expr ')'
+        |      yP_POUNDPOUND '(' اظہاریہ ')'
                         { $$ = new AstDelay{$<fl>1, $3, true}; }
         ;
 
 //************************************************
 // Asserts
 
-assertion_item_declaration<nodep>:  // ==IEEE: assertion_item_declaration
+assertion_شے_declaration<nodep>:  // ==IEEE: assertion_item_declaration
                 property_declaration                    { $$ = $1; }
         |       sequence_declaration                    { $$ = $1; }
         |       let_declaration                         { $$ = $1; }
         ;
 
-assertion_item<nodep>:          // ==IEEE: assertion_item
-                concurrent_assertion_item               { $$ = $1; }
-        |       deferred_immediate_assertion_item
+assertion_شے<nodep>:          // ==IEEE: assertion_item
+                concurrent_assertion_شے               { $$ = $1; }
+        |       deferred_فوری_assertion_شے
                         { $$ = $1 ? new AstAlways{$1->fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr, $1} : nullptr; }
         ;
 
-deferred_immediate_assertion_item<nodep>:       // ==IEEE: deferred_immediate_assertion_item
-                deferred_immediate_assertion_statement  { $$ = $1; }
-        |       id/*block_identifier*/ ':' deferred_immediate_assertion_statement
+deferred_فوری_assertion_شے<nodep>:       // ==IEEE: deferred_immediate_assertion_item
+                deferred_فوری_assertion_statement  { $$ = $1; }
+        |       id/*block_identifier*/ ':' deferred_فوری_assertion_statement
                         { $$ = new AstBegin{$<fl>1, *$1, $3, true}; }
         ;
 
-procedural_assertion_statement<nodeStmtp>:  // ==IEEE: procedural_assertion_statement
+procedural_assertion_statement<گرہ_Stmtp>:  // ==IEEE: procedural_assertion_statement
                 concurrent_assertion_statement          { $$ = $1; }
-        |       immediate_assertion_statement           { $$ = $1; }
+        |       فوری_assertion_statement           { $$ = $1; }
         //                      // IEEE: checker_instantiation
         //                      // Unlike modules, checkers are the only "id id (...)" form in statements.
         //UNSUP checker_instantiation                   { $$ = $1; }
         ;
 
-immediate_assertion_statement<nodeStmtp>:   // ==IEEE: immediate_assertion_statement
-                simple_immediate_assertion_statement    { $$ = $1; }
-        |       deferred_immediate_assertion_statement  { $$ = $1; }
+فوری_assertion_statement<گرہ_Stmtp>:   // ==IEEE: immediate_assertion_statement
+                simple_فوری_assertion_statement    { $$ = $1; }
+        |       deferred_فوری_assertion_statement  { $$ = $1; }
         ;
 
-simple_immediate_assertion_statement<nodeStmtp>:    // ==IEEE: simple_immediate_assertion_statement
+simple_فوری_assertion_statement<گرہ_Stmtp>:    // ==IEEE: simple_immediate_assertion_statement
         //                      // action_block expanded here, for compatibility with AstAssert
-                assertOrAssume '(' expr ')' stmt %prec prLOWER_THAN_ELSE
-                        { $$ = new AstAssert{$<fl>1, $3, $5, nullptr, VAssertType::SIMPLE_IMMEDIATE, $1}; }
-        |       assertOrAssume '(' expr ')'           yELSE stmt
-                        { $$ = new AstAssert{$<fl>1, $3, nullptr, $6, VAssertType::SIMPLE_IMMEDIATE, $1}; }
-        |       assertOrAssume '(' expr ')' stmt yELSE stmt
-                        { $$ = new AstAssert{$<fl>1, $3, $5, $7, VAssertType::SIMPLE_IMMEDIATE, $1}; }
+                assertOrAssume '(' اظہاریہ ')' stmt %prec pr_ہیٹھلا_THAN_ELSE
+                        { $$ = new AstAssert{$<fl>1, $3, $5, nullptr, VAssertType::SIMPLE_فوری, $1}; }
+        |       assertOrAssume '(' اظہاریہ ')'           yELSE stmt
+                        { $$ = new AstAssert{$<fl>1, $3, nullptr, $6, VAssertType::SIMPLE_فوری, $1}; }
+        |       assertOrAssume '(' اظہاریہ ')' stmt yELSE stmt
+                        { $$ = new AstAssert{$<fl>1, $3, $5, $7, VAssertType::SIMPLE_فوری, $1}; }
         //                      // IEEE: simple_immediate_cover_statement
-        |       yCOVER '(' expr ')' stmt                { $$ = new AstCover{$1, $3, $5, VAssertType::SIMPLE_IMMEDIATE}; }
+        |       yCOVER '(' اظہاریہ ')' stmt                { $$ = new AstCover{$1, $3, $5, VAssertType::SIMPLE_فوری}; }
         ;
 
 assertOrAssume<assertdirectivetypeen>:
@@ -6472,25 +6472,25 @@ assertOrAssume<assertdirectivetypeen>:
 
 final_zero<asserttypeen>:                     // IEEE: part of deferred_immediate_assertion_statement
                 '#' yaINTNUM
-                        { if ($2->isNeqZero()) { $<fl>2->v3error("Deferred assertions must use '#0' (IEEE 1800-2023 16.4)"); }
-                          $$ = VAssertType::OBSERVED_DEFERRED_IMMEDIATE; }
+                        { إذا ($2->isNeqZero()) { $<fl>2->v3error("Deferred assertions must use '#0' (IEEE 1800-2023 16.4)"); }
+                          $$ = VAssertType::OBSERVED_DEFERRED_فوری; }
         //                      // 1800-2012:
-        |       yFINAL                                                  { $$ = VAssertType::FINAL_DEFERRED_IMMEDIATE; }
+        |       yFINAL                                                  { $$ = VAssertType::FINAL_DEFERRED_فوری; }
         ;
 
-deferred_immediate_assertion_statement<nodeStmtp>:  // ==IEEE: deferred_immediate_assertion_statement
+deferred_فوری_assertion_statement<گرہ_Stmtp>:  // ==IEEE: deferred_immediate_assertion_statement
         //                      // IEEE: deferred_immediate_assert_statement
-                assertOrAssume final_zero '(' expr ')' stmt %prec prLOWER_THAN_ELSE
+                assertOrAssume final_zero '(' اظہاریہ ')' stmt %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstAssert{$<fl>1, $4, $6, nullptr, $2, $1}; }
-        |       assertOrAssume final_zero '(' expr ')'           yELSE stmt
+        |       assertOrAssume final_zero '(' اظہاریہ ')'           yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $4, nullptr, $7, $2, $1}; }
-        |       assertOrAssume final_zero '(' expr ')' stmt yELSE stmt
+        |       assertOrAssume final_zero '(' اظہاریہ ')' stmt yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $4, $6, $8, $2, $1}; }
         //                      // IEEE: deferred_immediate_cover_statement
-        |       yCOVER final_zero '(' expr ')' stmt     { $$ = new AstCover{$1, $4, $6, $2}; }
+        |       yCOVER final_zero '(' اظہاریہ ')' stmt     { $$ = new AstCover{$1, $4, $6, $2}; }
         ;
 
-concurrent_assertion_item<nodep>:       // IEEE: concurrent_assertion_item
+concurrent_assertion_شے<nodep>:       // IEEE: concurrent_assertion_item
                 concurrent_assertion_statement          { $$ = $1; }
         |       id/*block_identifier*/ ':' concurrent_assertion_statement
                         { $$ = new AstBegin{$<fl>1, *$1, $3, true}; }
@@ -6498,11 +6498,11 @@ concurrent_assertion_item<nodep>:       // IEEE: concurrent_assertion_item
         //                      // identical to module_instantiation; see etcInst
         ;
 
-concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_statement
+concurrent_assertion_statement<گرہ_Stmtp>:  // ==IEEE: concurrent_assertion_statement
         //                      // IEEE: assert_property_statement
         //                      // IEEE: assume_property_statement
         //                      // action_block expanded here
-                assertOrAssume yPROPERTY '(' property_spec ')' stmt %prec prLOWER_THAN_ELSE
+                assertOrAssume yPROPERTY '(' property_spec ')' stmt %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstAssert{$<fl>1, $4, $6, nullptr, VAssertType::CONCURRENT, $1}; }
         |       assertOrAssume yPROPERTY '(' property_spec ')' stmt yELSE stmt
                         { $$ = new AstAssert{$<fl>1, $4, $6, $8, VAssertType::CONCURRENT, $1}; }
@@ -6517,25 +6517,25 @@ concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_stat
         //                      // flag drives V3AssertNfa to fire stmt per end-of-match
         //                      // (IEEE 1800-2023 16.14.3), not per property success.
         |       yCOVER ySEQUENCE '(' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), nullptr, nullptr, $4},
                               $6, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
         |       yCOVER ySEQUENCE '(' clocking_event sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), $4, nullptr, $5},
                               $7, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
-        |       yCOVER ySEQUENCE '(' clocking_event yDISABLE yIFF '(' expr/*expression_or_dist*/ ')' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+        |       yCOVER ySEQUENCE '(' clocking_event yDISABLE yIFF '(' اظہاریہ/*expression_or_dist*/ ')' sexpr ')' stmt
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$4->fileline(), $4, $8, $10},
                               $12, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
                           $$ = coverp; }
-        |       yCOVER ySEQUENCE '(' yDISABLE yIFF '(' expr/*expression_or_dist*/ ')' sexpr ')' stmt
-                        { AstCover* const coverp = new AstCover{$1,
+        |       yCOVER ySEQUENCE '(' yDISABLE yIFF '(' اظہاریہ/*expression_or_dist*/ ')' sexpr ')' stmt
+                        { AstCover* ثابت coverp = new AstCover{$1,
                               new AstPropSpec{$7->fileline(), nullptr, $7, $9},
                               $11, VAssertType::CONCURRENT};
                           coverp->isCoverSeq(true);
@@ -6545,59 +6545,59 @@ concurrent_assertion_statement<nodeStmtp>:  // ==IEEE: concurrent_assertion_stat
                         { $$ = new AstRestrict{$1, $4}; }
         ;
 
-property_declaration<nodeFTaskp>:  // ==IEEE: property_declaration
-                property_declarationFront property_port_listE ';' property_declarationBody
-                        yENDPROPERTY endLabelE
+property_declaration<گرہ_FTaskp>:  // ==IEEE: property_declaration
+                property_declarationFront property_پورٹ_list_E ';' property_declarationBody
+                        yENDPROPERTY سرا_Label_E
                         { $$ = $1;
-                          $$->addStmtsp($2);
-                          $$->addStmtsp($4);
-                          GRAMMARP->endLabel($<fl>6, $$, $6);
+                          $$->جوڑو_Stmtsp($2);
+                          $$->جوڑو_Stmtsp($4);
+                          GRAMMARP->سرا_Label($<fl>6, $$, $6);
                           GRAMMARP->m_insideProperty = false;
-                          GRAMMARP->m_typedPropertyPort = false; }
+                          GRAMMARP->m_typed_Property_پورٹ = false; }
         ;
 
-property_declarationFront<nodeFTaskp>:  // IEEE: part of property_declaration
+property_declarationFront<گرہ_FTaskp>:  // IEEE: part of property_declaration
                 yPROPERTY idAny/*property_identifier*/
                         { $$ = new AstProperty{$<fl>2, *$2, nullptr};
                           GRAMMARP->m_insideProperty = true; }
         ;
 
-property_port_listE<nodep>:  // IEEE: [ ( [ property_port_list ] ) ]
-                /* empty */                             { $$ = nullptr; }
+property_پورٹ_list_E<nodep>:  // IEEE: [ ( [ property_port_list ] ) ]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       '(' ')'                                 { $$ = nullptr; }
-        |       '(' property_port_list ')'              { $$ = $2; }
+        |       '(' property_پورٹ_list ')'              { $$ = $2; }
         ;
 
-property_port_list<nodep>:  // ==IEEE: property_port_list
-                property_port_item                              { $$ = $1; }
-        |       property_port_list ',' property_port_item       { $$ = addNextNull($1, $3); }
+property_پورٹ_list<nodep>:  // ==IEEE: property_port_list
+                property_پورٹ_شے                              { $$ = $1; }
+        |       property_پورٹ_list ',' property_پورٹ_شے       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-property_port_item<nodep>:  // IEEE: property_port_item/sequence_port_item
+property_پورٹ_شے<nodep>:  // IEEE: property_port_item/sequence_port_item
         //                      // Merged in sequence_port_item
         //                      // IEEE: property_lvar_port_direction ::= yINPUT
         //                      // prop IEEE: [ yLOCAL [ yINPUT ] ] property_formal_type
         //                      //           id {variable_dimension} [ '=' property_actual_arg ]
         //                      // seq IEEE: [ yLOCAL [ sequence_lvar_port_direction ] ] sequence_formal_type
         //                      //           id {variable_dimension} [ '=' sequence_actual_arg ]
-                property_port_itemFront property_port_itemAssignment  { $$ = $2; }
+                property_پورٹ_شے_Front property_پورٹ_شے_Assignment  { $$ = $2; }
         ;
 
-property_port_itemFront:  // IEEE: part of property_port_item/sequence_port_item
-                property_port_itemDirE property_formal_typeNoDt
+property_پورٹ_شے_Front:  // IEEE: part of property_port_item/sequence_port_item
+                property_پورٹ_شے_Dir_E property_formal_typeNoDt
                         { VARDTYPE($2); }
         //                      // data_type_or_implicit
-        |       property_port_itemDirE data_type
-                        { VARDTYPE($2); GRAMMARP->m_typedPropertyPort = true; }
-        |       property_port_itemDirE yVAR data_type
-                        { VARDTYPE($3); GRAMMARP->m_typedPropertyPort = true; }
-        |       property_port_itemDirE yVAR implicit_typeE
+        |       property_پورٹ_شے_Dir_E انکڑے_type
+                        { VARDTYPE($2); GRAMMARP->m_typed_Property_پورٹ = true; }
+        |       property_پورٹ_شے_Dir_E yVAR انکڑے_type
+                        { VARDTYPE($3); GRAMMARP->m_typed_Property_پورٹ = true; }
+        |       property_پورٹ_شے_Dir_E yVAR implicit_typeE
                         { VARDTYPE($3); }
-        |       property_port_itemDirE implicit_typeE
+        |       property_پورٹ_شے_Dir_E implicit_typeE
                         { VARDTYPE($2); }
         ;
 
-property_port_itemAssignment<nodep>:  // IEEE: part of property_port_item/sequence_port_item
+property_پورٹ_شے_Assignment<nodep>:  // IEEE: part of property_port_item/sequence_port_item
                 id variable_dimensionListE
                         { VARDECL(VAR);
                           $$ = VARDONEA($<fl>1, *$1, $2, nullptr); }
@@ -6607,22 +6607,22 @@ property_port_itemAssignment<nodep>:  // IEEE: part of property_port_item/sequen
                           BBUNSUP($3, "Unsupported: property variable default value"); }
         ;
 
-property_port_itemDirE:
-                /* empty */
-                        { VARIO(INPUT); }
+property_پورٹ_شے_Dir_E:
+                /*خالی_تھاواں*/
+                        { VARIO(داخلہ); }
         |       yLOCAL__ETC
-                        { VARIO(INPUT);
+                        { VARIO(داخلہ);
                           BBUNSUP($1, "Unsupported: property port 'local'"); }
-        |       yLOCAL__ETC yINPUT
-                        { VARIO(INPUT);
+        |       yLOCAL__ETC y_داخلہ
+                        { VARIO(داخلہ);
                           BBUNSUP($1, "Unsupported: property port 'local'"); }
         ;
 
 property_declarationBody<nodep>:  // IEEE: part of property_declaration
                 assertion_variable_declarationList property_spec
-                        { $$ = addNextNull($1, $2); }
+                        { $$ = جوڑو_اگلا_Null($1, $2); }
         |       assertion_variable_declarationList property_spec ';'
-                        { $$ = addNextNull($1, $2); }
+                        { $$ = جوڑو_اگلا_Null($1, $2); }
         //                      // IEEE-2012: Incorrectly has yCOVER ySEQUENCE then property_spec here.
         //                      // Fixed in IEEE 1800-2017
         |       property_spec                           { $$ = $1; }
@@ -6632,66 +6632,66 @@ property_declarationBody<nodep>:  // IEEE: part of property_declaration
 assertion_variable_declarationList<nodep>:  // IEEE: part of assertion_variable_declaration
                 assertion_variable_declaration          { $$ = $1; }
         |       assertion_variable_declarationList assertion_variable_declaration
-                        { $$ = addNextNull($1, $2); }
+                        { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-sequence_declaration<nodeFTaskp>:  // ==IEEE: sequence_declaration
-                sequence_declarationFront sequence_port_listE ';' sequence_declarationBody
-        /*cont*/    yENDSEQUENCE endLabelE
+sequence_declaration<گرہ_FTaskp>:  // ==IEEE: sequence_declaration
+                sequence_declarationFront sequence_پورٹ_list_E ';' sequence_declarationBody
+        /*cont*/    yENDSEQUENCE سرا_Label_E
                         { $$ = $1;
-                          $$->addStmtsp($2);
-                          $$->addStmtsp($4);
-                          GRAMMARP->endLabel($<fl>6, $$, $6);
+                          $$->جوڑو_Stmtsp($2);
+                          $$->جوڑو_Stmtsp($4);
+                          GRAMMARP->سرا_Label($<fl>6, $$, $6);
                           // Sequence declarations are allowed; they are inlined by V3AssertPre.
                           // Sequences in unsupported contexts are reported by assertPreAll
                           // after inlining.
                         }
         ;
 
-sequence_declarationFront<nodeFTaskp>:  // IEEE: part of sequence_declaration
+sequence_declarationFront<گرہ_FTaskp>:  // IEEE: part of sequence_declaration
                 ySEQUENCE idAny/*new_sequence*/
                         { $$ = new AstSequence{$<fl>2, *$2, nullptr}; }
         ;
 
-sequence_port_listE<nodep>:  // IEEE: [ ( [ sequence_port_list ] ) ]
+sequence_پورٹ_list_E<nodep>:  // IEEE: [ ( [ sequence_port_list ] ) ]
         //                      // IEEE: sequence_lvar_port_direction ::= yINPUT | yINOUT | yOUTPUT
         //                      // IEEE: [ yLOCAL [ sequence_lvar_port_direction ] ] sequence_formal_type
         //                      //           id {variable_dimension} [ '=' sequence_actual_arg ]
         //                      // All this is almost identically the same as a property.
         //                      // Difference is only yINOUT/yOUTPUT (which might be added to 1800-2012)
         //                      // and yPROPERTY.  So save some work.
-                property_port_listE                     { $$ = $1; }
+                property_پورٹ_list_E                     { $$ = $1; }
         ;
 
-property_formal_typeNoDt<nodeDTypep>:  // IEEE: property_formal_type (w/o implicit)
+property_formal_typeNoDt<گرہ_DTypep>:  // IEEE: property_formal_type (w/o implicit)
                 sequence_formal_typeNoDt                { $$ = $1; }
         |       yPROPERTY
-                        { $$ = nullptr; GRAMMARP->m_typedPropertyPort = false;
+                        { $$ = nullptr; GRAMMARP->m_typed_Property_پورٹ = false;
                           BBUNSUP($1, "Unsupported: property argument data type"); }
         ;
 
-sequence_formal_typeNoDt<nodeDTypep>:  // ==IEEE: sequence_formal_type (w/o data_type_or_implicit)
+sequence_formal_typeNoDt<گرہ_DTypep>:  // ==IEEE: sequence_formal_type (w/o data_type_or_implicit)
                         // IEEE: data_type_or_implicit
                         // implicit expanded where used
                 ySEQUENCE
-                        { $$ = nullptr; GRAMMARP->m_typedPropertyPort = false;
+                        { $$ = nullptr; GRAMMARP->m_typed_Property_پورٹ = false;
                           BBUNSUP($1, "Unsupported: sequence argument data type"); }
                         // IEEE-2009: yEVENT
                         // already part of data_type.  Removed in 1800-2012.
         |       yUNTYPED
-                        { $$ = nullptr; GRAMMARP->m_typedPropertyPort = false; }
+                        { $$ = nullptr; GRAMMARP->m_typed_Property_پورٹ = false; }
         ;
 
 sequence_declarationBody<nodep>:  // IEEE: part of sequence_declaration
         //                      // 1800-2012 makes ';' optional
-                assertion_variable_declarationList sexpr        { $$ = addNextNull($1, $2); }
-        |       assertion_variable_declarationList sexpr ';'    { $$ = addNextNull($1, $2); }
+                assertion_variable_declarationList sexpr        { $$ = جوڑو_اگلا_Null($1, $2); }
+        |       assertion_variable_declarationList sexpr ';'    { $$ = جوڑو_اگلا_Null($1, $2); }
         |       sexpr                                   { $$ = $1; }
         |       sexpr ';'                               { $$ = $1; }
         //                      // IEEE: clocking_event sequence_expr (16.7)
         //                      // A leading clocking event on a named sequence body.
-        |       '@' '(' event_expression ')' sexpr      { $$ = new AstSClocked{$1, $3, $5}; }
-        |       '@' '(' event_expression ')' sexpr ';'  { $$ = new AstSClocked{$1, $3, $5}; }
+        |       '@' '(' event_عبارت ')' sexpr      { $$ = new AstSClocked{$1, $3, $5}; }
+        |       '@' '(' event_عبارت ')' sexpr ';'  { $$ = new AstSClocked{$1, $3, $5}; }
         |       '@' senitemVar sexpr                    { $$ = new AstSClocked{$1, $2, $3}; }
         |       '@' senitemVar sexpr ';'                { $$ = new AstSClocked{$1, $2, $3}; }
         ;
@@ -6699,21 +6699,21 @@ sequence_declarationBody<nodep>:  // IEEE: part of sequence_declaration
 property_spec<propSpecp>:               // IEEE: property_spec
         //UNSUP: This rule has been super-specialized to what is supported now
         //UNSUP remove below
-                '@' '(' senitem ')' yDISABLE yIFF '(' expr ')' property_exprSpec
+                '@' '(' senitem ')' yDISABLE yIFF '(' اظہاریہ ')' property_اظہاریہ_Spec
                         { $$ = $10; $$->fileline($1); $$->sensesp($3); $$->disablep($8); }
-        |       '@' '(' senitem ')' property_exprSpec
+        |       '@' '(' senitem ')' property_اظہاریہ_Spec
                         { $$ = $5; $$->fileline($1); $$->sensesp($3); }
-        |       '@' senitemVar property_exprSpec
+        |       '@' senitemVar property_اظہاریہ_Spec
                         { $$ = $3; $$->fileline($1); $$->sensesp($2); }
-        |       yDISABLE yIFF '(' expr ')' '@' '(' senitem ')' property_exprSpec
+        |       yDISABLE yIFF '(' اظہاریہ ')' '@' '(' senitem ')' property_اظہاریہ_Spec
                         { $$ = $10; $$->fileline($1); $$->sensesp($8); $$->disablep($4); }
         //UNSUP remove above
-        |       yDISABLE yIFF '(' expr ')' property_exprSpec
+        |       yDISABLE yIFF '(' اظہاریہ ')' property_اظہاریہ_Spec
                         { $$ = $6; $$->fileline($4->fileline()); $$->disablep($4); }
-        |       property_exprSpec                       { $$ = $1; }
+        |       property_اظہاریہ_Spec                       { $$ = $1; }
         ;
 
-property_exprSpec<propSpecp>:  // A property expression plus explicit weak/strong strength
+property_اظہاریہ_Spec<propSpecp>:  // A property expression plus explicit weak/strong strength
                 pexpr
                         { $$ = new AstPropSpec{$1->fileline(), nullptr, nullptr, $1}; }
         |       ySTRONG '(' sexpr ')'
@@ -6722,32 +6722,32 @@ property_exprSpec<propSpecp>:  // A property expression plus explicit weak/stron
                         { $$ = new AstPropSpec{$1, nullptr, nullptr, $3, VPropStrength::WEAK}; }
         ;
 
-property_exprCaseIf<nodeExprp>:  // IEEE: part of property_expr for if/case
-                yCASE '(' expr/*expression_or_dist*/ ')' property_case_itemList yENDCASE
+property_اظہاریہ_Case_If<گرہ_Exprp>:  // IEEE: part of property_expr for if/case
+                yCASE '(' اظہاریہ/*expression_or_dist*/ ')' property_case_شے_List yENDCASE
                         { $$ = PARSEP->makePropertyCase($1, $3, $5); }
-        |       yCASE '(' expr/*expression_or_dist*/ ')' yENDCASE
+        |       yCASE '(' اظہاریہ/*expression_or_dist*/ ')' yENDCASE
                         { $$ = PARSEP->makePropertyCase($1, $3, nullptr); }
-        |       yIF '(' expr/*expression_or_dist*/ ')' pexpr  %prec prIF
+        |       yIF '(' اظہاریہ/*expression_or_dist*/ ')' pexpr  %prec prIF
                         { $$ = new AstImplication{$1, $3, $5, true}; }
-        |       yIF '(' expr/*expression_or_dist*/ ')' pexpr yELSE pexpr
-                        { AstNodeExpr* const elseCondp = new AstLogNot{$1, $3->cloneTreePure(false)};
+        |       yIF '(' اظہاریہ/*expression_or_dist*/ ')' pexpr yELSE pexpr
+                        { Ast_گرہ_اظہاریہ* ثابت elseCondp = new AstLogNot{$1, $3->clone_درخت_خالص(false)};
                           $$ = new AstSAnd{$1, new AstImplication{$1, $3, $5, true},
                                            new AstImplication{$1, elseCondp, $7, true},
                                            /*propertyControl=*/true}; }
         ;
 
-property_case_itemList<caseItemp>:  // IEEE: {property_case_item}
-                property_case_item                      { $$ = $1; }
-        |       property_case_itemList property_case_item   { $$ = addNextNull($1, $2); }
+property_case_شے_List<caseItemp>:  // IEEE: {property_case_item}
+                property_case_شے                      { $$ = $1; }
+        |       property_case_شے_List property_case_شے   { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-property_case_item<caseItemp>:  // ==IEEE: property_case_item
+property_case_شے<caseItemp>:  // ==IEEE: property_case_item
         //                      // IEEE: expression_or_dist { ',' expression_or_dist } ':' property_expr
         //                      // IEEE 1800-2012 changed from property_statement to property_expr
         //                      // IEEE 1800-2017 changed to require the semicolon
-                caseCondList ':' pexpr ';'              { $$ = new AstCaseItem{$2, $1, $3}; }
-        |       yDEFAULT pexpr ';'                      { $$ = new AstCaseItem{$1, nullptr, $2}; }
-        |       yDEFAULT ':' pexpr ';'                  { $$ = new AstCaseItem{$1, nullptr, $3}; }
+                caseCondList ':' pexpr ';'              { $$ = new Ast_Case_شے{$2, $1, $3}; }
+        |       yDEFAULT pexpr ';'                      { $$ = new Ast_Case_شے{$1, nullptr, $2}; }
+        |       yDEFAULT ':' pexpr ';'                  { $$ = new Ast_Case_شے{$1, nullptr, $3}; }
         ;
 
 //UNSUPpev_expr<nodep>:  // IEEE: property_actual_arg | expr
@@ -6776,7 +6776,7 @@ property_case_item<caseItemp>:  // ==IEEE: property_case_item
 //UNSUP |       BISONPRE_COPY_ONCE(expr,{s/~l~/pev_/g; s/~p~/pev_/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })    // {copied}
 //UNSUP ;
 
-pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regexps just add an "p" to expr.)
+pexpr<گرہ_Exprp>:  // IEEE: property_expr  (The name pexpr is important as regexps just add an "p" to expr.)
         //
         //                      // IEEE: sequence_expr
         //                      // Expanded below
@@ -6797,7 +6797,7 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
         //
         //                      // IEEE-2009: property_statement
         //                      // IEEE-2012: yIF and yCASE
-        |       property_exprCaseIf                     { $$ = $1; }
+        |       property_اظہاریہ_Case_If                     { $$ = $1; }
         //
         //                      // IEEE: "sequence_expr yP_POUNDMINUSPD pexpr" (followed-by #-#/#=#)
         //                      // Reuses AstImplication with m_isFollowedBy to carry non-vacuous-fail polarity
@@ -6809,22 +6809,22 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
                         { $$ = $2; BBUNSUP($1, "Unsupported: nexttime (in property expression)"); }
         |       yS_NEXTTIME pexpr
                         { $$ = $2; BBUNSUP($1, "Unsupported: s_nexttime (in property expression)"); }
-        |       yNEXTTIME '[' constExpr ']' pexpr %prec yNEXTTIME
+        |       yNEXTTIME '[' const_اظہاریہ ']' pexpr %prec yNEXTTIME
                         { $$ = $5; BBUNSUP($1, "Unsupported: nexttime[] (in property expression)"); DEL($3); }
-        |       yS_NEXTTIME '[' constExpr ']' pexpr %prec yS_NEXTTIME
+        |       yS_NEXTTIME '[' const_اظہاریہ ']' pexpr %prec yS_NEXTTIME
                         { $$ = $5; BBUNSUP($1, "Unsupported: s_nexttime[] (in property expression)"); DEL($3); }
         |       yALWAYS pexpr  %prec prALWAYS
                         { $$ = $2; }
-        |       yALWAYS '[' constExpr ':' constExpr ']' pexpr  %prec prALWAYS
+        |       yALWAYS '[' const_اظہاریہ ':' const_اظہاریہ ']' pexpr  %prec prALWAYS
                         { $$ = new AstPropAlways{$1, $7, $3, $5, false}; }
-        |       yS_ALWAYS '[' constExpr ':' constExpr ']' pexpr  %prec prS_ALWAYS
+        |       yS_ALWAYS '[' const_اظہاریہ ':' const_اظہاریہ ']' pexpr  %prec prS_ALWAYS
                         { $$ = new AstPropAlways{$1, $7, $3, $5, true}; }
         |       yS_ALWAYS pexpr  %prec prS_ALWAYS
                         { $$ = new AstPropAlways{$1, $2, new AstUnbounded{$1}, new AstUnbounded{$1}, true}; }
         |       yS_EVENTUALLY pexpr  %prec prS_EVENTUALLY
                         {
                             $$ = new AstSEventually{$1, $2};
-                            PARSEP->importIfInStd($1, "process", true);
+                            PARSEP->import_If_وچ_Std($1, "process", true);
                         }
         |       yS_EVENTUALLY anyrange pexpr  %prec prS_EVENTUALLY
                         { $$ = $3; BBUNSUP($1, "Unsupported: s_eventually[] (in property expression)"); DEL($2); }
@@ -6838,19 +6838,19 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
                         { $$ = new AstUntil{$2, $1, $3, false, true}; }
         |       ~o~pexpr yS_UNTIL_WITH pexpr
                         { $$ = new AstUntil{$2, $1, $3, true, true}; }
-        |       ~o~pexpr yIMPLIES pexpr
+        |       ~o~pexpr y_سٹا_دیندا pexpr
                         { $$ = new AstLogOr{$2, new AstLogNot{$2, $1}, $3}; }
         //                      // yIFF also used by event_expression
         |       ~o~pexpr yIFF pexpr
                         { $$ = new AstLogEq{$2, $1, $3}; }
-        |       yACCEPT_ON '(' expr/*expression_or_dist*/ ')' pexpr  %prec prACCEPT_ON
-                        { $$ = new AstAbortOn{$1, VAbortKind::ACCEPT_ON, $3, $5}; }
-        |       yREJECT_ON '(' expr/*expression_or_dist*/ ')' pexpr  %prec prREJECT_ON
-                        { $$ = new AstAbortOn{$1, VAbortKind::REJECT_ON, $3, $5}; }
-        |       ySYNC_ACCEPT_ON '(' expr/*expression_or_dist*/ ')' pexpr %prec prSYNC_ACCEPT_ON
-                        { $$ = new AstAbortOn{$1, VAbortKind::SYNC_ACCEPT_ON, $3, $5}; }
-        |       ySYNC_REJECT_ON '(' expr/*expression_or_dist*/ ')' pexpr %prec prSYNC_REJECT_ON
-                        { $$ = new AstAbortOn{$1, VAbortKind::SYNC_REJECT_ON, $3, $5}; }
+        |       yACCEPT_ON '(' اظہاریہ/*expression_or_dist*/ ')' pexpr  %prec prACCEPT_ON
+                        { $$ = new AstAbortOn{$1, VAbort_قسم::ACCEPT_ON, $3, $5}; }
+        |       yREJECT_ON '(' اظہاریہ/*expression_or_dist*/ ')' pexpr  %prec prREJECT_ON
+                        { $$ = new AstAbortOn{$1, VAbort_قسم::REJECT_ON, $3, $5}; }
+        |       ySYNC_ACCEPT_ON '(' اظہاریہ/*expression_or_dist*/ ')' pexpr %prec prSYNC_ACCEPT_ON
+                        { $$ = new AstAbortOn{$1, VAbort_قسم::SYNC_ACCEPT_ON, $3, $5}; }
+        |       ySYNC_REJECT_ON '(' اظہاریہ/*expression_or_dist*/ ')' pexpr %prec prSYNC_REJECT_ON
+                        { $$ = new AstAbortOn{$1, VAbort_قسم::SYNC_REJECT_ON, $3, $5}; }
         //
         //                      // IEEE: "property_instance"
         //                      // Looks just like a function/method call
@@ -6866,19 +6866,19 @@ pexpr<nodeExprp>:  // IEEE: property_expr  (The name pexpr is important as regex
         |       BISONPRE_COPY_ONCE(sexpr,{s/~p~s/p/g; })        // {copied}
         //
         //============= expr rules copied for property_expr
-        |       BISONPRE_COPY_ONCE(expr,{s/~l~/p/g; s/~p~/p/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
+        |       BISONPRE_COPY_ONCE(اظہاریہ,{s/~l~/p/g; s/~p~/p/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
         ;
 
-sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as regexps just add an "s" to expr.)
+sexpr<گرہ_Exprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as regexps just add an "s" to expr.)
         //                      // ********* RULES COPIED IN sequence_exprProp
         //                      // For precedence, see IEEE 17.7.1
         //
         //                      // IEEE: "cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }"
         //                      // IEEE: "sequence_expr cycle_delay_range sequence_expr { cycle_delay_range sequence_expr }"
         //                      // Both rules basically mean we can repeat sequences, so make it simpler:
-                cycle_delay_range ~p~sexpr  %prec yP_POUNDPOUND
+                چکر_delay_range ~p~sexpr  %prec yP_POUNDPOUND
                         { $$ = new AstSExpr{$<fl>1, $1, $2}; }
-        |       ~p~sexpr cycle_delay_range sexpr %prec prPOUNDPOUND_MULTI
+        |       ~p~sexpr چکر_delay_range sexpr %prec prPOUNDPOUND_MULTI
                         { $$ = new AstSExpr{$<fl>2, $1, $2, $3}; }
         //
         //                      // IEEE: expression_or_dist [ boolean_abbrev ]
@@ -6886,15 +6886,15 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //                      // sexpr/*sexpression_or_dist*/  --- Hardcoded below
         //                      // Consecutive repetition (IEEE 1800-2023 16.9.2)
         //                      // [*N] exact count
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR const_اظہاریہ ']'
                         { $$ = new AstSConsRep{$<fl>2, $1, $3}; }
         //                      // [*N:M] bounded range or [*N:$] unbounded range
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRASTAR const_اظہاریہ ':' const_اظہاریہ ']'
                         {
-                            if (VN_IS($5, Unbounded)) {
+                            إذا (VN_IS($5, Unbounded)) {
                                 DEL($5);
                                 $$ = new AstSConsRep{$<fl>2, $1, $3, nullptr, true};
-                            } else {
+                            } وإلا {
                                 $$ = new AstSConsRep{$<fl>2, $1, $3, $5, false};
                             }
                         }
@@ -6907,16 +6907,16 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
                         { $$ = new AstSConsRep{$<fl>2, $1,
                               new AstConst{$<fl>2, 0u}, nullptr, true}; }
         //                      // IEEE: goto_repetition (single count form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT const_اظہاریہ ']'
                         { $$ = new AstSGotoRep{$<fl>2, $1, $3}; }
         //                      // IEEE: goto_repetition (range form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAMINUSGT const_اظہاریہ ':' const_اظہاریہ ']'
                         { $$ = new AstSGotoRep{$<fl>2, $1, $3, $5}; }
         //                      // IEEE: nonconsecutive_repetition (single count form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ const_اظہاریہ ']'
                         { $$ = new AstSNonConsRep{$<fl>2, $1, $3}; }
         //                      // IEEE: nonconsecutive_repetition (range form)
-        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ constExpr ':' constExpr ']'
+        |       ~p~sexpr/*sexpression_or_dist*/ yP_BRAEQ const_اظہاریہ ':' const_اظہاریہ ']'
                         { $$ = new AstSNonConsRep{$<fl>2, $1, $3, $5}; }
         //                      // All boolean_abbrev forms are now handled above:
         //                      // [*N], [*N:M], [+], [*] via AstSConsRep
@@ -6934,8 +6934,8 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //                      // '(' sequence_expr {',' sequence_match_item } ')' [ boolean_abbrev ]
         //                      // "'(' sexpr ')' boolean_abbrev" matches "[sexpr:'(' expr ')'] boolean_abbrev" so we can drop it
         |       '(' ~p~sexpr ')'                        { $$ = $2; }
-        |       '(' ~p~sexpr ',' sequence_match_itemList ')'
-                        { $$ = new AstExprStmt{$3, $4, $2}; }
+        |       '(' ~p~sexpr ',' sequence_میل_شے_List ')'
+                        { $$ = new Ast_اظہاریہ_Stmt{$3, $4, $2}; }
         //
         //                      // AND/OR are between pexprs OR sexprs (IEEE 1800-2023 16.9.2, 16.11.2)
         //                      // For expression-level (boolean) operands, AstLogAnd/AstLogOr is correct.
@@ -6949,9 +6949,9 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         |       ~p~sexpr yINTERSECT sexpr
                         { $$ = new AstSIntersect{$2, $1, $3}; }
         //
-        |       yFIRST_MATCH '(' sexpr ')'
+        |       y_پہلا_میل '(' sexpr ')'
                         { $$ = $3; }  // IEEE 16.9.8: no-op in deterministic DFA model
-        |       yFIRST_MATCH '(' sexpr ',' sequence_match_itemList ')'
+        |       y_پہلا_میل '(' sexpr ',' sequence_میل_شے_List ')'
                         { $$ = $3; BBUNSUP($1, "Unsupported: first_match with sequence_match_items"); DEL($5); }
         |       ~p~sexpr/*sexpression_or_dist*/ yTHROUGHOUT sexpr
                         { $$ = new AstSThroughout{$2, $1, $3}; }
@@ -6963,23 +6963,23 @@ sexpr<nodeExprp>:  // ==IEEE: sequence_expr  (The name sexpr is important as reg
         //UNSUP clocking_event ~p~sexpr %prec prSEQ_CLOCKING    { }
         //
         //============= expr rules copied for sequence_expr
-        |       BISONPRE_COPY_ONCE(expr,{s/~l~/s/g; s/~p~/s/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
+        |       BISONPRE_COPY_ONCE(اظہاریہ,{s/~l~/s/g; s/~p~/s/g; s/~noPar__IGNORE~'.'/yP_PAR__IGNORE /g; })  // {copied}
         ;
 
-cycle_delay_range<delayp>:  // IEEE: ==cycle_delay_range
+چکر_delay_range<delayp>:  // IEEE: ==cycle_delay_range
         //                      // These three terms in 1800-2005 ONLY
                 yP_POUNDPOUND intnumAsConst
                         { $$ = new AstDelay{$1, $2, true}; }
         |       yP_POUNDPOUND idAny
                         { $$ = new AstDelay{$1, new AstParseRef{$<fl>2, *$2}, true}; }
-        |       yP_POUNDPOUND '(' constExpr ')'
+        |       yP_POUNDPOUND '(' const_اظہاریہ ')'
                         { $$ = new AstDelay{$1, $3, true}; }
         //                      // In 1800-2009 ONLY:
         //                      // IEEE: yP_POUNDPOUND constant_primary
         //                      // UNSUP: This causes a big grammar ambiguity
         //                      // as ()'s mismatch between primary and the following statement
         //                      // the sv-ac committee has been asked to clarify  (Mantis 1901)
-        |       yP_POUNDPOUND '[' constExpr ':' constExpr ']'
+        |       yP_POUNDPOUND '[' const_اظہاریہ ':' const_اظہاریہ ']'
                         { $$ = new AstDelay{$1, $3, true};
                                                                                                         $$->rhsp($5); }
         |       yP_POUNDPOUND yP_BRASTAR ']'
@@ -6990,17 +6990,17 @@ cycle_delay_range<delayp>:  // IEEE: ==cycle_delay_range
                           $$->rhsp(new AstUnbounded{$1}); }
         ;
 
-sequence_match_itemList<nodep>:  // IEEE: [sequence_match_item] part of sequence_expr
-                sequence_match_item                     { $$ = $1; }
-        |       sequence_match_itemList ',' sequence_match_item { $$ = addNextNull($1, $3); }
+sequence_میل_شے_List<nodep>:  // IEEE: [sequence_match_item] part of sequence_expr
+                sequence_میل_شے                     { $$ = $1; }
+        |       sequence_میل_شے_List ',' sequence_میل_شے { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-sequence_match_item<nodep>:  // ==IEEE: sequence_match_item
+sequence_میل_شے<nodep>:  // ==IEEE: sequence_match_item
         //                      // IEEE says: operator_assignment
         //                      // IEEE says: inc_or_dec_expression
         //                      // IEEE says: subroutine_call
         //                      // This is the same list as...
-                for_step_assignment                     { $$ = $1; }
+                for_قدم_assignment                     { $$ = $1; }
         ;
 
 //      boolean_abbrev -- all forms now handled directly in sexpr rule:
@@ -7012,15 +7012,15 @@ sequence_match_item<nodep>:  // ==IEEE: sequence_match_item
 // Covergroup
 
 covergroup_declaration<nodep>:  // ==IEEE: covergroup_declaration
-                 yCOVERGROUP idAny cgPortListE coverage_eventE ';'
+                 yCOVERGROUP idAny cg_پورٹ_List_E coverage_eventE ';'
         /*cont*/    coverage_spec_or_optionListE
-        /*cont*/ yENDGROUP endLabelE
-                        { AstSenTree* clockp = nullptr;
-                          AstNode* sampleArgsp = nullptr;
-                          if ($4) {
-                              if (VN_IS($4, SenItem)) {
-                                  clockp = new AstSenTree{$<fl>1, VN_AS($4, SenItem)};
-                              } else {
+        /*cont*/ yENDGROUP سرا_Label_E
+                        { Ast_Sen_درخت* clockp = nullptr;
+                          Ast_گرہ* sampleArgsp = nullptr;
+                          إذا ($4) {
+                              إذا (VN_IS($4, Sen_شے)) {
+                                  clockp = new Ast_Sen_درخت{$<fl>1, VN_AS($4, Sen_شے)};
+                              } وإلا {
                                   sampleArgsp = $4;
                               }
                           }
@@ -7028,38 +7028,38 @@ covergroup_declaration<nodep>:  // ==IEEE: covergroup_declaration
                                                  static_cast<AstVar*>(sampleArgsp), $6, clockp};
                           // Every covergroup has option/type_option members (added by V3LinkParse)
                           // referencing std:: types, so mark std as needed at parse time.
-                          v3Global.setUsesStdPackage();
-                          GRAMMARP->endLabel($<fl>8, $$, $8); }
+                          v3Global.سیٹ_ورتدا_Std_Package();
+                          GRAMMARP->سرا_Label($<fl>8, $$, $8); }
         |        yCOVERGROUP yEXTENDS idAny ';'
         /*cont*/     coverage_spec_or_optionListE
-        /*cont*/ yENDGROUP endLabelE
+        /*cont*/ yENDGROUP سرا_Label_E
                         { $$ = nullptr;
                           BBUNSUP($1, "Unsupported: covergroup inheritance (extends)");
                           DEL($5); }
         ;
 
-cgPortListE<nodep>:
+cg_پورٹ_List_E<nodep>:
                 /*empty*/                               { $$ = nullptr; }
-        |       '(' tf_port_listE ')'                   { $$ = $2; }
+        |       '(' tf_پورٹ_list_E ')'                   { $$ = $2; }
         ;
 
-cgexpr<nodeExprp>:  // IEEE-2012: covergroup_expression, before that just expression
-                expr                                    { $$ = $1; }
+cgexpr<گرہ_Exprp>:  // IEEE-2012: covergroup_expression, before that just expression
+                اظہاریہ                                    { $$ = $1; }
         ;
 
 coverage_spec_or_optionListE<nodep>:  // IEEE: [{coverage_spec_or_option}]
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       coverage_spec_or_optionList             { $$ = $1; }
         ;
 
 coverage_spec_or_optionList<nodep>:  // IEEE: {coverage_spec_or_option}
                 coverage_spec_or_option                 { $$ = $1; }
-        |       coverage_spec_or_optionList coverage_spec_or_option     { $$ = addNextNull($1, $2); }
+        |       coverage_spec_or_optionList coverage_spec_or_option     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 coverage_spec_or_option<nodep>:  // ==IEEE: coverage_spec_or_option
         //                      // IEEE: coverage_spec
-                cover_point                             { $$ = $1; }
+                cover_نقطہ                             { $$ = $1; }
         |       cover_cross                             { $$ = $1; }
         |       coverage_option ';'                     { $$ = $1; }
         |       error                                   { $$ = nullptr; }  // LCOV_EXCL_LINE
@@ -7067,50 +7067,50 @@ coverage_spec_or_option<nodep>:  // ==IEEE: coverage_spec_or_option
 
 coverage_option<nodep>:  // ==IEEE: coverage_option
         //                      // option/type_option aren't really keywords
-                id/*yOPTION | yTYPE_OPTION*/ '.' idAny/*member_identifier*/ '=' expr
+                id/*yOPTION | yTYPE_OPTION*/ '.' idAny/*member_identifier*/ '=' اظہاریہ
                         { $$ = nullptr;
-                          if (*$1 == "option" || *$1 == "type_option") {
-                              const bool typeOpt = (*$1 == "type_option");
+                          إذا (*$1 == "option" || *$1 == "type_option") {
+                              ثابت bool typeOpt = (*$1 == "type_option");
                               VCoverOptionType optType = VCoverOptionType::UNKNOWN;
                               bool valid = true;
-                              if (!typeOpt) {
+                              إذا (!typeOpt) {
                                   // IEEE 1800-2023 Table 19-1 option.* names and ignored legacy names
-                                  if      (*$3 == "at_least")                optType = VCoverOptionType::AT_LEAST;
-                                  else if (*$3 == "auto_bin_max")            optType = VCoverOptionType::AUTO_BIN_MAX;
-                                  else if (*$3 == "comment")                 optType = VCoverOptionType::COMMENT;
-                                  else if (*$3 == "cross_auto_bin_max")      optType = VCoverOptionType::CROSS_AUTO_BIN_MAX;
-                                  else if (*$3 == "cross_num_print_missing") optType = VCoverOptionType::CROSS_NUM_PRINT_MISSING;
-                                  else if (*$3 == "cross_retain_auto_bins")  optType = VCoverOptionType::CROSS_RETAIN_AUTO_BINS;
-                                  else if (*$3 == "detect_overlap")          optType = VCoverOptionType::DETECT_OVERLAP;
-                                  else if (*$3 == "get_inst_coverage")       optType = VCoverOptionType::GET_INST_COVERAGE;
-                                  else if (*$3 == "goal")                    optType = VCoverOptionType::GOAL;
-                                  else if (*$3 == "name")                    optType = VCoverOptionType::NAME;
-                                  else if (*$3 == "per_instance")            optType = VCoverOptionType::PER_INSTANCE;
-                                  else if (*$3 == "weight")                  optType = VCoverOptionType::WEIGHT;
-                                  else {
+                                  إذا      (*$3 == "at_least")                optType = VCoverOptionType::AT_گھٹ_توں_گھٹ;
+                                  وإلا إذا (*$3 == "auto_bin_max")            optType = VCoverOptionType::AUTO_BIN_MAX;
+                                  وإلا إذا (*$3 == "comment")                 optType = VCoverOptionType::COMMENT;
+                                  وإلا إذا (*$3 == "cross_auto_bin_max")      optType = VCoverOptionType::CROSS_AUTO_BIN_MAX;
+                                  وإلا إذا (*$3 == "cross_num_print_missing") optType = VCoverOptionType::CROSS_عدد_PRINT_MISSING;
+                                  وإلا إذا (*$3 == "cross_retain_auto_bins")  optType = VCoverOptionType::CROSS_RETAIN_AUTO_BINS;
+                                  وإلا إذا (*$3 == "detect_overlap")          optType = VCoverOptionType::DETECT_OVERLAP;
+                                  وإلا إذا (*$3 == "get_inst_coverage")       optType = VCoverOptionType::GET_INST_COVERAGE;
+                                  وإلا إذا (*$3 == "goal")                    optType = VCoverOptionType::GOAL;
+                                  وإلا إذا (*$3 == "name")                    optType = VCoverOptionType::NAME;
+                                  وإلا إذا (*$3 == "per_instance")            optType = VCoverOptionType::فی_INSTANCE;
+                                  وإلا إذا (*$3 == "weight")                  optType = VCoverOptionType::بھار;
+                                  وإلا {
                                       $<fl>1->v3error("Unknown coverage option name 'option."
                                                       << *$3 << "'"
                                                       << "; not a valid option (IEEE 1800-2023 Table 19-1)");
                                       valid = false;
                                   }
-                              } else {
+                              } وإلا {
                                   // IEEE 1800-2023 Table 19-3: type_option.* names
-                                  if      (*$3 == "comment")          optType = VCoverOptionType::COMMENT;
-                                  else if (*$3 == "distribute_first") optType = VCoverOptionType::DISTRIBUTE_FIRST;
-                                  else if (*$3 == "goal")             optType = VCoverOptionType::GOAL;
-                                  else if (*$3 == "merge_instances")  optType = VCoverOptionType::MERGE_INSTANCES;
-                                  else if (*$3 == "real_interval")    optType = VCoverOptionType::REAL_INTERVAL;
-                                  else if (*$3 == "strobe")           optType = VCoverOptionType::STROBE;
-                                  else if (*$3 == "weight")           optType = VCoverOptionType::WEIGHT;
-                                  else {
+                                  إذا      (*$3 == "comment")          optType = VCoverOptionType::COMMENT;
+                                  وإلا إذا (*$3 == "distribute_first") optType = VCoverOptionType::DISTRIBUTE_پہلا;
+                                  وإلا إذا (*$3 == "goal")             optType = VCoverOptionType::GOAL;
+                                  وإلا إذا (*$3 == "merge_instances")  optType = VCoverOptionType::ملاؤ_INSTANCES;
+                                  وإلا إذا (*$3 == "real_interval")    optType = VCoverOptionType::REAL_INTERVAL;
+                                  وإلا إذا (*$3 == "strobe")           optType = VCoverOptionType::STROBE;
+                                  وإلا إذا (*$3 == "weight")           optType = VCoverOptionType::بھار;
+                                  وإلا {
                                       // Specific message for option.* names used under type_option.*
-                                      if (*$3 == "at_least" || *$3 == "auto_bin_max"
+                                      إذا (*$3 == "at_least" || *$3 == "auto_bin_max"
                                           || *$3 == "cross_num_print_missing" || *$3 == "cross_retain_auto_bins"
                                           || *$3 == "detect_overlap" || *$3 == "get_inst_coverage"
                                           || *$3 == "name" || *$3 == "per_instance") {
                                           $<fl>1->v3error("'type_option." << *$3
                                               << "' is not valid; use 'option." << *$3 << "' instead");
-                                      } else {
+                                      } وإلا {
                                           $<fl>1->v3error("Unknown coverage type option name 'type_option."
                                               << *$3 << "'"
                                               << "; not a valid type option (IEEE 1800-2023 Table 19-3)");
@@ -7118,50 +7118,50 @@ coverage_option<nodep>:  // ==IEEE: coverage_option
                                       valid = false;
                                   }
                               }
-                              if (valid) {
-                                  $$ = new AstCgOptionAssign{$<fl>1, typeOpt, optType, *$3, $5};
-                              } else {
+                              إذا (valid) {
+                                  $$ = new Ast_Cg_Option_سونپو{$<fl>1, typeOpt, optType, *$3, $5};
+                              } وإلا {
                                   DEL($5);
                               }
-                          } else {
+                          } وإلا {
                               $<fl>1->v3error("Syntax error; expected 'option' or 'type_option': '" << *$1 << "'");
                               DEL($5);
                           } }
         ;
 
-cover_point<nodep>:  // ==IEEE: cover_point
+cover_نقطہ<nodep>:  // ==IEEE: cover_point
         //              // [ [ data_type_or_implicit ] cover_point_identifier ':' ] yCOVERPOINT
-                yCOVERPOINT expr iffE bins_or_empty
+                yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>1, "", $2, $3, $4}; }
         //                      // IEEE-2012: class_scope before an ID
-        |       id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>3, *$1, $4, $5, $6}; }
         //                      // data_type_or_implicit expansion
-        |       data_type id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       انکڑے_type id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>4, *$2, $5, $6, $7};
                           DEL($1); }
-        |       yVAR data_type id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       yVAR انکڑے_type id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       yVAR implicit_typeE id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       yVAR implicit_typeE id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       signingE rangeList id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       signingE rangeList id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>5, *$3, $6, $7, $8};
                           DEL($2); }
-        |       signing id/*cover_point_id*/ ':' yCOVERPOINT expr iffE bins_or_empty
+        |       signing id/*cover_point_id*/ ':' yCOVERPOINT اظہاریہ iffE bins_or_خالی_تھاواں
                         { $$ = new AstCoverpoint{$<fl>4, *$2, $5, $6, $7}; }
         //                      // IEEE-2012:
-        |       bins_or_empty                           { $$ = $1; }
+        |       bins_or_خالی_تھاواں                           { $$ = $1; }
         ;
 
-iffE<nodeExprp>:  // IEEE: part of cover_point, others
-                /* empty */                             { $$ = nullptr; }
-        |       yIFF '(' expr ')'
+iffE<گرہ_Exprp>:  // IEEE: part of cover_point, others
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       yIFF '(' اظہاریہ ')'
                         { $$ = $3; /* Keep iff condition for coverpoint */ }
         ;
 
-bins_or_empty<nodep>:  // ==IEEE: bins_or_empty
+bins_or_خالی_تھاواں<nodep>:  // ==IEEE: bins_or_empty
                 '{' bins_or_optionsList '}'             { $$ = $2; }
         |       '{' '}'                                 { $$ = nullptr; }
         |       ';'                                     { $$ = nullptr; }
@@ -7172,7 +7172,7 @@ bins_or_empty<nodep>:  // ==IEEE: bins_or_empty
 
 bins_or_optionsList<nodep>:  // IEEE: { bins_or_options ';' }
                 bins_or_options ';'                     { $$ = $1; }
-        |       bins_or_optionsList bins_or_options ';' { $$ = addNextNull($1, $2); }
+        |       bins_or_optionsList bins_or_options ';' { $$ = جوڑو_اگلا_Null($1, $2); }
         //
         |       bins_or_optionsList error ';'           { $$ = $1; }  // LCOV_EXCL_LINE
         |       error ';'                               { $$ = nullptr; }  // LCOV_EXCL_LINE
@@ -7186,10 +7186,10 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
                         { $$ = GRAMMARP->coverBinArray(new AstCoverBin{$<fl>2, *$2, $6, false, false, false, $8}, $3); }
         |       yBINS idAny/*bin_identifier*/ '[' cgexpr ']' iffE
                         { // Check for automatic bins: bins auto[N]
-                          if (*$2 == "auto") {
+                          إذا (*$2 == "auto") {
                               $$ = new AstCoverBin{$<fl>2, *$2, $4};
                               DEL($6);
-                          } else {
+                          } وإلا {
                               $$ = nullptr;
                               BBCOVERIGN($<fl>2, "Unsupported: 'bins' array (non-auto)");
                               DEL($4, $6);
@@ -7232,19 +7232,19 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
         //
         //                      // cgexpr part of trans_list
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
-                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_TRANSITION}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<Ast_Cover_Trans_سیٹ*>($5), VCoverBinsType{VCoverBinsType::BINS_TRANSITION}, isArray};
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yIGNORE_BINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
-                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_IGNORE}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<Ast_Cover_Trans_سیٹ*>($5), VCoverBinsType{VCoverBinsType::BINS_IGNORE}, isArray};
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yILLEGAL_BINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
-                        { const bool isArray = GRAMMARP->coverBinArrayUnsized($3);
-                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<AstCoverTransSet*>($5), VCoverBinsType{VCoverBinsType::BINS_ILLEGAL}, isArray};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
+                        { ثابت bool isArray = GRAMMARP->coverBinArrayUnsized($3);
+                          $$ = new AstCoverBin{$<fl>2, *$2, static_cast<Ast_Cover_Trans_سیٹ*>($5), VCoverBinsType{VCoverBinsType::BINS_ILLEGAL}, isArray};
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in transition cover bin (guard ignored)");
                           DEL($6); }
         |       yWILDCARD yBINS idAny/*bin_identifier*/ bins_orBraE '=' trans_list iffE
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($4); BBCOVERIGN($<fl>1, "Unsupported: 'wildcard' transition list in cover bin"); DEL($6, $7);}
@@ -7256,17 +7256,17 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_DEFAULT};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yIGNORE_BINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_IGNORE};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yILLEGAL_BINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT iffE
                         { GRAMMARP->coverBinArrayUnsized($3);
                           $$ = new AstCoverBin{$<fl>2, *$2, VCoverBinsType::BINS_ILLEGAL};
-                          if ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
+                          إذا ($6) BBCOVERIGN($6->fileline(), "Unsupported: 'iff' in default cover bin (guard ignored)");
                           DEL($6); }
         |       yBINS idAny/*bin_identifier*/ bins_orBraE '=' yDEFAULT ySEQUENCE iffE
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($3); BBCOVERIGN($<fl>6, "Unsupported: 'sequence' in default cover bin"); DEL($7); }
@@ -7276,94 +7276,94 @@ bins_or_options<nodep>:  // ==IEEE: bins_or_options
                         { $$ = nullptr; GRAMMARP->coverBinArrayUnsized($3); BBCOVERIGN($<fl>6, "Unsupported: 'sequence' in default cover bin"); DEL($7); }
         ;
 
-bins_orBraE<nodeExprp>:  // IEEE: part of bins_or_options: AstUnbounded for '[]', else the size
-                /* empty */                             { $$ = nullptr; }
+bins_orBraE<گرہ_Exprp>:  // IEEE: part of bins_or_options: AstUnbounded for '[]', else the size
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       '[' ']'                                 { $$ = new AstUnbounded{$<fl>1}; }
         |       '[' cgexpr ']'
                         { $$ = $2;
-                          if (VN_IS($2, Unbounded)) $2->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)"); }
+                          إذا (VN_IS($2, Unbounded)) $2->v3error("Bins array size must be integral, not '$' (IEEE 1800-2023 19.5.1)"); }
         ;
 
 trans_list<nodep>:  // ==IEEE: trans_list
-                '(' trans_set ')'                       { $$ = $2; }
-        |       trans_list ',' '(' trans_set ')'        { $$ = addNextNull($1, $4); }
+                '(' trans_سیٹ ')'                       { $$ = $2; }
+        |       trans_list ',' '(' trans_سیٹ ')'        { $$ = جوڑو_اگلا_Null($1, $4); }
         ;
 
-trans_set<nodep>:  // ==IEEE: trans_set (returns AstCoverTransSet)
+trans_سیٹ<nodep>:  // ==IEEE: trans_set (returns AstCoverTransSet)
                 trans_range_list                        {
-                        AstCoverTransItem* const itemp = static_cast<AstCoverTransItem*>($1);
-                        $$ = new AstCoverTransSet{$<fl>1, itemp};
+                        Ast_Cover_Trans_شے* ثابت itemp = static_cast<Ast_Cover_Trans_شے*>($1);
+                        $$ = new Ast_Cover_Trans_سیٹ{$<fl>1, itemp};
                 }
-        |       trans_set yP_EQGT trans_range_list
+        |       trans_سیٹ yP_EQGT trans_range_list
                 {
-                        AstCoverTransSet* const setp = static_cast<AstCoverTransSet*>($1);
-                        AstCoverTransItem* const itemp = static_cast<AstCoverTransItem*>($3);
-                        setp->addItemsp(itemp);
+                        Ast_Cover_Trans_سیٹ* ثابت setp = static_cast<Ast_Cover_Trans_سیٹ*>($1);
+                        Ast_Cover_Trans_شے* ثابت itemp = static_cast<Ast_Cover_Trans_شے*>($3);
+                        setp->جوڑو_Itemsp(itemp);
                         $$ = setp;
                 }
         ;
 
 trans_range_list<nodep>:  // ==IEEE: trans_range_list (returns AstCoverTransItem)
-                trans_item                              {
+                trans_شے                              {
                         // Simple transition item without repetition
-                        $$ = new AstCoverTransItem{$<fl>1, $1, VTransRepType::NONE};
+                        $$ = new Ast_Cover_Trans_شے{$<fl>1, $1, VTransRepType::NONE};
                 }
-        |       trans_item yP_BRASTAR cgexpr ']'
+        |       trans_شے yP_BRASTAR cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($<fl>2, "Unsupported: '[*]' in cover transition"); DEL($1, $3); }
-        |       trans_item yP_BRASTAR cgexpr ':' cgexpr ']'
+        |       trans_شے yP_BRASTAR cgexpr ':' cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($<fl>2, "Unsupported: '[*]' in cover transition"); DEL($1, $3, $5); }
-        |       trans_item yP_BRAMINUSGT cgexpr ']'
+        |       trans_شے yP_BRAMINUSGT cgexpr ']'
                         { BBCOVERIGN($<fl>2, "Unsupported: '[->' in cover transition"); DEL($3);
-                          $$ = new AstCoverTransItem{$<fl>1, $1, VTransRepType::GOTO}; }
-        |       trans_item yP_BRAMINUSGT cgexpr ':' cgexpr ']'
+                          $$ = new Ast_Cover_Trans_شے{$<fl>1, $1, VTransRepType::GOTO}; }
+        |       trans_شے yP_BRAMINUSGT cgexpr ':' cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($<fl>2, "Unsupported: '[->' in cover transition"); DEL($1, $3, $5); }
-        |       trans_item yP_BRAEQ cgexpr ']'
+        |       trans_شے yP_BRAEQ cgexpr ']'
                         { BBCOVERIGN($<fl>2, "Unsupported: '[=]' in cover transition"); DEL($3);
-                          $$ = new AstCoverTransItem{$<fl>1, $1, VTransRepType::NONCONS}; }
-        |       trans_item yP_BRAEQ cgexpr ':' cgexpr ']'
+                          $$ = new Ast_Cover_Trans_شے{$<fl>1, $1, VTransRepType::NONCONS}; }
+        |       trans_شے yP_BRAEQ cgexpr ':' cgexpr ']'
                         { $$ = nullptr; BBCOVERIGN($<fl>2, "Unsupported: '[=]' in cover transition"); DEL($1, $3, $5); }
         ;
 
-trans_item<nodep>:  // ==IEEE: range_list (returns range list node)
+trans_شے<nodep>:  // ==IEEE: range_list (returns range list node)
                 covergroup_range_list                   { $$ = $1; }
         ;
 
 covergroup_range_list<nodep>:  // ==IEEE: covergroup_range_list
-                covergroup_value_range                  { $$ = $1; }
-        |       covergroup_range_list ',' covergroup_value_range        { $$ = addNextNull($1, $3); }
+                covergroup_قدر_range                  { $$ = $1; }
+        |       covergroup_range_list ',' covergroup_قدر_range        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 
 cover_cross<nodep>:  // ==IEEE: cover_cross
-                id/*cover_point_identifier*/ ':' yCROSS list_of_cross_items iffE cross_body
+                id/*cover_point_identifier*/ ':' yCROSS list_دا_cross_اشیاء iffE cross_body
                         {
-                          AstCoverCross* const nodep = new AstCoverCross{$<fl>3, *$1,
+                          AstCoverCross* ثابت nodep = new AstCoverCross{$<fl>3, *$1,
                                                           VN_AS($4, CoverpointRef), $5};
-                          if ($6) nodep->addBinsp($6);
+                          إذا ($6) nodep->جوڑو_Binsp($6);
                           $$ = nodep;
                         }
-        |       yCROSS list_of_cross_items iffE cross_body
+        |       yCROSS list_دا_cross_اشیاء iffE cross_body
                         {
-                          AstCoverCross* const nodep = new AstCoverCross{$<fl>1,
-                                                          "__cross" + cvtToStr(GRAMMARP->s_typeImpNum++),
+                          AstCoverCross* ثابت nodep = new AstCoverCross{$<fl>1,
+                                                          "__cross" + cvt_منزل_Str(GRAMMARP->s_type_Imp_عدد++),
                                                           VN_AS($2, CoverpointRef), $3};
-                          if ($4) nodep->addBinsp($4);
+                          إذا ($4) nodep->جوڑو_Binsp($4);
                           $$ = nodep;
                         }
         ;
 
-list_of_cross_items<nodep>:  // ==IEEE: list_of_cross_items
-                cross_item ',' cross_item               { $$ = addNextNull($1, $3); }
-        |       cross_item ',' cross_item ',' cross_itemList
-                        { $$ = addNextNull(addNextNull($1, $3), $5); }
+list_دا_cross_اشیاء<nodep>:  // ==IEEE: list_of_cross_items
+                cross_شے ',' cross_شے               { $$ = جوڑو_اگلا_Null($1, $3); }
+        |       cross_شے ',' cross_شے ',' cross_شے_List
+                        { $$ = جوڑو_اگلا_Null(جوڑو_اگلا_Null($1, $3), $5); }
         ;
 
-cross_itemList<nodep>:  // IEEE: part of list_of_cross_items
-                cross_item                              { $$ = $1; }
-        |       cross_itemList ',' cross_item           { $$ = addNextNull($1, $3); }
+cross_شے_List<nodep>:  // IEEE: part of list_of_cross_items
+                cross_شے                              { $$ = $1; }
+        |       cross_شے_List ',' cross_شے           { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-cross_item<nodep>:  // ==IEEE: cross_item
+cross_شے<nodep>:  // ==IEEE: cross_item
         //                      // IEEE: cover_point_identifier | variable_identifier - both are a
         //                      // simple identifier.  We parse idDotted (a plain hierarchical
         //                      // reference a.b.c, with no bit/array selects) to also accept the
@@ -7372,11 +7372,11 @@ cross_item<nodep>:  // ==IEEE: cross_item
         //                      // and handled exactly as before.
                 idDotted
                         {
-                          if (AstParseRef* const refp = VN_CAST($1, ParseRef)) {
+                          إذا (AstParseRef* ثابت refp = VN_CAST($1, ParseRef)) {
                               // Standard: simple cover_point_identifier / variable_identifier
                               $$ = new AstCoverpointRef{refp->fileline(), refp->name()};
-                              VL_DO_DANGLING(refp->deleteTree(), refp);
-                          } else {
+                              VL_DO_DANGLING(refp->delete_درخت(), refp);
+                          } وإلا {
                               // Verilator extension beyond strict IEEE (cross_item is a simple
                               // identifier): some tools accept a hierarchical/dotted reference.
                               // Carry the reference expression (still an AstDot here) out of the
@@ -7392,76 +7392,76 @@ cross_item<nodep>:  // ==IEEE: cross_item
 cross_body<nodep>:  // ==IEEE: cross_body
                 '{' '}'                                 { $$ = nullptr; }
         //                      // IEEE-2012: No semicolon here, mistake in spec
-        |       '{' cross_body_itemList '}'             { $$ = $2; }
+        |       '{' cross_body_شے_List '}'             { $$ = $2; }
         |       ';'                                     { $$ = nullptr; }
         //
-        |       '{' cross_body_itemList error '}'       { $$ = $2; }  // LCOV_EXCL_LINE
+        |       '{' cross_body_شے_List error '}'       { $$ = $2; }  // LCOV_EXCL_LINE
         |       '{' error '}'                           { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-cross_body_itemList<nodep>:  // IEEE: part of cross_body
-                cross_body_item                         { $$ = $1; }
-        |       cross_body_itemList cross_body_item     { $$ = addNextNull($1, $2); }
+cross_body_شے_List<nodep>:  // IEEE: part of cross_body
+                cross_body_شے                         { $$ = $1; }
+        |       cross_body_شے_List cross_body_شے     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-cross_body_item<nodep>:  // ==IEEE: cross_body_item
+cross_body_شے<nodep>:  // ==IEEE: cross_body_item
                 function_declaration
                         { $$ = nullptr; BBCOVERIGN($1->fileline(), "Unsupported: 'function' in coverage cross body"); DEL($1); }
         //                      // IEEE: bins_selection_or_option
         |       coverage_option ';'                     { $$ = $1; }
         //                      // IEEE: bins_selection
-        |       yBINS idAny/*new-bin_identifier*/ '=' select_expression iffE ';'
+        |       yBINS idAny/*new-bin_identifier*/ '=' select_عبارت iffE ';'
                         { $$ = new AstCoverCrossBin{$1, *$2, $4, $5}; }
-        |       yIGNORE_BINS idAny/*new-bin_identifier*/ '=' select_expression iffE ';'
+        |       yIGNORE_BINS idAny/*new-bin_identifier*/ '=' select_عبارت iffE ';'
                         { $$ = new AstCoverCrossBin{$1, *$2, $4, $5, VCoverBinsType::BINS_IGNORE}; }
-        |       yILLEGAL_BINS idAny/*new-bin_identifier*/ '=' select_expression iffE ';'
+        |       yILLEGAL_BINS idAny/*new-bin_identifier*/ '=' select_عبارت iffE ';'
                         { $$ = new AstCoverCrossBin{$1, *$2, $4, $5, VCoverBinsType::BINS_ILLEGAL}; }
         |       error ';'                               { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-select_expression<nodep>:  // ==IEEE: select_expression
-                select_expression_r
+select_عبارت<nodep>:  // ==IEEE: select_expression
+                select_عبارت_r
                         { $$ = $1; }
         //                      // IEEE: integer_covergroup_expression ::= covergroup_expression | '$'
         //                      // '$' is part of our expr.  'matches' has higher precedence than
         //                      // '&&' and '||', which end the count (IEEE 1800-2023 footnote 30).
         //                      // A count could end in a function call followed by its 'with', so
         //                      // a selection with a count is filtered further only in parentheses.
-        |       select_expression_r yWITH__PAREN '(' cgexpr ')' yMATCHES expr %prec yP_ANDAND
+        |       select_عبارت_r yWITH__PAREN '(' cgexpr ')' yMATCHES اظہاریہ %prec yP_ANDAND
                         { $$ = new AstCoverCrossWith{$2, $1, $4, $7}; }
         //                      // IEEE: cross_set_expression yMATCHES integer_covergroup_expression
-        |       idAny '(' list_of_argumentsE ')' yMATCHES expr %prec yP_ANDAND
+        |       idAny '(' list_دا_arguments_E ')' yMATCHES اظہاریہ %prec yP_ANDAND
                         { $$ = nullptr; BBCOVERIGN($<fl>1, "Unsupported: function call in coverage select expression"); DEL($3, $6); }
-        |       select_expression yP_ANDAND select_expression
+        |       select_عبارت yP_ANDAND select_عبارت
                         { $$ = new AstCoverCrossSelect{$2, $1, $3, false}; }
-        |       select_expression yP_OROR   select_expression
+        |       select_عبارت yP_OROR   select_عبارت
                         { $$ = new AstCoverCrossSelect{$2, $1, $3, true}; }
         ;
 
 // This non-terminal exists to disambiguate select_expression and make "with" bind tighter
-select_expression_r<nodep>:
+select_عبارت_r<nodep>:
         //                      // IEEE: select_condition expanded here
-                yBINSOF '(' bins_expression ')'
+                yBINSOF '(' bins_عبارت ')'
                         { $$ = new AstCoverBinsof{$1, new AstCoverpointRef{$3->fileline(), $3}}; }
-        |       '!' yBINSOF '(' bins_expression ')'
+        |       '!' yBINSOF '(' bins_عبارت ')'
                         { $$ = new AstCoverBinsof{$1, new AstCoverpointRef{$4->fileline(), $4}, true}; }
         //                      // IEEE: covergroup_range_list has the same syntax as range_list
-        |       yBINSOF '(' bins_expression ')' yINTERSECT '{' range_list '}'
+        |       yBINSOF '(' bins_عبارت ')' yINTERSECT '{' range_list '}'
                         { $$ = new AstCoverBinsof{$1, new AstCoverpointRef{$3->fileline(), $3}, false, $7}; }
-        |       '!' yBINSOF '(' bins_expression ')' yINTERSECT '{' range_list '}'
+        |       '!' yBINSOF '(' bins_عبارت ')' yINTERSECT '{' range_list '}'
                         { $$ = new AstCoverBinsof{$1, new AstCoverpointRef{$4->fileline(), $4}, true, $8}; }
         |       yWITH__PAREN '(' cgexpr ')'
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: 'with' in coverage select expression"); DEL($3); }
         |       '!' yWITH__PAREN '(' cgexpr ')'
                         { $$ = nullptr; BBCOVERIGN($1, "Unsupported: 'with' in coverage select expression"); DEL($4); }
-        |       select_expression_r yWITH__PAREN '(' cgexpr ')'
+        |       select_عبارت_r yWITH__PAREN '(' cgexpr ')'
                         { $$ = new AstCoverCrossWith{$2, $1, $4, nullptr}; }
         //                      // IEEE-2012: Need clarification as to precedence
         //UNSUP yWITH__PAREN '(' cgexpr ')' yMATCHES cgexpr    { }
         //                      // IEEE-2012: Need clarification as to precedence
         //UNSUP '!' yWITH__PAREN '(' cgexpr ')' yMATCHES cgexpr { }
         //
-        |       '(' select_expression ')'                       { $$ = $2; }
+        |       '(' select_عبارت ')'                       { $$ = $2; }
         |       idAny/*cross_identifier*/                        { $$ = new AstCoverCrossRef{$<fl>1, *$1}; }
         //                      // IEEE-2012: Need clarification as to precedence
         //UNSUP  cgexpr  { $$ = nullptr; BBCOVERIGN($1, "Ignoring unsupported: coverage select expression"); }
@@ -7469,12 +7469,12 @@ select_expression_r<nodep>:
         //                      // IEEE: cross_set_expression [ yMATCHES integer_covergroup_expression ]
         //UNSUP  cgexpr    {..}
         //UNSUP                 // Below are all removed
-        |       idAny '(' list_of_argumentsE ')'
+        |       idAny '(' list_دا_arguments_E ')'
                         { $$ = nullptr; BBCOVERIGN($<fl>1, "Unsupported: function call in coverage select expression"); DEL($3); }
         //UNSUP                 // Above are all removed, replace with:
         ;
 
-bins_expression<nodeExprp>:  // ==IEEE: bins_expression
+bins_عبارت<گرہ_Exprp>:  // ==IEEE: bins_expression
         //                      // "cover_point_identifier" and "variable_identifier" look identical
         // IEEE specifies:
         // bins_expression ::=
@@ -7487,34 +7487,34 @@ bins_expression<nodeExprp>:  // ==IEEE: bins_expression
         ;
 
 coverage_eventE<nodep>:  // IEEE: [ coverage_event ]
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       clocking_event
                         { $$ = $1; }  // Keep the clocking event for automatic sampling
-        |       yWITH__ETC yFUNCTION idAny/*"sample"*/ '(' tf_port_listE ')'
-                        { if (*$3 != "sample") {
+        |       yWITH__ETC yFUNCTION idAny/*"sample"*/ '(' tf_پورٹ_list_E ')'
+                        { إذا (*$3 != "sample") {
                             $<fl>3->v3error("Coverage sampling function must be named 'sample'"
                                             " (IEEE 1800-2023 19.8.1)");
                             $$ = nullptr;
                             DEL($5);
-                          } else {
+                          } وإلا {
                             $$ = $5;
                           }
                         }
-        |       yP_ATAT '(' block_event_expression ')'
+        |       yP_ATAT '(' بلاک_event_عبارت ')'
                         { $$ = nullptr; BBCOVERIGN($<fl>1, "Unsupported: '@@' coverage event"); DEL($3); }
         ;
 
-block_event_expression<nodep>:  // ==IEEE: block_event_expression
-                block_event_expressionTerm              { $$ = nullptr; /*UNSUP @@*/ DEL($1); }
-        |       block_event_expression yOR block_event_expressionTerm   { $$ = nullptr; /*UNSUP @@*/ DEL($1, $3);  }
+بلاک_event_عبارت<nodep>:  // ==IEEE: block_event_expression
+                بلاک_event_عبارت_رکن              { $$ = nullptr; /*UNSUP @@*/ DEL($1); }
+        |       بلاک_event_عبارت yOR بلاک_event_عبارت_رکن   { $$ = nullptr; /*UNSUP @@*/ DEL($1, $3);  }
         ;
 
-block_event_expressionTerm<nodep>:  // IEEE: part of block_event_expression
-                yBEGIN hierarchical_btf_identifier      { $$ = nullptr; /*UNSUP @@*/ DEL($2); }
-        |       yEND   hierarchical_btf_identifier      { $$ = nullptr; /*UNSUP @@*/ DEL($2); }
+بلاک_event_عبارت_رکن<nodep>:  // IEEE: part of block_event_expression
+                yBEGIN درجہ_وار_btf_identifier      { $$ = nullptr; /*UNSUP @@*/ DEL($2); }
+        |       y_سرا   درجہ_وار_btf_identifier      { $$ = nullptr; /*UNSUP @@*/ DEL($2); }
         ;
 
-hierarchical_btf_identifier<nodep>:  // ==IEEE: hierarchical_btf_identifier
+درجہ_وار_btf_identifier<nodep>:  // ==IEEE: hierarchical_btf_identifier
         //                      // hierarchical_tf_identifier + hierarchical_block_identifier
         //                      // method_identifier
                 packageClassScopeE idAny                { $$ = nullptr; /*UNSUP*/ DEL($1); }
@@ -7523,7 +7523,7 @@ hierarchical_btf_identifier<nodep>:  // ==IEEE: hierarchical_btf_identifier
 //**********************************************************************
 // Randsequence
 
-randsequence_statement<nodeStmtp>:  // ==IEEE: randsequence_statement
+randsequence_statement<گرہ_Stmtp>:  // ==IEEE: randsequence_statement
                 yRANDSEQUENCE '(' ')' rs_productionList yENDSEQUENCE
                         { $$ = new AstRandSequence{$1, "", $4};
                           v3Global.useRandSequence(true); }
@@ -7534,17 +7534,17 @@ randsequence_statement<nodeStmtp>:  // ==IEEE: randsequence_statement
 
 rs_productionList<rSProdp>:  // IEEE: rs_production+
                 rs_production                           { $$ = $1; }
-        |       rs_productionList rs_production         { $$ = addNextNull($1, $2); }
+        |       rs_productionList rs_production         { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 rs_production<rSProdp>:  // ==IEEE: rs_production
-                rs_productionFront ':' rs_ruleList ';'
-                        { $$ = $1; $1->addRulesp($3); }
+                rs_productionFront ':' rs_قاعدہ_List ';'
+                        { $$ = $1; $1->جوڑو_Rulesp($3); }
         ;
 
 rs_productionFront<rSProdp>:  // IEEE: part of rs_production
                 rs_funcId/*rs_production_identifier*/   { $$ = $1; }
-        |       rs_funcId '(' tf_port_listE ')'         { $$ = $1; $$->addPortsp($3); }
+        |       rs_funcId '(' tf_پورٹ_list_E ')'         { $$ = $1; $$->جوڑو_Portsp($3); }
         ;
 
 rs_funcId<rSProdp>:  // IEEE: part of rs_production
@@ -7552,15 +7552,15 @@ rs_funcId<rSProdp>:  // IEEE: part of rs_production
                         { $$ = $1; }  // Note is void as default, not logic as default like functions
         |       signingE rangeList rs_fId
                         { $$ = $3;
-                          $$->fvarp(new AstVar{$<fl>1, VVarType::PORT, $3->name(), VFlagChildDType{},
-                                               GRAMMARP->addRange(new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $1}, $2, true)}); }
+                          $$->fvarp(new AstVar{$<fl>1, VVarType::پورٹ, $3->name(), VFlag_بچہ_DType{},
+                                               GRAMMARP->جوڑو_Range(new AstBasicDType{$<fl>3, LOGIC_IMPLICIT, $1}, $2, true)}); }
         |       signing rs_fId
                         { $$ = $2;
-                          $$->fvarp(new AstVar{$<fl>1, VVarType::PORT, $2->name(), VFlagChildDType{},
+                          $$->fvarp(new AstVar{$<fl>1, VVarType::پورٹ, $2->name(), VFlag_بچہ_DType{},
                                                new AstBasicDType{$<fl>2, LOGIC_IMPLICIT, $1}}); }
-        |       data_type rs_fId
+        |       انکڑے_type rs_fId
                         { $$ = $2;
-                          $$->fvarp(new AstVar{$<fl>1, VVarType::PORT, $2->name(), VFlagChildDType{},
+                          $$->fvarp(new AstVar{$<fl>1, VVarType::پورٹ, $2->name(), VFlag_بچہ_DType{},
                                                $1}); }
         |       yVOID rs_fId
                         { $$ = $2; }
@@ -7572,202 +7572,202 @@ rs_fId<rSProdp>:  // IEEE: part of rs_production
                           $$ = new AstRSProd{$<fl>$, *$1, nullptr, nullptr}; }
         ;
 
-rs_ruleList<rSRulep>:  // IEEE: rs_rule+ part of rs_production
-                rs_rule                                 { $$ = $1; }
-        |       rs_ruleList '|' rs_rule                 { $$ = addNextNull($1, $3); }
+rs_قاعدہ_List<rSRulep>:  // IEEE: rs_rule+ part of rs_production
+                rs_قاعدہ                                 { $$ = $1; }
+        |       rs_قاعدہ_List '|' rs_قاعدہ                 { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-rs_rule<rSRulep>:  // ==IEEE: rs_rule
+rs_قاعدہ<rSRulep>:  // ==IEEE: rs_rule
                 rs_production_list
                         { $$ = new AstRSRule{$1->fileline(), nullptr, $1, nullptr}; }
-        |       rs_production_list yP_COLONEQ rs_weight_specification
+        |       rs_production_list yP_COLONEQ rs_بھار_specification
                         { $$ = new AstRSRule{$1->fileline(), $3, $1, nullptr}; }
-        |       rs_production_list yP_COLONEQ rs_weight_specification rs_code_block
+        |       rs_production_list yP_COLONEQ rs_بھار_specification rs_کوڈ_بلاک
                         { $$ = new AstRSRule{$1->fileline(), $3, $1, $4}; }
         ;
 
 rs_production_list<rSProdListp>:  // ==IEEE: rs_production_list
                 rs_prodList
                         { $$ = new AstRSProdList{CRELINE(), nullptr, $1}; }
-        |       yRAND yJOIN rs_production_item rs_production_itemList
+        |       yRAND yJOIN rs_production_شے rs_production_شے_List
                         { $$ = new AstRSProdList{$1, new AstConst{$2, AstConst::RealDouble{}, 0.5}, $3};
                           $$->randJoin(true);
-                          $$->addProdsp($4); }
-        |       yRAND yJOIN '(' expr ')' rs_production_item rs_production_itemList
+                          $$->جوڑو_Prodsp($4); }
+        |       yRAND yJOIN '(' اظہاریہ ')' rs_production_شے rs_production_شے_List
                         { $$ = new AstRSProdList{$1, $4, $6};
                           $$->randJoin(true);
-                          $$->addProdsp($7); }
+                          $$->جوڑو_Prodsp($7); }
         ;
 
-rs_weight_specification<nodeExprp>:  // ==IEEE: rs_weight_specification
+rs_بھار_specification<گرہ_Exprp>:  // ==IEEE: rs_weight_specification
                 intnumAsConst                           { $$ = $1; }
         |       idClassSel/*ps_identifier*/             { $$ = $1; }
-        |       '(' expr ')'                            { $$ = $2; }
+        |       '(' اظہاریہ ')'                            { $$ = $2; }
         ;
 
-rs_code_block<nodep>:  // ==IEEE: rs_code_block
+rs_کوڈ_بلاک<nodep>:  // ==IEEE: rs_code_block
                 '{' '}'                                 { $$ = nullptr; }
-        |       '{' rs_code_blockItemList '}'           { $$ = $2; }
+        |       '{' rs_کوڈ_بلاک_شے_List '}'           { $$ = $2; }
         ;
 
-rs_code_blockItemList<nodep>:  // IEEE: part of rs_code_block
-                rs_code_blockItem                       { $$ = $1; }
-        |       rs_code_blockItemList rs_code_blockItem         { $$ = addNextNull($1, $2); }
+rs_کوڈ_بلاک_شے_List<nodep>:  // IEEE: part of rs_code_block
+                rs_کوڈ_بلاک_شے                       { $$ = $1; }
+        |       rs_کوڈ_بلاک_شے_List rs_کوڈ_بلاک_شے         { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-rs_code_blockItem<nodep>:  // IEEE: part of rs_code_block
-                data_declaration                        { $$ = $1; }
+rs_کوڈ_بلاک_شے<nodep>:  // IEEE: part of rs_code_block
+                انکڑے_declaration                        { $$ = $1; }
         |       stmt                                    { $$ = $1; }
         ;
 
 rs_prodList<nodep>:  // IEEE: rs_prod+
                 rs_prod                                 { $$ = $1; }
-        |       rs_prodList rs_prod                     { $$ = addNextNull($1, $2); }
+        |       rs_prodList rs_prod                     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 rs_prod<nodep>:  // ==IEEE: rs_prod
-                rs_production_item                      { $$ = $1; }
-        |       rs_code_block                           { $$ = $1; }
+                rs_production_شے                      { $$ = $1; }
+        |       rs_کوڈ_بلاک                           { $$ = $1; }
         //                      // IEEE: rs_if_else
-        |       yIF '(' expr ')' rs_production_item %prec prLOWER_THAN_ELSE
+        |       yIF '(' اظہاریہ ')' rs_production_شے %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstIf{$<fl>1, $3, $5, nullptr}; }
-        |       yIF '(' expr ')' rs_production_item yELSE rs_production_item
+        |       yIF '(' اظہاریہ ')' rs_production_شے yELSE rs_production_شے
                         { $$ = new AstIf{$<fl>1, $3, $5, $7}; }
         //                      // IEEE: rs_repeat
-        |       yREPEAT '(' expr ')' rs_production_item
+        |       yREPEAT '(' اظہاریہ ')' rs_production_شے
                                { $$ = new AstRepeat{$<fl>1, $3, $5}; }
         //                      // IEEE: rs_case
-        |       yCASE '(' expr ')' rs_case_itemList yENDCASE
+        |       yCASE '(' اظہاریہ ')' rs_case_شے_List yENDCASE
                         { $$ = new AstCase{$<fl>1, VCaseType::CT_RANDSEQUENCE, $3, $5}; }
         ;
 
-rs_production_itemList<nodep>:  // IEEE: rs_production_item+
-                rs_production_item                         { $$ = $1; }
-        |       rs_production_itemList rs_production_item  { $$ = addNextNull($1, $2); }
+rs_production_شے_List<nodep>:  // IEEE: rs_production_item+
+                rs_production_شے                         { $$ = $1; }
+        |       rs_production_شے_List rs_production_شے  { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-rs_production_item<nodep>:  // ==IEEE: rs_production_item
+rs_production_شے<nodep>:  // ==IEEE: rs_production_item
                 idAny/*production_identifier*/
-                        { $$ = new AstRSProdItem{$<fl>1, *$1, nullptr}; }
-        |       idAny/*production_identifier*/ '(' list_of_argumentsE ')'
-                        { $$ = new AstRSProdItem{$<fl>1, *$1, $3}; }
+                        { $$ = new Ast_RSProd_شے{$<fl>1, *$1, nullptr}; }
+        |       idAny/*production_identifier*/ '(' list_دا_arguments_E ')'
+                        { $$ = new Ast_RSProd_شے{$<fl>1, *$1, $3}; }
         ;
 
-rs_case_itemList<caseItemp>:  // IEEE: rs_case_item+
-                rs_case_item                            { $$ = $1; }
-        |       rs_case_itemList rs_case_item           { $$ = addNextNull($1, $2); }
+rs_case_شے_List<caseItemp>:  // IEEE: rs_case_item+
+                rs_case_شے                            { $$ = $1; }
+        |       rs_case_شے_List rs_case_شے           { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-rs_case_item<caseItemp>:  // ==IEEE: rs_case_item
-                caseCondList ':' rs_production_item ';'
-                        { $$ = new AstCaseItem{$<fl>1, $1, $3}; }
-        |       yDEFAULT rs_production_item ';'
-                        { $$ = new AstCaseItem{$<fl>1, nullptr, $2}; }
-        |       yDEFAULT ':' rs_production_item ';'
-                        { $$ = new AstCaseItem{$<fl>1, nullptr, $3}; }
+rs_case_شے<caseItemp>:  // ==IEEE: rs_case_item
+                caseCondList ':' rs_production_شے ';'
+                        { $$ = new Ast_Case_شے{$<fl>1, $1, $3}; }
+        |       yDEFAULT rs_production_شے ';'
+                        { $$ = new Ast_Case_شے{$<fl>1, nullptr, $2}; }
+        |       yDEFAULT ':' rs_production_شے ';'
+                        { $$ = new Ast_Case_شے{$<fl>1, nullptr, $3}; }
         ;
 
 //**********************************************************************
 // Checker
 
-checker_declaration<nodeModulep>:  // ==IEEE: part of checker_declaration
-                checkerFront checker_port_listE ';'
-                        checker_or_generate_itemListE yENDCHECKER endLabelE
+checker_declaration<گرہ_Modulep>:  // ==IEEE: part of checker_declaration
+                checkerFront checker_پورٹ_list_E ';'
+                        checker_or_generate_شے_List_E yENDCHECKER سرا_Label_E
                         { $$ = $1;
                           $1->modTrace(GRAMMARP->allTracingOn($1->fileline()));
-                          if ($2) $1->addStmtsp($2);
-                          if ($4) $1->addStmtsp($4);
-                          GRAMMARP->endLabel($<fl>6, $1, $6); }
+                          إذا ($2) $1->جوڑو_Stmtsp($2);
+                          إذا ($4) $1->جوڑو_Stmtsp($4);
+                          GRAMMARP->سرا_Label($<fl>6, $1, $6); }
         ;
 
-checkerFront<nodeModulep>:  // IEEE: part of checker_declaration
+checkerFront<گرہ_Modulep>:  // IEEE: part of checker_declaration
                 yCHECKER idAny/*checker_identifier*/
                         { $$ = new AstModule{$<fl>2, *$2, PARSEP->libname(), AstModule::Checker{}};
                           $$->modTrace(GRAMMARP->allTracingOn($$->fileline()));
-                          $$->timeunit(PARSEP->timeLastUnit());
-                          PARSEP->rootp()->timeprecisionMerge($$->fileline(),
-                                                              PARSEP->timeLastPrec());
+                          $$->timeunit(PARSEP->ویلا_آخری_Unit());
+                          PARSEP->rootp()->timeprecision_ملاؤ($$->fileline(),
+                                                              PARSEP->ویلا_آخری_Prec());
                           $$->unconnectedDrive(PARSEP->unconnectedDrive()); }
         |       checkerFront sigAttrScope               { $$ = $1; }
         ;
 
-checker_port_listE<nodep>:  // IEEE: [ ( [ checker_port_list ] ) ]
-                /* empty */                             { $$ = nullptr; }
+checker_پورٹ_list_E<nodep>:  // IEEE: [ ( [ checker_port_list ] ) ]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       '(' ')'                                 { $$ = nullptr; }
         |       '('
-        /*mid*/         { VARRESET_LIST(PORT); GRAMMARP->m_pinAnsi = true; }
-        /*cont*/    checker_port_list ')'
+        /*mid*/         { VARRESET_LIST(پورٹ); GRAMMARP->m_pinAnsi = true; }
+        /*cont*/    checker_پورٹ_list ')'
                         { $$ = $3; }
         ;
 
-checker_port_list<nodep>:  // ==IEEE: checker_port_list
-                checker_port_item                             { $$ = $1; }
-        |       checker_port_list ',' checker_port_item       { $$ = addNextNull($1, $3); }
+checker_پورٹ_list<nodep>:  // ==IEEE: checker_port_list
+                checker_پورٹ_شے                             { $$ = $1; }
+        |       checker_پورٹ_list ',' checker_پورٹ_شے       { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-checker_port_item<nodep>:  // IEEE: checker_port_item
-                checker_port_itemFront checker_port_itemAssignment  { $$ = $2; }
+checker_پورٹ_شے<nodep>:  // IEEE: checker_port_item
+                checker_پورٹ_شے_Front checker_پورٹ_شے_Assignment  { $$ = $2; }
         ;
 
-checker_port_itemFront:  // IEEE: part of checker_port_item
-                checker_port_directionE property_formal_typeNoDt
+checker_پورٹ_شے_Front:  // IEEE: part of checker_port_item
+                checker_پورٹ_direction_E property_formal_typeNoDt
                         { VARDTYPE($2); }
         //                      // data_type_or_implicit
-        |       checker_port_directionE data_type
-                        { VARDTYPE($2); GRAMMARP->m_typedPropertyPort = true; }
-        |       checker_port_directionE yVAR data_type
-                        { VARDTYPE($3); GRAMMARP->m_typedPropertyPort = true; }
-        |       checker_port_directionE yVAR implicit_typeE
+        |       checker_پورٹ_direction_E انکڑے_type
+                        { VARDTYPE($2); GRAMMARP->m_typed_Property_پورٹ = true; }
+        |       checker_پورٹ_direction_E yVAR انکڑے_type
+                        { VARDTYPE($3); GRAMMARP->m_typed_Property_پورٹ = true; }
+        |       checker_پورٹ_direction_E yVAR implicit_typeE
                         { VARDTYPE($3); }
-        |       checker_port_directionE implicit_typeE
+        |       checker_پورٹ_direction_E implicit_typeE
                         { VARDTYPE($2); }
         ;
 
-checker_port_directionE:  // IEEE: [ checker_port_direction ]
-                /* empty */                             { VARIO(INPUT); }
-        |       yINPUT                                  { VARIO(INPUT); }
+checker_پورٹ_direction_E:  // IEEE: [ checker_port_direction ]
+                /*خالی_تھاواں*/                             { VARIO(داخلہ); }
+        |       y_داخلہ                                  { VARIO(داخلہ); }
         |       yOUTPUT                                 { VARIO(OUTPUT); }
         ;
 
-checker_port_itemAssignment<nodep>:  // IEEE: part of checker_port_direction
+checker_پورٹ_شے_Assignment<nodep>:  // IEEE: part of checker_port_direction
                 id variable_dimensionListE
-                        { $$ = new AstPort{CRELINE(), PINNUMINC(), *$1};
-                          $$->addNext(VARDONEA($<fl>1, *$1, $2, nullptr)); }
+                        { $$ = new Ast_پورٹ{CRELINE(), PINNUMINC(), *$1};
+                          $$->جوڑو_اگلا(VARDONEA($<fl>1, *$1, $2, nullptr)); }
         |       id variable_dimensionListE '=' property_actual_arg
-                        { $$ = new AstPort{CRELINE(), PINNUMINC(), *$1};
-                          $$->addNext(VARDONEA($<fl>1, *$1, $2, $4));
+                        { $$ = new Ast_پورٹ{CRELINE(), PINNUMINC(), *$1};
+                          $$->جوڑو_اگلا(VARDONEA($<fl>1, *$1, $2, $4));
                           BBUNSUP($3, "Unsupported: checker port variable default value"); }
         ;
 
-checker_or_generate_itemListE<nodep>:  // IEEE: [{ checker_or_generate_itemList }]
-                /* empty */                             { $$ = nullptr; }
-        |       checker_or_generate_itemList            { $$ = $1; }
+checker_or_generate_شے_List_E<nodep>:  // IEEE: [{ checker_or_generate_itemList }]
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       checker_or_generate_شے_List            { $$ = $1; }
         ;
 
-checker_or_generate_itemList<nodep>:  // IEEE: { checker_or_generate_itemList }
-                checker_or_generate_item                { $$ = $1; }
-        |       checker_or_generate_itemList checker_or_generate_item   { $$ = addNextNull($1, $2); }
+checker_or_generate_شے_List<nodep>:  // IEEE: { checker_or_generate_itemList }
+                checker_or_generate_شے                { $$ = $1; }
+        |       checker_or_generate_شے_List checker_or_generate_شے   { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-checker_or_generate_item<nodep>:  // ==IEEE: checker_or_generate_item
-                checker_or_generate_item_declaration    { $$ = $1; }
+checker_or_generate_شے<nodep>:  // ==IEEE: checker_or_generate_item
+                checker_or_generate_شے_declaration    { $$ = $1; }
         |       initial_construct                       { $$ = $1; }
         //                      // IEEE: checker_construct
         |       always_construct                        { $$ = $1; }
         |       final_construct                         { $$ = $1; }
-        |       assertion_item                          { $$ = $1; }
-        |       continuous_assign                       { $$ = $1; }
-        |       checker_generate_item                   { $$ = $1; }
+        |       assertion_شے                          { $$ = $1; }
+        |       continuous_سونپو                       { $$ = $1; }
+        |       checker_generate_شے                   { $$ = $1; }
         ;
 
-checker_or_generate_item_declaration<nodep>:  // ==IEEE: checker_or_generate_item_declaration
-                data_declaration                        { $$ = $1; }
-        |       yRAND data_declaration
+checker_or_generate_شے_declaration<nodep>:  // ==IEEE: checker_or_generate_item_declaration
+                انکڑے_declaration                        { $$ = $1; }
+        |       yRAND انکڑے_declaration
                         { $$ = $2; BBUNSUP($1, "Unsupported: checker rand"); }
         |       function_declaration                    { $$ = $1; }
         |       checker_declaration
                         { $$ = nullptr; BBUNSUP($1, "Unsupported: recursive 'checker'"); DEL($1); }
-        |       assertion_item_declaration              { $$ = $1; }
+        |       assertion_شے_declaration              { $$ = $1; }
         |       covergroup_declaration                  { $$ = $1; }
         //      // IEEE deprecated: overload_declaration
         |       genvar_declaration                      { $$ = $1; }
@@ -7777,7 +7777,7 @@ checker_or_generate_item_declaration<nodep>:  // ==IEEE: checker_or_generate_ite
         |       ';'                                     { $$ = nullptr; }
         ;
 
-checker_generate_item<nodep>:  // ==IEEE: checker_generate_item
+checker_generate_شے<nodep>:  // ==IEEE: checker_generate_item
         //                      // Specialized for checker so need "c_" prefixes here
                 c_loop_generate_construct               { $$ = $1; }
         |       c_conditional_generate_construct        { $$ = $1; }
@@ -7800,80 +7800,80 @@ class_declaration<nodep>:       // ==IEEE: part of class_declaration
         //                      // IEEE-2012: using this also for interface_class_declaration
         //                      // The classExtendsE rule relies on classFront having the
         //                      // new class scope correct via classFront
-                classFront parameter_port_listE classExtendsE classImplementsE ';'
+                classFront parameter_پورٹ_list_E classExtendsE classImplementsE ';'
         /*mid*/         { // Allow resolving types declared in base extends class
                           $1->hasParameterList($<flag>2);
                         }
-        /*cont*/    class_itemListEnd endLabelE
-                        { $$ = $1; $1->addMembersp($2);
-                          $1->addExtendsp($3);
-                          $1->addExtendsp($4);
-                          $1->addMembersp($7);
-                          GRAMMARP->endLabel($<fl>8, $1, $8); }
+        /*cont*/    class_شے_List_سرا سرا_Label_E
+                        { $$ = $1; $1->جوڑو_Membersp($2);
+                          $1->جوڑو_Extendsp($3);
+                          $1->جوڑو_Extendsp($4);
+                          $1->جوڑو_Membersp($7);
+                          GRAMMARP->سرا_Label($<fl>8, $1, $8); }
         ;
 
 classFront<classp>:             // IEEE: part of class_declaration
         //                      // IEEE 1800-2023: lifetimeE replaced with final_specifierE
                 classVirtualE yCLASS final_specifierE lifetimeE idAny/*class_identifier*/
                         { $$ = new AstClass{$2, *$5, PARSEP->libname()};
-                          $$->baseOverride($3);
+                          $$->ادھار_Override($3);
                           $$->isVirtual($1);
-                          v3Global.setHasClasses(); }
+                          v3Global.سیٹ_Has_Classes(); }
         //                      // IEEE: part of interface_class_declaration
         //                      // IEEE 1800-2023: lifetimeE removed
         |       yINTERFACE yCLASS idAny/*class_identifier*/
                         { $$ = new AstClass{$2, *$3, PARSEP->libname()};
                           $$->isInterfaceClass(true);
-                          v3Global.setHasClasses(); }
+                          v3Global.سیٹ_Has_Classes(); }
         ;
 
 classVirtualE<cbool>:
-                /* empty */                             { $$ = false; }
+                /*خالی_تھاواں*/                             { $$ = false; }
         |       yVIRTUAL__CLASS                         { $$ = true; }
         ;
 
 classExtendsE<classExtendsp>:           // IEEE: part of class_declaration
         //                      // The classExtendsE rule relies on classFront having the
         //                      // new class scope correct via classFront
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       yEXTENDS classExtendsList               { $$ = $2; }
         ;
 
 classExtendsList<classExtendsp>:        // IEEE: part of class_declaration
                 classExtendsOne                         { $$ = $1; }
-        |       classExtendsList ',' classExtendsOne    { $$ = addNextNull($1, $3); }
+        |       classExtendsList ',' classExtendsOne    { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 classExtendsOne<classExtendsp>:         // IEEE: part of class_declaration
                 class_typeExtImpList
-                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_inImplements}; }
-        |       class_typeExtImpList '(' list_of_argumentsE ')'
-                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_inImplements};
-                          $$->addArgsp($3); }
+                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_وچ_Implements}; }
+        |       class_typeExtImpList '(' list_دا_arguments_E ')'
+                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_وچ_Implements};
+                          $$->جوڑو_Argsp($3); }
         //                      // IEEE-2023: Added: yEXTENDS class_type '(' yDEFAULT ')'
         |       class_typeExtImpList '(' yDEFAULT ')'
-                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_inImplements};
+                        { $$ = new AstClassExtends{$1->fileline(), $1, GRAMMARP->m_وچ_Implements};
                           BBUNSUP($<fl>2, "Unsupported: 'extends' with 'default'"); }
         ;
 
 classImplementsE<classExtendsp>:        // IEEE: part of class_declaration
         //                      // All 1800-2012
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       yIMPLEMENTS
-        /*mid*/         { GRAMMARP->m_inImplements = true; }
+        /*mid*/         { GRAMMARP->m_وچ_Implements = true; }
         /*cont*/    classImplementsList
                         { $$ = $3;
-                          GRAMMARP->m_inImplements = false; }
+                          GRAMMARP->m_وچ_Implements = false; }
         ;
 
 classImplementsList<classExtendsp>:     // IEEE: part of class_declaration
         //                      // All 1800-2012
                 classExtendsOne                         { $$ = $1; }
         |       classImplementsList ',' classExtendsOne
-                        { $$ = addNextNull($1, $3); }
+                        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-class_typeExtImpList<nodeExprp>:  // IEEE: class_type: "[package_scope] id [ parameter_value_assignment ]"
+class_typeExtImpList<گرہ_Exprp>:  // IEEE: class_type: "[package_scope] id [ parameter_value_assignment ]"
         //                      // but allow yaID__aTYPE for extends/implements
         //                      // If you follow the rules down, class_type is really a list via ps_class_identifier
                 class_typeExtImpOne                     { $$ = $1; }
@@ -7881,7 +7881,7 @@ class_typeExtImpList<nodeExprp>:  // IEEE: class_type: "[package_scope] id [ par
                         { $$ = new AstDot{$<fl>1, true, $1, $3}; }
         ;
 
-class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either get a package_scope component or class
+class_typeExtImpOne<گرہ_Exprp>:  // part of IEEE: class_type, where we either get a package_scope component or class
         //                      // If you follow the rules down, class_type is really a list via ps_class_identifier
         //                      // Not listed in IEEE, but see bug627 any parameter type maybe a class
         //                      // If idAny below is a class, parameter_value is legal
@@ -7889,11 +7889,11 @@ class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either ge
         //                      // If idAny below is otherwise, not legal
                 idAny
         /*mid*/         { /* no nextId as not refing it above this*/ }
-        /*cont*/    parameter_value_assignmentClassE
+        /*cont*/    parameter_قدر_assignment_Class_E
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $3}; }
         |       idCC
         /*mid*/         { /* no nextId as not refing it above this*/ }
-        /*cont*/    parameter_value_assignmentClassE
+        /*cont*/    parameter_قدر_assignment_Class_E
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $3}; }
         //
         //                      // package_sopeIdFollows expanded
@@ -7908,43 +7908,43 @@ class_typeExtImpOne<nodeExprp>:  // part of IEEE: class_type, where we either ge
 
 //=== Below rules assume special scoping per above
 
-packageClassScopeNoId<nodeExprp>:  // IEEE: [package_scope] not followed by yaID
+packageClassScopeNoId<گرہ_Exprp>:  // IEEE: [package_scope] not followed by yaID
                 packageClassScope                       { $$ = $1; }
         ;
 
-packageClassScopeE<nodeExprp>:  // IEEE: [package_scope]
+packageClassScopeE<گرہ_Exprp>:  // IEEE: [package_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // TODO: To support classes should return generic type, not packagep
         //                      // class_qualifier := [ yLOCAL '::'  ] [ implicit_class_handle '.'  class_scope ]
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       packageClassScope                       { $$ = $1; }
         ;
 
-packageClassScope<nodeExprp>:   // IEEE: class_scope
+packageClassScope<گرہ_Exprp>:   // IEEE: class_scope
         //                      // IEEE: "class_type yP_COLONCOLON"
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // In this parser <package_identifier>:: and <class_identifier>:: are indistinguishible
                 packageClassScopeList                   { $$ = $1; }
-        |       localNextId yP_COLONCOLON               { $$ = $1; }
-        |       dollarUnitNextId yP_COLONCOLON          { $$ = $1; }
-        |       dollarUnitNextId yP_COLONCOLON packageClassScopeList
+        |       local_اگلا_Id yP_COLONCOLON               { $$ = $1; }
+        |       dollar_Unit_اگلا_Id yP_COLONCOLON          { $$ = $1; }
+        |       dollar_Unit_اگلا_Id yP_COLONCOLON packageClassScopeList
                         { $$ = new AstDot{$2, true, $1, $3}; }
         ;
 
-packageClassScopeList<nodeExprp>:   // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
+packageClassScopeList<گرہ_Exprp>:   // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
         //                      // Or IEEE: [package_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // In this parser <package_identifier>:: and <class_identifier>:: are indistinguishible
         //                      // If you follow the rules down, class_type is really a list via ps_class_identifier
-                packageClassScopeItem                   { $$ = $1; }
-        |       packageClassScopeList packageClassScopeItem
+                package_Class_Scope_شے                   { $$ = $1; }
+        |       packageClassScopeList package_Class_Scope_شے
                         { $$ = new AstDot{$<fl>2, true, $1, $2}; }
         ;
 
-packageClassScopeItem<nodeExprp>:   // IEEE: package_scope or [package_scope]::[class_scope]
+package_Class_Scope_شے<گرہ_Exprp>:   // IEEE: package_scope or [package_scope]::[class_scope]
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // IEEE: class_type: "id [ parameter_value_assignment ]" but allow yaID__aTYPE
@@ -7954,13 +7954,13 @@ packageClassScopeItem<nodeExprp>:   // IEEE: package_scope or [package_scope]::[
         /*cont*/    yP_COLONCOLON
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, nullptr}; }
         //
-        |       idCC parameter_value_assignmentClass
+        |       idCC parameter_قدر_assignment_Class
         /*mid*/         { }
         /*cont*/    yP_COLONCOLON
                         { $$ = new AstClassOrPackageRef{$<fl>1, *$1, nullptr, $2}; }
         ;
 
-dollarUnitNextId<nodeExprp>:    // $unit
+dollar_Unit_اگلا_Id<گرہ_Exprp>:    // $unit
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // Must call nextId without any additional tokens following
@@ -7968,7 +7968,7 @@ dollarUnitNextId<nodeExprp>:    // $unit
                         { $$ = new AstClassOrPackageRef{$1, "$unit", nullptr, nullptr}; }
         ;
 
-localNextId<nodeExprp>:         // local::
+local_اگلا_Id<گرہ_Exprp>:         // local::
         //                      // IMPORTANT: The lexer will parse the following ID to be in the found package
         //                      //     if not needed must use packageClassScopeNoId
         //                      // Must call nextId without any additional tokens following
@@ -7978,35 +7978,35 @@ localNextId<nodeExprp>:         // local::
 
 //^^^=========
 
-class_itemListEnd<nodep>:
+class_شے_List_سرا<nodep>:
                 yENDCLASS                               { $$ = nullptr; }
-        |       class_itemList yENDCLASS                { $$ = $1; }
+        |       class_شے_List yENDCLASS                { $$ = $1; }
         |       error yENDCLASS                         { $$ = nullptr; }  // LCOV_EXCL_LINE
-        |       class_itemList error yENDCLASS          { $$ = $1; }  // LCOV_EXCL_LINE
+        |       class_شے_List error yENDCLASS          { $$ = $1; }  // LCOV_EXCL_LINE
         ;
 
-class_itemList<nodep>:
-                class_item                              { $$ = $1; }
-        |       class_itemList class_item               { $$ = addNextNull($1, $2); }
+class_شے_List<nodep>:
+                class_شے                              { $$ = $1; }
+        |       class_شے_List class_شے               { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-class_item<nodep>:                      // ==IEEE: class_item
+class_شے<nodep>:                      // ==IEEE: class_item
                 class_property                          { $$ = $1; }
-        |       class_method                            { $$ = $1; }
+        |       class_طریقہ_2                            { $$ = $1; }
         |       class_constraint                        { $$ = $1; }
         //
         |       class_declaration                       { $$ = $1; }
         |       timeunits_declaration                   { $$ = $1; }
         |       covergroup_declaration
                         {
-                          if ($1) {
+                          إذا ($1) {
                               // Also declares an instance variable, of the covergroup's type
-                              AstVar* const newp = new AstVar{$1->fileline(), VVarType::VAR,
-                                  $1->name(), VFlagChildDType{},
+                              AstVar* ثابت newp = new AstVar{$1->fileline(), VVarType::VAR,
+                                  $1->name(), VFlag_بچہ_DType{},
                                   new AstRefDType($1->fileline(), $1->name())};
                               newp->embeddedCovergroup(true);
-                              $$ = addNextNull($1, newp);
-                          } else {
+                              $$ = جوڑو_اگلا_Null($1, newp);
+                          } وإلا {
                               $$ = nullptr;
                           }
                         }
@@ -8014,26 +8014,26 @@ class_item<nodep>:                      // ==IEEE: class_item
         |       parameter_declaration ';'               { $$ = $1; }
         |       ';'                                     { $$ = nullptr; }
         //                      // Verilator specific
-        |       vlScBlock                               { $$ = $1; }
+        |       vl_Sc_بلاک                               { $$ = $1; }
         //
         |       error ';'                               { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-class_method<nodep>:            // ==IEEE: class_method
-                memberQualListE task_declaration        { $$ = $2; $1.applyToNodes($2); }
-        |       memberQualListE function_declaration    { $$ = $2; $1.applyToNodes($2); }
-        |       yPURE yVIRTUAL__ETC memberQualListE method_prototype ';'
-                        { $$ = $4; $3.applyToNodes($4); $4->pureVirtual(true); $4->isVirtual(true); }
-        |       yEXTERN memberQualListE method_prototype ';'
-                        { $$ = $3; $2.applyToNodes($3); $3->isExternProto(true); }
+class_طریقہ_2<nodep>:            // ==IEEE: class_method
+                memberQualListE task_declaration        { $$ = $2; $1.apply_منزل_Nodes($2); }
+        |       memberQualListE function_declaration    { $$ = $2; $1.apply_منزل_Nodes($2); }
+        |       y_خالص yVIRTUAL__ETC memberQualListE طریقہ_prototype ';'
+                        { $$ = $4; $3.apply_منزل_Nodes($4); $4->خالص_Virtual(true); $4->isVirtual(true); }
+        |       yEXTERN memberQualListE طریقہ_prototype ';'
+                        { $$ = $3; $2.apply_منزل_Nodes($3); $3->isExternProto(true); }
         //                      // IEEE: "method_qualifierE class_constructor_declaration"
         //                      // part of function_declaration
         |       yEXTERN memberQualListE class_constructor_prototype
-                        { $$ = $3; $2.applyToNodes($3); $3->isExternProto(true); }
+                        { $$ = $3; $2.apply_منزل_Nodes($3); $3->isExternProto(true); }
         ;
 
-dynamic_override_specifiersE<baseOverride>:  // IEEE: dynamic_override_specifiers or empty
-                /* empty */                             { $$ = VBaseOverride{}; }
+dynamic_override_specifiersE<ادھار_Override>:  // IEEE: dynamic_override_specifiers or empty
+                /*خالی_تھاواں*/                             { $$ = VBaseOverride{}; }
         //                      // IEEE: Expanded [ initial_or_extends_specifier ] [ final_specifier ]
         //                      // Note lifetime used by members is instead under memberQual
         |       ':' yINITIAL                            { $$ = VBaseOverride{VBaseOverride::Initial{}}; }
@@ -8045,8 +8045,8 @@ dynamic_override_specifiersE<baseOverride>:  // IEEE: dynamic_override_specifier
         |       ':' yFINAL                              { $$ = VBaseOverride{VBaseOverride::Final{}}; }
         ;
 
-final_specifierE<baseOverride>:  // ==IEEE: final_specifier (similar to dynamic_override_specifiers)
-                /* empty */                             { $$ = VBaseOverride{}; }
+final_specifierE<ادھار_Override>:  // ==IEEE: final_specifier (similar to dynamic_override_specifiers)
+                /*خالی_تھاواں*/                             { $$ = VBaseOverride{}; }
         |       ':' yFINAL                              { $$ = VBaseOverride{VBaseOverride::Final{}}; }
         ;
 
@@ -8084,17 +8084,17 @@ memberQualOne<qualifiers>:                      // IEEE: property_qualifier + me
 
 class_constraint<constraintp>:  // ==IEEE: class_constraint
         //                      // IEEE: constraint_declaration
-                constraintStaticE yCONSTRAINT dynamic_override_specifiersE constraintIdNew constraint_block
-                        { $$ = $4; $$->isStatic($1); $$->baseOverride($3); $$->addItemsp($5); }
+                constraintStaticE yCONSTRAINT dynamic_override_specifiersE constraintIdNew constraint_بلاک
+                        { $$ = $4; $$->isStatic($1); $$->ادھار_Override($3); $$->جوڑو_Itemsp($5); }
         //                      // IEEE: constraint_prototype + constraint_prototype_qualifier
         |       constraintStaticE yCONSTRAINT dynamic_override_specifiersE constraintIdNew ';'
-                        { $$ = $4; $$->isStatic($1); $$->baseOverride($3);
+                        { $$ = $4; $$->isStatic($1); $$->ادھار_Override($3);
                           $$->isExternProto(true); }
         |       yEXTERN constraintStaticE yCONSTRAINT dynamic_override_specifiersE constraintIdNew ';'
-                        { $$ = $5; $$->isStatic($2); $$->baseOverride($4);
+                        { $$ = $5; $$->isStatic($2); $$->ادھار_Override($4);
                           $$->isExternProto(true); $$->isExternExplicit(true); }
-        |       yPURE constraintStaticE yCONSTRAINT constraintIdNew ';'
-                        { $$ = $4; $$->isKwdPure($1); $$->isStatic($2); }
+        |       y_خالص constraintStaticE yCONSTRAINT constraintIdNew ';'
+                        { $$ = $4; $$->is_Kwd_خالص($1); $$->isStatic($2); }
         ;
 
 constraintIdNew<constraintp>:  // IEEE: id part of class_constraint
@@ -8102,51 +8102,51 @@ constraintIdNew<constraintp>:  // IEEE: id part of class_constraint
                         { $$ = new AstConstraint{$<fl>1, *$1, nullptr}; }
         ;
 
-constraint_block<nodep>:  // ==IEEE: constraint_block
+constraint_بلاک<nodep>:  // ==IEEE: constraint_block
                 '{' '}'                                         { $$ = nullptr; }
-        |       '{' constraint_block_itemList '}'               { $$ = $2; }
+        |       '{' constraint_بلاک_شے_List '}'               { $$ = $2; }
         //
         |       '{' error '}'                                   { $$ = nullptr; }  // LCOV_EXCL_LINE
-        |       '{' constraint_block_itemList error '}'         { $$ = $2; }  // LCOV_EXCL_LINE
+        |       '{' constraint_بلاک_شے_List error '}'         { $$ = $2; }  // LCOV_EXCL_LINE
         ;
 
-constraint_block_itemList<nodep>:  // IEEE: { constraint_block_item }
-                constraint_block_item                           { $$ = $1; }
-        |       constraint_block_itemList constraint_block_item { $$ = addNextNull($1, $2); }
+constraint_بلاک_شے_List<nodep>:  // IEEE: { constraint_block_item }
+                constraint_بلاک_شے                           { $$ = $1; }
+        |       constraint_بلاک_شے_List constraint_بلاک_شے { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-constraint_block_item<nodep>:  // ==IEEE: constraint_block_item
-                constraint_expression                           { $$ = $1; }
+constraint_بلاک_شے<nodep>:  // ==IEEE: constraint_block_item
+                constraint_عبارت                           { $$ = $1; }
         |       ySOLVE solve_before_list yBEFORE solve_before_list ';'
                         { $$ = new AstConstraintBefore{$1, $2, $4}; }
         ;
 
-solve_before_list<nodeExprp>:  // ==IEEE: solve_before_list
+solve_before_list<گرہ_Exprp>:  // ==IEEE: solve_before_list
                 constraint_primary                              { $$ = $1; }
-        |       solve_before_list ',' constraint_primary        { $$ = addNextNull($1, $3); }
+        |       solve_before_list ',' constraint_primary        { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-constraint_primary<nodeExprp>:  // ==IEEE: constraint_primary
+constraint_primary<گرہ_Exprp>:  // ==IEEE: constraint_primary
         //                      // exprScope more general than:
         //                      // [ implicit_class_handle '.' | class_scope ] hierarchical_identifier select [ '(' ')' ]
-                exprScope                                       { $$ = $1; }
+                اظہاریہ_Scope                                       { $$ = $1; }
         ;
 
-constraint_expressionList<nodep>:  // ==IEEE: { constraint_expression }
-                constraint_expression                           { $$ = $1; }
+constraint_عبارت_List<nodep>:  // ==IEEE: { constraint_expression }
+                constraint_عبارت                           { $$ = $1; }
         |       ySOLVE solve_before_list yBEFORE solve_before_list ';'
                         { $$ = new AstConstraintBefore{$1, $2, $4}; }
-        |       constraint_expressionList constraint_expression { $$ = addNextNull($1, $2); }
-        |       constraint_expressionList ySOLVE solve_before_list yBEFORE solve_before_list ';'
-                        { $$ = addNextNull($1, new AstConstraintBefore{$<fl>2, $3, $5}); }
+        |       constraint_عبارت_List constraint_عبارت { $$ = جوڑو_اگلا_Null($1, $2); }
+        |       constraint_عبارت_List ySOLVE solve_before_list yBEFORE solve_before_list ';'
+                        { $$ = جوڑو_اگلا_Null($1, new AstConstraintBefore{$<fl>2, $3, $5}); }
         ;
 
-constraint_expression<nodep>:  // ==IEEE: constraint_expression
-                expr/*expression_or_dist*/ ';'
-                        { $$ = new AstConstraintExpr{$1->fileline(), $1}; }
+constraint_عبارت<nodep>:  // ==IEEE: constraint_expression
+                اظہاریہ/*expression_or_dist*/ ';'
+                        { $$ = new Ast_Constraint_اظہاریہ{$1->fileline(), $1}; }
         //                      // 1800-2012:
-        |       ySOFT expr/*expression_or_dist*/ ';'
-                        { AstConstraintExpr* const newp = new AstConstraintExpr{$1, $2};
+        |       ySOFT اظہاریہ/*expression_or_dist*/ ';'
+                        { Ast_Constraint_اظہاریہ* ثابت newp = new Ast_Constraint_اظہاریہ{$1, $2};
                           newp->isSoft(true);
                           $$ = newp; }
         //                      // 1800-2012:
@@ -8163,41 +8163,41 @@ constraint_expression<nodep>:  // ==IEEE: constraint_expression
         //                      // statement V3Randomize already knows how to
         //                      // lower (with disable-soft hoisted by the
         //                      // ConstraintExprVisitor pre-pass).
-        |       expr yP_MINUSGT '{' constraint_expressionList '}'
+        |       اظہاریہ yP_MINUSGT '{' constraint_عبارت_List '}'
                         { $$ = new AstConstraintIf{$2, $1, $4, nullptr}; }
-        |       expr yP_MINUSGT yIF '(' expr ')' constraint_set %prec prLOWER_THAN_ELSE
+        |       اظہاریہ yP_MINUSGT yIF '(' اظہاریہ ')' constraint_سیٹ %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintIf{$3, $5, $7, nullptr}, nullptr}; }
-        |       expr yP_MINUSGT yIF '(' expr ')' constraint_set yELSE constraint_set
+        |       اظہاریہ yP_MINUSGT yIF '(' اظہاریہ ')' constraint_سیٹ yELSE constraint_سیٹ
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintIf{$3, $5, $7, $9}, nullptr}; }
-        |       expr yP_MINUSGT yFOREACH '(' idClassSelForeach ')' constraint_set
+        |       اظہاریہ yP_MINUSGT yFOREACH '(' idClassSelForeach ')' constraint_سیٹ
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintForeach{$3, $5, $7}, nullptr}; }
-        |       expr yP_MINUSGT yUNIQUE '{' range_list '}' ';'
+        |       اظہاریہ yP_MINUSGT yUNIQUE '{' range_list '}' ';'
                         { $$ = new AstConstraintIf{$2, $1,
                                    new AstConstraintUnique{$3, $5}, nullptr}; }
-        |       expr yP_MINUSGT ySOFT expr ';'
-                        { AstConstraintExpr* const innerp = new AstConstraintExpr{$3, $4};
+        |       اظہاریہ yP_MINUSGT ySOFT اظہاریہ ';'
+                        { Ast_Constraint_اظہاریہ* ثابت innerp = new Ast_Constraint_اظہاریہ{$3, $4};
                           innerp->isSoft(true);
                           $$ = new AstConstraintIf{$2, $1, innerp, nullptr}; }
-        |       expr yP_MINUSGT yDISABLE ySOFT constraint_primary ';'
-                        { AstConstraintExpr* const innerp = new AstConstraintExpr{$3, $5};
+        |       اظہاریہ yP_MINUSGT yDISABLE ySOFT constraint_primary ';'
+                        { Ast_Constraint_اظہاریہ* ثابت innerp = new Ast_Constraint_اظہاریہ{$3, $5};
                           innerp->isDisableSoft(true);
                           $$ = new AstConstraintIf{$2, $1, innerp, nullptr}; }
-        |       yIF '(' expr ')' constraint_set %prec prLOWER_THAN_ELSE
+        |       yIF '(' اظہاریہ ')' constraint_سیٹ %prec pr_ہیٹھلا_THAN_ELSE
                         { $$ = new AstConstraintIf{$1, $3, $5, nullptr}; }
-        |       yIF '(' expr ')' constraint_set yELSE constraint_set
+        |       yIF '(' اظہاریہ ')' constraint_سیٹ yELSE constraint_سیٹ
                         { $$ = new AstConstraintIf{$1, $3, $5, $7}; }
         //                      // IEEE says array_identifier here, but dotted accepted in VMM + 1800-2009
-        |       yFOREACH '(' idClassSelForeach ')' constraint_set
+        |       yFOREACH '(' idClassSelForeach ')' constraint_سیٹ
                         { $$ = new AstConstraintForeach{$1, $3, $5}; }
         //                      // Non-IEEE extension, soft foreach
-        |       ySOFT yFOREACH '(' idClassSelForeach ')' constraint_set
+        |       ySOFT yFOREACH '(' idClassSelForeach ')' constraint_سیٹ
                         { $$ = new AstConstraintForeach{$2, $4, $6, true}; }
         //                      // soft is 1800-2012
         |       yDISABLE ySOFT constraint_primary ';'
-                        { AstConstraintExpr* const newp = new AstConstraintExpr{$1, $3};
+                        { Ast_Constraint_اظہاریہ* ثابت newp = new Ast_Constraint_اظہاریہ{$1, $3};
                           newp->isDisableSoft(true);
                           $$ = newp; }
         //
@@ -8205,49 +8205,49 @@ constraint_expression<nodep>:  // ==IEEE: constraint_expression
                         { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-constraint_set<nodep>:  // ==IEEE: constraint_set
-                constraint_expression                   { $$ = $1; }
-        |       '{' constraint_expressionList '}'       { $$ = $2; }
+constraint_سیٹ<nodep>:  // ==IEEE: constraint_set
+                constraint_عبارت                   { $$ = $1; }
+        |       '{' constraint_عبارت_List '}'       { $$ = $2; }
         //
         |       '{' error '}'                           { $$ = nullptr; }  // LCOV_EXCL_LINE
-        |       '{' constraint_expressionList error '}' { $$ = $2; }  // LCOV_EXCL_LINE
+        |       '{' constraint_عبارت_List error '}' { $$ = $2; }  // LCOV_EXCL_LINE
         ;
 
 dist_list<distItemp>:  // ==IEEE: dist_list
-                dist_item                               { $$ = $1; }
-        |       dist_list ',' dist_item                 { $$ = addNextNull($1, $3); }
+                dist_شے                               { $$ = $1; }
+        |       dist_list ',' dist_شے                 { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
-dist_item<distItemp>:  // ==IEEE: dist_item + dist_weight
-                value_range
-                        { $$ = new AstDistItem{$1->fileline(), $1, new AstConst{$1->fileline(), 1}}; }
-        |       value_range yP_COLONEQ  expr
-                        { $$ = new AstDistItem{$2, $1, $3}; }
-        |       value_range yP_COLONDIV expr
-                        { $$ = new AstDistItem{$2, $1, $3}; $$->isWhole(true); }
+dist_شے<distItemp>:  // ==IEEE: dist_item + dist_weight
+                قدر_range
+                        { $$ = new Ast_Dist_شے{$1->fileline(), $1, new AstConst{$1->fileline(), 1}}; }
+        |       قدر_range yP_COLONEQ  اظہاریہ
+                        { $$ = new Ast_Dist_شے{$2, $1, $3}; }
+        |       قدر_range yP_COLONDIV اظہاریہ
+                        { $$ = new Ast_Dist_شے{$2, $1, $3}; $$->is_سارا(true); }
         //                      // IEEE 1800-2023 added:
-        |       yDEFAULT yP_COLONDIV expr
+        |       yDEFAULT yP_COLONDIV اظہاریہ
                         { BBUNSUP($<fl>2, "Unsupported: 'default :/' constraint");
                           $$ = nullptr; DEL($3); }
         ;
 
 extern_constraint_declaration<constraintp>:  // ==IEEE: extern_constraint_declaration
-                constraintStaticE yCONSTRAINT dynamic_override_specifiersE packageClassScopeE constraintIdNew constraint_block
+                constraintStaticE yCONSTRAINT dynamic_override_specifiersE packageClassScopeE constraintIdNew constraint_بلاک
                         { $$ = $5; $$->isStatic($1); $$->isExternDef(true);
-                          $$->baseOverride($3); $$->classOrPackagep($4); $$->addItemsp($6); }
+                          $$->ادھار_Override($3); $$->classOrPackagep($4); $$->جوڑو_Itemsp($6); }
         ;
 
 constraintStaticE<cbool>:  // IEEE: part of extern_constraint_declaration
-                /* empty */                             { $$ = false; }
+                /*خالی_تھاواں*/                             { $$ = false; }
         |       ySTATIC__CONSTRAINT                     { $$ = true; }
         ;
 
 //**********************************************************************
 // Constants
 
-timeNumAdjusted<nodeExprp>:         // Time constant, adjusted to module's time units/precision
+ویلا_عدد_Adjusted<گرہ_Exprp>:         // Time constant, adjusted to module's time units/precision
                 yaTIMENUM
-                        { $$ = new AstTimeImport{$<fl>1, new AstConst{$<fl>1, AstConst::RealDouble{}, $1}}; }
+                        { $$ = new Ast_ویلا_Import{$<fl>1, new AstConst{$<fl>1, AstConst::RealDouble{}, $1}}; }
         ;
 
 //**********************************************************************
@@ -8264,24 +8264,24 @@ colon<fl>:                      // Generic colon that isn't making a label (e.g.
 
 config_declaration:  // == IEEE: config_declaration
                 yCONFIG idAny/*config_identifier*/ ';'
-        /*cont*/    configParameterListE design_statement config_rule_statementListE
-        /*cont*/    yENDCONFIG endLabelE
-                { AstConfig* const newp = new AstConfig{$1, PARSEP->libname(), *$2};
-                  newp->addDesignp($5);
-                  newp->addItemsp($4);
-                  newp->addItemsp($6);
-                  GRAMMARP->endLabel($<fl>7, *$2, $8);
-                  PARSEP->rootp()->addMiscsp(newp); }
+        /*cont*/    configParameterListE design_statement config_قاعدہ_statement_List_E
+        /*cont*/    yENDCONFIG سرا_Label_E
+                { AstConfig* ثابت newp = new AstConfig{$1, PARSEP->libname(), *$2};
+                  newp->جوڑو_Designp($5);
+                  newp->جوڑو_Itemsp($4);
+                  newp->جوڑو_Itemsp($6);
+                  GRAMMARP->سرا_Label($<fl>7, *$2, $8);
+                  PARSEP->rootp()->جوڑو_Miscsp(newp); }
         ;
 
 configParameterListE<nodep>:  // IEEE: { local_parameter_declaration ';' }
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         |       configParameterList                     { $$ = $1; }
         ;
 
 configParameterList<nodep>:  // IEEE: part of config_declaration
                 configParameter                         { $$ = nullptr; DEL($1); }
-        |       configParameterList configParameter     { $$ = addNextNull($1, $2); }
+        |       configParameterList configParameter     { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 configParameter<nodep>:  // IEEE: part of config_declaration
@@ -8295,7 +8295,7 @@ design_statement<configCellp>:  // == IEEE: design_statement
 
 configCellList<configCellp>:  // IEEE: part of design_statement
                 configCell                              { $$ = $1; }
-        |       configCellList configCell               { $$ = addNextNull($1, $2); }
+        |       configCellList configCell               { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 configCell<configCellp>:  // IEEE: part of design_statement, part of cell_clause
@@ -8305,42 +8305,42 @@ configCell<configCellp>:  // IEEE: part of design_statement, part of cell_clause
                         { $$ = new AstConfigCell{$<fl>1, *$1, *$3}; }
         ;
 
-config_rule_statementListE<nodep>:  // IEEE: { config_rule }
-                /* empty */                             { $$ = nullptr; }
-        |       config_rule_statementList               { $$ = $1; }
+config_قاعدہ_statement_List_E<nodep>:  // IEEE: { config_rule }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
+        |       config_قاعدہ_statement_List               { $$ = $1; }
         ;
 
-config_rule_statementList<nodep>:  // IEEE: { config_rule }
-                config_rule_statement                   { $$ = $1; }
-        |       config_rule_statementList config_rule_statement   { $$ = addNextNull($1, $2); }
+config_قاعدہ_statement_List<nodep>:  // IEEE: { config_rule }
+                config_قاعدہ_statement                   { $$ = $1; }
+        |       config_قاعدہ_statement_List config_قاعدہ_statement   { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
-config_rule_statement<nodep>:  // == IEEE: config_rule_statement
+config_قاعدہ_statement<nodep>:  // == IEEE: config_rule_statement
         //                      // IEEE: default_clause
                 yDEFAULT liblist_clause ';'
-                        { $$ = new AstConfigRule{$1, nullptr, $2, false}; }
+                        { $$ = new Ast_Config_قاعدہ{$1, nullptr, $2, false}; }
         //                      // IEEE: inst_clause
         |       yINSTANCE inst_name liblist_clause ';'
-                        { $$ = new AstConfigRule{$1, $2, $3, false}; }
+                        { $$ = new Ast_Config_قاعدہ{$1, $2, $3, false}; }
         |       yINSTANCE inst_name use_clause ';'
-                        { $$ = new AstConfigRule{$1, $2, $3, false}; }
+                        { $$ = new Ast_Config_قاعدہ{$1, $2, $3, false}; }
         //                      // IEEE: cell_clause
         |       yCELL configCell liblist_clause ';'
-                        { $$ = new AstConfigRule{$1, $2, $3, true}; }
+                        { $$ = new Ast_Config_قاعدہ{$1, $2, $3, true}; }
         |       yCELL configCell use_clause ';'
-                        { $$ = new AstConfigRule{$1, $2, $3, true}; }
+                        { $$ = new Ast_Config_قاعدہ{$1, $2, $3, true}; }
         |       error ';'
                         { $$ = nullptr; }  // LCOV_EXCL_LINE
         ;
 
-inst_name<nodeExprp>:  // == IEEE: inst_name
+inst_name<گرہ_Exprp>:  // == IEEE: inst_name
                 idAnyAsParseRef/*topmodule_identifier*/
                         { $$ = $1; }
         |       idAnyAsParseRef/*topmodule_identifier*/ inst_nameInstanceList
                         { $$ = new AstDot{$<fl>1, false, $1, $2}; }
         ;
 
-inst_nameInstanceList<nodeExprp>:  // IEEE: part of inst_name
+inst_nameInstanceList<گرہ_Exprp>:  // IEEE: part of inst_name
                 '.' idAnyAsParseRef/*instance_identifier*/
                         { $$ = $2; }
         |       inst_nameInstanceList '.' idAnyAsParseRef/*instance_identifier*/
@@ -8352,11 +8352,11 @@ liblist_clause<nodep>:  // == IEEE: liblist_clause
         |       yLIBLIST liblistLibraryList             { $$ = $2; }
         ;
 
-liblistLibraryList<nodeExprp>:  // IEEE: part of liblist_clause
+liblistLibraryList<گرہ_Exprp>:  // IEEE: part of liblist_clause
                 idAnyAsParseRef/*library_identifier*/
                         { $$ = $1; }
         |       liblistLibraryList idAnyAsParseRef/*library_identifier*/
-                        { $$ = addNextNull($1, $2); }
+                        { $$ = جوڑو_اگلا_Null($1, $2); }
         ;
 
 use_clause<nodep>:  // == IEEE: use_clause
@@ -8369,7 +8369,7 @@ use_clause<nodep>:  // == IEEE: use_clause
         ;
 
 useAssignmentListE<pinp>:  // IEEE: part of use clause
-                /* empty */                             { $$ = nullptr; }
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
         //                      // IEEE is missing the '#' '(', but examples need it
         |       '#' '(' ')'                             { $$ = nullptr; }
         |       '#' '(' useAssignmentList ')'           { $$ = $3; }
@@ -8377,19 +8377,19 @@ useAssignmentListE<pinp>:  // IEEE: part of use clause
 
 useAssignmentList<pinp>:  // IEEE: part of use_clause
                 useAssignment                           { $$ = $1; }
-        |       useAssignmentList ',' useAssignment     { $$ = addNextNull($1, $3); }
+        |       useAssignmentList ',' useAssignment     { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
 
 useAssignment<pinp>:  // IEEE: part of use_clause
         //                      // IEEE: named_parameter_assignment
                 '.' idAny/*parameter_identifier*/ '(' ')'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: 'config use' parameter assignment"); }
-        |       '.' idAny/*parameter_identifier*/ '(' exprOrDataType ')'
+        |       '.' idAny/*parameter_identifier*/ '(' اظہاریہ_Or_انکڑے_Type ')'
                         { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: 'config use' parameter assignment"); DEL($4); }
         ;
 
 colonConfigE<cbool>:  // IEEE: [ ':' yCONFIG]
-                /* empty */                             { $$ = false; }
+                /*خالی_تھاواں*/                             { $$ = false; }
         |       ':' yCONFIG                             { $$ = true; }
         ;
 
@@ -8398,148 +8398,148 @@ colonConfigE<cbool>:  // IEEE: [ ':' yCONFIG]
 //
 
 library_declaration<nodep>:  // IEEE: library_declaration
-                yLIBRARY yaSTRING file_path_specList incdirE ';'
+                yLIBRARY yaSTRING file_رستہ_spec_List incdirE ';'
                         { $$ = new AstLibrary{$<fl>1, *$2, $3, $4}; }
         ;
-incdirE<nodeExprp>:  // IEEE: [ '-' yINCDIR file_path_specList ';']
-                /* empty */                             { $$ = nullptr; }
+incdirE<گرہ_Exprp>:  // IEEE: [ '-' yINCDIR file_path_specList ';']
+                /*خالی_تھاواں*/                             { $$ = nullptr; }
                                 // https://accellera.mantishub.io/view.php?id=1166
-        |       yINCDIR file_path_specList              { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config incdir"); }
+        |       yINCDIR file_رستہ_spec_List              { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config incdir"); }
         ;
 include_statement<nodep>:  // IEEE: include_statement
-                yINCLUDE file_path_spec ';'             { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config include"); }
+                yINCLUDE file_رستہ_spec ';'             { $$ = nullptr; BBUNSUP($<fl>1, "Unsupported: config include"); }
         ;
-file_path_specList<nodeExprp>:  // IEEE: file_path_spec { ',' file_path_spec }
-                file_path_spec                          { $$ = $1; }
-        |       file_path_specList ',' file_path_spec   { $$ = addNextNull($1, $3); }
+file_رستہ_spec_List<گرہ_Exprp>:  // IEEE: file_path_spec { ',' file_path_spec }
+                file_رستہ_spec                          { $$ = $1; }
+        |       file_رستہ_spec_List ',' file_رستہ_spec   { $$ = جوڑو_اگلا_Null($1, $3); }
         ;
-file_path_spec<nodeExprp>:  // IEEE: file_path_spec
+file_رستہ_spec<گرہ_Exprp>:  // IEEE: file_path_spec
                 yaSTRING { $$ = new AstParseRef{$<fl>1, *$1}; }
         ;
 
 //**********************************************************************
 // VLT Files
 
-vltItem:
+vlt_شے:
         //                      // TODO support arbitrary order of arguments
                 vltOffFront
-                        { V3Control::addIgnore($1, false, "*", 0, 0); }
+                        { V3Control::جوڑو_Ignore($1, false, "*", 0, 0); }
         |       vltOffFront vltDFile
-                        { V3Control::addIgnore($1, false, *$2, 0, 0); }
-        |       vltOffFront vltDFile yVLT_D_LINES yaINTNUM
-                        { V3Control::addIgnore($1, false, *$2, $4->toUInt(), $4->toUInt()); }
-        |       vltOffFront vltDFile yVLT_D_LINES yaINTNUM '-' yaINTNUM
-                        { V3Control::addIgnore($1, false, *$2, $4->toUInt(), $6->toUInt()); }
+                        { V3Control::جوڑو_Ignore($1, false, *$2, 0, 0); }
+        |       vltOffFront vltDFile y_VLT_D_سطریں yaINTNUM
+                        { V3Control::جوڑو_Ignore($1, false, *$2, $4->منزل_UInt(), $4->منزل_UInt()); }
+        |       vltOffFront vltDFile y_VLT_D_سطریں yaINTNUM '-' yaINTNUM
+                        { V3Control::جوڑو_Ignore($1, false, *$2, $4->منزل_UInt(), $6->منزل_UInt()); }
         |       vltOffFront vltDFile vltDMatch
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { إذا (($1 == V3_Error_کوڈ::I_COVERAGE) || ($1 == V3_Error_کوڈ::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
-                              V3Control::addIgnoreMatch($1, *$2, "", *$3);
+                          } وإلا {
+                              V3Control::جوڑو_Ignore_میل($1, *$2, "", *$3);
                           }}
         |       vltOffFront vltDFile vltDContents
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { إذا (($1 == V3_Error_کوڈ::I_COVERAGE) || ($1 == V3_Error_کوڈ::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
-                              V3Control::addIgnoreMatch($1, *$2, *$3, "*");
+                          } وإلا {
+                              V3Control::جوڑو_Ignore_میل($1, *$2, *$3, "*");
                           }}
         |       vltOffFront vltDFile vltDContents vltDMatch
-                        { if (($1 == V3ErrorCode::I_COVERAGE) || ($1 == V3ErrorCode::I_TRACING)) {
+                        { إذا (($1 == V3_Error_کوڈ::I_COVERAGE) || ($1 == V3_Error_کوڈ::I_TRACING)) {
                               $<fl>1->v3error("Argument -match only supported for lint_off");
-                          } else {
-                              V3Control::addIgnoreMatch($1, *$2, *$3, *$4);
+                          } وإلا {
+                              V3Control::جوڑو_Ignore_میل($1, *$2, *$3, *$4);
                           }}
         |       vltOffFront vltDScope
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { إذا ($1 != V3_Error_کوڈ::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off");
-                          } else {
-                              V3Control::addScopeTraceOn(false, *$2, 0);
+                          } وإلا {
+                              V3Control::جوڑو_Scope_Trace_On(false, *$2, 0);
                           }}
         |       vltOffFront vltDScope vltDLevels
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { إذا ($1 != V3_Error_کوڈ::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off_off");
-                          } else {
-                              V3Control::addScopeTraceOn(false, *$2, $3->toUInt());
+                          } وإلا {
+                              V3Control::جوڑو_Scope_Trace_On(false, *$2, $3->منزل_UInt());
                           }}
         |       vltOnFront
-                        { V3Control::addIgnore($1, true, "*", 0, 0); }
+                        { V3Control::جوڑو_Ignore($1, true, "*", 0, 0); }
         |       vltOnFront vltDFile
-                        { V3Control::addIgnore($1, true, *$2, 0, 0); }
-        |       vltOnFront vltDFile yVLT_D_LINES yaINTNUM
-                        { V3Control::addIgnore($1, true, *$2, $4->toUInt(), $4->toUInt()); }
-        |       vltOnFront vltDFile yVLT_D_LINES yaINTNUM '-' yaINTNUM
-                        { V3Control::addIgnore($1, true, *$2, $4->toUInt(), $6->toUInt()); }
+                        { V3Control::جوڑو_Ignore($1, true, *$2, 0, 0); }
+        |       vltOnFront vltDFile y_VLT_D_سطریں yaINTNUM
+                        { V3Control::جوڑو_Ignore($1, true, *$2, $4->منزل_UInt(), $4->منزل_UInt()); }
+        |       vltOnFront vltDFile y_VLT_D_سطریں yaINTNUM '-' yaINTNUM
+                        { V3Control::جوڑو_Ignore($1, true, *$2, $4->منزل_UInt(), $6->منزل_UInt()); }
         |       vltOnFront vltDScope
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { إذا ($1 != V3_Error_کوڈ::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off");
-                          } else {
-                              V3Control::addScopeTraceOn(true, *$2, 0);
+                          } وإلا {
+                              V3Control::جوڑو_Scope_Trace_On(true, *$2, 0);
                           }}
         |       vltOnFront vltDScope vltDLevels
-                        { if ($1 != V3ErrorCode::I_TRACING) {
+                        { إذا ($1 != V3_Error_کوڈ::I_TRACING) {
                               $<fl>1->v3error("Argument -scope only supported for tracing_on/off_off");
-                          } else {
-                              V3Control::addScopeTraceOn(true, *$2, $3->toUInt());
+                          } وإلا {
+                              V3Control::جوڑو_Scope_Trace_On(true, *$2, $3->منزل_UInt());
                           }}
         |       vltVarAttrFront vltDModuleE vltDFTaskE vltVarAttrSpecE attr_event_controlE
-                        { V3Control::addVarAttr($<fl>1, *$2, *$3, GRAMMARP->m_vltVarSpecKind, *$4, $1, $5); }
+                        { V3Control::جوڑو_Var_Attr($<fl>1, *$2, *$3, GRAMMARP->m_vlt_Var_Spec_قسم, *$4, $1, $5); }
         |       vltVarAttrFrontDeprecated vltDModuleE vltDFTaskE vltVarAttrSpecE
                         { /* Historical, now has no effect */ }
         |       vltInlineFront vltDModuleE vltDFTaskE
-                        { V3Control::addInline($<fl>1, *$2, *$3, $1); }
-        |       yVLT_COVERAGE_BLOCK_OFF vltDFile
-                        { V3Control::addCoverageBlockOff(*$2, 0); }
-        |       yVLT_COVERAGE_BLOCK_OFF vltDFile yVLT_D_LINES yaINTNUM
-                        { V3Control::addCoverageBlockOff(*$2, $4->toUInt()); }
-        |       yVLT_COVERAGE_BLOCK_OFF vltDModule vltDBlock
-                        { V3Control::addCoverageBlockOff(*$2, *$3); }
-        |       yVLT_FULL_CASE vltDFile
-                        { V3Control::addCaseFull(*$2, 0); }
-        |       yVLT_FULL_CASE vltDFile yVLT_D_LINES yaINTNUM
-                        { V3Control::addCaseFull(*$2, $4->toUInt()); }
-        |       yVLT_HIER_BLOCK vltDModuleE
-                        { V3Control::addModulePragma(*$2, VPragmaType::HIER_BLOCK); }
+                        { V3Control::جوڑو_Inline($<fl>1, *$2, *$3, $1); }
+        |       y_VLT_COVERAGE_بلاک_OFF vltDFile
+                        { V3Control::جوڑو_Coverage_بلاک_Off(*$2, 0); }
+        |       y_VLT_COVERAGE_بلاک_OFF vltDFile y_VLT_D_سطریں yaINTNUM
+                        { V3Control::جوڑو_Coverage_بلاک_Off(*$2, $4->منزل_UInt()); }
+        |       y_VLT_COVERAGE_بلاک_OFF vltDModule vltDBlock
+                        { V3Control::جوڑو_Coverage_بلاک_Off(*$2, *$3); }
+        |       y_VLT_بھریا_CASE vltDFile
+                        { V3Control::جوڑو_Case_بھریا(*$2, 0); }
+        |       y_VLT_بھریا_CASE vltDFile y_VLT_D_سطریں yaINTNUM
+                        { V3Control::جوڑو_Case_بھریا(*$2, $4->منزل_UInt()); }
+        |       y_VLT_HIER_بلاک vltDModuleE
+                        { V3Control::جوڑو_Module_Pragma(*$2, VPragmaType::HIER_بلاک); }
         |       yVLT_HIER_PARAMS vltDModuleE
-                        { V3Control::addModulePragma(*$2, VPragmaType::HIER_PARAMS); }
+                        { V3Control::جوڑو_Module_Pragma(*$2, VPragmaType::HIER_PARAMS); }
         |       yVLT_HIER_WORKERS vltDModuleE vltDWorkers
-                        { V3Control::addHierWorkers($<fl>1, *$2, $3->toSInt()); }
+                        { V3Control::جوڑو_Hier_Workers($<fl>1, *$2, $3->منزل_SInt()); }
         |       yVLT_HIER_WORKERS vltDHierDpi vltDWorkers
-                        { V3Control::addHierWorkers($<fl>1, *$2, $3->toSInt()); }
+                        { V3Control::جوڑو_Hier_Workers($<fl>1, *$2, $3->منزل_SInt()); }
         |       yVLT_PARALLEL_CASE vltDFile
-                        { V3Control::addCaseParallel(*$2, 0); }
-        |       yVLT_PARALLEL_CASE vltDFile yVLT_D_LINES yaINTNUM
-                        { V3Control::addCaseParallel(*$2, $4->toUInt()); }
-        |       yVLT_PROFILE_DATA vltDHierDpi vltDCost
-                        { V3Control::addProfileData($<fl>1, *$2, $3->toUQuad()); }
-        |       yVLT_PROFILE_DATA vltDModel vltDMtask vltDCost
-                        { V3Control::addProfileData($<fl>1, *$2, *$3, $4->toUQuad()); }
-        |       yVLT_FSM_REGISTER_WRAPPER vltDModule vltDFsmD vltDFsmQ vltDFsmClock vltDFsmResetE vltDFsmResetValueE
-                        { V3Control::addFsmRegisterWrapper($<fl>1, *$2, *$3, *$4, *$5, *$6, *$7); }
+                        { V3Control::جوڑو_Case_Parallel(*$2, 0); }
+        |       yVLT_PARALLEL_CASE vltDFile y_VLT_D_سطریں yaINTNUM
+                        { V3Control::جوڑو_Case_Parallel(*$2, $4->منزل_UInt()); }
+        |       y_VLT_PROFILE_انکڑے vltDHierDpi vltDCost
+                        { V3Control::جوڑو_Profile_انکڑے($<fl>1, *$2, $3->منزل_UQuad()); }
+        |       y_VLT_PROFILE_انکڑے vltDModel vltDMtask vltDCost
+                        { V3Control::جوڑو_Profile_انکڑے($<fl>1, *$2, *$3, $4->منزل_UQuad()); }
+        |       y_VLT_FSM_رجسٹر_WRAPPER vltDModule vltDFsmD vltDFsmQ vltDFsmClock vltDFsmResetE vlt_DFsm_Reset_قدر_E
+                        { V3Control::جوڑو_Fsm_رجسٹر_Wrapper($<fl>1, *$2, *$3, *$4, *$5, *$6, *$7); }
         |       yVLT_VERILATOR_LIB vltDModule
-                        { V3Control::addModulePragma(*$2, VPragmaType::VERILATOR_LIB); }
+                        { V3Control::جوڑو_Module_Pragma(*$2, VPragmaType::VERILATOR_LIB); }
         ;
 
 vltOffFront<errcodeen>:
-                yVLT_COVERAGE_OFF                       { $$ = V3ErrorCode::I_COVERAGE; }
-        |       yVLT_TIMING_OFF                         { $$ = V3ErrorCode::I_TIMING; }
-        |       yVLT_TRACING_OFF                        { $$ = V3ErrorCode::I_TRACING; }
-        |       yVLT_LINT_OFF                           { $$ = V3ErrorCode::I_LINT; }
-        |       yVLT_LINT_OFF yVLT_D_RULE idAny
-                        { $$ = V3ErrorCode{*$3};
-                          if ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
+                yVLT_COVERAGE_OFF                       { $$ = V3_Error_کوڈ::I_COVERAGE; }
+        |       yVLT_TIMING_OFF                         { $$ = V3_Error_کوڈ::I_TIMING; }
+        |       yVLT_TRACING_OFF                        { $$ = V3_Error_کوڈ::I_TRACING; }
+        |       yVLT_LINT_OFF                           { $$ = V3_Error_کوڈ::I_LINT; }
+        |       yVLT_LINT_OFF y_VLT_D_قاعدہ idAny
+                        { $$ = V3_Error_کوڈ{*$3};
+                          إذا ($$ == V3_Error_کوڈ::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
         ;
 
 vltOnFront<errcodeen>:
-                yVLT_COVERAGE_ON                        { $$ = V3ErrorCode::I_COVERAGE; }
-        |       yVLT_TIMING_ON                          { $$ = V3ErrorCode::I_TIMING; }
-        |       yVLT_TRACING_ON                         { $$ = V3ErrorCode::I_TRACING; }
-        |       yVLT_LINT_ON                            { $$ = V3ErrorCode::I_LINT; }
-        |       yVLT_LINT_ON yVLT_D_RULE idAny
-                        { $$ = V3ErrorCode{*$3};
-                          if ($$ == V3ErrorCode::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
+                yVLT_COVERAGE_ON                        { $$ = V3_Error_کوڈ::I_COVERAGE; }
+        |       yVLT_TIMING_ON                          { $$ = V3_Error_کوڈ::I_TIMING; }
+        |       yVLT_TRACING_ON                         { $$ = V3_Error_کوڈ::I_TRACING; }
+        |       yVLT_LINT_ON                            { $$ = V3_Error_کوڈ::I_LINT; }
+        |       yVLT_LINT_ON y_VLT_D_قاعدہ idAny
+                        { $$ = V3_Error_کوڈ{*$3};
+                          إذا ($$ == V3_Error_کوڈ::EC_ERROR) $1->v3error("Unknown error code: '" << *$3 << "'"); }
         ;
 
 vltDBlock<strp>:  // --block <arg>
-                yVLT_D_BLOCK str                        { $$ = $2; }
+                y_VLT_D_بلاک str                        { $$ = $2; }
         ;
 
 vltDContents<strp>:
@@ -8547,7 +8547,7 @@ vltDContents<strp>:
         ;
 
 vltDCost<nump>:  // --cost <arg>
-                yVLT_D_COST yaINTNUM                    { $$ = $2; }
+                y_VLT_D_لاگت yaINTNUM                    { $$ = $2; }
         ;
 
 vltDFile<strp>:  // --file <arg>
@@ -8567,13 +8567,13 @@ vltDFsmQ<strp>:  // --q <arg>
         ;
 
 vltDFsmResetE<strp>:  // [--reset <arg>]
-                /* empty */                             { static string empty; $$ = &empty; }
+                /*خالی_تھاواں*/                             { ساكن string خالی_تھاواں; $$ = &خالی_تھاواں; }
         |       yVLT_D_RESET str                        { $$ = $2; }
         ;
 
-vltDFsmResetValueE<strp>:  // [--reset_value <arg>]
-                /* empty */                             { static string empty; $$ = &empty; }
-        |       yVLT_D_RESET_VALUE str                  { $$ = $2; }
+vlt_DFsm_Reset_قدر_E<strp>:  // [--reset_value <arg>]
+                /*خالی_تھاواں*/                             { ساكن string خالی_تھاواں; $$ = &خالی_تھاواں; }
+        |       y_VLT_D_RESET_قدر str                  { $$ = $2; }
         ;
 
 vltDHierDpi<strp>:  // --hier-dpi <arg>
@@ -8581,11 +8581,11 @@ vltDHierDpi<strp>:  // --hier-dpi <arg>
         ;
 
 vltDLevels<nump>:  // --levels <arg>
-                yVLT_D_LEVELS yaINTNUM                  { $$ = $2; }
+                y_VLT_D_پدھراں yaINTNUM                  { $$ = $2; }
         ;
 
 vltDMatch<strp>:  // --match <arg>
-                yVLT_D_MATCH str                        { $$ = $2; }
+                y_VLT_D_میل str                        { $$ = $2; }
         ;
 
 vltDModel<strp>:  // --model <arg>
@@ -8601,8 +8601,8 @@ vltDModule<strp>:  // --module <arg>
         ;
 
 vltDModuleE<strp>:  // [--module <arg>]
-                /* empty */
-                        { static string unit = "$unit"; $$ = &unit; }  // .vlt uses prettyName
+                /*خالی_تھاواں*/
+                        { ساكن string unit = "$unit"; $$ = &unit; }  // .vlt uses prettyName
         |       vltDModule
                         { $$ = $1; }
         ;
@@ -8612,7 +8612,7 @@ vltDScope<strp>:  // --scope <arg>
         ;
 
 vltDFTaskE<strp>:
-                /* empty */                             { static string empty; $$ = &empty; }
+                /*خالی_تھاواں*/                             { ساكن string خالی_تھاواں; $$ = &خالی_تھاواں; }
         |       yVLT_D_FUNCTION str                     { $$ = $2; }
         |       yVLT_D_TASK str                         { $$ = $2; }
         ;
@@ -8627,26 +8627,26 @@ vltInlineFront<cbool>:
         ;
 
 vltVarAttrSpecE<strp>:
-                /* empty */
-                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::VAR; static std::string empty; $$ = &empty; }
+                /*خالی_تھاواں*/
+                        { GRAMMARP->m_vlt_Var_Spec_قسم = V3Control::Var_Spec_قسم::VAR; ساكن std::string خالی_تھاواں; $$ = &خالی_تھاواں; }
         |       yVLT_D_PARAM str
-                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::PARAM; $$ = $2; }
-        |       yVLT_D_PORT str
-                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::PORT; $$ = $2; }
+                        { GRAMMARP->m_vlt_Var_Spec_قسم = V3Control::Var_Spec_قسم::PARAM; $$ = $2; }
+        |       y_VLT_D_پورٹ str
+                        { GRAMMARP->m_vlt_Var_Spec_قسم = V3Control::Var_Spec_قسم::پورٹ; $$ = $2; }
         |       yVLT_D_VAR str
-                        { GRAMMARP->m_vltVarSpecKind = V3Control::VarSpecKind::VAR; $$ = $2; }
+                        { GRAMMARP->m_vlt_Var_Spec_قسم = V3Control::Var_Spec_قسم::VAR; $$ = $2; }
         ;
 
 vltVarAttrFront<attrtypeen>:
                 yVLT_FORCEABLE              { $$ = VAttrType::VAR_FORCEABLE; }
-        |       yVLT_PUBLIC                 { $$ = VAttrType::VAR_PUBLIC; v3Global.dpi(true); }
-        |       yVLT_PUBLIC_FLAT            { $$ = VAttrType::VAR_PUBLIC_FLAT; v3Global.dpi(true); }
-        |       yVLT_PUBLIC_FLAT_RD         { $$ = VAttrType::VAR_PUBLIC_FLAT_RD; v3Global.dpi(true); }
-        |       yVLT_PUBLIC_FLAT_RW         { $$ = VAttrType::VAR_PUBLIC_FLAT_RW; v3Global.dpi(true); }
+        |       y_VLT_عوامی                 { $$ = VAttrType::VAR_عوامی; v3Global.dpi(true); }
+        |       y_VLT_عوامی_FLAT            { $$ = VAttrType::VAR_عوامی_FLAT; v3Global.dpi(true); }
+        |       y_VLT_عوامی_FLAT_RD         { $$ = VAttrType::VAR_عوامی_FLAT_RD; v3Global.dpi(true); }
+        |       y_VLT_عوامی_FLAT_RW         { $$ = VAttrType::VAR_عوامی_FLAT_RW; v3Global.dpi(true); }
         |       yVLT_SC_BIGUINT             { $$ = VAttrType::VAR_SC_BIGUINT; }
         |       yVLT_SC_BV                  { $$ = VAttrType::VAR_SC_BV; }
         |       yVLT_SFORMAT                { $$ = VAttrType::VAR_SFORMAT; }
-        |       yVLT_SPLIT_VAR              { $$ = VAttrType::VAR_SPLIT_VAR; }
+        |       y_VLT_ونڈو_VAR              { $$ = VAttrType::VAR_ونڈو_VAR; }
         ;
 
 vltVarAttrFrontDeprecated:

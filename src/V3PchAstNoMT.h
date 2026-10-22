@@ -13,35 +13,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PCHASTNOMT_H_
-#define VERILATOR_V3PCHASTNOMT_H_
+#جے_بنا_تعریف VERILATOR_V3PCHASTNOMT_H_
+#تعریف_کرو VERILATOR_V3PCHASTNOMT_H_
 
-#ifdef VL_PCH_INCLUDED
-#error "Including multiple V3Pch*.h flavors"
-#endif
-#define VL_PCH_INCLUDED
+#جے_تعریف_شدہ VL_PCH_INCLUDED
+#غلطی "Including multiple V3Pch*.h flavors"
+#جے_انت
+#تعریف_کرو VL_PCH_INCLUDED
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#تعریف_کرو VL_MT_DISABLED_کوڈ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3DebugBisect.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Broken.h"
+#ضمن "V3Container.h"
+#ضمن "V3DebugBisect.h"
+#ضمن "V3Error.h"
+#ضمن "V3FileLine.h"
+#ضمن "V3FunctionTraits.h"
+#ضمن "V3Global.h"
+#ضمن "V3Mutex.h"
+#ضمن "V3Number.h"
+#ضمن "V3Options.h"
+#ضمن "V3StdFuture.h"
+#ضمن "V3String.h"
 
-#include <algorithm>
-#include <map>
-#include <utility>
+#ضمن <algorithm>
+#ضمن <map>
+#ضمن <utility>
 
-#endif  // Guard
+#جے_انت  // Guard

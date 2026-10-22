@@ -14,23 +14,23 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITMK_H_
-#define VERILATOR_V3EMITMK_H_
+#جے_بنا_تعریف VERILATOR_V3EMITMK_H_
+#تعریف_کرو VERILATOR_V3EMITMK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-class V3HierGraph;
+class V3_Hier_گراف;
 
 //============================================================================
 
 class V3EmitMk final {
-public:
+عام:
     // Number of source files after which to use parallel compiles
-    static const size_t PARALLEL_FILE_CNT_THRESHOLD = 128;
+    ساكن ثابت ناپ_t PARALLEL_FILE_CNT_حد = 128;
 
-    static void emitmk() VL_MT_DISABLED;
-    static void emitHierVerilation(const V3HierGraph* planp) VL_MT_DISABLED;
+    ساكن فراغ emitmk() VL_MT_DISABLED;
+    ساكن فراغ emitHierVerilation(ثابت V3_Hier_گراف* planp) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جے_انت  // Guard

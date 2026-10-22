@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKINC_H_
-#define VERILATOR_V3LINKINC_H_
+#جے_بنا_تعریف VERILATOR_V3LINKINC_H_
+#تعریف_کرو VERILATOR_V3LINKINC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LinkInc final {
-public:
-    static void linkIncrements(AstNetlist* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ linkIncrements(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#جے_انت  // Guard

@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#include "V3Hash.h"
+#ضمن "V3Hash.h"
 
-#include <cstring>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#ضمن <cstring>
+#ضمن <functional>
+#ضمن <iomanip>
+#ضمن <iostream>
+#ضمن <sstream>
 
-V3Hash::V3Hash(const std::string& val)
-    : m_value{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
+V3Hash::V3Hash(ثابت std::string& val)
+    : m_قدر{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
 
-V3Hash::V3Hash(double val) {
+V3Hash::V3Hash(مزدوج val) {
     // By value, so +0.0 and -0.0, which compare equal, hash the same
-    if (val == 0.0) val = 0.0;
-    static_assert(sizeof(double) == sizeof(uint64_t), "Hashing assumes 64-bit double");
-    uint64_t bits;
-    std::memcpy(&bits, &val, sizeof(bits));
-    m_value = V3Hash{bits}.m_value;
+    إذا (val == 0.0) val = 0.0;
+    static_assert(حجم(مزدوج) == حجم(uint64_t), "Hashing assumes 64-bit double");
+    uint64_t بٹ;
+    std::حافظہ_نقل(&بٹ, &val, حجم(بٹ));
+    m_قدر = V3Hash{بٹ}.m_قدر;
 }
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE {
-    return os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.value();
+std::ostream& عامل<<(std::ostream& os, ثابت V3Hash& rhs) VL_MT_محفوظ {
+    أرجع os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.قدر();
 }
 
-std::string V3Hash::toString() const VL_MT_SAFE {
+std::string V3Hash::منزل_String() ثابت VL_MT_محفوظ {
     std::ostringstream os;
-    os << *this;
-    return os.str();
+    os << *هذا;
+    أرجع os.str();
 }

@@ -14,53 +14,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ضمن "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3Stats.h"
+#ضمن "V3EmitC.h"
+#ضمن "V3EmitCBase.h"
+#ضمن "V3Stats.h"
 
-#include <map>
+#ضمن <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class EmitCInlines final : EmitCBaseVisitorConst {
+صنف EmitCInlines final : EmitCBaseVisitorConst {
     // STATE
 
     // METHODS
 
     // VISITORS
-    void visit(AstCNew* nodep) override {
-        if (v3Global.opt.savable())
+    فراغ ویکھو(AstCNew* nodep) override {
+        إذا (v3Global.opt.savable())
             v3warn(E_UNSUPPORTED, "Unsupported: --savable with dynamic new");
         iterateChildrenConst(nodep);
     }
-    void visit(AstDumpCtl* nodep) override {
-        if (v3Global.opt.trace()) v3Global.needTraceDumper(true);
+    فراغ ویکھو(AstDumpCtl* nodep) override {
+        إذا (v3Global.opt.trace()) v3Global.needTraceDumper(سچ);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistBiop* nodep) override {
-        v3Global.setUsesProbDist();
+    فراغ ویکھو(Ast_گرہ_Dist_Biop* nodep) override {
+        v3Global.سیٹ_ورتدا_Prob_Dist();
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeDistTriop* nodep) override {
-        v3Global.setUsesProbDist();
+    فراغ ویکھو(Ast_گرہ_Dist_Triop* nodep) override {
+        v3Global.سیٹ_ورتدا_Prob_Dist();
         iterateChildrenConst(nodep);
     }
 
     //---------------------------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    فراغ ویکھو(Ast_گرہ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
+عام:
+    واضح EmitCInlines(AstNetlist* nodep) { iterateConst(nodep); }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcInlines() {
+فراغ V3EmitC::emitcInlines() {
     UINFO(2, __FUNCTION__ << ":");
     { EmitCInlines{v3Global.rootp()}; }
 }

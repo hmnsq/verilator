@@ -28,16 +28,16 @@
 ///
 //*************************************************************************
 
-#ifndef VERILATOR_V3MUTEX_H_
-#define VERILATOR_V3MUTEX_H_ 1
+#جے_بنا_تعریف VERILATOR_V3MUTEX_H_
+#تعریف_کرو VERILATOR_V3MUTEX_H_ 1
 
-#include "verilatedos.h"
+#ضمن "verilatedos.h"
 
-#include <cstdlib>
-#include <functional>
-#include <mutex>
+#ضمن <cstdlib>
+#ضمن <functional>
+#ضمن <mutex>
 
-#define VL_LOCK_SPINS 50000  /// Number of times to spin for a mutex before yielding
+#تعریف_کرو VL_جندرا_SPINS 50000  /// Number of times to spin for a mutex before yielding
 
 // MutexConfig class that allows to configure how mutex and lockguards behave
 // once configured and locked, it cannot be changed. Configuration and lock needs to be
@@ -47,97 +47,97 @@ class V3MutexConfig final {
     // Use carefully as it can cause undefined behavior when used inappropriately.
     // All mutexes needs to be unlocked.
     bool m_enable = false;  // Allows locking on mutexes, default don't lock mutexes
-    bool m_lockConfig = false;  // After set, configuration cannot be changed
+    bool m_جندرا_Config = false;  // After set, configuration cannot be changed
 
-    V3MutexConfig() = default;
-    ~V3MutexConfig() = default;
+    V3MutexConfig() = افتراضي;
+    ~V3MutexConfig() = افتراضي;
 
-public:
-    static V3MutexConfig& s() VL_MT_SAFE {
-        static V3MutexConfig s{};
-        return s;
+عام:
+    ساكن V3MutexConfig& s() VL_MT_محفوظ {
+        ساكن V3MutexConfig s{};
+        أرجع s;
     }
 
     // configures class
-    void configure(bool enable) VL_MT_UNSAFE {
-        if (!s().m_lockConfig) {
+    فراغ configure(bool enable) VL_MT_UNSAFE {
+        إذا (!s().m_جندرا_Config) {
             s().m_enable = enable;
-            s().m_lockConfig = true;
-        } else {
+            s().m_جندرا_Config = true;
+        } وإلا {
             // requires <iostream>
             // avoided to reduce compile time
             // std::cerr << "%Error: V3Mutex already configured." << std::endl;
             std::abort();  // LCOV_EXCL_LINE
         }
     }
-    bool enable() const VL_MT_SAFE { return m_enable; }
+    bool enable() ثابت VL_MT_محفوظ { أرجع m_enable; }
 };
 
 /// Mutex, wrapped to allow -fthread_safety checks
-template <typename T>
+سانچا <typename T>
 class VL_CAPABILITY("mutex") V3MutexImp final {
     T m_mutex;  // Mutex
 
-public:
+عام:
     /// Construct mutex (without locking it)
-    V3MutexImp() = default;
-    ~V3MutexImp() = default;
+    V3MutexImp() = افتراضي;
+    ~V3MutexImp() = افتراضي;
     VL_UNCOPYABLE(V3MutexImp);
-    const V3MutexImp& operator!() const { return *this; }  // For -fthread_safety
+    ثابت V3MutexImp& عامل!() ثابت { أرجع *this; }  // For -fthread_safety
     /// Acquire/lock mutex
-    void lock() VL_ACQUIRE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) {
+    فراغ جندرا_2() VL_ACQUIRE() VL_MT_محفوظ {
+        إذا (V3MutexConfig::s().enable()) {
             // Try to acquire the lock by spinning.  If the wait is short,
             // avoids a trap to the OS plus OS scheduler overhead.
-            if (VL_LIKELY(try_lock())) return;  // Short circuit loop
-            for (int i = 0; i < VL_LOCK_SPINS; ++i) {
-                if (VL_LIKELY(try_lock())) return;
+            إذا (VL_LIKELY(try_جندرا())) أرجع;  // Short circuit loop
+            لكل (صحيح i = 0; i < VL_جندرا_SPINS; ++i) {
+                إذا (VL_LIKELY(try_جندرا())) أرجع;
                 VL_CPU_RELAX();
             }
             // Spinning hasn't worked, pay the cost of blocking.
-            m_mutex.lock();
+            m_mutex.جندرا_2();
         }
     }
     /// Release/unlock mutex
-    void unlock() VL_RELEASE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) m_mutex.unlock();
+    فراغ unlock() VL_RELEASE() VL_MT_محفوظ {
+        إذا (V3MutexConfig::s().enable()) m_mutex.unlock();
     }
     /// Try to acquire mutex.  Returns true on success, and false on failure.
-    bool try_lock() VL_TRY_ACQUIRE(true) VL_MT_SAFE {
-        return V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
+    bool try_جندرا() VL_TRY_ACQUIRE(true) VL_MT_محفوظ {
+        أرجع V3MutexConfig::s().enable() ? m_mutex.try_جندرا() : true;
     }
     /// Assume that the mutex is already held. Purely for Clang thread safety analyzer.
-    void assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}
+    فراغ assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_محفوظ {}
     /// Pretend that the mutex is being unlocked. Purely for Clang thread safety analyzer.
-    void pretendUnlock() VL_RELEASE() VL_MT_SAFE {}
+    فراغ pretendUnlock() VL_RELEASE() VL_MT_محفوظ {}
 };
 
 /// Lock guard for mutex (ala std::unique_lock), wrapped to allow -fthread_safety checks
-template <typename T>
-class VL_SCOPED_CAPABILITY V3LockGuardImp final {
-    VL_UNCOPYABLE(V3LockGuardImp);
+سانچا <typename T>
+class VL_SCOPED_CAPABILITY V3_جندرا_Guard_Imp final {
+    VL_UNCOPYABLE(V3_جندرا_Guard_Imp);
 
-private:
+خاص:
     T& m_mutexr;
 
-public:
+عام:
     /// Lock given mutex and hold it for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_SAFE
+    explicit V3_جندرا_Guard_Imp(T& mutexr) VL_ACQUIRE(mutexr) VL_MT_محفوظ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
-        mutexr.lock();
+        mutexr.جندرا_2();
     }
     /// Take already locked mutex, and and hold the lock for the object lifetime.
-    explicit V3LockGuardImp(T& mutexr, std::adopt_lock_t) VL_REQUIRES(mutexr) VL_MT_SAFE
+    explicit V3_جندرا_Guard_Imp(T& mutexr, std::adopt_جندرا_t) VL_REQUIRES(mutexr) VL_MT_محفوظ
         : m_mutexr(mutexr) {  // Need () or GCC 4.8 false warning
     }
 
     /// Unlock the mutex
-    ~V3LockGuardImp() VL_RELEASE() { m_mutexr.unlock(); }
+    ~V3_جندرا_Guard_Imp() VL_RELEASE() { m_mutexr.unlock(); }
 };
 
 using V3Mutex = V3MutexImp<std::mutex>;
 using V3RecursiveMutex = V3MutexImp<std::recursive_mutex>;
-using V3LockGuard = V3LockGuardImp<V3Mutex>;
-using V3RecursiveLockGuard = V3LockGuardImp<V3RecursiveMutex>;
+using V3_جندرا_Guard = V3_جندرا_Guard_Imp<V3Mutex>;
+using V3_Recursive_جندرا_Guard = V3_جندرا_Guard_Imp<V3RecursiveMutex>;
 
-#endif  // guard
+#جے_انت  // guard
