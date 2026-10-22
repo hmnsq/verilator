@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3LINKRESOLVE_H_
 #define VERILATOR_V3LINKRESOLVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3LinkResolve final {
-public:
-    static void linkResolve(AstNetlist* rootp) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य linkResolve(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard
