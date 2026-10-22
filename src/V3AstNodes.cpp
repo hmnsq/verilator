@@ -47,7 +47,7 @@
 // C type of a DPI basic type passed as a primitive C type (IEEE 1800-2023 H.7.4)
 static string dpiPrimitiveType(const AstBasicDType* basicp) {
     const VBasicDTypeKwd keyword = basicp->keyword();
-    return (keyword.isDpiUnsignable() && !basicp->isSigned() ? "unsigned " : "")
+    повернути (keyword.isDpiUnsignable() && !basicp->isSigned() ? "unsigned " : "")
            + string{keyword.dpiType()};
 }
 
@@ -56,11 +56,11 @@ static string dpiMemberDecl(const AstNodeDType* dtypep, const string& name);
 // C structure declaration of an unpacked structure for DPI
 static string dpiStructDecl(const AstNodeUOrStructDType* sdtypep) {
     string decl = "struct {\n";
-    for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    для (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
          itemp = VN_AS(itemp->nextp(), MemberDType)) {
         decl += dpiMemberDecl(itemp->subDTypep(), itemp->prettyName()) + ";\n";
     }
-    return decl + "}";
+    повернути decl + "}";
 }
 
 // C declaration of member 'name' of type 'dtypep' of a DPI structure
@@ -68,48 +68,48 @@ static string dpiMemberDecl(const AstNodeDType* dtypep, const string& name) {
     // Unpacked arrays are C arrays (IEEE 1800-2023 H.7.3)
     string dims;
     dtypep = dtypep->skipRefp();
-    while (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+    поки (const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
         dims += "[" + cvtToStr(arrayp->elementsConst()) + "]";
         dtypep = arrayp->subDTypep()->skipRefp();
     }
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
-    if (sdtypep && !sdtypep->packed()) {
+    якщо (sdtypep && !sdtypep->packed()) {
         // Declared here if no typedef names it
         const string type
             = sdtypep->dpiName().empty() ? dpiStructDecl(sdtypep) : sdtypep->dpiName();
-        return type + " " + name + dims;
+        повернути type + " " + name + dims;
     }
     const AstBasicDType* const basicp = dtypep->basicp();
-    if (basicp->isDpiPrimitive()) return dpiPrimitiveType(basicp) + " " + name + dims;
+    якщо (basicp->isDpiPrimitive()) повернути dpiPrimitiveType(basicp) + " " + name + dims;
     // Canonical representation of packed arrays (IEEE 1800-2023 H.7.7)
-    return (basicp->isDpiBitVec() ? "svBitVecVal " : "svLogicVecVal ") + name + dims
+    повернути (basicp->isDpiBitVec() ? "svBitVecVal " : "svLogicVecVal ") + name + dims
            + "[SV_PACKED_DATA_NELEMS(" + cvtToStr(dtypep->width()) + ")]";
 }
 
 class DpiTypesToStringConverter VL_NOT_FINAL{public : virtual string openArray(const AstVar*)
-                                                 const {return "const svOpenArrayHandle";
+                                                 const {повернути "const svOpenArrayHandle";
 }
 virtual string bitLogicVector(const AstVar* /*varp*/, bool isBit) const {
-    return isBit ? "svBitVecVal" : "svLogicVecVal";
+    повернути isBit ? "svBitVecVal" : "svLogicVecVal";
 }
-virtual string primitive(const AstVar* varp) const { return dpiPrimitiveType(varp->basicp()); }
+virtual string primitive(const AstVar* varp) const { повернути dpiPrimitiveType(varp->basicp()); }
 // Unpacked structure, or unpacked array of
 virtual string unpackedStruct(const AstVar* varp) const {
-    return VN_AS(varp->dtypep()->elemDTypep(), NodeUOrStructDType)->dpiName();
+    повернути VN_AS(varp->dtypep()->elemDTypep(), NodeUOrStructDType)->dpiName();
 }
 string convert(const AstVar* varp) const {
-    if (varp->isDpiOpenArray()) {
-        return openArray(varp);
-    } else if (const AstBasicDType* const basicp = varp->basicp()) {
-        if (basicp->isDpiBitVec() || basicp->isDpiLogicVec()) {
-            return bitLogicVector(varp, basicp->isDpiBitVec());
-        } else {
-            return primitive(varp);
+    якщо (varp->isDpiOpenArray()) {
+        повернути openArray(varp);
+    } інакше якщо (const AstBasicDType* const basicp = varp->basicp()) {
+        якщо (basicp->isDpiBitVec() || basicp->isDpiLogicVec()) {
+            повернути bitLogicVector(varp, basicp->isDpiBitVec());
+        } інакше {
+            повернути primitive(varp);
         }
-    } else if (varp->dtypep()->containsUnpackedStruct()) {
-        return unpackedStruct(varp);
-    } else {
-        return "UNKNOWN";
+    } інакше якщо (varp->dtypep()->containsUnpackedStruct()) {
+        повернути unpackedStruct(varp);
+    } інакше {
+        повернути "UNKNOWN";
     }
 }
 }
@@ -122,17 +122,17 @@ public:
     string render(const string& name, bool isRef) const VL_MT_SAFE {
         string out;
         out += m_type;
-        if (!name.empty()) out += " ";
-        if (isRef) {
-            if (!m_dims.empty()) out += "(";
+        якщо (!name.empty()) out += " ";
+        якщо (isRef) {
+            якщо (!m_dims.empty()) out += "(";
             out += "&";
             out += name;
-            if (!m_dims.empty()) out += ")";
-        } else {
+            якщо (!m_dims.empty()) out += ")";
+        } інакше {
             out += name;
         }
         out += m_dims;
-        return out;
+        повернути out;
     }
 };
 
@@ -141,12 +141,12 @@ public:
 
 void dumpNodeListJson(std::ostream& os, const AstNode* nodep, const std::string& listName,
                       const string& indent) {
-    if (!nodep) return;
+    якщо (!nodep) повернути;
     os << ',';
     os << '\n' << indent + " \"" << listName << "\": [\n";
-    for (; nodep; nodep = nodep->nextp()) {
+    для (; nodep; nodep = nodep->nextp()) {
         nodep->dumpTreeJson(os, indent + "  ");
-        if (nodep->nextp()) os << ',';
+        якщо (nodep->nextp()) os << ',';
         os << '\n';
     }
     os << indent << ']';
@@ -161,12 +161,12 @@ static void dumpFileInfo(std::ostream& os, const FileLine* fileinfop) {
 }
 
 static AstDelay* getLhsNetDelayRecurse(const AstNodeExpr* const nodep) {
-    if (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-        if (refp->varp()->delayp()) return refp->varp()->delayp();
-    } else if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-        return getLhsNetDelayRecurse(selp->fromp());
+    якщо (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
+        якщо (refp->varp()->delayp()) повернути refp->varp()->delayp();
+    } інакше якщо (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
+        повернути getLhsNetDelayRecurse(selp->fromp());
     }
-    return nullptr;
+    повернути nullptr;
 }
 
 //======================================================================
@@ -175,48 +175,48 @@ static AstDelay* getLhsNetDelayRecurse(const AstNodeExpr* const nodep) {
 // Identifier 'name' as a hierarchical name holds it, escaped unless a simple identifier, e.g.
 // '\a.b ' (IEEE 1800-2023 23.6), so that the names of distinct types differ, as of covergroup
 // '\gen.cg' and covergroup 'cg' of generate block 'gen'
-static string dtypeNameIdent(const string& name) { return AstNode::vpiName(name); }
+static string dtypeNameIdent(const string& name) { повернути AstNode::vpiName(name); }
 
 // Text of a constant parameter value, given the data type of the parameter, or if 'sized' of the
 // value, as of an untyped parameter
 static string dtypeNameConst(const V3Number& num, const AstNodeDType* dtypep, bool sized) {
-    if (num.isNull()) return "null";
-    if (num.isDouble()) return num.toRealString();
+    якщо (num.isNull()) повернути "null";
+    якщо (num.isDouble()) повернути num.toRealString();
     const AstBasicDType* const basicp = dtypep ? dtypep->basicp() : nullptr;
-    if (num.isString() || (basicp && basicp->isString())) {
+    якщо (num.isString() || (basicp && basicp->isString())) {
         // Escaped as a string literal, so the quotes enclose the whole value, as
         // VString::quotedEnd() finds
-        return '"' + V3OutFormatter::quoteNameControls(num.toString()) + '"';
+        повернути '"' + V3OutFormatter::quoteNameControls(num.toString()) + '"';
     }
     // Sized and signed as the parameter, as the value may not be yet
-    const int width = (dtypep && dtypep->width()) ? dtypep->width() : num.width();
+    const ціле width = (dtypep && dtypep->width()) ? dtypep->width() : num.width();
     V3Number value{&num, width};
-    if (num.isSigned() && num.width() < width) {
+    якщо (num.isSigned() && num.width() < width) {
         value.opExtendS(num, num.width());
-    } else {
+    } інакше {
         value.opAssign(num);
     }
-    if (const AstEnumDType* const enump = VN_CAST(dtypep, EnumDType)) {
-        for (const AstEnumItem* itemp = enump->itemsp(); itemp;
+    якщо (const AstEnumDType* const enump = VN_CAST(dtypep, EnumDType)) {
+        для (const AstEnumItem* itemp = enump->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), EnumItem)) {
             const AstConst* const constp = VN_CAST(itemp->valuep(), Const);
-            if (constp && !constp->num().isAnyXZ() && value.isCaseEq(constp->num())) {
-                return dtypeNameIdent(itemp->name());
+            якщо (constp && !constp->num().isAnyXZ() && value.isCaseEq(constp->num())) {
+                повернути dtypeNameIdent(itemp->name());
             }
         }
     }
-    if (value.isAnyXZ()) return value.ascii(true, true);
+    якщо (value.isAnyXZ()) повернути value.ascii(true, true);
     const bool isSigned = dtypep ? dtypep->isSigned() : num.isSigned();
     // Sized as $typename names values (IEEE 1800-2023 20.6.1), so that the specializations of
     // values of other types are named apart, unless of the type of an unsized decimal literal
-    if (sized && (width != 32 || !isSigned)) {
+    якщо (sized && (width != 32 || !isSigned)) {
         const string prefix = cvtToStr(width) + (isSigned ? "'sd" : "'d");
-        if (!isSigned || !value.isNegative()) return prefix + value.toDecimalU();
+        якщо (!isSigned || !value.isNegative()) повернути prefix + value.toDecimalU();
         V3Number magnitude{&num, width};
         magnitude.opNegate(value);
-        return "-" + prefix + magnitude.toDecimalU();
+        повернути "-" + prefix + magnitude.toDecimalU();
     }
-    return isSigned ? value.toDecimalS() : value.toDecimalU();
+    повернути isSigned ? value.toDecimalS() : value.toDecimalU();
 }
 
 // Text of a parameter value, given the data type of the parameter, or if 'untyped' the parameter
@@ -226,18 +226,18 @@ static string dtypeNameValue(const AstNode* valuep, const AstNodeDType* dtypep,
     const AstConst* const constp = VN_CAST(valuep, Const);
     // Of the data type of the value, as constant folding can leave the signedness there, not on
     // the number
-    if (untyped && constp) dtypep = constp->dtypep();
+    якщо (untyped && constp) dtypep = constp->dtypep();
     // The enum or other type the data type stands for, or nullptr if not yet resolved
-    if (dtypep) dtypep = dtypep->skipRefToEnumOrNullp();
-    if (constp) return dtypeNameConst(constp->num(), dtypep, untyped);
-    if (const AstConsArray* const consp = VN_CAST(valuep, ConsArray)) {
+    якщо (dtypep) dtypep = dtypep->skipRefToEnumOrNullp();
+    якщо (constp) повернути dtypeNameConst(constp->num(), dtypep, untyped);
+    якщо (const AstConsArray* const consp = VN_CAST(valuep, ConsArray)) {
         const AstNodeDType* const elemDTypep = dtypep ? dtypep->subDTypep() : nullptr;
         // Keys count from the lowest index, while elements are listed from the left index
         const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType);
-        const int lo = adtypep ? adtypep->declRange().lo() : 0;
+        const ціле lo = adtypep ? adtypep->declRange().lo() : 0;
         const bool descending = adtypep && !adtypep->declRange().ascending();
         std::vector<const AstConsArrayItem*> itemps;
-        for (const AstConsArrayItem* itemp = consp->itemsp(); itemp;
+        для (const AstConsArrayItem* itemp = consp->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
             itemps.push_back(itemp);
         }
@@ -245,46 +245,46 @@ static string dtypeNameValue(const AstNode* valuep, const AstNodeDType* dtypep,
         const size_t elements
             = adtypep ? static_cast<size_t>(adtypep->declRange().elements()) : itemps.size();
         bool indexed = consp->defaultp() || itemps.size() != elements;
-        for (size_t n = 0; n < itemps.size(); ++n) {
-            if (itemps[n]->index() != n) indexed = true;
+        для (size_t n = 0; n < itemps.size(); ++n) {
+            якщо (itemps[n]->index() != n) indexed = true;
         }
         string result = "'{";
         const char* sepp = "";
         const auto addElem = [&](const AstConsArrayItem* itemp) {
             result += sepp;
             sepp = ",";
-            if (indexed) result += cvtToStr(static_cast<int64_t>(itemp->index()) + lo) + ":";
+            якщо (indexed) result += cvtToStr(static_cast<int64_t>(itemp->index()) + lo) + ":";
             result += dtypeNameValue(itemp->valuep(), elemDTypep);
         };
-        if (descending) {
-            for (auto it = itemps.crbegin(); it != itemps.crend(); ++it) addElem(*it);
-        } else {
-            for (const AstConsArrayItem* const itemp : itemps) addElem(itemp);
+        якщо (descending) {
+            для (auto it = itemps.crbegin(); it != itemps.crend(); ++it) addElem(*it);
+        } інакше {
+            для (const AstConsArrayItem* const itemp : itemps) addElem(itemp);
         }
-        if (consp->defaultp()) {
+        якщо (consp->defaultp()) {
             result += sepp + "default:"s + dtypeNameValue(consp->defaultp(), elemDTypep);
         }
-        return result + "}";
+        повернути result + "}";
     }
-    if (const AstConsStruct* const consp = VN_CAST(valuep, ConsStruct)) {
+    якщо (const AstConsStruct* const consp = VN_CAST(valuep, ConsStruct)) {
         string result = "'{";
         const char* sepp = "";
-        for (const AstConsStructItem* itemp = consp->itemsp(); itemp;
+        для (const AstConsStructItem* itemp = consp->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             result += sepp + dtypeNameValue(itemp->valuep(), itemp->memberp());
             sepp = ",";
         }
-        return result + "}";
+        повернути result + "}";
     }
     // Not yet a constant, as a default value until V3Param has elaborated the class
-    return "?";
+    повернути "?";
 }
 
 // Whether 'nodep' is a parameter that the name of the design unit declaring it holds
 static bool dtypeNameIsParam(const AstNode* nodep) {
-    if (const AstVar* const varp = VN_CAST(nodep, Var)) return varp->isGParam();
+    якщо (const AstVar* const varp = VN_CAST(nodep, Var)) повернути varp->isGParam();
     const AstParamTypeDType* const ptypep = VN_CAST(nodep, ParamTypeDType);
-    return ptypep && ptypep->isGParam();
+    повернути ptypep && ptypep->isGParam();
 }
 
 // Call 'f' with each parameter that the name of design unit 'modp' holds, as indexed by the
@@ -292,12 +292,12 @@ static bool dtypeNameIsParam(const AstNode* nodep) {
 template <typename T_Func>
 static void dtypeNameForeachParam(const AstNodeModule* modp, const T_Func& f) {
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (const std::vector<AstNode*>* const paramsp = scopesp ? scopesp->paramsp(modp) : nullptr) {
-        for (const AstNode* const paramp : *paramsp) f(paramp);
-        return;
+    якщо (const std::vector<AstNode*>* const paramsp = scopesp ? scopesp->paramsp(modp) : nullptr) {
+        для (const AstNode* const paramp : *paramsp) f(paramp);
+        повернути;
     }
-    for (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (dtypeNameIsParam(stmtp)) f(stmtp);
+    для (const AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        якщо (dtypeNameIsParam(stmtp)) f(stmtp);
     }
 }
 
@@ -307,16 +307,16 @@ static string dtypeNameParams(const AstNodeModule* modp, bool full) {
     string result;
     dtypeNameForeachParam(modp, [&](const AstNode* paramp) {
         string valueName;
-        if (const AstVar* const varp = VN_CAST(paramp, Var)) {
+        якщо (const AstVar* const varp = VN_CAST(paramp, Var)) {
             valueName = dtypeNameValue(varp->valuep(), varp->subDTypep(), varp->untypedParam());
-        } else {
+        } інакше {
             const AstParamTypeDType* const ptypep = VN_AS(paramp, ParamTypeDType);
             // Or '?' if not yet resolved, as a default until V3Param has elaborated the class
             valueName = ptypep->skipRefToEnumOrNullp() ? ptypep->prettyDTypeName(full) : "?";
         }
         result += (result.empty() ? "#(" : ",") + valueName;
     });
-    return result.empty() ? "" : result + ")";
+    повернути result.empty() ? "" : result + ")";
 }
 
 // Whether the parameters that the name of design unit 'modp' holds are widthed, so final
@@ -325,11 +325,11 @@ static bool dtypeNameParamsFinal(const AstNodeModule* modp) {
     dtypeNameForeachParam(modp, [&](const AstNode* paramp) {
         // A parameter type is widthed once resolved, not once V3Width visits it
         const AstParamTypeDType* const ptypep = VN_CAST(paramp, ParamTypeDType);
-        if (!paramp->didWidth() || (ptypep && VN_IS(ptypep->subDTypep(), RequireDType))) {
+        якщо (!paramp->didWidth() || (ptypep && VN_IS(ptypep->subDTypep(), RequireDType))) {
             final = false;
         }
     });
-    return final;
+    повернути final;
 }
 
 // Name of a class, without its scope or parameters
@@ -337,10 +337,10 @@ static string dtypeNameClass(const AstClass* classp) {
     // An embedded covergroup declares an anonymous type, and an instance variable of it named
     // by the covergroup (IEEE 1800-2023 19.4), so the type is named as the variable, as other
     // simulators do
-    if (classp->covergroupEnclosingClassp()) {
-        return dtypeNameIdent(classp->embeddedCovergroupName());
+    якщо (classp->covergroupEnclosingClassp()) {
+        повернути dtypeNameIdent(classp->embeddedCovergroupName());
     }
-    return dtypeNameIdent(classp->origName());
+    повернути dtypeNameIdent(classp->origName());
 }
 
 // The generate block or design unit declaring 'nodep', or nullptr if none, as at the top, as
@@ -348,11 +348,11 @@ static string dtypeNameClass(const AstClass* classp) {
 static AstNode* dtypeNameOuterp(const AstNode* nodep) {
     AstNode* outerp = nullptr;
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (scopesp && scopesp->outerp(nodep, outerp)) return outerp;
-    for (outerp = nodep->aboveLoopp(); outerp; outerp = outerp->aboveLoopp()) {
-        if (VN_IS(outerp, NodeModule) || VN_IS(outerp, GenBlock)) break;
+    якщо (scopesp && scopesp->outerp(nodep, outerp)) повернути outerp;
+    для (outerp = nodep->aboveLoopp(); outerp; outerp = outerp->aboveLoopp()) {
+        якщо (VN_IS(outerp, NodeModule) || VN_IS(outerp, GenBlock)) break;
     }
-    return outerp;
+    повернути outerp;
 }
 
 // Prefix of the names of the types generate block or design unit 'scopep' declares, so with the
@@ -360,44 +360,44 @@ static AstNode* dtypeNameOuterp(const AstNode* nodep) {
 // 'top.gen[0].', or "" if none, as at the top.  Kept by the VDTypeNameScopes in use, if any, once
 // final, as its parameters are widthed, else clears 'finalr'.
 static string dtypeNamePrefix(const AstNode* scopep, bool& finalr) {
-    if (!scopep) return "";
+    якщо (!scopep) повернути "";
     const VDTypeNameScopes* const scopesp = VDTypeNameScopes::currentp();
-    if (const string* const prefixp = scopesp ? scopesp->prefixp(scopep) : nullptr) {
-        return *prefixp;
+    якщо (const string* const prefixp = scopesp ? scopesp->prefixp(scopep) : nullptr) {
+        повернути *prefixp;
     }
     bool final = true;
     const string outer = dtypeNamePrefix(dtypeNameOuterp(scopep), final);
     string prefix;
-    if (const AstGenBlock* const blockp = VN_CAST(scopep, GenBlock)) {
+    якщо (const AstGenBlock* const blockp = VN_CAST(scopep, GenBlock)) {
         prefix = blockp->dtypeNameInnerScope(outer);
-    } else {
+    } інакше {
         const AstNodeModule* const modp = VN_AS(scopep, NodeModule);
         prefix = modp->dtypeNameInnerScope(outer);
-        if (scopesp) final = final && dtypeNameParamsFinal(modp);
+        якщо (scopesp) final = final && dtypeNameParamsFinal(modp);
     }
-    if (scopesp && final) scopesp->prefix(scopep, prefix);
+    якщо (scopesp && final) scopesp->prefix(scopep, prefix);
     finalr = finalr && final;
-    return prefix;
+    повернути prefix;
 }
 
 // Prefix of the name of a type for the scopes declaring it, see dtypeNamePrefix()
 static string dtypeNameScopeOf(const AstNode* nodep) {
     bool final = true;
-    return dtypeNamePrefix(dtypeNameOuterp(nodep), final);
+    повернути dtypeNamePrefix(dtypeNameOuterp(nodep), final);
 }
 
 // Name in full of a structure, union, or enumeration, as given by the typedef declaring it, if
 // any, with the scope of the typedef, or as 'frozen' once it moved off the typedef
 static string dtypeNameTypedef(const AstNodeDType* dtypep, const string& frozen) {
-    if (!frozen.empty()) return frozen;
+    якщо (!frozen.empty()) повернути frozen;
     const AstTypedef* const typedefp = VN_CAST(dtypep->backp(), Typedef);
-    return typedefp ? typedefp->dtypeName() : dtypep->prettyName();
+    повернути typedefp ? typedefp->dtypeName() : dtypep->prettyName();
 }
 
 // Name of a type of a kind given by a keyword, e.g. 'struct $unit::s_t', or just the keyword if
 // anonymous
 static string dtypeNameKwd(const string& kwd, const string& name) {
-    return name.empty() ? kwd : kwd + " " + name;
+    повернути name.empty() ? kwd : kwd + " " + name;
 }
 
 //======================================================================
@@ -412,21 +412,21 @@ VDTypeNameScopes::VDTypeNameScopes(AstNetlist* nodep)
 }
 VDTypeNameScopes::~VDTypeNameScopes() { s_currentp = m_prevp; }
 void VDTypeNameScopes::index(AstNode* nodep, AstNode* scopep) {
-    for (; nodep; nodep = nodep->nextp()) {
+    для (; nodep; nodep = nodep->nextp()) {
         // Only statements declare types
-        if (VN_IS(nodep, NodeExpr) || VN_IS(nodep, NodeDType)) continue;
+        якщо (VN_IS(nodep, NodeExpr) || VN_IS(nodep, NodeDType)) continue;
         AstNode* innerp = scopep;
-        if (VN_IS(nodep, Typedef)) {
+        якщо (VN_IS(nodep, Typedef)) {
             m_outerps.emplace(nodep, scopep);
             continue;  // Of a data type, so declares no more
-        } else if (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
+        } інакше якщо (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) {
             m_outerps.emplace(nodep, scopep);
             std::vector<AstNode*>& paramps = m_paramps[nodep];
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (dtypeNameIsParam(stmtp)) paramps.push_back(stmtp);
+            для (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                якщо (dtypeNameIsParam(stmtp)) paramps.push_back(stmtp);
             }
             innerp = nodep;
-        } else if (VN_IS(nodep, GenBlock)) {
+        } інакше якщо (VN_IS(nodep, GenBlock)) {
             m_outerps.emplace(nodep, scopep);
             innerp = nodep;
         }
@@ -438,20 +438,20 @@ void VDTypeNameScopes::index(AstNode* nodep, AstNode* scopep) {
 }
 bool VDTypeNameScopes::outerp(const AstNode* nodep, AstNode*& outerpr) const {
     const auto it = m_outerps.find(nodep);
-    if (it == m_outerps.end()) return false;
+    якщо (it == m_outerps.end()) повернути false;
     outerpr = it->second;
-    return true;
+    повернути true;
 }
 const std::vector<AstNode*>* VDTypeNameScopes::paramsp(const AstNode* modp) const {
     const auto it = m_paramps.find(modp);
-    return it == m_paramps.end() ? nullptr : &it->second;
+    повернути it == m_paramps.end() ? nullptr : &it->second;
 }
 void VDTypeNameScopes::prefix(const AstNode* scopep, const std::string& prefix) const {
     m_prefixes.emplace(scopep, prefix);
 }
 const std::string* VDTypeNameScopes::prefixp(const AstNode* scopep) const {
     const auto it = m_prefixes.find(scopep);
-    return it == m_prefixes.end() ? nullptr : &it->second;
+    повернути it == m_prefixes.end() ? nullptr : &it->second;
 }
 
 //======================================================================
@@ -466,30 +466,30 @@ void AstNode::dump(std::ostream& str) const {
         << fileline()->firstColumnLetters() << "}";
     const auto dumpUser = [&str](const char* prefix, const VNUser& user) {
         const std::string s = user.dumpStr([](const void* p) -> std::string {
-            return nodeAddr(reinterpret_cast<const AstNode*>(p));
+            повернути nodeAddr(reinterpret_cast<const AstNode*>(p));
         });
-        if (!s.empty()) str << prefix << s;
+        якщо (!s.empty()) str << prefix << s;
     };
     dumpUser(" u1=", user1u());
     dumpUser(" u2=", user2u());
     dumpUser(" u3=", user3u());
     dumpUser(" u4=", user4u());
-    if (hasDType()) {
+    якщо (hasDType()) {
         // Final @ so less likely to by accident read it as a nodep
-        if (dtypep() == this) {
+        якщо (dtypep() == this) {
             str << " @dt=this@";
-        } else {
+        } інакше {
             str << " @dt=" << nodeAddr(dtypep()) << "@";
         }
-        if (const AstNodeDType* const dtp = dtypep()) dtp->dumpSmall(str);
-    } else {  // V3Broken will throw an error
-        if (dtypep()) str << " %Error-dtype-exp=null,got=" << nodeAddr(dtypep());
+        якщо (const AstNodeDType* const dtp = dtypep()) dtp->dumpSmall(str);
+    } інакше {  // V3Broken will throw an error
+        якщо (dtypep()) str << " %Error-dtype-exp=null,got=" << nodeAddr(dtypep());
     }
-    if (fileline()->erroringOn()) str << " [ERRORING]";
-    if (name() != "") {
-        if (VN_IS(this, Const)) {
+    якщо (fileline()->erroringOn()) str << " [ERRORING]";
+    якщо (name() != "") {
+        якщо (VN_IS(this, Const)) {
             str << "  " << name();  // Already quoted
-        } else {
+        } інакше {
             str << "  " << V3OutFormatter::quoteNameControls(name());
         }
     }
@@ -498,18 +498,18 @@ void AstNode::dump(std::ostream& str) const {
 // Routines for dumping dict fields (NOTE: due to leading ',' they can't be used for first
 // field in dict)
 void AstNode::dumpJsonNum(std::ostream& os, const std::string& name, int64_t val) {
-    if (val) os << ",\"" << name << "\":" << val;
+    якщо (val) os << ",\"" << name << "\":" << val;
 }
 void AstNode::dumpJsonBoolIf(std::ostream& os, const std::string& name, bool val) {
-    if (val) os << ",\"" << name << "\":" << (val ? "true" : "false");
+    якщо (val) os << ",\"" << name << "\":" << (val ? "true" : "false");
 }
 void AstNode::dumpJsonStr(std::ostream& os, const std::string& name, const std::string& val) {
-    if (!val.empty())
+    якщо (!val.empty())
         os << ",\"" << name << "\":\"" << V3OutFormatter::quoteNameControls(val) << '"';
 }
 void AstNode::dumpJsonPtr(std::ostream& os, const std::string& name, const AstNode* const valp) {
     v3Global.saveJsonPtrFieldName(name);
-    if (!valp) return;
+    якщо (!valp) повернути;
     const std::string addr = v3Global.opt.jsonIds() ? v3Global.ptrToId(valp) : cvtToHex(valp);
     os << ",\"" << name << "\":\"" << addr << '"';
 }
@@ -519,12 +519,12 @@ void AstNode::dumpTreeJson(std::ostream& os, const string& indent) const {
     dumpJsonPtr(os, "addr", this);
     dumpFileInfo(os, fileline());
 #ifdef VL_DEBUG
-    if (v3Global.opt.jsonEditNums()) dumpJsonNum(os, "editNum", editCount());
+    якщо (v3Global.opt.jsonEditNums()) dumpJsonNum(os, "editNum", editCount());
 #endif
-    if (hasDType()) {
+    якщо (hasDType()) {
         dumpJsonPtrFunc(os, dtypep);
-    } else {  // V3Broken will throw an error
-        if (dtypep()) {
+    } інакше {  // V3Broken will throw an error
+        якщо (dtypep()) {
             dumpJsonStr(os, "dtypep", " %Error-dtype-exp=null,got=" + nodeAddr(dtypep()));
         }
     }
@@ -537,15 +537,15 @@ bool AstNode::isDisableQueuePushSelfStmt() {
     // Detect LinkJump-generated registration:
     // __VprocessQueue_*.push_back(std::process::self())
     AstStmtExpr* const stmtExprp = VN_CAST(this, StmtExpr);
-    if (!stmtExprp) return false;
+    якщо (!stmtExprp) повернути false;
     AstCMethodHard* const methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
-    if (!methodp || methodp->name() != "push_back") return false;
+    якщо (!methodp || methodp->name() != "push_back") повернути false;
     AstNode* const basep = methodp->fromp()->baseFromp(false);
-    if (AstVarRef* const refp = VN_CAST(basep, VarRef)) return refp->varp()->processQueue();
-    if (AstMemberSel* const selp = VN_CAST(basep, MemberSel)) {
-        return selp->varp() && selp->varp()->processQueue();
+    якщо (AstVarRef* const refp = VN_CAST(basep, VarRef)) повернути refp->varp()->processQueue();
+    якщо (AstMemberSel* const selp = VN_CAST(basep, MemberSel)) {
+        повернути selp->varp() && selp->varp()->processQueue();
     }
-    return false;
+    повернути false;
 }
 
 //======================================================================
@@ -563,9 +563,9 @@ void AstAbortOn::dumpJson(std::ostream& str) const {
 void AstActive::dump(std::ostream& str) const {
     Super::dump(str);
     str << " => ";
-    if (sentreep()) {
+    якщо (sentreep()) {
         sentreep()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
@@ -577,7 +577,7 @@ void AstAddrOfCFunc::dump(std::ostream& str) const {
 }
 void AstAlways::dump(std::ostream& str) const {
     Super::dump(str);
-    if (keyword() != VAlwaysKwd::ALWAYS) str << " [" << keyword().ascii() << "]";
+    якщо (keyword() != VAlwaysKwd::ALWAYS) str << " [" << keyword().ascii() << "]";
 }
 void AstAlways::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "keyword", keyword().ascii());
@@ -586,7 +586,7 @@ void AstAlways::dumpJson(std::ostream& str) const {
 const char* AstAnd::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    повернути nullptr;
 }
 AstAssertCtl::AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assertType,
                            uint32_t directiveType, AstNodeExpr* levelp, AstNodeExpr* itemsp)
@@ -598,8 +598,8 @@ AstAssertCtl::AstAssertCtl(FileLine* fl, VAssertCtlType ctlType, uint32_t assert
     this->assertTypesp(new AstConst{fl, assertType});
     this->directiveTypesp(new AstConst{fl, directiveType});
     // Parser creates these but are unused, nuke them
-    if (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
-    if (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
+    якщо (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
+    якщо (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
 }
 AstAssertCtl::AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr* assertTypesp,
                            AstNodeExpr* directiveTypep, AstNodeExpr* levelp, AstNodeExpr* itemsp)
@@ -611,32 +611,32 @@ AstAssertCtl::AstAssertCtl(FileLine* fl, AstNodeExpr* controlTypep, AstNodeExpr*
     this->assertTypesp(assertTypesp);
     this->directiveTypesp(directiveTypep);
     // Parser creates these but are unused, nuke them
-    if (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
-    if (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
+    якщо (levelp) VL_DO_DANGLING(levelp->deleteTree(), levelp);
+    якщо (itemsp) VL_DO_DANGLING(itemsp->deleteTree(), itemsp);
 }
 void AstAssertCtl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
+    якщо (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
         str << " [" << ctlType().ascii() << "]";
         str << " [" << assertTypes().ascii() << "]";
         str << " [" << directiveTypes().ascii() << "]";
     }
 }
 void AstAssertCtl::dumpJson(std::ostream& str) const {
-    if (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
+    якщо (ctlType() != VAssertCtlType::_TO_BE_EVALUATED) {
         dumpJsonStr(str, "ctlType", ctlType().ascii());
         dumpJsonStr(str, "assertTypes", assertTypes().ascii());
         dumpJsonStr(str, "directiveTypes", directiveTypes().ascii());
     }
     dumpJsonGen(str);
 }
-AstDelay* AstAssignW::getLhsNetDelay() const { return getLhsNetDelayRecurse(lhsp()); }
+AstDelay* AstAssignW::getLhsNetDelay() const { повернути getLhsNetDelayRecurse(lhsp()); }
 void AstAssocArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
     str << "[assoc-" << nodeAddr(keyDTypep()) << "]";
 }
 string AstAssocArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[" + keyDTypep()->prettyDTypeName(full) + "]";
+    повернути subDTypep()->prettyDTypeName(full) + "$[" + keyDTypep()->prettyDTypeName(full) + "]";
 }
 void AstAttrOf::dump(std::ostream& str) const {
     Super::dump(str);
@@ -647,7 +647,7 @@ void AstAttrOf::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 void AstBasicDType::cvtRangeConst() {
-    if (rangep() && VN_IS(rangep()->leftp(), Const) && VN_IS(rangep()->rightp(), Const)) {
+    якщо (rangep() && VN_IS(rangep()->leftp(), Const) && VN_IS(rangep()->rightp(), Const)) {
         m.m_nrange = VNumRange{rangep()->leftConst(), rangep()->rightConst()};
         rangep()->unlinkFrBackWithNext()->deleteTree();
         rangep(nullptr);
@@ -656,16 +656,16 @@ void AstBasicDType::cvtRangeConst() {
 void AstBasicDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " kwd=" << keyword().ascii();
-    if (isRanged() && !rangep()) str << " range=[" << left() << ":" << right() << "]";
+    якщо (isRanged() && !rangep()) str << " range=[" << left() << ":" << right() << "]";
 }
 void AstBasicDType::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "keyword", keyword().ascii());
-    if (isRanged() && !rangep()) {
+    якщо (isRanged() && !rangep()) {
         dumpJsonStr(str, "range", std::to_string(left()) + ":" + std::to_string(right()));
     }
     dumpJsonGen(str);
 }
-void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int wantwidthmin,
+void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, ціле wantwidth, ціле wantwidthmin,
                          AstRange* rangep) {
     // wantwidth=0 means figure it out, but if a widthmin is >=0
     //    we allow width 0 so that {{0{x}},y} works properly
@@ -673,28 +673,28 @@ void AstBasicDType::init(VBasicDTypeKwd kwd, VSigning numer, int wantwidth, int 
     m.m_keyword = kwd;
     // Implicitness: // "parameter X" is implicit and sized from initial
     // value, "parameter reg x" not
-    if (keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT) {
-        if (rangep || wantwidth) m.m_keyword = VBasicDTypeKwd::LOGIC;
+    якщо (keyword() == VBasicDTypeKwd::LOGIC_IMPLICIT) {
+        якщо (rangep || wantwidth) m.m_keyword = VBasicDTypeKwd::LOGIC;
     }
-    if (numer == VSigning::NOSIGN) {
-        if (keyword().isSigned()) {
+    якщо (numer == VSigning::NOSIGN) {
+        якщо (keyword().isSigned()) {
             numer = VSigning::SIGNED;
-        } else if (keyword().isUnsigned()) {
+        } інакше якщо (keyword().isUnsigned()) {
             numer = VSigning::UNSIGNED;
         }
     }
     numeric(numer);
-    if (!rangep && (wantwidth || wantwidthmin >= 0)) {  // Constant width
-        if (wantwidth > 1) m.m_nrange.init(wantwidth - 1, 0, false);
-        const int wmin = wantwidthmin >= 0 ? wantwidthmin : wantwidth;
+    якщо (!rangep && (wantwidth || wantwidthmin >= 0)) {  // Constant width
+        якщо (wantwidth > 1) m.m_nrange.init(wantwidth - 1, 0, false);
+        const ціле wmin = wantwidthmin >= 0 ? wantwidthmin : wantwidth;
         widthForce(wantwidth, wmin);
-    } else if (!rangep) {  // Set based on keyword properties
+    } інакше якщо (!rangep) {  // Set based on keyword properties
         // V3Width will pull from this width
-        if (keyword().width() > 1 && !isOpaque()) {
+        якщо (keyword().width() > 1 && !isOpaque()) {
             m.m_nrange.init(keyword().width() - 1, 0, false);
         }
         widthForce(keyword().width(), keyword().width());
-    } else {
+    } інакше {
         widthForce(rangep->elementsConst(),
                    rangep->elementsConst());  // Maybe unknown if parameters underneath it
     }
@@ -705,59 +705,59 @@ string AstBasicDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
     os << keyword().typeName();
     // In full, as for $typename, with signing other than the default (IEEE 1800-2023 20.6.1)
-    if (full && keyword().isIntNumeric() && isSigned() != keyword().isSigned()) {
+    якщо (full && keyword().isIntNumeric() && isSigned() != keyword().isSigned()) {
         os << (isSigned() ? " signed" : " unsigned");
     }
-    if (isRanged() && !rangep() && keyword().width() <= 1) {
+    якщо (isRanged() && !rangep() && keyword().width() <= 1) {
         os << "[" << left() << ":" << right() << "]";
     }
-    return os.str();
+    повернути os.str();
 }
 bool AstBasicDType::sameNode(const AstNode* samep) const {
     const AstBasicDType* const sp = VN_DBG_AS(samep, BasicDType);
-    if (!(m == sp->m)) return false;
-    if (numeric() != sp->numeric()) return false;
-    if (!rangep() && !sp->rangep()) return true;
-    return rangep() && rangep()->sameTree(sp->rangep());
+    якщо (!(m == sp->m)) повернути false;
+    якщо (numeric() != sp->numeric()) повернути false;
+    якщо (!rangep() && !sp->rangep()) повернути true;
+    повернути rangep() && rangep()->sameTree(sp->rangep());
 }
 bool AstBasicDType::similarDTypeNode(const AstNodeDType* samep) const {
-    if (sameNode(samep)) return true;
+    якщо (sameNode(samep)) повернути true;
     const AstBasicDType* const sp = VN_DBG_AS(samep, BasicDType);
-    if (!m.m_keyword.isSameish(sp->m.m_keyword)) return false;
+    якщо (!m.m_keyword.isSameish(sp->m.m_keyword)) повернути false;
     // IEEE 1800-2023 6.22.2: equivalent by bit width, not range direction
-    if (m.m_nrange.ranged() != sp->m.m_nrange.ranged()) return false;
-    if (m.m_nrange.elements() != sp->m.m_nrange.elements()) return false;
+    якщо (m.m_nrange.ranged() != sp->m.m_nrange.ranged()) повернути false;
+    якщо (m.m_nrange.elements() != sp->m.m_nrange.elements()) повернути false;
     // Squash so NOSIGN == UNSIGNED
-    if (numeric().isSigned() != sp->numeric().isSigned()) return false;
-    if (!rangep() && !sp->rangep()) return true;
-    return rangep() && rangep()->sameTree(sp->rangep());
+    якщо (numeric().isSigned() != sp->numeric().isSigned()) повернути false;
+    якщо (!rangep() && !sp->rangep()) повернути true;
+    повернути rangep() && rangep()->sameTree(sp->rangep());
 }
-int AstBasicDType::widthAlignBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return 4;
+ціле AstBasicDType::widthAlignBytes() const {
+    якщо (width() <= 8) {
+        повернути 1;
+    } інакше якщо (width() <= 16) {
+        повернути 2;
+    } інакше якщо (isQuad()) {
+        повернути 8;
+    } інакше {
+        повернути 4;
     }
 }
-int AstBasicDType::widthTotalBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return widthWords() * (VL_EDATASIZE / 8);
+ціле AstBasicDType::widthTotalBytes() const {
+    якщо (width() <= 8) {
+        повернути 1;
+    } інакше якщо (width() <= 16) {
+        повернути 2;
+    } інакше якщо (isQuad()) {
+        повернути 8;
+    } інакше {
+        повернути widthWords() * (VL_EDATASIZE / 8);
     }
 }
 void AstBegin::dump(std::ostream& str) const {
     Super::dump(str);
-    if (implied()) str << " [IMPLIED]";
-    if (needProcess()) str << " [NPRC]";
+    якщо (implied()) str << " [IMPLIED]";
+    якщо (needProcess()) str << " [NPRC]";
 }
 void AstBegin::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, implied);
@@ -766,7 +766,7 @@ void AstBegin::dumpJson(std::ostream& str) const {
 }
 void AstCAwait::dump(std::ostream& str) const {
     Super::dump(str);
-    if (sentreep()) {
+    якщо (sentreep()) {
         str << " => ";
         sentreep()->dump(str);
     }
@@ -782,7 +782,7 @@ void AstCCast::dumpJson(std::ostream& str) const {
 }
 void AstCExpr::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_pure) str << " [PURE]";
+    якщо (m_pure) str << " [PURE]";
 }
 void AstCExpr::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_pure);
@@ -790,7 +790,7 @@ void AstCExpr::dumpJson(std::ostream& str) const {
 }
 void AstCExprUser::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_pure) str << " [PURE]";
+    якщо (m_pure) str << " [PURE]";
 }
 void AstCExprUser::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_pure);
@@ -798,8 +798,8 @@ void AstCExprUser::dumpJson(std::ostream& str) const {
 }
 void AstCFile::dump(std::ostream& str) const {
     Super::dump(str);
-    if (source()) str << " [SRC]";
-    if (slow()) str << " [SLOW]";
+    якщо (source()) str << " [SRC]";
+    якщо (slow()) str << " [SLOW]";
 }
 void AstCFile::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, source);
@@ -808,32 +808,32 @@ void AstCFile::dumpJson(std::ostream& str) const {
 }
 void AstCFunc::dump(std::ostream& str) const {
     Super::dump(str);
-    if (slow()) str << " [SLOW]";
-    if (isStatic()) str << " [STATIC]";
-    if (dpiContext()) str << " [DPICTX]";
-    if (dpiExportDispatcher()) str << " [DPIED]";
-    if (dpiExportImpl()) str << " [DPIEI]";
-    if (dpiImportPrototype()) str << " [DPIIP]";
-    if (dpiImportWrapper()) str << " [DPIIW]";
-    if (dpiPure()) str << " [DPIPURE]";
-    if (isConstructor()) str << " [CTOR]";
-    if (isDestructor()) str << " [DTOR]";
-    if (isMethod()) str << " [METHOD]";
-    if (isLoose()) str << " [LOOSE]";
-    if (isUnlikely()) str << " [UNL]";
-    if (isVirtual()) str << " [VIRT]";
-    if (isCoroutine()) str << " [CORO]";
-    if (needProcess()) str << " [NPRC]";
-    if (entryPoint()) str << " [ENTRY]";
-    if (noLife()) str << " [NOLIFE]";
-    if (voidSelf()) str << " [VOIDSELF]";
-    if (isConst().isKnown()) str << (isConst().trueKnown() ? " [CONST]" : " [!CONST]");
-    if (m_cost) str << " cost=" << m_cost;
-    if (!m_rtnType.empty()) str << " rt=" << m_rtnType;
-    if (!m_argTypes.empty()) str << " (" << m_argTypes << ")";
-    if (!ifdef().empty()) str << " ifdef=" << ifdef();
-    if (!cname().empty() && cname() != name()) str << " c=" << cname();
-    if (!dpiCDecl().empty()) str << " cdecl=" << dpiCDecl();
+    якщо (slow()) str << " [SLOW]";
+    якщо (isStatic()) str << " [STATIC]";
+    якщо (dpiContext()) str << " [DPICTX]";
+    якщо (dpiExportDispatcher()) str << " [DPIED]";
+    якщо (dpiExportImpl()) str << " [DPIEI]";
+    якщо (dpiImportPrototype()) str << " [DPIIP]";
+    якщо (dpiImportWrapper()) str << " [DPIIW]";
+    якщо (dpiPure()) str << " [DPIPURE]";
+    якщо (isConstructor()) str << " [CTOR]";
+    якщо (isDestructor()) str << " [DTOR]";
+    якщо (isMethod()) str << " [METHOD]";
+    якщо (isLoose()) str << " [LOOSE]";
+    якщо (isUnlikely()) str << " [UNL]";
+    якщо (isVirtual()) str << " [VIRT]";
+    якщо (isCoroutine()) str << " [CORO]";
+    якщо (needProcess()) str << " [NPRC]";
+    якщо (entryPoint()) str << " [ENTRY]";
+    якщо (noLife()) str << " [NOLIFE]";
+    якщо (voidSelf()) str << " [VOIDSELF]";
+    якщо (isConst().isKnown()) str << (isConst().trueKnown() ? " [CONST]" : " [!CONST]");
+    якщо (m_cost) str << " cost=" << m_cost;
+    якщо (!m_rtnType.empty()) str << " rt=" << m_rtnType;
+    якщо (!m_argTypes.empty()) str << " (" << m_argTypes << ")";
+    якщо (!ifdef().empty()) str << " ifdef=" << ifdef();
+    якщо (!cname().empty() && cname() != name()) str << " c=" << cname();
+    якщо (!dpiCDecl().empty()) str << " cdecl=" << dpiCDecl();
 }
 void AstCFunc::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, slow);
@@ -863,23 +863,23 @@ void AstCFunc::dumpJson(std::ostream& str) const {
 }
 void AstCFuncHard::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_purity.get()) str << " [PURE]";
+    якщо (m_purity.get()) str << " [PURE]";
 }
 void AstCFuncHard::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_purity.get());
     dumpJsonGen(str);
 }
 bool AstCFuncHard::getPurity() {
-    if (!function().isPure()) return false;
-    for (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-        if (!argp->isPure()) return false;
+    якщо (!function().isPure()) повернути false;
+    для (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+        якщо (!argp->isPure()) повернути false;
     }
-    return true;
+    повернути true;
 }
 void AstCMethodHard::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_purity.get()) str << " [PURE]";
-    if (usePtr()) str << " [USEPTR]";
+    якщо (m_purity.get()) str << " [PURE]";
+    якщо (usePtr()) str << " [USEPTR]";
 }
 void AstCMethodHard::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "pure", m_purity.get());
@@ -887,29 +887,29 @@ void AstCMethodHard::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 bool AstCMethodHard::getPurity() {
-    if (method() == VCMethod::DYN_AT_WRITE_APPEND
+    якщо (method() == VCMethod::DYN_AT_WRITE_APPEND
         || method() == VCMethod::DYN_AT_WRITE_APPEND_BACK) {
         // Treat atWriteAppend as pure if the argument is a loop iterator
-        if (const AstNodeExpr* const argp = pinsp()) {
-            if (const AstVarRef* const varrefp = VN_CAST(argp, VarRef)) {
-                if (varrefp->varp()->isUsedLoopIdx()) return true;
+        якщо (const AstNodeExpr* const argp = pinsp()) {
+            якщо (const AstVarRef* const varrefp = VN_CAST(argp, VarRef)) {
+                якщо (varrefp->varp()->isUsedLoopIdx()) повернути true;
             }
         }
-        return false;
+        повернути false;
     }
-    if (!method().isPure()) return false;
-    if (!fromp()->isPure()) return false;
-    for (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
-        if (!argp->isPure()) return false;
+    якщо (!method().isPure()) повернути false;
+    якщо (!fromp()->isPure()) повернути false;
+    для (AstNodeExpr* argp = pinsp(); argp; argp = VN_AS(argp->nextp(), NodeExpr)) {
+        якщо (!argp->isPure()) повернути false;
     }
-    return true;
+    повернути true;
 }
-int AstCMethodHard::instrCount() const {
-    return 0;  // TODO
+ціле AstCMethodHard::instrCount() const {
+    повернути 0;  // TODO
 }
 void AstCReset::dump(std::ostream& str) const {
     Super::dump(str);
-    if (constructing()) str << " [CONS]";
+    якщо (constructing()) str << " [CONS]";
 }
 void AstCReset::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, constructing);
@@ -917,15 +917,15 @@ void AstCReset::dumpJson(std::ostream& str) const {
 }
 void AstCStmt::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!stmtType().isNone()) str << " [" << stmtType().ascii() << "]";
+    якщо (!stmtType().isNone()) str << " [" << stmtType().ascii() << "]";
 }
 void AstCStmt::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
-    if (!stmtType().isNone()) dumpJsonStr(str, "stmtType", stmtType().ascii());
+    якщо (!stmtType().isNone()) dumpJsonStr(str, "stmtType", stmtType().ascii());
 }
 void AstCStmtUser::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!fromDollarC()) str << " [$C]";
+    якщо (!fromDollarC()) str << " [$C]";
 }
 void AstCStmtUser::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, fromDollarC);
@@ -942,11 +942,11 @@ void AstCUse::dumpJson(std::ostream& str) const {
 void AstCase::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << m_caseType.ascii() << "]";
-    if (fullPragma()) str << " [FULL]";
-    if (parallelPragma()) str << " [PAR]";
-    if (priorityPragma()) str << " [PRI]";
-    if (uniquePragma()) str << " [UNQ]";
-    if (unique0Pragma()) str << " [UNQ0]";
+    якщо (fullPragma()) str << " [FULL]";
+    якщо (parallelPragma()) str << " [PAR]";
+    якщо (priorityPragma()) str << " [PRI]";
+    якщо (uniquePragma()) str << " [UNQ]";
+    якщо (unique0Pragma()) str << " [UNQ0]";
 }
 void AstCase::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "caseType", m_caseType.ascii());
@@ -958,22 +958,22 @@ void AstCase::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 string AstCase::pragmaString() const {
-    if (fullPragma() && parallelPragma()) return "synthesis full_case parallel_case";
-    if (fullPragma()) return "synthesis full_case";
-    if (parallelPragma()) return "synthesis parallel_case";
-    if (uniquePragma()) return "unique case";
-    if (unique0Pragma()) return "unique0 case";
-    if (priorityPragma()) return "priority case";
-    return "";
+    якщо (fullPragma() && parallelPragma()) повернути "synthesis full_case parallel_case";
+    якщо (fullPragma()) повернути "synthesis full_case";
+    якщо (parallelPragma()) повернути "synthesis parallel_case";
+    якщо (uniquePragma()) повернути "unique case";
+    якщо (unique0Pragma()) повернути "unique0 case";
+    якщо (priorityPragma()) повернути "priority case";
+    повернути "";
 }
 void AstCell::dump(std::ostream& str) const {
     Super::dump(str);
-    if (recursive()) str << " [RECURSIVE]";
-    if (arrayIdx() >= 0) str << " [ARRAYIDX=" << arrayIdx() << "]";
-    if (modp()) {
+    якщо (recursive()) str << " [RECURSIVE]";
+    якщо (arrayIdx() >= 0) str << " [ARRAYIDX=" << arrayIdx() << "]";
+    якщо (modp()) {
         str << " -> ";
         modp()->dump(str);
-    } else {
+    } інакше {
         str << " ->UNLINKED:" << modName();
     }
 }
@@ -982,7 +982,7 @@ void AstCell::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, origName);
     dumpJsonStrFunc(str, verilogName);
     dumpJsonBoolFuncIf(str, recursive);
-    if (arrayIdx() >= 0) dumpJsonNumFunc(str, arrayIdx);
+    якщо (arrayIdx() >= 0) dumpJsonNumFunc(str, arrayIdx);
     dumpJsonGen(str);
 }
 void AstCellInline::dump(std::ostream& str) const {
@@ -1003,7 +1003,7 @@ void AstCellInlineScope::dumpJson(std::ostream& str) const {
 }
 void AstCgOptionAssign::dump(std::ostream& str) const {
     str << " [" << optType().ascii() << "]";
-    if (typeOption()) str << " [TYPEOPT]";
+    якщо (typeOption()) str << " [TYPEOPT]";
     Super::dump(str);
 }
 void AstCgOptionAssign::dumpJson(std::ostream& str) const {
@@ -1013,50 +1013,50 @@ void AstCgOptionAssign::dumpJson(std::ostream& str) const {
 }
 AstClass* AstClass::baseMostClassp() {
     AstClass* basep = this;
-    while (basep->extendsp() && basep->extendsp()->classp()) {
+    поки (basep->extendsp() && basep->extendsp()->classp()) {
         basep = basep->extendsp()->classp();
     }
-    return basep;
+    повернути basep;
 }
 string AstClass::dtypeName(bool full) const {
     const string& frozen = full ? m_dtypeNameFull : m_dtypeNameShort;
-    if (!frozen.empty()) return frozen;
-    return dtypeNameCalc(full, full ? dtypeNameScope() : "");
+    якщо (!frozen.empty()) повернути frozen;
+    повернути dtypeNameCalc(full, full ? dtypeNameScope() : "");
 }
 string AstClass::dtypeNameCalc(bool full, const string& scope) const {
     // A parameter may lead back to the class, which is then named without parameters
-    if (m_dtypeNameBusy) return scope + dtypeNameClass(this);
+    якщо (m_dtypeNameBusy) повернути scope + dtypeNameClass(this);
     m_dtypeNameBusy = true;
     const string name = scope + dtypeNameClass(this) + dtypeNameParams(this, full);
     m_dtypeNameBusy = false;
-    return name;
+    повернути name;
 }
 void AstClass::dtypeNameFreeze() {
     m_dtypeNameFull = dtypeName(true);
     m_dtypeNameShort = dtypeName(false);
 }
 string AstClass::dtypeNameIn(const string& scope) const {
-    return m_dtypeNameFull.empty() ? dtypeNameCalc(true, scope) : m_dtypeNameFull;
+    повернути m_dtypeNameFull.empty() ? dtypeNameCalc(true, scope) : m_dtypeNameFull;
 }
 string AstClass::dtypeNameScope() const {
     // The package, interface, module, or class declaring the class, so named with the values of
     // its parameters, unless since moved to the top, as by V3Class after dtypeNameFreeze()
-    return dtypeNameScopeOf(this);
+    повернути dtypeNameScopeOf(this);
 }
 void AstClass::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCovergroup()) str << " [CG]";
-    if (isExtended()) str << " [EXT]";
-    if (isInterfaceClass()) str << " [IFCCLS]";
-    if (isPrintedFrom()) str << " [PRINTED]";
-    if (isVirtual()) str << " [VIRT]";
-    if (needRNG()) str << " [NRNG]";
-    if (hasRandVarsUpdate()) str << "[RANDVARUPD]";
-    if (useVirtualPublic()) str << " [VIRPUB]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
-    if (cgAutoBinMax()) str << " cost=" << cgAutoBinMax();
-    if (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
-    if (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
+    якщо (isCovergroup()) str << " [CG]";
+    якщо (isExtended()) str << " [EXT]";
+    якщо (isInterfaceClass()) str << " [IFCCLS]";
+    якщо (isPrintedFrom()) str << " [PRINTED]";
+    якщо (isVirtual()) str << " [VIRT]";
+    якщо (needRNG()) str << " [NRNG]";
+    якщо (hasRandVarsUpdate()) str << "[RANDVARUPD]";
+    якщо (useVirtualPublic()) str << " [VIRPUB]";
+    якщо (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    якщо (cgAutoBinMax()) str << " cost=" << cgAutoBinMax();
+    якщо (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
+    якщо (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
 }
 void AstClass::dumpJson(std::ostream& str) const {
     // dumpJsonNumFunc(str, declTokenNum);  // Not dumped as adding token changes whole file
@@ -1068,20 +1068,20 @@ void AstClass::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, needRNG);
     dumpJsonBoolFuncIf(str, hasRandVarsUpdate);
     dumpJsonBoolFuncIf(str, useVirtualPublic);
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    якщо (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonNumFunc(str, cgAutoBinMax);
-    if (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
-    if (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
+    якщо (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
+    якщо (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
     dumpJsonGen(str);
 }
 string AstClass::embeddedCovergroupName() const {
     const string prefix = embeddedCovergroupTypeName("");
     UASSERT_OBJ(VString::startsWith(origName(), prefix), this,
                 "Not the type of an embedded covergroup");
-    return origName().substr(prefix.size());
+    повернути origName().substr(prefix.size());
 }
 bool AstClass::isCacheableChild(const AstNode* nodep) {
-    return VN_IS(nodep, Var) || VN_IS(nodep, Typedef)
+    повернути VN_IS(nodep, Var) || VN_IS(nodep, Typedef)
            || (VN_IS(nodep, Constraint) && !VN_AS(nodep, Constraint)->isExternProto())
            || VN_IS(nodep, EnumItemRef)
            || (VN_IS(nodep, NodeFTask) && !VN_AS(nodep, NodeFTask)->isExternProto())
@@ -1089,29 +1089,29 @@ bool AstClass::isCacheableChild(const AstNode* nodep) {
 }
 bool AstClass::isClassExtendedFrom(const AstClass* refClassp, const AstClass* baseClassp) {
     // TAIL RECURSIVE
-    if (!refClassp || !baseClassp) return false;
-    if (refClassp == baseClassp) return true;
-    if (!refClassp->extendsp()) return false;
-    return isClassExtendedFrom(refClassp->extendsp()->classp(), baseClassp);
+    якщо (!refClassp || !baseClassp) повернути false;
+    якщо (refClassp == baseClassp) повернути true;
+    якщо (!refClassp->extendsp()) повернути false;
+    повернути isClassExtendedFrom(refClassp->extendsp()->classp(), baseClassp);
 }
 AstClass* AstClassExtends::classOrNullp() const {
     const AstNodeDType* const dtp = dtypep() ? dtypep() : childDTypep();
     const AstClassRefDType* const refp = VN_CAST(dtp, ClassRefDType);
-    if (refp && !refp->paramsp()) {
+    якщо (refp && !refp->paramsp()) {
         // Class already resolved
-        return refp->classp();
+        повернути refp->classp();
     }
-    return nullptr;
+    повернути nullptr;
 }
 AstClass* AstClassExtends::classp() const {
     AstClass* const clsp = classOrNullp();
     UASSERT_OBJ(clsp, this, "Extended class is unresolved");
-    return clsp;
+    повернути clsp;
 }
 void AstClassExtends::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isImplements()) str << " [IMPL]";
-    if (parameterized()) str << " [PAR]";
+    якщо (isImplements()) str << " [IMPL]";
+    якщо (parameterized()) str << " [PAR]";
 }
 void AstClassExtends::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isImplements);
@@ -1121,42 +1121,42 @@ void AstClassExtends::dumpJson(std::ostream& str) const {
 AstNodeModule* AstClassOrPackageRef::classOrPackageSkipp(const bool doRefs) const {
     AstNode* foundp = m_classOrPackageNodep;
     AstNode* lastp = nullptr;
-    while (foundp != lastp) {
+    поки (foundp != lastp) {
         lastp = foundp;
-        if (AstNodeDType* const anodep = VN_CAST(foundp, NodeDType)) {
+        якщо (AstNodeDType* const anodep = VN_CAST(foundp, NodeDType)) {
             foundp = anodep->skipRefOrNullp();
         }
-        if (doRefs) {
-            if (const AstTypedef* const anodep = VN_CAST(foundp, Typedef)) {
+        якщо (doRefs) {
+            якщо (const AstTypedef* const anodep = VN_CAST(foundp, Typedef)) {
                 foundp = anodep->subDTypep();
-            } else if (const AstClassRefDType* const anodep = VN_CAST(foundp, ClassRefDType)) {
+            } інакше якщо (const AstClassRefDType* const anodep = VN_CAST(foundp, ClassRefDType)) {
                 foundp = anodep->classp();
             }
         }
     }
-    return VN_CAST(foundp, NodeModule);
+    повернути VN_CAST(foundp, NodeModule);
 }
 void AstClassOrPackageRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackageNodep()) str << " cpkg=" << nodeAddr(classOrPackageNodep());
+    якщо (classOrPackageNodep()) str << " cpkg=" << nodeAddr(classOrPackageNodep());
     str << " -> ";
-    if (classOrPackageNodep()) {
+    якщо (classOrPackageNodep()) {
         classOrPackageNodep()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
 void AstClassOrPackageRef::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstClassRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
-    if (classp()) {
+    якщо (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
+    якщо (classp()) {
         str << " -> ";
         classp()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
-    if (rawPointer()) str << " [RAWPTR]";
+    якщо (rawPointer()) str << " [RAWPTR]";
 }
 void AstClassRefDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, rawPointer);
@@ -1166,14 +1166,14 @@ void AstClassRefDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
     str << "class:" << name();
 }
-string AstClassRefDType::name() const { return classp() ? classp()->name() : "<unlinked>"; }
+string AstClassRefDType::name() const { повернути classp() ? classp()->name() : "<unlinked>"; }
 string AstClassRefDType::prettyDTypeName(bool full) const {
     // Until V3Param specializes the class for the parameters, just name the class
-    if (!classp() || paramsp()) return dtypeNameKwd("class", prettyName());
-    return dtypeNameKwd("class", classp()->dtypeName(full));
+    якщо (!classp() || paramsp()) повернути dtypeNameKwd("class", prettyName());
+    повернути dtypeNameKwd("class", classp()->dtypeName(full));
 }
 string AstClassRefDType::prettyNameMsg() const {
-    return (classp() && !paramsp()) ? classp()->prettyNameMsg() : prettyName();
+    повернути (classp() && !paramsp()) ? classp()->prettyNameMsg() : prettyName();
 }
 void AstClassRefDType::selfTest() {
     FileLine* const fl = new FileLine{FileLine::commandLineFilename()};
@@ -1187,30 +1187,30 @@ void AstClassRefDType::selfTest() {
 }
 bool AstClassRefDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstClassRefDType* const asamep = VN_DBG_AS(samep, ClassRefDType);
-    if (m_classp != asamep->m_classp) return false;
+    якщо (m_classp != asamep->m_classp) повернути false;
     // Compare type parameters so C#(int) != C#(string)
     const AstPin* lp = paramsp();
     const AstPin* rp = asamep->paramsp();
-    while (lp && rp) {
-        if (!lp->exprp() != !rp->exprp()) return false;
-        if (lp->exprp()) {
+    поки (lp && rp) {
+        якщо (!lp->exprp() != !rp->exprp()) повернути false;
+        якщо (lp->exprp()) {
             const AstNodeDType* const lDtp = VN_CAST(lp->exprp(), NodeDType);
             const AstNodeDType* const rDtp = VN_CAST(rp->exprp(), NodeDType);
-            if (lDtp && rDtp) {
-                if (!lDtp->similarDType(rDtp)) return false;
-            } else {
-                if (!lp->exprp()->sameTree(rp->exprp())) return false;
+            якщо (lDtp && rDtp) {
+                якщо (!lDtp->similarDType(rDtp)) повернути false;
+            } інакше {
+                якщо (!lp->exprp()->sameTree(rp->exprp())) повернути false;
             }
         }
         lp = VN_CAST(lp->nextp(), Pin);
         rp = VN_CAST(rp->nextp(), Pin);
     }
-    return !lp && !rp;
+    повернути !lp && !rp;
 }
 void AstClocking::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDefault()) str << " [DEFAULT]";
-    if (isGlobal()) str << " [GLOBAL]";
+    якщо (isDefault()) str << " [DEFAULT]";
+    якщо (isGlobal()) str << " [GLOBAL]";
 }
 void AstClocking::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDefault);
@@ -1218,7 +1218,7 @@ void AstClocking::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstVar* AstClocking::ensureEventp(bool childDType) {
-    if (!eventp()) {
+    якщо (!eventp()) {
         AstVar* const evp
             = childDType ? new AstVar{fileline(), VVarType::MODULETEMP, m_name, VFlagChildDType{},
                                       new AstBasicDType{fileline(), VBasicDTypeKwd::EVENT}}
@@ -1232,11 +1232,11 @@ AstVar* AstClocking::ensureEventp(bool childDType) {
             new AstFireEvent{fileline(), new AstVarRef{fileline(), evp, VAccess::WRITE}, false}});
         v3Global.setHasEvents();
     }
-    return eventp();
+    повернути eventp();
 }
 void AstClockingItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction().isAny()) str << " " << direction();
+    якщо (direction().isAny()) str << " " << direction();
 }
 void AstClockingItem::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "direction", direction().ascii());
@@ -1244,7 +1244,7 @@ void AstClockingItem::dumpJson(std::ostream& str) const {
 }
 void AstComment::dump(std::ostream& str) const {
     Super::dump(str);
-    if (showAt()) str << " [SHOWAT]";
+    якщо (showAt()) str << " [SHOWAT]";
 }
 void AstComment::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, showAt);
@@ -1252,7 +1252,7 @@ void AstComment::dumpJson(std::ostream& str) const {
 }
 void AstCompareNN::dump(std::ostream& str) const {
     Super::dump(str);
-    if (ignoreCase()) str << " [IGNORECASE]";
+    якщо (ignoreCase()) str << " [IGNORECASE]";
 }
 void AstCompareNN::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, ignoreCase);
@@ -1262,28 +1262,28 @@ AstCond::AstCond(FileLine* fl, AstNodeExpr* condp, AstNodeExpr* thenp, AstNodeEx
     : ASTGEN_SUPER_Cond(fl, condp, thenp, elsep) {
     UASSERT_OBJ(thenp, this, "No thenp expression");
     UASSERT_OBJ(elsep, this, "No elsep expression");
-    if (thenp->isClassHandleValue() && elsep->isClassHandleValue()) {
+    якщо (thenp->isClassHandleValue() && elsep->isClassHandleValue()) {
         // Get the most-deriving class type that both arguments can be casted to.
         AstNodeDType* const commonClassTypep = getCommonClassTypep(thenp, elsep);
         UASSERT_OBJ(commonClassTypep, this, "No common base class exists");
         dtypep(commonClassTypep);
-    } else {
+    } інакше {
         dtypeFrom(thenp);
     }
 }
 void AstConfig::dump(std::ostream& str) const {
     Super::dump(str);
     str << " configname=" << configname();
-    if (libname() != "work") str << " libname=" << libname();
+    якщо (libname() != "work") str << " libname=" << libname();
 }
 void AstConfig::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, configname);
-    if (libname() != "work") dumpJsonStr(str, "libname=", libname());
+    якщо (libname() != "work") dumpJsonStr(str, "libname=", libname());
     dumpJsonGen(str);
 }
 void AstConfigRule::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCell()) str << " [CELL]";
+    якщо (isCell()) str << " [CELL]";
 }
 void AstConfigRule::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCell);
@@ -1291,7 +1291,7 @@ void AstConfigRule::dumpJson(std::ostream& str) const {
 }
 void AstConfigUse::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConfig()) str << " [CONFIG]";
+    якщо (isConfig()) str << " [CONFIG]";
 }
 void AstConfigUse::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConfig);
@@ -1302,7 +1302,7 @@ const char* AstConsArray::broken() const {
     BROKEN_RTN(!arrayp);
     // Each map entry is the next item, so the items are in increasing index order
     const AstConsArrayItem* itemp = itemsp();
-    for (const auto& pair : m_itemps) {
+    для (const auto& pair : m_itemps) {
         BROKEN_RTN(!itemp || itemp->index() != pair.first || itemp != pair.second);
         itemp = VN_AS(itemp->nextp(), ConsArrayItem);
     }
@@ -1310,13 +1310,13 @@ const char* AstConsArray::broken() const {
     // Must be complete: every element given, or has a default
     const size_t elements = arrayp->elementsConst();
     BROKEN_RTN(!defaultp() && m_itemps.size() != elements);
-    return nullptr;
+    повернути nullptr;
 }
 void AstConsArray::cloneRelink() {
     cloneRelinkGen();
     // The copied map has the indices of the cloned items, in the same order
     AstConsArrayItem* itemp = itemsp();
-    for (auto& pair : m_itemps) {
+    для (auto& pair : m_itemps) {
         UASSERT_OBJ(itemp && itemp->index() == pair.first, this, "Cloned items out of order");
         pair.second = itemp;
         itemp = VN_AS(itemp->nextp(), ConsArrayItem);
@@ -1325,17 +1325,17 @@ void AstConsArray::cloneRelink() {
 void AstConsArray::spliceValues(uint64_t index, AstNodeExpr* arrayp) {
     const bool ascending = VN_AS(dtypep()->skipRefp(), UnpackArrayDType)->declRange().ascending();
     const AstUnpackArrayDType* const srcp = VN_AS(arrayp->dtypep()->skipRefp(), UnpackArrayDType);
-    const int elements = srcp->elementsConst();
-    for (int n = 0; n < elements; ++n) {
+    const ціле elements = srcp->elementsConst();
+    для (ціле n = 0; n < elements; ++n) {
         // Element 'n' from the left of 'arrayp', counted from its lo
-        const int srcIndex = srcp->declRange().ascending() ? n : elements - 1 - n;
+        const ціле srcIndex = srcp->declRange().ascending() ? n : elements - 1 - n;
         AstNodeExpr* elemp;
-        if (const AstConsArray* const consp = VN_CAST(arrayp, ConsArray)) {
+        якщо (const AstConsArray* const consp = VN_CAST(arrayp, ConsArray)) {
             elemp = consp->valuep(srcIndex)->cloneTree(false);
-        } else if (AstSliceSel* const slicep = VN_CAST(arrayp, SliceSel)) {
+        } інакше якщо (AstSliceSel* const slicep = VN_CAST(arrayp, SliceSel)) {
             elemp = new AstArraySel{arrayp->fileline(), slicep->fromp()->cloneTreePure(false),
                                     slicep->declRange().lo() + srcIndex};
-        } else {
+        } інакше {
             elemp = new AstArraySel{arrayp->fileline(), arrayp->cloneTreePure(false), srcIndex};
         }
         valuep(ascending ? index + n : index - n, elemp);
@@ -1344,16 +1344,16 @@ void AstConsArray::spliceValues(uint64_t index, AstNodeExpr* arrayp) {
 }
 AstNodeExpr* AstConsArray::valuep(uint64_t index) const {
     const auto it = m_itemps.find(index);
-    return it == m_itemps.end() ? defaultp() : it->second->valuep();
+    повернути it == m_itemps.end() ? defaultp() : it->second->valuep();
 }
 void AstConsArray::valuep(uint64_t index, AstNodeExpr* newp) {
     const auto it = m_itemps.lower_bound(index);
     UASSERT_OBJ(it == m_itemps.end() || it->first != index, this,
                 "Array value element already given " << index);
     AstConsArrayItem* const itemp = new AstConsArrayItem{fileline(), index, newp};
-    if (it == m_itemps.end()) {
+    якщо (it == m_itemps.end()) {
         addNOp2p(itemp);
-    } else {
+    } інакше {
         it->second->addHereThisAsNext(itemp);
     }
     m_itemps.emplace_hint(it, index, itemp);
@@ -1371,32 +1371,32 @@ const char* AstConsDynArray::broken() const {
     // Default only valid if sizep is present
     BROKEN_RTN(defaultp() && !sizep());
     // Items are keyed exactly when sizep is present
-    for (const AstConsDynArrayItem* itemp = itemsp(); itemp;
+    для (const AstConsDynArrayItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsDynArrayItem)) {
         BROKEN_RTN(!itemp->keyp() != !sizep());
     }
-    return nullptr;
+    повернути nullptr;
 }
 const char* AstConsStruct::broken() const {
     const AstStructDType* const structp = VN_CAST(dtypep()->skipRefp(), StructDType);
     BROKEN_RTN(!structp || structp->packed());
     // An item for each member, in order
     const AstMemberDType* memberp = structp->membersp();
-    for (const AstConsStructItem* itemp = itemsp(); itemp;
+    для (const AstConsStructItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
         BROKEN_RTN(itemp->memberp() != memberp);
         memberp = VN_AS(memberp->nextp(), MemberDType);
     }
     BROKEN_RTN(memberp);
-    return nullptr;
+    повернути nullptr;
 }
 AstNodeExpr* AstConsStruct::memberValuep(const string& name) const {
-    for (AstConsStructItem* itemp = itemsp(); itemp;
+    для (AstConsStructItem* itemp = itemsp(); itemp;
          itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-        if (itemp->memberp()->name() == name) return itemp->valuep();
+        якщо (itemp->memberp()->name() == name) повернути itemp->valuep();
     }
     v3fatalSrc("Structure value without member '" << name << "'");
-    return nullptr;
+    повернути nullptr;
 }
 void AstConsStructItem::dump(std::ostream& str) const {
     Super::dump(str);
@@ -1406,26 +1406,26 @@ void AstConsStructItem::dump(std::ostream& str) const {
 void AstConst::cloneRelink() {
     // Preserve parameter-origin metadata across AST clones; the side-table key must be this
     // new AstConst, not the original node.
-    if (const AstConst* const oldp = clonep()) {
+    якщо (const AstConst* const oldp = clonep()) {
         const string name = oldp->origParamName();
         m_num.hasOrigParamName(false);
-        if (!name.empty()) origParamName(name);
+        якщо (!name.empty()) origParamName(name);
     }
     m_num.nodep(this);
 }
 void AstConst::dump(std::ostream& str) const {
     Super::dump(str);
     const string name = origParamName();
-    if (!name.empty()) str << " origParamName=" << name;
+    якщо (!name.empty()) str << " origParamName=" << name;
 }
 void AstConst::dumpJson(std::ostream& str) const {
     const string name = origParamName();
-    if (!name.empty()) dumpJsonStr(str, "origParamName", name);
+    якщо (!name.empty()) dumpJsonStr(str, "origParamName", name);
     dumpJsonGen(str);
 }
 string AstConst::origParamName() const {
-    if (!m_num.hasOrigParamName()) return "";
-    return v3Global.rootp()->astConstOrigParamName(this);
+    якщо (!m_num.hasOrigParamName()) повернути "";
+    повернути v3Global.rootp()->astConstOrigParamName(this);
 }
 void AstConst::origParamName(const string& name) {
     UASSERT(!name.empty(), "Empty originating parameter name");
@@ -1434,16 +1434,16 @@ void AstConst::origParamName(const string& name) {
 }
 AstConst* AstConst::parseParamLiteral(FileLine* fl, const string& literal) {
     bool success = false;
-    if (literal[0] == '"') {
+    якщо (literal[0] == '"') {
         // This is a string
         const string v = literal.substr(1, literal.find('"', 1) - 1);
-        return new AstConst{fl, AstConst::VerilogStringLiteral{}, v};
-    } else if (literal.find_first_of(".eEpP") != string::npos) {
+        повернути new AstConst{fl, AstConst::VerilogStringLiteral{}, v};
+    } інакше якщо (literal.find_first_of(".eEpP") != string::npos) {
         // This may be a real
         const double v = VString::parseDouble(literal, &success);
-        if (success) return new AstConst{fl, AstConst::RealDouble{}, v};
+        якщо (success) повернути new AstConst{fl, AstConst::RealDouble{}, v};
     }
-    if (!success) {
+    якщо (!success) {
         // This is either an integer or an error
         // We first try to convert it as C literal. If strtol returns
         // 0 this is either an error or 0 was parsed. But in any case
@@ -1452,37 +1452,37 @@ AstConst* AstConst::parseParamLiteral(FileLine* fl, const string& literal) {
         // the string after the number, this is invalid C and we try
         // the Verilog literal parser.
         char* endp;
-        const int v = strtol(literal.c_str(), &endp, 0);
-        if ((v != 0) && (v != 1) && (endp[0] == 0)) {  // C literal
-            return new AstConst{fl, AstConst::Signed32{}, v};
-        } else {  // Try a Verilog literal (fatals if not)
-            return new AstConst{fl, AstConst::StringToParse{}, literal.c_str()};
+        const ціле v = strtol(literal.c_str(), &endp, 0);
+        якщо ((v != 0) && (v != 1) && (endp[0] == 0)) {  // C literal
+            повернути new AstConst{fl, AstConst::Signed32{}, v};
+        } інакше {  // Try a Verilog literal (fatals if not)
+            повернути new AstConst{fl, AstConst::StringToParse{}, literal.c_str()};
         }
     }
-    return nullptr;
+    повернути nullptr;
 }
 bool AstConst::sameValueType(const AstConst* samep) const {
-    if (num().isDouble() != samep->num().isDouble()) return false;
-    if (num().isString() != samep->num().isString()) return false;
+    якщо (num().isDouble() != samep->num().isDouble()) повернути false;
+    якщо (num().isString() != samep->num().isString()) повернути false;
     // Constant folding can leave the signedness on the dtype, not the V3Number
-    return num().isOpaque() || (width() == samep->width() && isSigned() == samep->isSigned());
+    повернути num().isOpaque() || (width() == samep->width() && isSigned() == samep->isSigned());
 }
 AstConst::~AstConst() {
     // Only rare constants carry originating parameter-name metadata. For all other AstConst nodes,
     // the V3Number bit keeps this destructor from touching AstNetlist's side table. When the bit
     // is set, erase the entry before this AstConst address can be reused by a different node.
-    if (m_num.hasOrigParamName()) v3Global.rootp()->astConstOrigParamNameErase(this);
+    якщо (m_num.hasOrigParamName()) v3Global.rootp()->astConstOrigParamNameErase(this);
 }
 void AstConstraint::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isExternDef()) str << " [EXTDEF]";
-    if (isExternExplicit())
+    якщо (isExternDef()) str << " [EXTDEF]";
+    якщо (isExternExplicit())
         str << " [PROTOEXP]";
-    else if (isExternProto())
+    інакше якщо (isExternProto())
         str << " [PROTO]";
-    if (isKwdPure()) str << " [KWDPURE]";
-    if (isStatic()) str << " [STATIC]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    якщо (isKwdPure()) str << " [KWDPURE]";
+    якщо (isStatic()) str << " [STATIC]";
+    якщо (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
 }
 void AstConstraint::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isExternDef);
@@ -1490,13 +1490,13 @@ void AstConstraint::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isExternProto);
     dumpJsonBoolFuncIf(str, isKwdPure);
     dumpJsonBoolFuncIf(str, isStatic);
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    якщо (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonGen(str);
 }
 void AstConstraintExpr::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDisableSoft()) str << " [DISSOFT]";
-    if (isSoft()) str << " [SOFT]";
+    якщо (isDisableSoft()) str << " [DISSOFT]";
+    якщо (isSoft()) str << " [SOFT]";
 }
 void AstConstraintExpr::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDisableSoft);
@@ -1505,17 +1505,17 @@ void AstConstraintExpr::dumpJson(std::ostream& str) const {
 }
 void AstConstraintForeach::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSoft()) str << "[SOFT]";
+    якщо (isSoft()) str << "[SOFT]";
 }
 void AstConstraintForeach::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isSoft);
     dumpJsonGen(str);
 }
-string AstConstraintRef::name() const { return constrp()->name(); }
+string AstConstraintRef::name() const { повернути constrp()->name(); }
 void AstCover::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCoverSeq()) str << " [COVERSEQ]";
-    if (isSeqEvent()) str << " [SEQEVENT]";
+    якщо (isCoverSeq()) str << " [COVERSEQ]";
+    якщо (isSeqEvent()) str << " [SEQEVENT]";
 }
 void AstCover::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCoverSeq);
@@ -1525,8 +1525,8 @@ void AstCover::dumpJson(std::ostream& str) const {
 void AstCoverBin::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << m_binsType.ascii();
-    if (m_isArray) str << "[]";
-    if (m_isWildcard) str << "[*]";
+    якщо (m_isArray) str << "[]";
+    якщо (m_isWildcard) str << "[*]";
 }
 void AstCoverBin::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1536,7 +1536,7 @@ void AstCoverBin::dumpJson(std::ostream& str) const {
 }
 void AstCoverBinsof::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isNegated()) str << " [NEGATED]";
+    якщо (isNegated()) str << " [NEGATED]";
 }
 void AstCoverBinsof::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1544,15 +1544,15 @@ void AstCoverBinsof::dumpJson(std::ostream& str) const {
 }
 void AstCoverCross::dump(std::ostream& str) const { Super::dump(str); }
 void AstCoverCross::dumpJson(std::ostream& str) const { Super::dumpJson(str); }
-string AstCoverCrossBin::verilogKwd() const { return binsType().ascii(); }
+string AstCoverCrossBin::verilogKwd() const { повернути binsType().ascii(); }
 string AstCoverCrossDType::cppTemplateArgs() const {
-    return cvtToStr(dimensions()) + ", " + cvtToStr(tuples()) + ", " + cvtToStr(bins()) + ", "
+    повернути cvtToStr(dimensions()) + ", " + cvtToStr(tuples()) + ", " + cvtToStr(bins()) + ", "
            + cvtToStr(autoBins()) + ", " + cvtToStr(binWords());
 }
 void AstCoverCrossDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << cppTemplateArgs() << "]";
-    if (isDynamic()) str << " [DYNAMIC]";
+    якщо (isDynamic()) str << " [DYNAMIC]";
 }
 void AstCoverCrossDType::dumpJson(std::ostream& str) const {
     dumpJsonNumFunc(str, dimensions);
@@ -1578,12 +1578,12 @@ void AstCoverCrossSelect::dumpJson(std::ostream& str) const {
 void AstCoverInc::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (declp()) {
+    якщо (declp()) {
         declp()->dump(str);
-    } else {
+    } інакше {
         str << "%E:UNLINKED";
     }
-    if (isDuplicate()) str << " [DUPLICATE]";
+    якщо (isDuplicate()) str << " [DUPLICATE]";
 }
 void AstCoverInc::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDuplicate);
@@ -1592,7 +1592,7 @@ void AstCoverInc::dumpJson(std::ostream& str) const {
 void AstCoverOption::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << m_optType.ascii();
-    if (typeOption()) str << " [TYPEOPT]";
+    якщо (typeOption()) str << " [TYPEOPT]";
 }
 void AstCoverOption::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1601,12 +1601,12 @@ void AstCoverOption::dumpJson(std::ostream& str) const {
 }
 void AstCoverOtherDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (!linescov().empty()) str << " lc=" << linescov();
-    if (!fsmVar().empty()) str << " fv=" << fsmVar();
-    if (!fsmFrom().empty()) str << " ff=" << fsmFrom();
-    if (!fsmTo().empty()) str << " ft=" << fsmTo();
-    if (!fsmTag().empty()) str << " fg=" << fsmTag();
-    if (offset()) str << " offset=" << offset();
+    якщо (!linescov().empty()) str << " lc=" << linescov();
+    якщо (!fsmVar().empty()) str << " fv=" << fsmVar();
+    якщо (!fsmFrom().empty()) str << " ff=" << fsmFrom();
+    якщо (!fsmTo().empty()) str << " ft=" << fsmTo();
+    якщо (!fsmTag().empty()) str << " fg=" << fsmTag();
+    якщо (offset()) str << " offset=" << offset();
 }
 void AstCoverOtherDecl::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1619,18 +1619,18 @@ void AstCoverOtherDecl::dumpJson(std::ostream& str) const {
 }
 void AstCoverToggleDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (range().ranged()) str << " range=[" << range().left() << ":" << range().right() << "]";
+    якщо (range().ranged()) str << " range=[" << range().left() << ":" << range().right() << "]";
 }
 void AstCoverToggleDecl::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
-    if (range().ranged()) {
+    якщо (range().ranged()) {
         dumpJsonStr(str, "range",
                     std::to_string(range().left()) + ":" + std::to_string(range().right()));
     }
 }
 void AstCoverTransItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_repType != VTransRepType::NONE) str << " " << m_repType.ascii();
+    якщо (m_repType != VTransRepType::NONE) str << " " << m_repType.ascii();
 }
 void AstCoverTransItem::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1664,7 +1664,7 @@ void AstCvtArrayToArray::dumpJson(std::ostream& str) const {
 }
 void AstDelay::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCycleDelay()) str << " [CYCLE]";
+    якщо (isCycleDelay()) str << " [CYCLE]";
 }
 void AstDelay::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isCycleDelay);
@@ -1672,14 +1672,14 @@ void AstDelay::dumpJson(std::ostream& str) const {
 }
 const char* AstDisable::broken() const {
     BROKEN_RTN(!m_targetp && !targetRefp());
-    return nullptr;
+    повернути nullptr;
 }
 void AstDisable::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (targetp()) {
+    якщо (targetp()) {
         targetp()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
@@ -1693,7 +1693,7 @@ void AstDisplay::dumpJson(std::ostream& str) const {
 }
 void AstDistItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isWhole()) str << " [WHOLE]";
+    якщо (isWhole()) str << " [WHOLE]";
 }
 void AstDistItem::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isWhole);
@@ -1701,7 +1701,7 @@ void AstDistItem::dumpJson(std::ostream& str) const {
 }
 void AstDot::dump(std::ostream& str) const {
     Super::dump(str);
-    if (colon()) str << " [::]";
+    якщо (colon()) str << " [::]";
 }
 void AstDot::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, colon);
@@ -1709,7 +1709,7 @@ void AstDot::dumpJson(std::ostream& str) const {
 }
 void AstDpiExport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (cname() != "" && cname() != name()) str << " [c=" << cname() << "]";
+    якщо (cname() != "" && cname() != name()) str << " [c=" << cname() << "]";
 }
 void AstDpiExport::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "cname", cname());
@@ -1728,7 +1728,7 @@ void AstDynArrayDType::dumpSmall(std::ostream& str) const {
     str << "$[]";
 }
 string AstDynArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[]";
+    повернути subDTypep()->prettyDTypeName(full) + "$[]";
 }
 void AstElabDisplay::dump(std::ostream& str) const {
     Super::dump(str);
@@ -1744,16 +1744,16 @@ void AstEmptyQueueDType::dumpSmall(std::ostream& str) const {
 }
 const char* AstEnumDType::broken() const {
     BROKEN_RTN(!((m_refDTypep && !childDTypep()) || (!m_refDTypep && childDTypep())));
-    return nullptr;
+    повернути nullptr;
 }
 void AstEnumDType::dump(std::ostream& str) const {
     Super::dump(str);
     str << " enum";
-    if (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
+    якщо (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
 }
 void AstEnumDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "enum", true);
-    if (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
+    якщо (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
     dumpJsonGen(str);
 }
 void AstEnumDType::dumpSmall(std::ostream& str) const {
@@ -1762,20 +1762,20 @@ void AstEnumDType::dumpSmall(std::ostream& str) const {
 }
 string AstEnumDType::prettyDTypeName(bool full) const {
     // Without the items, as other simulators, which would make for long names
-    return dtypeNameKwd("enum", full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
+    повернути dtypeNameKwd("enum", full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
 }
 const char* AstEnumItemRef::broken() const {
-    if (v3Global.assertDTypesResolved()) BROKEN_RTN(!itemp());
-    return nullptr;
+    якщо (v3Global.assertDTypesResolved()) BROKEN_RTN(!itemp());
+    повернути nullptr;
 }
 void AstEnumItemRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (!dotted().empty()) str << " .=" << dotted();
+    якщо (containsGenBlock()) str << " [GENBLK]";
+    якщо (!dotted().empty()) str << " .=" << dotted();
     str << " -> ";
-    if (itemp()) {
+    якщо (itemp()) {
         itemp()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
@@ -1785,21 +1785,21 @@ void AstEnumItemRef::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstNodeBiop* AstEq::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstEqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstEqD{fl, lhsp, rhsp};
-    } else {
-        return new AstEq{fl, lhsp, rhsp};
+    якщо (lhsp->isString() && rhsp->isString()) {
+        повернути new AstEqN{fl, lhsp, rhsp};
+    } інакше якщо (lhsp->isDouble() && rhsp->isDouble()) {
+        повернути new AstEqD{fl, lhsp, rhsp};
+    } інакше {
+        повернути new AstEq{fl, lhsp, rhsp};
     }
 }
 AstNodeBiop* AstEqWild::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstEqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstEqD{fl, lhsp, rhsp};
-    } else {
-        return new AstEqWild{fl, lhsp, rhsp};
+    якщо (lhsp->isString() && rhsp->isString()) {
+        повернути new AstEqN{fl, lhsp, rhsp};
+    } інакше якщо (lhsp->isDouble() && rhsp->isDouble()) {
+        повернути new AstEqD{fl, lhsp, rhsp};
+    } інакше {
+        повернути new AstEqWild{fl, lhsp, rhsp};
     }
 }
 AstExecGraph::AstExecGraph(FileLine* fileline, const string& name,
@@ -1811,17 +1811,17 @@ AstExecGraph::AstExecGraph(FileLine* fileline, const string& name,
 }
 const char* AstExecGraph::broken() const {
     BROKEN_RTN(!m_depGraphp);
-    for (const V3GraphVertex& vtx : m_depGraphp->vertices()) {
+    для (const V3GraphVertex& vtx : m_depGraphp->vertices()) {
         const ExecMTask* const mtaskp = vtx.as<ExecMTask>();
         const AstCFunc* const funcp = mtaskp->funcp();
         BROKEN_RTN(!funcp || !funcp->brokeExists());
     }
-    return nullptr;
+    повернути nullptr;
 }
 AstExecGraph::~AstExecGraph() { VL_DO_DANGLING(delete m_depGraphp, m_depGraphp); }
 void AstExprStmt::dump(std::ostream& str) const {
     Super::dump(str);
-    if (hasResult()) str << " [HASRESULT]";
+    якщо (hasResult()) str << " [HASRESULT]";
 }
 void AstExprStmt::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "hasResult", hasResult());
@@ -1829,7 +1829,7 @@ void AstExprStmt::dumpJson(std::ostream& str) const {
 }
 void AstFireEvent::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isDelayed()) str << " [DLY]";
+    якщо (isDelayed()) str << " [DLY]";
 }
 void AstFireEvent::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isDelayed);
@@ -1838,7 +1838,7 @@ void AstFireEvent::dumpJson(std::ostream& str) const {
 void AstFork::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << joinType() << "]";
-    if (immediateStart()) str << " [IMMEDIATE]";
+    якщо (immediateStart()) str << " [IMMEDIATE]";
 }
 void AstFork::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "joinType", joinType().ascii());
@@ -1849,12 +1849,12 @@ string AstGenBlock::dtypeNameInnerScope(const string& outer) const {
     // A named generate block is a scope (IEEE 1800-2023 27.6), so the types of distinct blocks,
     // as of the iterations of a loop, are named apart; an unnamed block, as around the 'if' of an
     // 'else if', is not a scope
-    return name().empty() ? outer : outer + dtypeNameIdent(name()) + ".";
+    повернути name().empty() ? outer : outer + dtypeNameIdent(name()) + ".";
 }
 void AstGenBlock::dump(std::ostream& str) const {
     Super::dump(str);
-    if (implied()) str << " [IMPLIED]";
-    if (unnamed()) str << " [UNNAMED]";
+    якщо (implied()) str << " [IMPLIED]";
+    якщо (unnamed()) str << " [UNNAMED]";
 }
 void AstGenBlock::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, implied);
@@ -1864,9 +1864,9 @@ void AstGenBlock::dumpJson(std::ostream& str) const {
 void AstIf::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << verilogKwd();
-    if (priorityPragma()) str << " [PRI]";
-    if (uniquePragma()) str << " [UNQ]";
-    if (unique0Pragma()) str << " [UNQ0]";
+    якщо (priorityPragma()) str << " [PRI]";
+    якщо (uniquePragma()) str << " [UNQ]";
+    якщо (unique0Pragma()) str << " [UNQ0]";
 }
 void AstIf::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "kwd", verilogKwd());
@@ -1877,8 +1877,8 @@ void AstIf::dumpJson(std::ostream& str) const {
 }
 string AstIface::dtypeName(bool full) const {
     const string& frozen = full ? m_dtypeNameFull : m_dtypeNameShort;
-    if (!frozen.empty()) return frozen;
-    return dtypeNameIdent(origName()) + dtypeNameParams(this, full);
+    якщо (!frozen.empty()) повернути frozen;
+    повернути dtypeNameIdent(origName()) + dtypeNameParams(this, full);
 }
 void AstIface::dtypeNameFreeze() {
     m_dtypeNameFull = dtypeName(true);
@@ -1886,14 +1886,14 @@ void AstIface::dtypeNameFreeze() {
 }
 void AstIface::dump(std::ostream& str) const {
     Super::dump(str);
-    if (hasVirtualRef()) str << " [VIRTREF]";
-    if (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
-    if (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
+    якщо (hasVirtualRef()) str << " [VIRTREF]";
+    якщо (!m_dtypeNameFull.empty()) str << " dtypeName=" << m_dtypeNameFull;
+    якщо (!m_dtypeNameShort.empty()) str << " dtypeNameShort=" << m_dtypeNameShort;
 }
 void AstIface::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "hasVirtualRef", hasVirtualRef());
-    if (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
-    if (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
+    якщо (!m_dtypeNameFull.empty()) dumpJsonStr(str, "dtypeNameFull", m_dtypeNameFull);
+    якщо (!m_dtypeNameShort.empty()) dumpJsonStr(str, "dtypeNameShort", m_dtypeNameShort);
     dumpJsonGen(str);
 }
 void AstIfaceGenericDType::dumpSmall(std::ostream& str) const {
@@ -1902,17 +1902,17 @@ void AstIfaceGenericDType::dumpSmall(std::ostream& str) const {
 }
 void AstIfaceRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isVirtual()) str << " [VIRT]";
-    if (cellName() != "") str << " cell=" << cellName();
-    if (ifaceName() != "") str << " if=" << ifaceName();
-    if (modportName() != "") str << " mp=" << modportName();
-    if (cellp()) {
+    якщо (isVirtual()) str << " [VIRT]";
+    якщо (cellName() != "") str << " cell=" << cellName();
+    якщо (ifaceName() != "") str << " if=" << ifaceName();
+    якщо (modportName() != "") str << " mp=" << modportName();
+    якщо (cellp()) {
         str << " c-> ";
         cellp()->dump(str);
-    } else if (ifacep()) {
+    } інакше якщо (ifacep()) {
         str << " i-> ";
         ifacep()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
@@ -1929,24 +1929,24 @@ void AstIfaceRefDType::dumpSmall(std::ostream& str) const {
 }
 // We need these here, because the classes they point to aren't defined when we declare the class
 AstIface* AstIfaceRefDType::ifaceViaCellp() const {
-    return ((m_cellp && m_cellp->modp()) ? VN_AS(m_cellp->modp(), Iface) : m_ifacep);
+    повернути ((m_cellp && m_cellp->modp()) ? VN_AS(m_cellp->modp(), Iface) : m_ifacep);
 }
 string AstIfaceRefDType::prettyDTypeName(bool full) const {
     string result = isVirtual() ? "virtual interface " : "interface ";
     // Until V3Param specializes the interface for the parameters, just name the interface
     const AstIface* const ifacep = paramsp() ? nullptr : ifaceViaCellp();
-    if (ifacep) {
+    якщо (ifacep) {
         result += ifacep->dtypeName(full);
-    } else {
+    } інакше {
         result += prettyName(ifaceName());
     }
-    if (!modportName().empty()) result += "." + prettyName(modportName());
-    return result;
+    якщо (!modportName().empty()) result += "." + prettyName(modportName());
+    повернути result;
 }
 void AstImplication::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isOverlapped()) str << " [overlapped]";
-    if (isFollowedBy()) str << " [followed-by]";
+    якщо (isOverlapped()) str << " [overlapped]";
+    якщо (isFollowedBy()) str << " [followed-by]";
 }
 void AstImplication::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -1958,48 +1958,48 @@ AstNodeExpr* AstInsideRange::newAndFromInside(AstNodeExpr* exprp, AstNodeExpr* l
     const bool lhsUnbounded = VN_IS(lhsp, Unbounded);
     const bool rhsUnbounded = VN_IS(rhsp, Unbounded);
 
-    if (lhsUnbounded && rhsUnbounded) {
+    якщо (lhsUnbounded && rhsUnbounded) {
         fileline()->v3warn(INSIDETRUE,
                            "Unbounded on both sides of inside range [$:$] is always true");
         VL_DO_DANGLING(exprp->deleteTree(), exprp);
         VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
         VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
-        return new AstConst{fileline(), AstConst::BitTrue{}};
+        повернути new AstConst{fileline(), AstConst::BitTrue{}};
     }
 
-    if (lhsUnbounded) {
+    якщо (lhsUnbounded) {
         // [$:N] - only check expr <= rhs
         // Use exprp directly (not cloned) so ExprStmt side effects are preserved
         VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
         AstNodeExpr* const bp = new AstLte{fileline(), exprp, rhsp};
         bp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, true);
-        return bp;
-    } else if (rhsUnbounded) {
+        повернути bp;
+    } інакше якщо (rhsUnbounded) {
         // [N:$] - only check expr >= lhs
         VL_DO_DANGLING(rhsp->deleteTree(), rhsp);
         AstNodeExpr* const ap = new AstGte{fileline(), exprp, lhsp};
         ap->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, true);
-        return ap;
+        повернути ap;
     }
 
     // Normal case: [N:M] - check expr >= lhs && expr <= rhs
     AstNodeExpr* const ap = new AstGte{fileline(), exprp, lhsp};
     AstNodeExpr* lteLhsp;
-    if (const AstExprStmt* const exprStmt = VN_CAST(exprp, ExprStmt)) {
+    якщо (const AstExprStmt* const exprStmt = VN_CAST(exprp, ExprStmt)) {
         lteLhsp = exprStmt->resultp()->cloneTreePure(true);
-    } else {
+    } інакше {
         lteLhsp = exprp->cloneTreePure(true);
     }
     AstNodeExpr* const bp = new AstLte{fileline(), lteLhsp, rhsp};
     ap->fileline()->modifyWarnOff(V3ErrorCode::UNSIGNED, true);
     bp->fileline()->modifyWarnOff(V3ErrorCode::CMPCONST, true);
-    return new AstLogAnd{fileline(), ap, bp};
+    повернути new AstLogAnd{fileline(), ap, bp};
 }
 void AstIntfRef::dump(std::ostream& str) const {  // LCOV_EXCL_START
     Super::dump(str);
-    if (parentName() != "") str << " parent=" << parentName();
-    if (baseName() != "") str << " base=" << baseName();
-    if (modportName() != "") str << " mp=" << modportName();
+    якщо (parentName() != "") str << " parent=" << parentName();
+    якщо (baseName() != "") str << " base=" << baseName();
+    якщо (modportName() != "") str << " mp=" << modportName();
 }  // LCOV_EXCL_STOP
 void AstIntfRef::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, parentName);
@@ -2008,32 +2008,32 @@ void AstIntfRef::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 bool AstJumpBlock::getPurityRecurse() const {
-    for (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (!stmtp->isPure()) return false;
+    для (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        якщо (!stmtp->isPure()) повернути false;
     }
-    return true;
+    повернути true;
 }
 bool AstJumpBlock::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 const char* AstJumpGo::broken() const {
     BROKEN_RTN(!blockp()->brokeExistsAbove());
-    return nullptr;
+    повернути nullptr;
 }
 void AstJumpGo::dump(std::ostream& str) const {
     Super::dump(str);
     str << " -> ";
-    if (blockp()) {
+    якщо (blockp()) {
         blockp()->dump(str);
-    } else {
+    } інакше {
         str << "%E:UNLINKED";
     }
 }
 void AstJumpGo::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstLambdaArgRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (index()) str << "[INDEX]";
+    якщо (index()) str << "[INDEX]";
 }
 void AstLambdaArgRef::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "index", index());
@@ -2041,7 +2041,7 @@ void AstLambdaArgRef::dumpJson(std::ostream& str) const {
 }
 void AstLogNot::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fromProperty()) str << " [fromProperty]";
+    якщо (fromProperty()) str << " [fromProperty]";
 }
 void AstLogNot::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, fromProperty);
@@ -2049,9 +2049,9 @@ void AstLogNot::dumpJson(std::ostream& str) const {
 }
 void AstLoop::dump(std::ostream& str) const {
     Super::dump(str);
-    if (unroll().isSetTrue())
+    якщо (unroll().isSetTrue())
         str << " [unrollfull]";
-    else if (unroll().isSetFalse())
+    інакше якщо (unroll().isSetFalse())
         str << " [unrollnone]";
 }
 void AstLoop::dumpJson(std::ostream& str) const {
@@ -2063,7 +2063,7 @@ void AstLoop::dumpJson(std::ostream& str) const {
 }
 const char* AstLoopTest::broken() const {
     BROKEN_RTN(!loopp()->brokeExistsAbove());
-    return nullptr;
+    повернути nullptr;
 }
 void AstLoopTest::dump(std::ostream& str) const {
     Super::dump(str);
@@ -2075,32 +2075,32 @@ uint32_t AstMatchMasked::fold(const V3Number& lhs, AstVar* matchVarp) {
     V3Number numMask{matchVarp, lhs.width(), 0};
     V3Number numBits{matchVarp, lhs.width(), 0};
     V3Number numAnd{matchVarp, lhs.width(), 0};
-    const int width = lhs.width();
-    const int entryWidth = VL_WORDS_I(width) * VL_EDATASIZE;
+    const ціле width = lhs.width();
+    const ціле entryWidth = VL_WORDS_I(width) * VL_EDATASIZE;
     uint32_t i = 0;
-    while (true) {
-        const int lsb = 2 * i * entryWidth;
-        const int msb = lsb + width - 1;
+    поки (true) {
+        const ціле lsb = 2 * i * entryWidth;
+        const ціле msb = lsb + width - 1;
         numMask.opSel(numTable, msb, lsb);
         numBits.opSel(numTable, msb + entryWidth, lsb + entryWidth);
         numAnd.opAnd(numMask, lhs);
-        if (numAnd.isCaseEq(numBits)) break;
+        якщо (numAnd.isCaseEq(numBits)) break;
         ++i;
     }
-    return i;
+    повернути i;
 }
 void AstMemberDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConstrainedRand()) str << " [CSRAND]";
-    if (rand().isRandomizable()) str << " [" << rand() << "]";
-    if (lsb()) str << " lsb=" << lsb();
-    if (name() != "") str << " name=" << name();
-    if (tag() != "") str << " tag=" << tag();
+    якщо (isConstrainedRand()) str << " [CSRAND]";
+    якщо (rand().isRandomizable()) str << " [" << rand() << "]";
+    якщо (lsb()) str << " lsb=" << lsb();
+    якщо (name() != "") str << " name=" << name();
+    якщо (tag() != "") str << " tag=" << tag();
 }
 void AstMemberDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConstrainedRand);
-    if (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
-    if (lsb() != 0) dumpJsonStr(str, "lsb", std::to_string(lsb()));
+    якщо (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
+    якщо (lsb() != 0) dumpJsonStr(str, "lsb", std::to_string(lsb()));
     dumpJsonStrFunc(str, name);
     dumpJsonStrFunc(str, tag);
     dumpJsonGen(str);
@@ -2111,15 +2111,15 @@ void AstMemberDType::dumpSmall(std::ostream& str) const {
 }
 AstNodeUOrStructDType* AstMemberDType::getChildStructp() {
     AstNodeDType* subdtp = skipRefp();
-    while (AstNodeArrayDType* const asubdtp = VN_CAST(subdtp, NodeArrayDType)) {
+    поки (AstNodeArrayDType* const asubdtp = VN_CAST(subdtp, NodeArrayDType)) {
         subdtp = asubdtp->subDTypep();
     }
     // It's possible that `subdtp` is still a ref type, so skip it.
-    return VN_CAST(subdtp->skipRefp(), NodeUOrStructDType);  // Maybe nullptr
+    повернути VN_CAST(subdtp->skipRefp(), NodeUOrStructDType);  // Maybe nullptr
 }
 string AstMemberDType::prettyDTypeName(bool full) const {
     // Named as the member's type, as for $typename of a member (IEEE 1800-2023 20.6.1)
-    return subDTypep()->prettyDTypeName(full);
+    повернути subDTypep()->prettyDTypeName(full);
 }
 AstMemberSel::AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp)
     : ASTGEN_SUPER_MemberSel(fl)
@@ -2131,9 +2131,9 @@ AstMemberSel::AstMemberSel(FileLine* fl, AstNodeExpr* fromp, AstVar* varp)
 void AstMemberSel::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << access().arrow() << " ";
-    if (varp()) {
+    якщо (varp()) {
         varp()->dump(str);
-    } else {
+    } інакше {
         str << "%E:UNLINKED";
     }
 }
@@ -2143,26 +2143,26 @@ void AstMemberSel::dumpJson(std::ostream& str) const {
 }
 bool AstMemberSel::sameNode(const AstNode* samep) const {
     const AstMemberSel* const sp = VN_DBG_AS(samep, MemberSel);
-    return sp && access() == sp->access() && fromp()->isSame(sp->fromp()) && name() == sp->name()
+    повернути sp && access() == sp->access() && fromp()->isSame(sp->fromp()) && name() == sp->name()
            && (varp() == sp->varp() || (varp() && sp->varp() && varp()->sameNode(sp->varp())));
 }
 void AstModportClockingRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (clockingp()) {
+    якщо (clockingp()) {
         str << " -> ";
         clockingp()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
 void AstModportFTaskRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isExport()) str << " EXPORT";
-    if (isImport()) str << " IMPORT";
-    if (ftaskp()) {
+    якщо (isExport()) str << " EXPORT";
+    якщо (isImport()) str << " IMPORT";
+    якщо (ftaskp()) {
         str << " -> ";
         ftaskp()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
@@ -2173,11 +2173,11 @@ void AstModportFTaskRef::dumpJson(std::ostream& str) const {
 }
 void AstModportVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction().isAny()) str << " " << direction();
-    if (varp()) {
+    якщо (direction().isAny()) str << " " << direction();
+    якщо (varp()) {
         str << " -> ";
         varp()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
@@ -2187,9 +2187,9 @@ void AstModportVarRef::dumpJson(std::ostream& str) const {
 }
 void AstModule::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isChecker()) str << " [CHECKER]";
-    if (isProgram()) str << " [PROGRAM]";
-    if (hasGenericIface()) str << " [HASGENERICIFACE]";
+    якщо (isChecker()) str << " [CHECKER]";
+    якщо (isProgram()) str << " [PROGRAM]";
+    якщо (hasGenericIface()) str << " [HASGENERICIFACE]";
 }
 void AstModule::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isChecker);
@@ -2199,7 +2199,7 @@ void AstModule::dumpJson(std::ostream& str) const {
 }
 void AstMonitorOff::dump(std::ostream& str) const {
     Super::dump(str);
-    if (off()) str << " [OFF]";
+    якщо (off()) str << " [OFF]";
 }
 void AstMonitorOff::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, off);
@@ -2207,19 +2207,19 @@ void AstMonitorOff::dumpJson(std::ostream& str) const {
 }
 void AstNBACommitQueueDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (partial()) str << " [PARTIAL]";
+    якщо (partial()) str << " [PARTIAL]";
 }
 void AstNBACommitQueueDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, partial);
     dumpJsonGen(str);
 }
 AstNodeBiop* AstNeq::newTyped(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp) {
-    if (lhsp->isString() && rhsp->isString()) {
-        return new AstNeqN{fl, lhsp, rhsp};
-    } else if (lhsp->isDouble() && rhsp->isDouble()) {
-        return new AstNeqD{fl, lhsp, rhsp};
-    } else {
-        return new AstNeq{fl, lhsp, rhsp};
+    якщо (lhsp->isString() && rhsp->isString()) {
+        повернути new AstNeqN{fl, lhsp, rhsp};
+    } інакше якщо (lhsp->isDouble() && rhsp->isDouble()) {
+        повернути new AstNeqD{fl, lhsp, rhsp};
+    } інакше {
+        повернути new AstNeq{fl, lhsp, rhsp};
     }
 }
 AstNetlist::AstNetlist()
@@ -2239,11 +2239,11 @@ AstNetlist::AstNetlist()
     addModulesp(m_constPoolPkgp);
 }
 void AstNetlist::addEvalStats(const std::string& phase) {
-    if (!v3Global.opt.stats()) return;
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    якщо (!v3Global.opt.stats()) повернути;
+    для (ціле i = 0; i < VEval::_ENUM_END; ++i) {
         VEval eval{i};
         AstCFunc* const funcp = m_evalFuncps[i];
-        if (!funcp) continue;
+        якщо (!funcp) continue;
         const uint32_t nodes = funcp->nodeCount();
         const uint32_t instr = V3InstrCount::count(funcp, false);
         V3Stats::addStat("Size of eval, nodes - '" + eval.tag() + "', " + phase, nodes);
@@ -2251,10 +2251,10 @@ void AstNetlist::addEvalStats(const std::string& phase) {
     }
 }
 string AstNetlist::astConstOrigParamName(const AstConst* nodep) const {
-    if (!nodep->num().hasOrigParamName()) return "";
+    якщо (!nodep->num().hasOrigParamName()) повернути "";
     const auto it = m_constOrigParamNames.find(nodep);
     UASSERT_OBJ(it != m_constOrigParamNames.end(), nodep, "Missing originating parameter name");
-    return it->second;
+    повернути it->second;
 }
 void AstNetlist::astConstOrigParamName(const AstConst* nodep, const string& name) {
     UASSERT(!name.empty(), "Empty originating parameter name");
@@ -2264,10 +2264,10 @@ void AstNetlist::astConstOrigParamNameErase(const AstConst* nodep) {
     m_constOrigParamNames.erase(nodep);
 }
 const char* AstNetlist::broken() const {
-    for (const AstVar* const varp : m_deferredParamVarps) {
+    для (const AstVar* const varp : m_deferredParamVarps) {
         BROKEN_RTN(!varp || !varp->brokeExists());
     }
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    для (ціле i = 0; i < VEval::_ENUM_END; ++i) {
         const AstCFunc* const funcp = m_evalFuncps[i];
         const AstCFunc* const dumpp = m_dumpTriggersFuncps[i];
         BROKEN_RTN(funcp && !funcp->brokeExists());
@@ -2276,17 +2276,17 @@ const char* AstNetlist::broken() const {
         BROKEN_RTN(funcp && VEval{i}.hasTriggers() && !dumpp);
         BROKEN_RTN(dumpp && !VEval{i}.hasTriggers());
     }
-    return nullptr;
+    повернути nullptr;
 }
 const AstNodeModule* AstNetlist::containingModule(const AstNode* nodep) {
-    if (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) return modp;
+    якщо (const AstNodeModule* const modp = VN_CAST(nodep, NodeModule)) повернути modp;
     const auto it = m_containingModules.find(nodep);
-    if (it != m_containingModules.end()) return it->second;
+    якщо (it != m_containingModules.end()) повернути it->second;
     // Only true parents are followed.
     AstNode* const abovep = nodep->aboveLoopp();
     const AstNodeModule* const modp = abovep ? containingModule(abovep) : nullptr;
     m_containingModules[nodep] = modp;
-    return modp;
+    повернути modp;
 }
 void AstNetlist::createTopScope(AstScope* scopep) {
     UASSERT(scopep, "Must not be nullptr");
@@ -2308,17 +2308,17 @@ void AstNetlist::deleteContents() {
     m_containingModules.clear();
     m_evalFuncps.fill(nullptr);
     m_dumpTriggersFuncps.fill(nullptr);
-    if (op1p()) op1p()->unlinkFrBackWithNext()->deleteTree();
-    if (op2p()) op2p()->unlinkFrBackWithNext()->deleteTree();
-    if (op3p()) op3p()->unlinkFrBackWithNext()->deleteTree();
-    if (op4p()) op4p()->unlinkFrBackWithNext()->deleteTree();
+    якщо (op1p()) op1p()->unlinkFrBackWithNext()->deleteTree();
+    якщо (op2p()) op2p()->unlinkFrBackWithNext()->deleteTree();
+    якщо (op3p()) op3p()->unlinkFrBackWithNext()->deleteTree();
+    якщо (op4p()) op4p()->unlinkFrBackWithNext()->deleteTree();
 #undef VN_DELETE_ONE
 }
 void AstNetlist::dump(std::ostream& str) const {
     Super::dump(str);
-    if (timescaleSpecified()) str << " [TIMESCALES]";
+    якщо (timescaleSpecified()) str << " [TIMESCALES]";
     str << " [" << timeunit() << "/" << timeprecision() << "]";
-    if (resolvedTopModuleName() != "") str << " top=" << resolvedTopModuleName();
+    якщо (resolvedTopModuleName() != "") str << " top=" << resolvedTopModuleName();
 }
 void AstNetlist::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "timescaleSpecified", timescaleSpecified());
@@ -2330,7 +2330,7 @@ void AstNetlist::dumpJson(std::ostream& str) const {
 AstCFunc* AstNetlist::dumpTriggersFuncp(VEval eval) {
     UASSERT(eval.hasTriggers(), "Region has no triggers to dump: " << eval.ascii());
     evalFuncp(eval);
-    return m_dumpTriggersFuncps[eval];
+    повернути m_dumpTriggersFuncps[eval];
 }
 AstCFunc* AstNetlist::evalFuncp(VEval eval) {
     const auto newEvalFunc = [this](const std::string& name, bool slow) {
@@ -2345,55 +2345,55 @@ AstCFunc* AstNetlist::evalFuncp(VEval eval) {
         funcp->entryPoint(true);
         funcp->keepIfEmpty(true);
         scopeTopp->addBlocksp(funcp);
-        return funcp;
+        повернути funcp;
     };
-    if (m_evalFuncps[eval]) return m_evalFuncps[eval];
+    якщо (m_evalFuncps[eval]) повернути m_evalFuncps[eval];
     // Create all entry points at once, in order, as the runtime calls every one, even if empty
-    for (int i = 0; i < VEval::_ENUM_END; ++i) {
+    для (ціле i = 0; i < VEval::_ENUM_END; ++i) {
         const VEval ieval{i};
         AstCFunc* const funcp = newEvalFunc(ieval.funcName(), ieval.slow());
         m_evalFuncps[ieval] = funcp;
         // Only the iterated functions report whether they did any work
-        if (ieval.isIterated()) funcp->rtnType("bool");
+        якщо (ieval.isIterated()) funcp->rtnType("bool");
         // Only a region with a trigger vector has anything to dump
-        if (ieval.hasTriggers()) {
+        якщо (ieval.hasTriggers()) {
             m_dumpTriggersFuncps[ieval] = newEvalFunc(ieval.dumpTriggersFuncName(), true);
         }
     }
-    return m_evalFuncps[eval];
+    повернути m_evalFuncps[eval];
 }
 AstFuncRef* AstNetlist::stdPackageProcessSelfp(FileLine* flp) const {
     UASSERT(v3Global.rootp()->stdPackageProcessp(), "'std' should be imported");
     AstFunc* selfp = nullptr;
-    for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+    для (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
          itemp = itemp->nextp()) {
-        if (itemp->name() == "self") selfp = VN_AS(itemp, Func);
+        якщо (itemp->name() == "self") selfp = VN_AS(itemp, Func);
     }
     UASSERT(selfp, "'std::process::self' should be found");
     AstFuncRef* const processSelfp = new AstFuncRef{flp, selfp};
     processSelfp->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-    return processSelfp;
+    повернути processSelfp;
 }
 AstVarScope* AstNetlist::stlFirstIterationp() {
-    if (!m_stlFirstIterationp) {
+    якщо (!m_stlFirstIterationp) {
         m_stlFirstIterationp = topScopep()->createTemp("__VstlFirstIteration", 1);
     }
     AstVarScope* const vscp = m_stlFirstIterationp;
-    return vscp;
+    повернути vscp;
 }
 void AstNetlist::timeprecisionMerge(FileLine*, const VTimescale& value) {
     const VTimescale prec = v3Global.opt.timeComputePrec(value);
-    if (prec.isNone() || prec == m_timeprecision) {
-    } else if (m_timeprecision.isNone()) {
+    якщо (prec.isNone() || prec == m_timeprecision) {
+    } інакше якщо (m_timeprecision.isNone()) {
         m_timeprecision = prec;
-    } else if (prec < m_timeprecision) {
+    } інакше якщо (prec < m_timeprecision) {
         m_timeprecision = prec;
     }
 }
 void AstNew::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isImplicit()) str << " [IMPLICIT]";
-    if (isScoped()) str << " [SCOPED]";
+    якщо (isImplicit()) str << " [IMPLICIT]";
+    якщо (isScoped()) str << " [SCOPED]";
 }
 void AstNew::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isImplicit);
@@ -2402,7 +2402,7 @@ void AstNew::dumpJson(std::ostream& str) const {
 }
 void AstNodeArrayDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCompound()) str << " [COMPOUND]";
+    якщо (isCompound()) str << " [COMPOUND]";
     str << " " << declRange();
 }
 void AstNodeArrayDType::dumpJson(std::ostream& str) const {
@@ -2412,29 +2412,29 @@ void AstNodeArrayDType::dumpJson(std::ostream& str) const {
 }
 void AstNodeArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
-    if (auto* const adtypep = VN_CAST(this, UnpackArrayDType)) {
+    якщо (auto* const adtypep = VN_CAST(this, UnpackArrayDType)) {
         // uc = packed compound object, u = unpacked POD
         str << (adtypep->isCompound() ? "uc" : "u");
-    } else {
+    } інакше {
         str << "p";
     }
     str << declRange();
 }
 void AstNodeAssign::dump(std::ostream& str) const {
     Super::dump(str);
-    if (timingControlp()) str << " [TIMING=" << nodeAddr(timingControlp()) << "]";
+    якщо (timingControlp()) str << " [TIMING=" << nodeAddr(timingControlp()) << "]";
 }
 const char* AstNodeBiop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 bool AstNodeBiop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 void AstNodeBlock::dump(std::ostream& str) const {
     Super::dump(str);
-    if (unnamed()) str << " [UNNAMED]";
+    якщо (unnamed()) str << " [UNNAMED]";
 }
 void AstNodeBlock::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, unnamed);
@@ -2442,24 +2442,24 @@ void AstNodeBlock::dumpJson(std::ostream& str) const {
 }
 void AstNodeCCall::dump(std::ostream& str) const {
     Super::dump(str);
-    if (superReference()) str << " [SUPERREF]";
-    if (funcp()) {
+    якщо (superReference()) str << " [SUPERREF]";
+    якщо (funcp()) {
         str << " " << funcp()->name() << " => ";
         funcp()->dump(str);
-    } else {
+    } інакше {
         str << " " << name();
     }
 }
 void AstNodeCCall::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, superReference);
-    if (funcp()) dumpJsonStr(str, "funcName", funcp()->name());
+    якщо (funcp()) dumpJsonStr(str, "funcName", funcp()->name());
     dumpJsonStr(str, "argTypes", argTypes());
     dumpJsonGen(str);
 }
-bool AstNodeCCall::isPure() { return funcp()->dpiPure(); }
+bool AstNodeCCall::isPure() { повернути funcp()->dpiPure(); }
 void AstNodeCons::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_knownConstantTree) str << " [CONSTTREE]";
+    якщо (m_knownConstantTree) str << " [CONSTTREE]";
 }
 void AstNodeCons::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "knownConstantTree", m_knownConstantTree);
@@ -2467,7 +2467,7 @@ void AstNodeCons::dumpJson(std::ostream& str) const {
 }
 void AstNodeConsItem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_knownConstantTree) str << " [CONSTTREE]";
+    якщо (m_knownConstantTree) str << " [CONSTTREE]";
 }
 void AstNodeConsItem::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "knownConstantTree", m_knownConstantTree);
@@ -2475,22 +2475,22 @@ void AstNodeConsItem::dumpJson(std::ostream& str) const {
 }
 void AstNodeCoverDecl::dump(std::ostream& str) const {
     Super::dump(str);
-    if (localBinNum()) str << " lbin=" << localBinNum();
-    if (perInstance()) str << " [PERINST]";
-    if (!page().empty()) str << " page=" << page();
-    if (!hier().empty()) str << " hier=" << hier();
-    if (this->dataDeclNullp()) {
+    якщо (localBinNum()) str << " lbin=" << localBinNum();
+    якщо (perInstance()) str << " [PERINST]";
+    якщо (!page().empty()) str << " page=" << page();
+    якщо (!hier().empty()) str << " hier=" << hier();
+    якщо (this->dataDeclNullp()) {
         static bool s_recursing = false;
         str << " -> ";
-        if (s_recursing) {
+        якщо (s_recursing) {
             str << "%ErrorRECURSIVE";
-        } else {
+        } інакше {
             s_recursing = true;
             this->dataDeclNullp()->dump(str);
             s_recursing = false;
         }
-    } else {
-        if (binNum()) str << " bin" << std::dec << binNum();
+    } інакше {
+        якщо (binNum()) str << " bin" << std::dec << binNum();
     }
 }
 void AstNodeCoverDecl::dumpJson(std::ostream& str) const {
@@ -2505,8 +2505,8 @@ void AstNodeCoverOrAssert::dump(std::ostream& str) const {
     Super::dump(str);
     str << " ["s + this->directive().ascii() + "]";
     str << " ["s + this->userType().ascii() + "]";
-    if (immediate()) str << " [IMMEDIATE]";
-    if (senFromAlways()) str << " [SENALW]";
+    якщо (immediate()) str << " [IMMEDIATE]";
+    якщо (senFromAlways()) str << " [SENALW]";
 }
 void AstNodeCoverOrAssert::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "directive", this->directive().ascii());
@@ -2517,21 +2517,21 @@ void AstNodeCoverOrAssert::dumpJson(std::ostream& str) const {
 }
 uint32_t AstNodeDType::arrayUnpackedElements() const {
     uint32_t entries = 1;
-    for (const AstNodeDType* dtypep = this; dtypep;) {
+    для (const AstNodeDType* dtypep = this; dtypep;) {
         dtypep = dtypep->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
             entries *= adtypep->elementsConst();
             dtypep = adtypep->subDTypep();
-        } else {
+        } інакше {
             // AstBasicDType - nothing below, 1
             break;
         }
     }
-    return entries;
+    повернути entries;
 }
 string AstNodeDType::cType(const string& name, bool /*forFunc*/, bool isRef, bool packed) const {
     const CTypeRecursed info = cTypeRecurse(false, packed);
-    return info.render(name, isRef);
+    повернути info.render(name, isRef);
 }
 AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packed) const {
     // Legacy compound argument currently just passed through and unused
@@ -2539,62 +2539,62 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
     CTypeRecursed info;
 
     const AstNodeDType* const dtypep = this->skipRefp();
-    if (const auto* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
+    якщо (const auto* const adtypep = VN_CAST(dtypep, AssocArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed key = adtypep->keyDTypep()->cTypeRecurse(true, false);
         const CTypeRecursed val = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlAssocArray<" + key.m_type + ", " + val.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, CDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = adtypep->name();
-    } else if (const auto* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, WildcardArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlAssocArray<::std::string, " + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlQueue<" + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, QueueDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, QueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlQueue<" + sub.m_type;
         // + 1 below as VlQueue uses 0 to mean unlimited, 1 to mean size() max is 1
-        if (adtypep->boundp()) info.m_type += ", " + cvtToStr(adtypep->boundConst() + 1);
+        якщо (adtypep->boundp()) info.m_type += ", " + cvtToStr(adtypep->boundConst() + 1);
         info.m_type += ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CoverCrossDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, CoverCrossDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = adtypep->isDynamic()
                           ? "::VlCoverCrossDyn*"
                           : "::VlCoverCrossT<" + adtypep->cppTemplateArgs() + ">*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, CoverpointDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, CoverpointDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = "::VlCoverpointT<" + cvtToStr(adtypep->hitBound()) + ">*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, SampleQueueDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, SampleQueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(true, false);
         info.m_type = "::VlSampleQueue<" + sub.m_type + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         const string className = EmitCUtil::prefixNameProtect(adtypep);
         info.m_type = adtypep->rawPointer() ? className + "*" : "::VlClassRef<" + className + ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, IfaceRefDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, IfaceRefDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         info.m_type = EmitCUtil::prefixNameProtect(adtypep->ifaceViaCellp()) + "*";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
-        if (adtypep->isCompound()) compound = true;
+        якщо (adtypep->isCompound()) compound = true;
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(compound, false);
         info.m_type = "::VlUnpacked<" + sub.m_type;
         info.m_type += ", " + cvtToStr(adtypep->declRange().elements());
         info.m_type += ">";
-    } else if (const auto* const adtypep = VN_CAST(dtypep, NBACommitQueueDType)) {
+    } інакше якщо (const auto* const adtypep = VN_CAST(dtypep, NBACommitQueueDType)) {
         UASSERT_OBJ(!packed, this, "Unsupported type for packed struct or union");
         compound = true;
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(compound, false);
         AstNodeDType* eDTypep = adtypep->subDTypep();
         unsigned rank = 0;
-        while (AstUnpackArrayDType* const uaDTypep = VN_CAST(eDTypep, UnpackArrayDType)) {
+        поки (AstUnpackArrayDType* const uaDTypep = VN_CAST(eDTypep, UnpackArrayDType)) {
             eDTypep = uaDTypep->subDTypep()->skipRefp();
             ++rank;
         }
@@ -2604,60 +2604,60 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
         info.m_type += ", " + eDTypep->cTypeRecurse(compound, false).m_type;
         info.m_type += ", " + std::to_string(rank);
         info.m_type += ">";
-    } else if (packed && (VN_IS(dtypep, PackArrayDType))) {
+    } інакше якщо (packed && (VN_IS(dtypep, PackArrayDType))) {
         const AstPackArrayDType* const adtypep = VN_CAST(dtypep, PackArrayDType);
         const CTypeRecursed sub = adtypep->subDTypep()->cTypeRecurse(false, true);
         info.m_type = std::move(sub.m_type);
         info.m_dims = "[" + cvtToStr(adtypep->elementsConst()) + "]" + sub.m_dims;
-    } else if (VN_IS(dtypep, NodeUOrStructDType)
+    } інакше якщо (VN_IS(dtypep, NodeUOrStructDType)
                && (!VN_AS(dtypep, NodeUOrStructDType)->packed() || packed)) {
         const AstNodeUOrStructDType* const sdtypep = VN_AS(dtypep, NodeUOrStructDType);
         UASSERT_OBJ(!packed || sdtypep->packed(), this,
                     "Unsupported type for packed struct or union");
         info.m_type = EmitCUtil::prefixNameProtect(sdtypep);
-    } else if (const AstBasicDType* const bdtypep = dtypep->basicp()) {
+    } інакше якщо (const AstBasicDType* const bdtypep = dtypep->basicp()) {
         // We don't print msb()/lsb() as multidim packed would require recursion,
         // and may confuse users as C++ data is stored always with bit 0 used
         const string bitvec = (!bdtypep->isOpaque() && !v3Global.opt.protectIds())
                                   ? "/*" + cvtToStr(dtypep->width() - 1) + ":0*/"
                                   : "";
-        if (bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
+        якщо (bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
             info.m_type = "const char*";
-        } else if (bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
+        } інакше якщо (bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
             info.m_type = "const ::VerilatedScope*";
-        } else if (bdtypep->keyword().isDouble()) {
+        } інакше якщо (bdtypep->keyword().isDouble()) {
             info.m_type = "double";
-        } else if (bdtypep->keyword().isString()) {
+        } інакше якщо (bdtypep->keyword().isString()) {
             info.m_type = "::std::string";
-        } else if (bdtypep->keyword().isMTaskState()) {
+        } інакше якщо (bdtypep->keyword().isMTaskState()) {
             info.m_type = "::VlMTaskVertex";
-        } else if (bdtypep->isDelayScheduler()) {
+        } інакше якщо (bdtypep->isDelayScheduler()) {
             info.m_type = "::VlDelayScheduler";
-        } else if (bdtypep->isTriggerScheduler()) {
+        } інакше якщо (bdtypep->isTriggerScheduler()) {
             info.m_type = "::VlTriggerScheduler";
-        } else if (bdtypep->isDynamicTriggerScheduler()) {
+        } інакше якщо (bdtypep->isDynamicTriggerScheduler()) {
             info.m_type = "::VlDynamicTriggerScheduler";
-        } else if (bdtypep->isForkSync()) {
+        } інакше якщо (bdtypep->isForkSync()) {
             info.m_type = "::VlForkSync";
-        } else if (bdtypep->isProcessRef()) {
+        } інакше якщо (bdtypep->isProcessRef()) {
             info.m_type = "::VlProcessRef";
-        } else if (bdtypep->isRandomGenerator()) {
+        } інакше якщо (bdtypep->isRandomGenerator()) {
             info.m_type = "::VlRandomizer";
-        } else if (bdtypep->isStdRandomGenerator()) {
+        } інакше якщо (bdtypep->isStdRandomGenerator()) {
             info.m_type = "::VlStdRandomizer";
-        } else if (bdtypep->isCovergroupInstHandle()) {
+        } інакше якщо (bdtypep->isCovergroupInstHandle()) {
             info.m_type = "::VlCovInstHandle";
-        } else if (bdtypep->isEvent()) {
+        } інакше якщо (bdtypep->isEvent()) {
             info.m_type = v3Global.assignsEvents() ? "::VlAssignableEvent" : "::VlEvent";
-        } else if (dtypep->widthMin() <= 8) {  // Handle unpacked arrays; not bdtypep->width
+        } інакше якщо (dtypep->widthMin() <= 8) {  // Handle unpacked arrays; not bdtypep->width
             info.m_type = "::CData" + bitvec;
-        } else if (dtypep->widthMin() <= 16) {
+        } інакше якщо (dtypep->widthMin() <= 16) {
             info.m_type = "::SData" + bitvec;
-        } else if (dtypep->widthMin() <= VL_IDATASIZE) {
+        } інакше якщо (dtypep->widthMin() <= VL_IDATASIZE) {
             info.m_type = "::IData" + bitvec;
-        } else if (dtypep->isQuad()) {
+        } інакше якщо (dtypep->isQuad()) {
             info.m_type = "::QData" + bitvec;
-        } else if (dtypep->isWide()) {
+        } інакше якщо (dtypep->isWide()) {
             info.m_type = "::VlWide<" + cvtToStr(dtypep->widthWords()) + ">" + bitvec;
         }
         // CData, SData, IData, QData or VlWide are packed type.
@@ -2667,169 +2667,169 @@ AstNodeDType::CTypeRecursed AstNodeDType::cTypeRecurse(bool compound, bool packe
                                 || VString::startsWith(info.m_type, "::QData")
                                 || VString::startsWith(info.m_type, "::VlWide");
         UASSERT_OBJ(!packed || packedType, this, "Unsupported type for packed struct or union");
-    } else {
+    } інакше {
         v3fatalSrc("Unknown data type in var type emitter: " << dtypep->prettyName());
     }
 
     UASSERT_OBJ(!compound || info.m_dims.empty(), this, "Declaring C array inside compound type");
 
-    return info;
+    повернути info;
 }
 bool AstNodeDType::containsString() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->containsString();
+    якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        повернути adtypep->subDTypep()->containsString();
     }
-    if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    якщо (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        для (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (itemp->subDTypep()->containsString()) return true;
+            якщо (itemp->subDTypep()->containsString()) повернути true;
         }
-        return false;
+        повернути false;
     }
-    return dtypep->isString();
+    повернути dtypep->isString();
 }
 bool AstNodeDType::containsUnpackedStruct() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->containsUnpackedStruct();
+    якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        повернути adtypep->subDTypep()->containsUnpackedStruct();
     }
     const AstStructDType* const sdtypep = VN_CAST(dtypep, StructDType);
-    return sdtypep && !sdtypep->packed();
+    повернути sdtypep && !sdtypep->packed();
 }
 std::pair<uint32_t, uint32_t> AstNodeDType::dimensions(bool includeBasic) const {
     // How many array dimensions (packed,unpacked) does this Var have?
     uint32_t packed = 0;
     uint32_t unpacked = 0;
-    for (const AstNodeDType* dtypep = this; dtypep;) {
+    для (const AstNodeDType* dtypep = this; dtypep;) {
         dtypep = dtypep->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-        if (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
-            if (VN_IS(adtypep, PackArrayDType)) {
+        якщо (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+            якщо (VN_IS(adtypep, PackArrayDType)) {
                 ++packed;
-            } else {
+            } інакше {
                 ++unpacked;
             }
             dtypep = adtypep->subDTypep();
             continue;
-        } else if (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)
+        } інакше якщо (VN_IS(dtypep, QueueDType) || VN_IS(dtypep, DynArrayDType)
                    || VN_IS(dtypep, AssocArrayDType) || VN_IS(dtypep, WildcardArrayDType)) {
             unpacked++;
             dtypep = dtypep->subDTypep();
             continue;
-        } else if (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
-            if (includeBasic && (adtypep->isRanged() || adtypep->isString())) packed++;
-        } else if (VN_IS(dtypep, StructDType)) {
+        } інакше якщо (const AstBasicDType* const adtypep = VN_CAST(dtypep, BasicDType)) {
+            якщо (includeBasic && (adtypep->isRanged() || adtypep->isString())) packed++;
+        } інакше якщо (VN_IS(dtypep, StructDType)) {
             packed++;
         }
         break;
     }
-    return std::make_pair(packed, unpacked);
+    повернути std::make_pair(packed, unpacked);
 }
 void AstNodeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (generic()) str << " [GENERIC]";
-    if (const AstNodeDType* const dtp = virtRefDTypep()) {
+    якщо (generic()) str << " [GENERIC]";
+    якщо (const AstNodeDType* const dtp = virtRefDTypep()) {
         str << " refdt=" << nodeAddr(dtp);
         dtp->dumpSmall(str);
     }
 }
 void AstNodeDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, generic);
-    if (isSigned() && !isDouble()) dumpJsonBoolIf(str, "signed", true);
+    якщо (isSigned() && !isDouble()) dumpJsonBoolIf(str, "signed", true);
     dumpJsonGen(str);
 }
 void AstNodeDType::dumpSmall(std::ostream& str) const VL_MT_STABLE {
     str << "(" << (generic() ? "G/" : "") << ((isSigned() && !isDouble()) ? "s" : "")
         << (isNosign() ? "n" : "") << (isDouble() ? "d" : "") << (isString() ? "str" : "");
-    if (!isDouble() && !isString()) str << "w" << (widthSized() ? "" : "u") << width();
-    if (!widthSized()) str << "/" << widthMin();
+    якщо (!isDouble() && !isString()) str << "w" << (widthSized() ? "" : "u") << width();
+    якщо (!widthSized()) str << "/" << widthMin();
     str << ")";
 }
 const AstNodeDType* AstNodeDType::elemDTypep(bool skipRef) const {
     const AstNodeDType* dtypep = this;
-    while (true) {
-        if (skipRef) dtypep = dtypep->skipRefp();
-        if (const AstBracketArrayDType* const adtypep = VN_CAST(dtypep, BracketArrayDType)) {
+    поки (true) {
+        якщо (skipRef) dtypep = dtypep->skipRefp();
+        якщо (const AstBracketArrayDType* const adtypep = VN_CAST(dtypep, BracketArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
+        } інакше якщо (const AstDynArrayDType* const adtypep = VN_CAST(dtypep, DynArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
+        } інакше якщо (const AstQueueDType* const adtypep = VN_CAST(dtypep, QueueDType)) {
             dtypep = adtypep->subDTypep();
-        } else if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        } інакше якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
             dtypep = adtypep->subDTypep();
-        } else {
+        } інакше {
             break;
         }
     }
-    return dtypep;
+    повернути dtypep;
 }
-bool AstNodeDType::isFourstate() const { return basicp() && basicp()->isFourstate(); }
+bool AstNodeDType::isFourstate() const { повернути basicp() && basicp()->isFourstate(); }
 bool AstNodeDType::isLiteralType() const VL_MT_STABLE {
-    if (const auto* const dtypep = VN_CAST(skipRefp(), BasicDType)) {
-        return dtypep->keyword().isLiteralType();
-    } else if (const auto* const dtypep = VN_CAST(skipRefp(), UnpackArrayDType)) {
+    якщо (const auto* const dtypep = VN_CAST(skipRefp(), BasicDType)) {
+        повернути dtypep->keyword().isLiteralType();
+    } інакше якщо (const auto* const dtypep = VN_CAST(skipRefp(), UnpackArrayDType)) {
         // basicp() is null for e.g. an array of unpacked structs, which is not literal
         const AstBasicDType* const basicp = dtypep->basicp();
-        return basicp && basicp->isLiteralType();
-    } else if (const auto* const dtypep = VN_CAST(skipRefp(), StructDType)) {
+        повернути basicp && basicp->isLiteralType();
+    } інакше якщо (const auto* const dtypep = VN_CAST(skipRefp(), StructDType)) {
         // Currently all structs are packed, later this can be expanded to
         // 'forall members _.isLiteralType()'
-        return dtypep->packed();
-    } else {
-        return false;
+        повернути dtypep->packed();
+    } інакше {
+        повернути false;
     }
 }
 bool AstNodeDType::isNonPackedArray() const {
-    return VN_IS(this, UnpackArrayDType) || VN_IS(this, DynArrayDType) || VN_IS(this, QueueDType)
+    повернути VN_IS(this, UnpackArrayDType) || VN_IS(this, DynArrayDType) || VN_IS(this, QueueDType)
            || VN_IS(this, AssocArrayDType);
 }
 bool AstNodeDType::isStreamableFixedAggregate() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->isStreamableFixedAggregate();
-    } else if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (sdtypep->packed()) return true;
-        if (!VN_IS(sdtypep, StructDType)) return false;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        повернути adtypep->subDTypep()->isStreamableFixedAggregate();
+    } інакше якщо (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        якщо (sdtypep->packed()) повернути true;
+        якщо (!VN_IS(sdtypep, StructDType)) повернути false;
+        для (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->dtypep()->isStreamableFixedAggregate()) return false;
+            якщо (!itemp->dtypep()->isStreamableFixedAggregate()) повернути false;
         }
-        return true;
+        повернути true;
     }
-    return dtypep->isIntegralOrPacked() || dtypep->isDouble();
+    повернути dtypep->isIntegralOrPacked() || dtypep->isDouble();
 }
 bool AstNodeDType::isTriviallyConstructible() const VL_MT_STABLE {
     // Mirrors the cases in cTypeRecurse
     const AstNodeDType* const dtypep = skipRefp();
     // Containers
-    if (VN_IS(dtypep, AssocArrayDType)) return false;
-    if (VN_IS(dtypep, CDType)) return false;
-    if (VN_IS(dtypep, WildcardArrayDType)) return false;
-    if (VN_IS(dtypep, DynArrayDType)) return false;
-    if (VN_IS(dtypep, QueueDType)) return false;
-    if (VN_IS(dtypep, SampleQueueDType)) return false;
-    if (VN_IS(dtypep, NBACommitQueueDType)) return false;
+    якщо (VN_IS(dtypep, AssocArrayDType)) повернути false;
+    якщо (VN_IS(dtypep, CDType)) повернути false;
+    якщо (VN_IS(dtypep, WildcardArrayDType)) повернути false;
+    якщо (VN_IS(dtypep, DynArrayDType)) повернути false;
+    якщо (VN_IS(dtypep, QueueDType)) повернути false;
+    якщо (VN_IS(dtypep, SampleQueueDType)) повернути false;
+    якщо (VN_IS(dtypep, NBACommitQueueDType)) повернути false;
     // Pointers
-    if (VN_IS(dtypep, CoverCrossDType)) return true;
-    if (VN_IS(dtypep, CoverpointDType)) return true;
-    if (VN_IS(dtypep, IfaceRefDType)) return true;
+    якщо (VN_IS(dtypep, CoverCrossDType)) повернути true;
+    якщо (VN_IS(dtypep, CoverpointDType)) повернути true;
+    якщо (VN_IS(dtypep, IfaceRefDType)) повернути true;
     // Others
-    if (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {  //
-        return adtypep->rawPointer();
+    якщо (const auto* const adtypep = VN_CAST(dtypep, ClassRefDType)) {  //
+        повернути adtypep->rawPointer();
     }
-    if (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->isTriviallyConstructible();
+    якщо (const auto* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        повернути adtypep->subDTypep()->isTriviallyConstructible();
     }
-    if (const auto* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (sdtypep->packed()) return true;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    якщо (const auto* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        якщо (sdtypep->packed()) повернути true;
+        для (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->dtypep()->isTriviallyConstructible()) return false;
+            якщо (!itemp->dtypep()->isTriviallyConstructible()) повернути false;
         }
-        return true;
+        повернути true;
     }
-    if (const AstBasicDType* const bdtypep = dtypep->basicp()) {
-        return !bdtypep->isOpaque() || bdtypep->isDouble()
+    якщо (const AstBasicDType* const bdtypep = dtypep->basicp()) {
+        повернути !bdtypep->isOpaque() || bdtypep->isDouble()
                || bdtypep->keyword() == VBasicDTypeKwd::CHARPTR
                || bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR;
     }
@@ -2839,9 +2839,9 @@ bool AstNodeDType::similarDType(const AstNodeDType* samep) const {
     const AstNodeDType* nodep = this;
     nodep = nodep->skipRefToNonRefp();
     samep = samep->skipRefToNonRefp();
-    if (nodep == samep) return true;
-    if (nodep->type() != samep->type()) return false;
-    return nodep->similarDTypeNode(samep);
+    якщо (nodep == samep) повернути true;
+    якщо (nodep->type() != samep->type()) повернути false;
+    повернути nodep->similarDTypeNode(samep);
 }
 const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
                                                bool assertOn) const VL_MT_STABLE {
@@ -2852,21 +2852,21 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
     // which is the common case and should be fast.
     {
         const AstNodeDType* nodep = this;
-        for (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
-            if (VN_IS(nodep, MemberDType)  //
+        для (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
+            якщо (VN_IS(nodep, MemberDType)  //
                 || VN_IS(nodep, ParamTypeDType)  //
                 || VN_IS(nodep, RefDType)  //
                 || VN_IS(nodep, RequireDType)  //
                 || (VN_IS(nodep, ConstDType) && skipConst)  //
                 || (VN_IS(nodep, EnumDType) && skipEnum)) {
-                if (const AstNodeDType* subp = nodep->subDTypep()) {
+                якщо (const AstNodeDType* subp = nodep->subDTypep()) {
                     nodep = subp;
                     continue;
                 }
-                if (assertOn) nodep->v3fatalSrc(nodep->prettyTypeName() << " not linked to type");
-                return nullptr;
+                якщо (assertOn) nodep->v3fatalSrc(nodep->prettyTypeName() << " not linked to type");
+                повернути nullptr;
             }
-            return nodep;
+            повернути nodep;
         }
     }
 
@@ -2879,13 +2879,13 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
         bool isCyclic = false;
         std::ostringstream ss;
         const AstNodeDType* nodep = this;
-        for (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
-            if (!visited.emplace(nodep).second) {
+        для (size_t depth = 0; depth < MAX_TYPEDEF_DEPTH; ++depth) {
+            якщо (!visited.emplace(nodep).second) {
                 isCyclic = true;
                 break;
             }
             // Skip internal scaffolding nodes (e.g. REQUIREDTYPE) with no user-visible name
-            if (depth < MAX_CHAIN_DISPLAY && !nodep->name().empty()) {
+            якщо (depth < MAX_CHAIN_DISPLAY && !nodep->name().empty()) {
                 FileLine* const flp = nodep->fileline();
                 ss << '\n'
                    << flp->warnOther() << "... Type chain: " << nodep->prettyTypeName() << '\n'
@@ -2894,13 +2894,13 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
             nodep = nodep->subDTypep();
         }
         std::ostringstream& os = V3Error::v3errorStr();
-        if (isCyclic) {
+        якщо (isCyclic) {
             os << "Recursive type definition";
-        } else {
+        } інакше {
             os << "Type definition over " << MAX_TYPEDEF_DEPTH << " types deep";
         }
         os << ss.str();
-        if (visited.size() > MAX_CHAIN_DISPLAY) {
+        якщо (visited.size() > MAX_CHAIN_DISPLAY) {
             os << '\n'
                << this->fileline()->warnMore() << "... and "
                << (visited.size() - MAX_CHAIN_DISPLAY) << " more";
@@ -2909,159 +2909,159 @@ const AstNodeDType* AstNodeDType::skipRefIterp(bool skipConst, bool skipEnum,
     }
 
     // Not resolved
-    return nullptr;
+    повернути nullptr;
 }
 string AstNodeDType::vlEnumPackedAgg() const {
     // Packed struct/union element, so VPI can select its members
     const AstNodeDType* dtypep = skipRefp();
-    while (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
+    поки (const AstNodeArrayDType* const adtypep = VN_CAST(dtypep, NodeArrayDType)) {
         dtypep = adtypep->subDTypep()->skipRefp();
     }
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
-    if (!sdtypep || !sdtypep->packed()) return "";
-    return VN_IS(sdtypep, UnionDType) ? "|VLVF_PACKED_AGG|VLVF_PACKED_UNION" : "|VLVF_PACKED_AGG";
+    якщо (!sdtypep || !sdtypep->packed()) повернути "";
+    повернути VN_IS(sdtypep, UnionDType) ? "|VLVF_PACKED_AGG|VLVF_PACKED_UNION" : "|VLVF_PACKED_AGG";
 }
 string AstNodeDType::vlEnumType() const {
     string arg;
     const AstNodeDType* dtypep = skipRefp();
-    while (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+    поки (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
         dtypep = adtypep->subDTypep()->skipRefp();
     }
     const AstBasicDType* const bdtypep = dtypep->basicp();
     const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType);
     const bool strtype = bdtypep && bdtypep->keyword() == VBasicDTypeKwd::STRING;
-    if (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
-        return "VLVT_PTR";
-    } else if (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
-        return "VLVT_PTR";
-    } else if (strtype) {
+    якщо (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::CHARPTR) {
+        повернути "VLVT_PTR";
+    } інакше якщо (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::SCOPEPTR) {
+        повернути "VLVT_PTR";
+    } інакше якщо (strtype) {
         arg += "VLVT_STRING";
-    } else if (isDouble()) {
+    } інакше якщо (isDouble()) {
         arg += "VLVT_REAL";
-    } else if (sdtypep && !sdtypep->packed()) {
+    } інакше якщо (sdtypep && !sdtypep->packed()) {
         arg += VN_IS(sdtypep, StructDType) ? "VLVT_STRUCT" : "VLVT_UNION";
-    } else if (dtypep->isCompound() || (bdtypep && bdtypep->isEvent())) {
+    } інакше якщо (dtypep->isCompound() || (bdtypep && bdtypep->isEvent())) {
         // Queue, class handle, event etc.: widthMin() is not their storage size
-        return "";
-    } else if (widthMin() <= 8) {
+        повернути "";
+    } інакше якщо (widthMin() <= 8) {
         arg += "VLVT_UINT8";
-    } else if (widthMin() <= 16) {
+    } інакше якщо (widthMin() <= 16) {
         arg += "VLVT_UINT16";
-    } else if (widthMin() <= VL_IDATASIZE) {
+    } інакше якщо (widthMin() <= VL_IDATASIZE) {
         arg += "VLVT_UINT32";
-    } else if (isQuad()) {
+    } інакше якщо (isQuad()) {
         arg += "VLVT_UINT64";
-    } else if (isWide()) {
+    } інакше якщо (isWide()) {
         arg += "VLVT_WDATA";
     }
     // else return "VLVT_UNKNOWN"
-    return arg;
+    повернути arg;
 }
-int AstNodeDType::widthPow2() const {
+ціле AstNodeDType::widthPow2() const {
     // I.e.  width 30 returns 32, width 32 returns 32.
     // cppcheck-suppress shadowFunction
     const uint32_t width = this->width();
-    for (int p2 = 30; p2 >= 0; p2--) {
-        if (width > (1UL << p2)) return (1UL << (p2 + 1));
+    для (ціле p2 = 30; p2 >= 0; p2--) {
+        якщо (width > (1UL << p2)) повернути (1UL << (p2 + 1));
     }
-    return 1;
+    повернути 1;
 }
-int AstNodeDType::widthStream() const {
+ціле AstNodeDType::widthStream() const {
     const AstNodeDType* const dtypep = skipRefp();
-    if (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
-        return adtypep->subDTypep()->widthStream() * adtypep->elementsConst();
-    } else if (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (!VN_IS(sdtypep, StructDType) || sdtypep->packed()) return width();
-        int width = 0;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(dtypep, UnpackArrayDType)) {
+        повернути adtypep->subDTypep()->widthStream() * adtypep->elementsConst();
+    } інакше якщо (const AstNodeUOrStructDType* const sdtypep = VN_CAST(dtypep, NodeUOrStructDType)) {
+        якщо (!VN_IS(sdtypep, StructDType) || sdtypep->packed()) повернути width();
+        ціле width = 0;
+        для (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             width += itemp->dtypep()->widthStream();
         }
-        return width;
+        повернути width;
     }
-    return dtypep->width();
+    повернути dtypep->width();
 }
 // What is the base variable (or const) this dereferences?
 AstNode* AstNodeExpr::baseFromp(bool overMembers) {
     AstNode* nodep = this;
-    while (nodep) {
-        if (VN_IS(nodep, ArraySel)) {
+    поки (nodep) {
+        якщо (VN_IS(nodep, ArraySel)) {
             nodep = VN_AS(nodep, ArraySel)->fromp();
             continue;
-        } else if (VN_IS(nodep, Sel)) {
+        } інакше якщо (VN_IS(nodep, Sel)) {
             nodep = VN_AS(nodep, Sel)->fromp();
             continue;
-        } else if (VN_IS(nodep, AssocSel)) {
+        } інакше якщо (VN_IS(nodep, AssocSel)) {
             nodep = VN_AS(nodep, AssocSel)->fromp();
             continue;
-        } else if (VN_IS(nodep, WildcardSel)) {
+        } інакше якщо (VN_IS(nodep, WildcardSel)) {
             nodep = VN_AS(nodep, WildcardSel)->fromp();
             continue;
-        } else if (VN_IS(nodep, CMethodHard)) {
+        } інакше якщо (VN_IS(nodep, CMethodHard)) {
             nodep = VN_AS(nodep, CMethodHard)->fromp();
             continue;
-        } else if (overMembers && VN_IS(nodep, MemberSel)) {
+        } інакше якщо (overMembers && VN_IS(nodep, MemberSel)) {
             nodep = VN_AS(nodep, MemberSel)->fromp();
             continue;
-        } else if (overMembers && VN_IS(nodep, StructSel)) {
+        } інакше якщо (overMembers && VN_IS(nodep, StructSel)) {
             nodep = VN_AS(nodep, StructSel)->fromp();
             continue;
         }
         // AstNodePreSel stashes the associated variable under an ATTROF
         // of VAttrType::VAR_BASE so it isn't constified
-        else if (VN_IS(nodep, AttrOf)) {
+        інакше якщо (VN_IS(nodep, AttrOf)) {
             nodep = VN_AS(nodep, AttrOf)->fromp();
             continue;
-        } else if (VN_IS(nodep, NodePreSel)) {
-            if (VN_AS(nodep, NodePreSel)->attrp()) {
+        } інакше якщо (VN_IS(nodep, NodePreSel)) {
+            якщо (VN_AS(nodep, NodePreSel)->attrp()) {
                 nodep = VN_AS(nodep, NodePreSel)->attrp();
-            } else {
+            } інакше {
                 nodep = VN_AS(nodep, NodePreSel)->fromp();
             }
             continue;
-        } else {
+        } інакше {
             break;
         }
     }
-    return nodep;
+    повернути nodep;
 }
 void AstNodeExpr::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeExpr::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 VAccess AstNodeExpr::getVAccessRecurse() const {
     const AstNodeExpr* const exprp = getVAccessTargetRecurse();
-    if (!exprp) return VAccess::READ;  // nothing found so, it is rvalue
-    if (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
-        return varrefp->access();
+    якщо (!exprp) повернути VAccess::READ;  // nothing found so, it is rvalue
+    якщо (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
+        повернути varrefp->access();
     }
-    if (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-        return memberSelp->access();
+    якщо (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
+        повернути memberSelp->access();
     }
-    if (const AstSelBit* const selpBitp = VN_CAST(exprp, SelBit)) return selpBitp->access();
+    якщо (const AstSelBit* const selpBitp = VN_CAST(exprp, SelBit)) повернути selpBitp->access();
     exprp->v3fatalSrc("Unexpected expression type");
     // Maybe getVAccessTargetRecurse() has been updated and this function didn't?
 }
 const AstNodeExpr* AstNodeExpr::getVAccessTargetRecurse() const {
     // Given an expression, recurse to find the expression which decides about VAccess etc.
-    if (VN_IS(this, NodeVarRef)) return this;
-    if (VN_IS(this, MemberSel)) return this;
-    if (VN_IS(this, SelBit)) return this;
-    if (const AstNodeSel* const anodep = VN_CAST(this, NodeSel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    якщо (VN_IS(this, NodeVarRef)) повернути this;
+    якщо (VN_IS(this, MemberSel)) повернути this;
+    якщо (VN_IS(this, SelBit)) повернути this;
+    якщо (const AstNodeSel* const anodep = VN_CAST(this, NodeSel)) {
+        повернути anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstSel* const anodep = VN_CAST(this, Sel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    якщо (const AstSel* const anodep = VN_CAST(this, Sel)) {
+        повернути anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstArraySel* const anodep = VN_CAST(this, ArraySel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    якщо (const AstArraySel* const anodep = VN_CAST(this, ArraySel)) {
+        повернути anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstStructSel* const anodep = VN_CAST(this, StructSel)) {
-        return anodep->fromp()->getVAccessTargetRecurse();
+    якщо (const AstStructSel* const anodep = VN_CAST(this, StructSel)) {
+        повернути anodep->fromp()->getVAccessTargetRecurse();
     }
-    if (const AstConcat* const anodep = VN_CAST(this, Concat)) {
+    якщо (const AstConcat* const anodep = VN_CAST(this, Concat)) {
         // Enough to check only one side, as both must be same otherwise malformed
-        return anodep->lhsp()->getVAccessTargetRecurse();
+        повернути anodep->lhsp()->getVAccessTargetRecurse();
     }
-    if (const AstCMethodHard* const anodep = VN_CAST(this, CMethodHard)) {
+    якщо (const AstCMethodHard* const anodep = VN_CAST(this, CMethodHard)) {
         switch (anodep->method()) {
         case VCMethod::ARRAY_AT:
         case VCMethod::ARRAY_AT_BACK:
@@ -3069,11 +3069,11 @@ const AstNodeExpr* AstNodeExpr::getVAccessTargetRecurse() const {
         case VCMethod::DYN_AT_WRITE_APPEND:
         case VCMethod::DYN_AT_WRITE_APPEND_BACK:
             // Used for things like Queue/AssocArray/DynArray
-            return anodep->fromp()->getVAccessTargetRecurse();
+            повернути anodep->fromp()->getVAccessTargetRecurse();
         default: break;
         }
     }
-    return nullptr;  // nothing found
+    повернути nullptr;  // nothing found
 }
 bool AstNodeExpr::isConstantTree() const {
     // Check the tree is composed only of Const, NodeCons and NodeConsItem. Record it on each
@@ -3082,7 +3082,7 @@ bool AstNodeExpr::isConstantTree() const {
         bool m_constant = true;  // Tree checked so far is constant
 
         void iterateCached(AstNode* nodep, bool& knownr) {
-            if (!m_constant || knownr) return;
+            якщо (!m_constant || knownr) повернути;
             iterateChildrenConst(nodep);
             knownr = m_constant;
         }
@@ -3099,37 +3099,37 @@ bool AstNodeExpr::isConstantTree() const {
         explicit IsConstantTreeVisitor(AstNode* nodep) { iterateConst(nodep); }
 
     public:
-        static bool apply(AstNodeExpr* nodep) { return IsConstantTreeVisitor{nodep}.m_constant; }
+        static bool apply(AstNodeExpr* nodep) { повернути IsConstantTreeVisitor{nodep}.m_constant; }
     };
-    return IsConstantTreeVisitor::apply(const_cast<AstNodeExpr*>(this));
+    повернути IsConstantTreeVisitor::apply(const_cast<AstNodeExpr*>(this));
 }
 const char* AstNodeFTask::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 void AstNodeFTask::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classMethod()) str << " [METHOD]";
-    if (dpiExport()) str << " [DPIX]";
-    if (dpiImport()) str << " [DPII]";
-    if (dpiOpenChild()) str << " [DPIOPENCHILD]";
-    if (dpiOpenParent()) str << " [DPIOPENPARENT]";
-    if (isExternDef()) str << " [EXTDEF]";
-    if (isExternProto()) str << " [EXTPROTO]";
-    if (isVirtual()) str << " [VIRT]";
-    if (keepAlive()) str << " [KALIVE]";
-    if (prototype()) str << " [PROTOTYPE]";
-    if (pureVirtual()) str << " [PUREVIRTUAL]";
-    if (recursive()) str << " [RECURSIVE]";
-    if (taskPublic()) str << " [PUBLIC]";
-    if (isStatic()) str << " [STATIC]";
-    if (verilogTask()) str << " [VTASK]";
-    if (verilogFunction()) str << " [VFUNC]";
-    if (needProcess()) str << " [NPRC]";
-    if (!ifacePortName().empty()) str << " ifp=" << ifacePortName();
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
-    if ((dpiImport() || dpiExport()) && cname() != name()) str << " [c=" << cname() << "]";
-    if (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
+    якщо (classMethod()) str << " [METHOD]";
+    якщо (dpiExport()) str << " [DPIX]";
+    якщо (dpiImport()) str << " [DPII]";
+    якщо (dpiOpenChild()) str << " [DPIOPENCHILD]";
+    якщо (dpiOpenParent()) str << " [DPIOPENPARENT]";
+    якщо (isExternDef()) str << " [EXTDEF]";
+    якщо (isExternProto()) str << " [EXTPROTO]";
+    якщо (isVirtual()) str << " [VIRT]";
+    якщо (keepAlive()) str << " [KALIVE]";
+    якщо (prototype()) str << " [PROTOTYPE]";
+    якщо (pureVirtual()) str << " [PUREVIRTUAL]";
+    якщо (recursive()) str << " [RECURSIVE]";
+    якщо (taskPublic()) str << " [PUBLIC]";
+    якщо (isStatic()) str << " [STATIC]";
+    якщо (verilogTask()) str << " [VTASK]";
+    якщо (verilogFunction()) str << " [VFUNC]";
+    якщо (needProcess()) str << " [NPRC]";
+    якщо (!ifacePortName().empty()) str << " ifp=" << ifacePortName();
+    якщо (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    якщо ((dpiImport() || dpiExport()) && cname() != name()) str << " [c=" << cname() << "]";
+    якщо (baseOverride().isAny()) str << " [" << baseOverride().ascii() << "]";
 }
 void AstNodeFTask::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "method", classMethod());
@@ -3147,51 +3147,51 @@ void AstNodeFTask::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, taskPublic);
     dumpJsonStr(str, "ifacePortName", ifacePortName());
     dumpJsonStr(str, "lifetime", lifetime().ascii());
-    if (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
+    якщо (baseOverride().isAny()) dumpJsonStr(str, "baseOverride", baseOverride().ascii());
     dumpJsonStrFunc(str, cname);
     dumpJsonGen(str);
 }
 bool AstNodeFTask::getPurityRecurse() const {
-    if (this->dpiImport()) return this->dpiPure();
+    якщо (this->dpiImport()) повернути this->dpiPure();
     // Check the list of statements if it contains any impure statement
     // or any write reference to a variable that isn't an automatic function local.
-    for (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-        if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-            if (varp->isInoutOrRef()) return false;
+    для (AstNode* stmtp = this->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        якщо (const AstVar* const varp = VN_CAST(stmtp, Var)) {
+            якщо (varp->isInoutOrRef()) повернути false;
         }
-        if (!stmtp->isPure()) return false;
-        if (stmtp->exists([](AstNode* const nodep) {
-                if (AstNodeVarRef* const varrefp = VN_CAST(nodep, VarRef)) {
-                    return (!varrefp->varp()->isFuncLocal()
+        якщо (!stmtp->isPure()) повернути false;
+        якщо (stmtp->exists([](AstNode* const nodep) {
+                якщо (AstNodeVarRef* const varrefp = VN_CAST(nodep, VarRef)) {
+                    повернути (!varrefp->varp()->isFuncLocal()
                             || varrefp->varp()->lifetime().isStatic())
                            && varrefp->access().isWriteOrRW();
                 }
-                return !nodep->isPure();
+                повернути !nodep->isPure();
             }))
-            return false;
+            повернути false;
     }
-    return true;
+    повернути true;
 }
 bool AstNodeFTask::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 const char* AstNodeFTaskRef::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 void AstNodeFTaskRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (pli()) str << " [PLI]";
-    if (superReference()) str << " [SUPERREF]";
+    якщо (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    якщо (containsGenBlock()) str << " [GENBLK]";
+    якщо (pli()) str << " [PLI]";
+    якщо (superReference()) str << " [SUPERREF]";
     str << " -> ";
-    if (dotted() != "") str << ".=" << dotted() << " ";
-    if (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
-    if (taskp()) {
+    якщо (dotted() != "") str << ".=" << dotted() << " ";
+    якщо (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
+    якщо (taskp()) {
         taskp()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
@@ -3207,35 +3207,35 @@ bool AstNodeFTaskRef::getPurityRecurse() const {
     // cppcheck-suppress shadowFunction
     AstNodeFTask* const taskp = this->taskp();
     // Unlinked yet, so treat as impure
-    if (!taskp) return false;
+    якщо (!taskp) повернути false;
     // First compute the purity of arguments
-    for (AstArg* argp = this->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-        if (!argp->isPure()) return false;
+    для (AstArg* argp = this->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+        якщо (!argp->isPure()) повернути false;
     }
-    return taskp->isPure();
+    повернути taskp->isPure();
 }
-bool AstNodeFTaskRef::isGateOptimizable() const { return m_taskp && m_taskp->isGateOptimizable(); }
+bool AstNodeFTaskRef::isGateOptimizable() const { повернути m_taskp && m_taskp->isGateOptimizable(); }
 bool AstNodeFTaskRef::isPure() {
-    if (!this->taskp()) {
+    якщо (!this->taskp()) {
         // The task isn't linked yet, so it's assumed that it is impure, but the value shouldn't be
         // cached.
-        return false;
-    } else {
-        if (!m_purity.isCached()) {
+        повернути false;
+    } інакше {
+        якщо (!m_purity.isCached()) {
             m_purity.set(true);  // To prevent infinite recursion, set to true before getting
                                  // the actual purity. If there are impure statements in the
                                  // task/function, they'll taint this call anyway.
             m_purity.set(this->getPurityRecurse());
         }
-        return m_purity.get();
+        повернути m_purity.get();
     }
 }
 void AstNodeFile::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeFile::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstNodeIf::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isBoundsCheck()) str << " [BOUNDS]";
-    if (!branchPred().unknown()) str << " [" << branchPred().asciiShort() << "]";
+    якщо (isBoundsCheck()) str << " [BOUNDS]";
+    якщо (!branchPred().unknown()) str << " [" << branchPred().asciiShort() << "]";
 }
 void AstNodeIf::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "isBoundsCheck", isBoundsCheck());
@@ -3243,34 +3243,34 @@ void AstNodeIf::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 string AstNodeModule::dtypeNameInnerScope(const string& outer) const {
-    if (const AstClass* const classp = VN_CAST(this, Class)) {
-        return classp->dtypeNameIn(outer) + "::";
+    якщо (const AstClass* const classp = VN_CAST(this, Class)) {
+        повернути classp->dtypeNameIn(outer) + "::";
     }
-    if (const AstIface* const ifacep = VN_CAST(this, Iface)) return ifacep->dtypeName(true) + ".";
+    якщо (const AstIface* const ifacep = VN_CAST(this, Iface)) повернути ifacep->dtypeName(true) + ".";
     // '$unit' is no identifier, so not escaped
-    if (isDollarUnit()) return "$unit::";
-    if (VN_IS(this, Package)) return dtypeNameIdent(origName()) + "::";
-    return dtypeNameIdent(origName()) + dtypeNameParams(this, true) + ".";
+    якщо (isDollarUnit()) повернути "$unit::";
+    якщо (VN_IS(this, Package)) повернути dtypeNameIdent(origName()) + "::";
+    повернути dtypeNameIdent(origName()) + dtypeNameParams(this, true) + ".";
 }
 void AstNodeModule::dump(std::ostream& str) const {
     Super::dump(str);
     str << "  L" << level();
     str << " D" << depth();
-    if (modPublic()) str << " [P]";
-    if (inLibrary()) str << " [LIB]";
-    if (ctorVarReset()) str << " [CVRESET]";
-    if (dead()) str << " [DEAD]";
-    if (recursiveClone()) {
+    якщо (modPublic()) str << " [P]";
+    якщо (inLibrary()) str << " [LIB]";
+    якщо (ctorVarReset()) str << " [CVRESET]";
+    якщо (dead()) str << " [DEAD]";
+    якщо (recursiveClone()) {
         str << " [RECURSIVE-CLONE]";
-    } else if (recursive()) {
+    } інакше якщо (recursive()) {
         str << " [RECURSIVE]";
     }
-    if (parameterizedTemplate()) str << " [PAR-TEMPL]";
-    if (verilatorLib()) str << " [VERILATOR-LIB]";
-    if (unconnectedDrive().isTrue()) str << " [UCDRV]";
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    якщо (parameterizedTemplate()) str << " [PAR-TEMPL]";
+    якщо (verilatorLib()) str << " [VERILATOR-LIB]";
+    якщо (unconnectedDrive().isTrue()) str << " [UCDRV]";
+    якщо (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
     str << " [" << timeunit() << "]";
-    if (libname() != "work") str << " libname=" << libname();
+    якщо (libname() != "work") str << " libname=" << libname();
 }
 void AstNodeModule::dumpJson(std::ostream& str) const {
     dumpJsonStrFunc(str, origName);
@@ -3287,21 +3287,21 @@ void AstNodeModule::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "unconnectedDrive", unconnectedDrive().ascii());
     dumpJsonStr(str, "lifetime", lifetime().ascii());
     dumpJsonStr(str, "timeunit", timeunit().ascii());
-    if (libname() != "work") dumpJsonStr(str, "libname=", libname());
+    якщо (libname() != "work") dumpJsonStr(str, "libname=", libname());
     dumpJsonGen(str);
 }
 const char* AstNodePreSel::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 bool AstNodePreSel::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 void AstNodeProcedure::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSuspendable()) str << " [SUSP]";
-    if (needProcess()) str << " [NPRC]";
+    якщо (isSuspendable()) str << " [SUSP]";
+    якщо (needProcess()) str << " [NPRC]";
 }
 void AstNodeProcedure::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isSuspendable);
@@ -3310,118 +3310,118 @@ void AstNodeProcedure::dumpJson(std::ostream& str) const {
 }
 const char* AstNodeQuadop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 bool AstNodeQuadop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 void AstNodeRange::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeRange::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstNodeReadWriteMem::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isHex()) str << " [HEX]";
+    якщо (isHex()) str << " [HEX]";
 }
 void AstNodeReadWriteMem::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isHex);
     dumpJsonGen(str);
 }
-int AstNodeSel::bitConst() const {
+ціле AstNodeSel::bitConst() const {
     const AstConst* const constp = VN_AS(bitp(), Const);
-    return (constp ? constp->toSInt() : 0);
+    повернути (constp ? constp->toSInt() : 0);
 }
 void AstNodeStmt::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeStmt::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 const char* AstNodeTriop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != getPurityRecurse());
-    return nullptr;
+    повернути nullptr;
 }
 void AstNodeTriop::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeTriop::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 bool AstNodeTriop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(getPurityRecurse());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(getPurityRecurse());
+    повернути m_purity.get();
 }
 string AstNodeUOrStructDType::dpiName() const {
     // C has no scopes, so the name the typedef declaring it gives, without the scope
-    return m_typedefName.substr(m_typedefName.find_last_of(".:") + 1);
+    повернути m_typedefName.substr(m_typedefName.find_last_of(".:") + 1);
 }
 string AstNodeUOrStructDType::dpiTypedef() const {
-    return "typedef " + dpiStructDecl(this) + " " + dpiName() + ";\n";
+    повернути "typedef " + dpiStructDecl(this) + " " + dpiName() + ";\n";
 }
 void AstNodeUOrStructDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packed()) str << " [PACKED]";
-    if (isFourstate()) str << " [4STATE]";
-    if (isConstrainedRand()) str << " [CSRAND]";
-    if (emitToString()) str << " [EMITSTR]";
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
-    if (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
+    якщо (packed()) str << " [PACKED]";
+    якщо (isFourstate()) str << " [4STATE]";
+    якщо (isConstrainedRand()) str << " [CSRAND]";
+    якщо (emitToString()) str << " [EMITSTR]";
+    якщо (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    якщо (!m_typedefName.empty()) str << " typedefName=" << m_typedefName;
 }
 void AstNodeUOrStructDType::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, packed);
     dumpJsonBoolFuncIf(str, isConstrainedRand);
     dumpJsonBoolFuncIf(str, isFourstate);
     dumpJsonBoolFuncIf(str, emitToString);
-    if (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
+    якщо (!m_typedefName.empty()) dumpJsonStr(str, "typedefName", m_typedefName);
     dumpJsonGen(str);
 }
 string AstNodeUOrStructDType::prettyDTypeName(bool full) const {
     // Without the members, as other simulators, which would make for long names
-    return dtypeNameKwd(verilogKwd(), full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
+    повернути dtypeNameKwd(verilogKwd(), full ? dtypeNameTypedef(this, m_typedefName) : prettyName());
 }
 bool AstNodeUOrStructDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstNodeUOrStructDType* const sp = VN_DBG_AS(samep, NodeUOrStructDType);
-    if (m_packed != sp->m_packed) return false;
-    if (fileline()->tokenNum() != sp->fileline()->tokenNum()) return false;
+    якщо (m_packed != sp->m_packed) повернути false;
+    якщо (fileline()->tokenNum() != sp->fileline()->tokenNum()) повернути false;
     const AstMemberDType* lp = membersp();
     const AstMemberDType* rp = sp->membersp();
-    while (lp && rp) {
-        if (lp->name() != rp->name()) return false;
-        if (lp->width() != rp->width()) return false;
-        if (!lp->subDTypep()->similarDType(rp->subDTypep())) return false;
+    поки (lp && rp) {
+        якщо (lp->name() != rp->name()) повернути false;
+        якщо (lp->width() != rp->width()) повернути false;
+        якщо (!lp->subDTypep()->similarDType(rp->subDTypep())) повернути false;
         lp = VN_CAST(lp->nextp(), MemberDType);
         rp = VN_CAST(rp->nextp(), MemberDType);
     }
-    return !lp && !rp;
+    повернути !lp && !rp;
 }
-int AstNodeUOrStructDType::widthAlignBytes() const {
+ціле AstNodeUOrStructDType::widthAlignBytes() const {
     // Could do max across members but that would be slow,
     // instead intuit based on total structure size
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (width() <= 32) {
-        return 4;
-    } else {
-        return 8;
+    якщо (width() <= 8) {
+        повернути 1;
+    } інакше якщо (width() <= 16) {
+        повернути 2;
+    } інакше якщо (width() <= 32) {
+        повернути 4;
+    } інакше {
+        повернути 8;
     }
 }
-int AstNodeUOrStructDType::widthTotalBytes() const {
-    if (width() <= 8) {
-        return 1;
-    } else if (width() <= 16) {
-        return 2;
-    } else if (isQuad()) {
-        return 8;
-    } else {
-        return widthWords() * (VL_EDATASIZE / 8);
+ціле AstNodeUOrStructDType::widthTotalBytes() const {
+    якщо (width() <= 8) {
+        повернути 1;
+    } інакше якщо (width() <= 16) {
+        повернути 2;
+    } інакше якщо (isQuad()) {
+        повернути 8;
+    } інакше {
+        повернути widthWords() * (VL_EDATASIZE / 8);
     }
 }
 const char* AstNodeUniop::broken() const {
     BROKEN_RTN(m_purity.isCached() && m_purity.get() != lhsp()->isPure());
-    return nullptr;
+    повернути nullptr;
 }
 void AstNodeUniop::dump(std::ostream& str) const { Super::dump(str); }
 void AstNodeUniop::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 bool AstNodeUniop::isPure() {
-    if (!m_purity.isCached()) m_purity.set(lhsp()->isPure());
-    return m_purity.get();
+    якщо (!m_purity.isCached()) m_purity.set(lhsp()->isPure());
+    повернути m_purity.get();
 }
 void AstNodeVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
+    якщо (classOrPackagep()) str << " pkg=" << nodeAddr(classOrPackagep());
     str << " " << access().arrow() << " ";
 }
 void AstNodeVarRef::dumpJson(std::ostream& str) const {
@@ -3430,17 +3430,17 @@ void AstNodeVarRef::dumpJson(std::ostream& str) const {
 }
 const char* AstNot::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    повернути nullptr;
 }
 const char* AstOr::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    повернути nullptr;
 }
 void AstPExprClause::dump(std::ostream& str) const {
     Super::dump(str);
-    if (pass()) str << " [PASS]";
-    if (vacuous()) str << " [VACUOUS]";
+    якщо (pass()) str << " [PASS]";
+    якщо (vacuous()) str << " [VACUOUS]";
 }
 void AstPExprClause::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, pass);
@@ -3449,15 +3449,15 @@ void AstPExprClause::dumpJson(std::ostream& str) const {
 }
 string AstPackArrayDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
-    if (const auto subp = subDTypep()) os << subp->prettyDTypeName(full);
+    якщо (const auto subp = subDTypep()) os << subp->prettyDTypeName(full);
     os << declRange();
-    return os.str();
+    повернути os.str();
 }
 void AstPackageExport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packagep()) {
+    якщо (packagep()) {
         str << " -> " << packagep();
-    } else {
+    } інакше {
         str << " ->UNLINKED:" << pkgName();
     }
 }
@@ -3467,24 +3467,24 @@ void AstPackageExport::dumpJson(std::ostream& str) const {
 }
 void AstPackageImport::dump(std::ostream& str) const {
     Super::dump(str);
-    if (packagep()) {
+    якщо (packagep()) {
         str << " -> " << packagep();
-    } else {
+    } інакше {
         str << " ->UNLINKED:" << pkgName();
     }
 }
 void AstPackageImport::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 void AstPackageImport::pkgNameFrom() {
-    if (packagep()) m_pkgName = packagep()->name();
+    якщо (packagep()) m_pkgName = packagep()->name();
 }
 void AstParamTypeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
+    якщо (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
     str << " [" << varType().ascii() << "]";
-    if (subDTypep()) {
+    якщо (subDTypep()) {
         str << " -> ";
         subDTypep()->dump(str);
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
@@ -3495,12 +3495,12 @@ void AstParamTypeDType::dumpJson(std::ostream& str) const {
 }
 string AstParamTypeDType::prettyDTypeName(bool full) const {
     // Named as the type it stands for, as is a reference to it, or if not yet resolved, by name
-    if (!skipRefToEnumOrNullp()) return prettyName();
-    return subDTypep()->prettyDTypeName(full);
+    якщо (!skipRefToEnumOrNullp()) повернути prettyName();
+    повернути subDTypep()->prettyDTypeName(full);
 }
 void AstParseTypeDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
+    якщо (fwdType() != VFwdType::NONE) str << " [" << fwdType().ascii() << "]";
 }
 void AstParseTypeDType::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "fwdType", fwdType().ascii());
@@ -3508,7 +3508,7 @@ void AstParseTypeDType::dumpJson(std::ostream& str) const {
 }
 void AstPast::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propertyTiming()) str << " [PROPERTY_TIMING]";
+    якщо (propertyTiming()) str << " [PROPERTY_TIMING]";
 }
 void AstPast::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, propertyTiming);
@@ -3516,8 +3516,8 @@ void AstPast::dumpJson(std::ostream& str) const {
 }
 void AstPatMember::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isConcat()) str << " [CONCAT]";
-    if (isDefault()) str << " [DEFAULT]";
+    якщо (isConcat()) str << " [CONCAT]";
+    якщо (isDefault()) str << " [DEFAULT]";
 }
 void AstPatMember::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isConcat);
@@ -3526,26 +3526,26 @@ void AstPatMember::dumpJson(std::ostream& str) const {
 }
 void AstPin::dump(std::ostream& str) const {
     Super::dump(str);
-    if (modVarp()) {
+    якщо (modVarp()) {
         str << " -> ";
         modVarp()->dump(str);
-    } else {
+    } інакше {
         str << " ->UNLINKED";
     }
-    if (param()) str << " [PAR]";
-    if (!paramPath().empty()) str << " paramPath=" << paramPath();
-    if (svDotName()) str << " [.n]";
-    if (svImplicit()) str << " [.SV]";
+    якщо (param()) str << " [PAR]";
+    якщо (!paramPath().empty()) str << " paramPath=" << paramPath();
+    якщо (svDotName()) str << " [.n]";
+    якщо (svImplicit()) str << " [.SV]";
 }
 void AstPin::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, param);
     dumpJsonBoolFuncIf(str, svDotName);
     dumpJsonBoolFuncIf(str, svImplicit);
-    if (!paramPath().empty()) dumpJsonStr(str, "paramPath", paramPath());
+    якщо (!paramPath().empty()) dumpJsonStr(str, "paramPath", paramPath());
     dumpJsonGen(str);
 }
 string AstPin::prettyOperatorName() const {
-    return modVarp()
+    повернути modVarp()
                ? ((modVarp()->direction().isAny() ? modVarp()->direction().prettyName() + " " : "")
                   + "port connection " + modVarp()->prettyNameQ())
                : "port connection";
@@ -3553,13 +3553,13 @@ string AstPin::prettyOperatorName() const {
 void AstPragma::dump(std::ostream& str) const {
     Super::dump(str);
     str << " " << pragType();
-    if (pragType() == VPragmaType::TIMEUNIT_SET) {  //
+    якщо (pragType() == VPragmaType::TIMEUNIT_SET) {  //
         str << " timescale=" << timescale();
     }
 }
 void AstPragma::dumpJson(std::ostream& str) const {
     dumpJsonStr(str, "pragType", pragType().ascii());
-    if (pragType() == VPragmaType::TIMEUNIT_SET) {
+    якщо (pragType() == VPragmaType::TIMEUNIT_SET) {
         dumpJsonStr(str, "timescale", timescale().ascii());
     }
     dumpJsonGen(str);
@@ -3574,7 +3574,7 @@ void AstPrintTimeScale::dumpJson(std::ostream& str) const {
 }
 void AstPropAlways::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isStrong()) str << " [strong]";
+    якщо (isStrong()) str << " [strong]";
 }
 void AstPropAlways::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isStrong);
@@ -3582,18 +3582,18 @@ void AstPropAlways::dumpJson(std::ostream& str) const {
 }
 void AstPropSpec::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propStrength() != VPropStrength::DEFAULT) {
+    якщо (propStrength() != VPropStrength::DEFAULT) {
         str << " [" << VString::upcase(propStrength().ascii()) << "]";
     }
 }
 void AstPropSpec::dumpJson(std::ostream& str) const {
-    if (propStrength() != VPropStrength::DEFAULT)
+    якщо (propStrength() != VPropStrength::DEFAULT)
         dumpJsonStr(str, "strength", propStrength().ascii());
     dumpJsonGen(str);
 }
 void AstPull::dump(std::ostream& str) const {
     Super::dump(str);
-    if (direction()) str << " [UP]";
+    якщо (direction()) str << " [UP]";
 }
 void AstPull::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, direction);
@@ -3605,12 +3605,12 @@ void AstQueueDType::dumpSmall(std::ostream& str) const {
 }
 string AstQueueDType::prettyDTypeName(bool full) const {
     string str = subDTypep()->prettyDTypeName(full) + "$[$";
-    if (boundConst()) str += ":" + cvtToStr(boundConst());
-    return str + "]";
+    якщо (boundConst()) str += ":" + cvtToStr(boundConst());
+    повернути str + "]";
 }
 void AstRSProdList::dump(std::ostream& str) const {
     Super::dump(str);
-    if (randJoin()) str << " [RANDJOIN]";
+    якщо (randJoin()) str << " [RANDJOIN]";
 }
 void AstRSProdList::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, randJoin);
@@ -3618,7 +3618,7 @@ void AstRSProdList::dumpJson(std::ostream& str) const {
 }
 void AstRand::dump(std::ostream& str) const {
     Super::dump(str);
-    if (urandom()) str << " [U]";
+    якщо (urandom()) str << " [U]";
 }
 void AstRand::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "urandom", urandom());
@@ -3629,13 +3629,13 @@ void AstRandSequence::dump(std::ostream& str) const {
     str << " start=" << start();
 }
 void AstRandSequence::dumpJson(std::ostream& str) const {
-    if (!start().empty()) dumpJsonStr(str, "start", start());
+    якщо (!start().empty()) dumpJsonStr(str, "start", start());
     dumpJsonGen(str);
 }
 void AstRange::dump(std::ostream& str) const {
     Super::dump(str);
-    if (fromBracket()) str << " [FB]";
-    if (ascending()) str << " [ASCENDING]";
+    якщо (fromBracket()) str << " [FB]";
+    якщо (ascending()) str << " [ASCENDING]";
 }
 void AstRange::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, ascending);
@@ -3643,28 +3643,28 @@ void AstRange::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 const char* AstRefDType::broken() const {
-    if (v3Global.assertDTypesResolved()) BROKEN_RTN(captureTagp());
-    return nullptr;
+    якщо (v3Global.assertDTypesResolved()) BROKEN_RTN(captureTagp());
+    повернути nullptr;
 }
 void AstRefDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (typedefp() || subDTypep()) {
+    якщо (typedefp() || subDTypep()) {
         static bool s_recursing = false;
-        if (!s_recursing) {  // Prevent infinite dump if circular typedefs
+        якщо (!s_recursing) {  // Prevent infinite dump if circular typedefs
             s_recursing = true;
-            if (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
-            if (refDTypep()) str << " refDTypep=" << nodeAddr(refDTypep());
-            if (typedefp()) str << " typedefp=" << nodeAddr(typedefp());
+            якщо (classOrPackagep()) str << " cpkg=" << nodeAddr(classOrPackagep());
+            якщо (refDTypep()) str << " refDTypep=" << nodeAddr(refDTypep());
+            якщо (typedefp()) str << " typedefp=" << nodeAddr(typedefp());
 
             str << " -> ";
-            if (const AstNodeDType* const subp = subDTypep()) {
+            якщо (const AstNodeDType* const subp = subDTypep()) {
                 subp->dump(str);
-            } else if (const AstTypedef* const subp = typedefp()) {
+            } інакше якщо (const AstTypedef* const subp = typedefp()) {
                 subp->dump(str);
             }
             s_recursing = false;
         }
-    } else {
+    } інакше {
         str << " -> UNLINKED";
     }
 }
@@ -3674,12 +3674,12 @@ void AstRefDType::dumpSmall(std::ostream& str) const {
     str << "ref";
 }
 AstNodeDType* AstRefDType::subDTypep() const VL_MT_STABLE {
-    if (typedefp()) return typedefp()->subDTypep();
-    return refDTypep();  // Maybe nullptr
+    якщо (typedefp()) повернути typedefp()->subDTypep();
+    повернути refDTypep();  // Maybe nullptr
 }
 void AstSAnd::dump(std::ostream& str) const {
     Super::dump(str);
-    if (propertyControl()) str << " [PROPERTY_CONTROL]";
+    якщо (propertyControl()) str << " [PROPERTY_CONTROL]";
 }
 void AstSAnd::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, propertyControl);
@@ -3687,7 +3687,7 @@ void AstSAnd::dumpJson(std::ostream& str) const {
 }
 void AstSConsRep::dump(std::ostream& str) const {  // LCOV_EXCL_START
     Super::dump(str);
-    if (unbounded()) str << " [unbounded]";
+    якщо (unbounded()) str << " [unbounded]";
 }
 void AstSConsRep::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, unbounded);
@@ -3703,28 +3703,28 @@ void AstSFormatArg::dumpJson(std::ostream& str) const {
 }
 VFormatAttr AstSFormatArg::formatAttrDefauled(const AstSFormatArg* nodep,
                                               const AstNodeDType* dtypep) {
-    if (nodep) return nodep->formatAttr();
+    якщо (nodep) повернути nodep->formatAttr();
     // Used to initially assign the formatArg
     // Later, V3Randomize creates raw %s's without SFormatArg's that have string arguments
-    if (!dtypep) return VFormatAttr{};
+    якщо (!dtypep) повернути VFormatAttr{};
     const AstNodeDType* skipDtypep = dtypep->skipRefp();
-    if (skipDtypep->isDouble()) return VFormatAttr{VFormatAttr::DOUBLE};
-    if (skipDtypep->isString()) return VFormatAttr{VFormatAttr::STRING};
-    return VFormatAttr{};
+    якщо (skipDtypep->isDouble()) повернути VFormatAttr{VFormatAttr::DOUBLE};
+    якщо (skipDtypep->isString()) повернути VFormatAttr{VFormatAttr::STRING};
+    повернути VFormatAttr{};
 }
 void AstSFormatF::dump(std::ostream& str) const {
     Super::dump(str);
-    if (missingArgChar() != 'd') str << " [" << missingArgChar() << "]";
-    if (exprFormat()) str << " [EXPRFMT]";
-    if (hidden()) str << " [HID]";
-    if (optionalFormat()) str << " [OPTFMT]";
+    якщо (missingArgChar() != 'd') str << " [" << missingArgChar() << "]";
+    якщо (exprFormat()) str << " [EXPRFMT]";
+    якщо (hidden()) str << " [HID]";
+    якщо (optionalFormat()) str << " [OPTFMT]";
 }
 void AstSFormatF::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
     dumpJsonBoolFuncIf(str, exprFormat);
     dumpJsonBoolFuncIf(str, hidden);
     dumpJsonBoolFuncIf(str, optionalFormat);
-    if (missingArgChar() != 'd')
+    якщо (missingArgChar() != 'd')
         dumpJsonStr(str, "missingArgChar", std::to_string(missingArgChar()));
 }
 void AstSampleQueueDType::dumpSmall(std::ostream& str) const {
@@ -3733,7 +3733,7 @@ void AstSampleQueueDType::dumpSmall(std::ostream& str) const {
 }
 void AstSampled::dump(std::ostream& str) const {
     Super::dump(str);
-    if (internal()) str << " [INTERNAL]";
+    якщо (internal()) str << " [INTERNAL]";
 }
 void AstSampled::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, internal);
@@ -3741,11 +3741,11 @@ void AstSampled::dumpJson(std::ostream& str) const {
 }
 AstActive* AstScope::comboActivep(bool create) {
     // Use an existing one
-    for (AstNode* nodep = blocksp(); nodep; nodep = nodep->nextp()) {
+    для (AstNode* nodep = blocksp(); nodep; nodep = nodep->nextp()) {
         AstActive* const activep = VN_CAST(nodep, Active);
-        if (activep && activep->hasCombo()) return activep;
+        якщо (activep && activep->hasCombo()) повернути activep;
     }
-    if (!create) return nullptr;
+    якщо (!create) повернути nullptr;
     // Otherwise create a new one
     FileLine* const flp = fileline();
     AstSenItem* const senItemp = new AstSenItem{flp, AstSenItem::Combo{}};
@@ -3753,7 +3753,7 @@ AstActive* AstScope::comboActivep(bool create) {
     AstActive* const activep = new AstActive{flp, "", senTreep};
     activep->senTreeStorep(activep->sentreep());
     addBlocksp(activep);
-    return activep;
+    повернути activep;
 }
 void AstScope::dump(std::ostream& str) const {
     Super::dump(str);
@@ -3765,29 +3765,29 @@ void AstScope::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 string AstScope::nameDotless() const {
     string result = shortName();
     string::size_type pos;
-    while ((pos = result.find('.')) != string::npos) result.replace(pos, 1, "__");
-    return result;
+    поки ((pos = result.find('.')) != string::npos) result.replace(pos, 1, "__");
+    повернути result;
 }
 string AstScope::prettyNameMsg() const {
     // The scope of a class is named after the class as $typename would, as the scope's name has
     // the class's internal name. A class made since elaboration has no such name, so keeps the
     // scope's name.
     const AstClass* const classp = VN_CAST(modp(), Class);
-    if (!classp || !classp->dtypeNameFrozen()) return prettyName();
-    return classp->dtypeName(true);
+    якщо (!classp || !classp->dtypeNameFrozen()) повернути prettyName();
+    повернути classp->dtypeName(true);
 }
 bool AstScope::sameNode(const AstNode* samep) const {
     const AstScope* const asamep = VN_DBG_AS(samep, Scope);
-    return name() == asamep->name()
+    повернути name() == asamep->name()
            && ((!aboveScopep() && !asamep->aboveScopep())
                || (aboveScopep() && asamep->aboveScopep()
                    && aboveScopep()->name() == asamep->aboveScopep()->name()));
 }
 void AstScopeName::dump(std::ostream& str) const {
     Super::dump(str);
-    if (dpiExport()) str << " [DPIEX]";
-    if (forFormat()) str << " [FMT]";
-    if (selfRelative()) str << " [SELFREL]";
+    якщо (dpiExport()) str << " [DPIEX]";
+    якщо (forFormat()) str << " [FMT]";
+    якщо (selfRelative()) str << " [SELFREL]";
     str << " scopeAttr=\"" << m_scopeAttr << "\"";
     str << " scopeEntr=\"" << m_scopeEntr << "\"";
 }
@@ -3801,33 +3801,33 @@ void AstScopeName::dumpJson(std::ostream& str) const {
 }
 std::string AstScopeName::scopeNameFormatter(const std::string& text) {
     std::string out = text;
-    if (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
-    if (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
-    if (out.substr(0, 1) == ".") out.replace(0, 1, "");
+    якщо (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
+    якщо (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
+    якщо (out.substr(0, 1) == ".") out.replace(0, 1, "");
     std::string::size_type pos;
-    while ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
-    while ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
-    return out;
+    поки ((pos = out.find('.')) != std::string::npos) out.replace(pos, 1, "__");
+    поки ((pos = out.find("__DOT__")) != std::string::npos) out.replace(pos, 7, "__");
+    повернути out;
 }
 std::string AstScopeName::scopePrettyNameFormatter(const std::string& text) {
     std::string out = text;
     // TOP will be replaced by top->name()
-    if (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
-    if (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
-    if (out.substr(0, 1) == ".") out.replace(0, 1, "");
-    return AstNode::prettyName(out);
+    якщо (out.substr(0, 10) == "__DOT__TOP") out.replace(0, 10, "");
+    якщо (out.substr(0, 7) == "__DOT__") out.replace(0, 7, "");
+    якщо (out.substr(0, 1) == ".") out.replace(0, 1, "");
+    повернути AstNode::prettyName(out);
 }
 void AstSel::dump(std::ostream& str) const {
     Super::dump(str);
     str << " widthConst=" << this->widthConst();
-    if (declRange().ranged()) {
+    якщо (declRange().ranged()) {
         str << " decl" << declRange() << "]";
-        if (declElWidth() != 1) str << "/" << declElWidth();
+        якщо (declElWidth() != 1) str << "/" << declElWidth();
     }
 }
 void AstSel::dumpJson(std::ostream& str) const {
     dumpJsonNumFunc(str, widthConst);
-    if (declRange().ranged()) {
+    якщо (declRange().ranged()) {
         dumpJsonStr(str, "declRange", cvtToStr(declRange()));
         dumpJsonNumFunc(str, declElWidth);
     }
@@ -3851,56 +3851,56 @@ void AstSenItem::dumpJson(std::ostream& str) const {
 }
 bool AstSenTree::hasClocked() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isClocked()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isClocked()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasCombo() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isComboOrStar()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isComboOrStar()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasEdge() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->edgeType().anEdge()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->edgeType().anEdge()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasFinal() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isFinal()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isFinal()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasHybrid() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isHybrid()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isHybrid()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasInitial() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isInitial()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isInitial()) повернути true;
     }
-    return false;
+    повернути false;
 }
 bool AstSenTree::hasStatic() const {
     UASSERT_OBJ(sensesp(), this, "SENTREE without any SENITEMs under it");
-    for (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
-        if (senp->isStatic()) return true;
+    для (AstSenItem* senp = sensesp(); senp; senp = VN_AS(senp->nextp(), SenItem)) {
+        якщо (senp->isStatic()) повернути true;
     }
-    return false;
+    повернути false;
 }
 void AstSequence::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isReferenced()) str << " [REFED]";
+    якщо (isReferenced()) str << " [REFED]";
 }
 void AstSequence::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isReferenced);
@@ -3908,15 +3908,15 @@ void AstSequence::dumpJson(std::ostream& str) const {
 }
 void AstSliceSel::dump(std::ostream& str) const {
     Super::dump(str);
-    if (declRange().ranged()) str << " decl" << declRange();
+    якщо (declRange().ranged()) str << " decl" << declRange();
 }
 void AstSliceSel::dumpJson(std::ostream& str) const {
-    if (declRange().ranged()) dumpJsonStr(str, "declRange", cvtToStr(declRange()));
+    якщо (declRange().ranged()) dumpJsonStr(str, "declRange", cvtToStr(declRange()));
     dumpJsonGen(str);
 }
 void AstStop::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isFatal()) str << " [FATAL]";
+    якщо (isFatal()) str << " [FATAL]";
 }
 void AstStop::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isFatal);
@@ -3946,7 +3946,7 @@ void AstSystemCSection::dumpJson(std::ostream& str) const {
 void AstText::dump(std::ostream& str) const {
     Super::dump(str);
     std::string txt = text();
-    if (txt.size() > 120) {
+    якщо (txt.size() > 120) {
         txt.resize(120);
         txt += " ... omitted ...";
     }
@@ -3985,7 +3985,7 @@ void AstTimeImport::dumpJson(std::ostream& str) const {
     dumpJsonGen(str);
 }
 AstVarScope* AstTopScope::createTemp(const string& name, unsigned width) {
-    return createTemp(name, findBitDType(width, width, VSigning::UNSIGNED));
+    повернути createTemp(name, findBitDType(width, width, VSigning::UNSIGNED));
 }
 AstVarScope* AstTopScope::createTemp(const string& name, AstNodeDType* dtypep) {
     UASSERT_OBJ(VString::startsWith(name, "__V"), this,
@@ -3995,24 +3995,24 @@ AstVarScope* AstTopScope::createTemp(const string& name, AstNodeDType* dtypep) {
     scopep()->modp()->addStmtsp(varp);
     AstVarScope* const vscp = new AstVarScope{flp, scopep(), varp};
     scopep()->addVarsp(vscp);
-    return vscp;
+    повернути vscp;
 }
 void AstTraceDecl::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << varType().ascii() << "]";
-    if (inDtypeFunc()) str << " [DT]";
-    if (codeAssigned()) str << " [code=" << code() << "]";
-    if (dtypeCallp()) str << " [dtypeCallp=" << dtypeCallp() << "]";
-    if (showname() != "") str << " showname=" << showname();
-    if (arrayRange().ranged()) str << " arr=" << arrayRange().ascii();
-    if (bitRange().ranged()) str << " bits=" << bitRange().ascii();
+    якщо (inDtypeFunc()) str << " [DT]";
+    якщо (codeAssigned()) str << " [code=" << code() << "]";
+    якщо (dtypeCallp()) str << " [dtypeCallp=" << dtypeCallp() << "]";
+    якщо (showname() != "") str << " showname=" << showname();
+    якщо (arrayRange().ranged()) str << " arr=" << arrayRange().ascii();
+    якщо (bitRange().ranged()) str << " bits=" << bitRange().ascii();
     str << " dd=" << declDirection().ascii();
 }
 void AstTraceDecl::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, inDtypeFunc);
     dumpJsonNumFunc(str, code);
-    if (bitRange().ranged()) dumpJsonStr(str, "bitRange", bitRange().ascii());
-    if (arrayRange().ranged()) dumpJsonStr(str, "arrayRange", arrayRange().ascii());
+    якщо (bitRange().ranged()) dumpJsonStr(str, "bitRange", bitRange().ascii());
+    якщо (arrayRange().ranged()) dumpJsonStr(str, "arrayRange", arrayRange().ascii());
     dumpJsonStr(str, "showname", showname());
     dumpJsonStr(str, "declDirection", declDirection().ascii());
     dumpJsonStr(str, "varType", varType().ascii());
@@ -4022,9 +4022,9 @@ void AstTraceInc::dump(std::ostream& str) const {
     Super::dump(str);
     str << " [" << traceType().ascii() << "]";
     str << " -> ";
-    if (declp()) {
+    якщо (declp()) {
         declp()->dump(str);
-    } else {
+    } інакше {
         str << "%E:UNLINKED";
     }
 }
@@ -4035,9 +4035,9 @@ void AstTraceInc::dumpJson(std::ostream& str) const {
 }
 void AstTracePushPrefix::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_quotedPrefix) str << " [QUOTE]";
-    if (left() || right()) str << " [" << left() << ":" << right() << "]";
-    if (prefix() != "") str << " prefix=" << prefix();
+    якщо (m_quotedPrefix) str << " [QUOTE]";
+    якщо (left() || right()) str << " [" << left() << ":" << right() << "]";
+    якщо (prefix() != "") str << " prefix=" << prefix();
     str << " [" << prefixType().ascii() << "]";
 }
 void AstTracePushPrefix::dumpJson(std::ostream& str) const {
@@ -4059,11 +4059,11 @@ AstTriggered::AstTriggered(FileLine* fl, AstVarScope* trigVscp,
 void AstTriggered::dump(std::ostream& str) const {
     Super::dump(str);
     str << " indices=";
-    for (size_t i = 0; i < m_indices.size(); ++i) str << (i ? "," : "") << m_indices[i];
+    для (size_t i = 0; i < m_indices.size(); ++i) str << (i ? "," : "") << m_indices[i];
 }
 void AstTriggered::dumpJson(std::ostream& str) const {
     std::string text;
-    for (size_t i = 0; i < m_indices.size(); ++i) {
+    для (size_t i = 0; i < m_indices.size(); ++i) {
         text += (i ? "," : "") + std::to_string(m_indices[i]);
     }
     dumpJsonStr(str, "indices", text);
@@ -4071,22 +4071,22 @@ void AstTriggered::dumpJson(std::ostream& str) const {
 }
 AstTypeTable::AstTypeTable(FileLine* fl)
     : ASTGEN_SUPER_TypeTable(fl) {
-    for (int i = 0; i < VBasicDTypeKwd::_ENUM_MAX; ++i) m_basicps[i] = nullptr;
+    для (ціле i = 0; i < VBasicDTypeKwd::_ENUM_MAX; ++i) m_basicps[i] = nullptr;
 }
 void AstTypeTable::clearCache() {
     // When we mass-change widthMin in V3WidthCommit, we need to correct the table.
     // Just clear out the maps; the search functions will be used to rebuild the map
-    for (auto& itr : m_basicps) itr = nullptr;
+    для (auto& itr : m_basicps) itr = nullptr;
     m_detailedMap.clear();
     // Clear generic()'s so dead detection will work
-    for (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) bdtypep->generic(false);
+    для (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
+        якщо (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) bdtypep->generic(false);
     }
 }
 void AstTypeTable::dump(std::ostream& str) const {
     Super::dump(str);
-    for (int i = 0; i < static_cast<int>(VBasicDTypeKwd::_ENUM_MAX); ++i) {
-        if (const AstBasicDType* const subnodep = m_basicps[i]) {
+    для (ціле i = 0; i < static_cast<ціле>(VBasicDTypeKwd::_ENUM_MAX); ++i) {
+        якщо (const AstBasicDType* const subnodep = m_basicps[i]) {
             str << '\n';  // Newline from caller, so newline first
             str << "\t\t" << std::setw(8) << VBasicDTypeKwd{i}.ascii();
             str << "  -> ";
@@ -4095,7 +4095,7 @@ void AstTypeTable::dump(std::ostream& str) const {
     }
     {
         const DetailedMap& mapr = m_detailedMap;
-        for (const auto& itr : mapr) {
+        для (const auto& itr : mapr) {
             const AstBasicDType* const dtypep = itr.second;
             str << '\n';  // Newline from caller, so newline first
             str << "\t\tdetailed  ->  ";
@@ -4108,98 +4108,98 @@ void AstTypeTable::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 AstBasicDType* AstTypeTable::findBasicDType(FileLine* fl, VBasicDTypeKwd kwd) {
     // Because the detailed map doesn't update m_basicps, check the detailed
     // map for this same node. Also adds this new node to the detailed map
-    if (!m_basicps[kwd]) {
+    якщо (!m_basicps[kwd]) {
         AstBasicDType basic{fl, kwd};
         m_basicps[kwd] = findCreateSameDType(basic);
     }
-    return m_basicps[kwd];
+    повернути m_basicps[kwd];
 }
 AstConstraintRefDType* AstTypeTable::findConstraintRefDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_constraintRefp)) {
+    якщо (VL_UNLIKELY(!m_constraintRefp)) {
         AstConstraintRefDType* const newp = new AstConstraintRefDType{fl};
         addTypesp(newp);
         m_constraintRefp = newp;
     }
-    return m_constraintRefp;
+    повернути m_constraintRefp;
 }
 AstBasicDType* AstTypeTable::findCreateSameDType(AstBasicDType& node) {
     const VBasicTypeKey key{node.width(), node.widthMin(), node.numeric(), node.keyword(),
                             node.nrange()};
     AstBasicDType*& entryr = m_detailedMap[key];
-    if (!entryr) {
+    якщо (!entryr) {
         entryr = node.cloneTree(false);
         entryr->generic(true);
         addTypesp(entryr);
     }
-    return entryr;
+    повернути entryr;
 }
 AstEmptyQueueDType* AstTypeTable::findEmptyQueueDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_emptyQueuep)) {
+    якщо (VL_UNLIKELY(!m_emptyQueuep)) {
         AstEmptyQueueDType* const newp = new AstEmptyQueueDType{fl};
         addTypesp(newp);
         m_emptyQueuep = newp;
     }
-    return m_emptyQueuep;
+    повернути m_emptyQueuep;
 }
 // cppcheck-suppress duplInheritedMember
 AstBasicDType* AstTypeTable::findInsertSameDType(AstBasicDType* nodep) {
     const VBasicTypeKey key{nodep->width(), nodep->widthMin(), nodep->numeric(), nodep->keyword(),
                             nodep->nrange()};
     auto pair = m_detailedMap.emplace(key, nodep);
-    if (pair.second) nodep->generic(true);
+    якщо (pair.second) nodep->generic(true);
     // No addTypesp; the upper function that called new() is responsible for adding
-    return pair.first->second;
+    повернути pair.first->second;
 }
-AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, int width,
-                                               int widthMin, VSigning numeric) {
+AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, ціле width,
+                                               ціле widthMin, VSigning numeric) {
     AstBasicDType basic{fl, kwd, numeric, width, widthMin};
-    return findCreateSameDType(basic);
+    повернути findCreateSameDType(basic);
 }
 AstBasicDType* AstTypeTable::findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd,
-                                               const VNumRange& range, int widthMin,
+                                               const VNumRange& range, ціле widthMin,
                                                VSigning numeric) {
     AstBasicDType basic{fl, kwd, numeric, range, widthMin};
-    return findCreateSameDType(basic);
+    повернути findCreateSameDType(basic);
 }
 AstQueueDType* AstTypeTable::findQueueIndexDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_queueIndexp)) {
+    якщо (VL_UNLIKELY(!m_queueIndexp)) {
         AstQueueDType* const newp = new AstQueueDType{fl, AstNode::findUInt32DType(), nullptr};
         addTypesp(newp);
         m_queueIndexp = newp;
     }
-    return m_queueIndexp;
+    повернути m_queueIndexp;
 }
 AstStreamDType* AstTypeTable::findStreamDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_streamp)) {
+    якщо (VL_UNLIKELY(!m_streamp)) {
         AstStreamDType* const newp = new AstStreamDType{fl};
         addTypesp(newp);
         m_streamp = newp;
     }
-    return m_streamp;
+    повернути m_streamp;
 }
 AstVoidDType* AstTypeTable::findVoidDType(FileLine* fl) {
-    if (VL_UNLIKELY(!m_voidp)) {
+    якщо (VL_UNLIKELY(!m_voidp)) {
         AstVoidDType* const newp = new AstVoidDType{fl};
         addTypesp(newp);
         m_voidp = newp;
     }
-    return m_voidp;
+    повернути m_voidp;
 }
 void AstTypeTable::repairCache() {
     // After we mass-change widthMin in V3WidthCommit, we need to correct the table.
     clearCache();
-    for (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
-        if (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
+    для (AstNode* nodep = typesp(); nodep; nodep = nodep->nextp()) {
+        якщо (AstBasicDType* const bdtypep = VN_CAST(nodep, BasicDType)) {
             (void)findInsertSameDType(bdtypep);
         }
     }
 }
-string AstTypedef::dtypeName() const { return dtypeNameScopeOf(this) + dtypeNameIdent(name()); }
+string AstTypedef::dtypeName() const { повернути dtypeNameScopeOf(this) + dtypeNameIdent(name()); }
 void AstTypedef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (attrPublic()) str << " [PUBLIC]";
-    if (isUnderClass()) str << " [UNDCLS]";
-    if (subDTypep()) {
+    якщо (attrPublic()) str << " [PUBLIC]";
+    якщо (isUnderClass()) str << " [UNDCLS]";
+    якщо (subDTypep()) {
         str << " -> ";
         subDTypep()->dump(str);
     }
@@ -4220,7 +4220,7 @@ void AstTypedefFwd::dumpJson(std::ostream& str) const {
 }
 void AstUdpTableLine::dump(std::ostream& str) const {
     Super::dump(str);
-    if (udpIsCombo()) str << " [COMBO]";
+    якщо (udpIsCombo()) str << " [COMBO]";
 }
 void AstUdpTableLine::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, udpIsCombo);
@@ -4228,8 +4228,8 @@ void AstUdpTableLine::dumpJson(std::ostream& str) const {
 }
 void AstUnionDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isSoft()) str << " [soft]";
-    if (isTagged()) str << " [tagged]";
+    якщо (isSoft()) str << " [soft]";
+    якщо (isTagged()) str << " [tagged]";
 }
 void AstUnionDType::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -4238,11 +4238,11 @@ void AstUnionDType::dumpJson(std::ostream& str) const {
 }
 bool AstUnionDType::sameNode(const AstNode* samep) const {
     const AstUnionDType* const asamep = VN_DBG_AS(samep, UnionDType);
-    return m_isSoft == asamep->m_isSoft && m_isTagged == asamep->m_isTagged;
+    повернути m_isSoft == asamep->m_isSoft && m_isTagged == asamep->m_isTagged;
 }
 void AstUnpackArrayDType::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isCompound()) str << " [COMPOUND]";
+    якщо (isCompound()) str << " [COMPOUND]";
     str << " " << declRange();
 }
 void AstUnpackArrayDType::dumpJson(std::ostream& str) const {
@@ -4253,14 +4253,14 @@ bool AstUnpackArrayDType::isReverseOf(const AstNodeDType* otherp) const {
     bool reversed = false;
     const AstUnpackArrayDType* thisp = this;
     const AstUnpackArrayDType* thatp = VN_CAST(otherp->skipRefp(), UnpackArrayDType);
-    while (thisp && thatp) {
-        if (thisp->elementsConst() != thatp->elementsConst()) return false;
-        if (thisp->declRange().ascending() != thatp->declRange().ascending()) reversed = true;
+    поки (thisp && thatp) {
+        якщо (thisp->elementsConst() != thatp->elementsConst()) повернути false;
+        якщо (thisp->declRange().ascending() != thatp->declRange().ascending()) reversed = true;
         thisp = VN_CAST(thisp->subDTypep()->skipRefp(), UnpackArrayDType);
         thatp = VN_CAST(thatp->subDTypep()->skipRefp(), UnpackArrayDType);
     }
     // Same shape only with the same number of dimensions
-    return reversed && !thisp && !thatp;
+    повернути reversed && !thisp && !thatp;
 }
 string AstUnpackArrayDType::prettyDTypeName(bool full) const {
     std::ostringstream os;
@@ -4268,29 +4268,29 @@ string AstUnpackArrayDType::prettyDTypeName(bool full) const {
     // Unfortunately we need a single $ for the first unpacked, and all
     // dimensions shown in "reverse" order
     AstNodeDType* subp = subDTypep()->skipRefp();
-    while (AstUnpackArrayDType* adtypep = VN_CAST(subp, UnpackArrayDType)) {
+    поки (AstUnpackArrayDType* adtypep = VN_CAST(subp, UnpackArrayDType)) {
         ranges += cvtToStr(adtypep->declRange());
         subp = adtypep->subDTypep()->skipRefp();
     }
     os << subp->prettyDTypeName(full) << "$" << ranges;
-    return os.str();
+    повернути os.str();
 }
 bool AstUnpackArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstUnpackArrayDType* const asamep = VN_DBG_AS(samep, UnpackArrayDType);
-    return hi() == asamep->hi() && rangep()->sameTree(asamep->rangep())
+    повернути hi() == asamep->hi() && rangep()->sameTree(asamep->rangep())
            && subDTypep()->similarDType(asamep->subDTypep());
 }
 std::vector<AstUnpackArrayDType*> AstUnpackArrayDType::unpackDimensions() {
     std::vector<AstUnpackArrayDType*> dims;
-    for (AstUnpackArrayDType* unpackp = this; unpackp;) {
+    для (AstUnpackArrayDType* unpackp = this; unpackp;) {
         dims.push_back(unpackp);
-        if (AstNodeDType* const subp = unpackp->subDTypep()) {
+        якщо (AstNodeDType* const subp = unpackp->subDTypep()) {
             unpackp = VN_CAST(subp->skipRefp(), UnpackArrayDType);
-        } else {
+        } інакше {
             unpackp = nullptr;
         }
     }
-    return dims;
+    повернути dims;
 }
 void AstUnsizedArrayDType::dumpSmall(std::ostream& str) const {
     Super::dumpSmall(str);
@@ -4298,17 +4298,17 @@ void AstUnsizedArrayDType::dumpSmall(std::ostream& str) const {
 }
 bool AstUnsizedArrayDType::sameNode(const AstNode* samep) const {
     const AstUnsizedArrayDType* const asamep = VN_DBG_AS(samep, UnsizedArrayDType);
-    if (!asamep->subDTypep()) return false;
-    return (subDTypep() == asamep->subDTypep());
+    якщо (!asamep->subDTypep()) повернути false;
+    повернути (subDTypep() == asamep->subDTypep());
 }
 bool AstUnsizedArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstUnsizedArrayDType* const asamep = VN_DBG_AS(samep, UnsizedArrayDType);
-    return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    повернути asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
 }
 void AstUntil::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isStrong()) str << " [strong]";
-    if (isOverlapping()) str << " [overlapping]";
+    якщо (isStrong()) str << " [strong]";
+    якщо (isOverlapping()) str << " [overlapping]";
 }
 void AstUntil::dumpJson(std::ostream& str) const {
     Super::dumpJson(str);
@@ -4318,51 +4318,51 @@ void AstUntil::dumpJson(std::ostream& str) const {
 void AstVFile::dump(std::ostream& str) const { Super::dump(str); }
 void AstVFile::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
 string AstVar::cPubArgType(bool named, bool forReturn) const {
-    if (forReturn) named = false;
+    якщо (forReturn) named = false;
     string arg;
-    if (isWide() && isReadOnly()) arg += "const ";
+    якщо (isWide() && isReadOnly()) arg += "const ";
     const bool asRef = !forReturn && (isWritable() || this->isRef() || this->isConstRef());
-    if (VN_IS(dtypeSkipRefp(), BasicDType) && !dtypeSkipRefp()->isDouble()
+    якщо (VN_IS(dtypeSkipRefp(), BasicDType) && !dtypeSkipRefp()->isDouble()
         && !dtypeSkipRefp()->isString()) {
         // Backward compatible type declaration
-        if (widthMin() == 1) {
+        якщо (widthMin() == 1) {
             arg += "bool";
-        } else if (widthMin() <= VL_IDATASIZE) {
+        } інакше якщо (widthMin() <= VL_IDATASIZE) {
             arg += "uint32_t";
-        } else if (widthMin() <= VL_QUADSIZE) {
+        } інакше якщо (widthMin() <= VL_QUADSIZE) {
             arg += "uint64_t";
-        } else {
+        } інакше {
             arg += "uint32_t";  // []'s added later
         }
-        if (isWide()) {
-            if (forReturn) {
+        якщо (isWide()) {
+            якщо (forReturn) {
                 v3warn(E_UNSUPPORTED, "Unsupported: Public functions with >64 bit outputs; "
                                       "make an output of a public task instead");
             }
             arg += " (& " + name();
             arg += ")[" + cvtToStr(widthWords()) + "]";
-        } else {
-            if (asRef) arg += "&";
-            if (named) arg += " " + name();
+        } інакше {
+            якщо (asRef) arg += "&";
+            якщо (named) arg += " " + name();
         }
-    } else {
+    } інакше {
         // Newer internal-compatible types
         arg += dtypep()->cType((named ? name() : std::string{}), true, asRef);
     }
-    return arg;
+    повернути arg;
 }
 const char* AstVar::cannotSplitKindReason() const {
-    if (!isSignal() && !isTemp()) return "it is not a regular signal or temporary";
-    if (isConst()) return "it is a constant";
-    if (isPrimaryIO()) return "it is a primary input or output";
-    if (isFuncLocal() && isIO()) return "it is a function argument";
-    if (isRef()) return "it is a ref port";
-    if (isSigPublic()) return "it is public";
-    if (isForced()) return "it is forceable";
-    if (isReadByDpi()) return "it is read via DPI";
-    if (isWrittenByDpi()) return "it is written via DPI";
-    if (delayp()) return "it has a net delay";
-    return nullptr;
+    якщо (!isSignal() && !isTemp()) повернути "it is not a regular signal or temporary";
+    якщо (isConst()) повернути "it is a constant";
+    якщо (isPrimaryIO()) повернути "it is a primary input or output";
+    якщо (isFuncLocal() && isIO()) повернути "it is a function argument";
+    якщо (isRef()) повернути "it is a ref port";
+    якщо (isSigPublic()) повернути "it is public";
+    якщо (isForced()) повернути "it is forceable";
+    якщо (isReadByDpi()) повернути "it is read via DPI";
+    якщо (isWrittenByDpi()) повернути "it is written via DPI";
+    якщо (delayp()) повернути "it has a net delay";
+    повернути nullptr;
 }
 void AstVar::combineType(VVarType type) {
     // These flags get combined with the existing settings of the flags.
@@ -4370,49 +4370,49 @@ void AstVar::combineType(VVarType type) {
     // when we combine wires cross-hierarchy we need a union of all characteristics.
     m_varType = type;
     // These flags get combined with the existing settings of the flags.
-    if (type == VVarType::TRIWIRE || type == VVarType::TRI0 || type == VVarType::TRI1) {
+    якщо (type == VVarType::TRIWIRE || type == VVarType::TRI0 || type == VVarType::TRI1) {
         m_tristate = true;
     }
-    if (type == VVarType::TRI0) m_isPulldown = true;
-    if (type == VVarType::TRI1) m_isPullup = true;
-    if (type.isParam()) m_isConst = true;
+    якщо (type == VVarType::TRI0) m_isPulldown = true;
+    якщо (type == VVarType::TRI1) m_isPullup = true;
+    якщо (type.isParam()) m_isConst = true;
 }
 void AstVar::combineType(const AstVar* otherp) {
     // "this" is the port var. otherp is the reg var, or vice-versa
     propagateAttrFrom(otherp);
     combineType(otherp->varType());
-    if (otherp->isSigPublic()) sigPublic(true);
-    if (otherp->isSigModPublic()) sigModPublic(true);
-    if (otherp->isSigUserRdPublic()) sigUserRdPublic(true);
-    if (otherp->isSigUserRWPublic()) sigUserRWPublic(true);
-    if (otherp->varType() == VVarType::PORT) {
+    якщо (otherp->isSigPublic()) sigPublic(true);
+    якщо (otherp->isSigModPublic()) sigModPublic(true);
+    якщо (otherp->isSigUserRdPublic()) sigUserRdPublic(true);
+    якщо (otherp->isSigUserRWPublic()) sigUserRWPublic(true);
+    якщо (otherp->varType() == VVarType::PORT) {
         varType(otherp->varType());
         direction(otherp->direction());
     }
-    if (otherp->icoMaybeWritten()) icoMaybeWritten(true);
+    якщо (otherp->icoMaybeWritten()) icoMaybeWritten(true);
 }
 string AstVar::dpiArgType(bool named, bool forReturn, bool cpp) const {
-    if (forReturn) {
-        return DpiTypesToStringConverter{}.convert(this);
-    } else {
+    якщо (forReturn) {
+        повернути DpiTypesToStringConverter{}.convert(this);
+    } інакше {
         class converter final : public DpiTypesToStringConverter {
             const bool m_cpp;  // Qualify C structures, as class members may hide them in C++
             string bitLogicVector(const AstVar* varp, bool isBit) const override {
-                return string{varp->isReadOnly() ? "const " : ""}
+                повернути string{varp->isReadOnly() ? "const " : ""}
                        + DpiTypesToStringConverter::bitLogicVector(varp, isBit) + '*';
             }
             string primitive(const AstVar* varp) const override {
                 string type = DpiTypesToStringConverter::primitive(varp);
-                if (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
-                    if (!varp->isWritable() && varp->basicp()->keyword() != VBasicDTypeKwd::STRING)
+                якщо (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
+                    якщо (!varp->isWritable() && varp->basicp()->keyword() != VBasicDTypeKwd::STRING)
                         type = "const " + type;
                     type += "*";
                 }
-                return type;
+                повернути type;
             }
             string unpackedStruct(const AstVar* varp) const override {
                 // Passed by reference (IEEE 1800-2023 H.8.4)
-                return string{varp->isReadOnly() ? "const " : ""} + (m_cpp ? "::" : "")
+                повернути string{varp->isReadOnly() ? "const " : ""} + (m_cpp ? "::" : "")
                        + DpiTypesToStringConverter::unpackedStruct(varp) + '*';
             }
 
@@ -4421,46 +4421,46 @@ string AstVar::dpiArgType(bool named, bool forReturn, bool cpp) const {
                 : m_cpp{cpp} {}
         };
         string arg = converter{cpp}.convert(this);
-        if (named) arg += " " + name();
-        return arg;
+        якщо (named) arg += " " + name();
+        повернути arg;
     }
 }
 string AstVar::dpiTmpVarType(const string& varName) const {
     class converter final : public DpiTypesToStringConverter {
         const string m_name;  // Variable name
         string arraySuffix(const AstVar* varp, size_t n) const {
-            if (const AstUnpackArrayDType* const unpackp
+            якщо (const AstUnpackArrayDType* const unpackp
                 = VN_CAST(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // Convert multi dimensional unpacked array to 1D array
-                if (n == 0) n = 1;
+                якщо (n == 0) n = 1;
                 n *= unpackp->arrayUnpackedElements();
-                return '[' + cvtToStr(n) + ']';
-            } else if (n > 0) {
-                return '[' + cvtToStr(n) + ']';
-            } else {
-                return "";
+                повернути '[' + cvtToStr(n) + ']';
+            } інакше якщо (n > 0) {
+                повернути '[' + cvtToStr(n) + ']';
+            } інакше {
+                повернути "";
             }
         }
         string openArray(const AstVar* varp) const override {
-            return DpiTypesToStringConverter::openArray(varp) + ' ' + m_name
+            повернути DpiTypesToStringConverter::openArray(varp) + ' ' + m_name
                    + arraySuffix(varp, 0);
         }
         string bitLogicVector(const AstVar* varp, bool isBit) const override {
             string type = DpiTypesToStringConverter::bitLogicVector(varp, isBit);
             type += ' ' + m_name + arraySuffix(varp, varp->widthWords());
-            return type;
+            повернути type;
         }
         string primitive(const AstVar* varp) const override {
             string type = DpiTypesToStringConverter::primitive(varp);
-            if (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
-                if (!varp->isWritable() && varp->basicp()->isCHandle()) type = "const " + type;
+            якщо (varp->isWritable() || VN_IS(varp->dtypep()->skipRefp(), UnpackArrayDType)) {
+                якщо (!varp->isWritable() && varp->basicp()->isCHandle()) type = "const " + type;
             }
             type += ' ' + m_name + arraySuffix(varp, 0);
-            return type;
+            повернути type;
         }
         string unpackedStruct(const AstVar* varp) const override {
             // An array even if not an unpacked array, as passed by reference
-            return DpiTypesToStringConverter::unpackedStruct(varp) + ' ' + m_name
+            повернути DpiTypesToStringConverter::unpackedStruct(varp) + ' ' + m_name
                    + arraySuffix(varp, 1);
         }
 
@@ -4468,58 +4468,58 @@ string AstVar::dpiTmpVarType(const string& varName) const {
         explicit converter(const string& name)
             : m_name{name} {}
     };
-    return converter{varName}.convert(this);
+    повернути converter{varName}.convert(this);
 }
 void AstVar::dump(std::ostream& str) const {
     Super::dump(str);
-    if (libInoutId()) str << " libInoutId=" << libInoutId();
-    if (libInoutEnable()) str << " [LIBINOUTEN]";
-    if (isIO()) str << " " << direction().ascii();
-    if (declDirection() != direction()) str << " dd=" << direction().ascii();
-    if (constPoolEntry()) str << " [CONSTPOOL]";
-    if (covergroupRefMember()) str << " [CGREF]";
-    if (embeddedCovergroup()) str << " [EMBCG]";
-    if (isSc()) str << " [SC]";
-    if (isPrimaryIO()) str << (isInout() ? " [PIO]" : (isWritable() ? " [PO]" : " [PI]"));
-    if (isPrimaryClock()) str << " [PCLK]";
-    if (isConst()) str << " [CONST]";
-    if (isPullup()) str << " [PULLUP]";
-    if (isPulldown()) str << " [PULLDOWN]";
-    if (isIfaceArraySplit()) str << " [IFACEARRAYSPLIT]";
-    if (isSigPublic()) str << " [P]";
-    if (isSigUserRdPublic()) str << " [PRD]";
-    if (isSigUserRWPublic()) str << " [PWR]";
-    if (isReadByDpi()) str << " [DPIRD]";
-    if (isWrittenByDpi()) str << " [DPIWR]";
-    if (isInternal()) str << " [INTERNAL]";
-    if (isLatched()) str << " [LATCHED]";
-    if (isUsedLoopIdx()) str << " [LOOPIDX]";
-    if (rand().isRandomizable()) str << " [" << rand().ascii() << "]";
-    if (noCReset()) str << " [!CRST]";
-    if (noReset()) str << " [!RST]";
-    if (processQueue()) str << " [PROCQ]";
-    if (sampled()) str << " [SAMPLED]";
-    if (attrFsmState()) str << " [aFSMSTATE]";
-    if (attrFsmArcInclCond()) str << " [aFSMARCCOND]";
-    if (attrFsmState() || attrFsmArcInclCond()) str << " [" << attrFsmStateExpand() << "]";
-    if (attrFileDescr()) str << " [aFD]";
-    if (isFuncReturn()) {
+    якщо (libInoutId()) str << " libInoutId=" << libInoutId();
+    якщо (libInoutEnable()) str << " [LIBINOUTEN]";
+    якщо (isIO()) str << " " << direction().ascii();
+    якщо (declDirection() != direction()) str << " dd=" << direction().ascii();
+    якщо (constPoolEntry()) str << " [CONSTPOOL]";
+    якщо (covergroupRefMember()) str << " [CGREF]";
+    якщо (embeddedCovergroup()) str << " [EMBCG]";
+    якщо (isSc()) str << " [SC]";
+    якщо (isPrimaryIO()) str << (isInout() ? " [PIO]" : (isWritable() ? " [PO]" : " [PI]"));
+    якщо (isPrimaryClock()) str << " [PCLK]";
+    якщо (isConst()) str << " [CONST]";
+    якщо (isPullup()) str << " [PULLUP]";
+    якщо (isPulldown()) str << " [PULLDOWN]";
+    якщо (isIfaceArraySplit()) str << " [IFACEARRAYSPLIT]";
+    якщо (isSigPublic()) str << " [P]";
+    якщо (isSigUserRdPublic()) str << " [PRD]";
+    якщо (isSigUserRWPublic()) str << " [PWR]";
+    якщо (isReadByDpi()) str << " [DPIRD]";
+    якщо (isWrittenByDpi()) str << " [DPIWR]";
+    якщо (isInternal()) str << " [INTERNAL]";
+    якщо (isLatched()) str << " [LATCHED]";
+    якщо (isUsedLoopIdx()) str << " [LOOPIDX]";
+    якщо (rand().isRandomizable()) str << " [" << rand().ascii() << "]";
+    якщо (noCReset()) str << " [!CRST]";
+    якщо (noReset()) str << " [!RST]";
+    якщо (processQueue()) str << " [PROCQ]";
+    якщо (sampled()) str << " [SAMPLED]";
+    якщо (attrFsmState()) str << " [aFSMSTATE]";
+    якщо (attrFsmArcInclCond()) str << " [aFSMARCCOND]";
+    якщо (attrFsmState() || attrFsmArcInclCond()) str << " [" << attrFsmStateExpand() << "]";
+    якщо (attrFileDescr()) str << " [aFD]";
+    якщо (isFuncReturn()) {
         str << " [FUNCRTN]";
-    } else if (isFuncLocal()) {
+    } інакше якщо (isFuncLocal()) {
         str << " [FUNC]";
     }
-    if (hasUserInit()) str << " [UINIT]";
-    if (icoMaybeWritten()) str << " [ICOMAYBEWRITTEN]";
-    if (isClockingDriven()) str << " [CLOCKINGDRIVEN]";
-    if (isDpiOpenArray()) str << " [DPIOPENA]";
-    if (ignorePostWrite()) str << " [IGNPWR]";
-    if (ignoreSchedWrite()) str << " [IGNWR]";
-    if (isStdRandomizeArg()) str << " [STDRANDARG]";
-    if (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
+    якщо (hasUserInit()) str << " [UINIT]";
+    якщо (icoMaybeWritten()) str << " [ICOMAYBEWRITTEN]";
+    якщо (isClockingDriven()) str << " [CLOCKINGDRIVEN]";
+    якщо (isDpiOpenArray()) str << " [DPIOPENA]";
+    якщо (ignorePostWrite()) str << " [IGNPWR]";
+    якщо (ignoreSchedWrite()) str << " [IGNWR]";
+    якщо (isStdRandomizeArg()) str << " [STDRANDARG]";
+    якщо (!lifetime().isNone()) str << " [" << lifetime().ascii() << "] ";
     str << " " << varType();
 }
 void AstVar::dumpJson(std::ostream& str) const {
-    if (libInoutId()) dumpJsonNumFunc(str, libInoutId);
+    якщо (libInoutId()) dumpJsonNumFunc(str, libInoutId);
     dumpJsonBoolFuncIf(str, libInoutEnable);
     dumpJsonStrFunc(str, origName);
     dumpJsonStrFunc(str, verilogName);
@@ -4544,7 +4544,7 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, sampled);
     dumpJsonBoolFuncIf(str, attrFsmState);
     dumpJsonBoolFuncIf(str, attrFsmArcInclCond);
-    if (attrFsmState() || attrFsmArcInclCond()) {
+    якщо (attrFsmState() || attrFsmArcInclCond()) {
         dumpJsonStr(str, "attrFsmStateExpand", attrFsmStateExpand().ascii());
     }
     dumpJsonBoolFuncIf(str, attrFileDescr);
@@ -4556,7 +4556,7 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, isStdRandomizeArg);
     dumpJsonStr(str, "lifetime", lifetime().ascii());
     dumpJsonStr(str, "varType", varType().ascii());
-    if (dtypep()) dumpJsonStr(str, "dtypeName", dtypep()->name());
+    якщо (dtypep()) dumpJsonStr(str, "dtypeName", dtypep()->name());
     dumpJsonBoolFuncIf(str, isSigUserRdPublic);
     dumpJsonBoolFuncIf(str, isSigUserRWPublic);
     dumpJsonBoolFuncIf(str, isReadByDpi);
@@ -4568,90 +4568,90 @@ void AstVar::dumpJson(std::ostream& str) const {
     dumpJsonBoolFuncIf(str, hasUserInit);
     dumpJsonBoolFuncIf(str, ignorePostWrite);
     dumpJsonBoolFuncIf(str, ignoreSchedWrite);
-    if (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
+    якщо (rand().isRandomizable()) dumpJsonStr(str, "rand", rand().ascii());
     dumpJsonGen(str);
 }
 bool AstVar::isScBigUint() const {
     // Pragma has the highest priority
-    if (m_attrScBigUint) return true;
-    return ((isSc() && v3Global.opt.pinsScBigUint() && width() >= 65 && width() <= 512)
+    якщо (m_attrScBigUint) повернути true;
+    повернути ((isSc() && v3Global.opt.pinsScBigUint() && width() >= 65 && width() <= 512)
             && !isScBv());
 }
 bool AstVar::isScBv() const {
-    return ((isSc() && width() >= v3Global.opt.pinsBv()) || m_attrScBv);
+    повернути ((isSc() && width() >= v3Global.opt.pinsBv()) || m_attrScBv);
 }
-bool AstVar::isScQuad() const { return (isSc() && isQuad() && !isScBv() && !isScBigUint()); }
+bool AstVar::isScQuad() const { повернути (isSc() && isQuad() && !isScBv() && !isScBigUint()); }
 bool AstVar::isScUint() const {
-    return ((isSc() && v3Global.opt.pinsScUint() && width() >= 2 && width() <= 64) && !isScBv());
+    повернути ((isSc() && v3Global.opt.pinsScUint() && width() >= 2 && width() <= 64) && !isScBv());
 }
 bool AstVar::isScUintBool() const {
-    return (isSc() && v3Global.opt.pinsScUintBool() && width() == 1);
+    повернути (isSc() && v3Global.opt.pinsScUintBool() && width() == 1);
 }
 bool AstVar::isSigPublic() const {
-    return (m_sigPublic || (v3Global.opt.allPublic() && !isTemp() && !isGenVar()))
+    повернути (m_sigPublic || (v3Global.opt.allPublic() && !isTemp() && !isGenVar()))
            && !isIfaceRef();
 }
 string AstVar::scType() const {
-    if (isScBigUint()) {
-        return ("sc_dt::sc_biguint<"s + cvtToStr(widthMin())
+    якщо (isScBigUint()) {
+        повернути ("sc_dt::sc_biguint<"s + cvtToStr(widthMin())
                 + "> ");  // Keep the space so don't get >>
-    } else if (isScUint() || isScUintBool()) {
-        return ("sc_dt::sc_uint<"s + cvtToStr(widthMin())
+    } інакше якщо (isScUint() || isScUintBool()) {
+        повернути ("sc_dt::sc_uint<"s + cvtToStr(widthMin())
                 + "> ");  // Keep the space so don't get >>
-    } else if (isScBv()) {
-        return ("sc_dt::sc_bv<"s + cvtToStr(widthMin()) + "> ");  // Keep the space so don't get >>
-    } else if (widthMin() == 1) {
-        return "bool";
-    } else if (widthMin() <= VL_IDATASIZE) {
-        if (widthMin() <= 8 && v3Global.opt.pinsUint8()) {
-            return "uint8_t";
-        } else if (widthMin() <= 16 && v3Global.opt.pinsUint8()) {
-            return "uint16_t";
-        } else {
-            return "uint32_t";
+    } інакше якщо (isScBv()) {
+        повернути ("sc_dt::sc_bv<"s + cvtToStr(widthMin()) + "> ");  // Keep the space so don't get >>
+    } інакше якщо (widthMin() == 1) {
+        повернути "bool";
+    } інакше якщо (widthMin() <= VL_IDATASIZE) {
+        якщо (widthMin() <= 8 && v3Global.opt.pinsUint8()) {
+            повернути "uint8_t";
+        } інакше якщо (widthMin() <= 16 && v3Global.opt.pinsUint8()) {
+            повернути "uint16_t";
+        } інакше {
+            повернути "uint32_t";
         }
-    } else if (isDouble()) {
-        return "double";
-    } else {
-        return "uint64_t";
+    } інакше якщо (isDouble()) {
+        повернути "double";
+    } інакше {
+        повернути "uint64_t";
     }
 }
 AstVar* AstVar::scVarRecurse(AstNode* nodep) {
     // See if this is a SC assignment; if so return that type
     // Historically sc variables are identified by a variable
     // attribute. TODO it would better be a data type attribute.
-    if (AstVar* const anodep = VN_CAST(nodep, Var)) {
-        if (anodep->isSc()) {
-            return anodep;
-        } else {
-            return nullptr;
+    якщо (AstVar* const anodep = VN_CAST(nodep, Var)) {
+        якщо (anodep->isSc()) {
+            повернути anodep;
+        } інакше {
+            повернути nullptr;
         }
-    } else if (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
-        if (vrefp->varp()->isSc()) {
-            return vrefp->varp();
-        } else {
-            return nullptr;
+    } інакше якщо (const AstVarRef* const vrefp = VN_CAST(nodep, VarRef)) {
+        якщо (vrefp->varp()->isSc()) {
+            повернути vrefp->varp();
+        } інакше {
+            повернути nullptr;
         }
-    } else if (const AstArraySel* const arraySelp = VN_CAST(nodep, ArraySel)) {
-        if (AstVar* const p = scVarRecurse(arraySelp->fromp())) return p;
+    } інакше якщо (const AstArraySel* const arraySelp = VN_CAST(nodep, ArraySel)) {
+        якщо (AstVar* const p = scVarRecurse(arraySelp->fromp())) повернути p;
     }
-    return nullptr;
+    повернути nullptr;
 }
 string AstVar::verilogKwd() const {
-    if (isIO()) {
-        return direction().verilogKwd();
-    } else if (isTristate()) {
-        return "tri";
-    } else if (varType() == VVarType::WIRE) {
-        return "wire";
-    } else if (varType() == VVarType::WREAL) {
-        return "wreal";
-    } else if (varType() == VVarType::IFACEREF) {
-        return "ifaceref";
-    } else if (dtypep()) {
-        return dtypep()->name();
-    } else {
-        return "UNKNOWN";
+    якщо (isIO()) {
+        повернути direction().verilogKwd();
+    } інакше якщо (isTristate()) {
+        повернути "tri";
+    } інакше якщо (varType() == VVarType::WIRE) {
+        повернути "wire";
+    } інакше якщо (varType() == VVarType::WREAL) {
+        повернути "wreal";
+    } інакше якщо (varType() == VVarType::IFACEREF) {
+        повернути "ifaceref";
+    } інакше якщо (dtypep()) {
+        повернути dtypep()->name();
+    } інакше {
+        повернути "UNKNOWN";
     }
 }
 string AstVar::vlArgType(bool named, bool forReturn, bool forFunc, bool asRef,
@@ -4661,71 +4661,71 @@ string AstVar::vlArgType(bool named, bool forReturn, bool forFunc, bool asRef,
     asRef = asRef || isDpiOpenArray() || (forFunc && (isWritable() || isRef() || isConstRef()));
 
     string oname;
-    if (named) oname = VIdProtect::protectIf(name(), protect());
-    if (forFunc && (isReadOnly() || constRef) && asRef) {
-        if (VN_IS(dtypep()->skipRefp(), IfaceRefDType)) {
-            return dtypep()->cType("", forFunc, false) + " const &" + oname;
+    якщо (named) oname = VIdProtect::protectIf(name(), protect());
+    якщо (forFunc && (isReadOnly() || constRef) && asRef) {
+        якщо (VN_IS(dtypep()->skipRefp(), IfaceRefDType)) {
+            повернути dtypep()->cType("", forFunc, false) + " const &" + oname;
         }
-        return "const " + dtypep()->cType(oname, forFunc, asRef);
+        повернути "const " + dtypep()->cType(oname, forFunc, asRef);
     }
-    return dtypep()->cType(oname, forFunc, asRef);
+    повернути dtypep()->cType(oname, forFunc, asRef);
 }
 string AstVar::vlEnumDir(bool forMember) const {
     string out;
-    if (isInout()) {
+    якщо (isInout()) {
         out = "VLVD_INOUT";
-    } else if (isWritable()) {
+    } інакше якщо (isWritable()) {
         out = "VLVD_OUT";
-    } else if (isNonOutput()) {
+    } інакше якщо (isNonOutput()) {
         out = "VLVD_IN";
-    } else {
+    } інакше {
         out = "VLVD_NODIR";
     }
     //
-    if (isSigUserRWPublic()) {
+    якщо (isSigUserRWPublic()) {
         out += "|VLVF_PUB_RW";
-    } else if (isSigUserRdPublic()) {
+    } інакше якщо (isSigUserRdPublic()) {
         out += "|VLVF_PUB_RD";
     }
-    if (isForceable() && !forMember) out += "|VLVF_FORCEABLE";
-    if (isContinuously()) out += "|VLVF_CONTINUOUSLY";
+    якщо (isForceable() && !forMember) out += "|VLVF_FORCEABLE";
+    якщо (isContinuously()) out += "|VLVF_CONTINUOUSLY";
     //
-    if (const AstBasicDType* const bdtypep = basicp()) {
-        if (bdtypep->keyword().isDpiCLayout() || (isDpiOpenArray() && bdtypep->isDpiCLayout())) {
+    якщо (const AstBasicDType* const bdtypep = basicp()) {
+        якщо (bdtypep->keyword().isDpiCLayout() || (isDpiOpenArray() && bdtypep->isDpiCLayout())) {
             out += "|VLVF_DPI_CLAY";
         }
     }
     //
-    if (dtypep()->skipRefp()->isSigned() && !forMember) out += "|VLVF_SIGNED";
+    якщо (dtypep()->skipRefp()->isSigned() && !forMember) out += "|VLVF_SIGNED";
     //
-    if (AstBasicDType* const basicp = dtypep()->skipRefp()->basicp()) {
-        if (basicp->keyword() == VBasicDTypeKwd::BIT && !forMember) out += "|VLVF_BITVAR";
+    якщо (AstBasicDType* const basicp = dtypep()->skipRefp()->basicp()) {
+        якщо (basicp->keyword() == VBasicDTypeKwd::BIT && !forMember) out += "|VLVF_BITVAR";
     }
-    if (isNet()) out += "|VLVF_NET";
-    if (!forMember) out += dtypep()->vlEnumPackedAgg();
-    return out;
+    якщо (isNet()) out += "|VLVF_NET";
+    якщо (!forMember) out += dtypep()->vlEnumPackedAgg();
+    повернути out;
 }
-string AstVar::vlEnumType() const { return dtypep()->vlEnumType(); }
+string AstVar::vlEnumType() const { повернути dtypep()->vlEnumType(); }
 string AstVar::vlPropDecl(const string& propName) const {
     string out;
 
-    std::vector<int> plims;  // Packed dimension limits
-    std::vector<int> ulims;  // Unpacked dimension limits
+    std::vector<ціле> plims;  // Packed dimension limits
+    std::vector<ціле> ulims;  // Unpacked dimension limits
 
-    if (const AstBasicDType* const bdtypep = basicp()) {
-        for (const AstNodeDType* dtp = dtypep(); dtp;) {
+    якщо (const AstBasicDType* const bdtypep = basicp()) {
+        для (const AstNodeDType* dtp = dtypep(); dtp;) {
             dtp = dtp->skipRefp();  // Skip AstRefDType/AstTypedef, or return same node
-            if (const AstNodeArrayDType* const adtypep = VN_CAST(dtp, NodeArrayDType)) {
-                if (VN_IS(dtp, PackArrayDType)) {
+            якщо (const AstNodeArrayDType* const adtypep = VN_CAST(dtp, NodeArrayDType)) {
+                якщо (VN_IS(dtp, PackArrayDType)) {
                     plims.push_back(adtypep->declRange().left());
                     plims.push_back(adtypep->declRange().right());
-                } else {
+                } інакше {
                     ulims.push_back(adtypep->declRange().left());
                     ulims.push_back(adtypep->declRange().right());
                 }
                 dtp = adtypep->subDTypep();
-            } else {
-                if (bdtypep->isRanged()) {
+            } інакше {
+                якщо (bdtypep->isRanged()) {
                     plims.push_back(bdtypep->left());
                     plims.push_back(bdtypep->right());
                 }
@@ -4734,26 +4734,26 @@ string AstVar::vlPropDecl(const string& propName) const {
         }
     }
 
-    if (!ulims.empty()) {
+    якщо (!ulims.empty()) {
         out += "static const int " + propName + "__ulims[";
         out += cvtToStr(ulims.size());
         out += "] = {";
         auto it = ulims.cbegin();
         out += cvtToStr(*it);
-        while (++it != ulims.cend()) {
+        поки (++it != ulims.cend()) {
             out += ", ";
             out += cvtToStr(*it);
         }
         out += "};\n";
     }
 
-    if (!plims.empty()) {
+    якщо (!plims.empty()) {
         out += "static const int " + propName + "__plims[";
         out += cvtToStr(plims.size());
         out += "] = {";
         auto it = plims.cbegin();
         out += cvtToStr(*it);
-        while (++it != plims.cend()) {
+        поки (++it != plims.cend()) {
             out += ", ";
             out += cvtToStr(*it);
         }
@@ -4766,54 +4766,54 @@ string AstVar::vlPropDecl(const string& propName) const {
     out += vlEnumType();  // VLVT_UINT32 etc
     out += ", " + vlEnumDir();  // VLVD_IN etc
 
-    if (!ulims.empty()) {
+    якщо (!ulims.empty()) {
         out += ", VerilatedVarProps::Unpacked{}";
         out += ", " + cvtToStr(ulims.size() / 2);
         out += ", " + propName + "__ulims";
     }
 
-    if (!plims.empty()) {
+    якщо (!plims.empty()) {
         out += ", VerilatedVarProps::Packed{}";
         out += ", " + cvtToStr(plims.size() / 2);
         out += ", " + propName + "__plims";
     }
 
     out += ");\n";
-    return out;
+    повернути out;
 }
 const char* AstVarRef::broken() const {
     // Even after assertDTypesResolved(), V3Scope will set varp() to null, but name won't be ""
     BROKEN_RTN(!varp() && name().empty());
-    return nullptr;
+    повернути nullptr;
 }
 void AstVarRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (varScopep()) {
+    якщо (varScopep()) {
         varScopep()->dump(str);
-    } else if (varp()) {
+    } інакше якщо (varp()) {
         varp()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
 void AstVarRef::dumpJson(std::ostream& str) const { dumpJsonGen(str); }
-int AstVarRef::instrCount() const {
+ціле AstVarRef::instrCount() const {
     // Account for the target of hard-coded method calls as just an address computation
-    if (const AstCMethodHard* const callp = VN_CAST(backp(), CMethodHard)) {
-        if (callp->fromp() == this) return 1;
+    якщо (const AstCMethodHard* const callp = VN_CAST(backp(), CMethodHard)) {
+        якщо (callp->fromp() == this) повернути 1;
     }
     // Otherwise as a load/store
-    return widthInstrs() * (access().isReadOrRW() ? INSTR_COUNT_LD : 1);
+    повернути widthInstrs() * (access().isReadOrRW() ? INSTR_COUNT_LD : 1);
 }
-bool AstVarRef::sameNode(const AstNode* samep) const { return sameNode(VN_DBG_AS(samep, VarRef)); }
+bool AstVarRef::sameNode(const AstNode* samep) const { повернути sameNode(VN_DBG_AS(samep, VarRef)); }
 void AstVarScope::dump(std::ostream& str) const {
     Super::dump(str);
-    if (isTrace()) str << " [T]";
-    if (scopep()) str << " [scopep=" << nodeAddr(scopep()) << "]";
-    if (varp()) {
+    якщо (isTrace()) str << " [T]";
+    якщо (scopep()) str << " [scopep=" << nodeAddr(scopep()) << "]";
+    якщо (varp()) {
         str << " -> ";
         varp()->dump(str);
-    } else {
+    } інакше {
         str << " ->UNLINKED";
     }
 }
@@ -4823,19 +4823,19 @@ void AstVarScope::dumpJson(std::ostream& str) const {
 }
 bool AstVarScope::sameNode(const AstNode* samep) const {
     const AstVarScope* const asamep = VN_DBG_AS(samep, VarScope);
-    return varp()->sameNode(asamep->varp()) && scopep()->sameNode(asamep->scopep());
+    повернути varp()->sameNode(asamep->varp()) && scopep()->sameNode(asamep->scopep());
 }
 void AstVarXRef::dump(std::ostream& str) const {
     Super::dump(str);
-    if (containsGenBlock()) str << " [GENBLK]";
-    if (readOnlyModport()) str << " [ROMODPORT]";
+    якщо (containsGenBlock()) str << " [GENBLK]";
+    якщо (readOnlyModport()) str << " [ROMODPORT]";
     str << ".=" << dotted() << " ";
-    if (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
-    if (varScopep()) {
+    якщо (inlinedDots() != "") str << " inline.=" << inlinedDots() << " - ";
+    якщо (varScopep()) {
         varScopep()->dump(str);
-    } else if (varp()) {
+    } інакше якщо (varp()) {
         varp()->dump(str);
-    } else {
+    } інакше {
         str << "UNLINKED";
     }
 }
@@ -4855,24 +4855,24 @@ void AstWildcardArrayDType::dumpSmall(std::ostream& str) const {
     str << "[*]";
 }
 string AstWildcardArrayDType::prettyDTypeName(bool full) const {
-    return subDTypep()->prettyDTypeName(full) + "$[*]";
+    повернути subDTypep()->prettyDTypeName(full) + "$[*]";
 }
 bool AstWildcardArrayDType::sameNode(const AstNode* samep) const {
     const AstWildcardArrayDType* const asamep = VN_DBG_AS(samep, WildcardArrayDType);
-    if (!asamep->subDTypep()) return false;
-    return (subDTypep() == asamep->subDTypep());
+    якщо (!asamep->subDTypep()) повернути false;
+    повернути (subDTypep() == asamep->subDTypep());
 }
 bool AstWildcardArrayDType::similarDTypeNode(const AstNodeDType* samep) const {
     const AstWildcardArrayDType* const asamep = VN_DBG_AS(samep, WildcardArrayDType);
-    return asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
+    повернути asamep->subDTypep() && subDTypep()->similarDType(asamep->subDTypep());
 }
 void AstWith::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_restricted) {
+    якщо (m_restricted) {
         str << " [RESTRICTED={";
         bool first = true;
-        for (const std::string& n : m_restrictedNames) {
-            if (!first) str << ",";
+        для (const std::string& n : m_restrictedNames) {
+            якщо (!first) str << ",";
             str << n;
             first = false;
         }
@@ -4881,11 +4881,11 @@ void AstWith::dump(std::ostream& str) const {
 }
 void AstWith::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "restricted", m_restricted);
-    if (m_restricted) {
+    якщо (m_restricted) {
         std::string joined;
         bool first = true;
-        for (const std::string& n : m_restrictedNames) {
-            if (!first) joined += ",";
+        для (const std::string& n : m_restrictedNames) {
+            якщо (!first) joined += ",";
             joined += n;
             first = false;
         }
@@ -4895,7 +4895,7 @@ void AstWith::dumpJson(std::ostream& str) const {
 }
 void AstWithParse::dump(std::ostream& str) const {
     Super::dump(str);
-    if (m_restricted) str << " [RESTRICTED]";
+    якщо (m_restricted) str << " [RESTRICTED]";
 }
 void AstWithParse::dumpJson(std::ostream& str) const {
     dumpJsonBoolIf(str, "restricted", m_restricted);
@@ -4904,5 +4904,5 @@ void AstWithParse::dumpJson(std::ostream& str) const {
 const char* AstXor::widthMismatch() const VL_MT_STABLE {
     BROKEN_RTN(lhsp()->widthMin() != rhsp()->widthMin());
     BROKEN_RTN(lhsp()->widthMin() != widthMin());
-    return nullptr;
+    повернути nullptr;
 }

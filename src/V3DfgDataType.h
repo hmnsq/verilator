@@ -77,15 +77,15 @@ class DfgDataType final {
 
     // METHODS
     static AstNodeDType* canonicalPackedDType(uint32_t width) {
-        return v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
+        повернути v3Global.rootp()->typeTablep()->findBitDType(width, width, VSigning::UNSIGNED);
     }
     static AstNodeDType* canonicalArrayDType(uint32_t size, const DfgDataType& elemType) {
         AstNodeDType* const elemDTypep = elemType.m_astDtypep;
         FileLine* const flp = elemDTypep->fileline();
-        AstRange* const rangep = new AstRange{flp, static_cast<int>(size - 1), 0};
+        AstRange* const rangep = new AstRange{flp, static_cast<ціле>(size - 1), 0};
         AstNodeDType* const dtypep = new AstUnpackArrayDType{flp, elemDTypep, rangep};
         v3Global.rootp()->typeTablep()->addTypesp(dtypep);
-        return dtypep;
+        повернути dtypep;
     }
 
     // CONSTRUCTOR - use 'fromAst' instead
@@ -108,30 +108,30 @@ class DfgDataType final {
     VL_UNCOPYABLE(DfgDataType);
     VL_UNMOVABLE(DfgDataType);
     ~DfgDataType() {
-        for (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        для (const auto& pair : m_arrayTypes) VL_DO_DANGLING(delete pair.second, pair.second);
     }
 
 public:
     //-----------------------------------------------------------------------
     // Properties
 
-    bool isNull() const { return m_kind == Kind::Null; }
-    bool isPacked() const { return m_kind == Kind::Packed; }
-    bool isArray() const { return m_kind == Kind::Array; }
+    bool isNull() const { повернути m_kind == Kind::Null; }
+    bool isPacked() const { повернути m_kind == Kind::Packed; }
+    bool isArray() const { повернути m_kind == Kind::Array; }
     // Size of type (this is 'width' for Ppacked, 'elements' for Array, 0 for Null)
-    uint32_t size() const { return m_size; }
-    AstNodeDType* astDtypep() const { return m_astDtypep; }
+    uint32_t size() const { повернути m_size; }
+    AstNodeDType* astDtypep() const { повернути m_astDtypep; }
 
     // Thanks to the interning, equality is identity
-    bool operator==(const DfgDataType& that) const { return this == &that; }
-    bool operator!=(const DfgDataType& that) const { return this != &that; }
+    bool operator==(const DfgDataType& that) const { повернути this == &that; }
+    bool operator!=(const DfgDataType& that) const { повернути this != &that; }
     // Similarly for hash
-    V3Hash hash() const { return V3Hash{this}; }
+    V3Hash hash() const { повернути V3Hash{this}; }
 
     // Type of elements, for arrays only
     const DfgDataType& elemDtype() const {
         UASSERT(isArray(), "Non-array has no 'elemDType'");
-        return *m_elemDtypep;
+        повернути *m_elemDtypep;
     }
 
     //-----------------------------------------------------------------------
@@ -142,8 +142,8 @@ public:
         UASSERT(width > 0, "Width must be positive");
         // Find or create the right sized packed type
         const DfgDataType*& entryr = s_packedTypes[width];
-        if (!entryr) entryr = new DfgDataType{width};
-        return *entryr;
+        якщо (!entryr) entryr = new DfgDataType{width};
+        повернути *entryr;
     }
 
     // Returns an Array type of the given size with the given elements
@@ -151,14 +151,14 @@ public:
         UASSERT(elemType.isPacked(), "Cannot create multi-dimensional arrays yet");
         // Find or create the right sized array type with this as elements
         const DfgDataType*& entryr = elemType.m_arrayTypes[size];
-        if (!entryr) entryr = new DfgDataType{size, elemType};
-        return *entryr;
+        якщо (!entryr) entryr = new DfgDataType{size, elemType};
+        повернути *entryr;
     }
 
     // Returns the singleton Null type
     static const DfgDataType& null() {
-        if (!s_nullTypep) s_nullTypep = new DfgDataType{};
-        return *s_nullTypep;
+        якщо (!s_nullTypep) s_nullTypep = new DfgDataType{};
+        повернути *s_nullTypep;
     }
 
     // Returns the data type of selecting the range [lo + size - 1 : lo] from this type
@@ -166,11 +166,11 @@ public:
         switch (dtype.m_kind) {
         case Kind::Packed: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::packed(size);
+            повернути DfgDataType::packed(size);
         }
         case Kind::Array: {
             UASSERT(lo + size - 1 < dtype.size(), "Out of range");
-            return DfgDataType::array(dtype.elemDtype(), size);
+            повернути DfgDataType::array(dtype.elemDtype(), size);
         }
         case Kind::Null: v3fatal("Type cannot be selected from");  // LCOV_EXCL_LINE
         }
@@ -182,50 +182,50 @@ public:
     static const DfgDataType* fromAst(const AstNodeDType* dtypep) {
         dtypep = dtypep->skipRefp();
 
-        if (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
+        якщо (const AstUnpackArrayDType* const typep = VN_CAST(dtypep, UnpackArrayDType)) {
             // Convert the element type
             const DfgDataType* const elemp = fromAst(typep->subDTypep());
             // If element type is not supported, we cannot handle the array either
-            if (!elemp) return nullptr;
+            якщо (!elemp) повернути nullptr;
             // Currently restricted to 1-dimensional arrays, just assumptions in the code
-            if (elemp->isArray()) return nullptr;
+            якщо (elemp->isArray()) повернути nullptr;
             // Unpacked array maps to Array
-            return &array(*elemp, typep->elementsConst());
+            повернути &array(*elemp, typep->elementsConst());
         }
 
-        if (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
+        якщо (const AstPackArrayDType* const typep = VN_CAST(dtypep, PackArrayDType)) {
             // Packed array maps to Packed
-            return &packed(typep->width());
+            повернути &packed(typep->width());
         }
 
-        if (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
+        якщо (const AstStructDType* const typep = VN_CAST(dtypep, StructDType)) {
             // Unpacked structs currently not supported
-            if (!typep->packed()) return nullptr;
+            якщо (!typep->packed()) повернути nullptr;
             // Packed struct maps to Packed
-            return &packed(typep->width());
+            повернути &packed(typep->width());
         }
 
-        if (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
+        якщо (const AstUnionDType* const typep = VN_CAST(dtypep, UnionDType)) {
             // Unpacked unions not supported
-            if (!typep->packed()) return nullptr;
+            якщо (!typep->packed()) повернути nullptr;
             // Packed union maps to Packed
-            return &packed(typep->width());
+            повернути &packed(typep->width());
         }
 
-        if (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
+        якщо (const AstBasicDType* const typep = VN_CAST(dtypep, BasicDType)) {
             // Anything not resembling a binary encoded number is not supported
-            if (!typep->keyword().isIntNumeric()) return nullptr;
+            якщо (!typep->keyword().isIntNumeric()) повернути nullptr;
             // Basic numeric types map to Packed
-            return &packed(typep->width());
+            повернути &packed(typep->width());
         }
 
         // Anything else is not representable
-        return nullptr;
+        повернути nullptr;
     }
 
     // Reset interned types
     static void reset() {
-        for (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
+        для (const auto& pair : s_packedTypes) VL_DO_DANGLING(delete pair.second, pair.second);
         s_packedTypes.clear();
         delete s_nullTypep;
         s_nullTypep = nullptr;

@@ -55,22 +55,22 @@ class V3MutexConfig final {
 public:
     static V3MutexConfig& s() VL_MT_SAFE {
         static V3MutexConfig s{};
-        return s;
+        повернути s;
     }
 
     // configures class
     void configure(bool enable) VL_MT_UNSAFE {
-        if (!s().m_lockConfig) {
+        якщо (!s().m_lockConfig) {
             s().m_enable = enable;
             s().m_lockConfig = true;
-        } else {
+        } інакше {
             // requires <iostream>
             // avoided to reduce compile time
             // std::cerr << "%Error: V3Mutex already configured." << std::endl;
             std::abort();  // LCOV_EXCL_LINE
         }
     }
-    bool enable() const VL_MT_SAFE { return m_enable; }
+    bool enable() const VL_MT_SAFE { повернути m_enable; }
 };
 
 /// Mutex, wrapped to allow -fthread_safety checks
@@ -83,15 +83,15 @@ public:
     V3MutexImp() = default;
     ~V3MutexImp() = default;
     VL_UNCOPYABLE(V3MutexImp);
-    const V3MutexImp& operator!() const { return *this; }  // For -fthread_safety
+    const V3MutexImp& operator!() const { повернути *this; }  // For -fthread_safety
     /// Acquire/lock mutex
     void lock() VL_ACQUIRE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) {
+        якщо (V3MutexConfig::s().enable()) {
             // Try to acquire the lock by spinning.  If the wait is short,
             // avoids a trap to the OS plus OS scheduler overhead.
-            if (VL_LIKELY(try_lock())) return;  // Short circuit loop
-            for (int i = 0; i < VL_LOCK_SPINS; ++i) {
-                if (VL_LIKELY(try_lock())) return;
+            якщо (VL_LIKELY(try_lock())) повернути;  // Short circuit loop
+            для (ціле i = 0; i < VL_LOCK_SPINS; ++i) {
+                якщо (VL_LIKELY(try_lock())) повернути;
                 VL_CPU_RELAX();
             }
             // Spinning hasn't worked, pay the cost of blocking.
@@ -100,11 +100,11 @@ public:
     }
     /// Release/unlock mutex
     void unlock() VL_RELEASE() VL_MT_SAFE {
-        if (V3MutexConfig::s().enable()) m_mutex.unlock();
+        якщо (V3MutexConfig::s().enable()) m_mutex.unlock();
     }
     /// Try to acquire mutex.  Returns true on success, and false on failure.
     bool try_lock() VL_TRY_ACQUIRE(true) VL_MT_SAFE {
-        return V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
+        повернути V3MutexConfig::s().enable() ? m_mutex.try_lock() : true;
     }
     /// Assume that the mutex is already held. Purely for Clang thread safety analyzer.
     void assumeLocked() VL_ASSERT_CAPABILITY(this) VL_MT_SAFE {}

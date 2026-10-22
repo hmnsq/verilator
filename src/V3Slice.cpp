@@ -68,20 +68,20 @@ class SliceVisitor final : public VNVisitor {
         // Insert an ArraySel, except for a few special cases
         const AstUnpackArrayDType* const arrayp
             = VN_CAST(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        if (!arrayp) {  // V3Width should have complained, but...
-            if (!m_assignError) {
+        якщо (!arrayp) {  // V3Width should have complained, but...
+            якщо (!m_assignError) {
                 nodep->v3error(
                     nodep->prettyTypeName()
                     << " is not an unpacked array, but is in an unpacked array context");
-            } else {
+            } інакше {
                 V3Error::incErrors();  // Otherwise might infinite loop
             }
             m_assignError = true;
             // Likely will cause downstream errors
-            return nodep->cloneTree(false, needPure);
+            повернути nodep->cloneTree(false, needPure);
         }
-        if (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
-            if (!m_assignError) {
+        якщо (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
+            якщо (!m_assignError) {
                 nodep->v3error(
                     "Slices of arrays in assignments have different unpacked dimensions, "
                     << elements << " versus " << arrayp->rangep()->elementsConst());
@@ -91,57 +91,57 @@ class SliceVisitor final : public VNVisitor {
             elemIdx = 0;
         }
         AstNodeExpr* newp;
-        if (AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
+        якщо (AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
             UINFO(9, "  cloneConsArray(" << elements << "," << elemIdx << ") " << nodep);
             const uint64_t index
                 = arrayp->rangep()->ascending() ? elemIdx : elements - 1 - elemIdx;
             newp = consp->valuep(index)->cloneTree(false, needPure);
-        } else if (const AstCvtUnpackToUnpack* const cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
+        } інакше якщо (const AstCvtUnpackToUnpack* const cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
             UINFO(9, "  cloneCvtUnpackToUnpack(" << elements << "," << elemIdx << ") " << nodep);
             // The element in the same left-to-right position of the source
             AstNodeExpr* const elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
             AstNodeDType* const subDTypep = arrayp->subDTypep();
             const AstUnpackArrayDType* const subArrayp
                 = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
-            if (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) return elemp;
-            return new AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
-        } else if (AstCond* const snodep = VN_CAST(nodep, Cond)) {
+            якщо (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) повернути elemp;
+            повернути new AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
+        } інакше якщо (AstCond* const snodep = VN_CAST(nodep, Cond)) {
             UINFO(9, "  cloneCond(" << elements << "," << elemIdx << ") " << nodep);
-            return new AstCond{snodep->fileline(), snodep->condp()->cloneTree(false, needPure),
+            повернути new AstCond{snodep->fileline(), snodep->condp()->cloneTree(false, needPure),
                                cloneAndSel(snodep->thenp(), elements, elemIdx, needPure),
                                cloneAndSel(snodep->elsep(), elements, elemIdx, needPure)};
-        } else if (const AstSliceSel* const snodep = VN_CAST(nodep, SliceSel)) {
+        } інакше якщо (const AstSliceSel* const snodep = VN_CAST(nodep, SliceSel)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = (snodep->declRange().lo()
+            const ціле leOffset = (snodep->declRange().lo()
                                   + (!snodep->declRange().ascending()
                                          ? snodep->declRange().elements() - 1 - elemIdx
                                          : elemIdx));
             newp = new AstArraySel{nodep->fileline(), snodep->fromp()->cloneTree(false, needPure),
                                    leOffset};
-        } else if (const AstSampled* const snodep = VN_CAST(nodep, Sampled)) {
+        } інакше якщо (const AstSampled* const snodep = VN_CAST(nodep, Sampled)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
             AstNodeExpr* const exprp = VN_AS(snodep->exprp(), NodeExpr);
             AstNodeExpr* const selp = cloneAndSel(exprp, elements, elemIdx, needPure);
-            return new AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
-        } else if (AstExprStmt* const snodep = VN_CAST(nodep, ExprStmt)) {
+            повернути new AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
+        } інакше якщо (AstExprStmt* const snodep = VN_CAST(nodep, ExprStmt)) {
             UINFO(9, "  cloneExprStmt(" << elements << "," << elemIdx << ") " << nodep);
             AstNodeExpr* const resultSelp
                 = cloneAndSel(snodep->resultp(), elements, elemIdx, needPure);
-            if (snodep->stmtsp()) {
-                return new AstExprStmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
+            якщо (snodep->stmtsp()) {
+                повернути new AstExprStmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
                                        resultSelp};
-            } else {
-                return resultSelp;
+            } інакше {
+                повернути resultSelp;
             }
-        } else if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, NodeSel) || VN_IS(nodep, CMethodHard)
+        } інакше якщо (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, NodeSel) || VN_IS(nodep, CMethodHard)
                    || VN_IS(nodep, MemberSel) || VN_IS(nodep, StructSel)) {
             UINFO(9, "  cloneSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = !arrayp->rangep()->ascending()
+            const ціле leOffset = !arrayp->rangep()->ascending()
                                      ? arrayp->rangep()->elementsConst() - 1 - elemIdx
                                      : elemIdx;
             newp = new AstArraySel{nodep->fileline(), nodep->cloneTree(false, needPure), leOffset};
-        } else {
-            if (!m_assignError) {
+        } інакше {
+            якщо (!m_assignError) {
                 nodep->v3error(nodep->prettyTypeName()
                                << " unexpected in assignment to unpacked array");
             }
@@ -149,7 +149,7 @@ class SliceVisitor final : public VNVisitor {
             // Likely will cause downstream errors
             newp = nodep->cloneTree(false, needPure);
         }
-        return newp;
+        повернути newp;
     }
 
     bool assignOptimize(AstNodeAssign* nodep) {
@@ -157,33 +157,33 @@ class SliceVisitor final : public VNVisitor {
         AstNodeDType* const dtp = nodep->lhsp()->dtypep()->skipRefp();
         AstNode* stp = nodep->rhsp();
         const AstUnpackArrayDType* const arrayp = VN_CAST(dtp, UnpackArrayDType);
-        if (!arrayp) return false;
-        if (VN_IS(stp, CvtPackedToArray)) return false;
-        if (VN_IS(stp, CReset)) return false;
+        якщо (!arrayp) повернути false;
+        якщо (VN_IS(stp, CvtPackedToArray)) повернути false;
+        якщо (VN_IS(stp, CReset)) повернути false;
 
         // Any isSc variables must be expanded regardless of --fno-slice
         const bool hasSc
-            = nodep->exists([&](const AstVarRef* refp) -> bool { return refp->varp()->isSc(); });
-        if (!hasSc && !v3Global.opt.fSlice()) {
+            = nodep->exists([&](const AstVarRef* refp) -> bool { повернути refp->varp()->isSc(); });
+        якщо (!hasSc && !v3Global.opt.fSlice()) {
             m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+            повернути false;
         }
 
         // Skip optimization if array is too large
-        const int elements = arrayp->rangep()->elementsConst();
-        const int elementLimit = v3Global.opt.fSliceElementLimit();
-        if (elements > elementLimit && elementLimit > 0) {
+        const ціле elements = arrayp->rangep()->elementsConst();
+        const ціле elementLimit = v3Global.opt.fSliceElementLimit();
+        якщо (elements > elementLimit && elementLimit > 0) {
             ++m_statSliceElementSkips;
             m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+            повернути false;
         }
 
         // Skip if this is a simple a = b assignment of identical arrays
-        if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (!hasSc && lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
+        якщо (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            якщо (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                якщо (!hasSc && lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
                     m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-                    return false;
+                    повернути false;
                 }
             }
         }
@@ -196,7 +196,7 @@ class SliceVisitor final : public VNVisitor {
         // Assign of an ascending range slice to a descending range one must reverse
         // the elements
         AstNodeAssign* newlistp = nullptr;
-        for (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
+        для (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
             // Original node is replaced, so it is safe to copy it one time even if it is impure.
             AstNodeAssign* const newp
                 = nodep->cloneType(cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
@@ -209,19 +209,19 @@ class SliceVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
         // Normal edit iterator will now iterate on all of the expansion assignments
         // This will potentially call this function again to resolve next level of slicing
-        return true;
+        повернути true;
     }
 
     void visit(AstNodeAssign* nodep) override {
         // Called recursively on newly created assignments
-        if (nodep->user1SetOnce()) return;  // Process once
+        якщо (nodep->user1SetOnce()) повернути;  // Process once
         UINFOTREE(9, nodep, "", "Deslice-In");
         VL_RESTORER(m_assignError);
         VL_RESTORER(m_assignp);
         VL_RESTORER(m_okConsArray);  // Set in assignOptimize
         m_assignError = false;
         m_assignp = nodep;
-        if (assignOptimize(nodep)) return;
+        якщо (assignOptimize(nodep)) повернути;
         iterateChildren(nodep);
     }
 
@@ -238,25 +238,25 @@ class SliceVisitor final : public VNVisitor {
     template <typename T_NodeBiop>
     void expandBiOp(T_NodeBiop* biopp) {
         AstNodeBiop* nodep = biopp;
-        if (nodep->user1SetOnce()) return;  // Process once
+        якщо (nodep->user1SetOnce()) повернути;  // Process once
         UINFO(9, "  Bi-Eq/Neq expansion " << nodep);
 
         // Only expand if lhs is an unpacked array (we assume type checks already passed)
         const AstNodeDType* const fromDtp = nodep->lhsp()->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+        якщо (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
             AstNodeBiop* logp = nullptr;
 
-            const int elements = adtypep->rangep()->elementsConst();
-            for (int elemIdx = 0; elemIdx < elements; ++elemIdx) {
+            const ціле elements = adtypep->rangep()->elementsConst();
+            для (ціле elemIdx = 0; elemIdx < elements; ++elemIdx) {
                 // EQ(a,b) -> LOGAND(EQ(ARRAYSEL(a,0), ARRAYSEL(b,0)), ...[1])
                 // Original node is replaced, so it is safe to copy it one time even if it is
                 // impure.
                 T_NodeBiop* const clonep = new T_NodeBiop{
                     nodep->fileline(), cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                     cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0)};
-                if (!logp) {
+                якщо (!logp) {
                     logp = clonep;
-                } else {
+                } інакше {
                     switch (nodep->type()) {
                     case VNType::Eq:  // FALLTHRU
                     case VNType::EqCase:

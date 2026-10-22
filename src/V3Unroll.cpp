@@ -39,14 +39,14 @@ struct UnrollStats final {
         explicit Stat(const char* const name)
             : m_name{name} {}
         ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
-        const char* name() const { return m_name; }
+        const char* name() const { повернути m_name; }
         Stat& operator++() {
             ++m_value;
-            return *this;
+            повернути *this;
         }
         Stat& operator+=(size_t v) {
             m_value += v;
-            return *this;
+            повернути *this;
         }
     };
 
@@ -103,7 +103,7 @@ public:
     void commit() { m_checkpoints.pop_back(); }
 
     void set(AstVarScope* vscp, AstConst* valp) {
-        if (!vscp->user1()) {
+        якщо (!vscp->user1()) {
             vscp->user1(m_curr.size());
             m_curr.push_back(nullptr);
         }
@@ -113,12 +113,12 @@ public:
 
     AstConst* get(AstVarScope* vscp) {
         // It's possible after a revert that user1 is set, but the vector is shorter, pad up
-        if (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
+        якщо (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
             m_curr.resize(vscp->user1() + 1, nullptr);
         }
         AstConst* const valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
         UINFO(6, "Binding GET " << vscp->name() << " / " << vscp->user1() << " == " << valp);
-        return valp;
+        повернути valp;
     }
 };
 
@@ -149,14 +149,14 @@ class UnrollOneVisitor final : VNVisitor {
         // True if the loop contains at least one dependent AstLoopTest
         bool foundLoopTest = false;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        для (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
-            if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
+            якщо (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
                 AstNode* const condp = V3Const::constifyEdit(testp->condp());
-                if (condp->isZero()) {
+                якщо (condp->isZero()) {
                     // Loop terminates
-                    return false;
-                } else if (condp->isNeqZero()) {
+                    повернути false;
+                } інакше якщо (condp->isNeqZero()) {
                     // Loop test is unconditionally true, ignore
                     continue;
                 }
@@ -166,16 +166,16 @@ class UnrollOneVisitor final : VNVisitor {
             m_wrapp->addStmtsp(stmtp->cloneTree(false));
             iterateAndNextNull(m_wrapp->stmtsp());
             // Give up if failed
-            if (!m_ok) return false;
+            якщо (!m_ok) повернути false;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            поки (AstNode* const nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
-                if (!m_unrollFull) {
+                якщо (!m_unrollFull) {
                     m_unrolledSize += nodep->nodeCount();
-                    if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
+                    якщо (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
-                        return false;
+                        повернути false;
                     }
                 }
 
@@ -183,41 +183,41 @@ class UnrollOneVisitor final : VNVisitor {
                 nodep->unlinkFrBack();
 
                 // If a LoopTest, check how it resolved
-                if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
+                якщо (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
                     foundLoopTest = true;
                     // Will not actually need it, nor any subsequent
                     pushDeletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
-                    if (testp->condp()->isNeqZero()) continue;
+                    якщо (testp->condp()->isNeqZero()) continue;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    якщо (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
                     // Loop terminates
-                    if (testp->condp()->isZero()) return false;
+                    якщо (testp->condp()->isZero()) повернути false;
                     // Loop condition unknown - cannot unroll
                     cantUnroll(testp->condp(), m_stats.m_nFailCondition);
-                    return false;
+                    повернути false;
                 }
 
                 // Add this statement to the result list
                 m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
-                if (VN_IS(nodep, JumpGo)) {
+                якщо (VN_IS(nodep, JumpGo)) {
                     UASSERT_OBJ(!m_wrapp->stmtsp(), nodep, "Statements after JumpGo");
                     // This JumpGo is going directly into the body of the unrolled loop.
                     // A JumpGo always redirects to the end of an enclosing JumpBlock,
                     // so this JumpGo must go outside the loop. The loop terminates.
-                    return false;
+                    повернути false;
                 }
             }
         }
         // If there is no loop test in the body, give up, it's an infinite loop
-        if (!foundLoopTest) {
+        якщо (!foundLoopTest) {
             cantUnroll(m_loopp, m_stats.m_nFailInfinite);
-            return false;
+            повернути false;
         }
         // One iteration done, loop continues
-        return true;
+        повернути true;
     }
 
     // Substitute all reads of bound variables with their value. If a write is
@@ -225,63 +225,63 @@ class UnrollOneVisitor final : VNVisitor {
     // Returns false if we can't unroll
     bool process(AstNode* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
-        if (!nodep) return true;
+        якщо (!nodep) повернути true;
         // Variable references we should try to substitute
         std::vector<AstVarRef*> toSubstitute;
         // Iterate subtree
         nodep->foreach([&](AstNode* np) {
             // Failed earlier
-            if (!m_ok) return;
+            якщо (!m_ok) повернути;
             // Check for AstLoopTest
-            if (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
+            якщо (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
                 // Nested loop is OK, bail only if the nested LoopTest is for the current loop
-                if (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
-                return;
+                якщо (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
+                повернути;
             }
             // Check for AstFork - can't unroll
-            if (VN_IS(np, Fork)) {
+            якщо (VN_IS(np, Fork)) {
                 cantUnroll(np, m_stats.m_nFailFork);
-                return;
+                повернути;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
-                if (!callp->isPure()) {
+            якщо (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
+                якщо (!callp->isPure()) {
                     cantUnroll(np, m_stats.m_nFailCall);
-                    return;
+                    повернути;
                 }
             }
             // Check for timing control - can't unroll, might modify bindings
-            if (np->isTimingControl()) {
+            якщо (np->isTimingControl()) {
                 cantUnroll(np, m_stats.m_nFailTimingControl);
-                return;
+                повернути;
             }
             // Process variable references
             AstVarRef* const refp = VN_CAST(np, VarRef);
-            if (!refp) return;
+            якщо (!refp) повернути;
             // Ignore if the referenced variable has no binding
             AstConst* const valp = m_bindings.get(refp->varScopep());
-            if (!valp) return;
+            якщо (!valp) повернути;
             // If writen, remove the binding
-            if (refp->access().isWriteOrRW()) {
+            якщо (refp->access().isWriteOrRW()) {
                 m_bindings.set(refp->varScopep(), nullptr);
-                return;
+                повернути;
             }
             // Otherwise add it to the list of variables to substitute
             toSubstitute.push_back(refp);
         });
         // Give up if we have to
-        if (!m_ok) return false;
+        якщо (!m_ok) повернути false;
         // Actually substitute the variables that still have bindings
-        for (AstVarRef* const refp : toSubstitute) {
+        для (AstVarRef* const refp : toSubstitute) {
             // Pick up bound value
             AstConst* const valp = m_bindings.get(refp->varScopep());
             // Binding might have been removed after adding to 'toSubstitute'
-            if (!valp) continue;
+            якщо (!valp) continue;
             // Substitute it
             refp->replaceWith(valp->cloneTree(false));
             VL_DO_DANGLING(pushDeletep(refp), refp);
         }
-        return true;
+        повернути true;
     }
 
     // CONSTRUCTOR
@@ -291,29 +291,29 @@ class UnrollOneVisitor final : VNVisitor {
         , m_loopp{loopp} {
         UASSERT_OBJ(!loopp->contsp(), loopp, "'contsp' only used before LinkJump");
         // Do not unroll if we are told not to
-        if (loopp->unroll().isSetFalse()) {
+        якщо (loopp->unroll().isSetFalse()) {
             cantUnroll(loopp, m_stats.m_nPragmaDisabled);
-            return;
+            повернути;
         }
         // Attempt to unroll the loop
         const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
                                               : v3Global.opt.unrollCount();
         size_t iterCount = 0;
         do {
-            if (iterCount > iterLimit) {
+            якщо (iterCount > iterLimit) {
                 cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
-                if (m_unrollFull) {
+                якщо (m_unrollFull) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
                                    "set '--unroll-limit' above "
                                    << iterLimit);
                 }
-                return;
+                повернути;
             }
             ++iterCount;
-        } while (unrollOneIteration(loopp->stmtsp()));
+        } поки (unrollOneIteration(loopp->stmtsp()));
 
-        if (m_ok) {
+        якщо (m_ok) {
             ++m_stats.m_nUnrolledLoops;
             m_stats.m_nUnrolledIters += iterCount;
         }
@@ -322,14 +322,14 @@ class UnrollOneVisitor final : VNVisitor {
 
     // VISIT - these are called for the statements directly in the loop body
     void visit(AstNode* nodep) override {
-        if (!m_ok) return;
+        якщо (!m_ok) повернути;
         // Generic body statement, just substitute
         process(nodep);
     }
     void visit(AstLoopTest* nodep) override {
-        if (!m_ok) return;
+        якщо (!m_ok) повернути;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
+        якщо (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
             AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
             exprp->replaceWith(exprp->resultp()->unlinkFrBack());
             VL_DO_DANGLING(pushDeletep(exprp), exprp);
@@ -337,7 +337,7 @@ class UnrollOneVisitor final : VNVisitor {
             nodep->unlinkFrBack(&relinker);
             stmtsp->addNext(nodep);
             relinker.relink(stmtsp);
-            return;
+            повернути;
         }
         // Substitute the condition only, this is not a nested AstLoopTest
         process(nodep->condp());
@@ -345,59 +345,59 @@ class UnrollOneVisitor final : VNVisitor {
         V3Const::constifyEdit(nodep->condp());
     }
     void visit(AstAssign* nodep) override {
-        if (!m_ok) return;
+        якщо (!m_ok) повернути;
         // Can't do it if delayed
-        if (nodep->timingControlp()) {
+        якщо (nodep->timingControlp()) {
             cantUnroll(nodep, m_stats.m_nFailTimingControl);
-            return;
+            повернути;
         }
-        if (!process(nodep->rhsp())) return;
+        якщо (!process(nodep->rhsp())) повернути;
         // If a simple variable assignment, update the binding
         AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
         AstConst* const valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
-        if (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
+        якщо (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
             m_bindings.set(lhsp->varScopep(), valp);
-            return;
+            повернути;
         }
         // Otherwise just like a generic statement
         process(nodep->lhsp());
     }
     void visit(AstIf* nodep) override {
-        if (!m_ok) return;
-        if (!process(nodep->condp())) return;
+        якщо (!m_ok) повернути;
+        якщо (!process(nodep->condp())) повернути;
         // If condition is constant, replce with the relevant branch
-        if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+        якщо (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
+            якщо (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
                 nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
             }
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            повернути;
         }
         // Otherwise just like a generic statement
         process(nodep);
     }
     void visit(AstJumpGo* nodep) override {
-        if (!m_ok) return;
+        якщо (!m_ok) повернути;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        якщо (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
     }
     void visit(AstLoop* nodep) override {
-        if (!m_ok) return;
+        якщо (!m_ok) повернути;
         m_bindings.checkpoint();
         std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
-        if (!pair.second) {
+        якщо (!pair.second) {
             m_bindings.revert();
             process(nodep);
-            return;
+            повернути;
         }
 
         // Commit the bindings and replace the loop with the unrolled code
         m_bindings.commit();
-        if (pair.first) {
+        якщо (pair.first) {
             nodep->replaceWith(pair.first);
-        } else {
+        } інакше {
             nodep->unlinkFrBack();
         }
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
@@ -409,10 +409,10 @@ public:
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
-        if (visitor.m_ok) return {visitor.m_stmtsp, true};
+        якщо (visitor.m_ok) повернути {visitor.m_stmtsp, true};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
-        return {nullptr, false};
+        якщо (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
+        повернути {nullptr, false};
     }
 };
 
@@ -428,19 +428,19 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
-        while (true) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
-            if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
+    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, ціле minWidth) {
+        поки (true) {
+            якщо (AstVarRef* const refp = VN_CAST(nodep, VarRef)) повернути refp;
+            якщо (AstExtend* const ep = VN_CAST(nodep, Extend)) {
                 nodep = ep->lhsp();
-            } else if (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
+            } інакше якщо (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
                 nodep = ep->lhsp();
-            } else if (AstSel* const sp = VN_CAST(nodep, Sel)) {
+            } інакше якщо (AstSel* const sp = VN_CAST(nodep, Sel)) {
                 const AstConst* const lsbp = VN_CAST(sp->lsbp(), Const);
-                if (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) return nullptr;
+                якщо (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) повернути nullptr;
                 nodep = sp->fromp();
-            } else {
-                return nullptr;
+            } інакше {
+                повернути nullptr;
             }
         }
     }
@@ -448,42 +448,42 @@ class UnrollAllVisitor final : VNVisitor {
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
     bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
         AstAdd* const addp = VN_CAST(nodep, Add);
-        if (!addp || !addp->lhsp()->isOne()) return false;
+        якщо (!addp || !addp->lhsp()->isOne()) повернути false;
         const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
-        return r && r->varScopep() == vscp;
+        повернути r && r->varScopep() == vscp;
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
     static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
-        const int width = targetRefp->width();
-        if (width == 32) return exprp;
+        const ціле width = targetRefp->width();
+        якщо (width == 32) повернути exprp;
         FileLine* const flp = exprp->fileline();
-        if (width < 32) return new AstSel{flp, exprp, 0, width};
+        якщо (width < 32) повернути new AstSel{flp, exprp, 0, width};
         AstExtend* const extp = new AstExtend{flp, exprp};
         extp->dtypeFrom(targetRefp);
-        return extp;
+        повернути extp;
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
     static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
-        if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
+        якщо (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) повернути false;
         AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        повернути wp && idxRefp && !wp->num().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
     static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
-                               int addrBits) {
-        if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
+                               ціле addrBits) {
+        якщо (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) повернути false;
         AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
         const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
+        якщо (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) повернути false;
         const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
-        return r && r->varScopep() == idxVscp;
+        повернути r && r->varScopep() == idxVscp;
     }
     // Recognize a single-bit scan loop over all W bits of 'vec' (idx 0..W-1, target
     // pre-zeroed) and lower it to a bit-reduction primitive.  Two idioms are matched:
@@ -494,33 +494,33 @@ class UnrollAllVisitor final : VNVisitor {
     //   <e> = target + 1  => target = $countones(vec)     (population count)
     bool tryLowerBitScanLoop(AstLoop* loopp) {
         AstLoopTest* const testp = VN_CAST(loopp->stmtsp(), LoopTest);
-        if (!testp) return false;
+        якщо (!testp) повернути false;
         AstIf* const ifp = VN_CAST(testp->nextp(), If);
-        if (!ifp) return false;
+        якщо (!ifp) повернути false;
         AstAssign* const incp = VN_CAST(ifp->nextp(), Assign);
-        if (!incp || incp->nextp()) return false;
+        якщо (!incp || incp->nextp()) повернути false;
         AstConst* wp = nullptr;
         AstVarRef* idxRefp = nullptr;
-        if (!ascendingBound(testp->condp(), wp, idxRefp)) return false;
+        якщо (!ascendingBound(testp->condp(), wp, idxRefp)) повернути false;
         AstVarScope* const idxVscp = idxRefp->varScopep();
         const uint32_t width = wp->toUInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
+        const ціле addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
         const AstConst* const idxInitp = m_bindings.get(idxVscp);
-        if (!idxInitp || !idxInitp->isZero()) return false;
+        якщо (!idxInitp || !idxInitp->isZero()) повернути false;
         AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
-        if (!incLhsp || incLhsp->varScopep() != idxVscp) return false;
-        if (!isVarPlus1(incp->rhsp(), idxVscp)) return false;
-        if (ifp->elsesp()) return false;
+        якщо (!incLhsp || incLhsp->varScopep() != idxVscp) повернути false;
+        якщо (!isVarPlus1(incp->rhsp(), idxVscp)) повернути false;
+        якщо (ifp->elsesp()) повернути false;
         AstAssign* const thenp = VN_CAST(ifp->thensp(), Assign);
-        if (!thenp || thenp->nextp()) return false;
+        якщо (!thenp || thenp->nextp()) повернути false;
         AstVarRef* const targetRefp = VN_CAST(thenp->lhsp(), VarRef);
-        if (!targetRefp) return false;
+        якщо (!targetRefp) повернути false;
         AstVarScope* const targetVscp = targetRefp->varScopep();
-        if (targetVscp == idxVscp) return false;
+        якщо (targetVscp == idxVscp) повернути false;
         const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
         const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        якщо (!isLeadingOne && !isCountOnes) повернути false;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
@@ -528,34 +528,34 @@ class UnrollAllVisitor final : VNVisitor {
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
         AstNodeExpr* condp = ifp->condp();
-        if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
-            if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
-        } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
-            if (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
+        якщо (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
+            якщо (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
+        } інакше якщо (AstCond* const ternp = VN_CAST(condp, Cond)) {
+            якщо (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
         }
         AstSel* const selp = VN_CAST(condp, Sel);
-        if (!selp || selp->width() != 1) return false;
+        якщо (!selp || selp->width() != 1) повернути false;
         const AstVarRef* const fromp = VN_CAST(selp->fromp(), VarRef);
-        if (!fromp) return false;
+        якщо (!fromp) повернути false;
         const AstVarScope* const fromVscp = fromp->varScopep();
-        if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
+        якщо (fromVscp == idxVscp || fromVscp == targetVscp) повернути false;
         AstNodeExpr* const vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
-        if (static_cast<int>(width) != vecExprp->width()) return false;
+        якщо (static_cast<ціле>(width) != vecExprp->width()) повернути false;
         const AstVarRef* const idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
-        if (!idxInSel || idxInSel->varScopep() != idxVscp) return false;
+        якщо (!idxInSel || idxInSel->varScopep() != idxVscp) повернути false;
         // 'target' must be const-0 immediately before the loop (collected in m_bindings),
         // so that an all-zero 'vec' yields 0, matching $mostsetbitp1's definition.
         const AstConst* const targetInitp = m_bindings.get(targetVscp);
-        if (!targetInitp || !targetInitp->isZero()) return false;
+        якщо (!targetInitp || !targetInitp->isZero()) повернути false;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
         FileLine* const flp = loopp->fileline();
         AstNodeExpr* reducep;
-        if (isLeadingOne) {
+        якщо (isLeadingOne) {
             reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
-        } else {
+        } інакше {
             AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
             reducep = conep;
         }
@@ -564,61 +564,61 @@ class UnrollAllVisitor final : VNVisitor {
         newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
         loopp->replaceWith(newp);
         VL_DO_DANGLING(pushDeletep(loopp), loopp);
-        if (isLeadingOne) {
+        якщо (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
             ++m_stats.m_bitScanLowered;
-        } else {
+        } інакше {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
             ++m_stats.m_countOnesLowered;
         }
-        return true;
+        повернути true;
     }
 
     // VISIT
     void visit(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        для (AstNode *succp = nodep, *currp = nodep->backp(); true;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
-            if (currp->nextp() != succp) {
+            якщо (currp->nextp() != succp) {
                 // Jump block is OK, there is only one way to get here
-                if (VN_IS(currp, JumpBlock)) continue;
+                якщо (VN_IS(currp, JumpBlock)) continue;
                 // TODO: if?
                 // Otherwise we dont' know the control flow, give up
                 break;
             }
             AstAssign* const assignp = VN_CAST(currp, Assign);
-            if (!assignp) break;
+            якщо (!assignp) break;
             AstConst* const valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
-            if (!valp) break;
+            якщо (!valp) break;
             AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp) break;
+            якщо (!lhsp) break;
             // Don't bind if volatile
-            if (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
+            якщо (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
             // Don't overwrite a later binding
-            if (m_bindings.get(lhsp->varScopep())) continue;
+            якщо (m_bindings.get(lhsp->varScopep())) continue;
             // Set up the binding
             m_bindings.set(lhsp->varScopep(), valp);
         }
 
         // Recognize a bit counting loop and lower it to a builtin
-        if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
+        якщо (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) повернути;
 
         // Attempt to unroll this loop
         const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
-        if (!pair.second) {
+        якщо (!pair.second) {
             iterateChildren(nodep);
-            return;
+            повернути;
         }
 
         // Otherwise replace the loop with the unrolled code - might be empty
-        if (pair.first) {
+        якщо (pair.first) {
             nodep->replaceWith(pair.first);
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+        } інакше {
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
         }
         // Iteration continues with the unrolled body

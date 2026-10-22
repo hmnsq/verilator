@@ -40,24 +40,24 @@ class V3File final {
 public:
     static std::ifstream* new_ifstream(const string& filename) {
         addSrcDepend(filename);
-        return new_ifstream_nodepend(filename);
+        повернути new_ifstream_nodepend(filename);
     }
     static std::ifstream* new_ifstream_nodepend(const string& filename) VL_MT_SAFE {
-        return new std::ifstream{filename.c_str()};
+        повернути new std::ifstream{filename.c_str()};
     }
     static std::ofstream* new_ofstream(const string& filename, bool append = false) {
         addTgtDepend(filename);
-        return new_ofstream_nodepend(filename, append);
+        повернути new_ofstream_nodepend(filename, append);
     }
     static std::ofstream* new_ofstream_nodepend(const string& filename, bool append = false) {
         createMakeDirFor(filename);
-        if (append) return new std::ofstream{filename.c_str(), std::ios::app};
-        return new std::ofstream{filename.c_str()};
+        якщо (append) повернути new std::ofstream{filename.c_str(), std::ios::app};
+        повернути new std::ofstream{filename.c_str()};
     }
     static FILE* new_fopen_w(const string& filename) {
         createMakeDirFor(filename);
         addTgtDepend(filename);
-        return fopen(filename.c_str(), "w");
+        повернути fopen(filename.c_str(), "w");
     }
 
     // Dependencies
@@ -110,28 +110,28 @@ public:
 private:
     // MEMBERS
     const Language m_lang;  // Indenting Verilog code
-    int m_blockIndent;  // Characters per block indent
-    int m_commaWidth;  // Width after which to break at ,'s
-    int m_lineno = 1;
-    int m_column = 0;
-    int m_nobreak = false;  // Basic operator or begin paren, don't break next
-    int m_sourceLastLineno = 0;
-    int m_sourceLastFilenameno = 0;
+    ціле m_blockIndent;  // Characters per block indent
+    ціле m_commaWidth;  // Width after which to break at ,'s
+    ціле m_lineno = 1;
+    ціле m_column = 0;
+    ціле m_nobreak = false;  // Basic operator or begin paren, don't break next
+    ціле m_sourceLastLineno = 0;
+    ціле m_sourceLastFilenameno = 0;
     bool m_prependIndent = true;
     bool m_inStringLiteral = false;  // Inside a quote
     bool m_inBackslash = false;  // Inside a backslash
-    int m_indentLevel = 0;  // Current {} indentation
-    std::stack<int> m_parenVec;  // Stack of columns where last ( was
-    int m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
+    ціле m_indentLevel = 0;  // Current {} indentation
+    std::stack<ціле> m_parenVec;  // Stack of columns where last ( was
+    ціле m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
 
-    int endLevels(const char* strg);
+    ціле endLevels(const char* strg);
     void putcNoTracking(char chr);
 
 public:
     explicit V3OutFormatter(Language lang);
     virtual ~V3OutFormatter() = default;
     // ACCESSORS
-    void blockIndent(int flag) { m_blockIndent = flag; }
+    void blockIndent(ціле flag) { m_blockIndent = flag; }
     // METHODS
     void printf(const char* fmt...) VL_ATTR_PRINTF(2);
     void puts(const char* strg) { putns(nullptr, strg); }
@@ -154,7 +154,7 @@ public:
         putBreakExpr();
         putns(nodep, strg);
     }
-    bool exceededWidth() const { return m_column > m_commaWidth; }
+    bool exceededWidth() const { повернути m_column > m_commaWidth; }
     void indentInc() { m_indentLevel += m_blockIndent; }
     void indentDec() {
         m_indentLevel -= m_blockIndent;
@@ -162,13 +162,13 @@ public:
     }
     void blockInc() { m_parenVec.push(m_indentLevel + m_blockIndent); }
     void blockDec() {
-        if (!m_parenVec.empty()) m_parenVec.pop();
+        якщо (!m_parenVec.empty()) m_parenVec.pop();
     }
     void ensureNewLine() {
-        if (!m_nobreak) puts("\n");
+        якщо (!m_nobreak) puts("\n");
     }
     // STATIC METHODS
-    static const std::string& indentSpaces(int num);
+    static const std::string& indentSpaces(ціле num);
     // Add escaped characters to strings
     static string quoteNameControls(const string& namein, Language lang = LA_C) VL_PURE;
     static bool tokenMatch(const char* cp, const char* cmp);
@@ -208,7 +208,7 @@ public:
     V3OutFile& operator=(V3OutFile&&) = delete;
     ~V3OutFile() override;
 
-    std::string filename() const { return m_filename; }
+    std::string filename() const { повернути m_filename; }
 
     void putsForceIncs();
 
@@ -219,7 +219,7 @@ public:
 
 private:
     void writeBlock() {
-        if (VL_LIKELY(m_usedBytes > 0)) {
+        якщо (VL_LIKELY(m_usedBytes > 0)) {
             fwrite(m_bufferp->data(), m_usedBytes, 1, m_fp);
             m_writtenBytes += m_usedBytes;
             m_usedBytes = 0;
@@ -228,12 +228,12 @@ private:
     // CALLBACKS
     void putcOutput(char chr) override {
         m_bufferp->at(m_usedBytes++) = chr;
-        if (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
+        якщо (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
     }
     void putsOutput(const char* str) override {
         std::size_t len = strlen(str);
         std::size_t availableBytes = WRITE_BUFFER_SIZE_BYTES - m_usedBytes;
-        while (VL_UNLIKELY(len >= availableBytes)) {
+        поки (VL_UNLIKELY(len >= availableBytes)) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, availableBytes);
             m_usedBytes = WRITE_BUFFER_SIZE_BYTES;
             writeBlock();
@@ -241,7 +241,7 @@ private:
             len -= availableBytes;
             availableBytes = WRITE_BUFFER_SIZE_BYTES;
         }
-        if (len > 0) {
+        якщо (len > 0) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, len);
             m_usedBytes += len;
         }
@@ -249,8 +249,8 @@ private:
 };
 
 class V3OutCFile VL_NOT_FINAL : public V3OutFile {
-    int m_guard = false;  // Created header guard
-    int m_private;  // 1 = Most recently emitted private:, 2 = public:
+    ціле m_guard = false;  // Created header guard
+    ціле m_private;  // 1 = Most recently emitted private:, 2 = public:
 public:
     explicit V3OutCFile(const string& filename,
                         V3OutFormatter::Language lang = V3OutFormatter::LA_C)
@@ -262,15 +262,15 @@ public:
     virtual void putsIntTopInclude() { putsForceIncs(); }
     virtual void putsGuard();
     virtual void putsEndGuard() {
-        if (m_guard) puts("\n#endif  // guard\n");
+        якщо (m_guard) puts("\n#endif  // guard\n");
     }
     // Print out public/privates
     void resetPrivate() { m_private = 0; }
     void putsPrivate(bool setPrivate) {
-        if (setPrivate && m_private != 1) {
+        якщо (setPrivate && m_private != 1) {
             puts("private:\n");
             m_private = 1;
-        } else if (!setPrivate && m_private != 2) {
+        } інакше якщо (!setPrivate && m_private != 2) {
             puts("public:\n");
             m_private = 2;
         }
@@ -308,44 +308,44 @@ public:
         puts(m_prefix + "\"" + name + "\": " + type + "\n");
         m_prefix += INDENT;
         m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
+        якщо (!m_empty.empty()) m_empty.top() = false;
         m_empty.push(true);
-        return *this;
+        повернути *this;
     }
     V3OutJsonFile& begin(char type = '{') {
         comma();
         puts(m_prefix + type + "\n");
         m_prefix += INDENT;
         m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
+        якщо (!m_empty.empty()) m_empty.top() = false;
         m_empty.push(true);
-        return *this;
+        повернути *this;
     }
 
     // Put a named value
     V3OutJsonFile& put(const std::string& name, const char* valuep) {
-        return putNamed(name, std::string{valuep}, true);
+        повернути putNamed(name, std::string{valuep}, true);
     }
     V3OutJsonFile& put(const std::string& name, const std::string& value) {
-        return putNamed(name, value, true);
+        повернути putNamed(name, value, true);
     }
     V3OutJsonFile& put(const std::string& name, bool value) {
-        return putNamed(name, value ? "true" : "false", false);
+        повернути putNamed(name, value ? "true" : "false", false);
     }
-    V3OutJsonFile& put(const std::string& name, int value) {
-        return putNamed(name, std::to_string(value), false);
+    V3OutJsonFile& put(const std::string& name, ціле value) {
+        повернути putNamed(name, std::to_string(value), false);
     }
 
     // Put unnamed value
-    V3OutJsonFile& put(const std::string& value) { return putNamed("", value, true); }
-    V3OutJsonFile& put(bool value) { return putNamed("", value ? "true" : "false", false); }
-    V3OutJsonFile& put(int value) { return putNamed("", std::to_string(value), false); }
+    V3OutJsonFile& put(const std::string& value) { повернути putNamed("", value, true); }
+    V3OutJsonFile& put(bool value) { повернути putNamed("", value ? "true" : "false", false); }
+    V3OutJsonFile& put(ціле value) { повернути putNamed("", std::to_string(value), false); }
 
     V3OutJsonFile& putList(const std::string& name, const std::vector<std::string>& list) {
-        if (list.empty()) return *this;
+        якщо (list.empty()) повернути *this;
         begin(name, '[');
-        for (const std::string& str : list) put(str);
-        return end();
+        для (const std::string& str : list) put(str);
+        повернути end();
     }
 
     V3OutJsonFile& end() {
@@ -356,31 +356,31 @@ public:
         puts("\n" + m_prefix + m_scope.top());
         m_scope.pop();
         m_empty.pop();
-        return *this;
+        повернути *this;
     }
 
     V3OutJsonFile& operator+=(V3OutJsonFile& /*cursor*/) {
         // Meaningless syntax sugar, at least for now
-        return *this;
+        повернути *this;
     }
 
 private:
     void comma() {
-        if (m_empty.empty()) return;
-        if (!m_empty.top()) puts(",\n");
+        якщо (m_empty.empty()) повернути;
+        якщо (!m_empty.top()) puts(",\n");
         m_empty.top() = true;
     }
     V3OutJsonFile& putNamed(const std::string& name, const std::string& value, bool quoted) {
         comma();
         const string valueQ
             = quoted ? "\""s + V3OutFormatter::quoteNameControls(value) + "\"" : value;
-        if (name.empty()) {
+        якщо (name.empty()) {
             puts(m_prefix + valueQ);
-        } else {
+        } інакше {
             puts(m_prefix + "\"" + name + "\": " + valueQ);
         }
         m_empty.top() = false;
-        return *this;
+        повернути *this;
     }
 };
 
@@ -452,7 +452,7 @@ public:
     // Return 'in' only if not protecting (e.g. for emitting a comment)
     static string ifNoProtect(const string& in) VL_MT_SAFE;
     // Rename to a new encoded string (unless earlier passthru'ed)
-    static string protect(const string& old) VL_MT_SAFE { return protectIf(old, true); }
+    static string protect(const string& old) VL_MT_SAFE { повернути protectIf(old, true); }
     static string protectIf(const string& old, bool doIt = true) VL_MT_SAFE;
     // Rename words to a new encoded string
     static string protectWordsIf(const string& old, bool doIt = true) VL_MT_SAFE;

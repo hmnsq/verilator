@@ -38,15 +38,15 @@ public:
     bool insert(const T_Key& key) {
         // Returns if did insertion (second pair argument of traditional emplace)
         const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        якщо (itFoundPair.second) m_keys.push_back(key);
+        повернути itFoundPair.second;
     }
     template <typename T>
     void insert(T begin, const T end) {
         static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        поки (begin != end) {
+            якщо (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
             ++begin;
         }
     }
@@ -56,14 +56,14 @@ public:
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() const { повернути m_keys.empty(); }
+    size_t size() const { повернути m_keys.size(); }
+    bool exists(const T_Key& key) const { повернути m_keySet.find(key) != m_keySet.end(); }
 
     // ITERATORS
     using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    const_iterator begin() const { повернути m_keys.begin(); }
+    const_iterator end() const { повернути m_keys.end(); }
 };
 
 //============================================================================

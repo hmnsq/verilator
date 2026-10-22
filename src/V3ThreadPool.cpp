@@ -20,10 +20,10 @@
 #include "V3Global.h"
 #include "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
+V3ThreadPool::V3ThreadPool(ціле numThreads) {
     numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
+    якщо (numThreads == 1) повернути;
+    для (ціле i = 0; i < numThreads; ++i) {
         m_workers.emplace_back(&V3ThreadPool::startWorker, this);
     }
 }
@@ -38,9 +38,9 @@ V3ThreadPool::~V3ThreadPool() {
 }
 
 void V3ThreadPool::enqueue(std::function<void()>&& f) {
-    if (m_workers.empty()) {
+    якщо (m_workers.empty()) {
         f();
-    } else {
+    } інакше {
         {
             const V3LockGuard lock{m_mutex};
             m_queue.push(std::move(f));
@@ -51,18 +51,18 @@ void V3ThreadPool::enqueue(std::function<void()>&& f) {
 }
 
 void V3ThreadPool::wait() {
-    while (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
+    поки (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
         std::this_thread::yield();
     }
-    if (m_shutdown) {
-        for (auto& worker : m_workers) worker.join();
+    якщо (m_shutdown) {
+        для (auto& worker : m_workers) worker.join();
     }
 }
 
 void V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
 
 void V3ThreadPool::workerJobLoop() {
-    while (true) {
+    поки (true) {
         std::function<void()> job;
         {
             // Locking before `condition_variable::wait` is required to ensure that the
@@ -74,10 +74,10 @@ void V3ThreadPool::workerJobLoop() {
             // missed, the condition still will be checked.
             const V3LockGuard lock{m_mutex};
             m_cv.wait(m_mutex,
-                      [&]() VL_REQUIRES(m_mutex) { return !m_queue.empty() || m_shutdown; });
-            if (m_shutdown) return;  // Terminate if requested
+                      [&]() VL_REQUIRES(m_mutex) { повернути !m_queue.empty() || m_shutdown; });
+            якщо (m_shutdown) повернути;  // Terminate if requested
             UASSERT(!m_queue.empty(), "Job should be available");
-            if (m_queue.empty()) continue;
+            якщо (m_queue.empty()) continue;
             job = std::move(m_queue.front());
             m_queue.pop();
         }
@@ -92,23 +92,23 @@ void V3ThreadPool::selfTestMtDisabled() {
 
 void V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    ціле commonValue{0};
 
-    auto firstJob = [&](int sleep) -> void {
+    auto firstJob = [&](ціле sleep) -> void {
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
         const V3LockGuard lock{commonMutex};
         commonValue = 10;
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
         UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
     };
-    auto secondJob = [&](int sleep) -> void {
+    auto secondJob = [&](ціле sleep) -> void {
         commonMutex.lock();
         commonMutex.unlock();
         const V3LockGuard lock{commonMutex};
         std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
         commonValue = 1000;
     };
-    auto thirdJob = [&](int sleep) -> void {
+    auto thirdJob = [&](ціле sleep) -> void {
         {
             const V3LockGuard lock{commonMutex};
             std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
@@ -146,7 +146,7 @@ void V3ThreadPool::selfTest() {
     UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
 
     {
-        int result = 0;
+        ціле result = 0;
         auto forthJob = [&]() -> void { result = 1234; };
 
         V3ThreadScope scope;

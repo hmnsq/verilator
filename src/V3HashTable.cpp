@@ -29,7 +29,7 @@
 namespace V3HashTableInternals {
 
 // Entries that fill a table of the given capacity to its maximum load, so one more grows it
-constexpr size_t maxLoad(size_t capacity) { return capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
+constexpr size_t maxLoad(size_t capacity) { повернути capacity * LOAD_FACTOR_NUM / LOAD_FACTOR_DEN; }
 
 // Enough entries to grow the smallest table twice, that is, to fill four times the minimum
 constexpr size_t GROWS_TWICE = maxLoad(4 * MIN_CAPACITY);
@@ -46,16 +46,16 @@ void testValueKeys() {
     };
 
     struct Hash final {
-        size_t operator()(const Value& value) const { return operator()(value.m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+        size_t operator()(const Value& value) const { повернути operator()(value.m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { повернути hash; }
     };
 
     struct Equal final {
         bool operator()(const Value& a, const Value& b) const {
-            return operator()(a, b.m_hash, b.m_id);
+            повернути operator()(a, b.m_hash, b.m_id);
         }
         bool operator()(const Value& value, size_t hash, size_t id) const {
-            return value.m_hash == hash && value.m_id == id;
+            повернути value.m_hash == hash && value.m_id == id;
         }
     };
 
@@ -121,12 +121,12 @@ void testValueKeys() {
     {
         constexpr size_t N = GROWS_TWICE;
         Set set;
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             const std::pair<Set::iterator, bool> added = set.insert(Value{7, i});
             UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
         }
         UASSERT_SELFTEST(set.size(), N);  // All of them, in the one probe run
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             const Set::iterator it = set.find(size_t{7}, i);
             UASSERT_SELFTEST(it != set.end(), true);  // The growth lost nothing
             UASSERT_SELFTEST(it->m_id, i);  // And is the entry asked for
@@ -134,7 +134,7 @@ void testValueKeys() {
         // Iterating visits every entry exactly once
         std::array<bool, N> seen{};
         size_t n = 0;
-        for (const Value& entry : set) {
+        для (const Value& entry : set) {
             UASSERT_SELFTEST(entry.m_hash, size_t{7});  // Only entries added
             UASSERT_SELFTEST(seen[entry.m_id], false);  // Each of them exactly once
             seen[entry.m_id] = true;
@@ -154,16 +154,16 @@ void testPointerKeys() {
     };
 
     struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+        size_t operator()(const Value* valuep) const { повернути operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { повернути hash; }
     };
 
     struct Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            повернути operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            повернути valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -242,12 +242,12 @@ void testPointerKeys() {
 
     // Erasing leaves the other entries reachable, whichever is erased, including when
     // entries with equal hashes are all in the one probe run
-    for (size_t erase = 0; erase < 4; ++erase) {
-        for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {  // Wraps too
+    для (size_t erase = 0; erase < 4; ++erase) {
+        для (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {  // Wraps too
             std::array<Value, 4> values{Value{hash, 0}, Value{hash, 1},  //
                                         Value{hash, 2}, Value{hash, 3}};
             Set set;
-            for (Value& value : values) set.insert(&value);
+            для (Value& value : values) set.insert(&value);
             UASSERT_SELFTEST(set.size(), 4);  // All distinct, so all added
             {
                 const Set::iterator it = set.find(&values[erase]);
@@ -257,8 +257,8 @@ void testPointerKeys() {
             }
             UASSERT_SELFTEST(set.size(), 3);  // Exactly one was erased
             UASSERT_SELFTEST(set.find(&values[erase]) == set.end(), true);  // That one
-            for (size_t i = 0; i < values.size(); ++i) {
-                if (i == erase) continue;
+            для (size_t i = 0; i < values.size(); ++i) {
+                якщо (i == erase) continue;
                 const Set::iterator it = set.find(hash, i);
                 UASSERT_SELFTEST(it != set.end(), true);  // The others are all there
                 UASSERT_SELFTEST(*it, &values[i]);  // Each at the entry inserted
@@ -268,15 +268,15 @@ void testPointerKeys() {
 
     // Growing leaves all entries reachable, including when their run wraps around the end
     // of the table. Note this needs enough entries to actually grow, so do not reserve here.
-    for (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {
+    для (const size_t hash : {size_t{0}, size_t{7}, ~size_t{0}}) {
         std::array<Value, GROWS_TWICE> many{};
         Set set;
-        for (size_t i = 0; i < many.size(); ++i) {
+        для (size_t i = 0; i < many.size(); ++i) {
             many[i] = Value{hash, i};
             set.insert(&many[i]);
         }
         UASSERT_SELFTEST(set.size(), many.size());  // All of them were added
-        for (size_t i = 0; i < many.size(); ++i) {
+        для (size_t i = 0; i < many.size(); ++i) {
             const Set::iterator it = set.find(hash, i);
             UASSERT_SELFTEST(it != set.end(), true);  // And all survived the growth
             UASSERT_SELFTEST(*it, &many[i]);  // Each at the entry inserted
@@ -318,15 +318,15 @@ void testPointerKeys() {
     }
 
     // Reserving avoids growing, and all entries survive either way
-    for (const bool doReserve : {false, true}) {
+    для (const bool doReserve : {false, true}) {
         std::array<Value, 8> values{};
         Set set;
-        if (doReserve) set.reserve(values.size());
-        for (size_t i = 0; i < values.size(); ++i) {
+        якщо (doReserve) set.reserve(values.size());
+        для (size_t i = 0; i < values.size(); ++i) {
             values[i] = Value{static_cast<size_t>(i * 1234567), i};
             set.insert(&values[i]);
         }
-        for (Value& value : values) {
+        для (Value& value : values) {
             const Set::iterator it = set.find(&value);
             UASSERT_SELFTEST(it != set.end(), true);  // Each entry survives
             UASSERT_SELFTEST(*it, &value);  // And is the one inserted
@@ -339,21 +339,21 @@ void testPointerKeys() {
         constexpr size_t N = GROWS_TWICE;
         std::array<Value, N> values{};
         Set set;
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             values[i] = Value{7, i};  // All of them hash the same
             const std::pair<Set::iterator, bool> pair
-                = set.insertLazy(size_t{7}, i, [&]() -> Value* { return &values[i]; });
+                = set.insertLazy(size_t{7}, i, [&]() -> Value* { повернути &values[i]; });
             UASSERT_SELFTEST(pair.second, true);  // Created, as it was absent
             UASSERT_SELFTEST(*pair.first, &values[i]);  // And is what the factory made
         }
         UASSERT_SELFTEST(set.size(), N);  // All of them were added
         // They are all present now, so nothing is created
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             bool created = false;
             const std::pair<Set::iterator, bool> pair
                 = set.insertLazy(size_t{7}, i, [&]() -> Value* {
                       created = true;  // LCOV_EXCL_START
-                      return &values[i];  // LCOV_EXCL_STOP
+                      повернути &values[i];  // LCOV_EXCL_STOP
                   });
             UASSERT_SELFTEST(created, false);  // The factory was never called
             UASSERT_SELFTEST(pair.second, false);  // As the lookup hit
@@ -367,12 +367,12 @@ void testPointerKeys() {
         std::array<Value, 20> values{};
         std::array<bool, 20> seen{};
         Set set;
-        for (size_t i = 0; i < values.size(); ++i) {
+        для (size_t i = 0; i < values.size(); ++i) {
             values[i] = Value{i / 2, i};  // Pairs of them collide
             set.insert(&values[i]);
         }
         size_t n = 0;
-        for (Value* const valuep : set) {
+        для (Value* const valuep : set) {
             UASSERT_SELFTEST(valuep->m_id < seen.size(), true);  // Only entries added
             UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each of them exactly once
             seen[valuep->m_id] = true;
@@ -419,9 +419,9 @@ void testEntryLifetime() {
         NoDefault& operator=(const NoDefault&) = delete;
         NoDefault& operator=(NoDefault&&) = delete;
 
-        size_t hash() const { return m_hash; }
-        size_t id() const { return m_id; }
-        bool operator==(const NoDefault& that) const { return m_id == that.m_id; }
+        size_t hash() const { повернути m_hash; }
+        size_t id() const { повернути m_id; }
+        bool operator==(const NoDefault& that) const { повернути m_id == that.m_id; }
     };
 
     static_assert(!std::is_default_constructible<NoDefault>::value,
@@ -434,15 +434,15 @@ void testEntryLifetime() {
                   "SelfTest: 'NoDefault' must be move constructible, to exercise moving");
 
     struct Hash final {
-        size_t operator()(const NoDefault& value) const { return value.hash(); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+        size_t operator()(const NoDefault& value) const { повернути value.hash(); }
+        size_t operator()(size_t hash, size_t) const { повернути hash; }
     };
 
     struct Equal final {
         bool operator()(const NoDefault& a, const NoDefault& b) const {
-            return operator()(a, b.hash(), b.id());
+            повернути operator()(a, b.hash(), b.id());
         }
-        bool operator()(const NoDefault& a, size_t, size_t id) const { return a.id() == id; }
+        bool operator()(const NoDefault& a, size_t, size_t id) const { повернути a.id() == id; }
     };
 
     using Set = V3HashSet<NoDefault, Hash, Equal>;
@@ -451,14 +451,14 @@ void testEntryLifetime() {
     UASSERT_SELFTEST(alive, 0);  // Nothing built yet
     {
         Set set;
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             const std::pair<Set::iterator, bool> added = set.insert(NoDefault{&alive, 7, i});
             UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
         }
         UASSERT_SELFTEST(set.size(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
         // All of them hash the same, so they are all in the one probe run
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             const Set::iterator it = set.find(size_t{7}, i);
             UASSERT_SELFTEST(it != set.end(), true);  // Reachable through the run
             UASSERT_SELFTEST(it->id(), i);  // And is the entry asked for
@@ -482,7 +482,7 @@ void testEntryLifetime() {
         UASSERT_SELFTEST(set.contains(size_t{7}, size_t{0}), false);  // Namely that one
         // Erasing the rest keeps the live entries in step with the slots, all the way down.
         // They all collide, so every erase shifts entries back over the hole.
-        for (size_t i = 1; i < N; ++i) {
+        для (size_t i = 1; i < N; ++i) {
             {
                 const Set::iterator it = set.find(size_t{7}, i);
                 UASSERT_SELFTEST(it != set.end(), true);  // Still reachable
@@ -491,14 +491,14 @@ void testEntryLifetime() {
             }
             UASSERT_SELFTEST(set.size(), N - 1 - i);  // The count follows the erases
             UASSERT_SELFTEST(alive, N - 1 - i);  // As do the live entries
-            for (size_t j = i + 1; j < N; ++j) {
+            для (size_t j = i + 1; j < N; ++j) {
                 UASSERT_SELFTEST(set.contains(size_t{7}, j), true);  // Shifted, not lost
             }
         }
         UASSERT_SELFTEST(set.begin() == set.end(), true);  // Erased down to empty
         UASSERT_SELFTEST(alive, 0);  // With every entry destroyed
         // Clearing destroys every entry at once, and leaves a usable, empty set
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        для (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Filled up again
         set.clear();
         UASSERT_SELFTEST(set.size(), 0);  // Nothing left
@@ -509,7 +509,7 @@ void testEntryLifetime() {
         set.clear();  // Clearing an empty set does nothing
         UASSERT_SELFTEST(set.empty(), true);  // Still empty
         // Leave entries in the set, so its destructor has some to destroy
-        for (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
+        для (size_t i = 0; i < N; ++i) set.insert(NoDefault{&alive, 7, i});
         UASSERT_SELFTEST(alive, N);  // Live as the set goes out of scope
     }
     // The set is gone, so every entry it still held has been destroyed
@@ -552,13 +552,13 @@ void testMove() {
     };
 
     struct Hash final {
-        size_t operator()(const Counted& entry) const { return operator()(entry.m_id); }
-        size_t operator()(size_t id) const { return id; }
+        size_t operator()(const Counted& entry) const { повернути operator()(entry.m_id); }
+        size_t operator()(size_t id) const { повернути id; }
     };
 
     struct Equal final {
-        bool operator()(const Counted& a, const Counted& b) const { return operator()(a, b.m_id); }
-        bool operator()(const Counted& a, size_t id) const { return a.m_id == id; }
+        bool operator()(const Counted& a, const Counted& b) const { повернути operator()(a, b.m_id); }
+        bool operator()(const Counted& a, size_t id) const { повернути a.m_id == id; }
     };
 
     using Set = V3HashSet<Counted, Hash, Equal>;
@@ -566,7 +566,7 @@ void testMove() {
     constexpr size_t N = GROWS_TWICE;
     {
         Set set;
-        for (size_t i = 0; i < N; ++i) set.insert(Counted{&alive, i});
+        для (size_t i = 0; i < N; ++i) set.insert(Counted{&alive, i});
         UASSERT_SELFTEST(set.size(), N);  // All of them are in
         UASSERT_SELFTEST(alive, N);  // Held by exactly that many slots
 
@@ -576,7 +576,7 @@ void testMove() {
         UASSERT_SELFTEST(alive, N);  // With no entry made or destroyed
         UASSERT_SELFTEST(set.empty(), true);  // And the source no longer holds them
         UASSERT_SELFTEST(set.begin() == set.end(), true);  // So it iterates nothing
-        for (size_t i = 0; i < N; ++i) {
+        для (size_t i = 0; i < N; ++i) {
             UASSERT_SELFTEST(moved.contains(i), true);  // Every entry came across
             UASSERT_SELFTEST(set.contains(i), false);  // And none stayed behind
         }
@@ -593,7 +593,7 @@ void testMove() {
         UASSERT_SELFTEST(alive, N);  // The entry it held itself was destroyed
         UASSERT_SELFTEST(set.contains(N), false);  // Namely that one
         UASSERT_SELFTEST(moved.empty(), true);  // And the source is empty again
-        for (size_t i = 0; i < N; ++i) UASSERT_SELFTEST(set.contains(i), true);  // The rest moved
+        для (size_t i = 0; i < N; ++i) UASSERT_SELFTEST(set.contains(i), true);  // The rest moved
     }
     // Both tables are gone, so every entry either still held has been destroyed
     UASSERT_SELFTEST(alive, 0);  // Leaking none of them
@@ -617,7 +617,7 @@ void testMoveOnlyEntries() {
         MoveOnly& operator=(MoveOnly&&) = delete;
         ~MoveOnly() = default;
 
-        size_t id() const { return m_id; }
+        size_t id() const { повернути m_id; }
     };
 
     static_assert(!std::is_copy_constructible<MoveOnly>::value,
@@ -627,36 +627,36 @@ void testMoveOnlyEntries() {
 
     struct Hash final {
         // Every entry hashes the same, so they all end up in the one probe run
-        size_t operator()(const MoveOnly& value) const { return operator()(value.id()); }
-        size_t operator()(size_t) const { return 7; }
+        size_t operator()(const MoveOnly& value) const { повернути operator()(value.id()); }
+        size_t operator()(size_t) const { повернути 7; }
     };
 
     struct Equal final {
         bool operator()(const MoveOnly& a, const MoveOnly& b) const {
-            return operator()(a, b.id());
+            повернути operator()(a, b.id());
         }
-        bool operator()(const MoveOnly& a, size_t id) const { return a.id() == id; }
+        bool operator()(const MoveOnly& a, size_t id) const { повернути a.id() == id; }
     };
 
     using Set = V3HashSet<MoveOnly, Hash, Equal>;
 
     constexpr size_t N = GROWS_TWICE;
     Set set;
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const std::pair<Set::iterator, bool> added
-            = set.insertLazy(i, [i] { return MoveOnly{i}; });
+            = set.insertLazy(i, [i] { повернути MoveOnly{i}; });
         UASSERT_SELFTEST(added.second, true);  // Ids differ, so each is added
         UASSERT_SELFTEST(added.first->id(), i);  // Moved into the slot, never copied
     }
     UASSERT_SELFTEST(set.size(), N);  // All of them are in
     // They all collide, so erasing every other one shifts the rest back over the holes
-    for (size_t i = 0; i < N; i += 2) {
+    для (size_t i = 0; i < N; i += 2) {
         const Set::iterator it = set.find(i);
         UASSERT_SELFTEST(it != set.end(), true);  // Present before the erase
         set.erase(it);
     }
     UASSERT_SELFTEST(set.size(), N / 2);  // Half of them are gone
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const bool erased = (i % 2) == 0;
         UASSERT_SELFTEST(set.contains(i), !erased);  // And it is the right half
     }
@@ -674,7 +674,7 @@ void testStatefulFunctors() {
     public:
         explicit Hash(size_t mask)
             : m_mask{mask} {}
-        size_t operator()(size_t value) const { return value & m_mask; }
+        size_t operator()(size_t value) const { повернути value & m_mask; }
     };
 
     class Equal final {
@@ -683,7 +683,7 @@ void testStatefulFunctors() {
     public:
         explicit Equal(size_t mask)
             : m_mask{mask} {}
-        bool operator()(size_t a, size_t b) const { return (a & m_mask) == (b & m_mask); }
+        bool operator()(size_t a, size_t b) const { повернути (a & m_mask) == (b & m_mask); }
     };
 
     // Neither is default constructible, so the set cannot make its own
@@ -694,10 +694,10 @@ void testStatefulFunctors() {
 
     // Only the low two bits matter, so the 16 entries fall into 4 classes
     V3HashSet<size_t, Hash, Equal> set{Hash{3}, Equal{3}};
-    for (size_t i = 0; i < 16; ++i) set.insert(i);
+    для (size_t i = 0; i < 16; ++i) set.insert(i);
     UASSERT_SELFTEST(set.size(), 4);  // So the set kept the functors it was given
     // Every entry finds the first one added of its class, which is the class itself
-    for (size_t i = 0; i < 16; ++i) {
+    для (size_t i = 0; i < 16; ++i) {
         const V3HashSet<size_t, Hash, Equal>::iterator it = set.find(i);
         UASSERT_SELFTEST(it != set.end(), true);  // Its class is present
         UASSERT_SELFTEST(*it, (i & 3));  // Represented by the first one added
@@ -716,16 +716,16 @@ void testBackwardShiftDeletion() {
     };
 
     struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+        size_t operator()(const Value* valuep) const { повернути operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { повернути hash; }
     };
 
     struct Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            повернути operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            повернути valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -735,11 +735,11 @@ void testBackwardShiftDeletion() {
     // occupying four adjacent slots. Erasing the first leaves a hole: the second sits
     // at its own home and must not be moved into it, while the third and fourth have
     // their runs broken by the hole and must be moved back.
-    for (const size_t h : {size_t{0}, size_t{5}, ~size_t{0}}) {  // Wraps too
+    для (const size_t h : {size_t{0}, size_t{5}, ~size_t{0}}) {  // Wraps too
         std::array<Value, 4> values{Value{h, 0}, Value{h + 1, 1},  //
                                     Value{h, 2}, Value{h + 1, 3}};
         Set set;
-        for (Value& value : values) set.insert(&value);
+        для (Value& value : values) set.insert(&value);
         UASSERT_SELFTEST(set.size(), 4);  // The run holds all four
 
         // Erase the entry at the head of the run
@@ -751,7 +751,7 @@ void testBackwardShiftDeletion() {
         UASSERT_SELFTEST(set.size(), 3);  // One fewer entry
         UASSERT_SELFTEST(set.contains(h, size_t{0}), false);  // Namely that one
         // Whether moved back or left in place, every entry must remain reachable
-        for (size_t i = 1; i < values.size(); ++i) {
+        для (size_t i = 1; i < values.size(); ++i) {
             const Set::iterator it = set.find(values[i].m_hash, i);
             UASSERT_SELFTEST(it != set.end(), true);  // The shift lost nothing
             UASSERT_SELFTEST(*it, &values[i]);  // And moved back the right entries
@@ -764,14 +764,14 @@ void testBackwardShiftDeletion() {
             set.erase(it);
         }
         UASSERT_SELFTEST(set.size(), 2);  // Two are left
-        for (size_t i = 2; i < values.size(); ++i) {
+        для (size_t i = 2; i < values.size(); ++i) {
             const Set::iterator it = set.find(values[i].m_hash, i);
             UASSERT_SELFTEST(it != set.end(), true);  // Both still reachable
             UASSERT_SELFTEST(*it, &values[i]);  // And are the entries they were
         }
         // Iterating visits exactly the remaining entries
         std::array<bool, 4> seen{};
-        for (const Value* const valuep : set) {
+        для (const Value* const valuep : set) {
             UASSERT_SELFTEST(seen[valuep->m_id], false);  // Each entry once
             seen[valuep->m_id] = true;
         }
@@ -793,16 +793,16 @@ void testReferenceStability() {
     };
 
     struct Hash final {
-        size_t operator()(const Value* valuep) const { return operator()(valuep->m_hash, 0); }
-        size_t operator()(size_t hash, size_t) const { return hash; }
+        size_t operator()(const Value* valuep) const { повернути operator()(valuep->m_hash, 0); }
+        size_t operator()(size_t hash, size_t) const { повернути hash; }
     };
 
     struct Equal final {
         bool operator()(const Value* ap, const Value* bp) const {
-            return operator()(ap, bp->m_hash, bp->m_id);
+            повернути operator()(ap, bp->m_hash, bp->m_id);
         }
         bool operator()(const Value* valuep, size_t hash, size_t id) const {
-            return valuep->m_hash == hash && valuep->m_id == id;
+            повернути valuep->m_hash == hash && valuep->m_id == id;
         }
     };
 
@@ -827,20 +827,20 @@ void testReferenceStability() {
     Set set;
     set.reserve(N);
     // All entries collide, so every insertion probes through the whole existing run
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         values[i] = Value{7, i};
         const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
         UASSERT_SELFTEST(pair.second, true);  // Ids differ, so each is added
         entrypps[i] = &*pair.first;
     }
     // The set was reserved, so no insertion grew the table, and no entry has moved
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Set::iterator it = set.find(size_t{7}, i);
         UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
         UASSERT_SELFTEST(&*it, entrypps[i]);  // In the slot it was put in
     }
     // Inserting entries that are present adds nothing and moves nothing
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const std::pair<Set::iterator, bool> pair = set.insert(&values[i]);
         UASSERT_SELFTEST(pair.second, false);  // Rejected, as it is present
         UASSERT_SELFTEST(&*pair.first, entrypps[i]);  // And nothing moved
@@ -850,7 +850,7 @@ void testReferenceStability() {
     set.reserve(8 * N);
     UASSERT_SELFTEST(set.size(), N);  // Rehashing dropped nothing
     std::array<Value* const*, N> grownpps{};  // Where each entry is after the growth
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Set::iterator it = set.find(size_t{7}, i);
         UASSERT_SELFTEST(it != set.end(), true);  // And left every entry reachable
         grownpps[i] = &*it;
@@ -858,7 +858,7 @@ void testReferenceStability() {
     // Reserving room that is there already leaves the table alone, so nothing moves
     set.reserve(N);
     UASSERT_SELFTEST(set.size(), N);  // The smaller request changed nothing
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Set::iterator it = set.find(size_t{7}, i);
         UASSERT_SELFTEST(it != set.end(), true);  // Every entry is still there
         UASSERT_SELFTEST(&*it, grownpps[i]);  // In the slot the growth left it in
@@ -870,13 +870,13 @@ void testReferenceStability() {
 
 // Only a few distinct hashes, so probe runs are long and every erase shifts entries
 struct ClusteredHash final {
-    size_t operator()(size_t value) const { return value & 0x7; }
+    size_t operator()(size_t value) const { повернути value & 0x7; }
 };
 
 // Hashes spread by a large odd multiplier, so most probe runs are short
 struct SpreadHash final {
     size_t operator()(size_t value) const {
-        return static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
+        повернути static_cast<size_t>(value * 0x9e3779b97f4a7c15ULL);
     }
 };
 
@@ -885,7 +885,7 @@ struct SpreadHash final {
 template <typename T_Hash>
 void testSetAgainstModel() {
     struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+        bool operator()(size_t a, size_t b) const { повернути a == b; }
     };
 
     using Set = V3HashSet<size_t, T_Hash, Equal>;
@@ -897,13 +897,13 @@ void testSetAgainstModel() {
     uint64_t state = 0x123456789abcdef0ULL;
     const auto nextRand = [&state]() -> size_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        повернути static_cast<size_t>(state >> 32);
     };
 
     Set set;
     std::set<size_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
+    для (size_t step = 0; step < STEPS; ++step) {
         const size_t id = nextRand() % UNIVERSE;
         switch (nextRand() % 4) {
         case 0: {  // Insert a copy
@@ -917,7 +917,7 @@ void testSetAgainstModel() {
             const std::pair<typename Set::iterator, bool> pair
                 = set.insertLazy(id, [&]() -> size_t {
                       created = true;
-                      return id;
+                      повернути id;
                   });
             UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
             UASSERT_SELFTEST(pair.second, model.insert(id).second);  // As the model
@@ -927,7 +927,7 @@ void testSetAgainstModel() {
         case 2: {  // Erase, if present
             const typename Set::iterator it = set.find(id);
             UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) {
+            якщо (it != set.end()) {
                 set.erase(it);
                 model.erase(id);
             }
@@ -936,7 +936,7 @@ void testSetAgainstModel() {
         default: {  // Look up only
             const typename Set::iterator it = set.find(id);
             UASSERT_SELFTEST(it != set.end(), model.count(id) != 0);  // As the model
-            if (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
+            якщо (it != set.end()) UASSERT_SELFTEST(*it, id);  // And is the entry
             break;
         }
         }
@@ -944,13 +944,13 @@ void testSetAgainstModel() {
     }
 
     // Check the final content exhaustively
-    for (size_t id = 0; id < UNIVERSE; ++id) {
+    для (size_t id = 0; id < UNIVERSE; ++id) {
         UASSERT_SELFTEST(set.contains(id), model.count(id) != 0);  // Present iff modelled
     }
     // And that iterating visits exactly the model content, each entry once
     std::array<bool, UNIVERSE> seen{};
     size_t n = 0;
-    for (const size_t entry : set) {
+    для (const size_t entry : set) {
         UASSERT_SELFTEST(entry < UNIVERSE, true);  // Nothing out of thin air
         UASSERT_SELFTEST(model.count(entry) != 0, true);  // Only what was inserted
         UASSERT_SELFTEST(seen[entry], false);  // Each entry once
@@ -966,54 +966,54 @@ void testSetAgainstModel() {
 void testMap() {
     // The key extractor means the hash and equality see only keys, never entries, so
     // the standard functors do, and they are what V3HashMap defaults to
-    using Map = V3HashMap<std::string, int>;
+    using Map = V3HashMap<std::string, ціле>;
     using Entry = Map::Entry;
 
     // A map entry is a plain pair, so a caller never meets an internal type
-    static_assert(std::is_same<Entry, std::pair<std::string, int>>::value,
+    static_assert(std::is_same<Entry, std::pair<std::string, ціле>>::value,
                   "SelfTest: a map entry must be a plain pair");
 
     constexpr size_t N = GROWS_TWICE;
     Map map;
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const std::string key = "key" + std::to_string(i);
         // 'insertLazy' calls the factory only on a miss, so a hit builds no entry
         const std::pair<Map::iterator, bool> pair
-            = map.insertLazy(key, [&]() -> Entry { return {key, static_cast<int>(i)}; });
+            = map.insertLazy(key, [&]() -> Entry { повернути {key, static_cast<ціле>(i)}; });
         UASSERT_SELFTEST(pair.second, true);  // Keys differ, so each is added
     }
     UASSERT_SELFTEST(map.size(), N);  // All of them are in
 
     // A bare key finds the entry, with no Entry built to look it up
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // The key alone finds it
-        UASSERT_SELFTEST(it->second, static_cast<int>(i));  // With the value given
+        UASSERT_SELFTEST(it->second, static_cast<ціле>(i));  // With the value given
     }
 
     // A value can be changed by erasing the entry and inserting it again
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const std::string key = "key" + std::to_string(i);
         map.erase(map.find(key));
-        UASSERT_SELFTEST(map.insert({key, static_cast<int>(i) + 100}).second, true);  // Anew
+        UASSERT_SELFTEST(map.insert({key, static_cast<ціле>(i) + 100}).second, true);  // Anew
     }
     UASSERT_SELFTEST(map.size(), N);  // The same keys, so the map has not grown
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // Each key is still there
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 100);  // With its new value
+        UASSERT_SELFTEST(it->second, static_cast<ціле>(i) + 100);  // With its new value
     }
 
     // Or a value is changed in place, via 'value()', which leaves the key alone
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() += 100;
+    для (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() += 100;
     UASSERT_SELFTEST(map.size(), N);  // The map is unchanged otherwise
-    for (size_t i = 0; i < N; ++i) {
+    для (size_t i = 0; i < N; ++i) {
         const Map::iterator it = map.find("key" + std::to_string(i));
         UASSERT_SELFTEST(it != map.end(), true);  // Each key still finds its entry
-        UASSERT_SELFTEST(it->second, static_cast<int>(i) + 200);  // With its new value
+        UASSERT_SELFTEST(it->second, static_cast<ціле>(i) + 200);  // With its new value
     }
     // And back, as the checks below expect the earlier values
-    for (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() -= 100;
+    для (size_t i = 0; i < N; ++i) map.find("key" + std::to_string(i)).value() -= 100;
 
     // Adding a key that is present changes nothing
     {
@@ -1021,7 +1021,7 @@ void testMap() {
         bool created = false;
         const std::pair<Map::iterator, bool> pair = map.insertLazy(key, [&]() -> Entry {
             created = true;  // LCOV_EXCL_START
-            return {key, 0};  // LCOV_EXCL_STOP
+            повернути {key, 0};  // LCOV_EXCL_STOP
         });
         UASSERT_SELFTEST(created, false);  // The factory was never called
         UASSERT_SELFTEST(pair.second, false);  // As the key is present
@@ -1053,7 +1053,7 @@ void testMap() {
     UASSERT_SELFTEST(map.erase(std::string{"key0"}), true);  // That key is present
     UASSERT_SELFTEST(map.size(), N - 1);  // And just the one entry went
     UASSERT_SELFTEST(map.contains(std::string{"key0"}), false);  // Namely that one
-    for (size_t i = 1; i < N; ++i) {
+    для (size_t i = 1; i < N; ++i) {
         UASSERT_SELFTEST(map.contains("key" + std::to_string(i)), true);  // Others intact
     }
 }
@@ -1066,7 +1066,7 @@ void testMap() {
 template <typename T_Hash>
 void testMapAgainstModel() {
     struct Equal final {
-        bool operator()(size_t a, size_t b) const { return a == b; }
+        bool operator()(size_t a, size_t b) const { повернути a == b; }
     };
 
     using Map = V3HashMap<size_t, size_t, T_Hash, Equal>;
@@ -1079,13 +1079,13 @@ void testMapAgainstModel() {
     uint64_t state = 0x0fedcba987654321ULL;
     const auto nextRand = [&state]() -> size_t {
         state = state * 6364136223846793005ULL + 1442695040888963407ULL;
-        return static_cast<size_t>(state >> 32);
+        повернути static_cast<size_t>(state >> 32);
     };
 
     Map map;
     std::map<size_t, size_t> model;
 
-    for (size_t step = 0; step < STEPS; ++step) {
+    для (size_t step = 0; step < STEPS; ++step) {
         const size_t key = nextRand() % UNIVERSE;
         const size_t val = step;  // Distinct every step, so a stale value is visible
         switch (nextRand() % 5) {
@@ -1100,7 +1100,7 @@ void testMapAgainstModel() {
             const std::pair<typename Map::iterator, bool> pair
                 = map.insertLazy(key, [&]() -> Entry {
                       created = true;
-                      return {key, val};
+                      повернути {key, val};
                   });
             UASSERT_SELFTEST(pair.second, created);  // Created only on a miss
             UASSERT_SELFTEST(pair.second, model.insert({key, val}).second);  // Ditto
@@ -1113,7 +1113,7 @@ void testMapAgainstModel() {
         }
         case 3: {  // Change a value, which is erasing the entry and inserting it again
             const typename Map::iterator it = map.find(key);
-            if (it != map.end()) {
+            якщо (it != map.end()) {
                 map.erase(it);
                 UASSERT_SELFTEST(map.insert({key, val}).second, true);  // The key is free
                 model[key] = val;
@@ -1123,7 +1123,7 @@ void testMapAgainstModel() {
         default: {  // Look up only
             const typename Map::iterator it = map.find(key);
             UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // As the model
-            if (it != map.end()) {
+            якщо (it != map.end()) {
                 UASSERT_SELFTEST(it->first, key);  // At the key asked for
                 UASSERT_SELFTEST(it->second, model.at(key));  // With its value
             }
@@ -1134,17 +1134,17 @@ void testMapAgainstModel() {
     }
 
     // Check the final content exhaustively, values included
-    for (size_t key = 0; key < UNIVERSE; ++key) {
+    для (size_t key = 0; key < UNIVERSE; ++key) {
         const typename Map::iterator it = map.find(key);
         UASSERT_SELFTEST(it != map.end(), model.count(key) != 0);  // Present iff modelled
-        if (it != map.end()) {
+        якщо (it != map.end()) {
             UASSERT_SELFTEST(it->second, model.at(key));  // With the right value
         }
     }
     // And that iterating visits exactly the model content, each entry once
     std::array<bool, UNIVERSE> seen{};
     size_t n = 0;
-    for (const Entry& entry : map) {
+    для (const Entry& entry : map) {
         UASSERT_SELFTEST(entry.first < UNIVERSE, true);  // Nothing out of thin air
         UASSERT_SELFTEST(model.count(entry.first) != 0, true);  // Only what was inserted
         UASSERT_SELFTEST(entry.second, model.at(entry.first));  // With the right value

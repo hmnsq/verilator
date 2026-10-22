@@ -45,25 +45,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VOptionBool(en _e)
         : m_e{_e} {}
-    explicit VOptionBool(int _e)
+    explicit VOptionBool(ціле _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { повернути m_e; }
     const char* ascii() const {
         static const char* const names[]
             = {"DEFAULT_FALSE", "DEFAULT_TRUE", "OPT_TRUE", "OPT_FALSE"};
-        return names[m_e];
+        повернути names[m_e];
     }
-    bool isDefault() const { return m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
-    bool isTrue() const { return m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
-    bool isSetTrue() const { return m_e == OPT_TRUE; }
-    bool isSetFalse() const { return m_e == OPT_FALSE; }
+    bool isDefault() const { повернути m_e == OPT_DEFAULT_FALSE || m_e == OPT_DEFAULT_TRUE; }
+    bool isTrue() const { повернути m_e == OPT_TRUE || m_e == OPT_DEFAULT_TRUE; }
+    bool isSetTrue() const { повернути m_e == OPT_TRUE; }
+    bool isSetFalse() const { повернути m_e == OPT_FALSE; }
     void setTrueOrFalse(bool flag) { m_e = flag ? OPT_TRUE : OPT_FALSE; }
 };
 constexpr bool operator==(const VOptionBool& lhs, const VOptionBool& rhs) {
-    return lhs.m_e == rhs.m_e;
+    повернути lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VOptionBool& lhs, VOptionBool::en rhs) { повернути lhs.m_e == rhs; }
+constexpr bool operator==(VOptionBool::en lhs, const VOptionBool& rhs) { повернути lhs == rhs.m_e; }
 
 //######################################################################
 
@@ -76,15 +76,15 @@ public:
         : m_filename{filename}
         , m_libname{libname} {}
     VFileLibName(const VFileLibName& rhs) = default;
-    string filename() const { return m_filename; }
-    string libname() const { return m_libname; }
+    string filename() const { повернути m_filename; }
+    string libname() const { повернути m_libname; }
     bool operator==(const VFileLibName& rhs) const {
-        return m_filename == rhs.m_filename && m_libname == rhs.m_libname;
+        повернути m_filename == rhs.m_filename && m_libname == rhs.m_libname;
     }
     bool operator<(const VFileLibName& rhs) const {
-        if (m_filename < rhs.m_filename) return true;
-        if (m_filename > rhs.m_filename) return false;
-        return m_libname < rhs.m_libname;
+        якщо (m_filename < rhs.m_filename) повернути true;
+        якщо (m_filename > rhs.m_filename) повернути false;
+        повернути m_libname < rhs.m_libname;
     }
 };
 
@@ -115,22 +115,22 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VTimescale(en _e)
         : m_e{_e} {}
-    explicit VTimescale(int _e)
+    explicit VTimescale(ціле _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
     // Construct from string
     VTimescale(const string& value, bool& badr);
     VTimescale(double value, bool& badr) {
         badr = false;
-        for (int i = TS_100S; i < _ENUM_END; ++i) {
+        для (ціле i = TS_100S; i < _ENUM_END; ++i) {
             m_e = static_cast<en>(i);
-            if (multiplier() == value) break;
+            якщо (multiplier() == value) break;
         }
-        if (multiplier() != value) {
+        якщо (multiplier() != value) {
             m_e = NONE;
             badr = true;
         }
     }
-    bool isNone() const { return m_e == NONE; }
+    bool isNone() const { повернути m_e == NONE; }
     // Parse a "unit/precision" string into two VTimescales, with error checking
     static void parseSlashed(FileLine* fl, const char* textp, VTimescale& unitr, VTimescale& precr,
                              bool allowEmpty = false);
@@ -138,27 +138,27 @@ public:
         static const char* const names[]
             = {"100s", "10s", "1s",    "100ms", "10ms", "1ms",   "100us", "10us", "1us", "100ns",
                "10ns", "1ns", "100ps", "10ps",  "1ps",  "100fs", "10fs",  "1fs",  "NONE"};
-        return names[m_e];
+        повернути names[m_e];
     }
-    int powerOfTen() const { return 2 - static_cast<int>(m_e); }
+    ціле powerOfTen() const { повернути 2 - static_cast<ціле>(m_e); }
     double multiplier() const {
         static const double values[]
             = {100,  10,   1,     1e-1,  1e-2,  1e-3,  1e-4,  1e-5,  1e-6, 1e-7,
                1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 1e-13, 1e-14, 1e-15, 0};
-        return values[m_e];
+        повернути values[m_e];
     }
 };
 constexpr bool operator==(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e == rhs.m_e;
+    повернути lhs.m_e == rhs.m_e;
 }
-constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const VTimescale& lhs, VTimescale::en rhs) { повернути lhs.m_e == rhs; }
+constexpr bool operator==(VTimescale::en lhs, const VTimescale& rhs) { повернути lhs == rhs.m_e; }
 // Comparisons are based on time, not enum values, so seconds > milliseconds
 constexpr bool operator<(const VTimescale& lhs, const VTimescale& rhs) {
-    return lhs.m_e > rhs.m_e;
+    повернути lhs.m_e > rhs.m_e;
 }
 inline std::ostream& operator<<(std::ostream& os, const VTimescale& rhs) {
-    return os << rhs.ascii();
+    повернути os << rhs.ascii();
 }
 
 // ######################################################################
@@ -177,25 +177,25 @@ public:
     // cppcheck-suppress noExplicitConstructor
     constexpr VFsmExpandType(en _e)
         : m_e{_e} {}
-    explicit VFsmExpandType(int _e)
+    explicit VFsmExpandType(ціле _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { повернути m_e; }
     constexpr const char* ascii() const {
         constexpr const char* const names[] = {"DEFAULT", "AUTO", "AUTO_EXPAND", "FULL"};
-        return names[m_e];
+        повернути names[m_e];
     }
 };
 constexpr bool operator==(const VFsmExpandType& lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs.m_e;
+    повернути lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VFsmExpandType& lhs, VFsmExpandType::en rhs) VL_MT_SAFE {
-    return lhs.m_e == rhs;
+    повернути lhs.m_e == rhs;
 }
 constexpr bool operator==(VFsmExpandType::en lhs, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return lhs == rhs.m_e;
+    повернути lhs == rhs.m_e;
 }
 inline std::ostream& operator<<(std::ostream& os, const VFsmExpandType& rhs) VL_MT_SAFE {
-    return os << rhs.ascii();
+    повернути os << rhs.ascii();
 }
 
 // ######################################################################
@@ -216,9 +216,9 @@ private:
 
 public:
     explicit V3HierarchicalBlockOption(const string& optstring);
-    const string& origName() const { return m_origName; }
-    const string& mangledName() const { return m_mangledName; }
-    const ParamStrMap params() const { return m_parameters; }
+    const string& origName() const { повернути m_origName; }
+    const string& mangledName() const { повернути m_mangledName; }
+    const ParamStrMap params() const { повернути m_parameters; }
 };
 
 using V3HierBlockOptSet = std::map<const std::string, V3HierarchicalBlockOption>;
@@ -290,7 +290,7 @@ private:
     bool m_debugProtect = false;    // main switch: --debug-protect
     bool m_debugSelfTest = false;   // main switch: --debug-self-test
     bool m_debugStackCheck = false;  // main switch: --debug-stack-check
-    int m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
+    ціле m_debugRuntimeTimeout = 0;  // main switch: --debug-runtime-timeout <n>
     bool m_debugWidth = false;      // main switch: --debug-width
     bool m_decoration = true;       // main switch: --decoration
     bool m_decorationNodes = false;  // main switch: --decoration=nodes
@@ -356,61 +356,61 @@ private:
     bool m_waiverMultiline = false;  // main switch: --waiver-multiline
     bool m_xInitialEdge = false;    // main switch: --x-initial-edge
 
-    int         m_buildJobs = -1;    // main switch: --build-jobs, -j
-    int         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
+    ціле         m_buildJobs = -1;    // main switch: --build-jobs, -j
+    ціле         m_coverageExprMax = 32;    // main switch: --coverage-expr-max
     VFsmExpandType m_coverageFsmExpand;  // main switch: --coverage-fsm-expand <mode>
-    int         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
-    int         m_convergeLimit = 10000;  // main switch: --converge-limit
+    ціле         m_coverageFsmMaxArcs = 4096;  // main switch: --coverage-fsm-max-arcs
+    ціле         m_convergeLimit = 10000;  // main switch: --converge-limit
     uint32_t    m_coverageMaxBins = 1024;  // main switch: --coverage-max-bins
     uint32_t    m_coverageMaxRealBins = 1024;  // main switch: --coverage-max-real-bins
-    int         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
-    int         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
-    int         m_expandLimit = 256;  // main switch: --expand-limit
-    int         m_gateStmts = 100;    // main switch: --gate-stmts
-    int         m_hierChild = 0;      // main switch: --hierarchical-child
-    int         m_hierThreads = 0;      // main switch: --hierarchical-threads
-    int         m_ifDepth = 0;      // main switch: --if-depth
-    int         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
-    int         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
-    int         m_inlineMult = 2000;   // main switch: --inline-mult
-    int         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
+    ціле         m_coverageMaxWidth = 256; // main switch: --coverage-max-width
+    ціле         m_debugAllocRandom = 0;  // main switch: --debug-alloc-random <seed>
+    ціле         m_expandLimit = 256;  // main switch: --expand-limit
+    ціле         m_gateStmts = 100;    // main switch: --gate-stmts
+    ціле         m_hierChild = 0;      // main switch: --hierarchical-child
+    ціле         m_hierThreads = 0;      // main switch: --hierarchical-threads
+    ціле         m_ifDepth = 0;      // main switch: --if-depth
+    ціле         m_inlineCFuncs = 20;   // main switch: --inline-cfuncs
+    ціле         m_inlineCFuncsProduct = 200;   // main switch: --inline-cfuncs-product
+    ціле         m_inlineMult = 2000;   // main switch: --inline-mult
+    ціле         m_instrCountDpi = 200;   // main switch: --instr-count-dpi
     bool        m_jsonEditNums = true; // main switch: --no-json-edit-nums
     bool        m_jsonIds = true; // main switch: --no-json-ids
-    int         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
+    ціле         m_localizeMaxSize = 1024;  // main switch: --localize-max-size
     VOptionBool m_makeDepend;  // main switch: -MMD
-    int         m_maxNumWidth = 65536;  // main switch: --max-num-width
-    int         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
-    int         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
-    int         m_outputGroups = -1;  // main switch: --output-groups
+    ціле         m_maxNumWidth = 65536;  // main switch: --max-num-width
+    ціле         m_funcRecursion = 1000;  // main switch: --func-recursion-depth
+    ціле         m_moduleRecursion = 100;  // main switch: --module-recursion-depth
+    ціле         m_outputGroups = -1;  // main switch: --output-groups
     int64_t     m_outputGroupsSize = 512 * 1024 * 1024;  // main switch: --output-groups-size
-    int         m_outputSplit = 20000;  // main switch: --output-split
-    int         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
-    int         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
-    int         m_pinsBv = 65;       // main switch: --pins-bv
-    int         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
-    int         m_publicDepth = 0;   // main switch: --public-depth
-    int         m_reloopLimit = 40; // main switch: --reloop-limit
-    int         m_replicationLimit = 8192; // main switch: --replication-limit
+    ціле         m_outputSplit = 20000;  // main switch: --output-split
+    ціле         m_outputSplitCFuncs = -1;  // main switch: --output-split-cfuncs
+    ціле         m_outputSplitCTrace = -1;  // main switch: --output-split-ctrace
+    ціле         m_pinsBv = 65;       // main switch: --pins-bv
+    ціле         m_preprocTokenLimit = 40000; // main switch: --preproc-token-limit
+    ціле         m_publicDepth = 0;   // main switch: --public-depth
+    ціле         m_reloopLimit = 40; // main switch: --reloop-limit
+    ціле         m_replicationLimit = 8192; // main switch: --replication-limit
     VOptionBool m_skipIdentical;  // main switch: --skip-identical
     bool        m_stopFail = true;  // main switch: --stop-fail
-    int         m_threads = 1;      // main switch: --threads
-    int         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
+    ціле         m_threads = 1;      // main switch: --threads
+    ціле         m_threadsMaxMTasks = 0;  // main switch: --threads-max-mtasks
     VTimescale  m_timeDefaultPrec;  // main switch: --timescale
     VTimescale  m_timeDefaultUnit;  // main switch: --timescale
     VTimescale  m_timeOverridePrec;  // main switch: --timescale-override
     VTimescale  m_timeOverrideUnit;  // main switch: --timescale-override
-    int         m_traceDepth = 0;   // main switch: --trace-depth
-    int         m_traceMaxArray = 32;  // main switch: --trace-max-array
-    int         m_traceMaxWidth = 4096; // main switch: --trace-max-width
-    int         m_unrollCount = 64;  // main switch: --unroll-count
-    int         m_unrollLimit = 16384;  // main switch: --unroll-limit
-    int         m_unrollStmts = 30000;  // main switch: --unroll-stmts
-    int         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
-    int         m_verilateJobs = -1;  // main switch: --verilate-jobs
+    ціле         m_traceDepth = 0;   // main switch: --trace-depth
+    ціле         m_traceMaxArray = 32;  // main switch: --trace-max-array
+    ціле         m_traceMaxWidth = 4096; // main switch: --trace-max-width
+    ціле         m_unrollCount = 64;  // main switch: --unroll-count
+    ціле         m_unrollLimit = 16384;  // main switch: --unroll-limit
+    ціле         m_unrollStmts = 30000;  // main switch: --unroll-stmts
+    ціле         m_constraintArrayLimit = 64;  // main switch: --constraint-array-limit
+    ціле         m_verilateJobs = -1;  // main switch: --verilate-jobs
 
-    int         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
-    int         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
-    int         m_compLimitParens = 240;  // compiler selection; number of nested parens
+    ціле         m_compLimitBlocks = 0;  // compiler selection; number of nested blocks
+    ціле         m_compLimitMembers = 64;  // compiler selection; number of members in struct before make anon array
+    ціле         m_compLimitParens = 240;  // compiler selection; number of nested parens
 
     string      m_buildDepBin;  // main switch: --build-dep-bin {filename}
     string      m_diagnosticsSarifOutput;  // main switch: --diagnostics-sarif-output
@@ -478,7 +478,7 @@ private:
     bool m_fReloop;      // main switch: -fno-reloop: reform loops
     bool m_fReorder;     // main switch: -fno-reorder: reorder assignments in blocks
     bool m_fSlice = true;  // main switch: -fno-slice: array assignment slicing
-    int  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
+    ціле  m_fSliceElementLimit = 256;  // main switch: --fslice-element-limit
     bool m_fSplit;       // main switch: -fno-split: always assignment splitting
     bool m_fSubst;       // main switch: -fno-subst: substitute expression temp values
     bool m_fSubstConst;  // main switch: -fno-subst-const: final constant substitution
@@ -501,7 +501,7 @@ private:
     void addParameter(const string& paramline, bool allowPlus);
     void addLangExt(const string& langext, const V3LangCode& lc);
     void addLibExtV(const string& libext);
-    void optimize(int level);
+    void optimize(ціле level);
     void showVersion(bool verbose);
     void coverage(bool flag) {
         m_coverageLine = m_coverageBranch = m_coverageToggle = m_coverageExpr = m_coverageFsm
@@ -510,7 +510,7 @@ private:
     static bool suffixed(const string& sw, const char* arg);
     static string parseFileArg(const string& optdir, const string& relfilename);
     string filePathCheckOneDir(const string& modname, const string& dirname);
-    static int stripOptionsForChildRun(const string& opt, bool forTop);
+    static ціле stripOptionsForChildRun(const string& opt, bool forTop);
     void validateIdentifier(FileLine* fl, const string& arg, const string& opt);
 
     // CONSTRUCTORS
@@ -519,7 +519,7 @@ private:
 public:
     V3Options();
     ~V3Options();
-    void setDebugMode(int level);
+    void setDebugMode(ціле level);
     unsigned debugLevel(const string& tag) const VL_MT_SAFE;
     unsigned debugSrcLevel(const string& srcfile_path) const VL_MT_SAFE;
     unsigned dumpLevel(const string& tag) const VL_MT_SAFE;
@@ -537,245 +537,245 @@ public:
     void addVFile(const string& filename, const string& libname);
     void addVltFile(const string& filename, const string& libname);
     void addForceInc(const string& filename);
-    bool available() const VL_MT_SAFE { return m_available; }
+    bool available() const VL_MT_SAFE { повернути m_available; }
     void ccSet();
     void decorations(FileLine* fl, const string& filename);
     void notify() VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    bool preprocOnly() const { return m_preprocOnly; }
-    bool makePhony() const { return m_makePhony; }
-    bool preprocNoLine() const { return m_preprocNoLine; }
-    bool preprocResolve() const { return m_preprocResolve; }
-    int preprocTokenLimit() const { return m_preprocTokenLimit; }
-    bool underlineZero() const { return m_underlineZero; }
-    bool systemC() const VL_MT_SAFE { return m_systemC; }
-    bool savable() const VL_MT_SAFE { return m_savable; }
-    VOptionBool schedZeroDelay() const { return m_schedZeroDelay; }
-    bool stats() const { return m_stats; }
-    bool statsVars() const { return m_statsVars; }
-    bool stdPackage() const { return m_stdPackage; }
-    bool stdWaiver() const { return m_stdWaiver; }
-    bool assertOn() const { return m_assert; }  // assertOn as __FILE__ may be defined
-    bool assertCase() const { return m_assertCase; }
-    bool autoflush() const { return m_autoflush; }
-    bool bboxSys() const { return m_bboxSys; }
-    bool bboxUnsup() const { return m_bboxUnsup; }
-    bool build() const { return m_build; }
-    string buildDepBin() const { return m_buildDepBin; }
+    bool preprocOnly() const { повернути m_preprocOnly; }
+    bool makePhony() const { повернути m_makePhony; }
+    bool preprocNoLine() const { повернути m_preprocNoLine; }
+    bool preprocResolve() const { повернути m_preprocResolve; }
+    ціле preprocTokenLimit() const { повернути m_preprocTokenLimit; }
+    bool underlineZero() const { повернути m_underlineZero; }
+    bool systemC() const VL_MT_SAFE { повернути m_systemC; }
+    bool savable() const VL_MT_SAFE { повернути m_savable; }
+    VOptionBool schedZeroDelay() const { повернути m_schedZeroDelay; }
+    bool stats() const { повернути m_stats; }
+    bool statsVars() const { повернути m_statsVars; }
+    bool stdPackage() const { повернути m_stdPackage; }
+    bool stdWaiver() const { повернути m_stdWaiver; }
+    bool assertOn() const { повернути m_assert; }  // assertOn as __FILE__ may be defined
+    bool assertCase() const { повернути m_assertCase; }
+    bool autoflush() const { повернути m_autoflush; }
+    bool bboxSys() const { повернути m_bboxSys; }
+    bool bboxUnsup() const { повернути m_bboxUnsup; }
+    bool build() const { повернути m_build; }
+    string buildDepBin() const { повернути m_buildDepBin; }
     void buildDepBin(const string& flag) { m_buildDepBin = flag; }
-    bool context() const VL_MT_SAFE { return m_context; }
+    bool context() const VL_MT_SAFE { повернути m_context; }
     bool coverage() const VL_MT_SAFE {
         // Any enabled coverage kind, including FSM coverage. Code generation
         // and runtime support should generally query this accessor.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        повернути m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser || m_coverageFsm;
     }
     bool coverageNonFsm() const VL_MT_SAFE {
         // The broad line/toggle/expr/user coverage transforms use this
         // accessor. FSM coverage shares the overall coverage umbrella, but its
         // extraction still happens through a separate early-recognition path.
-        return m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
+        повернути m_coverageLine || m_coverageBranch || m_coverageToggle || m_coverageExpr
                || m_coverageUser;
     }
-    bool coverageBranch() const { return m_coverageBranch; }
-    bool coverageExpr() const { return m_coverageExpr; }
-    bool coverageFsm() const { return m_coverageFsm; }
-    VFsmExpandType coverageFsmExpand() const { return m_coverageFsmExpand; }
-    int coverageFsmMaxArcs() const { return m_coverageFsmMaxArcs; }
-    bool coverageLine() const { return m_coverageLine; }
-    bool coverageMergeInstances() const { return m_coverageMergeInstances; }
-    bool coveragePerInstance() const { return m_coveragePerInstance; }
-    bool coverageToggle() const { return m_coverageToggle; }
-    bool coverageUnderscore() const { return m_coverageUnderscore; }
-    bool coverageUser() const { return m_coverageUser; }
-    bool debugCheck() const VL_MT_SAFE { return m_debugCheck; }
-    bool debugCollision() const { return m_debugCollision; }
-    bool debugEmitV() const VL_MT_SAFE { return m_debugEmitV; }
-    bool debugExitElab() const { return m_debugExitElab; }
-    bool debugExitParse() const { return m_debugExitParse; }
-    bool debugLeak() const { return m_debugLeak; }
-    bool debugNondeterminism() const { return m_debugNondeterminism; }
-    bool debugPartition() const { return m_debugPartition; }
-    bool debugPreprocPassthru() const VL_MT_SAFE { return m_debugPreprocPassthru; }
-    bool debugProtect() const VL_MT_SAFE { return m_debugProtect; }
-    int debugRuntimeTimeout() const { return m_debugRuntimeTimeout; }
-    bool debugSelfTest() const { return m_debugSelfTest; }
-    bool debugStackCheck() const { return m_debugStackCheck; }
-    bool debugWidth() const VL_PURE { return m_debugWidth; }
-    bool decoration() const VL_MT_SAFE { return m_decoration; }
-    bool decorationNodes() const VL_MT_SAFE { return m_decorationNodes; }
-    bool diagnosticsSarif() const VL_MT_SAFE { return m_diagnosticsSarif; }
-    bool dpiHdrOnly() const { return m_dpiHdrOnly; }
+    bool coverageBranch() const { повернути m_coverageBranch; }
+    bool coverageExpr() const { повернути m_coverageExpr; }
+    bool coverageFsm() const { повернути m_coverageFsm; }
+    VFsmExpandType coverageFsmExpand() const { повернути m_coverageFsmExpand; }
+    ціле coverageFsmMaxArcs() const { повернути m_coverageFsmMaxArcs; }
+    bool coverageLine() const { повернути m_coverageLine; }
+    bool coverageMergeInstances() const { повернути m_coverageMergeInstances; }
+    bool coveragePerInstance() const { повернути m_coveragePerInstance; }
+    bool coverageToggle() const { повернути m_coverageToggle; }
+    bool coverageUnderscore() const { повернути m_coverageUnderscore; }
+    bool coverageUser() const { повернути m_coverageUser; }
+    bool debugCheck() const VL_MT_SAFE { повернути m_debugCheck; }
+    bool debugCollision() const { повернути m_debugCollision; }
+    bool debugEmitV() const VL_MT_SAFE { повернути m_debugEmitV; }
+    bool debugExitElab() const { повернути m_debugExitElab; }
+    bool debugExitParse() const { повернути m_debugExitParse; }
+    bool debugLeak() const { повернути m_debugLeak; }
+    bool debugNondeterminism() const { повернути m_debugNondeterminism; }
+    bool debugPartition() const { повернути m_debugPartition; }
+    bool debugPreprocPassthru() const VL_MT_SAFE { повернути m_debugPreprocPassthru; }
+    bool debugProtect() const VL_MT_SAFE { повернути m_debugProtect; }
+    ціле debugRuntimeTimeout() const { повернути m_debugRuntimeTimeout; }
+    bool debugSelfTest() const { повернути m_debugSelfTest; }
+    bool debugStackCheck() const { повернути m_debugStackCheck; }
+    bool debugWidth() const VL_PURE { повернути m_debugWidth; }
+    bool decoration() const VL_MT_SAFE { повернути m_decoration; }
+    bool decorationNodes() const VL_MT_SAFE { повернути m_decorationNodes; }
+    bool diagnosticsSarif() const VL_MT_SAFE { повернути m_diagnosticsSarif; }
+    bool dpiHdrOnly() const { повернути m_dpiHdrOnly; }
     bool dumpAstPatterns() const {
-        return m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
+        повернути m_dumpLevel.count("ast-patterns") && m_dumpLevel.at("ast-patterns");
     }
-    bool dumpDefines() const { return m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
+    bool dumpDefines() const { повернути m_dumpLevel.count("defines") && m_dumpLevel.at("defines"); }
     bool dumpDfgPatterns() const {
-        return m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
+        повернути m_dumpLevel.count("dfg-patterns") && m_dumpLevel.at("dfg-patterns");
     }
     bool dumpTreeDot() const {
-        return m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
+        повернути m_dumpLevel.count("tree-dot") && m_dumpLevel.at("tree-dot");
     }
-    bool emitAccessors() const { return m_emitAccessors; }
-    bool exe() const { return m_exe; }
-    bool flatten() const { return m_flatten; }
-    bool fourstate() const { return m_fourstate; }
-    bool gmake() const { return m_gmake; }
-    bool makeJson() const { return m_makeJson; }
-    bool threadsDpiPure() const { return m_threadsDpiPure; }
-    bool threadsDpiUnpure() const { return m_threadsDpiUnpure; }
-    bool threadsCoarsen() const { return m_threadsCoarsen; }
-    VOptionBool timing() const { return m_timing; }
-    bool trace() const { return m_trace; }
-    bool traceCoverage() const { return m_traceCoverage; }
-    bool traceEnabledFst() const { return m_traceEnabledFst; }
-    bool traceEnabledSaif() const { return m_traceEnabledSaif; }
-    bool traceEnabledVcd() const { return m_traceEnabledVcd; }
-    bool traceParams() const { return m_traceParams; }
-    bool traceStructs() const { return m_traceStructs; }
-    bool traceUnderscore() const { return m_traceUnderscore; }
-    bool main() const { return m_main; }
-    bool outFormatOk() const { return m_outFormatOk; }
-    bool jsonOnly() const { return m_jsonOnly; }
-    bool keepTempFiles() const { return (V3Error::debugDefault() != 0); }
-    bool pedantic() const { return m_pedantic; }
-    bool pinsInoutEnables() const { return m_pinsInoutEnables; }
-    bool pinsScUint() const { return m_pinsScUint; }
-    bool pinsScUintBool() const { return m_pinsScUintBool; }
-    bool pinsScBigUint() const VL_MT_SAFE { return m_pinsScBigUint; }
-    bool pinsUint8() const { return m_pinsUint8; }
-    bool preprocComments() const { return m_preprocComments; }
-    bool preprocDefines() const { return m_preprocDefines; }
-    bool profC() const { return m_profC; }
-    bool profCFuncs() const { return m_profCFuncs; }
-    bool profExec() const { return m_profExec; }
-    bool profPgo() const { return m_profPgo; }
-    bool usesProfiler() const { return profExec() || profPgo(); }
-    bool protectIds() const VL_MT_SAFE { return m_protectIds; }
-    bool allPublic() const { return m_public; }
-    bool publicParams() const { return m_publicParams; }
-    bool publicOff() const { return m_publicIgnore; }
-    bool publicFlatRW() const { return m_publicFlatRW; }
-    int publicDepth() const { return m_publicDepth; }
-    bool anyPublicFlat() const { return m_publicParams || m_publicFlatRW || m_publicDepth; }
-    bool lintOnly() const VL_MT_SAFE { return m_lintOnly; }
-    bool ignc() const { return m_ignc; }
-    bool quietBuild() const VL_MT_SAFE { return m_quietBuild; }
-    bool quietExit() const VL_MT_SAFE { return m_quietExit; }
-    bool quietStats() const VL_MT_SAFE { return m_quietStats; }
-    bool reportUnoptflat() const { return m_reportUnoptflat; }
-    bool verilate() const { return m_verilate; }
-    bool vpi() const { return m_vpi.isTrue(); }
-    bool waiverMultiline() const { return m_waiverMultiline; }
-    bool xInitialEdge() const { return m_xInitialEdge; }
-    bool serializeOnly() const { return m_jsonOnly; }
-    bool topIfacesSupported() const { return lintOnly() && !hierarchical(); }
+    bool emitAccessors() const { повернути m_emitAccessors; }
+    bool exe() const { повернути m_exe; }
+    bool flatten() const { повернути m_flatten; }
+    bool fourstate() const { повернути m_fourstate; }
+    bool gmake() const { повернути m_gmake; }
+    bool makeJson() const { повернути m_makeJson; }
+    bool threadsDpiPure() const { повернути m_threadsDpiPure; }
+    bool threadsDpiUnpure() const { повернути m_threadsDpiUnpure; }
+    bool threadsCoarsen() const { повернути m_threadsCoarsen; }
+    VOptionBool timing() const { повернути m_timing; }
+    bool trace() const { повернути m_trace; }
+    bool traceCoverage() const { повернути m_traceCoverage; }
+    bool traceEnabledFst() const { повернути m_traceEnabledFst; }
+    bool traceEnabledSaif() const { повернути m_traceEnabledSaif; }
+    bool traceEnabledVcd() const { повернути m_traceEnabledVcd; }
+    bool traceParams() const { повернути m_traceParams; }
+    bool traceStructs() const { повернути m_traceStructs; }
+    bool traceUnderscore() const { повернути m_traceUnderscore; }
+    bool main() const { повернути m_main; }
+    bool outFormatOk() const { повернути m_outFormatOk; }
+    bool jsonOnly() const { повернути m_jsonOnly; }
+    bool keepTempFiles() const { повернути (V3Error::debugDefault() != 0); }
+    bool pedantic() const { повернути m_pedantic; }
+    bool pinsInoutEnables() const { повернути m_pinsInoutEnables; }
+    bool pinsScUint() const { повернути m_pinsScUint; }
+    bool pinsScUintBool() const { повернути m_pinsScUintBool; }
+    bool pinsScBigUint() const VL_MT_SAFE { повернути m_pinsScBigUint; }
+    bool pinsUint8() const { повернути m_pinsUint8; }
+    bool preprocComments() const { повернути m_preprocComments; }
+    bool preprocDefines() const { повернути m_preprocDefines; }
+    bool profC() const { повернути m_profC; }
+    bool profCFuncs() const { повернути m_profCFuncs; }
+    bool profExec() const { повернути m_profExec; }
+    bool profPgo() const { повернути m_profPgo; }
+    bool usesProfiler() const { повернути profExec() || profPgo(); }
+    bool protectIds() const VL_MT_SAFE { повернути m_protectIds; }
+    bool allPublic() const { повернути m_public; }
+    bool publicParams() const { повернути m_publicParams; }
+    bool publicOff() const { повернути m_publicIgnore; }
+    bool publicFlatRW() const { повернути m_publicFlatRW; }
+    ціле publicDepth() const { повернути m_publicDepth; }
+    bool anyPublicFlat() const { повернути m_publicParams || m_publicFlatRW || m_publicDepth; }
+    bool lintOnly() const VL_MT_SAFE { повернути m_lintOnly; }
+    bool ignc() const { повернути m_ignc; }
+    bool quietBuild() const VL_MT_SAFE { повернути m_quietBuild; }
+    bool quietExit() const VL_MT_SAFE { повернути m_quietExit; }
+    bool quietStats() const VL_MT_SAFE { повернути m_quietStats; }
+    bool reportUnoptflat() const { повернути m_reportUnoptflat; }
+    bool verilate() const { повернути m_verilate; }
+    bool vpi() const { повернути m_vpi.isTrue(); }
+    bool waiverMultiline() const { повернути m_waiverMultiline; }
+    bool xInitialEdge() const { повернути m_xInitialEdge; }
+    bool serializeOnly() const { повернути m_jsonOnly; }
+    bool topIfacesSupported() const { повернути lintOnly() && !hierarchical(); }
 
-    int buildJobs() const VL_MT_SAFE { return m_buildJobs; }
-    int convergeLimit() const { return m_convergeLimit; }
-    int coverageExprMax() const { return m_coverageExprMax; }
-    uint32_t coverageMaxBins() const { return m_coverageMaxBins; }
-    uint32_t coverageMaxRealBins() const { return m_coverageMaxRealBins; }
-    int coverageMaxWidth() const { return m_coverageMaxWidth; }
-    int debugAllocRandom() const { return m_debugAllocRandom; }
+    ціле buildJobs() const VL_MT_SAFE { повернути m_buildJobs; }
+    ціле convergeLimit() const { повернути m_convergeLimit; }
+    ціле coverageExprMax() const { повернути m_coverageExprMax; }
+    uint32_t coverageMaxBins() const { повернути m_coverageMaxBins; }
+    uint32_t coverageMaxRealBins() const { повернути m_coverageMaxRealBins; }
+    ціле coverageMaxWidth() const { повернути m_coverageMaxWidth; }
+    ціле debugAllocRandom() const { повернути m_debugAllocRandom; }
     bool dumpTreeAddrids() const VL_MT_SAFE;
-    int expandLimit() const { return m_expandLimit; }
-    int gateStmts() const { return m_gateStmts; }
-    int ifDepth() const { return m_ifDepth; }
-    int inlineCFuncs() const { return m_inlineCFuncs; }
-    int inlineCFuncsProduct() const { return m_inlineCFuncsProduct; }
-    int inlineMult() const { return m_inlineMult; }
-    int instrCountDpi() const { return m_instrCountDpi; }
-    int localizeMaxSize() const { return m_localizeMaxSize; }
-    bool jsonEditNums() const { return m_jsonEditNums; }
-    bool jsonIds() const { return m_jsonIds; }
-    VOptionBool makeDepend() const { return m_makeDepend; }
-    int maxNumWidth() const { return m_maxNumWidth; }
-    int funcRecursionDepth() const { return m_funcRecursion; }
-    int moduleRecursionDepth() const { return m_moduleRecursion; }
-    int outputSplit() const { return m_outputSplit; }
-    int outputSplitCFuncs() const { return m_outputSplitCFuncs; }
-    int outputSplitCTrace() const { return m_outputSplitCTrace; }
-    int outputGroups() const { return m_outputGroups; }
-    int64_t outputGroupsSize() const { return m_outputGroupsSize; }
-    int pinsBv() const VL_MT_SAFE { return m_pinsBv; }
-    int reloopLimit() const { return m_reloopLimit; }
-    int replicationLimit() const { return m_replicationLimit; }
-    VOptionBool skipIdentical() const { return m_skipIdentical; }
-    bool stopFail() const { return m_stopFail; }
-    int threads() const VL_MT_SAFE { return m_threads; }
-    int threadsMaxMTasks() const { return m_threadsMaxMTasks; }
-    bool mtasks() const VL_MT_SAFE { return (m_threads > 1); }
-    VTimescale timeDefaultPrec() const { return m_timeDefaultPrec; }
-    VTimescale timeDefaultUnit() const { return m_timeDefaultUnit; }
-    VTimescale timeOverridePrec() const { return m_timeOverridePrec; }
-    VTimescale timeOverrideUnit() const { return m_timeOverrideUnit; }
+    ціле expandLimit() const { повернути m_expandLimit; }
+    ціле gateStmts() const { повернути m_gateStmts; }
+    ціле ifDepth() const { повернути m_ifDepth; }
+    ціле inlineCFuncs() const { повернути m_inlineCFuncs; }
+    ціле inlineCFuncsProduct() const { повернути m_inlineCFuncsProduct; }
+    ціле inlineMult() const { повернути m_inlineMult; }
+    ціле instrCountDpi() const { повернути m_instrCountDpi; }
+    ціле localizeMaxSize() const { повернути m_localizeMaxSize; }
+    bool jsonEditNums() const { повернути m_jsonEditNums; }
+    bool jsonIds() const { повернути m_jsonIds; }
+    VOptionBool makeDepend() const { повернути m_makeDepend; }
+    ціле maxNumWidth() const { повернути m_maxNumWidth; }
+    ціле funcRecursionDepth() const { повернути m_funcRecursion; }
+    ціле moduleRecursionDepth() const { повернути m_moduleRecursion; }
+    ціле outputSplit() const { повернути m_outputSplit; }
+    ціле outputSplitCFuncs() const { повернути m_outputSplitCFuncs; }
+    ціле outputSplitCTrace() const { повернути m_outputSplitCTrace; }
+    ціле outputGroups() const { повернути m_outputGroups; }
+    int64_t outputGroupsSize() const { повернути m_outputGroupsSize; }
+    ціле pinsBv() const VL_MT_SAFE { повернути m_pinsBv; }
+    ціле reloopLimit() const { повернути m_reloopLimit; }
+    ціле replicationLimit() const { повернути m_replicationLimit; }
+    VOptionBool skipIdentical() const { повернути m_skipIdentical; }
+    bool stopFail() const { повернути m_stopFail; }
+    ціле threads() const VL_MT_SAFE { повернути m_threads; }
+    ціле threadsMaxMTasks() const { повернути m_threadsMaxMTasks; }
+    bool mtasks() const VL_MT_SAFE { повернути (m_threads > 1); }
+    VTimescale timeDefaultPrec() const { повернути m_timeDefaultPrec; }
+    VTimescale timeDefaultUnit() const { повернути m_timeDefaultUnit; }
+    VTimescale timeOverridePrec() const { повернути m_timeOverridePrec; }
+    VTimescale timeOverrideUnit() const { повернути m_timeOverrideUnit; }
     VTimescale timeComputePrec(const VTimescale& flag) const;
     VTimescale timeComputeUnit(const VTimescale& flag) const;
-    int traceDepth() const { return m_traceDepth; }
-    int traceMaxArray() const { return m_traceMaxArray; }
-    int traceMaxWidth() const { return m_traceMaxWidth; }
+    ціле traceDepth() const { повернути m_traceDepth; }
+    ціле traceMaxArray() const { повернути m_traceMaxArray; }
+    ціле traceMaxWidth() const { повернути m_traceMaxWidth; }
     bool useTraceParallel() const {
-        return trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
+        повернути trace() && traceEnabledVcd() && (threads() > 1 || hierChild() > 1);
     }
-    int unrollCount() const { return m_unrollCount; }
-    int unrollLimit() const { return m_unrollLimit; }
-    int unrollStmts() const { return m_unrollStmts; }
-    int constraintArrayLimit() const { return m_constraintArrayLimit; }
-    int verilateJobs() const { return m_verilateJobs; }
+    ціле unrollCount() const { повернути m_unrollCount; }
+    ціле unrollLimit() const { повернути m_unrollLimit; }
+    ціле unrollStmts() const { повернути m_unrollStmts; }
+    ціле constraintArrayLimit() const { повернути m_constraintArrayLimit; }
+    ціле verilateJobs() const { повернути m_verilateJobs; }
 
-    int compLimitBlocks() const { return m_compLimitBlocks; }
-    int compLimitMembers() const VL_MT_SAFE { return m_compLimitMembers; }
-    int compLimitParens() const { return m_compLimitParens; }
+    ціле compLimitBlocks() const { повернути m_compLimitBlocks; }
+    ціле compLimitMembers() const VL_MT_SAFE { повернути m_compLimitMembers; }
+    ціле compLimitParens() const { повернути m_compLimitParens; }
 
     string diagnosticsSarifOutput() const VL_MT_SAFE {
-        return m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
+        повернути m_diagnosticsSarifOutput.empty() ? makeDir() + "/" + prefix() + ".sarif"
                                                 : m_diagnosticsSarifOutput;
     }
-    string exeName() const { return m_exeName != "" ? m_exeName : prefix(); }
-    VFileLibList hierParamFile() const { return m_hierParamsFile; }
-    string jsonOnlyOutput() const { return m_jsonOnlyOutput; }
-    string jsonOnlyMetaOutput() const { return m_jsonOnlyMetaOutput; }
-    string l2Name() const { return m_l2Name; }
-    string libCreate() const { return m_libCreate; }
+    string exeName() const { повернути m_exeName != "" ? m_exeName : prefix(); }
+    VFileLibList hierParamFile() const { повернути m_hierParamsFile; }
+    string jsonOnlyOutput() const { повернути m_jsonOnlyOutput; }
+    string jsonOnlyMetaOutput() const { повернути m_jsonOnlyMetaOutput; }
+    string l2Name() const { повернути m_l2Name; }
+    string libCreate() const { повернути m_libCreate; }
     string libCreateName(bool shared) const {
         string libName = "lib" + libCreate();
-        if (shared) {
+        якщо (shared) {
             libName += ".so";
-        } else {
+        } інакше {
             libName += ".a";
         }
-        return libName;
+        повернути libName;
     }
-    string mainTopName() const { return m_mainTopName; }
-    string makeDir() const VL_MT_SAFE { return m_makeDir; }
-    string modPrefix() const VL_MT_SAFE { return m_modPrefix; }
-    string pipeFilter() const { return m_pipeFilter; }
-    string prefix() const VL_MT_SAFE { return m_prefix; }
+    string mainTopName() const { повернути m_mainTopName; }
+    string makeDir() const VL_MT_SAFE { повернути m_makeDir; }
+    string modPrefix() const VL_MT_SAFE { повернути m_modPrefix; }
+    string pipeFilter() const { повернути m_pipeFilter; }
+    string prefix() const VL_MT_SAFE { повернути m_prefix; }
     // Not just called protectKey() to avoid bugs of not using protectKeyDefaulted()
-    bool protectKeyProvided() const { return !m_protectKey.empty(); }
+    bool protectKeyProvided() const { повернути !m_protectKey.empty(); }
     string protectKeyDefaulted() VL_MT_SAFE;  // Set default key if not set by user
-    string topModule() const { return m_topModule; }  // As AstNode::encodeName()
-    bool noTraceTop() const { return m_noTraceTop; }
-    string unusedRegexp() const { return m_unusedRegexp; }
-    string waiverOutput() const { return m_waiverOutput; }
-    string work() const { return m_work; }
-    bool isWaiverOutput() const { return !m_waiverOutput.empty(); }
-    string xAssign() const { return m_xAssign; }
-    string xInitial() const { return m_xInitial; }
+    string topModule() const { повернути m_topModule; }  // As AstNode::encodeName()
+    bool noTraceTop() const { повернути m_noTraceTop; }
+    string unusedRegexp() const { повернути m_unusedRegexp; }
+    string waiverOutput() const { повернути m_waiverOutput; }
+    string work() const { повернути m_work; }
+    bool isWaiverOutput() const { повернути !m_waiverOutput.empty(); }
+    string xAssign() const { повернути m_xAssign; }
+    string xInitial() const { повернути m_xInitial; }
 
-    const VStringSet& cppFiles() const { return m_cppFiles; }
-    const VStringList& cFlags() const { return m_cFlags; }
-    const VStringSet& compilerIncludes() const { return m_compilerIncludes; }
-    const VStringList& ldLibFiles() const { return m_ldLibFiles; }
-    const VStringList& ldLibs() const { return m_ldLibs; }
-    const VStringList& makeFlags() const { return m_makeFlags; }
-    const VFileLibSet& libraryFiles() const { return m_libraryFiles; }
-    const VStringSet& libmapFiles() const { return m_libmapFiles; }
-    const VFileLibList& vFiles() const { return m_vFiles; }
-    const VFileLibSet& vltFiles() const { return m_vltFiles; }
-    const VStringList& forceIncs() const { return m_forceIncs; }
+    const VStringSet& cppFiles() const { повернути m_cppFiles; }
+    const VStringList& cFlags() const { повернути m_cFlags; }
+    const VStringSet& compilerIncludes() const { повернути m_compilerIncludes; }
+    const VStringList& ldLibFiles() const { повернути m_ldLibFiles; }
+    const VStringList& ldLibs() const { повернути m_ldLibs; }
+    const VStringList& makeFlags() const { повернути m_makeFlags; }
+    const VFileLibSet& libraryFiles() const { повернути m_libraryFiles; }
+    const VStringSet& libmapFiles() const { повернути m_libmapFiles; }
+    const VFileLibList& vFiles() const { повернути m_vFiles; }
+    const VFileLibSet& vltFiles() const { повернути m_vltFiles; }
+    const VStringList& forceIncs() const { повернути m_forceIncs; }
 
     bool hasParameter(const string& name);
     string parameter(const string& name);
@@ -787,56 +787,56 @@ public:
     bool isLibraryFile(const string& filename, const string& libname) const;
 
     // ACCESSORS (optimization options)
-    bool fAcycSimp() const { return m_fAcycSimp; }
-    bool fAssemble() const { return m_fAssemble; }
-    bool fBitScanLoops() const { return m_fBitScanLoops; }
-    bool fBitblast() const { return m_fBitblast; }
-    bool fCaseDecoder() const { return m_fCaseDecoder; }
-    bool fCaseTable() const { return m_fCaseTable; }
-    bool fCaseTree() const { return m_fCaseTree; }
-    bool fCombine() const { return m_fCombine; }
-    bool fConst() const { return m_fConst; }
-    bool fConstBeforeDfg() const { return m_fConstBeforeDfg; }
-    bool fConstBitOpTree() const { return m_fConstBitOpTree; }
-    bool fConstEager() const { return m_fConstEager; }
-    bool fDedupe() const { return m_fDedupe; }
-    bool fDfg() const { return m_fDfg; }
-    bool fDfgPeephole() const { return m_fDfgPeephole; }
-    bool fDfgPushDownSels() const { return m_fDfgPushDownSels; }
-    bool fDfgSynthesizeAll() const { return m_fDfgSynthesizeAll; }
+    bool fAcycSimp() const { повернути m_fAcycSimp; }
+    bool fAssemble() const { повернути m_fAssemble; }
+    bool fBitScanLoops() const { повернути m_fBitScanLoops; }
+    bool fBitblast() const { повернути m_fBitblast; }
+    bool fCaseDecoder() const { повернути m_fCaseDecoder; }
+    bool fCaseTable() const { повернути m_fCaseTable; }
+    bool fCaseTree() const { повернути m_fCaseTree; }
+    bool fCombine() const { повернути m_fCombine; }
+    bool fConst() const { повернути m_fConst; }
+    bool fConstBeforeDfg() const { повернути m_fConstBeforeDfg; }
+    bool fConstBitOpTree() const { повернути m_fConstBitOpTree; }
+    bool fConstEager() const { повернути m_fConstEager; }
+    bool fDedupe() const { повернути m_fDedupe; }
+    bool fDfg() const { повернути m_fDfg; }
+    bool fDfgPeephole() const { повернути m_fDfgPeephole; }
+    bool fDfgPushDownSels() const { повернути m_fDfgPushDownSels; }
+    bool fDfgSynthesizeAll() const { повернути m_fDfgSynthesizeAll; }
     bool fDfgPeepholeEnabled(const std::string& name) const {
-        return !m_fDfgPeepholeDisabled.count(name);
+        повернути !m_fDfgPeepholeDisabled.count(name);
     }
-    bool fDeadAssigns() const { return m_fDeadAssigns; }
-    bool fDeadCells() const { return m_fDeadCells; }
-    bool fDeadMethods() const { return m_fDeadMethods; }
-    bool fDecompose() const { return m_fDecomposePacked || m_fDecomposeUnpacked; }
-    bool fDecomposePacked() const { return m_fDecomposePacked; }
-    bool fDecomposeUnpacked() const { return m_fDecomposeUnpacked; }
-    bool fExpand() const { return m_fExpand; }
-    bool fFuncBalanceCat() const { return m_fFuncBalanceCat; }
-    bool fFuncSplitCat() const { return m_fFuncSplitCat; }
-    bool fFunc() const { return fFuncSplitCat() || fFuncBalanceCat(); }
-    bool fGate() const { return m_fGate; }
-    VOptionBool fIcoChangeDetect() const { return m_fIcoChangeDetect; }
-    bool fInline() const { return m_fInline; }
-    bool fInlineCFuncs() const { return m_fInlineCFuncs; }
-    bool fInlineFuncs() const { return m_fInlineFuncs; }
-    bool fInlineFuncsEager() const { return m_fInlineFuncsEager; }
-    bool fLife() const { return m_fLife; }
-    bool fLifePost() const { return m_fLifePost; }
-    bool fLocalize() const { return m_fLocalize; }
-    bool fMergeCond() const { return m_fMergeCond; }
-    bool fMergeCondMotion() const { return m_fMergeCondMotion; }
-    bool fReloop() const { return m_fReloop; }
-    bool fReorder() const { return m_fReorder; }
-    bool fSlice() const { return m_fSlice; }
-    int fSliceElementLimit() const { return m_fSliceElementLimit; }
-    bool fSplit() const { return m_fSplit; }
-    bool fSubst() const { return m_fSubst; }
-    bool fSubstConst() const { return m_fSubstConst; }
-    bool fTable() const { return m_fTable; }
-    bool fTaskifyAll() const { return m_fTaskifyAll; }
+    bool fDeadAssigns() const { повернути m_fDeadAssigns; }
+    bool fDeadCells() const { повернути m_fDeadCells; }
+    bool fDeadMethods() const { повернути m_fDeadMethods; }
+    bool fDecompose() const { повернути m_fDecomposePacked || m_fDecomposeUnpacked; }
+    bool fDecomposePacked() const { повернути m_fDecomposePacked; }
+    bool fDecomposeUnpacked() const { повернути m_fDecomposeUnpacked; }
+    bool fExpand() const { повернути m_fExpand; }
+    bool fFuncBalanceCat() const { повернути m_fFuncBalanceCat; }
+    bool fFuncSplitCat() const { повернути m_fFuncSplitCat; }
+    bool fFunc() const { повернути fFuncSplitCat() || fFuncBalanceCat(); }
+    bool fGate() const { повернути m_fGate; }
+    VOptionBool fIcoChangeDetect() const { повернути m_fIcoChangeDetect; }
+    bool fInline() const { повернути m_fInline; }
+    bool fInlineCFuncs() const { повернути m_fInlineCFuncs; }
+    bool fInlineFuncs() const { повернути m_fInlineFuncs; }
+    bool fInlineFuncsEager() const { повернути m_fInlineFuncsEager; }
+    bool fLife() const { повернути m_fLife; }
+    bool fLifePost() const { повернути m_fLifePost; }
+    bool fLocalize() const { повернути m_fLocalize; }
+    bool fMergeCond() const { повернути m_fMergeCond; }
+    bool fMergeCondMotion() const { повернути m_fMergeCondMotion; }
+    bool fReloop() const { повернути m_fReloop; }
+    bool fReorder() const { повернути m_fReorder; }
+    bool fSlice() const { повернути m_fSlice; }
+    ціле fSliceElementLimit() const { повернути m_fSliceElementLimit; }
+    bool fSplit() const { повернути m_fSplit; }
+    bool fSubst() const { повернути m_fSubst; }
+    bool fSubstConst() const { повернути m_fSubstConst; }
+    bool fTable() const { повернути m_fTable; }
+    bool fTaskifyAll() const { повернути m_fTaskifyAll; }
 
     std::string traceClassBase() const VL_MT_SAFE;  // Deprecated
     std::string traceClassLang() const VL_MT_SAFE;  // Deprecated
@@ -845,27 +845,27 @@ public:
     std::vector<std::string> traceSourceBases() const VL_MT_SAFE;
     std::vector<std::string> traceSourceLangs() const VL_MT_SAFE;
 
-    bool hierarchical() const { return m_hierarchical; }
-    int hierChild() const VL_MT_SAFE { return m_hierChild; }
-    int hierThreads() const VL_MT_SAFE { return m_hierThreads == 0 ? m_threads : m_hierThreads; }
-    bool hierTop() const VL_MT_SAFE { return !m_hierChild && !m_hierBlocks.empty(); }
-    const V3HierBlockOptSet& hierBlocks() const { return m_hierBlocks; }
+    bool hierarchical() const { повернути m_hierarchical; }
+    ціле hierChild() const VL_MT_SAFE { повернути m_hierChild; }
+    ціле hierThreads() const VL_MT_SAFE { повернути m_hierThreads == 0 ? m_threads : m_hierThreads; }
+    bool hierTop() const VL_MT_SAFE { повернути !m_hierChild && !m_hierBlocks.empty(); }
+    const V3HierBlockOptSet& hierBlocks() const { повернути m_hierBlocks; }
     // Directory to save .tree, .dot, .dat, .vpp for hierarchical block top
     // Returns makeDir() unless top module of hierarchical Verilation.
     string hierTopDataDir() const VL_MT_SAFE {
-        return hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
+        повернути hierTop() ? (makeDir() + '/' + prefix() + "__hier.dir") : makeDir();
     }
 
     // METHODS (from main)
     static string version() VL_PURE;
-    static string argString(int argc, char** argv);  ///< Return list of arguments as simple string
+    static string argString(ціле argc, char** argv);  ///< Return list of arguments as simple string
     string allArgsString() const VL_MT_SAFE;  ///< Return all passed arguments as simple string
     const std::list<std::pair<std::list<std::string>, bool>>& allArgs() const;
     // Return options for child hierarchical blocks when forTop==false, otherwise returns args for
     // the top module.
     string allArgsStringForHierBlock(bool forTop) const;
-    void parseOpts(FileLine* fl, int argc, char** argv) VL_MT_DISABLED;
-    void parseOptsList(FileLine* fl, const string& optdir, int argc, char** argv) VL_MT_DISABLED;
+    void parseOpts(FileLine* fl, ціле argc, char** argv) VL_MT_DISABLED;
+    void parseOptsList(FileLine* fl, const string& optdir, ціле argc, char** argv) VL_MT_DISABLED;
     void parseOptsFile(FileLine* fl, const string& filename, bool rel) VL_MT_DISABLED;
 
     // METHODS (environment)

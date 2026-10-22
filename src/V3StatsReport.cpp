@@ -41,19 +41,19 @@ class StatsReport final {
         // If sumit is set on a statistic, combine with others of same name
         std::multimap<std::string, V3Statistic*> byName;
         // * is always first
-        for (auto& itr : s_allStats) {
+        для (auto& itr : s_allStats) {
             V3Statistic* repp = &itr;
             byName.emplace(repp->name(), repp);
         }
 
         // Process duplicates
         V3Statistic* lastp = nullptr;
-        for (const auto& itr : byName) {
+        для (const auto& itr : byName) {
             V3Statistic* repp = itr.second;
-            if (lastp && lastp->sumit() && lastp->printit() && repp->printit()
+            якщо (lastp && lastp->sumit() && lastp->printit() && repp->printit()
                 && lastp->name() == repp->name() && lastp->stage() == repp->stage()) {
                 lastp->combineWith(repp);
-            } else {
+            } інакше {
                 lastp = repp;
             }
         }
@@ -64,19 +64,19 @@ class StatsReport final {
         size_t maxWidth = 0;
         std::multimap<std::string, const V3Statistic*> byName;
         // * is always first
-        for (const auto& itr : s_allStats) {
+        для (const auto& itr : s_allStats) {
             const V3Statistic* repp = &itr;
-            if (repp->stage() == "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
+            якщо (repp->stage() == "*" && repp->printit()) {
+                якщо (maxWidth < repp->name().length()) maxWidth = repp->name().length();
                 byName.emplace(repp->name(), repp);
             }
         }
 
         // Print organized by stage
         os << "\nGlobal Statistics:\n\n";
-        for (const auto& itr : byName) {
+        для (const auto& itr : byName) {
             const V3Statistic* repp = itr.second;
-            if (repp->perf()) continue;
+            якщо (repp->perf()) continue;
             os << "  " << std::left << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
@@ -84,9 +84,9 @@ class StatsReport final {
 
         // Print organized by stage
         os << "\nPerformance Statistics:\n\n";
-        for (const auto& itr : byName) {
+        для (const auto& itr : byName) {
             const V3Statistic* repp = itr.second;
-            if (!repp->perf()) continue;
+            якщо (!repp->perf()) continue;
             os << "  " << std::left << std::setw(maxWidth) << repp->name();
             repp->dump(os);
             os << '\n';
@@ -98,18 +98,18 @@ class StatsReport final {
         os << "Stage Statistics:\n";
 
         // Find all stages
-        int stage = 0;
+        ціле stage = 0;
         size_t maxWidth = 0;
         std::vector<std::string> stages;
-        std::unordered_map<string, int> stageInt;
+        std::unordered_map<string, ціле> stageInt;
         std::multimap<std::string, const V3Statistic*> byName;
         // * is always first
-        for (auto it = s_allStats.begin(); it != s_allStats.end(); ++it) {
+        для (auto it = s_allStats.begin(); it != s_allStats.end(); ++it) {
             const V3Statistic* repp = &(*it);
-            if (repp->stage() != "*" && repp->printit()) {
-                if (maxWidth < repp->name().length()) maxWidth = repp->name().length();
+            якщо (repp->stage() != "*" && repp->printit()) {
+                якщо (maxWidth < repp->name().length()) maxWidth = repp->name().length();
                 const auto itFoundPair = stageInt.emplace(repp->stage(), stage);
-                if (itFoundPair.second) {
+                якщо (itFoundPair.second) {
                     ++stage;
                     stages.push_back(repp->stage());
                 }
@@ -119,10 +119,10 @@ class StatsReport final {
 
         // Header
         os << "  Stat     " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (const string& i : stages) os << " " << std::left << std::setw(9) << i;
+        для (const string& i : stages) os << " " << std::left << std::setw(9) << i;
         os << '\n';
         os << "  -------- " << std::left << std::setw(maxWidth - 5 - 2) << "";
-        for (auto it = stages.begin(); it != stages.end(); ++it) {
+        для (auto it = stages.begin(); it != stages.end(); ++it) {
             os << " " << std::left << std::setw(9) << "-------";
         }
         // os<<endl;
@@ -131,15 +131,15 @@ class StatsReport final {
         string lastName = "__NONE__";
         string lastCommaName = "__NONE__";
         unsigned col = 0;
-        for (auto it = byName.cbegin(); it != byName.cend(); ++it) {
+        для (auto it = byName.cbegin(); it != byName.cend(); ++it) {
             const V3Statistic* repp = it->second;
-            if (lastName != repp->name()) {
+            якщо (lastName != repp->name()) {
                 lastName = repp->name();
                 {
                     string commaName = lastName;
                     string::size_type pos = commaName.find(',');
-                    if (pos != string::npos) commaName.erase(pos);
-                    if (lastCommaName != commaName) {
+                    якщо (pos != string::npos) commaName.erase(pos);
+                    якщо (lastCommaName != commaName) {
                         lastCommaName = commaName;
                         os << '\n';
                     }
@@ -148,7 +148,7 @@ class StatsReport final {
                 col = 0;
                 os << "  " << std::left << std::setw(maxWidth) << repp->name();
             }
-            while (col < stages.size() && stages.at(col) != repp->stage()) {
+            поки (col < stages.size() && stages.at(col) != repp->stage()) {
                 os << std::setw(10) << "";
                 col++;
             }
@@ -164,11 +164,11 @@ public:
 
     static double getStatSum(const string& name) {
         // O(n^2) if called a lot; present assumption is only a small call count
-        for (const V3Statistic& itr : s_allStats) {
+        для (const V3Statistic& itr : s_allStats) {
             const V3Statistic* const repp = &itr;
-            if (repp->name() == name) return repp->value();
+            якщо (repp->name() == name) повернути repp->value();
         }
-        return 0.0;
+        повернути 0.0;
     }
 
     static void calculate() { sumit(); }
@@ -200,16 +200,16 @@ void V3Statistic::dump(std::ofstream& os) const {
 
 void V3Stats::addStat(const V3Statistic& stat) { StatsReport::addStat(stat); }
 
-double V3Stats::getStatSum(const string& name) { return StatsReport::getStatSum(name); }
+double V3Stats::getStatSum(const string& name) { повернути StatsReport::getStatSum(name); }
 
 void V3Stats::statsStage(const string& name) {
     static double s_lastWallTime = -1;
-    static int s_fileNumber = 0;
+    static ціле s_fileNumber = 0;
 
     const string digitName = V3Global::digitsFilename(++s_fileNumber) + "_" + name;
 
     const double wallTime = V3Os::timeUsecs() / 1.0e6;
-    if (s_lastWallTime < 0) s_lastWallTime = wallTime;
+    якщо (s_lastWallTime < 0) s_lastWallTime = wallTime;
     const double wallTimeDelta = wallTime - s_lastWallTime;
     s_lastWallTime = wallTime;
     V3Stats::addStatPerf("Stage, Elapsed time (sec), " + digitName, wallTimeDelta);
@@ -243,7 +243,7 @@ void V3Stats::statsReport() {
     const string filename
         = v3Global.opt.hierTopDataDir() + "/" + v3Global.opt.prefix() + "__stats.txt";
     std::ofstream* ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+    якщо (ofp->fail()) v3fatal("Can't write file: " << filename);
 
     { StatsReport{ofp}; }  // Destruct before cleanup
 
@@ -279,6 +279,6 @@ void V3Stats::summaryReport() {
     uint64_t memCurrent;
     VlOs::memUsageBytes(memPeak /*ref*/, memCurrent /*ref*/);
     const double memory = memPeak / 1024.0 / 1024.0;
-    if (VL_UNCOVERABLE(memory != 0.0)) std::cout << "; allocated " << memory << " MB";
+    якщо (VL_UNCOVERABLE(memory != 0.0)) std::cout << "; allocated " << memory << " MB";
     std::cout << "\n";
 }

@@ -102,39 +102,39 @@ template <> struct IsIdempotent<DfgOr>  : public std::true_type {};
 // Binary result dtype
 template<typename Vertex>
 const DfgDataType& resultDType(const DfgVertex* lhsp, const DfgVertex* rhsp);
-template <> const DfgDataType& resultDType<DfgAdd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgAnd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgConcat>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(lhsp->width() + rhsp->width()); }
-template <> const DfgDataType& resultDType<DfgDiv>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgDivS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgEq>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgGteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogAnd>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogEq>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogIf>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLogOr>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgLteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgModDiv>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgModDivS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMul>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgMulS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgNeq>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return DfgDataType::packed(1); }
-template <> const DfgDataType& resultDType<DfgOr>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPow>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowSU>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgPowUS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftL>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftR>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgShiftRS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgSub>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
-template <> const DfgDataType& resultDType<DfgXor>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { return lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgAdd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgAnd>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgConcat>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(lhsp->width() + rhsp->width()); }
+template <> const DfgDataType& resultDType<DfgDiv>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgDivS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgEq>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgGt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgGtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgGte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgGteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLogAnd>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLogEq>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLogIf>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLogOr>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLt>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLtS>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLte>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgLteS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgModDiv>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgModDivS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgMul>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgMulS>       (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgNeq>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути DfgDataType::packed(1); }
+template <> const DfgDataType& resultDType<DfgOr>         (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgPow>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgPowSS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgPowSU>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgPowUS>      (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgShiftL>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgShiftR>     (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgShiftRS>    (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgSub>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
+template <> const DfgDataType& resultDType<DfgXor>        (const DfgVertex* lhsp, const DfgVertex* rhsp) { повернути lhsp->dtype(); }
 
 // Unary constant folding
 template<typename Vertex> void foldOp(V3Number& out, const V3Number& src);
@@ -216,14 +216,14 @@ class V3DfgPeephole final : public DfgVisitor {
     // STATIC STATE
     static V3DebugBisect s_debugBisect;  // Debug aid
 
-#define APPLYING(id) if (checkApplying(VDfgPeepholePattern::id))
+#define APPLYING(id) якщо (checkApplying(VDfgPeepholePattern::id))
 
     // METHODS
     bool checkApplying(VDfgPeepholePattern id) {
-        if (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) return false;
+        якщо (VL_UNLIKELY(!m_ctx.m_enabled[id] || s_debugBisect.isStopped())) повернути false;
         UINFO(9, "Applying DFG pattern " << id.ascii());
         ++m_ctx.m_count[id];
-        return true;
+        повернути true;
     }
 
     // Add vertex to the cache. If an equivalent (but different) vertex is
@@ -233,7 +233,7 @@ class V3DfgPeephole final : public DfgVisitor {
         UASSERT_OBJ(!m_vInfo[vtxp].m_isCachedVertex || !equivp, vtxp,
                     "Vertex marked 'm_isCachedVertex' has a cached equivalent");
         m_vInfo[vtxp].m_isCachedVertex = !equivp;
-        return equivp;
+        повернути equivp;
     }
 
     // Remove vertex from the cache (no-op if it is not the cached vertex)
@@ -248,7 +248,7 @@ class V3DfgPeephole final : public DfgVisitor {
     Vertex* getOrCreateVertex(FileLine* flp, const DfgDataType& dtype, Operands... operands) {
         Vertex* const vtxp = m_cache.getOrCreate<Vertex, Operands...>(flp, dtype, operands...);
         m_vInfo[vtxp].m_isCachedVertex = true;
-        return vtxp;
+        повернути vtxp;
     }
 
     // Find the vertex of the given type with the given operands in the
@@ -258,7 +258,7 @@ class V3DfgPeephole final : public DfgVisitor {
         Vertex* const vtxp = m_cache.get<Vertex>(dtype, operands...);
         UASSERT_OBJ(!vtxp || m_vInfo[vtxp].m_isCachedVertex, vtxp,
                     "Cached vertex not marked 'm_isCachedVertex'");
-        return vtxp;
+        повернути vtxp;
     }
 
     void incrementGeneration() {
@@ -269,7 +269,7 @@ class V3DfgPeephole final : public DfgVisitor {
     void addToWorkList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on work list, ignore
-        if (vInfo.m_workListIndex) return;
+        якщо (vInfo.m_workListIndex) повернути;
         // Add to work list
         vInfo.m_workListIndex = m_workList.size();
         m_workList.push_back(vtxp);
@@ -285,7 +285,7 @@ class V3DfgPeephole final : public DfgVisitor {
     void addToIterList(DfgVertex* vtxp) {
         VertexInfo& vInfo = m_vInfo[*vtxp];
         // If already on iter list, ignore
-        if (vInfo.m_iterListIndex) return;
+        якщо (vInfo.m_iterListIndex) повернути;
         // Add to iter list
         vInfo.m_iterListIndex = m_iterList.size();
         m_iterList.push_back(vtxp);
@@ -316,38 +316,38 @@ class V3DfgPeephole final : public DfgVisitor {
         srcps.reserve(vtxp->nInputs());
         vtxp->foreachSource([&](DfgVertex& src) {
             // If it's a variable, add to work list to see if it became redundant
-            if (src.is<DfgVertexVar>()) {
+            якщо (src.is<DfgVertexVar>()) {
                 addToWorkList(&src);
-                return false;
+                повернути false;
             }
             // Gather unique sources
             VertexInfo& vInfo = m_vInfo[src];
-            if (vInfo.m_generation != m_currentGeneration) srcps.push_back(&src);
+            якщо (vInfo.m_generation != m_currentGeneration) srcps.push_back(&src);
             vInfo.m_generation = m_currentGeneration;
-            return false;
+            повернути false;
         });
 
         // This pass only removes variables that are either not driven in this graph,
         // or are not observable outside the graph. If there is also no external write
         // to the variable and no references in other graph then delete the Ast var too.
-        if (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
+        якщо (varp && !varp->isVolatile() && !varp->hasDfgRefs()) {
             m_ctx.m_deleteps.push_back(varp->vscp());
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
-        } else {
+        } інакше {
             VL_DO_DANGLING(vtxp->unlinkDelete(m_dfg), vtxp);
         }
 
         // Partition sources into used/unused after removing the vertex
         const auto mid
             = std::stable_partition(srcps.begin(), srcps.end(), [](DfgVertex* srcp) {  //
-                  return srcp->hasSinks();
+                  повернути srcp->hasSinks();
               });
 
         // Add used sources to the iter list - their sinks have changed
-        for (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
+        для (auto it = srcps.begin(); it != mid; ++it) addToIterList(*it);
 
         // Recursively delete unused sources
-        for (auto it = mid; it != srcps.end(); ++it) {
+        для (auto it = mid; it != srcps.end(); ++it) {
             // Remove from work list
             removeFromWorkList(*it);
             // Delete vertex
@@ -366,28 +366,28 @@ class V3DfgPeephole final : public DfgVisitor {
             m_dfg.sourceCone({m_vtxp, resp});
             const auto cone = m_dfg.sourceCone({m_vtxp, resp});
             m_dfg.dumpDotFilePrefixed("peephole-broken", [&](const DfgVertex& v) {  //
-                return cone->count(&v);
+                повернути cone->count(&v);
             });
         };
-        if (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) return;
+        якщо (VL_UNLIKELY(s_debugBisect.stop(debugCallback))) повернути;
 
         // Add sources of the original vertex to the iter list - their sinks are changing
         m_vtxp->foreachSource([&](DfgVertex& src) {
             addToIterList(&src);
-            return false;
+            повернути false;
         });
 
         // Remove sinks of the original vertex from the cache - their inputs are changing
         m_vtxp->foreachSink([&](DfgVertex& dst) {
             invalidateVertex(&dst);
-            return false;
+            повернути false;
         });
         // Replace vertex with the replacement
         m_vtxp->replaceWith(resp);
         // Re-cache all sinks of the replacement
         resp->foreachSink([&](DfgVertex& dst) {
             cacheVertex(&dst);
-            return false;
+            повернути false;
         });
 
         // Original vertex is now unused, so delete it
@@ -399,26 +399,26 @@ class V3DfgPeephole final : public DfgVisitor {
         addToWorkList(resp);
         resp->foreachSink([&](DfgVertex& dst) {
             addToWorkList(&dst);
-            return false;
+            повернути false;
         });
     }
 
     // Create a 32-bit DfgConst vertex
-    DfgConst* makeI32(FileLine* flp, uint32_t val) { return new DfgConst{m_dfg, flp, 32, val}; }
+    DfgConst* makeI32(FileLine* flp, uint32_t val) { повернути new DfgConst{m_dfg, flp, 32, val}; }
 
     // Create a DfgConst vertex with the given width and value zero
     DfgConst* makeZero(FileLine* flp, uint32_t width) {
-        return new DfgConst{m_dfg, flp, width, 0};
+        повернути new DfgConst{m_dfg, flp, width, 0};
     }
     DfgConst* makeZero(FileLine* flp, const DfgDataType& dtype) {
-        return makeZero(flp, dtype.size());
+        повернути makeZero(flp, dtype.size());
     }
 
     // Create a DfgConst vertex with the given width and value all ones
     DfgConst* makeOnes(FileLine* flp, uint32_t width) {
         DfgConst* const resp = makeZero(flp, width);
         resp->num().setAllBits1();
-        return resp;
+        повернути resp;
     }
 
     // Create a new vertex of the given type
@@ -428,66 +428,66 @@ class V3DfgPeephole final : public DfgVisitor {
         Vertex* const vtxp = getOrCreateVertex<Vertex, Operands...>(flp, dtype, operands...);
         // Sanity check
         UASSERT_OBJ(vtxp->dtype() == dtype, vtxp, "Vertex dtype mismatch");
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
+        якщо (VL_UNLIKELY(v3Global.opt.debugCheck())) vtxp->typeCheck(m_dfg);
         // Assign vertex ID
         VertexInfo& vInfo = m_vInfo[vtxp];
-        if (!vInfo.m_id) vInfo.m_id = ++m_lastId;
+        якщо (!vInfo.m_id) vInfo.m_id = ++m_lastId;
         // Add to work list
         addToWorkList(vtxp);
         // Return new node
-        return vtxp;
+        повернути vtxp;
     }
 
     // Same as above, but 'flp' and 'dtypep' are taken from the given example vertex
     template <typename Vertex, typename... Operands>
     Vertex* make(const DfgVertex* examplep, Operands... operands) {
-        return make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
+        повернути make<Vertex>(examplep->fileline(), examplep->dtype(), operands...);
     }
 
     // Replicate 'bitp' to 'vtxp->width()' bits
     DfgVertex* replicate(DfgVertex* vtxp, DfgVertex* bitp) {
         UASSERT_OBJ(bitp->dtype() == m_bitDType, vtxp, "Expected 1-bit vertex");
-        if (vtxp->dtype() == m_bitDType) return bitp;
-        return make<DfgRep>(vtxp, bitp);
+        якщо (vtxp->dtype() == m_bitDType) повернути bitp;
+        повернути make<DfgRep>(vtxp, bitp);
     }
 
     // Check two vertex are the same, or the same constant value
     static bool isSame(const DfgVertex* ap, const DfgVertex* bp) {
-        if (ap == bp) return true;
-        if (ap->dtype() != bp->dtype()) return false;
+        якщо (ap == bp) повернути true;
+        якщо (ap->dtype() != bp->dtype()) повернути false;
         const DfgConst* const aConstp = ap->cast<DfgConst>();
-        if (!aConstp) return false;
+        якщо (!aConstp) повернути false;
         const DfgConst* const bConstp = bp->cast<DfgConst>();
-        if (!bConstp) return false;
-        return aConstp->num().isCaseEq(bConstp->num());
+        якщо (!bConstp) повернути false;
+        повернути aConstp->num().isCaseEq(bConstp->num());
     }
 
     static bool isZero(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isZero();
-        return false;
+        якщо (const DfgConst* const constp = vtxp->cast<DfgConst>()) повернути constp->isZero();
+        повернути false;
     }
 
     static bool isOnes(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->isOnes();
-        return false;
+        якщо (const DfgConst* const constp = vtxp->cast<DfgConst>()) повернути constp->isOnes();
+        повернути false;
     }
 
     static bool isEqOne(const DfgVertex* vtxp) {
-        if (const DfgConst* const constp = vtxp->cast<DfgConst>()) return constp->num().isEqOne();
-        return false;
+        якщо (const DfgConst* const constp = vtxp->cast<DfgConst>()) повернути constp->num().isEqOne();
+        повернути false;
     }
 
     static bool areAdjacent(uint32_t& lsb, const DfgSel* lSelp, const DfgSel* rSelp) {
-        if (!isSame(lSelp->srcp(), rSelp->srcp())) return false;
-        if (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
+        якщо (!isSame(lSelp->srcp(), rSelp->srcp())) повернути false;
+        якщо (lSelp->lsb() + lSelp->width() == rSelp->lsb()) {
             lsb = lSelp->lsb();
-            return true;
+            повернути true;
         }
-        if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        якщо (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
             lsb = rSelp->lsb();
-            return true;
+            повернути true;
         }
-        return false;
+        повернути false;
     }
 
     // Note: If any of the following transformers return true, then the vertex was replaced and the
@@ -499,15 +499,15 @@ class V3DfgPeephole final : public DfgVisitor {
     VL_ATTR_WARN_UNUSED_RESULT bool foldUnary(Vertex* const vtxp) {
         static_assert(std::is_base_of<DfgVertexUnary, Vertex>::value, "Must invoke on unary");
         static_assert(std::is_final<Vertex>::value, "Must invoke on final class");
-        if (DfgConst* const srcp = vtxp->srcp()->template cast<DfgConst>()) {
+        якщо (DfgConst* const srcp = vtxp->srcp()->template cast<DfgConst>()) {
             APPLYING(FOLD_UNARY) {
                 DfgConst* const resultp = makeZero(vtxp->fileline(), vtxp->width());
                 foldOp<Vertex>(resultp->num(), srcp->num());
                 replace(resultp);
-                return true;
+                повернути true;
             }
         }
-        return false;
+        повернути false;
     }
 
     // Generic transformations that apply to binary vertices. Returns true if vtxp was replaced.
@@ -528,95 +528,95 @@ class V3DfgPeephole final : public DfgVisitor {
         Vertex* const rSamep = rhsp->cast<Vertex>();
 
         // Constant folding
-        if (lConstp && rConstp) {
+        якщо (lConstp && rConstp) {
             APPLYING(FOLD_BINARY) {
                 DfgConst* const resultp = makeZero(flp, resultDType<Vertex>(lhsp, rhsp));
                 foldOp<Vertex>(resultp->num(), lConstp->num(), rConstp->num());
                 replace(resultp);
-                return true;
+                повернути true;
             }
         }
 
         // Idempotent
-        if VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::value) {
-            if (isSame(lhsp, rhsp)) {
+        якщо VL_CONSTEXPR_CXX17 (IsIdempotent<Vertex>::value) {
+            якщо (isSame(lhsp, rhsp)) {
                 APPLYING(REMOVE_IDEMPOTENT_BINARY) {
                     replace(lhsp);
-                    return true;
+                    повернути true;
                 }
             }
         }
 
         // Associative
-        if VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::value) {
+        якщо VL_CONSTEXPR_CXX17 (IsAssociative<Vertex>::value) {
             // Also commutative and idempotent
-            if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value && IsIdempotent<Vertex>::value) {
-                if (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
+            якщо VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value && IsIdempotent<Vertex>::value) {
+                якщо (lSamep && (isSame(lSamep->lhsp(), rhsp) || isSame(lSamep->rhsp(), rhsp))) {
                     APPLYING(REMOVE_ACI_BINARY_LHS) {
                         replace(lSamep);
-                        return true;
+                        повернути true;
                     }
                 }
-                if (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
+                якщо (rSamep && (isSame(lhsp, rSamep->lhsp()) || isSame(lhsp, rSamep->rhsp()))) {
                     APPLYING(REMOVE_ACI_BINARY_RHS) {
                         replace(rSamep);
-                        return true;
+                        повернути true;
                     }
                 }
             }
 
-            if (lConstp && rSamep) {
-                if (DfgConst* const rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
+            якщо (lConstp && rSamep) {
+                якщо (DfgConst* const rlConstp = rSamep->lhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !rSamep->hasMultipleSinks()
                     APPLYING(FOLD_ASSOC_BINARY_LHS_OF_RHS) {
                         DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lConstp, rlConstp));
                         foldOp<Vertex>(cp->num(), lConstp->num(), rlConstp->num());
                         replace(make<Vertex>(vtxp, cp, rSamep->rhsp()));
-                        return true;
+                        повернути true;
                     }
                 }
             }
 
-            if (lSamep && rConstp) {
-                if (DfgConst* const lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
+            якщо (lSamep && rConstp) {
+                якщо (DfgConst* const lrConstp = lSamep->rhsp()->template cast<DfgConst>()) {
                     // TODO: Maybe only if !lSameps->hasMultipleSinks()
                     APPLYING(FOLD_ASSOC_BINARY_RHS_OF_LHS) {
                         DfgConst* const cp = makeZero(flp, resultDType<Vertex>(lrConstp, rConstp));
                         foldOp<Vertex>(cp->num(), lrConstp->num(), rConstp->num());
                         replace(make<Vertex>(vtxp, lSamep->lhsp(), cp));
-                        return true;
+                        повернути true;
                     }
                 }
             }
 
             // Make associative trees right leaning to reduce variations
-            if (lSamep && !lSamep->hasMultipleSinks()) {
+            якщо (lSamep && !lSamep->hasMultipleSinks()) {
                 DfgVertex* const ap = lSamep->lhsp();
                 DfgVertex* const bp = lSamep->rhsp();
                 DfgVertex* const cp = rhsp;
                 // Only do this if the rhs is not the same as the operands of the LHS, otherwise
                 // SWAP_SIDE_IN_COMMUTATIVE_BINARY can get in a loop with this pattern.
-                if (ap != cp && bp != cp) {
+                якщо (ap != cp && bp != cp) {
                     APPLYING(RIGHT_LEANING_ASSOC) {
                         // Rotate the expression tree rooted at 'vtxp' to the right,
                         // producing a right-leaning tree
                         const DfgDataType& childDType = resultDType<Vertex>(bp, cp);
                         Vertex* const bcp = make<Vertex>(vtxp->fileline(), childDType, bp, cp);
                         replace(make<Vertex>(lSamep->fileline(), vtxp->dtype(), ap, bcp));
-                        return true;
+                        повернути true;
                     }
                 }
             }
 
-            if (rSamep && !rSamep->hasMultipleSinks()) {
+            якщо (rSamep && !rSamep->hasMultipleSinks()) {
                 DfgVertex* const rlVtxp = rSamep->lhsp();
                 DfgVertex* const rrVtxp = rSamep->rhsp();
 
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
+                якщо VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
+                    якщо (!lhsp->hasMultipleSinks() && rlVtxp->hasMultipleSinks()) {
                         APPLYING(ROTATE_ASSOC_COMM_MULTIUSE) {
                             replace(make<Vertex>(vtxp, rlVtxp, make<Vertex>(vtxp, lhsp, rrVtxp)));
-                            return true;
+                            повернути true;
                         }
                     }
                 }
@@ -628,26 +628,26 @@ class V3DfgPeephole final : public DfgVisitor {
                 // otherwise there is no improvement.
 
                 // '(a OP (b OP c))' -> '(a OP b) OP c'
-                if (Vertex* const existingp
+                якщо (Vertex* const existingp
                     = getVertex<Vertex>(resultDType<Vertex>(lhsp, rlVtxp), lhsp, rlVtxp)) {
                     UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                    if (existingp != rhsp) {
+                    якщо (existingp != rhsp) {
                         APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_LHS_OF_RHS) {
                             replace(make<Vertex>(vtxp, existingp, rrVtxp));
-                            return true;
+                            повернути true;
                         }
                     }
                 }
 
                 // '(a OP (b OP c))' -> '(a OP c) OP b' iff also commutative
-                if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
-                    if (Vertex* const existingp
+                якщо VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
+                    якщо (Vertex* const existingp
                         = getVertex<Vertex>(resultDType<Vertex>(lhsp, rrVtxp), lhsp, rrVtxp)) {
                         UASSERT_OBJ(existingp->hasSinks(), vtxp, "Existing vertex should be used");
-                        if (existingp != rhsp) {
+                        якщо (existingp != rhsp) {
                             APPLYING(REUSE_ASSOC_BINARY_LHS_WITH_RHS_OF_RHS) {
                                 replace(make<Vertex>(vtxp, existingp, rlVtxp));
-                                return true;
+                                повернути true;
                             }
                         }
                     }
@@ -656,50 +656,50 @@ class V3DfgPeephole final : public DfgVisitor {
         }
 
         // Commutative
-        if VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
+        якщо VL_CONSTEXPR_CXX17 (IsCommutative<Vertex>::value) {
             // If constant LHS, push through cond if used once. (Enables branch combining)
-            if (lConstp) {
-                if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
-                    if (!rCondp->hasMultipleSinks()) {
+            якщо (lConstp) {
+                якщо (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
+                    якщо (!rCondp->hasMultipleSinks()) {
                         APPLYING(PUSH_COMMUTATIVE_BINARY_THROUGH_COND) {
                             DfgVertex* const tp = make<Vertex>(vtxp, lConstp, rCondp->thenp());
                             DfgVertex* const ep = make<Vertex>(vtxp, lConstp, rCondp->elsep());
                             replace(make<DfgCond>(vtxp, rCondp->condp(), tp, ep));
-                            return true;
+                            повернути true;
                         }
                     }
                 }
-                return false;
+                повернути false;
             }
         }
 
         // Swap sides to simplify other patterns - This needs to be the last pattern
         const bool swapSides = [&]() {
             // Don't swap if not commutative, duh
-            if VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::value) return false;
+            якщо VL_CONSTEXPR_CXX17 (!IsCommutative<Vertex>::value) повернути false;
             // Const go on left
-            if (lConstp) return false;
-            if (rConstp) return true;
+            якщо (lConstp) повернути false;
+            якщо (rConstp) повернути true;
             // Not go on left
-            if (lhsp->is<DfgNot>()) return false;
-            if (rhsp->is<DfgNot>()) return true;
+            якщо (lhsp->is<DfgNot>()) повернути false;
+            якщо (rhsp->is<DfgNot>()) повернути true;
             // Same go on right
-            if (rSamep) return false;
-            if (lSamep) return true;
+            якщо (rSamep) повернути false;
+            якщо (lSamep) повернути true;
             // Otherwise put sides in order based on unique ID, this makes
             // 'a op b' and 'b op a' end up the same for better combining.
             const VertexInfo& lInfo = m_vInfo[lhsp];
             const VertexInfo& rInfo = m_vInfo[rhsp];
-            return lInfo.m_id > rInfo.m_id;
+            повернути lInfo.m_id > rInfo.m_id;
         }();
-        if (swapSides) {
+        якщо (swapSides) {
             APPLYING(SWAP_SIDES_IN_BINARY) {
                 replace(make<Vertex>(vtxp, rhsp, lhsp));
-                return true;
+                повернути true;
             }
         }
 
-        return false;
+        повернути false;
     }
 
     // Transformations that apply to all distributive and associative binary
@@ -709,11 +709,11 @@ class V3DfgPeephole final : public DfgVisitor {
     VL_ATTR_WARN_UNUSED_RESULT bool distributiveAndAssociativeBinary(Vertex* vtxp) {
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
-        if (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
+        якщо (!lhsp->hasMultipleSinks() && !rhsp->hasMultipleSinks()) {
             // Convert '(a Other b) Vertex (a Other c)' and associative
             // variations to 'a Other (b Vertex c)'
-            if (Other* const lp = lhsp->cast<Other>()) {
-                if (Other* const rp = rhsp->cast<Other>()) {
+            якщо (Other* const lp = lhsp->cast<Other>()) {
+                якщо (Other* const rp = rhsp->cast<Other>()) {
                     DfgVertex* const llp = lp->lhsp();
                     DfgVertex* const lrp = lp->rhsp();
                     DfgVertex* const rlp = rp->lhsp();
@@ -721,34 +721,34 @@ class V3DfgPeephole final : public DfgVisitor {
                     DfgVertex* ap = nullptr;
                     DfgVertex* bp = nullptr;
                     DfgVertex* cp = nullptr;
-                    if (llp == rlp) {
+                    якщо (llp == rlp) {
                         ap = llp;
                         bp = lrp;
                         cp = rrp;
-                    } else if (llp == rrp) {
+                    } інакше якщо (llp == rrp) {
                         ap = llp;
                         bp = lrp;
                         cp = rlp;
-                    } else if (lrp == rlp) {
+                    } інакше якщо (lrp == rlp) {
                         ap = lrp;
                         bp = llp;
                         cp = rrp;
-                    } else if (lrp == rrp) {
+                    } інакше якщо (lrp == rrp) {
                         ap = lrp;
                         bp = llp;
                         cp = rlp;
                     }
-                    if (ap) {
+                    якщо (ap) {
                         APPLYING(REPLACE_DISTRIBUTIVE_BINARY) {
                             replace(make<Other>(vtxp, ap, make<Vertex>(lhsp, bp, cp)));
-                            return true;
+                            повернути true;
                         }
                     }
                 }
             }
         }
 
-        return false;
+        повернути false;
     }
 
     // Bitwise operation with one side Const, and the other side a Concat
@@ -760,7 +760,7 @@ class V3DfgPeephole final : public DfgVisitor {
         // If at least one of the sides of the Concat constant, then push Vertex past Concat
         DfgConst* const catLConstp = concatp->lhsp()->cast<DfgConst>();
         DfgConst* const catRConstp = concatp->rhsp()->cast<DfgConst>();
-        if (catLConstp || catRConstp) {
+        якщо (catLConstp || catRConstp) {
             APPLYING(PUSH_BITWISE_OP_THROUGH_CONCAT) {
                 const uint32_t width = concatp->width();
                 const DfgDataType& lDtype = concatp->lhsp()->dtype();
@@ -771,35 +771,35 @@ class V3DfgPeephole final : public DfgVisitor {
                 // The new Lhs vertex
                 DfgVertex* const newLhsp = [&]() -> DfgVertex* {
                     DfgConst* const newLhsConstp = makeZero(constp->fileline(), lWidth);
-                    if (catLConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(lWidth), 0u};
+                    якщо (catLConstp) {
+                        V3Number num{constp->fileline(), static_cast<ціле>(lWidth), 0u};
                         num.opSel(constp->num(), width - 1, rWidth);
                         foldOp<Vertex>(newLhsConstp->num(), num, catLConstp->num());
-                        return newLhsConstp;
+                        повернути newLhsConstp;
                     }
                     newLhsConstp->num().opSel(constp->num(), width - 1, rWidth);
-                    return make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
+                    повернути make<Vertex>(flp, lDtype, newLhsConstp, concatp->lhsp());
                 }();
 
                 // The new Rhs vertex
                 DfgVertex* const newRhsp = [&]() -> DfgVertex* {
                     DfgConst* const newRhsConstp = makeZero(constp->fileline(), rWidth);
-                    if (catRConstp) {
-                        V3Number num{constp->fileline(), static_cast<int>(rWidth), 0u};
+                    якщо (catRConstp) {
+                        V3Number num{constp->fileline(), static_cast<ціле>(rWidth), 0u};
                         num.opSel(constp->num(), rWidth - 1, 0);
                         foldOp<Vertex>(newRhsConstp->num(), num, catRConstp->num());
-                        return newRhsConstp;
+                        повернути newRhsConstp;
                     }
                     newRhsConstp->num().opSel(constp->num(), rWidth - 1, 0);
-                    return make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
+                    повернути make<Vertex>(flp, rDtype, newRhsConstp, concatp->rhsp());
                 }();
 
                 // Replace this vertex
                 replace(make<DfgConcat>(concatp, newLhsp, newRhsp));
-                return true;
+                повернути true;
             }
         }
-        return false;
+        повернути false;
     }
 
     template <typename Vertex>
@@ -809,7 +809,7 @@ class V3DfgPeephole final : public DfgVisitor {
 
         // If at least one of the sides of the Concat is constant, or the concat is unused once,
         // then push the Vertex past the Concat
-        if (!concatp->hasMultipleSinks()  //
+        якщо (!concatp->hasMultipleSinks()  //
             || concatp->lhsp()->is<DfgConst>()  //
             || concatp->rhsp()->is<DfgConst>()) {
             APPLYING(PUSH_COMPARE_OP_THROUGH_CONCAT) {
@@ -830,41 +830,41 @@ class V3DfgPeephole final : public DfgVisitor {
                     = make<Vertex>(flp, m_bitDType, newRhsConstp, concatp->rhsp());
 
                 // The replacement Vertex
-                if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::value) {
+                якщо VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgEq>::value) {
                     replace(make<DfgAnd>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else if VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::value) {
+                } інакше якщо VL_CONSTEXPR_CXX17 (std::is_same<Vertex, DfgNeq>::value) {
                     replace(make<DfgOr>(concatp->fileline(), m_bitDType, newLhsp, newRhsp));
-                } else {
+                } інакше {
                     vtxp->v3fatalSrc("Unhandled vertex type: " << vtxp->typeName());
                 }
-                return true;
+                повернути true;
             }
         }
-        return false;
+        повернути false;
     }
 
     template <typename Bitwise>
     VL_ATTR_WARN_UNUSED_RESULT bool tryPushBitwiseOpThroughReductions(Bitwise* const vtxp) {
         using Reduction = BitwiseToReduction<Bitwise>;
 
-        if (Reduction* const lRedp = vtxp->lhsp()->template cast<Reduction>()) {
-            if (Reduction* const rRedp = vtxp->rhsp()->template cast<Reduction>()) {
+        якщо (Reduction* const lRedp = vtxp->lhsp()->template cast<Reduction>()) {
+            якщо (Reduction* const rRedp = vtxp->rhsp()->template cast<Reduction>()) {
                 DfgVertex* const lSrcp = lRedp->srcp();
                 DfgVertex* const rSrcp = rRedp->srcp();
-                if (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
+                якщо (lSrcp->dtype() == rSrcp->dtype() && lSrcp->width() <= VL_QUADSIZE
                     && !lSrcp->is<DfgConcat>() && !rSrcp->is<DfgConcat>()
                     && !lSrcp->hasMultipleSinks() && !rSrcp->hasMultipleSinks()) {
                     APPLYING(PUSH_BITWISE_THROUGH_REDUCTION) {
                         FileLine* const flp = vtxp->fileline();
                         Bitwise* const bwp = make<Bitwise>(flp, lSrcp->dtype(), lSrcp, rSrcp);
                         replace(make<Reduction>(flp, m_bitDType, bwp));
-                        return true;
+                        повернути true;
                     }
                 }
             }
         }
 
-        return false;
+        повернути false;
     }
 
     // Checks if 'vtxp' is a single use 'n[i] OP w[j]', with 'OP' a bitwise operation, that can
@@ -874,22 +874,22 @@ class V3DfgPeephole final : public DfgVisitor {
     // 'a[3] & b[62]' cannot be rewritten, as they would need bits below 'b[0]' or above
     // 'b[63]'.
     static std::pair<DfgSel*, DfgSel*> pushableUnalignedSels(DfgVertex* vtxp) {
-        if (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
-            return {nullptr, nullptr};
+        якщо (!vtxp->is<DfgAnd>() && !vtxp->is<DfgOr>() && !vtxp->is<DfgXor>()) {
+            повернути {nullptr, nullptr};
         }
-        if (vtxp->hasMultipleSinks()) return {nullptr, nullptr};
+        якщо (vtxp->hasMultipleSinks()) повернути {nullptr, nullptr};
         DfgVertexBinary* const bwp = vtxp->as<DfgVertexBinary>();
         DfgSel* const lSelp = bwp->lhsp()->cast<DfgSel>();
         DfgSel* const rSelp = bwp->rhsp()->cast<DfgSel>();
-        if (!lSelp || !rSelp) return {nullptr, nullptr};
+        якщо (!lSelp || !rSelp) повернути {nullptr, nullptr};
         DfgSel* const nSelp = lSelp->fromp()->width() <= rSelp->fromp()->width() ? lSelp : rSelp;
         DfgSel* const wSelp = nSelp == lSelp ? rSelp : lSelp;
         const uint32_t nWidth = nSelp->fromp()->width();
-        if (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) return {nullptr, nullptr};
-        if (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
-            return {nullptr, nullptr};
+        якщо (nWidth > VL_QUADSIZE || wSelp->lsb() < nSelp->lsb()) повернути {nullptr, nullptr};
+        якщо (wSelp->lsb() - nSelp->lsb() + nWidth > wSelp->fromp()->width()) {
+            повернути {nullptr, nullptr};
         }
-        return {nSelp, wSelp};
+        повернути {nSelp, wSelp};
     }
 
     template <typename Bitwise>
@@ -897,33 +897,33 @@ class V3DfgPeephole final : public DfgVisitor {
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+        якщо (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->cast<DfgSel>()) {
+            якщо (DfgSel* const selp = rhsp->cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const bitwisep = rhsp->cast<Bitwise>()) {
-                if (DfgSel* const rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+            } інакше якщо (Bitwise* const bitwisep = rhsp->cast<Bitwise>()) {
+                якщо (DfgSel* const rlSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
                     rSelp = rlSelp;
                     extrap = bitwisep->rhsp();
-                } else if (DfgSel* const rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                } інакше якщо (DfgSel* const rrSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                     rSelp = rrSelp;
                     extrap = bitwisep->lhsp();
                 }
             }
-            if (rSelp) {
+            якщо (rSelp) {
                 DfgVertex* const lFromp = lSelp->fromp();
                 DfgVertex* const rFromp = rSelp->fromp();
-                if (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
+                якщо (lFromp->dtype() == rFromp->dtype() && lFromp->width() <= VL_QUADSIZE  //
                     && lSelp->lsb() == rSelp->lsb()) {
                     APPLYING(PUSH_BITWISE_THROUGH_SEL) {
                         Bitwise* const bwp
                             = make<Bitwise>(vtxp->fileline(), lSelp->fromp()->dtype(),
                                             lSelp->fromp(), rSelp->fromp());
                         DfgVertex* resp = make<DfgSel>(vtxp, bwp, lSelp->lsb());
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        якщо (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        повернути true;
                     }
                 }
             }
@@ -939,16 +939,16 @@ class V3DfgPeephole final : public DfgVisitor {
             // The adjacent terms are the LHS, and the RHS, or in a right-leaning chain the LHS
             // of the RHS
             Bitwise* const rChainp = rhsp->cast<Bitwise>();
-            if (rChainp && rChainp->hasMultipleSinks()) return false;
+            якщо (rChainp && rChainp->hasMultipleSinks()) повернути false;
             DfgVertex* const rTermp = rChainp ? rChainp->lhsp() : rhsp;
 
             const auto lSels = pushableUnalignedSels(lhsp);
             const auto rSels = pushableUnalignedSels(rTermp);
-            if (!lSels.first && !rSels.first) return false;
+            якщо (!lSels.first && !rSels.first) повернути false;
 
             const DfgVertex* const opp = lSels.first ? lhsp : rTermp;
             // Must be a different operation, otherwise it is part of the chain
-            if (opp->is<Bitwise>()) return false;
+            якщо (opp->is<Bitwise>()) повернути false;
             const auto& sels = lSels.first ? lSels : rSels;
             DfgVertex* const nFromp = sels.first->fromp();
             DfgVertex* const wFromp = sels.second->fromp();
@@ -957,108 +957,108 @@ class V3DfgPeephole final : public DfgVisitor {
             // Both terms must end up as selects from the same pushed operation
             const auto matches = [&](const DfgVertex* termp, const auto& tSels) {
                 // Original form: 'n[i] OP w[j]'
-                if (tSels.first) {
-                    return termp->type() == opp->type()  //
+                якщо (tSels.first) {
+                    повернути termp->type() == opp->type()  //
                            && tSels.first->fromp() == nFromp  //
                            && tSels.second->fromp() == wFromp  //
                            && tSels.second->lsb() - tSels.first->lsb() == offset;
                 }
                 // Already pushed forms: 'nFromp OP Sel(wFromp, offset)',
                 // a select from it, or a reduction of such a select
-                if (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
+                якщо (termp->is<DfgRedAnd>() || termp->is<DfgRedOr>() || termp->is<DfgRedXor>()) {
                     termp = termp->inputp(0);
                 }
-                if (const DfgSel* const selp = termp->cast<DfgSel>()) {  //
+                якщо (const DfgSel* const selp = termp->cast<DfgSel>()) {  //
                     termp = selp->fromp();
                 }
-                if (termp->type() != opp->type()) return false;
+                якщо (termp->type() != opp->type()) повернути false;
                 // Operands might have been swapped since
                 const DfgVertexBinary* const bwp = termp->as<DfgVertexBinary>();
                 const bool nIsLhs = bwp->lhsp() == nFromp;
-                if (!nIsLhs && bwp->rhsp() != nFromp) return false;
+                якщо (!nIsLhs && bwp->rhsp() != nFromp) повернути false;
                 const DfgSel* const slicep = (nIsLhs ? bwp->rhsp() : bwp->lhsp())->cast<DfgSel>();
-                return slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
+                повернути slicep && slicep->fromp() == wFromp && slicep->lsb() == offset;
             };
-            if (!matches(lhsp, lSels) || !matches(rTermp, rSels)) return false;
+            якщо (!matches(lhsp, lSels) || !matches(rTermp, rSels)) повернути false;
 
             APPLYING(PUSH_BITWISE_THROUGH_UNALIGNED_SEL) {
                 FileLine* const flp = vtxp->fileline();
                 const DfgDataType& dtype = nFromp->dtype();
                 DfgSel* const slicep = make<DfgSel>(flp, dtype, wFromp, offset);
                 DfgVertex* bwp = nullptr;
-                if (opp->is<DfgAnd>()) {
+                якщо (opp->is<DfgAnd>()) {
                     bwp = make<DfgAnd>(flp, dtype, nFromp, slicep);
-                } else if (opp->is<DfgOr>()) {
+                } інакше якщо (opp->is<DfgOr>()) {
                     bwp = make<DfgOr>(flp, dtype, nFromp, slicep);
-                } else {
+                } інакше {
                     bwp = make<DfgXor>(flp, dtype, nFromp, slicep);
                 }
                 const auto push = [&](DfgVertex* termp, const DfgSel* nSelp) -> DfgVertex* {
-                    return nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
+                    повернути nSelp ? make<DfgSel>(termp, bwp, nSelp->lsb()) : termp;
                 };
                 DfgVertex* const newLhsp = push(lhsp, lSels.first);
                 DfgVertex* const newRTermp = push(rTermp, rSels.first);
-                if (rChainp) {
+                якщо (rChainp) {
                     DfgVertex* const newRChainp
                         = make<Bitwise>(rChainp, newRTermp, rChainp->rhsp());
                     replace(make<Bitwise>(vtxp, newLhsp, newRChainp));
-                } else {
+                } інакше {
                     replace(make<Bitwise>(vtxp, newLhsp, newRTermp));
                 }
-                return true;
+                повернути true;
             }
         }
 
-        return false;
+        повернути false;
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' is folded into a single vertex by another pattern
     static bool isConcatFoldable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
         // Concatenation of the same vertex is a replicate
-        if (isSame(lhsp, rhsp)) return true;
-        if (const DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) return true;
+        якщо (isSame(lhsp, rhsp)) повернути true;
+        якщо (const DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
+            якщо (isSame(lRepp->srcp(), rhsp)) повернути true;
         }
-        if (const DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) return true;
+        якщо (const DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
+            якщо (isSame(lhsp, rRepp->srcp())) повернути true;
         }
         // Concatenation of adjoining selects is a select
-        if (const DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (const DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                return isSame(lSelp->fromp(), rSelp->fromp())
+        якщо (const DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+            якщо (const DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
+                повернути isSame(lSelp->fromp(), rSelp->fromp())
                        && lSelp->lsb() == rSelp->lsb() + rSelp->width();
             }
         }
         // Concatenation of Nots is pushed through the Nots (PUSH_CONCAT_THROUGH_NOTS)
-        if (const DfgNot* const lNotp = lhsp->cast<DfgNot>()) {
-            if (const DfgNot* const rNotp = rhsp->cast<DfgNot>()) {
-                return !lNotp->hasMultipleSinks()  //
+        якщо (const DfgNot* const lNotp = lhsp->cast<DfgNot>()) {
+            якщо (const DfgNot* const rNotp = rhsp->cast<DfgNot>()) {
+                повернути !lNotp->hasMultipleSinks()  //
                        && !rNotp->hasMultipleSinks()  //
                        && isConcatFoldable(lNotp->srcp(), rNotp->srcp());
             }
         }
-        return false;
+        повернути false;
     }
 
     // Returns true if 'lhsp' and 'rhsp' are the same bitwise operation
     static bool isSameBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (lhsp->type() != rhsp->type()) return false;
-        return lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
+        якщо (lhsp->type() != rhsp->type()) повернути false;
+        повернути lhsp->is<DfgAnd>() || lhsp->is<DfgOr>() || lhsp->is<DfgXor>();
     }
 
     // Returns true if 'Concat(lhsp, rhsp)' folds into a single vertex, either directly, or
     // after pushing it through the same bitwise operation on both sides
     static bool isConcatSimplifiable(const DfgVertex* lhsp, const DfgVertex* rhsp) {
-        if (isConcatFoldable(lhsp, rhsp)) return true;
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
+        якщо (isConcatFoldable(lhsp, rhsp)) повернути true;
+        якщо (!isSameBitwise(lhsp, rhsp)) повернути false;
+        якщо (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) повернути false;
         const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
         const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
-        if (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
-            return true;
-        if (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
-            return true;
-        return false;
+        якщо (isConcatFoldable(lp->lhsp(), rp->lhsp()) && isConcatFoldable(lp->rhsp(), rp->rhsp()))
+            повернути true;
+        якщо (isConcatFoldable(lp->lhsp(), rp->rhsp()) && isConcatFoldable(lp->rhsp(), rp->lhsp()))
+            повернути true;
+        повернути false;
     }
 
     // Returns true if replacing 'Concat(a OP b, c OP d)' (the Concat of 'lhsp' and 'rhsp') with
@@ -1067,17 +1067,17 @@ class V3DfgPeephole final : public DfgVisitor {
     // if instead 'Concat(a, d) OP Concat(b, c)' should be used.
     static bool isConcatPushableThroughBitwise(const DfgVertex* lhsp, const DfgVertex* rhsp,
                                                bool& swap) {
-        if (!isSameBitwise(lhsp, rhsp)) return false;
-        if (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) return false;
+        якщо (!isSameBitwise(lhsp, rhsp)) повернути false;
+        якщо (lhsp->hasMultipleSinks() || rhsp->hasMultipleSinks()) повернути false;
         const DfgVertexBinary* const lp = lhsp->as<DfgVertexBinary>();
         const DfgVertexBinary* const rp = rhsp->as<DfgVertexBinary>();
         swap = false;
-        if (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) return true;
+        якщо (isConcatSimplifiable(lp->lhsp(), rp->lhsp())) повернути true;
+        якщо (isConcatSimplifiable(lp->rhsp(), rp->rhsp())) повернути true;
         swap = true;
-        if (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) return true;
-        if (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) return true;
-        return false;
+        якщо (isConcatSimplifiable(lp->lhsp(), rp->rhsp())) повернути true;
+        якщо (isConcatSimplifiable(lp->rhsp(), rp->lhsp())) повернути true;
+        повернути false;
     }
 
     // Create 'Concat(a, c) OP Concat(b, d)' from 'lhsp' = 'a OP b' and 'rhsp' = 'c OP d', or
@@ -1091,10 +1091,10 @@ class V3DfgPeephole final : public DfgVisitor {
         DfgVertex* const dp = swap ? rp->lhsp() : rp->rhsp();
         DfgConcat* const newLhsp = make<DfgConcat>(flp, dtype, lp->lhsp(), cp);
         DfgConcat* const newRhsp = make<DfgConcat>(flp, dtype, lp->rhsp(), dp);
-        if (lp->is<DfgAnd>()) return make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
-        if (lp->is<DfgOr>()) return make<DfgOr>(flp, dtype, newLhsp, newRhsp);
+        якщо (lp->is<DfgAnd>()) повернути make<DfgAnd>(flp, dtype, newLhsp, newRhsp);
+        якщо (lp->is<DfgOr>()) повернути make<DfgOr>(flp, dtype, newLhsp, newRhsp);
         UASSERT_OBJ(lp->is<DfgXor>(), lp, "Should be a bitwise operation");
-        return make<DfgXor>(flp, dtype, newLhsp, newRhsp);
+        повернути make<DfgXor>(flp, dtype, newLhsp, newRhsp);
     }
 
     template <typename Bitwise>
@@ -1105,57 +1105,57 @@ class V3DfgPeephole final : public DfgVisitor {
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (DfgSel* const lSelp = lhsp->template cast<DfgSel>()) {
+        якщо (DfgSel* const lSelp = lhsp->template cast<DfgSel>()) {
             DfgSel* rSelp = nullptr;
             DfgVertex* extrap = nullptr;
-            if (DfgSel* const selp = rhsp->template cast<DfgSel>()) {
+            якщо (DfgSel* const selp = rhsp->template cast<DfgSel>()) {
                 rSelp = selp;
-            } else if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            } інакше якщо (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
                 rSelp = rBitwisep->lhsp()->template cast<DfgSel>();
                 extrap = rBitwisep->rhsp();
-            } else if (Reduction* const rRedp = rhsp->template cast<Reduction>()) {
+            } інакше якщо (Reduction* const rRedp = rhsp->template cast<Reduction>()) {
                 rSelp = rRedp->srcp()->template cast<DfgSel>();
             }
-            if (rSelp) {
+            якщо (rSelp) {
                 uint32_t lsb = 0;
-                if (areAdjacent(lsb, lSelp, rSelp)) {
+                якщо (areAdjacent(lsb, lSelp, rSelp)) {
                     APPLYING(REPLACE_BITWISE_OF_SELS_WITH_REDUCTION) {
                         const DfgDataType& dtype
                             = DfgDataType::packed(lSelp->width() + rSelp->width());
                         DfgSel* const newSelp
                             = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                         DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                        if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                        якщо (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                         replace(resp);
-                        return true;
+                        повернути true;
                     }
                 }
             }
         }
 
-        if (Reduction* const lRedp = lhsp->template cast<Reduction>()) {
+        якщо (Reduction* const lRedp = lhsp->template cast<Reduction>()) {
             Reduction* rRedp = rhsp->template cast<Reduction>();
             DfgVertex* extrap = nullptr;
-            if (!rRedp) {
-                if (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
+            якщо (!rRedp) {
+                якщо (Bitwise* const rBitwisep = rhsp->template cast<Bitwise>()) {
                     rRedp = rBitwisep->lhsp()->template cast<Reduction>();
                     extrap = rBitwisep->rhsp();
                 }
             }
-            if (rRedp) {
-                if (DfgSel* const lSelp = lRedp->srcp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = rRedp->srcp()->template cast<DfgSel>()) {
+            якщо (rRedp) {
+                якщо (DfgSel* const lSelp = lRedp->srcp()->template cast<DfgSel>()) {
+                    якщо (DfgSel* const rSelp = rRedp->srcp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
+                        якщо (areAdjacent(lsb, lSelp, rSelp)) {
                             APPLYING(REPLACE_BITWISE_OF_REDUCTION_OF_SELS_WITH_REDUCTION) {
                                 const DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
                                 DfgSel* const newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 DfgVertex* resp = make<Reduction>(vtxp, newSelp);
-                                if (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
+                                якщо (extrap) resp = make<Bitwise>(vtxp, resp, extrap);
                                 replace(resp);
-                                return true;
+                                повернути true;
                             }
                         }
                     }
@@ -1163,28 +1163,28 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        повернути false;
     }
 
     template <typename Reduction>
     VL_ATTR_WARN_UNUSED_RESULT bool optimizeReduction(Reduction* const vtxp) {
         using Bitwise = ReductionToBitwise<Reduction>;
 
-        if (foldUnary(vtxp)) return true;
+        якщо (foldUnary(vtxp)) повернути true;
 
         DfgVertex* const srcp = vtxp->srcp();
         FileLine* const flp = vtxp->fileline();
 
         // Reduction of 1-bit value
-        if (srcp->dtype() == m_bitDType) {
+        якщо (srcp->dtype() == m_bitDType) {
             APPLYING(REMOVE_WIDTH_ONE_REDUCTION) {
                 replace(srcp);
-                return true;
+                повернути true;
             }
         }
 
-        if (DfgCond* const condp = srcp->cast<DfgCond>()) {
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+        якщо (DfgCond* const condp = srcp->cast<DfgCond>()) {
+            якщо (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
                 APPLYING(PUSH_REDUCTION_THROUGH_COND_WITH_CONST_BRANCH) {
                     // The new 'then' vertex
                     Reduction* const newThenp = make<Reduction>(flp, m_bitDType, condp->thenp());
@@ -1198,13 +1198,13 @@ class V3DfgPeephole final : public DfgVisitor {
 
                     // Replace this vertex
                     replace(newCondp);
-                    return true;
+                    повернути true;
                 }
             }
         }
 
-        if (DfgConcat* const concatp = srcp->cast<DfgConcat>()) {
-            if (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
+        якщо (DfgConcat* const concatp = srcp->cast<DfgConcat>()) {
+            якщо (concatp->lhsp()->is<DfgConst>() || concatp->rhsp()->is<DfgConst>()
                 || concatp->lhsp()->dtype() == m_bitDType
                 || concatp->rhsp()->dtype() == m_bitDType) {
                 APPLYING(PUSH_REDUCTION_THROUGH_CONCAT) {
@@ -1216,14 +1216,14 @@ class V3DfgPeephole final : public DfgVisitor {
 
                     // Bitwise reduce the results
                     replace(make<Bitwise>(flp, m_bitDType, lRedp, rRedp));
-                    return true;
+                    повернути true;
                 }
             }
         }
 
-        if (Bitwise* const bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
-            if (!bitwisep->hasMultipleSinks()) {
-                if (bitwisep->lhsp()->template is<DfgConcat>()
+        якщо (Bitwise* const bitwisep = vtxp->srcp()->template cast<Bitwise>()) {
+            якщо (!bitwisep->hasMultipleSinks()) {
+                якщо (bitwisep->lhsp()->template is<DfgConcat>()
                     || bitwisep->rhsp()->template is<DfgConcat>()) {
                     APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_CONCAT) {
                         Reduction* const newLhsp
@@ -1231,21 +1231,21 @@ class V3DfgPeephole final : public DfgVisitor {
                         Reduction* const newRhsp
                             = make<Reduction>(flp, m_bitDType, bitwisep->rhsp());
                         replace(make<Bitwise>(flp, m_bitDType, newLhsp, newRhsp));
-                        return true;
+                        повернути true;
                     }
                 }
 
-                if (DfgSel* const lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
-                    if (DfgSel* const rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
+                якщо (DfgSel* const lSelp = bitwisep->lhsp()->template cast<DfgSel>()) {
+                    якщо (DfgSel* const rSelp = bitwisep->rhsp()->template cast<DfgSel>()) {
                         uint32_t lsb = 0;
-                        if (areAdjacent(lsb, lSelp, rSelp)) {
+                        якщо (areAdjacent(lsb, lSelp, rSelp)) {
                             APPLYING(PUSH_REDUCTION_THROUGH_BITWISE_OF_SELS) {
                                 const DfgDataType& dtype
                                     = DfgDataType::packed(lSelp->width() + rSelp->width());
                                 DfgSel* const newSelp
                                     = make<DfgSel>(lSelp->fileline(), dtype, lSelp->srcp(), lsb);
                                 replace(make<Reduction>(vtxp, newSelp));
-                                return true;
+                                повернути true;
                             }
                         }
                     }
@@ -1253,77 +1253,77 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        return false;
+        повернути false;
     }
 
     template <typename Shift>
     VL_ATTR_WARN_UNUSED_RESULT bool optimizeShiftRHS(Shift* const vtxp) {
         static_assert(std::is_base_of<DfgVertexBinary, Shift>::value, "Must invoke on binary");
         static_assert(std::is_final<Shift>::value, "Must invoke on final class");
-        if (const DfgConcat* const concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
-            if (isZero(concatp->lhsp())) {  // Drop redundant zero extension
+        якщо (const DfgConcat* const concatp = vtxp->rhsp()->template cast<DfgConcat>()) {
+            якщо (isZero(concatp->lhsp())) {  // Drop redundant zero extension
                 APPLYING(REMOVE_REDUNDANT_ZEXT_ON_RHS_OF_SHIFT) {
                     replace(make<Shift>(vtxp, vtxp->lhsp(), concatp->rhsp()));
-                    return true;
+                    повернути true;
                 }
             }
         }
-        return false;
+        повернути false;
     }
 
     // Given an operand of an Add, return the term that could be used for conveting to CountOnes
     // Result is a tulpe of (Vertex, Lsb, Width)
     std::tuple<DfgVertex*, uint32_t, uint32_t> addToCountOnesTerm(DfgVertex* vtxp) {
-        if (DfgConcat* const oCatp = vtxp->cast<DfgConcat>()) {
-            if (isZero(oCatp->lhsp())) {
-                if (DfgCountOnes* const countOnesp = oCatp->rhsp()->cast<DfgCountOnes>()) {
+        якщо (DfgConcat* const oCatp = vtxp->cast<DfgConcat>()) {
+            якщо (isZero(oCatp->lhsp())) {
+                якщо (DfgCountOnes* const countOnesp = oCatp->rhsp()->cast<DfgCountOnes>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    якщо (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
+                        повернути {selp->fromp(), selp->lsb(), selp->width()};
                     }
-                } else if (DfgSel* const selp = oCatp->rhsp()->cast<DfgSel>()) {
+                } інакше якщо (DfgSel* const selp = oCatp->rhsp()->cast<DfgSel>()) {
                     // Zero extended single bit select
-                    if (selp->dtype() == m_bitDType) {  //
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    якщо (selp->dtype() == m_bitDType) {  //
+                        повернути {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
-            return {nullptr, 0, 0};
+            повернути {nullptr, 0, 0};
         }
-        if (DfgCountOnes* const countOnesp = vtxp->cast<DfgCountOnes>()) {
+        якщо (DfgCountOnes* const countOnesp = vtxp->cast<DfgCountOnes>()) {
             // Simple count ones
-            if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                return {selp->fromp(), selp->lsb(), selp->width()};
+            якщо (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
+                повернути {selp->fromp(), selp->lsb(), selp->width()};
             }
-            return {nullptr, 0, 0};
+            повернути {nullptr, 0, 0};
         }
-        if (DfgSel* const oSelp = vtxp->cast<DfgSel>()) {
-            if (oSelp->lsb() == 0) {
+        якщо (DfgSel* const oSelp = vtxp->cast<DfgSel>()) {
+            якщо (oSelp->lsb() == 0) {
                 // Truncated count ones
-                if (DfgCountOnes* const countOnesp = oSelp->fromp()->cast<DfgCountOnes>()) {
+                якщо (DfgCountOnes* const countOnesp = oSelp->fromp()->cast<DfgCountOnes>()) {
                     // Zero extended count ones
-                    if (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
-                        return {selp->fromp(), selp->lsb(), selp->width()};
+                    якщо (DfgSel* const selp = countOnesp->srcp()->cast<DfgSel>()) {
+                        повернути {selp->fromp(), selp->lsb(), selp->width()};
                     }
                 }
             }
             // Single bit select
-            if (oSelp->dtype() == m_bitDType) {  //
-                return {oSelp->fromp(), oSelp->lsb(), 1};
+            якщо (oSelp->dtype() == m_bitDType) {  //
+                повернути {oSelp->fromp(), oSelp->lsb(), 1};
             }
-            return {nullptr, 0, 0};
+            повернути {nullptr, 0, 0};
         }
         // Altered form of extended MSB
-        if (DfgShiftR* const shiftrp = vtxp->cast<DfgShiftR>()) {
-            if (DfgConst* const rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
-                if (rConstp->toU32() == shiftrp->width() - 1) {
-                    return {shiftrp->lhsp(), shiftrp->width() - 1, 1};
+        якщо (DfgShiftR* const shiftrp = vtxp->cast<DfgShiftR>()) {
+            якщо (DfgConst* const rConstp = shiftrp->rhsp()->cast<DfgConst>()) {
+                якщо (rConstp->toU32() == shiftrp->width() - 1) {
+                    повернути {shiftrp->lhsp(), shiftrp->width() - 1, 1};
                 }
             }
-            return {nullptr, 0, 0};
+            повернути {nullptr, 0, 0};
         }
         // Not applicable
-        return {nullptr, 0, 0};
+        повернути {nullptr, 0, 0};
     }
 
     // The following patterns all unwind a Sel throgh it's source and replace it with
@@ -1331,21 +1331,21 @@ class V3DfgPeephole final : public DfgVisitor {
     // concatenations/selects/etc, so instead unwind as much as possible in one go.
     std::pair<DfgVertex*, uint32_t> unwindSel(DfgVertex* fromp, uint32_t lsb,
                                               const uint32_t width) {
-        while (true) {
+        поки (true) {
             const uint32_t msb = lsb + width - 1;
 
             // Sel from Concat
-            if (DfgConcat* const concatp = fromp->cast<DfgConcat>()) {
+            якщо (DfgConcat* const concatp = fromp->cast<DfgConcat>()) {
                 DfgVertex* const lhsp = concatp->lhsp();
                 DfgVertex* const rhsp = concatp->rhsp();
 
-                if (msb < rhsp->width()) {
+                якщо (msb < rhsp->width()) {
                     // If the select is entirely from rhs, then replace with sel from rhs
                     APPLYING(REMOVE_SEL_FROM_RHS_OF_CONCAT) {
                         fromp = rhsp;
                         continue;
                     }
-                } else if (lsb >= rhsp->width()) {
+                } інакше якщо (lsb >= rhsp->width()) {
                     // If the select is entirely from the lhs, then replace with sel from lhs
                     APPLYING(REMOVE_SEL_FROM_LHS_OF_CONCAT) {
                         fromp = lhsp;
@@ -1355,14 +1355,14 @@ class V3DfgPeephole final : public DfgVisitor {
                 }
             }
 
-            if (DfgRep* const repp = fromp->cast<DfgRep>()) {
+            якщо (DfgRep* const repp = fromp->cast<DfgRep>()) {
                 // If the Sel is wholly into the source of the Replicate, push the Sel through
                 // the Replicate and apply it directly to the source of the Replicate.
                 const uint32_t srcWidth = repp->srcp()->width();
-                if (width <= srcWidth) {
+                якщо (width <= srcWidth) {
                     const uint32_t newLsb = lsb % srcWidth;
                     const uint32_t newMsb = newLsb + width - 1;
-                    if (newMsb < srcWidth) {
+                    якщо (newMsb < srcWidth) {
                         APPLYING(PUSH_SEL_THROUGH_REP) {
                             fromp = repp->srcp();
                             lsb = newLsb;
@@ -1373,7 +1373,7 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // Sel from Sel
-            if (DfgSel* const selp = fromp->cast<DfgSel>()) {
+            якщо (DfgSel* const selp = fromp->cast<DfgSel>()) {
                 APPLYING(REPLACE_SEL_FROM_SEL) {
                     // Select from the source of the source Sel with adjusted LSB
                     fromp = selp->fromp();
@@ -1383,7 +1383,7 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // Sel from a partial variable (including narrowed vertex)
-            if (DfgVarPacked* const varp = fromp->cast<DfgVarPacked>()) {
+            якщо (DfgVarPacked* const varp = fromp->cast<DfgVarPacked>()) {
                 // Find the driver of this range
                 const auto pair = varp->driverOfRange(lsb, width);
                 DfgVertex* const driverp = pair.first;
@@ -1391,14 +1391,14 @@ class V3DfgPeephole final : public DfgVisitor {
                 UASSERT_OBJ(
                     !driverp || driverp != varp->srcp(), varp,
                     "'varp' should be partially driven, otherwise should have been inlined");
-                if (driverp) {
-                    if (driverp == varp->defaultp()) {
+                якщо (driverp) {
+                    якщо (driverp == varp->defaultp()) {
                         APPLYING(PUSH_SEL_THROUGH_DEFAULT) {
                             fromp = driverp;
                             lsb = driverLsb;
                             continue;
                         }
-                    } else {
+                    } інакше {
                         APPLYING(PUSH_SEL_THROUGH_SPLICE) {
                             fromp = driverp;
                             lsb = driverLsb;
@@ -1411,64 +1411,64 @@ class V3DfgPeephole final : public DfgVisitor {
             // No patterns matched, stop
             break;
         }
-        return {fromp, lsb};
+        повернути {fromp, lsb};
     }
 
     // Given a pair of vertices, returns a vertex representing the common LSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonLSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        якщо (ap == bp) повернути {ap, ap->width()};
 
         // If both constants, check LSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
+        якщо (DfgConst* const aConstp = ap->cast<DfgConst>()) {
+            якщо (DfgConst* const bConstp = bp->cast<DfgConst>()) {
                 const V3Number& aNum = aConstp->num();
                 const V3Number& bNum = bConstp->num();
                 // Max match is the shorter constant
                 const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(matchWidth) != bNum.bitIs0(matchWidth)) break;
+                для (; matchWidth < maxMatch; ++matchWidth) {
+                    якщо (aNum.bitIs0(matchWidth) != bNum.bitIs0(matchWidth)) break;
                 }
                 // Will always return the shorter constant in case it can be used directly
                 DfgConst* const shorterp = aConstp->width() < bConstp->width() ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                повернути {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the RHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonLSBs(catp->rhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonLSBs(ap, catp->rhsp());
+        якщо (DfgConcat* const catp = ap->cast<DfgConcat>()) повернути commonLSBs(catp->rhsp(), bp);
+        якщо (DfgConcat* const catp = bp->cast<DfgConcat>()) повернути commonLSBs(ap, catp->rhsp());
 
         // If selecting the LSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
+        якщо (DfgSel* const selp = ap->cast<DfgSel>()) {
+            якщо (selp->lsb() == 0) {
                 DfgVertex* const fromp = selp->fromp();
                 const std::pair<DfgVertex*, uint32_t> common = commonLSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+                повернути {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
-            if (selp->lsb() == 0) {
+        якщо (DfgSel* const selp = bp->cast<DfgSel>()) {
+            якщо (selp->lsb() == 0) {
                 DfgVertex* const fromp = selp->fromp();
                 const std::pair<DfgVertex*, uint32_t> common = commonLSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+                повернути {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common LSBs
-        return {nullptr, 0};
+        повернути {nullptr, 0};
     }
 
     // Given a pair of vertices, returns a vertex representing the common MSBs of the two,
     // and the number of common LSBs. Returns {nullptr, 0} if no common LSBs are found.
     std::pair<DfgVertex*, uint32_t> commonMSBs(DfgVertex* ap, DfgVertex* bp) {
-        if (ap == bp) return {ap, ap->width()};
+        якщо (ap == bp) повернути {ap, ap->width()};
 
         // If both constants, check MSBs
-        if (DfgConst* const aConstp = ap->cast<DfgConst>()) {
-            if (DfgConst* const bConstp = bp->cast<DfgConst>()) {
+        якщо (DfgConst* const aConstp = ap->cast<DfgConst>()) {
+            якщо (DfgConst* const bConstp = bp->cast<DfgConst>()) {
                 const uint32_t aMsb = aConstp->width() - 1;
                 const uint32_t bMsb = bConstp->width() - 1;
                 const V3Number& aNum = aConstp->num();
@@ -1477,37 +1477,37 @@ class V3DfgPeephole final : public DfgVisitor {
                 const uint32_t maxMatch = std::min(aConstp->width(), bConstp->width());
                 // Check all bits
                 uint32_t matchWidth = 0;
-                for (; matchWidth < maxMatch; ++matchWidth) {
-                    if (aNum.bitIs0(aMsb - matchWidth) != bNum.bitIs0(bMsb - matchWidth)) break;
+                для (; matchWidth < maxMatch; ++matchWidth) {
+                    якщо (aNum.bitIs0(aMsb - matchWidth) != bNum.bitIs0(bMsb - matchWidth)) break;
                 }
                 // Will always return the shorter constant in case it can be used directly
                 DfgConst* const shorterp = aMsb < bMsb ? aConstp : bConstp;
-                return {matchWidth ? shorterp : nullptr, matchWidth};
+                повернути {matchWidth ? shorterp : nullptr, matchWidth};
             }
         }
 
         // If Concat, check against the LHS
-        if (DfgConcat* const catp = ap->cast<DfgConcat>()) return commonMSBs(catp->lhsp(), bp);
-        if (DfgConcat* const catp = bp->cast<DfgConcat>()) return commonMSBs(ap, catp->lhsp());
+        якщо (DfgConcat* const catp = ap->cast<DfgConcat>()) повернути commonMSBs(catp->lhsp(), bp);
+        якщо (DfgConcat* const catp = bp->cast<DfgConcat>()) повернути commonMSBs(ap, catp->lhsp());
 
         // If selecting the MSBs, check against the source of the Sel
-        if (DfgSel* const selp = ap->cast<DfgSel>()) {
+        якщо (DfgSel* const selp = ap->cast<DfgSel>()) {
             DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
+            якщо (selp->msb() == fromp->width() - 1) {
                 const std::pair<DfgVertex*, uint32_t> common = commonMSBs(fromp, bp);
-                return {common.first, std::min(common.second, selp->width())};
+                повернути {common.first, std::min(common.second, selp->width())};
             }
         }
-        if (DfgSel* const selp = bp->cast<DfgSel>()) {
+        якщо (DfgSel* const selp = bp->cast<DfgSel>()) {
             DfgVertex* const fromp = selp->fromp();
-            if (selp->msb() == fromp->width() - 1) {
+            якщо (selp->msb() == fromp->width() - 1) {
                 const std::pair<DfgVertex*, uint32_t> common = commonMSBs(ap, fromp);
-                return {common.first, std::min(common.second, selp->width())};
+                повернути {common.first, std::min(common.second, selp->width())};
             }
         }
 
         // Otherwise no common MSBs
-        return {nullptr, 0};
+        повернути {nullptr, 0};
     }
 
     // VISIT methods
@@ -1519,11 +1519,11 @@ class V3DfgPeephole final : public DfgVisitor {
     //=========================================================================
 
     void visit(DfgCountOnes* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgExtend* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
 
         // Convert all Extend into Concat with zeros. This simplifies other patterns as they
         // only need to handle Concat, which is more generic, and don't need special cases for
@@ -1532,29 +1532,29 @@ class V3DfgPeephole final : public DfgVisitor {
             DfgVertex* const zerop
                 = makeZero(vtxp->fileline(), vtxp->width() - vtxp->srcp()->width());
             replace(make<DfgConcat>(vtxp, zerop, vtxp->srcp()));
-            return;
+            повернути;
         }
     }
 
     void visit(DfgExtendS* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgLogNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgNegate* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgNot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
 
         // Not of Cond
-        if (DfgCond* const condp = vtxp->srcp()->cast<DfgCond>()) {
+        якщо (DfgCond* const condp = vtxp->srcp()->cast<DfgCond>()) {
             // If at least one of the branches are a constant, push the Not past the Cond
-            if (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
+            якщо (condp->thenp()->is<DfgConst>() || condp->elsep()->is<DfgConst>()) {
                 APPLYING(PUSH_NOT_THROUGH_COND) {
                     // The new 'then' vertex
                     DfgNot* const newThenp = make<DfgNot>(vtxp, condp->thenp());
@@ -1568,110 +1568,110 @@ class V3DfgPeephole final : public DfgVisitor {
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    повернути;
                 }
             }
         }
 
         // Not of Not
-        if (DfgNot* const notp = vtxp->srcp()->cast<DfgNot>()) {
+        якщо (DfgNot* const notp = vtxp->srcp()->cast<DfgNot>()) {
             APPLYING(REMOVE_NOT_NOT) {
                 replace(notp->srcp());
-                return;
+                повернути;
             }
         }
 
-        if (!vtxp->srcp()->hasMultipleSinks()) {
+        якщо (!vtxp->srcp()->hasMultipleSinks()) {
             // Not of Eq
-            if (DfgEq* const eqp = vtxp->srcp()->cast<DfgEq>()) {
+            якщо (DfgEq* const eqp = vtxp->srcp()->cast<DfgEq>()) {
                 APPLYING(REPLACE_NOT_EQ) {
                     replace(
                         make<DfgNeq>(eqp->fileline(), vtxp->dtype(), eqp->lhsp(), eqp->rhsp()));
-                    return;
+                    повернути;
                 }
             }
 
             // Not of Neq
-            if (DfgNeq* const neqp = vtxp->srcp()->cast<DfgNeq>()) {
+            якщо (DfgNeq* const neqp = vtxp->srcp()->cast<DfgNeq>()) {
                 APPLYING(REPLACE_NOT_NEQ) {
                     replace(
                         make<DfgEq>(neqp->fileline(), vtxp->dtype(), neqp->lhsp(), neqp->rhsp()));
-                    return;
+                    повернути;
                 }
             }
 
             // Not of unsigned comparisons
-            if (DfgLt* const p = vtxp->srcp()->cast<DfgLt>()) {
+            якщо (DfgLt* const p = vtxp->srcp()->cast<DfgLt>()) {
                 APPLYING(REPLACE_NOT_LT) {
                     replace(make<DfgGte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgGte* const p = vtxp->srcp()->cast<DfgGte>()) {
+            якщо (DfgGte* const p = vtxp->srcp()->cast<DfgGte>()) {
                 APPLYING(REPLACE_NOT_GTE) {
                     replace(make<DfgLt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgGt* const p = vtxp->srcp()->cast<DfgGt>()) {
+            якщо (DfgGt* const p = vtxp->srcp()->cast<DfgGt>()) {
                 APPLYING(REPLACE_NOT_GT) {
                     replace(make<DfgLte>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgLte* const p = vtxp->srcp()->cast<DfgLte>()) {
+            якщо (DfgLte* const p = vtxp->srcp()->cast<DfgLte>()) {
                 APPLYING(REPLACE_NOT_LTE) {
                     replace(make<DfgGt>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
 
             // Not of signed comparisons
-            if (DfgLtS* const p = vtxp->srcp()->cast<DfgLtS>()) {
+            якщо (DfgLtS* const p = vtxp->srcp()->cast<DfgLtS>()) {
                 APPLYING(REPLACE_NOT_LTS) {
                     replace(make<DfgGteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgGteS* const p = vtxp->srcp()->cast<DfgGteS>()) {
+            якщо (DfgGteS* const p = vtxp->srcp()->cast<DfgGteS>()) {
                 APPLYING(REPLACE_NOT_GTES) {
                     replace(make<DfgLtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgGtS* const p = vtxp->srcp()->cast<DfgGtS>()) {
+            якщо (DfgGtS* const p = vtxp->srcp()->cast<DfgGtS>()) {
                 APPLYING(REPLACE_NOT_GTS) {
                     replace(make<DfgLteS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgLteS* const p = vtxp->srcp()->cast<DfgLteS>()) {
+            якщо (DfgLteS* const p = vtxp->srcp()->cast<DfgLteS>()) {
                 APPLYING(REPLACE_NOT_LTES) {
                     replace(make<DfgGtS>(p->fileline(), vtxp->dtype(), p->lhsp(), p->rhsp()));
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgOneHot* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgOneHot0* const vtxp) override {
-        if (foldUnary(vtxp)) return;
+        якщо (foldUnary(vtxp)) повернути;
     }
 
     void visit(DfgRedOr* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+        якщо (optimizeReduction(vtxp)) повернути;
     }
 
     void visit(DfgRedAnd* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+        якщо (optimizeReduction(vtxp)) повернути;
     }
 
     void visit(DfgRedXor* const vtxp) override {
-        if (optimizeReduction(vtxp)) return;
+        якщо (optimizeReduction(vtxp)) повернути;
     }
 
     void visit(DfgSel* const vtxp) override {
@@ -1683,50 +1683,50 @@ class V3DfgPeephole final : public DfgVisitor {
         const uint32_t width = vtxp->width();
         const uint32_t msb = lsb + width - 1;
 
-        if (DfgConst* const constp = fromp->cast<DfgConst>()) {
+        якщо (DfgConst* const constp = fromp->cast<DfgConst>()) {
             APPLYING(FOLD_SEL) {
                 DfgConst* const resp = makeZero(flp, width);
                 resp->num().opSel(constp->num(), msb, lsb);
                 replace(resp);
-                return;
+                повернути;
             }
         }
 
         // Full width select, replace with the source.
-        if (fromp->width() == width) {
+        якщо (fromp->width() == width) {
             UASSERT_OBJ(lsb == 0, fromp, "Out of range select should have been fixed up earlier");
             APPLYING(REMOVE_FULL_WIDTH_SEL) {
                 replace(fromp);
-                return;
+                повернути;
             }
         }
 
         // Unwind through bit packing in one go
         {
             const auto res = unwindSel(fromp, lsb, width);
-            if (res.first != fromp || res.second != lsb) {
+            якщо (res.first != fromp || res.second != lsb) {
                 replace(make<DfgSel>(vtxp, res.first, res.second));
-                return;
+                повернути;
             }
         }
 
         // Sel from Not
-        if (DfgNot* const notp = fromp->cast<DfgNot>()) {
+        якщо (DfgNot* const notp = fromp->cast<DfgNot>()) {
             // Replace "Sel from Not" with "Not of Sel"
-            if (!notp->hasMultipleSinks()) {
+            якщо (!notp->hasMultipleSinks()) {
                 APPLYING(PUSH_SEL_THROUGH_NOT) {
                     // Make Sel select from source of Not
                     DfgSel* const newSelp = make<DfgSel>(vtxp, notp->srcp(), vtxp->lsb());
                     // Add Not after Sel
                     replace(make<DfgNot>(notp->fileline(), vtxp->dtype(), newSelp));
-                    return;
+                    повернути;
                 }
             }
         }
 
         // Sel from Cond
-        if (DfgCond* const condp = fromp->cast<DfgCond>()) {
-            if (!condp->hasMultipleSinks()) {
+        якщо (DfgCond* const condp = fromp->cast<DfgCond>()) {
+            якщо (!condp->hasMultipleSinks()) {
                 APPLYING(PUSH_SEL_THROUGH_COND) {
                     // The new 'then' vertex
                     DfgSel* const newThenp = make<DfgSel>(vtxp, condp->thenp(), lsb);
@@ -1740,20 +1740,20 @@ class V3DfgPeephole final : public DfgVisitor {
 
                     // Replace this vertex
                     replace(newCondp);
-                    return;
+                    повернути;
                 }
             }
         }
 
         // Sel from ShiftL
-        if (DfgShiftL* const shiftLp = fromp->cast<DfgShiftL>()) {
+        якщо (DfgShiftL* const shiftLp = fromp->cast<DfgShiftL>()) {
             // If selecting bottom bits of left shift, push the Sel before the shift
-            if (lsb == 0) {
+            якщо (lsb == 0) {
                 UASSERT_OBJ(shiftLp->lhsp()->width() >= width, vtxp, "input of shift narrow");
                 APPLYING(PUSH_SEL_THROUGH_SHIFTL) {
                     DfgSel* const newSelp = make<DfgSel>(vtxp, shiftLp->lhsp(), vtxp->lsb());
                     replace(make<DfgShiftL>(vtxp, newSelp, shiftLp->rhsp()));
-                    return;
+                    повернути;
                 }
             }
         }
@@ -1764,24 +1764,24 @@ class V3DfgPeephole final : public DfgVisitor {
         DfgVertex* const lsbp = vtxp->lsbp();
         FileLine* const flp = vtxp->fileline();
 
-        if (DfgConst* const lsbConstp = lsbp->cast<DfgConst>()) {
+        якщо (DfgConst* const lsbConstp = lsbp->cast<DfgConst>()) {
             APPLYING(REPLACE_MUX_WITH_SEL) {
                 replace(make<DfgSel>(vtxp, fromp, lsbConstp->num().toUInt()));
-                return;
+                повернути;
             }
         }
 
-        if (isZero(fromp)) {
+        якщо (isZero(fromp)) {
             APPLYING(FOLD_MUX_FROM_ZERO) {
                 replace(makeZero(flp, vtxp->width()));
-                return;
+                повернути;
             }
         }
 
-        if (isOnes(fromp)) {
+        якщо (isOnes(fromp)) {
             APPLYING(FOLD_MUX_FROM_ONES) {
                 replace(makeOnes(flp, vtxp->width()));
-                return;
+                повернути;
             }
         }
     }
@@ -1791,251 +1791,251 @@ class V3DfgPeephole final : public DfgVisitor {
     //=========================================================================
 
     void visit(DfgAnd* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        якщо (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            якщо (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
+                якщо (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NOT) {
                         DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        повернути;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                якщо (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_AND_OF_NOT_AND_NEQ) {
                         DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
                         DfgOr* const orp = make<DfgOr>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, orp));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (lConstp->isZero()) {
                 APPLYING(REPLACE_AND_WITH_ZERO) {
                     replace(lConstp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            якщо (lConstp->isOnes()) {
                 APPLYING(REMOVE_AND_WITH_ONES) {
                     replace(rhsp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            якщо (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) повернути;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgOr, DfgAnd>(vtxp)) return;
+        якщо (distributiveAndAssociativeBinary<DfgOr, DfgAnd>(vtxp)) повернути;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        якщо (tryPushBitwiseOpThroughReductions(vtxp)) повернути;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        якщо (tryPushBitwiseOpThrougSel(vtxp)) повернути;
 
         {
             DfgNot* const lNotp = lhsp->cast<DfgNot>();
             DfgNot* const rNotp = rhsp->cast<DfgNot>();
             // ~A & A is all zeroes
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            якщо ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_CONTRADICTORY_AND) {
                     replace(makeZero(flp, vtxp->width()));
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgAnd* const rSamep = rhsp->cast<DfgAnd>()) {
+            якщо (DfgAnd* const rSamep = rhsp->cast<DfgAnd>()) {
                 DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
                 DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A & (A & _) or ~A & (_ & A) is all zeroes
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                якщо ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_CONTRADICTORY_AND_3) {
                         replace(makeZero(flp, vtxp->width()));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        якщо (vtxp->dtype() == m_bitDType) {
+            якщо (tryReplaceBitwiseWithReduction(vtxp)) повернути;
         }
 
         {
             DfgRep* repp = lhsp->cast<DfgRep>();
             DfgCond* condp = rhsp->cast<DfgCond>();
-            if (!repp && !condp) {
+            якщо (!repp && !condp) {
                 repp = rhsp->cast<DfgRep>();
                 condp = lhsp->cast<DfgCond>();
             }
-            if (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
+            якщо (repp && condp && repp->srcp()->size() == 1 && !condp->hasMultipleSinks()
                 && isZero(condp->elsep())) {
                 APPLYING(REPLACE_AND_REP_COND_ELSE_ZERO) {
                     DfgAnd* const newCondp
                         = make<DfgAnd>(condp->condp(), repp->srcp(), condp->condp());
                     replace(make<DfgCond>(condp, newCondp, condp->thenp(), condp->elsep()));
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgOr* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
         // Bubble pushing (De Morgan)
-        if (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
-            if (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
-                if (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
+        якщо (!lhsp->hasMultipleSinks() || !rhsp->hasMultipleSinks()) {
+            якщо (DfgNot* const lhsNotp = lhsp->cast<DfgNot>()) {
+                якщо (DfgNot* const rhsNotp = rhsp->cast<DfgNot>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NOT) {
                         DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), rhsNotp->srcp());
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        повернути;
                     }
                 }
-                if (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
+                якщо (DfgNeq* const rhsNeqp = rhsp->cast<DfgNeq>()) {
                     APPLYING(REPLACE_OR_OF_NOT_AND_NEQ) {
                         DfgEq* const newRhsp = make<DfgEq>(rhsp, rhsNeqp->lhsp(), rhsNeqp->rhsp());
                         DfgAnd* const andp = make<DfgAnd>(vtxp, lhsNotp->srcp(), newRhsp);
                         replace(make<DfgNot>(vtxp, andp));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgConcat* const lhsConcatp = lhsp->cast<DfgConcat>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
-                    if (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
+        якщо (DfgConcat* const lhsConcatp = lhsp->cast<DfgConcat>()) {
+            якщо (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (lhsConcatp->lhsp()->dtype() == rhsConcatp->lhsp()->dtype()) {
+                    якщо (isZero(lhsConcatp->lhsp()) && isZero(rhsConcatp->rhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_ZERO_LHS_AND_CONCAT_RHS_ZERO) {
                             replace(make<DfgConcat>(vtxp, rhsConcatp->lhsp(), lhsConcatp->rhsp()));
-                            return;
+                            повернути;
                         }
                     }
-                    if (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
+                    якщо (isZero(lhsConcatp->rhsp()) && isZero(rhsConcatp->lhsp())) {
                         APPLYING(REPLACE_OR_OF_CONCAT_LHS_ZERO_AND_CONCAT_ZERO_RHS) {
                             replace(make<DfgConcat>(vtxp, lhsConcatp->lhsp(), rhsConcatp->rhsp()));
-                            return;
+                            повернути;
                         }
                     }
                 }
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (lConstp->isZero()) {
                 APPLYING(REMOVE_OR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (lConstp->isOnes()) {
+            якщо (lConstp->isOnes()) {
                 APPLYING(REPLACE_OR_WITH_ONES) {
                     replace(lhsp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) return;
+            якщо (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rhsConcatp)) повернути;
             }
         }
 
-        if (distributiveAndAssociativeBinary<DfgAnd, DfgOr>(vtxp)) return;
+        якщо (distributiveAndAssociativeBinary<DfgAnd, DfgOr>(vtxp)) повернути;
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        якщо (tryPushBitwiseOpThroughReductions(vtxp)) повернути;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        якщо (tryPushBitwiseOpThrougSel(vtxp)) повернути;
 
         {
             DfgNot* const lNotp = lhsp->cast<DfgNot>();
             DfgNot* const rNotp = rhsp->cast<DfgNot>();
             // ~A | A is all ones
-            if ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
+            якщо ((lNotp && isSame(lNotp->srcp(), rhsp)) || (rNotp && isSame(lhsp, rNotp->srcp()))) {
                 APPLYING(REPLACE_TAUTOLOGICAL_OR) {
                     replace(makeOnes(flp, vtxp->width()));
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgOr* const rSamep = rhsp->cast<DfgOr>()) {
+            якщо (DfgOr* const rSamep = rhsp->cast<DfgOr>()) {
                 DfgNot* const rlNotp = rSamep->lhsp()->cast<DfgNot>();
                 DfgNot* const rrNotp = rSamep->rhsp()->cast<DfgNot>();
                 // ~A | (A | _) or ~A | (_ | A) is all ones
-                if ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
+                якщо ((lNotp && isSame(lNotp->srcp(), rSamep->lhsp()))
                     || (lNotp && isSame(lNotp->srcp(), rSamep->rhsp()))
                     || (rlNotp && isSame(lhsp, rlNotp->srcp()))
                     || (rrNotp && isSame(lhsp, rrNotp->srcp()))) {
                     APPLYING(REPLACE_TAUTOLOGICAL_OR_3) {
                         replace(makeOnes(flp, vtxp->width()));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        якщо (vtxp->dtype() == m_bitDType) {
+            якщо (tryReplaceBitwiseWithReduction(vtxp)) повернути;
         }
     }
 
     void visit(DfgXor* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_XOR_WITH_SELF) {
                 replace(makeZero(vtxp->fileline(), vtxp->width()));
-                return;
+                повернути;
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (lConstp->isZero()) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (lConstp->isZero()) {
                 APPLYING(REMOVE_XOR_WITH_ZERO) {
                     replace(rhsp);
-                    return;
+                    повернути;
                 }
             }
-            if (lConstp->isOnes()) {
+            якщо (lConstp->isOnes()) {
                 APPLYING(REPLACE_XOR_WITH_ONES) {
                     replace(make<DfgNot>(vtxp, rhsp));
-                    return;
+                    повернути;
                 }
             }
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rConcatp)) return;
+            якщо (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (tryPushBitwiseOpThroughConcat(vtxp, lConstp, rConcatp)) повернути;
             }
         }
 
-        if (tryPushBitwiseOpThroughReductions(vtxp)) return;
+        якщо (tryPushBitwiseOpThroughReductions(vtxp)) повернути;
 
-        if (tryPushBitwiseOpThrougSel(vtxp)) return;
+        якщо (tryPushBitwiseOpThrougSel(vtxp)) повернути;
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (tryReplaceBitwiseWithReduction(vtxp)) return;
+        якщо (vtxp->dtype() == m_bitDType) {
+            якщо (tryReplaceBitwiseWithReduction(vtxp)) повернути;
         }
     }
 
@@ -2044,61 +2044,61 @@ class V3DfgPeephole final : public DfgVisitor {
     //=========================================================================
 
     void visit(DfgAdd* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
+        якщо (isZero(lhsp)) {
             APPLYING(REMOVE_ADD_ZERO) {
                 replace(rhsp);
-                return;
+                повернути;
             }
         }
 
         const std::tuple<DfgVertex*, uint32_t, uint32_t> lTerm = addToCountOnesTerm(lhsp);
-        if (DfgVertex* const lVtxp = std::get<0>(lTerm)) {
+        якщо (DfgVertex* const lVtxp = std::get<0>(lTerm)) {
             std::tuple<DfgVertex*, uint32_t, uint32_t> rTerm = addToCountOnesTerm(rhsp);
             DfgVertex* extrap = nullptr;
-            if (!std::get<0>(rTerm)) {
-                if (DfgAdd* const rAddp = rhsp->cast<DfgAdd>()) {
+            якщо (!std::get<0>(rTerm)) {
+                якщо (DfgAdd* const rAddp = rhsp->cast<DfgAdd>()) {
                     rTerm = addToCountOnesTerm(rAddp->lhsp());
                     extrap = rAddp->rhsp();
                 }
             }
 
-            if (DfgVertex* const rVtxp = std::get<0>(rTerm)) {
-                if (isSame(lVtxp, rVtxp)) {
+            якщо (DfgVertex* const rVtxp = std::get<0>(rTerm)) {
+                якщо (isSame(lVtxp, rVtxp)) {
                     const uint32_t lLsb = std::get<1>(lTerm);
                     const uint32_t rLsb = std::get<1>(rTerm);
                     const uint32_t lWidth = std::get<2>(lTerm);
                     const uint32_t rWidth = std::get<2>(rTerm);
                     bool adjoined = true;
                     uint32_t lsb = 0;
-                    if (lLsb + lWidth == rLsb) {
+                    якщо (lLsb + lWidth == rLsb) {
                         lsb = lLsb;
-                    } else if (lLsb == rLsb + rWidth) {
+                    } інакше якщо (lLsb == rLsb + rWidth) {
                         lsb = rLsb;
-                    } else {
+                    } інакше {
                         adjoined = false;
                     }
-                    if (adjoined) {
+                    якщо (adjoined) {
                         APPLYING(REPLACE_ADD_WITH_COUNT_ONES) {
                             DfgSel* const selp
                                 = make<DfgSel>(vtxp->fileline(),
                                                DfgDataType::packed(lWidth + rWidth), lVtxp, lsb);
                             DfgVertex* resp
                                 = make<DfgCountOnes>(flp, DfgDataType::packed(32), selp);
-                            if (vtxp->width() > 32U) {
+                            якщо (vtxp->width() > 32U) {
                                 resp = make<DfgConcat>(vtxp, makeZero(flp, vtxp->width() - 32U),
                                                        resp);
-                            } else if (vtxp->width() < 32U) {
+                            } інакше якщо (vtxp->width() < 32U) {
                                 resp = make<DfgSel>(vtxp, resp, 0U);
                             }
-                            if (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
+                            якщо (extrap) resp = make<DfgAdd>(vtxp, resp, extrap);
                             replace(resp);
-                            return;
+                            повернути;
                         }
                     }
                 }
@@ -2108,99 +2108,99 @@ class V3DfgPeephole final : public DfgVisitor {
 
     void visit(DfgArraySel* const vtxp) override {
         DfgConst* const idxp = vtxp->bitp()->cast<DfgConst>();
-        if (!idxp) return;
+        якщо (!idxp) повернути;
         DfgVarArray* const varp = vtxp->fromp()->cast<DfgVarArray>();
-        if (!varp) return;
+        якщо (!varp) повернути;
         AstVar* const astVarp = varp->vscp()->varp();
-        if (astVarp->isForced()) return;
-        if (astVarp->isSigUserRWPublic()) return;
+        якщо (astVarp->isForced()) повернути;
+        якщо (astVarp->isSigUserRWPublic()) повернути;
         DfgVertex* const srcp = varp->srcp();
-        if (!srcp) {
-            if (vtxp->isPacked()) {
-                if (AstConsArray* const iap = VN_CAST(astVarp->valuep(), ConsArray)) {
-                    if (AstConst* const valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
+        якщо (!srcp) {
+            якщо (vtxp->isPacked()) {
+                якщо (AstConsArray* const iap = VN_CAST(astVarp->valuep(), ConsArray)) {
+                    якщо (AstConst* const valp = VN_CAST(iap->valuep(idxp->toSizeT()), Const)) {
                         APPLYING(FOLD_ARRAYSEL_TABLE) {
                             replace(new DfgConst{m_dfg, valp->fileline(), valp->num()});
-                            return;
+                            повернути;
                         }
                     }
                 }
             }
-            return;
+            повернути;
         }
 
-        if (DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
+        якщо (DfgSpliceArray* const splicep = srcp->cast<DfgSpliceArray>()) {
             DfgVertex* const driverp = splicep->driverAt(idxp->toSizeT());
-            if (!driverp) return;
+            якщо (!driverp) повернути;
             DfgUnitArray* const uap = driverp->cast<DfgUnitArray>();
-            if (!uap) return;
-            if (uap->srcp()->is<DfgVertexSplice>()) return;
+            якщо (!uap) повернути;
+            якщо (uap->srcp()->is<DfgVertexSplice>()) повернути;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            якщо (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                якщо (dvarp->srcp()) повернути;
             }
             APPLYING(INLINE_ARRAYSEL_SPLICE) {
                 replace(uap->srcp());
-                return;
+                повернути;
             }
         }
 
-        if (DfgUnitArray* const uap = srcp->cast<DfgUnitArray>()) {
+        якщо (DfgUnitArray* const uap = srcp->cast<DfgUnitArray>()) {
             UASSERT_OBJ(idxp->toSizeT() == 0, vtxp, "Array index out of range");
-            if (uap->srcp()->is<DfgSplicePacked>()) return;
+            якщо (uap->srcp()->is<DfgSplicePacked>()) повернути;
             // If driven by a variable that had a Driver in DFG, it is partial
-            if (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
-                if (dvarp->srcp()) return;
+            якщо (DfgVertexVar* const dvarp = uap->srcp()->cast<DfgVertexVar>()) {
+                якщо (dvarp->srcp()) повернути;
             }
             APPLYING(INLINE_ARRAYSEL_UNIT) {
                 replace(uap->srcp());
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgConcat* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
         FileLine* const flp = vtxp->fileline();
 
-        if (isZero(lhsp)) {
+        якщо (isZero(lhsp)) {
             DfgConst* const lConstp = lhsp->as<DfgConst>();
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
+            якщо (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
+                якщо (vtxp->dtype() == rSelp->fromp()->dtype() && rSelp->lsb() == lConstp->width()) {
                     APPLYING(REPLACE_CONCAT_ZERO_AND_SEL_TOP_WITH_SHIFTR) {
                         replace(
                             make<DfgShiftR>(vtxp, rSelp->fromp(), makeI32(flp, lConstp->width())));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (isZero(rhsp)) {
+        якщо (isZero(rhsp)) {
             DfgConst* const rConstp = rhsp->as<DfgConst>();
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
+            якщо (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+                якщо (vtxp->dtype() == lSelp->fromp()->dtype() && lSelp->lsb() == 0) {
                     APPLYING(REPLACE_CONCAT_SEL_BOTTOM_AND_ZERO_WITH_SHIFTL) {
                         replace(
                             make<DfgShiftL>(vtxp, lSelp->fromp(), makeI32(flp, rConstp->width())));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgNot* const lNot = lhsp->cast<DfgNot>()) {
-            if (DfgNot* const rNot = rhsp->cast<DfgNot>()) {
-                if (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
+        якщо (DfgNot* const lNot = lhsp->cast<DfgNot>()) {
+            якщо (DfgNot* const rNot = rhsp->cast<DfgNot>()) {
+                якщо (!lNot->hasMultipleSinks() && !rNot->hasMultipleSinks()) {
                     APPLYING(PUSH_CONCAT_THROUGH_NOTS) {
                         DfgConcat* const newCatp
                             = make<DfgConcat>(vtxp, lNot->srcp(), rNot->srcp());
                         replace(make<DfgNot>(vtxp, newCatp));
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -2208,50 +2208,50 @@ class V3DfgPeephole final : public DfgVisitor {
 
         {
             bool swap = false;
-            if (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
+            якщо (isConcatPushableThroughBitwise(lhsp, rhsp, swap)) {
                 APPLYING(PUSH_CONCAT_THROUGH_BITWISE) {
                     replace(makeConcatPushedThroughBitwise(flp, lhsp, rhsp, swap));
-                    return;
+                    повернути;
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
+            якщо (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
                 DfgVertex* const rlp = rConcatp->lhsp();
-                if (!rConcatp->hasMultipleSinks()
+                якщо (!rConcatp->hasMultipleSinks()
                     && isConcatPushableThroughBitwise(lhsp, rlp, swap)) {
                     APPLYING(PUSH_NESTED_CONCAT_THROUGH_BITWISE_ON_LHS) {
                         DfgVertex* const newp
                             = makeConcatPushedThroughBitwise(flp, lhsp, rlp, swap);
                         replace(make<DfgConcat>(vtxp, newp, rConcatp->rhsp()));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-            if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-                if (isSame(lSelp->fromp(), rSelp->fromp())) {
-                    if (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        якщо (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+            якщо (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
+                якщо (isSame(lSelp->fromp(), rSelp->fromp())) {
+                    якщо (lSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                         APPLYING(REMOVE_CONCAT_OF_ADJOINING_SELS) {
                             replace(make<DfgSel>(vtxp, rSelp->fromp(), rSelp->lsb()));
-                            return;
+                            повернути;
                         }
                     }
                 }
             }
 
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgSel* const rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
-                    if (isSame(lSelp->fromp(), rlSelp->fromp())) {
-                        if (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
+            якщо (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (DfgSel* const rlSelp = rConcatp->lhsp()->cast<DfgSel>()) {
+                    якщо (isSame(lSelp->fromp(), rlSelp->fromp())) {
+                        якщо (lSelp->lsb() == rlSelp->lsb() + rlSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_LHS) {
                                 const uint32_t width = lSelp->width() + rlSelp->width();
                                 const DfgDataType& dtype = DfgDataType::packed(width);
                                 DfgSel* const selp
                                     = make<DfgSel>(flp, dtype, rlSelp->fromp(), rlSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, selp, rConcatp->rhsp()));
-                                return;
+                                повернути;
                             }
                         }
                     }
@@ -2259,18 +2259,18 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (DfgSel* const lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
-                    if (isSame(lrSelp->fromp(), rSelp->fromp())) {
-                        if (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
+        якщо (DfgSel* const rSelp = rhsp->cast<DfgSel>()) {
+            якщо (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
+                якщо (DfgSel* const lrSelp = lConcatp->rhsp()->cast<DfgSel>()) {
+                    якщо (isSame(lrSelp->fromp(), rSelp->fromp())) {
+                        якщо (lrSelp->lsb() == rSelp->lsb() + rSelp->width()) {
                             APPLYING(REPLACE_NESTED_CONCAT_OF_ADJOINING_SELS_ON_RHS) {
                                 const uint32_t width = lrSelp->width() + rSelp->width();
                                 const DfgDataType& dtype = DfgDataType::packed(width);
                                 DfgSel* const selp
                                     = make<DfgSel>(flp, dtype, rSelp->fromp(), rSelp->lsb());
                                 replace(make<DfgConcat>(vtxp, lConcatp->lhsp(), selp));
-                                return;
+                                повернути;
                             }
                         }
                     }
@@ -2278,68 +2278,68 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (DfgCond* const rCondp = rhsp->cast<DfgCond>()) {
                 DfgVertex* const rtVtxp = rCondp->thenp();
                 DfgVertex* const reVtxp = rCondp->elsep();
                 DfgConst* const rtConstp = rtVtxp->cast<DfgConst>();
                 DfgConst* const reConstp = reVtxp->cast<DfgConst>();
-                if (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
+                якщо (!rCondp->hasMultipleSinks() && (rtConstp || reConstp)) {
                     APPLYING(PUSH_CONCAT_THROUGH_COND_LHS) {
                         DfgVertex* const thenp = [&]() -> DfgVertex* {
                             FileLine* const rtFlp = rtVtxp->fileline();
-                            if (rtConstp) {
+                            якщо (rtConstp) {
                                 DfgConst* const constp = makeZero(rtFlp, vtxp->width());
                                 constp->num().opConcat(lConstp->num(), rtConstp->num());
-                                return constp;
+                                повернути constp;
                             }
-                            return make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
+                            повернути make<DfgConcat>(rtFlp, vtxp->dtype(), lConstp, rtVtxp);
                         }();
                         DfgVertex* const elsep = [&]() -> DfgVertex* {
                             FileLine* const reFlp = reVtxp->fileline();
-                            if (reConstp) {
+                            якщо (reConstp) {
                                 DfgConst* const constp = makeZero(reFlp, vtxp->width());
                                 constp->num().opConcat(lConstp->num(), reConstp->num());
-                                return constp;
+                                повернути constp;
                             }
-                            return make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
+                            повернути make<DfgConcat>(reFlp, vtxp->dtype(), lConstp, reVtxp);
                         }();
                         replace(make<DfgCond>(vtxp, rCondp->condp(), thenp, elsep));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
+        якщо (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+            якщо (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
                 DfgVertex* const ltVtxp = lCondp->thenp();
                 DfgVertex* const leVtxp = lCondp->elsep();
                 DfgConst* const ltConstp = ltVtxp->cast<DfgConst>();
                 DfgConst* const leConstp = leVtxp->cast<DfgConst>();
-                if (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
+                якщо (!lCondp->hasMultipleSinks() && (ltConstp || leConstp)) {
                     APPLYING(PUSH_CONCAT_THROUGH_COND_RHS) {
                         DfgVertex* const thenp = [&]() -> DfgVertex* {
                             FileLine* const ltFlp = ltVtxp->fileline();
-                            if (ltConstp) {
+                            якщо (ltConstp) {
                                 DfgConst* const constp = makeZero(ltFlp, vtxp->width());
                                 constp->num().opConcat(ltConstp->num(), rConstp->num());
-                                return constp;
+                                повернути constp;
                             }
-                            return make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
+                            повернути make<DfgConcat>(ltFlp, vtxp->dtype(), ltVtxp, rConstp);
                         }();
                         DfgVertex* const elsep = [&]() -> DfgVertex* {
                             FileLine* const leFlp = leVtxp->fileline();
-                            if (leConstp) {
+                            якщо (leConstp) {
                                 DfgConst* const constp = makeZero(leFlp, vtxp->width());
                                 constp->num().opConcat(leConstp->num(), rConstp->num());
-                                return constp;
+                                повернути constp;
                             }
-                            return make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
+                            повернути make<DfgConcat>(leFlp, vtxp->dtype(), leVtxp, rConstp);
                         }();
 
                         replace(make<DfgCond>(vtxp, lCondp->condp(), thenp, elsep));
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -2356,32 +2356,32 @@ class V3DfgPeephole final : public DfgVisitor {
             bool hasCrossSink = false;  // True if some sinks use bits from both sides
             vtxp->foreachSink([&](DfgVertex& sink) {
                 // Record bits used by DfgSel sinks
-                if (const DfgSel* const selp = sink.cast<DfgSel>()) {
+                якщо (const DfgSel* const selp = sink.cast<DfgSel>()) {
                     const uint32_t selLsb = selp->lsb();
                     const uint32_t selMsb = selLsb + selp->width() - 1;
                     lsb = std::min(lsb, selLsb);
                     msb = std::max(msb, selMsb);
                     hasCrossSink |= selMsb >= lLsb && rMsb >= selLsb;
-                    return false;
+                    повернути false;
                 }
                 // Ignore non-observable variable sinks. These will be eliminated.
-                if (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
-                    if (!varp->hasSinks() && !varp->isObserved()) return false;
+                якщо (const DfgVarPacked* const varp = sink.cast<DfgVarPacked>()) {
+                    якщо (!varp->hasSinks() && !varp->isObserved()) повернути false;
                 }
                 // Otherwise the whole value is used
                 lsb = 0;
                 msb = vMsb;
-                return true;
+                повернути true;
             });
-            if (hasCrossSink && (vMsb > msb || lsb > 0)) {
+            якщо (hasCrossSink && (vMsb > msb || lsb > 0)) {
                 APPLYING(NARROW_CONCAT) {
                     // Narrowed RHS
                     DfgVertex* nRhsp = rhsp;
-                    if (lsb != 0)
+                    якщо (lsb != 0)
                         nRhsp = make<DfgSel>(flp, DfgDataType::packed(rMsb - lsb + 1), rhsp, lsb);
                     // Narrowed LHS
                     DfgVertex* nLhsp = lhsp;
-                    if (msb != vMsb)
+                    якщо (msb != vMsb)
                         nLhsp = make<DfgSel>(flp, DfgDataType::packed(msb - lLsb + 1), lhsp, 0U);
                     // Narrowed concatenation
                     DfgVertex* const catp
@@ -2399,53 +2399,53 @@ class V3DfgPeephole final : public DfgVisitor {
                     varp->vscp()->varp()->isInternal(true);
                     varp->srcp(sp);
                     replace(varp);
-                    return;
+                    повернути;
                 }
             }
         }
 
         // Convert various forms to REPLICATE
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(REPLACE_CONCAT_SAME) {
                 replace(make<DfgRep>(vtxp, lhsp));
-                return;
+                повернути;
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (isSame(lRepp->srcp(), rhsp)) {
+        якщо (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
+            якщо (isSame(lRepp->srcp(), rhsp)) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_LHS) {
                     replace(make<DfgRep>(vtxp, rhsp));
-                    return;
+                    повернути;
                 }
             }
         }
-        if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-            if (isSame(lhsp, rRepp->srcp())) {
+        якщо (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
+            якщо (isSame(lhsp, rRepp->srcp())) {
                 APPLYING(REPLACE_CONCAT_SAME_REP_ON_RHS) {
                     replace(make<DfgRep>(vtxp, lhsp));
-                    return;
+                    повернути;
                 }
             }
         }
-        if (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
-            if (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
-                if (isSame(lRepp->srcp(), rRepp->srcp())) {
+        якщо (DfgRep* const lRepp = lhsp->cast<DfgRep>()) {
+            якщо (DfgRep* const rRepp = rhsp->cast<DfgRep>()) {
+                якщо (isSame(lRepp->srcp(), rRepp->srcp())) {
                     APPLYING(REPLACE_CONCAT_SAME_REPS) {
                         replace(make<DfgRep>(vtxp, lRepp->srcp()));
-                        return;
+                        повернути;
                     }
                 }
             }
             // The mirrored RHS match is not needed due to RIGHT_LEANING_ASSOC
-            if (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
-                if (DfgRep* const rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
-                    if (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
+            якщо (DfgConcat* const rConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (DfgRep* const rlRepp = rConcatp->lhsp()->cast<DfgRep>()) {
+                    якщо (!rConcatp->hasMultipleSinks() && isSame(lRepp->srcp(), rlRepp->srcp())) {
                         APPLYING(REPLACE_NESTED_CONCAT_SAME_REPS_ON_LHS) {
                             const uint32_t width = lRepp->width() + rlRepp->width();
                             const DfgDataType& dtype = DfgDataType::packed(width);
                             DfgRep* const repp = make<DfgRep>(flp, dtype, lRepp->srcp());
                             replace(make<DfgConcat>(vtxp, repp, rConcatp->rhsp()));
-                            return;
+                            повернути;
                         }
                     }
                 }
@@ -2454,272 +2454,272 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     void visit(DfgDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        якщо (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            якщо (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIV_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
-        if (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
-            if (isEqOne(rConstp)) {
+        якщо (DfgConst* const rConstp = vtxp->rhsp()->cast<DfgConst>()) {
+            якщо (isEqOne(rConstp)) {
                 APPLYING(REMOVE_DIVS_ONE) {
                     replace(vtxp->lhsp());
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgGt* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GT) {
                 replace(makeZero(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgGtS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTS) {
                 replace(makeZero(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgGte* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgGteS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_GTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLogAnd* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+        якщо (binary(vtxp) || vtxp->rhsp()->unsafe()) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        якщо (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGAND_WITH_AND) {
                 replace(make<DfgAnd>(vtxp, lhsp, rhsp));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLogEq* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgLogIf* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+        якщо (binary(vtxp) || vtxp->rhsp()->unsafe()) повернути;
     }
 
     void visit(DfgLogOr* const vtxp) override {
-        if (binary(vtxp) || vtxp->rhsp()->unsafe()) return;
+        якщо (binary(vtxp) || vtxp->rhsp()->unsafe()) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (lhsp->width() == 1 && rhsp->width() == 1) {
+        якщо (lhsp->width() == 1 && rhsp->width() == 1) {
             APPLYING(REPLACE_LOGOR_WITH_OR) {
                 replace(make<DfgOr>(vtxp, lhsp, rhsp));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLt* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LT) {
                 replace(makeZero(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLtS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTS) {
                 replace(makeZero(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLte* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTE) {
                 replace(makeOnes(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgLteS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_LTES) {
                 replace(makeOnes(flp, 1));
-                return;
+                повернути;
             }
         }
     }
 
     void visit(DfgModDiv* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgModDivS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgMul* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (isZero(lConstp)) {
                 APPLYING(REMOVE_MUL_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    повернути;
                 }
             }
-            if (isEqOne(lConstp)) {
+            якщо (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MUL_ONE) {
                     replace(rhsp);
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgMulS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
-            if (isZero(lConstp)) {
+        якщо (DfgConst* const lConstp = lhsp->cast<DfgConst>()) {
+            якщо (isZero(lConstp)) {
                 APPLYING(REMOVE_MULS_ZERO) {
                     replace(makeZero(flp, vtxp->dtype()));
-                    return;
+                    повернути;
                 }
             }
-            if (isEqOne(lConstp)) {
+            якщо (isEqOne(lConstp)) {
                 APPLYING(REMOVE_MULS_ONE) {
                     replace(rhsp);
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgEq* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_EQ) {
                 replace(makeOnes(flp, 1));
-                return;
+                повернути;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        якщо (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
+            якщо (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) повернути;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            якщо (rhsp->dtype() == m_bitDType) {
+                якщо (isZero(lhsConstp)) {
                     APPLYING(REPLACE_EQ_BIT_0) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        повернути;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                якщо (isOnes(lhsConstp)) {
                     APPLYING(REMOVE_EQ_BIT_1) {
                         replace(rhsp);
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -2727,36 +2727,36 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     void visit(DfgNeq* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_NEQ) {
                 replace(makeZero(flp, 1));
-                return;
+                повернути;
             }
         }
 
-        if (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
-            if (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
-                if (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) return;
+        якщо (DfgConst* const lhsConstp = lhsp->cast<DfgConst>()) {
+            якщо (DfgConcat* const rhsConcatp = rhsp->cast<DfgConcat>()) {
+                якщо (tryPushCompareOpThroughConcat(vtxp, lhsConstp, rhsConcatp)) повернути;
             }
 
-            if (rhsp->dtype() == m_bitDType) {
-                if (isZero(lhsConstp)) {
+            якщо (rhsp->dtype() == m_bitDType) {
+                якщо (isZero(lhsConstp)) {
                     APPLYING(REMOVE_NEQ_BIT_0) {
                         replace(rhsp);
-                        return;
+                        повернути;
                     }
                 }
 
-                if (isOnes(lhsConstp)) {
+                якщо (isOnes(lhsConstp)) {
                     APPLYING(REPLACE_NEQ_BIT_1) {
                         replace(make<DfgNot>(vtxp, rhsp));
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -2764,60 +2764,60 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     void visit(DfgPow* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgPowSS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgPowSU* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgPowUS* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
     }
 
     void visit(DfgRep* const vtxp) override {
         DfgVertex* const srcp = vtxp->srcp();
         FileLine* const flp = vtxp->fileline();
 
-        if (DfgConst* const sConstp = srcp->cast<DfgConst>()) {
+        якщо (DfgConst* const sConstp = srcp->cast<DfgConst>()) {
             APPLYING(FOLD_REP) {
                 DfgConst* const resultp = makeZero(flp, vtxp->width());
                 resultp->num().opRepl(sConstp->num(), vtxp->count());
                 replace(resultp);
-                return;
+                повернути;
             }
         }
 
-        if (vtxp->dtype() == srcp->dtype()) {
+        якщо (vtxp->dtype() == srcp->dtype()) {
             APPLYING(REMOVE_REP_ONCE) {
                 replace(vtxp->srcp());
-                return;
+                повернути;
             }
         }
 
-        if (DfgRep* const sRepp = srcp->cast<DfgRep>()) {
-            if (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
+        якщо (DfgRep* const sRepp = srcp->cast<DfgRep>()) {
+            якщо (!sRepp->hasMultipleSinks() || vtxp->width() <= VL_QUADSIZE) {
                 APPLYING(REPLACE_REP_REP) {
                     replace(make<DfgRep>(vtxp, sRepp->srcp()));
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgShiftL* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
+        якщо (optimizeShiftRHS(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (DfgShiftL* const lShiftLp = lhsp->cast<DfgShiftL>()) {
-            if (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
+        якщо (DfgShiftL* const lShiftLp = lhsp->cast<DfgShiftL>()) {
+            якщо (!lShiftLp->hasMultipleSinks() && rhsp->dtype() == lShiftLp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTL_SHIFTL) {
                     // Fold '(a << b) << c' to 'a << (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
@@ -2827,30 +2827,30 @@ class V3DfgPeephole final : public DfgVisitor {
                     DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
                     DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftL>(vtxp, lShiftLp->lhsp(), addp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+        якщо (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
             const uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            якщо (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTL_ZERO) {
                     replace(lhsp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            якщо (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTL_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            якщо (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
+                якщо (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_CAT) {
                         DfgVertex* const lRhsp = lConcatp->rhsp();
                         DfgVertex* const lLhsp = lConcatp->lhsp();
@@ -2864,21 +2864,21 @@ class V3DfgPeephole final : public DfgVisitor {
                         DfgVertex* const mp
                             = make<DfgSel>(flp, DfgDataType::packed(mW), lRhsp, 0U);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(mW + rW), mp, rp);
-                        if (!lW) {
+                        якщо (!lW) {
                             replace(np);
-                            return;
+                            повернути;
                         }
                         DfgVertex* const lp
                             = make<DfgSel>(flp, DfgDataType::packed(lW), lLhsp, 0U);
                         np = make<DfgConcat>(vtxp, lp, np);
                         replace(np);
-                        return;
+                        повернути;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            якщо (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+                якщо (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTL_SEL) {
                         const uint32_t nSelWidth = lSelp->width() - shiftAmount;
                         DfgVertex* const nSelp
@@ -2886,18 +2886,18 @@ class V3DfgPeephole final : public DfgVisitor {
                                            lSelp->fromp(), lSelp->lsb());
                         replace(
                             make<DfgConcat>(vtxp, nSelp, makeZero(vtxp->fileline(), shiftAmount)));
-                        return;
+                        повернути;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
+            якщо (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
+                якщо (!lCondp->hasMultipleSinks()) {
                     APPLYING(PUSH_SHIFTL_THROUGH_COND) {
                         DfgShiftL* const tp = make<DfgShiftL>(vtxp, lCondp->thenp(), rConstp);
                         DfgShiftL* const ep = make<DfgShiftL>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -2905,14 +2905,14 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     void visit(DfgShiftR* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
+        якщо (optimizeShiftRHS(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
 
-        if (DfgShiftR* const lShiftRp = lhsp->cast<DfgShiftR>()) {
-            if (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
+        якщо (DfgShiftR* const lShiftRp = lhsp->cast<DfgShiftR>()) {
+            якщо (!lShiftRp->hasMultipleSinks() && rhsp->dtype() == lShiftRp->rhsp()->dtype()) {
                 APPLYING(REPLACE_SHIFTR_SHIFTR) {
                     // Fold '(a >> b) >> c' to 'a >> (b + c)'.  Compute 'b + c'
                     // one bit wider than the amounts so it cannot overflow.
@@ -2922,30 +2922,30 @@ class V3DfgPeephole final : public DfgVisitor {
                     DfgVertex* const cp = make<DfgExtend>(flp, sumDType, rhsp);
                     DfgAdd* const addp = make<DfgAdd>(flp, sumDType, bp, cp);
                     replace(make<DfgShiftR>(vtxp, lShiftRp->lhsp(), addp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+        якщо (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
             const uint32_t shiftAmount = rConstp->toU32();
 
-            if (shiftAmount == 0) {
+            якщо (shiftAmount == 0) {
                 APPLYING(REMOVE_SHIFTR_ZERO) {
                     replace(lhsp);
-                    return;
+                    повернути;
                 }
             }
 
-            if (shiftAmount >= vtxp->width()) {
+            якщо (shiftAmount >= vtxp->width()) {
                 APPLYING(REPLACE_SHIFTR_OVER) {
                     replace(makeZero(vtxp->fileline(), vtxp->width()));
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
-                if (!lConcatp->hasMultipleSinks()) {
+            якщо (DfgConcat* const lConcatp = lhsp->cast<DfgConcat>()) {
+                якщо (!lConcatp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_CAT) {
                         DfgVertex* const lRhsp = lConcatp->rhsp();
                         DfgVertex* const lLhsp = lConcatp->lhsp();
@@ -2959,21 +2959,21 @@ class V3DfgPeephole final : public DfgVisitor {
                         DfgVertex* const mp = make<DfgSel>(flp, DfgDataType::packed(mW), lLhsp,
                                                            lLhsp->width() - mW);
                         DfgVertex* np = make<DfgConcat>(flp, DfgDataType::packed(lW + mW), lp, mp);
-                        if (!rW) {
+                        якщо (!rW) {
                             replace(np);
-                            return;
+                            повернути;
                         }
                         DfgVertex* const rp = make<DfgSel>(flp, DfgDataType::packed(rW), lRhsp,
                                                            lRhsp->width() - rW);
                         np = make<DfgConcat>(vtxp, np, rp);
                         replace(np);
-                        return;
+                        повернути;
                     }
                 }
             }
 
-            if (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
-                if (!lSelp->hasMultipleSinks()) {
+            якщо (DfgSel* const lSelp = lhsp->cast<DfgSel>()) {
+                якщо (!lSelp->hasMultipleSinks()) {
                     APPLYING(REPLACE_SHIFTR_SEL) {
                         const uint32_t nSelWidth = lSelp->width() - shiftAmount;
                         DfgVertex* const nSelp
@@ -2981,18 +2981,18 @@ class V3DfgPeephole final : public DfgVisitor {
                                            lSelp->fromp(), lSelp->lsb() + shiftAmount);
                         replace(
                             make<DfgConcat>(vtxp, makeZero(vtxp->fileline(), shiftAmount), nSelp));
-                        return;
+                        повернути;
                     }
                 }
             }
 
-            if (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
-                if (!lCondp->hasMultipleSinks()) {
+            якщо (DfgCond* const lCondp = lhsp->cast<DfgCond>()) {
+                якщо (!lCondp->hasMultipleSinks()) {
                     APPLYING(PUSH_SHIFTR_THROUGH_COND) {
                         DfgShiftR* const tp = make<DfgShiftR>(vtxp, lCondp->thenp(), rConstp);
                         DfgShiftR* const ep = make<DfgShiftR>(vtxp, lCondp->elsep(), rConstp);
                         replace(make<DfgCond>(vtxp, lCondp->condp(), tp, ep));
-                        return;
+                        повернути;
                     }
                 }
             }
@@ -3000,46 +3000,46 @@ class V3DfgPeephole final : public DfgVisitor {
     }
 
     void visit(DfgShiftRS* const vtxp) override {
-        if (binary(vtxp)) return;
-        if (optimizeShiftRHS(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
+        якщо (optimizeShiftRHS(vtxp)) повернути;
     }
 
     void visit(DfgSub* const vtxp) override {
-        if (binary(vtxp)) return;
+        якщо (binary(vtxp)) повернути;
 
         DfgVertex* const lhsp = vtxp->lhsp();
         DfgVertex* const rhsp = vtxp->rhsp();
         FileLine* const flp = vtxp->fileline();
 
-        if (isSame(lhsp, rhsp)) {
+        якщо (isSame(lhsp, rhsp)) {
             APPLYING(FOLD_SELF_SUB) {
                 replace(makeZero(flp, vtxp->dtype()));
-                return;
+                повернути;
             }
         }
 
-        if (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
-            if (rConstp->isZero()) {
+        якщо (DfgConst* const rConstp = rhsp->cast<DfgConst>()) {
+            якщо (rConstp->isZero()) {
                 APPLYING(REMOVE_SUB_ZERO) {
                     replace(lhsp);
-                    return;
+                    повернути;
                 }
             }
-            if (vtxp->dtype() == m_bitDType && rConstp->hasValue(1)) {
+            якщо (vtxp->dtype() == m_bitDType && rConstp->hasValue(1)) {
                 APPLYING(REPLACE_SUB_WITH_NOT) {
                     replace(make<DfgNot>(vtxp->fileline(), m_bitDType, lhsp));
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgMatchMasked* const vtxp) override {
-        if (DfgConst* const constp = vtxp->lhsp()->cast<DfgConst>()) {
+        якщо (DfgConst* const constp = vtxp->lhsp()->cast<DfgConst>()) {
             APPLYING(FOLD_MATCHMASKED) {
                 AstVar* const matchVarp = vtxp->matchp()->as<DfgVarPacked>()->vscp()->varp();
                 replace(makeI32(vtxp->fileline(), AstMatchMasked::fold(constp->num(), matchVarp)));
-                return;
+                повернути;
             }
         }
     }
@@ -3054,117 +3054,117 @@ class V3DfgPeephole final : public DfgVisitor {
         DfgVertex* const elsep = vtxp->elsep();
         FileLine* const flp = vtxp->fileline();
 
-        if (condp->dtype() != m_bitDType) return;
+        якщо (condp->dtype() != m_bitDType) повернути;
 
-        if (isOnes(condp)) {
+        якщо (isOnes(condp)) {
             APPLYING(REMOVE_COND_WITH_TRUE_CONDITION) {
                 replace(thenp);
-                return;
+                повернути;
             }
         }
 
-        if (isZero(condp)) {
+        якщо (isZero(condp)) {
             APPLYING(REMOVE_COND_WITH_FALSE_CONDITION) {
                 replace(elsep);
-                return;
+                повернути;
             }
         }
 
-        if (isSame(thenp, elsep)) {
+        якщо (isSame(thenp, elsep)) {
             APPLYING(REMOVE_COND_WITH_BRANCHES_SAME) {
                 replace(elsep);
-                return;
+                повернути;
             }
         }
 
-        if (DfgNot* const condNotp = condp->cast<DfgNot>()) {
-            if (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
+        якщо (DfgNot* const condNotp = condp->cast<DfgNot>()) {
+            якщо (!condp->hasMultipleSinks() || condNotp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NOT_CONDITION) {
                     replace(make<DfgCond>(vtxp, condNotp->srcp(), elsep, thenp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (DfgNeq* const condNeqp = condp->cast<DfgNeq>()) {
-            if (!condp->hasMultipleSinks()) {
+        якщо (DfgNeq* const condNeqp = condp->cast<DfgNeq>()) {
+            якщо (!condp->hasMultipleSinks()) {
                 APPLYING(SWAP_COND_WITH_NEQ_CONDITION) {
                     DfgEq* const newCondp = make<DfgEq>(condp, condNeqp->lhsp(), condNeqp->rhsp());
                     replace(make<DfgCond>(vtxp, newCondp, elsep, thenp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (DfgNot* const thenNotp = thenp->cast<DfgNot>()) {
-            if (DfgNot* const elseNotp = elsep->cast<DfgNot>()) {
-                if (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
+        якщо (DfgNot* const thenNotp = thenp->cast<DfgNot>()) {
+            якщо (DfgNot* const elseNotp = elsep->cast<DfgNot>()) {
+                якщо (!thenNotp->srcp()->is<DfgConst>() && !elseNotp->srcp()->is<DfgConst>()
                     && !thenNotp->hasMultipleSinks() && !elseNotp->hasMultipleSinks()) {
                     APPLYING(PULL_NOTS_THROUGH_COND) {
                         DfgCond* const newCondp = make<DfgCond>(
                             vtxp, vtxp->condp(), thenNotp->srcp(), elseNotp->srcp());
                         replace(make<DfgNot>(thenp->fileline(), vtxp->dtype(), newCondp));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (DfgOr* const condOrp = condp->cast<DfgOr>()) {
-            if (DfgCond* const thenCondp = thenp->cast<DfgCond>()) {
-                if (!thenCondp->hasMultipleSinks()) {
-                    if (condOrp->lhsp() == thenCondp->condp()) {
+        якщо (DfgOr* const condOrp = condp->cast<DfgOr>()) {
+            якщо (DfgCond* const thenCondp = thenp->cast<DfgCond>()) {
+                якщо (!thenCondp->hasMultipleSinks()) {
+                    якщо (condOrp->lhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_LHS) {
                             DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->rhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->lhsp(), thenCondp->thenp(), ep));
-                            return;
+                            повернути;
                         }
                     }
-                    if (condOrp->rhsp() == thenCondp->condp()) {
+                    якщо (condOrp->rhsp() == thenCondp->condp()) {
                         // '(a | b) ? (a ? x : y) : z' -> 'a ? x : b ? y : z'
                         APPLYING(REPLACE_COND_OR_THEN_COND_RHS) {
                             DfgCond* const ep = make<DfgCond>(thenCondp, condOrp->lhsp(),
                                                               thenCondp->elsep(), elsep);
                             replace(make<DfgCond>(vtxp, condOrp->rhsp(), thenCondp->thenp(), ep));
-                            return;
+                            повернути;
                         }
                     }
                 }
             }
         }
 
-        if (vtxp->width() > 1) {
+        якщо (vtxp->width() > 1) {
             // 'cond ? a + 1 : a' -> 'a + cond'
-            if (DfgAdd* const thenAddp = thenp->cast<DfgAdd>()) {
-                if (DfgConst* const constp = thenAddp->lhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenAddp->rhsp() == elsep) {
+            якщо (DfgAdd* const thenAddp = thenp->cast<DfgAdd>()) {
+                якщо (DfgConst* const constp = thenAddp->lhsp()->cast<DfgConst>()) {
+                    якщо (constp->hasValue(1)) {
+                        якщо (thenAddp->rhsp() == elsep) {
                             APPLYING(REPLACE_COND_INC) {
                                 DfgConcat* const extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
                                 FileLine* const thenFlp = thenAddp->fileline();
                                 replace(
                                     make<DfgAdd>(thenFlp, vtxp->dtype(), thenAddp->rhsp(), extp));
-                                return;
+                                повернути;
                             }
                         }
                     }
                 }
             }
             // 'cond ? a - 1 : a' -> 'a - cond'
-            if (DfgSub* const thenSubp = thenp->cast<DfgSub>()) {
-                if (DfgConst* const constp = thenSubp->rhsp()->cast<DfgConst>()) {
-                    if (constp->hasValue(1)) {
-                        if (thenSubp->lhsp() == elsep) {
+            якщо (DfgSub* const thenSubp = thenp->cast<DfgSub>()) {
+                якщо (DfgConst* const constp = thenSubp->rhsp()->cast<DfgConst>()) {
+                    якщо (constp->hasValue(1)) {
+                        якщо (thenSubp->lhsp() == elsep) {
                             APPLYING(REPLACE_COND_DEC) {
                                 DfgConcat* const extp = make<DfgConcat>(
                                     vtxp, makeZero(flp, vtxp->width() - 1), condp);
                                 FileLine* const thenFlp = thenSubp->fileline();
                                 replace(
                                     make<DfgSub>(thenFlp, vtxp->dtype(), thenSubp->lhsp(), extp));
-                                return;
+                                повернути;
                             }
                         }
                     }
@@ -3172,90 +3172,90 @@ class V3DfgPeephole final : public DfgVisitor {
             }
         }
 
-        if (vtxp->dtype() == m_bitDType) {
-            if (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
+        якщо (vtxp->dtype() == m_bitDType) {
+            якщо (isSame(condp, thenp) && !elsep->unsafe()) {  // a ? a : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_COND) {
                     replace(make<DfgOr>(vtxp, condp, elsep));
-                    return;
+                    повернути;
                 }
             }
-            if (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
+            якщо (isSame(condp, elsep) && !thenp->unsafe()) {  // a ? b : a becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_COND) {
                     replace(make<DfgAnd>(vtxp, condp, thenp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (vtxp->width() <= VL_QUADSIZE) {
-            if (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
+        якщо (vtxp->width() <= VL_QUADSIZE) {
+            якщо (isZero(thenp) && !elsep->unsafe()) {  // a ? 0 : b becomes ~a & b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ZERO) {
                     DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgAnd>(vtxp, maskp, elsep));
-                    return;
+                    повернути;
                 }
             }
-            if (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
+            якщо (isOnes(thenp) && !elsep->unsafe()) {  // a ? 1 : b becomes a | b
                 APPLYING(REPLACE_COND_WITH_THEN_BRANCH_ONES) {
                     DfgVertex* const maskp = replicate(vtxp, condp);
                     replace(make<DfgOr>(vtxp, maskp, elsep));
-                    return;
+                    повернути;
                 }
             }
-            if (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
+            якщо (isZero(elsep) && !thenp->unsafe()) {  // a ? b : 0 becomes a & b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ZERO) {
                     DfgVertex* const maskp = replicate(vtxp, condp);
                     replace(make<DfgAnd>(vtxp, maskp, thenp));
-                    return;
+                    повернути;
                 }
             }
-            if (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
+            якщо (isOnes(elsep) && !thenp->unsafe()) {  // a ? b : 1 becomes ~a | b
                 APPLYING(REPLACE_COND_WITH_ELSE_BRANCH_ONES) {
                     DfgVertex* const maskp = replicate(vtxp, make<DfgNot>(condp, condp));
                     replace(make<DfgOr>(vtxp, maskp, thenp));
-                    return;
+                    повернути;
                 }
             }
 
-            if (DfgOr* const tOrp = thenp->cast<DfgOr>()) {
-                if (isSame(tOrp->lhsp(), elsep)
+            якщо (DfgOr* const tOrp = thenp->cast<DfgOr>()) {
+                якщо (isSame(tOrp->lhsp(), elsep)
                     && !tOrp->rhsp()->unsafe()) {  // a ? b | c : b becomes b | (a & c)
                     APPLYING(REPLACE_COND_THEN_OR_LHS) {
                         DfgVertex* const maskp = replicate(vtxp, condp);
                         DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->rhsp());
                         replace(make<DfgOr>(vtxp, tOrp->lhsp(), andp));
-                        return;
+                        повернути;
                     }
                 }
-                if (isSame(tOrp->rhsp(), elsep)
+                якщо (isSame(tOrp->rhsp(), elsep)
                     && !tOrp->lhsp()->unsafe()) {  // a ? b | c : c becomes c | (a & b)
                     APPLYING(REPLACE_COND_THEN_OR_RHS) {
                         DfgVertex* const maskp = replicate(vtxp, condp);
                         DfgAnd* const andp = make<DfgAnd>(vtxp, maskp, tOrp->lhsp());
                         replace(make<DfgOr>(vtxp, tOrp->rhsp(), andp));
-                        return;
+                        повернути;
                     }
                 }
             }
         }
 
-        if (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
+        якщо (!thenp->is<DfgConst>() && !elsep->is<DfgConst>()) {
             const std::pair<DfgVertex*, uint32_t> cLSBs = commonLSBs(thenp, elsep);
-            if (cLSBs.first) {
+            якщо (cLSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_LSBS) {
                     // Create new RHS
                     const uint32_t rWidth = cLSBs.second;
                     DfgVertex* rhsp = cLSBs.first;
-                    if (rWidth != rhsp->width()) {
+                    якщо (rWidth != rhsp->width()) {
                         const DfgDataType& rDtype = DfgDataType::packed(rWidth);
                         rhsp = make<DfgSel>(flp, rDtype, rhsp, 0U);
                     }
                     // If it's all the same, just replace
-                    if (rhsp->dtype() == vtxp->dtype()) {
+                    якщо (rhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(rhsp);
-                        return;
+                        повернути;
                     }
                     // Create new LHS
                     const uint32_t lWidth = vtxp->width() - rWidth;
@@ -3265,26 +3265,26 @@ class V3DfgPeephole final : public DfgVisitor {
                     DfgVertex* const lhsp = make<DfgCond>(flp, lDtype, condp, lThenp, lElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    повернути;
                 }
             }
 
             const std::pair<DfgVertex*, uint32_t> cMSBs = commonMSBs(thenp, elsep);
-            if (cMSBs.first) {
+            якщо (cMSBs.first) {
                 APPLYING(REPLACE_COND_COMMON_MSBS) {
                     // Create new LHS
                     const uint32_t lWidth = cMSBs.second;
                     DfgVertex* lhsp = cMSBs.first;
-                    if (lWidth != lhsp->width()) {
+                    якщо (lWidth != lhsp->width()) {
                         const DfgDataType& lDtype = DfgDataType::packed(lWidth);
                         lhsp = make<DfgSel>(flp, lDtype, lhsp, lhsp->width() - lWidth);
                     }
                     // If it's all the same, just replace
-                    if (lhsp->dtype() == vtxp->dtype()) {
+                    якщо (lhsp->dtype() == vtxp->dtype()) {
                         // Note this branch can only be hit if rules run in the right order,
                         // it might have missing code coverage after a refactor.
                         replace(lhsp);
-                        return;
+                        повернути;
                     }
                     // Create new RHS
                     const uint32_t rWidth = vtxp->width() - lWidth;
@@ -3294,78 +3294,78 @@ class V3DfgPeephole final : public DfgVisitor {
                     DfgVertex* const rhsp = make<DfgCond>(flp, rDtype, condp, rThenp, rElsep);
                     // Replace with concat
                     replace(make<DfgConcat>(vtxp, lhsp, rhsp));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (isEqOne(thenp) && isZero(elsep)) {
+        якщо (isEqOne(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONE_ZERO) {
                 DfgVertex* resp = condp;
-                if (const uint32_t extend = vtxp->width() - 1) {
+                якщо (const uint32_t extend = vtxp->width() - 1) {
                     DfgConst* const zerop = makeZero(flp, extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                повернути;
             }
         }
 
-        if (isZero(thenp) && isEqOne(elsep)) {
+        якщо (isZero(thenp) && isEqOne(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONE) {
                 DfgVertex* resp = make<DfgNot>(condp, condp);
-                if (const uint32_t extend = vtxp->width() - 1) {
+                якщо (const uint32_t extend = vtxp->width() - 1) {
                     DfgConst* const zerop = makeZero(vtxp->fileline(), extend);
                     resp = make<DfgConcat>(vtxp, zerop, resp);
                 }
                 replace(resp);
-                return;
+                повернути;
             }
         }
 
-        if (isOnes(thenp) && isZero(elsep)) {
+        якщо (isOnes(thenp) && isZero(elsep)) {
             APPLYING(REPLACE_COND_CONST_ONES_ZERO) {
                 replace(replicate(vtxp, condp));
-                return;
+                повернути;
             }
         }
 
-        if (isZero(thenp) && isOnes(elsep)) {
+        якщо (isZero(thenp) && isOnes(elsep)) {
             APPLYING(REPLACE_COND_CONST_ZERO_ONES) {
                 replace(replicate(vtxp, make<DfgNot>(condp, condp)));
-                return;
+                повернути;
             }
         }
 
-        if (DfgCond* const tCondp = thenp->cast<DfgCond>()) {
-            if (isSame(condp, tCondp->condp())) {
+        якщо (DfgCond* const tCondp = thenp->cast<DfgCond>()) {
+            якщо (isSame(condp, tCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_THEN) {
                     replace(make<DfgCond>(vtxp, condp, tCondp->thenp(), elsep));
-                    return;
+                    повернути;
                 }
             }
         }
 
-        if (DfgCond* const eCondp = elsep->cast<DfgCond>()) {
-            if (isSame(condp, eCondp->condp())) {
+        якщо (DfgCond* const eCondp = elsep->cast<DfgCond>()) {
+            якщо (isSame(condp, eCondp->condp())) {
                 APPLYING(REPLACE_COND_SAME_COND_ELSE) {
                     replace(make<DfgCond>(vtxp, condp, thenp, eCondp->elsep()));
-                    return;
+                    повернути;
                 }
             }
         }
     }
 
     void visit(DfgVertexVar* const vtxp) override {
-        if (vtxp->hasSinks()) return;
-        if (vtxp->isObserved()) return;
-        if (vtxp->defaultp()) return;
+        якщо (vtxp->hasSinks()) повернути;
+        якщо (vtxp->isObserved()) повернути;
+        якщо (vtxp->defaultp()) повернути;
 
         // If undriven, or driven from another var, it is completely redundant.
-        if (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
+        якщо (!vtxp->srcp() || vtxp->srcp()->is<DfgVertexVar>()) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                повернути;
             }
         }
 
@@ -3373,19 +3373,19 @@ class V3DfgPeephole final : public DfgVisitor {
         bool foundOne = false;
         const bool keep = vtxp->srcp()->foreachSink([&](DfgVertex& sink) -> bool {
             // Ignore non-observable variable sinks. These can be eliminated.
-            if (const DfgVertexVar* const varp = sink.cast<DfgVertexVar>()) {
-                if (!varp->hasSinks() && !varp->isObserved()) return false;
+            якщо (const DfgVertexVar* const varp = sink.cast<DfgVertexVar>()) {
+                якщо (!varp->hasSinks() && !varp->isObserved()) повернути false;
             }
             // Keep if found more than one sink
-            if (foundOne) return true;
+            якщо (foundOne) повернути true;
             // Mark first sink found
             foundOne = true;
-            return false;
+            повернути false;
         });
-        if (!keep) {
+        якщо (!keep) {
             APPLYING(REMOVE_VAR) {
                 deleteVertex(vtxp);
-                return;
+                повернути;
             }
         }
     }
@@ -3398,7 +3398,7 @@ class V3DfgPeephole final : public DfgVisitor {
         m_dfg.forEachVertex([&](DfgVertex& vtx) { m_vInfo[vtx].m_id = ++m_lastId; });
 
         // Add all operation vertices to the cache
-        for (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
+        для (DfgVertex& vtx : m_dfg.opVertices()) cacheVertex(&vtx);
 
         // Initialize the work list and iter list. They can't get bigger than
         // m_dfg.size(), but new vertices are created in the loop, so over alloacte
@@ -3412,39 +3412,39 @@ class V3DfgPeephole final : public DfgVisitor {
         // Add all variable vertices to the work list. Do this first so they are processed
         // last. This order has a better chance of preserving original variables in case
         // they are needed to hold intermediate results.
-        for (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
+        для (DfgVertexVar& vtx : m_dfg.varVertices()) addToWorkList(&vtx);
 
         // Add all operation vertices to the work list
-        for (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
+        для (DfgVertex& vtx : m_dfg.opVertices()) addToWorkList(&vtx);
 
         // Process iteratively
-        while (true) {
+        поки (true) {
             // Process the work list - keep the placeholder at index 0
-            while (m_workList.size() > 1) {
+            поки (m_workList.size() > 1) {
                 VL_RESTORER(m_vtxp);
 
                 // Pop up head of work list
                 m_vtxp = m_workList.back();
                 m_workList.pop_back();
-                if (!m_vtxp) continue;  // If removed from worklist (deleted), move on
+                якщо (!m_vtxp) continue;  // If removed from worklist (deleted), move on
                 m_vInfo[m_vtxp].m_workListIndex = 0;  // No longer on work list
 
                 // Variables are special, just visit them, the visit might delete them
-                if (DfgVertexVar* const varp = m_vtxp->cast<DfgVertexVar>()) {
+                якщо (DfgVertexVar* const varp = m_vtxp->cast<DfgVertexVar>()) {
                     visit(varp);
                     continue;
                 }
 
                 // Ast references are not considered
-                if (m_vtxp->is<DfgVertexAst>()) continue;
+                якщо (m_vtxp->is<DfgVertexAst>()) continue;
 
                 // Unsued vertices should have been removed immediately
                 UASSERT_OBJ(m_vtxp->hasSinks(), m_vtxp, "Operation vertex should have sinks");
 
                 // Check if an equivalent vertex exists, if so replace this vertex with it.
                 // Can skip the lookup if the vertex is known to be the cached one
-                if (!m_vInfo[m_vtxp].m_isCachedVertex) {
-                    if (DfgVertex* const sampep = cacheVertex(m_vtxp)) {
+                якщо (!m_vInfo[m_vtxp].m_isCachedVertex) {
+                    якщо (DfgVertex* const sampep = cacheVertex(m_vtxp)) {
                         APPLYING(REPLACE_WITH_EQUIVALENT) {
                             replace(sampep);
                             continue;
@@ -3457,7 +3457,7 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // If nothing was added to the iter list, we can stop
-            if (m_iterList.size() == 1) break;
+            якщо (m_iterList.size() == 1) break;
 
             // Expand the iter list to visit the whole neighborhood of vertices
             // within a fixed number of hops from the enqueued vertices. This
@@ -3465,17 +3465,17 @@ class V3DfgPeephole final : public DfgVisitor {
             {
                 size_t begin = 0;
                 size_t end = m_iterList.size();
-                for (size_t hops = 1; hops <= 4; ++hops) {
-                    for (size_t i = begin; i < end; ++i) {
+                для (size_t hops = 1; hops <= 4; ++hops) {
+                    для (size_t i = begin; i < end; ++i) {
                         DfgVertex* const vtxp = m_iterList[i];
-                        if (!vtxp) continue;
+                        якщо (!vtxp) continue;
                         vtxp->foreachSink([&](DfgVertex& dst) {
                             addToIterList(&dst);
-                            return false;
+                            повернути false;
                         });
                         vtxp->foreachSource([&](DfgVertex& src) {
                             addToIterList(&src);
-                            return false;
+                            повернути false;
                         });
                     }
                     begin = end;
@@ -3484,8 +3484,8 @@ class V3DfgPeephole final : public DfgVisitor {
             }
 
             // Move vertices in the iter list to the work list for the next iteration
-            for (DfgVertex* const vtxp : m_iterList) {
-                if (!vtxp) continue;
+            для (DfgVertex* const vtxp : m_iterList) {
+                якщо (!vtxp) continue;
                 removeFromIterList(vtxp);
                 addToWorkList(vtxp);
             }
@@ -3503,6 +3503,6 @@ public:
 V3DebugBisect V3DfgPeephole::s_debugBisect{"DfgPeephole"};
 
 void V3DfgPasses::peephole(DfgGraph& dfg, V3DfgPeepholeContext& ctx) {
-    if (!v3Global.opt.fDfgPeephole()) return;
+    якщо (!v3Global.opt.fDfgPeephole()) повернути;
     V3DfgPeephole::apply(dfg, ctx);
 }

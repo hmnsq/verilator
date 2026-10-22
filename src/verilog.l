@@ -32,7 +32,7 @@
 #define PARSEP V3ParseImp::parsep()
 
 #define YY_INPUT(buf, result, max_size) \
-    do { result = PARSEP->flexPpInputToLex(buf, max_size); } while (false)
+    do { result = PARSEP->flexPpInputToLex(buf, max_size); } поки (false)
 
 //======================================================================
 
@@ -46,26 +46,26 @@
     do { \
         FL_FWD; \
         yylval.fl = CRELINE(); \
-    } while (false)
+    } поки (false)
 
 #define STR \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(AstNode::encodeName(str)); \
-    } while (false)
+    } поки (false)
 
 #define STR_FILEPATH \
     do { \
         const string str(yytext, yyleng); \
         yylval.strp = PARSEP->newString(str); \
-    } while (false)
+    } поки (false)
 
 #define ERROR_RSVD_WORD(language) \
     do { \
         yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: " << language \
                                                          << " reserved word not implemented: '" \
                                                          << yytext << "'"); \
-    } while (0)
+    } поки (0)
 
 //======================================================================
 
@@ -74,9 +74,9 @@ static double lexParseDouble(FileLine* fl, const char* textp, size_t length) {
     bool success = false;
     const double d = VString::parseDouble(text, &success);
     // Below never fails, instead can't lex the number
-    if (VL_UNCOVERABLE(!success))
+    якщо (VL_UNCOVERABLE(!success))
         fl->v3error("Syntax error parsing real: '" << textp << "'");  // LCOV_EXCL_LINE
-    return d;
+    повернути d;
 }
 
 // clang-format off
@@ -118,10 +118,10 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <FILEPATH>{
   {ws}            { FL_FWD; FL_BRK; }
   {crnl}          { FL_FWD; FL_BRK; }
-  "-incdir"       { FL; return yINCDIR; }
-  ";"             { yy_pop_state(); return ';'; }
-  ","             { FL; return ','; }
-  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; return yaSTRING; }
+  "-incdir"       { FL; повернути yINCDIR; }
+  ";"             { yy_pop_state(); повернути ';'; }
+  ","             { FL; повернути ','; }
+  [^ \t\n\r;,"]+  { FL; STR_FILEPATH; повернути yaSTRING; }
 }
 
   /************************************************************************/
@@ -130,70 +130,70 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
 
-  "clock_enable"        { FL; return yVLT_CLOCK_ENABLE; }
-  "clocker"             { FL; return yVLT_CLOCKER; }
-  "coverage_block_off"  { FL; return yVLT_COVERAGE_BLOCK_OFF; }
-  "coverage_off"        { FL; return yVLT_COVERAGE_OFF; }
-  "coverage_on"         { FL; return yVLT_COVERAGE_ON; }
-  "forceable"           { FL; return yVLT_FORCEABLE; }
-  "fsm_register_wrapper" { FL; return yVLT_FSM_REGISTER_WRAPPER; }
-  "full_case"           { FL; return yVLT_FULL_CASE; }
-  "hier_block"          { FL; return yVLT_HIER_BLOCK; }
-  "hier_params"         { FL; return yVLT_HIER_PARAMS; }
-  "hier_workers"        { FL; return yVLT_HIER_WORKERS; }
-  "inline"              { FL; return yVLT_INLINE; }
-  "isolate_assignments" { FL; return yVLT_ISOLATE_ASSIGNMENTS; }
-  "lint_off"            { FL; return yVLT_LINT_OFF; }
-  "lint_on"             { FL; return yVLT_LINT_ON; }
-  "no_clocker"          { FL; return yVLT_NO_CLOCKER; }
-  "no_inline"           { FL; return yVLT_NO_INLINE; }
-  "parallel_case"       { FL; return yVLT_PARALLEL_CASE; }
-  "profile_data"        { FL; return yVLT_PROFILE_DATA; }
-  "public"              { FL; return yVLT_PUBLIC; }
-  "public_flat"         { FL; return yVLT_PUBLIC_FLAT; }
-  "public_flat_rd"      { FL; return yVLT_PUBLIC_FLAT_RD; }
-  "public_flat_rw"      { FL; return yVLT_PUBLIC_FLAT_RW; }
-  "public_module"       { FL; return yVLT_PUBLIC_MODULE; }
-  "sc_biguint"          { FL; return yVLT_SC_BIGUINT; }
-  "sc_bv"               { FL; return yVLT_SC_BV; }
-  "sformat"             { FL; return yVLT_SFORMAT; }
-  "split_var"           { FL; return yVLT_SPLIT_VAR; }
-  "timing_off"          { FL; return yVLT_TIMING_OFF; }
-  "timing_on"           { FL; return yVLT_TIMING_ON; }
-  "tracing_off"         { FL; return yVLT_TRACING_OFF; }
-  "tracing_on"          { FL; return yVLT_TRACING_ON; }
-  "verilator_lib"       { FL; return yVLT_VERILATOR_LIB; }
+  "clock_enable"        { FL; повернути yVLT_CLOCK_ENABLE; }
+  "clocker"             { FL; повернути yVLT_CLOCKER; }
+  "coverage_block_off"  { FL; повернути yVLT_COVERAGE_BLOCK_OFF; }
+  "coverage_off"        { FL; повернути yVLT_COVERAGE_OFF; }
+  "coverage_on"         { FL; повернути yVLT_COVERAGE_ON; }
+  "forceable"           { FL; повернути yVLT_FORCEABLE; }
+  "fsm_register_wrapper" { FL; повернути yVLT_FSM_REGISTER_WRAPPER; }
+  "full_case"           { FL; повернути yVLT_FULL_CASE; }
+  "hier_block"          { FL; повернути yVLT_HIER_BLOCK; }
+  "hier_params"         { FL; повернути yVLT_HIER_PARAMS; }
+  "hier_workers"        { FL; повернути yVLT_HIER_WORKERS; }
+  "inline"              { FL; повернути yVLT_INLINE; }
+  "isolate_assignments" { FL; повернути yVLT_ISOLATE_ASSIGNMENTS; }
+  "lint_off"            { FL; повернути yVLT_LINT_OFF; }
+  "lint_on"             { FL; повернути yVLT_LINT_ON; }
+  "no_clocker"          { FL; повернути yVLT_NO_CLOCKER; }
+  "no_inline"           { FL; повернути yVLT_NO_INLINE; }
+  "parallel_case"       { FL; повернути yVLT_PARALLEL_CASE; }
+  "profile_data"        { FL; повернути yVLT_PROFILE_DATA; }
+  "public"              { FL; повернути yVLT_PUBLIC; }
+  "public_flat"         { FL; повернути yVLT_PUBLIC_FLAT; }
+  "public_flat_rd"      { FL; повернути yVLT_PUBLIC_FLAT_RD; }
+  "public_flat_rw"      { FL; повернути yVLT_PUBLIC_FLAT_RW; }
+  "public_module"       { FL; повернути yVLT_PUBLIC_MODULE; }
+  "sc_biguint"          { FL; повернути yVLT_SC_BIGUINT; }
+  "sc_bv"               { FL; повернути yVLT_SC_BV; }
+  "sformat"             { FL; повернути yVLT_SFORMAT; }
+  "split_var"           { FL; повернути yVLT_SPLIT_VAR; }
+  "timing_off"          { FL; повернути yVLT_TIMING_OFF; }
+  "timing_on"           { FL; повернути yVLT_TIMING_ON; }
+  "tracing_off"         { FL; повернути yVLT_TRACING_OFF; }
+  "tracing_on"          { FL; повернути yVLT_TRACING_ON; }
+  "verilator_lib"       { FL; повернути yVLT_VERILATOR_LIB; }
 
-  -?"-block"            { FL; return yVLT_D_BLOCK; }
-  -?"-contents"         { FL; return yVLT_D_CONTENTS; }
-  -?"-cost"             { FL; return yVLT_D_COST; }
-  -?"-clock"            { FL; return yVLT_D_CLOCK; }
-  -?"-d"                { FL; return yVLT_D_D; }
-  -?"-file"             { FL; return yVLT_D_FILE; }
-  -?"-function"         { FL; return yVLT_D_FUNCTION; }
-  -?"-hier-dpi"         { FL; return yVLT_D_HIER_DPI; }
-  -?"-levels"           { FL; return yVLT_D_LEVELS; }
-  -?"-lines"            { FL; return yVLT_D_LINES; }
-  -?"-match"            { FL; return yVLT_D_MATCH; }
-  -?"-model"            { FL; return yVLT_D_MODEL; }
-  -?"-module"           { FL; return yVLT_D_MODULE; }
-  -?"-mtask"            { FL; return yVLT_D_MTASK; }
-  -?"-param"            { FL; return yVLT_D_PARAM; }
-  -?"-port"             { FL; return yVLT_D_PORT; }
-  -?"-rule"             { FL; return yVLT_D_RULE; }
-  -?"-q"                { FL; return yVLT_D_Q; }
-  -?"-reset"            { FL; return yVLT_D_RESET; }
-  -?"-reset_value"      { FL; return yVLT_D_RESET_VALUE; }
-  -?"-scope"            { FL; return yVLT_D_SCOPE; }
-  -?"-task"             { FL; return yVLT_D_TASK; }
-  -?"-var"              { FL; return yVLT_D_VAR; }
-  -?"-workers"          { FL; return yVLT_D_WORKERS; }
+  -?"-block"            { FL; повернути yVLT_D_BLOCK; }
+  -?"-contents"         { FL; повернути yVLT_D_CONTENTS; }
+  -?"-cost"             { FL; повернути yVLT_D_COST; }
+  -?"-clock"            { FL; повернути yVLT_D_CLOCK; }
+  -?"-d"                { FL; повернути yVLT_D_D; }
+  -?"-file"             { FL; повернути yVLT_D_FILE; }
+  -?"-function"         { FL; повернути yVLT_D_FUNCTION; }
+  -?"-hier-dpi"         { FL; повернути yVLT_D_HIER_DPI; }
+  -?"-levels"           { FL; повернути yVLT_D_LEVELS; }
+  -?"-lines"            { FL; повернути yVLT_D_LINES; }
+  -?"-match"            { FL; повернути yVLT_D_MATCH; }
+  -?"-model"            { FL; повернути yVLT_D_MODEL; }
+  -?"-module"           { FL; повернути yVLT_D_MODULE; }
+  -?"-mtask"            { FL; повернути yVLT_D_MTASK; }
+  -?"-param"            { FL; повернути yVLT_D_PARAM; }
+  -?"-port"             { FL; повернути yVLT_D_PORT; }
+  -?"-rule"             { FL; повернути yVLT_D_RULE; }
+  -?"-q"                { FL; повернути yVLT_D_Q; }
+  -?"-reset"            { FL; повернути yVLT_D_RESET; }
+  -?"-reset_value"      { FL; повернути yVLT_D_RESET_VALUE; }
+  -?"-scope"            { FL; повернути yVLT_D_SCOPE; }
+  -?"-task"             { FL; повернути yVLT_D_TASK; }
+  -?"-var"              { FL; повернути yVLT_D_VAR; }
+  -?"-workers"          { FL; повернути yVLT_D_WORKERS; }
 
   /* Reachable by attr_event_control */
-  "edge"                { FL; return yEDGE; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "or"                  { FL; return yOR; }
-  "posedge"             { FL; return yPOSEDGE; }
+  "edge"                { FL; повернути yEDGE; }
+  "negedge"             { FL; повернути yNEGEDGE; }
+  "or"                  { FL; повернути yOR; }
+  "posedge"             { FL; повернути yPOSEDGE; }
 }
 
   /************************************************************************/
@@ -202,296 +202,296 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   {ws}                  { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
   {crnl}                { FL_FWD; FL_BRK; }  /* Count line numbers */
   /*     Extensions to Verilog set, some specified by PSL */
-  "$c"[0-9]*            { FL; return yD_C; }      /*Verilator only*/
-  "$cpure"[0-9]*        { FL; return yD_CPURE; }  /*Verilator only*/
+  "$c"[0-9]*            { FL; повернути yD_C; }      /*Verilator only*/
+  "$cpure"[0-9]*        { FL; повернути yD_CPURE; }  /*Verilator only*/
   /*     System Tasks */
-  "$acos"               { FL; return yD_ACOS; }
-  "$acosh"              { FL; return yD_ACOSH; }
-  "$asin"               { FL; return yD_ASIN; }
-  "$asinh"              { FL; return yD_ASINH; }
-  "$atan"               { FL; return yD_ATAN; }
-  "$atan2"              { FL; return yD_ATAN2; }
-  "$atanh"              { FL; return yD_ATANH; }
-  "$bitstoreal"         { FL; return yD_BITSTOREAL; }
-  "$bitstoshortreal"    { FL; return yD_BITSTOSHORTREAL; }
-  "$cast"               { FL; return yD_CAST; }
-  "$ceil"               { FL; return yD_CEIL; }
-  "$cos"                { FL; return yD_COS; }
-  "$cosh"               { FL; return yD_COSH; }
-  "$display"            { FL; return yD_DISPLAY; }
-  "$displayb"           { FL; return yD_DISPLAYB; }
-  "$displayh"           { FL; return yD_DISPLAYH; }
-  "$displayo"           { FL; return yD_DISPLAYO; }
-  "$dist_chi_square"    { FL; return yD_DIST_CHI_SQUARE; }
-  "$dist_erlang"        { FL; return yD_DIST_ERLANG; }
-  "$dist_exponential"   { FL; return yD_DIST_EXPONENTIAL; }
-  "$dist_normal"        { FL; return yD_DIST_NORMAL; }
-  "$dist_poisson"       { FL; return yD_DIST_POISSON; }
-  "$dist_t"             { FL; return yD_DIST_T; }
-  "$dist_uniform"       { FL; return yD_DIST_UNIFORM; }
-  "$dumpall"            { FL; return yD_DUMPALL; }
-  "$dumpfile"           { FL; return yD_DUMPFILE; }
-  "$dumpflush"          { FL; return yD_DUMPFLUSH; }
-  "$dumplimit"          { FL; return yD_DUMPLIMIT; }
-  "$dumpoff"            { FL; return yD_DUMPOFF; }
-  "$dumpon"             { FL; return yD_DUMPON; }
-  "$dumpports"          { FL; return yD_DUMPPORTS; }
-  "$dumpportsall"       { FL; return yD_DUMPALL; }
-  "$dumpportsflush"     { FL; return yD_DUMPFLUSH; }
-  "$dumpportslimit"     { FL; return yD_DUMPLIMIT; }
-  "$dumpportsoff"       { FL; return yD_DUMPOFF; }
-  "$dumpportson"        { FL; return yD_DUMPON; }
-  "$dumpvars"           { FL; return yD_DUMPVARS; }
-  "$exit"               { FL; return yD_EXIT; }
-  "$exp"                { FL; return yD_EXP; }
-  "$fclose"             { FL; return yD_FCLOSE; }
-  "$fdisplay"           { FL; return yD_FDISPLAY; }
-  "$fdisplayb"          { FL; return yD_FDISPLAYB; }
-  "$fdisplayh"          { FL; return yD_FDISPLAYH; }
-  "$fdisplayo"          { FL; return yD_FDISPLAYO; }
-  "$feof"               { FL; return yD_FEOF; }
-  "$ferror"             { FL; return yD_FERROR; }
-  "$fflush"             { FL; return yD_FFLUSH; }
-  "$fgetc"              { FL; return yD_FGETC; }
-  "$fgets"              { FL; return yD_FGETS; }
-  "$finish"             { FL; return yD_FINISH; }
-  "$floor"              { FL; return yD_FLOOR; }
-  "$fmonitor"           { FL; return yD_FMONITOR; }
-  "$fmonitorb"          { FL; return yD_FMONITORB; }
-  "$fmonitorh"          { FL; return yD_FMONITORH; }
-  "$fmonitoro"          { FL; return yD_FMONITORO; }
-  "$fopen"              { FL; return yD_FOPEN; }
-  "$fread"              { FL; return yD_FREAD; }
-  "$frewind"            { FL; return yD_FREWIND; }
-  "$fscanf"             { FL; return yD_FSCANF; }
-  "$fseek"              { FL; return yD_FSEEK; }
-  "$fstrobe"            { FL; return yD_FSTROBE; }
-  "$fstrobeb"           { FL; return yD_FSTROBEB; }
-  "$fstrobeh"           { FL; return yD_FSTROBEH; }
-  "$fstrobeo"           { FL; return yD_FSTROBEO; }
-  "$ftell"              { FL; return yD_FTELL; }
-  "$fullskew"           { FL; return yaTIMINGSPEC; }
-  "$fwrite"             { FL; return yD_FWRITE; }
-  "$fwriteb"            { FL; return yD_FWRITEB; }
-  "$fwriteh"            { FL; return yD_FWRITEH; }
-  "$fwriteo"            { FL; return yD_FWRITEO; }
-  "$global_clock"       { FL; return yD_GLOBAL_CLOCK; }
-  "$hold"               { FL; return yaTIMINGSPEC; }
-  "$hypot"              { FL; return yD_HYPOT; }
-  "$itor"               { FL; return yD_ITOR; }
-  "$ln"                 { FL; return yD_LN; }
-  "$log10"              { FL; return yD_LOG10; }
-  "$monitor"            { FL; return yD_MONITOR; }
-  "$monitorb"           { FL; return yD_MONITORB; }
-  "$monitorh"           { FL; return yD_MONITORH; }
-  "$monitoro"           { FL; return yD_MONITORO; }
-  "$monitoroff"         { FL; return yD_MONITOROFF; }
-  "$monitoron"          { FL; return yD_MONITORON; }
-  "$nochange"           { FL; return yaTIMINGSPEC; }
-  "$period"             { FL; return yaTIMINGSPEC; }
-  "$pow"                { FL; return yD_POW; }
-  "$printtimescale"     { FL; return yD_PRINTTIMESCALE; }
+  "$acos"               { FL; повернути yD_ACOS; }
+  "$acosh"              { FL; повернути yD_ACOSH; }
+  "$asin"               { FL; повернути yD_ASIN; }
+  "$asinh"              { FL; повернути yD_ASINH; }
+  "$atan"               { FL; повернути yD_ATAN; }
+  "$atan2"              { FL; повернути yD_ATAN2; }
+  "$atanh"              { FL; повернути yD_ATANH; }
+  "$bitstoreal"         { FL; повернути yD_BITSTOREAL; }
+  "$bitstoshortreal"    { FL; повернути yD_BITSTOSHORTREAL; }
+  "$cast"               { FL; повернути yD_CAST; }
+  "$ceil"               { FL; повернути yD_CEIL; }
+  "$cos"                { FL; повернути yD_COS; }
+  "$cosh"               { FL; повернути yD_COSH; }
+  "$display"            { FL; повернути yD_DISPLAY; }
+  "$displayb"           { FL; повернути yD_DISPLAYB; }
+  "$displayh"           { FL; повернути yD_DISPLAYH; }
+  "$displayo"           { FL; повернути yD_DISPLAYO; }
+  "$dist_chi_square"    { FL; повернути yD_DIST_CHI_SQUARE; }
+  "$dist_erlang"        { FL; повернути yD_DIST_ERLANG; }
+  "$dist_exponential"   { FL; повернути yD_DIST_EXPONENTIAL; }
+  "$dist_normal"        { FL; повернути yD_DIST_NORMAL; }
+  "$dist_poisson"       { FL; повернути yD_DIST_POISSON; }
+  "$dist_t"             { FL; повернути yD_DIST_T; }
+  "$dist_uniform"       { FL; повернути yD_DIST_UNIFORM; }
+  "$dumpall"            { FL; повернути yD_DUMPALL; }
+  "$dumpfile"           { FL; повернути yD_DUMPFILE; }
+  "$dumpflush"          { FL; повернути yD_DUMPFLUSH; }
+  "$dumplimit"          { FL; повернути yD_DUMPLIMIT; }
+  "$dumpoff"            { FL; повернути yD_DUMPOFF; }
+  "$dumpon"             { FL; повернути yD_DUMPON; }
+  "$dumpports"          { FL; повернути yD_DUMPPORTS; }
+  "$dumpportsall"       { FL; повернути yD_DUMPALL; }
+  "$dumpportsflush"     { FL; повернути yD_DUMPFLUSH; }
+  "$dumpportslimit"     { FL; повернути yD_DUMPLIMIT; }
+  "$dumpportsoff"       { FL; повернути yD_DUMPOFF; }
+  "$dumpportson"        { FL; повернути yD_DUMPON; }
+  "$dumpvars"           { FL; повернути yD_DUMPVARS; }
+  "$exit"               { FL; повернути yD_EXIT; }
+  "$exp"                { FL; повернути yD_EXP; }
+  "$fclose"             { FL; повернути yD_FCLOSE; }
+  "$fdisplay"           { FL; повернути yD_FDISPLAY; }
+  "$fdisplayb"          { FL; повернути yD_FDISPLAYB; }
+  "$fdisplayh"          { FL; повернути yD_FDISPLAYH; }
+  "$fdisplayo"          { FL; повернути yD_FDISPLAYO; }
+  "$feof"               { FL; повернути yD_FEOF; }
+  "$ferror"             { FL; повернути yD_FERROR; }
+  "$fflush"             { FL; повернути yD_FFLUSH; }
+  "$fgetc"              { FL; повернути yD_FGETC; }
+  "$fgets"              { FL; повернути yD_FGETS; }
+  "$finish"             { FL; повернути yD_FINISH; }
+  "$floor"              { FL; повернути yD_FLOOR; }
+  "$fmonitor"           { FL; повернути yD_FMONITOR; }
+  "$fmonitorb"          { FL; повернути yD_FMONITORB; }
+  "$fmonitorh"          { FL; повернути yD_FMONITORH; }
+  "$fmonitoro"          { FL; повернути yD_FMONITORO; }
+  "$fopen"              { FL; повернути yD_FOPEN; }
+  "$fread"              { FL; повернути yD_FREAD; }
+  "$frewind"            { FL; повернути yD_FREWIND; }
+  "$fscanf"             { FL; повернути yD_FSCANF; }
+  "$fseek"              { FL; повернути yD_FSEEK; }
+  "$fstrobe"            { FL; повернути yD_FSTROBE; }
+  "$fstrobeb"           { FL; повернути yD_FSTROBEB; }
+  "$fstrobeh"           { FL; повернути yD_FSTROBEH; }
+  "$fstrobeo"           { FL; повернути yD_FSTROBEO; }
+  "$ftell"              { FL; повернути yD_FTELL; }
+  "$fullskew"           { FL; повернути yaTIMINGSPEC; }
+  "$fwrite"             { FL; повернути yD_FWRITE; }
+  "$fwriteb"            { FL; повернути yD_FWRITEB; }
+  "$fwriteh"            { FL; повернути yD_FWRITEH; }
+  "$fwriteo"            { FL; повернути yD_FWRITEO; }
+  "$global_clock"       { FL; повернути yD_GLOBAL_CLOCK; }
+  "$hold"               { FL; повернути yaTIMINGSPEC; }
+  "$hypot"              { FL; повернути yD_HYPOT; }
+  "$itor"               { FL; повернути yD_ITOR; }
+  "$ln"                 { FL; повернути yD_LN; }
+  "$log10"              { FL; повернути yD_LOG10; }
+  "$monitor"            { FL; повернути yD_MONITOR; }
+  "$monitorb"           { FL; повернути yD_MONITORB; }
+  "$monitorh"           { FL; повернути yD_MONITORH; }
+  "$monitoro"           { FL; повернути yD_MONITORO; }
+  "$monitoroff"         { FL; повернути yD_MONITOROFF; }
+  "$monitoron"          { FL; повернути yD_MONITORON; }
+  "$nochange"           { FL; повернути yaTIMINGSPEC; }
+  "$period"             { FL; повернути yaTIMINGSPEC; }
+  "$pow"                { FL; повернути yD_POW; }
+  "$printtimescale"     { FL; повернути yD_PRINTTIMESCALE; }
   "$psprintf"           { FL; yylval.fl->v3warn(NONSTD, "Non-standard system function '" << yytext << "';"
                                                 " suggest use standard '$sformatf' (IEEE 1800-2023 21.3.3)");
-                          return yD_SFORMATF; }
-  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); return yaD_PLI; }
-  "$random"             { FL; return yD_RANDOM; }
-  "$readmemb"           { FL; return yD_READMEMB; }
-  "$readmemh"           { FL; return yD_READMEMH; }
-  "$realtime"           { FL; return yD_REALTIME; }
-  "$realtobits"         { FL; return yD_REALTOBITS; }
-  "$recovery"           { FL; return yaTIMINGSPEC; }
-  "$recrem"             { FL; return yaTIMINGSPEC; }
-  "$removal"            { FL; return yaTIMINGSPEC; }
-  "$rewind"             { FL; return yD_REWIND; }
-  "$rtoi"               { FL; return yD_RTOI; }
-  "$sampled"            { FL; return yD_SAMPLED; }
-  "$sdf_annotate"       { FL; return yD_SDF_ANNOTATE; }
-  "$setup"              { FL; return yaTIMINGSPEC; }
-  "$setuphold"          { FL; return yD_SETUPHOLD; }
-  "$sformat"            { FL; return yD_SFORMAT; }
-  "$sformatf"           { FL; return yD_SFORMATF; }
-  "$shortrealtobits"    { FL; return yD_SHORTREALTOBITS; }
-  "$sin"                { FL; return yD_SIN; }
-  "$sinh"               { FL; return yD_SINH; }
-  "$skew"               { FL; return yaTIMINGSPEC; }
-  "$sqrt"               { FL; return yD_SQRT; }
-  "$sscanf"             { FL; return yD_SSCANF; }
-  "$stacktrace"         { FL; return yD_STACKTRACE; }
-  "$stime"              { FL; return yD_STIME; }
-  "$stop"               { FL; return yD_STOP; }
-  "$strobe"             { FL; return yD_STROBE; }
-  "$strobeb"            { FL; return yD_STROBEB; }
-  "$strobeh"            { FL; return yD_STROBEH; }
-  "$strobeo"            { FL; return yD_STROBEO; }
-  "$swrite"             { FL; return yD_SWRITE; }
-  "$swriteb"            { FL; return yD_SWRITEB; }
-  "$swriteh"            { FL; return yD_SWRITEH; }
-  "$swriteo"            { FL; return yD_SWRITEO; }
-  "$system"             { FL; return yD_SYSTEM; }
-  "$tan"                { FL; return yD_TAN; }
-  "$tanh"               { FL; return yD_TANH; }
-  "$test$plusargs"      { FL; return yD_TESTPLUSARGS; }
-  "$time"               { FL; return yD_TIME; }
-  "$timeformat"         { FL; return yD_TIMEFORMAT; }
-  "$timeprecision"      { FL; return yD_TIMEPRECISION; }
-  "$timeskew"           { FL; return yaTIMINGSPEC; }
-  "$timeunit"           { FL; return yD_TIMEUNIT; }
-  "$typename"           { FL; return yD_TYPENAME; }
-  "$ungetc"             { FL; return yD_UNGETC; }
-  "$urandom"            { FL; return yD_URANDOM; }
-  "$urandom_range"      { FL; return yD_URANDOM_RANGE; }
-  "$value$plusargs"     { FL; return yD_VALUEPLUSARGS; }
-  "$width"              { FL; return yaTIMINGSPEC; }
-  "$write"              { FL; return yD_WRITE; }
-  "$writeb"             { FL; return yD_WRITEB; }
-  "$writeh"             { FL; return yD_WRITEH; }
-  "$writememb"          { FL; return yD_WRITEMEMB; }
-  "$writememh"          { FL; return yD_WRITEMEMH; }
-  "$writeo"             { FL; return yD_WRITEO; }
+                          повернути yD_SFORMATF; }
+  "$q_add"              { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); повернути yaD_PLI; }
+  "$q_exam"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); повернути yaD_PLI; }
+  "$q_full"             { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); повернути yaD_PLI; }
+  "$q_initialize"       { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); повернути yaD_PLI; }
+  "$q_remove"           { FL; STR; ERROR_RSVD_WORD("IEEE 1364-1995"); повернути yaD_PLI; }
+  "$random"             { FL; повернути yD_RANDOM; }
+  "$readmemb"           { FL; повернути yD_READMEMB; }
+  "$readmemh"           { FL; повернути yD_READMEMH; }
+  "$realtime"           { FL; повернути yD_REALTIME; }
+  "$realtobits"         { FL; повернути yD_REALTOBITS; }
+  "$recovery"           { FL; повернути yaTIMINGSPEC; }
+  "$recrem"             { FL; повернути yaTIMINGSPEC; }
+  "$removal"            { FL; повернути yaTIMINGSPEC; }
+  "$rewind"             { FL; повернути yD_REWIND; }
+  "$rtoi"               { FL; повернути yD_RTOI; }
+  "$sampled"            { FL; повернути yD_SAMPLED; }
+  "$sdf_annotate"       { FL; повернути yD_SDF_ANNOTATE; }
+  "$setup"              { FL; повернути yaTIMINGSPEC; }
+  "$setuphold"          { FL; повернути yD_SETUPHOLD; }
+  "$sformat"            { FL; повернути yD_SFORMAT; }
+  "$sformatf"           { FL; повернути yD_SFORMATF; }
+  "$shortrealtobits"    { FL; повернути yD_SHORTREALTOBITS; }
+  "$sin"                { FL; повернути yD_SIN; }
+  "$sinh"               { FL; повернути yD_SINH; }
+  "$skew"               { FL; повернути yaTIMINGSPEC; }
+  "$sqrt"               { FL; повернути yD_SQRT; }
+  "$sscanf"             { FL; повернути yD_SSCANF; }
+  "$stacktrace"         { FL; повернути yD_STACKTRACE; }
+  "$stime"              { FL; повернути yD_STIME; }
+  "$stop"               { FL; повернути yD_STOP; }
+  "$strobe"             { FL; повернути yD_STROBE; }
+  "$strobeb"            { FL; повернути yD_STROBEB; }
+  "$strobeh"            { FL; повернути yD_STROBEH; }
+  "$strobeo"            { FL; повернути yD_STROBEO; }
+  "$swrite"             { FL; повернути yD_SWRITE; }
+  "$swriteb"            { FL; повернути yD_SWRITEB; }
+  "$swriteh"            { FL; повернути yD_SWRITEH; }
+  "$swriteo"            { FL; повернути yD_SWRITEO; }
+  "$system"             { FL; повернути yD_SYSTEM; }
+  "$tan"                { FL; повернути yD_TAN; }
+  "$tanh"               { FL; повернути yD_TANH; }
+  "$test$plusargs"      { FL; повернути yD_TESTPLUSARGS; }
+  "$time"               { FL; повернути yD_TIME; }
+  "$timeformat"         { FL; повернути yD_TIMEFORMAT; }
+  "$timeprecision"      { FL; повернути yD_TIMEPRECISION; }
+  "$timeskew"           { FL; повернути yaTIMINGSPEC; }
+  "$timeunit"           { FL; повернути yD_TIMEUNIT; }
+  "$typename"           { FL; повернути yD_TYPENAME; }
+  "$ungetc"             { FL; повернути yD_UNGETC; }
+  "$urandom"            { FL; повернути yD_URANDOM; }
+  "$urandom_range"      { FL; повернути yD_URANDOM_RANGE; }
+  "$value$plusargs"     { FL; повернути yD_VALUEPLUSARGS; }
+  "$width"              { FL; повернути yaTIMINGSPEC; }
+  "$write"              { FL; повернути yD_WRITE; }
+  "$writeb"             { FL; повернути yD_WRITEB; }
+  "$writeh"             { FL; повернути yD_WRITEH; }
+  "$writememb"          { FL; повернути yD_WRITEMEMB; }
+  "$writememh"          { FL; повернути yD_WRITEMEMH; }
+  "$writeo"             { FL; повернути yD_WRITEO; }
   /*     Keywords */
-  "always"              { FL; return yALWAYS; }
-  "and"                 { FL; return yAND; }
-  "assign"              { FL; return yASSIGN; }
-  "begin"               { FL; return yBEGIN; }
-  "buf"                 { FL; return yBUF; }
-  "bufif0"              { FL; return yBUFIF0; }
-  "bufif1"              { FL; return yBUFIF1; }
-  "case"                { FL; return yCASE; }
-  "casex"               { FL; return yCASEX; }
-  "casez"               { FL; return yCASEZ; }
-  "cmos"                { FL; return yCMOS; }
-  "deassign"            { FL; return yDEASSIGN; }
-  "default"             { FL; return yDEFAULT; }
-  "defparam"            { FL; return yDEFPARAM; }
-  "disable"             { FL; return yDISABLE; }
-  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); return yEDGE; }
-  "edge"                { FL; return yEDGE; }
-  "else"                { FL; return yELSE; }
-  "end"                 { FL; return yEND; }
-  "endcase"             { FL; return yENDCASE; }
-  "endfunction"         { FL; return yENDFUNCTION; }
-  "endmodule"           { FL; return yENDMODULE; }
-  "endprimitive"        { FL; return yENDPRIMITIVE; }
-  "endspecify"          { FL; return yENDSPECIFY; }
+  "always"              { FL; повернути yALWAYS; }
+  "and"                 { FL; повернути yAND; }
+  "assign"              { FL; повернути yASSIGN; }
+  "begin"               { FL; повернути yBEGIN; }
+  "buf"                 { FL; повернути yBUF; }
+  "bufif0"              { FL; повернути yBUFIF0; }
+  "bufif1"              { FL; повернути yBUFIF1; }
+  "case"                { FL; повернути yCASE; }
+  "casex"               { FL; повернути yCASEX; }
+  "casez"               { FL; повернути yCASEZ; }
+  "cmos"                { FL; повернути yCMOS; }
+  "deassign"            { FL; повернути yDEASSIGN; }
+  "default"             { FL; повернути yDEFAULT; }
+  "defparam"            { FL; повернути yDEFPARAM; }
+  "disable"             { FL; повернути yDISABLE; }
+  "edge"/{ws}*"["       { FL; yy_push_state(EDGEDESC); повернути yEDGE; }
+  "edge"                { FL; повернути yEDGE; }
+  "else"                { FL; повернути yELSE; }
+  "end"                 { FL; повернути yEND; }
+  "endcase"             { FL; повернути yENDCASE; }
+  "endfunction"         { FL; повернути yENDFUNCTION; }
+  "endmodule"           { FL; повернути yENDMODULE; }
+  "endprimitive"        { FL; повернути yENDPRIMITIVE; }
+  "endspecify"          { FL; повернути yENDSPECIFY; }
   "endtable"            { FL; yylval.fl->v3error("Syntax error: 'endtable' outside of 'table'"); FL_BRK; }
-  "endtask"             { FL; return yENDTASK; }
-  "event"               { FL; return yEVENT; }
-  "for"                 { FL; return yFOR; }
-  "force"               { FL; return yFORCE; }
-  "foreach"             { FL; return yFOREACH; }
-  "forever"             { FL; return yFOREVER; }
-  "fork"                { FL; return yFORK; }
-  "function"            { FL; return yFUNCTION; }
-  "highz0"              { FL; return yHIGHZ0; }
-  "highz1"              { FL; return yHIGHZ1; }
-  "if"                  { FL; return yIF; }
-  "initial"             { FL; return yINITIAL; }
-  "inout"               { FL; return yINOUT; }
-  "input"               { FL; return yINPUT; }
-  "integer"             { FL; return yINTEGER; }
-  "join"                { FL; return yJOIN; }
-  "large"               { FL; return ygenSTRENGTH; }
-  "macromodule"         { FL; return yMODULE; }
-  "medium"              { FL; return ygenSTRENGTH; }
-  "module"              { FL; return yMODULE; }
-  "nand"                { FL; return yNAND; }
-  "negedge"             { FL; return yNEGEDGE; }
-  "nmos"                { FL; return yNMOS; }
-  "nor"                 { FL; return yNOR; }
-  "not"                 { FL; return yNOT; }
-  "notif0"              { FL; return yNOTIF0; }
-  "notif1"              { FL; return yNOTIF1; }
-  "or"                  { FL; return yOR; }
-  "output"              { FL; return yOUTPUT; }
-  "parameter"           { FL; return yPARAMETER; }
-  "pmos"                { FL; return yPMOS; }
-  "posedge"             { FL; return yPOSEDGE; }
-  "primitive"           { FL; return yPRIMITIVE; }
-  "pull0"               { FL; return yPULL0; }
-  "pull1"               { FL; return yPULL1; }
-  "pulldown"            { FL; return yPULLDOWN; }
-  "pullup"              { FL; return yPULLUP; }
-  "rcmos"               { FL; return yRCMOS; }
-  "real"                { FL; return yREAL; }
-  "realtime"            { FL; return yREALTIME; }
-  "reg"                 { FL; return yREG; }
-  "release"             { FL; return yRELEASE; }
-  "repeat"              { FL; return yREPEAT; }
-  "rnmos"               { FL; return yRNMOS; }
-  "rpmos"               { FL; return yRPMOS; }
-  "rtran"               { FL; return yRTRAN; }
-  "rtranif0"            { FL; return yRTRANIF0; }
-  "rtranif1"            { FL; return yRTRANIF1; }
-  "scalared"            { FL; return ySCALARED; }
-  "small"               { FL; return ygenSTRENGTH; }
-  "specify"             { FL; return ySPECIFY; }
-  "specparam"           { FL; return ySPECPARAM; }
-  "strong0"             { FL; return ySTRONG0; }
-  "strong1"             { FL; return ySTRONG1; }
-  "supply0"             { FL; return ySUPPLY0; }
-  "supply1"             { FL; return ySUPPLY1; }
-  "table"               { FL; yy_push_state(TABLE); return yTABLE; }
-  "task"                { FL; return yTASK; }
-  "time"                { FL; return yTIME; }
-  "tran"                { FL; return yTRAN; }
-  "tranif0"             { FL; return yTRANIF0; }
-  "tranif1"             { FL; return yTRANIF1; }
-  "tri"                 { FL; return yTRI; }
-  "tri0"                { FL; return yTRI0; }
-  "tri1"                { FL; return yTRI1; }
-  "triand"              { FL; return yTRIAND; }
-  "trior"               { FL; return yTRIOR; }
-  "trireg"              { FL; return yTRIREG; }
-  "vectored"            { FL; return yVECTORED; }
-  "wait"                { FL; return yWAIT; }
-  "wand"                { FL; return yWAND; }
-  "weak0"               { FL; return yWEAK0; }
-  "weak1"               { FL; return yWEAK1; }
-  "while"               { FL; return yWHILE; }
-  "wire"                { FL; return yWIRE; }
-  "wor"                 { FL; return yWOR; }
-  "xnor"                { FL; return yXNOR; }
-  "xor"                 { FL; return yXOR; }
+  "endtask"             { FL; повернути yENDTASK; }
+  "event"               { FL; повернути yEVENT; }
+  "for"                 { FL; повернути yFOR; }
+  "force"               { FL; повернути yFORCE; }
+  "foreach"             { FL; повернути yFOREACH; }
+  "forever"             { FL; повернути yFOREVER; }
+  "fork"                { FL; повернути yFORK; }
+  "function"            { FL; повернути yFUNCTION; }
+  "highz0"              { FL; повернути yHIGHZ0; }
+  "highz1"              { FL; повернути yHIGHZ1; }
+  "if"                  { FL; повернути yIF; }
+  "initial"             { FL; повернути yINITIAL; }
+  "inout"               { FL; повернути yINOUT; }
+  "input"               { FL; повернути yINPUT; }
+  "integer"             { FL; повернути yINTEGER; }
+  "join"                { FL; повернути yJOIN; }
+  "large"               { FL; повернути ygenSTRENGTH; }
+  "macromodule"         { FL; повернути yMODULE; }
+  "medium"              { FL; повернути ygenSTRENGTH; }
+  "module"              { FL; повернути yMODULE; }
+  "nand"                { FL; повернути yNAND; }
+  "negedge"             { FL; повернути yNEGEDGE; }
+  "nmos"                { FL; повернути yNMOS; }
+  "nor"                 { FL; повернути yNOR; }
+  "not"                 { FL; повернути yNOT; }
+  "notif0"              { FL; повернути yNOTIF0; }
+  "notif1"              { FL; повернути yNOTIF1; }
+  "or"                  { FL; повернути yOR; }
+  "output"              { FL; повернути yOUTPUT; }
+  "parameter"           { FL; повернути yPARAMETER; }
+  "pmos"                { FL; повернути yPMOS; }
+  "posedge"             { FL; повернути yPOSEDGE; }
+  "primitive"           { FL; повернути yPRIMITIVE; }
+  "pull0"               { FL; повернути yPULL0; }
+  "pull1"               { FL; повернути yPULL1; }
+  "pulldown"            { FL; повернути yPULLDOWN; }
+  "pullup"              { FL; повернути yPULLUP; }
+  "rcmos"               { FL; повернути yRCMOS; }
+  "real"                { FL; повернути yREAL; }
+  "realtime"            { FL; повернути yREALTIME; }
+  "reg"                 { FL; повернути yREG; }
+  "release"             { FL; повернути yRELEASE; }
+  "repeat"              { FL; повернути yREPEAT; }
+  "rnmos"               { FL; повернути yRNMOS; }
+  "rpmos"               { FL; повернути yRPMOS; }
+  "rtran"               { FL; повернути yRTRAN; }
+  "rtranif0"            { FL; повернути yRTRANIF0; }
+  "rtranif1"            { FL; повернути yRTRANIF1; }
+  "scalared"            { FL; повернути ySCALARED; }
+  "small"               { FL; повернути ygenSTRENGTH; }
+  "specify"             { FL; повернути ySPECIFY; }
+  "specparam"           { FL; повернути ySPECPARAM; }
+  "strong0"             { FL; повернути ySTRONG0; }
+  "strong1"             { FL; повернути ySTRONG1; }
+  "supply0"             { FL; повернути ySUPPLY0; }
+  "supply1"             { FL; повернути ySUPPLY1; }
+  "table"               { FL; yy_push_state(TABLE); повернути yTABLE; }
+  "task"                { FL; повернути yTASK; }
+  "time"                { FL; повернути yTIME; }
+  "tran"                { FL; повернути yTRAN; }
+  "tranif0"             { FL; повернути yTRANIF0; }
+  "tranif1"             { FL; повернути yTRANIF1; }
+  "tri"                 { FL; повернути yTRI; }
+  "tri0"                { FL; повернути yTRI0; }
+  "tri1"                { FL; повернути yTRI1; }
+  "triand"              { FL; повернути yTRIAND; }
+  "trior"               { FL; повернути yTRIOR; }
+  "trireg"              { FL; повернути yTRIREG; }
+  "vectored"            { FL; повернути yVECTORED; }
+  "wait"                { FL; повернути yWAIT; }
+  "wand"                { FL; повернути yWAND; }
+  "weak0"               { FL; повернути yWEAK0; }
+  "weak1"               { FL; повернути yWEAK1; }
+  "while"               { FL; повернути yWHILE; }
+  "wire"                { FL; повернути yWIRE; }
+  "wor"                 { FL; повернути yWOR; }
+  "xnor"                { FL; повернути yXNOR; }
+  "xor"                 { FL; повернути yXOR; }
 }
 
   /* Verilog 2001 */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$signed"             { FL; return yD_SIGNED; }
-  "$unsigned"           { FL; return yD_UNSIGNED; }
+  "$signed"             { FL; повернути yD_SIGNED; }
+  "$unsigned"           { FL; повернути yD_UNSIGNED; }
   /*     Keywords */
-  "automatic"           { FL; return yAUTOMATIC; }
-  "endgenerate"         { FL; return yENDGENERATE; }
-  "generate"            { FL; return yGENERATE; }
-  "genvar"              { FL; return yGENVAR; }
-  "ifnone"              { FL; return yaTIMINGSPEC; }
-  "localparam"          { FL; return yLOCALPARAM; }
-  "noshowcancelled"     { FL; return yaTIMINGSPEC; }
-  "pulsestyle_ondetect" { FL; return yaTIMINGSPEC; }
-  "pulsestyle_onevent"  { FL; return yaTIMINGSPEC; }
-  "showcancelled"       { FL; return yaTIMINGSPEC; }
-  "signed"              { FL; return ySIGNED; }
-  "unsigned"            { FL; return yUNSIGNED; }
+  "automatic"           { FL; повернути yAUTOMATIC; }
+  "endgenerate"         { FL; повернути yENDGENERATE; }
+  "generate"            { FL; повернути yGENERATE; }
+  "genvar"              { FL; повернути yGENVAR; }
+  "ifnone"              { FL; повернути yaTIMINGSPEC; }
+  "localparam"          { FL; повернути yLOCALPARAM; }
+  "noshowcancelled"     { FL; повернути yaTIMINGSPEC; }
+  "pulsestyle_ondetect" { FL; повернути yaTIMINGSPEC; }
+  "pulsestyle_onevent"  { FL; повернути yaTIMINGSPEC; }
+  "showcancelled"       { FL; повернути yaTIMINGSPEC; }
+  "signed"              { FL; повернути ySIGNED; }
+  "unsigned"            { FL; повернути yUNSIGNED; }
 }
 
   /* Verilog 2001 Config */
 <V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   /*     Generic unsupported keywords */
-  "cell"                { FL; return yCELL; }
-  "config"              { FL; return yCONFIG; }
-  "design"              { FL; return yDESIGN; }
-  "endconfig"           { FL; return yENDCONFIG; }
-  "incdir"              { FL; yy_push_state(FILEPATH); return yINCDIR; }
+  "cell"                { FL; повернути yCELL; }
+  "config"              { FL; повернути yCONFIG; }
+  "design"              { FL; повернути yDESIGN; }
+  "endconfig"           { FL; повернути yENDCONFIG; }
+  "incdir"              { FL; yy_push_state(FILEPATH); повернути yINCDIR; }
   "include"             { FL;
-                          if (PARSEP->inLibMap()) {
+                          якщо (PARSEP->inLibMap()) {
                                 yy_push_state(FILEPATH);
-                                return yINCLUDE;
-                          } else {
+                                повернути yINCLUDE;
+                          } інакше {
                                 yylval.fl->v3warn(E_UNSUPPORTED, "Unsupported: IEEE 1800-2001-config lib.map"
                                                                  " reserved word not implemented: 'include'\n"
                                                                  << yylval.fl->warnMore() << "... Suggest unless in a lib.map file,"
@@ -499,218 +499,218 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                 FL_BRK;
                           }
                         }
-  "instance"            { FL; return yINSTANCE; }
-  "liblist"             { FL; return yLIBLIST; }
-  "library"             { FL; yy_push_state(FILEPATH); return yLIBRARY; }
-  "use"                 { FL; return yUSE; }
+  "instance"            { FL; повернути yINSTANCE; }
+  "liblist"             { FL; повернути yLIBLIST; }
+  "library"             { FL; yy_push_state(FILEPATH); повернути yLIBRARY; }
+  "use"                 { FL; повернути yUSE; }
 }
 
   /* Verilog 2005 */
 <V05,S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$clog2"              { FL; return yD_CLOG2; }
+  "$clog2"              { FL; повернути yD_CLOG2; }
   /*     Keywords */
-  "uwire"               { FL; return yWIRE; }
+  "uwire"               { FL; повернути yWIRE; }
 }
 
   /* System Verilog 2005 */
 <S05,S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$bits"               { FL; return yD_BITS; }
-  "$changed"            { FL; return yD_CHANGED; }
-  "$changed_gclk"       { FL; return yD_CHANGED_GCLK; }
-  "$changing_gclk"      { FL; return yD_CHANGING_GCLK; }
-  "$countbits"          { FL; return yD_COUNTBITS; }
-  "$countones"          { FL; return yD_COUNTONES; }
-  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$dimensions"         { FL; return yD_DIMENSIONS; }
-  "$error"              { FL; return yD_ERROR; }
-  "$falling_gclk"       { FL; return yD_FALLING_GCLK; }
-  "$fatal"              { FL; return yD_FATAL; }
-  "$fell"               { FL; return yD_FELL; }
-  "$fell_gclk"          { FL; return yD_FELL_GCLK; }
-  "$future_gclk"        { FL; return yD_FUTURE_GCLK; }
-  "$get_initial_random_seed" { FL; return yD_GET_INITIAL_RANDOM_SEED; }
-  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$high"               { FL; return yD_HIGH; }
-  "$increment"          { FL; return yD_INCREMENT; }
-  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$inferred_disable"   { FL; return yD_INFERRED_DISABLE; }
-  "$info"               { FL; return yD_INFO; }
-  "$isunbounded"        { FL; return yD_ISUNBOUNDED; }
-  "$isunknown"          { FL; return yD_ISUNKNOWN; }
-  "$left"               { FL; return yD_LEFT; }
-  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$low"                { FL; return yD_LOW; }
-  "$onehot"             { FL; return yD_ONEHOT; }
-  "$onehot0"            { FL; return yD_ONEHOT0; }
-  "$past"               { FL; return yD_PAST; }
-  "$past_gclk"          { FL; return yD_PAST_GCLK; }
-  "$right"              { FL; return yD_RIGHT; }
-  "$rising_gclk"        { FL; return yD_RISING_GCLK; }
-  "$root"               { FL; return yD_ROOT; }
-  "$rose"               { FL; return yD_ROSE; }
-  "$rose_gclk"          { FL; return yD_ROSE_GCLK; }
-  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); return yaD_PLI; }
-  "$size"               { FL; return yD_SIZE; }
-  "$stable"             { FL; return yD_STABLE; }
-  "$stable_gclk"        { FL; return yD_STABLE_GCLK; }
-  "$steady_gclk"        { FL; return yD_STEADY_GCLK; }
-  "$unpacked_dimensions" { FL; return yD_UNPACKED_DIMENSIONS; }
-  "$warning"            { FL; return yD_WARNING; }
+  "$bits"               { FL; повернути yD_BITS; }
+  "$changed"            { FL; повернути yD_CHANGED; }
+  "$changed_gclk"       { FL; повернути yD_CHANGED_GCLK; }
+  "$changing_gclk"      { FL; повернути yD_CHANGING_GCLK; }
+  "$countbits"          { FL; повернути yD_COUNTBITS; }
+  "$countones"          { FL; повернути yD_COUNTONES; }
+  "$coverage_control"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$coverage_get"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$coverage_get_max"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$coverage_merge"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$coverage_save"      { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$dimensions"         { FL; повернути yD_DIMENSIONS; }
+  "$error"              { FL; повернути yD_ERROR; }
+  "$falling_gclk"       { FL; повернути yD_FALLING_GCLK; }
+  "$fatal"              { FL; повернути yD_FATAL; }
+  "$fell"               { FL; повернути yD_FELL; }
+  "$fell_gclk"          { FL; повернути yD_FELL_GCLK; }
+  "$future_gclk"        { FL; повернути yD_FUTURE_GCLK; }
+  "$get_initial_random_seed" { FL; повернути yD_GET_INITIAL_RANDOM_SEED; }
+  "$get_coverage"       { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$high"               { FL; повернути yD_HIGH; }
+  "$increment"          { FL; повернути yD_INCREMENT; }
+  "$inferred_clock"     { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$inferred_disable"   { FL; повернути yD_INFERRED_DISABLE; }
+  "$info"               { FL; повернути yD_INFO; }
+  "$isunbounded"        { FL; повернути yD_ISUNBOUNDED; }
+  "$isunknown"          { FL; повернути yD_ISUNKNOWN; }
+  "$left"               { FL; повернути yD_LEFT; }
+  "$load_coverage_db"   { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$low"                { FL; повернути yD_LOW; }
+  "$onehot"             { FL; повернути yD_ONEHOT; }
+  "$onehot0"            { FL; повернути yD_ONEHOT0; }
+  "$past"               { FL; повернути yD_PAST; }
+  "$past_gclk"          { FL; повернути yD_PAST_GCLK; }
+  "$right"              { FL; повернути yD_RIGHT; }
+  "$rising_gclk"        { FL; повернути yD_RISING_GCLK; }
+  "$root"               { FL; повернути yD_ROOT; }
+  "$rose"               { FL; повернути yD_ROSE; }
+  "$rose_gclk"          { FL; повернути yD_ROSE_GCLK; }
+  "$set_coverage_db_name" { FL; STR; ERROR_RSVD_WORD("IEEE 1800-2005"); повернути yaD_PLI; }
+  "$size"               { FL; повернути yD_SIZE; }
+  "$stable"             { FL; повернути yD_STABLE; }
+  "$stable_gclk"        { FL; повернути yD_STABLE_GCLK; }
+  "$steady_gclk"        { FL; повернути yD_STEADY_GCLK; }
+  "$unpacked_dimensions" { FL; повернути yD_UNPACKED_DIMENSIONS; }
+  "$warning"            { FL; повернути yD_WARNING; }
   /*     SV2005 Keywords */
   /* Note assert_strobe was in SystemVerilog 3.1, but removed for SystemVerilog 2005 */
-  "$unit"               { FL; return yD_UNIT; }  /* Yes, a keyword, not task */
-  "alias"               { FL; return yALIAS; }
-  "always_comb"         { FL; return yALWAYS_COMB; }
-  "always_ff"           { FL; return yALWAYS_FF; }
-  "always_latch"        { FL; return yALWAYS_LATCH; }
-  "assert"              { FL; return yASSERT; }
-  "assume"              { FL; return yASSUME; }
-  "before"              { FL; return yBEFORE; }
-  "bind"                { FL; return yBIND; }
-  "bins"                { FL; return yBINS; }
-  "binsof"              { FL; return yBINSOF; }
-  "bit"                 { FL; return yBIT; }
-  "break"               { FL; return yBREAK; }
-  "byte"                { FL; return yBYTE; }
-  "chandle"             { FL; return yCHANDLE; }
-  "class"               { FL; return yCLASS; }
-  "clocking"            { FL; return yCLOCKING; }
-  "const"               { FL; return yCONST__LEX; }
-  "constraint"          { FL; return yCONSTRAINT; }
-  "context"             { FL; return yCONTEXT; }
-  "continue"            { FL; return yCONTINUE; }
-  "cover"               { FL; return yCOVER; }
-  "covergroup"          { FL; return yCOVERGROUP; }
-  "coverpoint"          { FL; return yCOVERPOINT; }
-  "cross"               { FL; return yCROSS; }
-  "dist"                { FL; return yDIST; }
-  "do"                  { FL; return yDO; }
-  "endclass"            { FL; return yENDCLASS; }
-  "endclocking"         { FL; return yENDCLOCKING; }
-  "endgroup"            { FL; return yENDGROUP; }
-  "endinterface"        { FL; return yENDINTERFACE; }
-  "endpackage"          { FL; return yENDPACKAGE; }
-  "endprogram"          { FL; return yENDPROGRAM; }
-  "endproperty"         { FL; return yENDPROPERTY; }
-  "endsequence"         { FL; return yENDSEQUENCE; }
-  "enum"                { FL; return yENUM; }
-  "expect"              { FL; return yEXPECT; }
-  "export"              { FL; return yEXPORT; }
-  "extends"             { FL; return yEXTENDS; }
-  "extern"              { FL; return yEXTERN; }
-  "final"               { FL; return yFINAL; }
-  "first_match"         { FL; return yFIRST_MATCH; }
-  "forkjoin"            { FL; return yFORKJOIN; }
-  "iff"                 { FL; return yIFF; }
-  "ignore_bins"         { FL; return yIGNORE_BINS; }
-  "illegal_bins"        { FL; return yILLEGAL_BINS; }
-  "import"              { FL; return yIMPORT; }
-  "inside"              { FL; return yINSIDE; }
-  "int"                 { FL; return yINT; }
-  "interface"           { FL; return yINTERFACE; }
-  "intersect"           { FL; return yINTERSECT; }
-  "join_any"            { FL; return yJOIN_ANY; }
-  "join_none"           { FL; return yJOIN_NONE; }
-  "local"               { FL; return yLOCAL__LEX; }
-  "logic"               { FL; return yLOGIC; }
-  "longint"             { FL; return yLONGINT; }
-  "matches"             { FL; return yMATCHES; }
-  "modport"             { FL; return yMODPORT; }
-  "new"                 { FL; return yNEW__LEX; }
-  "null"                { FL; return yNULL; }
-  "package"             { FL; return yPACKAGE; }
-  "packed"              { FL; return yPACKED; }
-  "priority"            { FL; return yPRIORITY; }
-  "program"             { FL; return yPROGRAM; }
-  "property"            { FL; return yPROPERTY; }
-  "protected"           { FL; return yPROTECTED; }
-  "pure"                { FL; return yPURE; }
-  "rand"                { FL; return yRAND; }
-  "randc"               { FL; return yRANDC; }
-  "randcase"            { FL; return yRANDCASE; }
-  "randomize"           { FL; return yRANDOMIZE; }
-  "randsequence"        { FL; return yRANDSEQUENCE; }
-  "ref"                 { FL; return yREF; }
-  "restrict"            { FL; return yRESTRICT; }
-  "return"              { FL; return yRETURN; }
-  "sequence"            { FL; return ySEQUENCE; }
-  "shortint"            { FL; return ySHORTINT; }
-  "shortreal"           { FL; return ySHORTREAL; }
-  "solve"               { FL; return ySOLVE; }
-  "static"              { FL; return ySTATIC__LEX; }
-  "string"              { FL; return ySTRING; }
-  "struct"              { FL; return ySTRUCT; }
-  "super"               { FL; return ySUPER; }
-  "tagged"              { FL; return yTAGGED__LEX; }
-  "this"                { FL; return yTHIS; }
-  "throughout"          { FL; return yTHROUGHOUT; }
-  "timeprecision"       { FL; return yTIMEPRECISION; }
-  "timeunit"            { FL; return yTIMEUNIT; }
-  "type"                { FL; return yTYPE__LEX; }
-  "typedef"             { FL; return yTYPEDEF; }
-  "union"               { FL; return yUNION; }
-  "unique"              { FL; return yUNIQUE; }
-  "var"                 { FL; return yVAR; }
-  "virtual"             { FL; return yVIRTUAL__LEX; }
-  "void"                { FL; return yVOID; }
-  "wait_order"          { FL; return yWAIT_ORDER; }
-  "wildcard"            { FL; return yWILDCARD; }
-  "with"                { FL; return yWITH__LEX; }
-  "within"              { FL; return yWITHIN; }
+  "$unit"               { FL; повернути yD_UNIT; }  /* Yes, a keyword, not task */
+  "alias"               { FL; повернути yALIAS; }
+  "always_comb"         { FL; повернути yALWAYS_COMB; }
+  "always_ff"           { FL; повернути yALWAYS_FF; }
+  "always_latch"        { FL; повернути yALWAYS_LATCH; }
+  "assert"              { FL; повернути yASSERT; }
+  "assume"              { FL; повернути yASSUME; }
+  "before"              { FL; повернути yBEFORE; }
+  "bind"                { FL; повернути yBIND; }
+  "bins"                { FL; повернути yBINS; }
+  "binsof"              { FL; повернути yBINSOF; }
+  "bit"                 { FL; повернути yBIT; }
+  "break"               { FL; повернути yBREAK; }
+  "byte"                { FL; повернути yBYTE; }
+  "chandle"             { FL; повернути yCHANDLE; }
+  "class"               { FL; повернути yCLASS; }
+  "clocking"            { FL; повернути yCLOCKING; }
+  "const"               { FL; повернути yCONST__LEX; }
+  "constraint"          { FL; повернути yCONSTRAINT; }
+  "context"             { FL; повернути yCONTEXT; }
+  "continue"            { FL; повернути yCONTINUE; }
+  "cover"               { FL; повернути yCOVER; }
+  "covergroup"          { FL; повернути yCOVERGROUP; }
+  "coverpoint"          { FL; повернути yCOVERPOINT; }
+  "cross"               { FL; повернути yCROSS; }
+  "dist"                { FL; повернути yDIST; }
+  "do"                  { FL; повернути yDO; }
+  "endclass"            { FL; повернути yENDCLASS; }
+  "endclocking"         { FL; повернути yENDCLOCKING; }
+  "endgroup"            { FL; повернути yENDGROUP; }
+  "endinterface"        { FL; повернути yENDINTERFACE; }
+  "endpackage"          { FL; повернути yENDPACKAGE; }
+  "endprogram"          { FL; повернути yENDPROGRAM; }
+  "endproperty"         { FL; повернути yENDPROPERTY; }
+  "endsequence"         { FL; повернути yENDSEQUENCE; }
+  "enum"                { FL; повернути yENUM; }
+  "expect"              { FL; повернути yEXPECT; }
+  "export"              { FL; повернути yEXPORT; }
+  "extends"             { FL; повернути yEXTENDS; }
+  "extern"              { FL; повернути yEXTERN; }
+  "final"               { FL; повернути yFINAL; }
+  "first_match"         { FL; повернути yFIRST_MATCH; }
+  "forkjoin"            { FL; повернути yFORKJOIN; }
+  "iff"                 { FL; повернути yIFF; }
+  "ignore_bins"         { FL; повернути yIGNORE_BINS; }
+  "illegal_bins"        { FL; повернути yILLEGAL_BINS; }
+  "import"              { FL; повернути yIMPORT; }
+  "inside"              { FL; повернути yINSIDE; }
+  "int"                 { FL; повернути yINT; }
+  "interface"           { FL; повернути yINTERFACE; }
+  "intersect"           { FL; повернути yINTERSECT; }
+  "join_any"            { FL; повернути yJOIN_ANY; }
+  "join_none"           { FL; повернути yJOIN_NONE; }
+  "local"               { FL; повернути yLOCAL__LEX; }
+  "logic"               { FL; повернути yLOGIC; }
+  "longint"             { FL; повернути yLONGINT; }
+  "matches"             { FL; повернути yMATCHES; }
+  "modport"             { FL; повернути yMODPORT; }
+  "new"                 { FL; повернути yNEW__LEX; }
+  "null"                { FL; повернути yNULL; }
+  "package"             { FL; повернути yPACKAGE; }
+  "packed"              { FL; повернути yPACKED; }
+  "priority"            { FL; повернути yPRIORITY; }
+  "program"             { FL; повернути yPROGRAM; }
+  "property"            { FL; повернути yPROPERTY; }
+  "protected"           { FL; повернути yPROTECTED; }
+  "pure"                { FL; повернути yPURE; }
+  "rand"                { FL; повернути yRAND; }
+  "randc"               { FL; повернути yRANDC; }
+  "randcase"            { FL; повернути yRANDCASE; }
+  "randomize"           { FL; повернути yRANDOMIZE; }
+  "randsequence"        { FL; повернути yRANDSEQUENCE; }
+  "ref"                 { FL; повернути yREF; }
+  "restrict"            { FL; повернути yRESTRICT; }
+  "return"              { FL; повернути yRETURN; }
+  "sequence"            { FL; повернути ySEQUENCE; }
+  "shortint"            { FL; повернути ySHORTINT; }
+  "shortreal"           { FL; повернути ySHORTREAL; }
+  "solve"               { FL; повернути ySOLVE; }
+  "static"              { FL; повернути ySTATIC__LEX; }
+  "string"              { FL; повернути ySTRING; }
+  "struct"              { FL; повернути ySTRUCT; }
+  "super"               { FL; повернути ySUPER; }
+  "tagged"              { FL; повернути yTAGGED__LEX; }
+  "this"                { FL; повернути yTHIS; }
+  "throughout"          { FL; повернути yTHROUGHOUT; }
+  "timeprecision"       { FL; повернути yTIMEPRECISION; }
+  "timeunit"            { FL; повернути yTIMEUNIT; }
+  "type"                { FL; повернути yTYPE__LEX; }
+  "typedef"             { FL; повернути yTYPEDEF; }
+  "union"               { FL; повернути yUNION; }
+  "unique"              { FL; повернути yUNIQUE; }
+  "var"                 { FL; повернути yVAR; }
+  "virtual"             { FL; повернути yVIRTUAL__LEX; }
+  "void"                { FL; повернути yVOID; }
+  "wait_order"          { FL; повернути yWAIT_ORDER; }
+  "wildcard"            { FL; повернути yWILDCARD; }
+  "with"                { FL; повернути yWITH__LEX; }
+  "within"              { FL; повернути yWITHIN; }
 }
 
   /* SystemVerilog 2009 */
 <S09,S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertfailoff"      { FL; return yD_ASSERTFAILOFF; }
-  "$assertfailon"       { FL; return yD_ASSERTFAILON; }
-  "$assertkill"         { FL; return yD_ASSERTKILL; }
-  "$assertnonvacuouson" { FL; return yD_ASSERTNONVACUOUSON; }
-  "$assertoff"          { FL; return yD_ASSERTOFF; }
-  "$asserton"           { FL; return yD_ASSERTON; }
-  "$assertpassoff"      { FL; return yD_ASSERTPASSOFF; }
-  "$assertpasson"       { FL; return yD_ASSERTPASSON; }
-  "$assertvacuousoff"   { FL; return yD_ASSERTVACUOUSOFF; }
+  "$assertfailoff"      { FL; повернути yD_ASSERTFAILOFF; }
+  "$assertfailon"       { FL; повернути yD_ASSERTFAILON; }
+  "$assertkill"         { FL; повернути yD_ASSERTKILL; }
+  "$assertnonvacuouson" { FL; повернути yD_ASSERTNONVACUOUSON; }
+  "$assertoff"          { FL; повернути yD_ASSERTOFF; }
+  "$asserton"           { FL; повернути yD_ASSERTON; }
+  "$assertpassoff"      { FL; повернути yD_ASSERTPASSOFF; }
+  "$assertpasson"       { FL; повернути yD_ASSERTPASSON; }
+  "$assertvacuousoff"   { FL; повернути yD_ASSERTVACUOUSOFF; }
   /*     Keywords */
-  "accept_on"           { FL; return yACCEPT_ON; }
-  "checker"             { FL; return yCHECKER; }
-  "endchecker"          { FL; return yENDCHECKER; }
-  "eventually"          { FL; return yEVENTUALLY; }
-  "global"              { FL; return yGLOBAL__LEX; }
-  "implies"             { FL; return yIMPLIES; }
-  "let"                 { FL; return yLET; }
-  "nexttime"            { FL; return yNEXTTIME; }
-  "reject_on"           { FL; return yREJECT_ON; }
-  "s_always"            { FL; return yS_ALWAYS; }
-  "s_eventually"        { FL; return yS_EVENTUALLY; }
-  "s_nexttime"          { FL; return yS_NEXTTIME; }
-  "s_until"             { FL; return yS_UNTIL; }
-  "s_until_with"        { FL; return yS_UNTIL_WITH; }
-  "strong"              { FL; return ySTRONG; }
-  "sync_accept_on"      { FL; return ySYNC_ACCEPT_ON; }
-  "sync_reject_on"      { FL; return ySYNC_REJECT_ON; }
-  "unique0"             { FL; return yUNIQUE0; }
-  "until"               { FL; return yUNTIL; }
-  "until_with"          { FL; return yUNTIL_WITH; }
-  "untyped"             { FL; return yUNTYPED; }
-  "weak"                { FL; return yWEAK; }
+  "accept_on"           { FL; повернути yACCEPT_ON; }
+  "checker"             { FL; повернути yCHECKER; }
+  "endchecker"          { FL; повернути yENDCHECKER; }
+  "eventually"          { FL; повернути yEVENTUALLY; }
+  "global"              { FL; повернути yGLOBAL__LEX; }
+  "implies"             { FL; повернути yIMPLIES; }
+  "let"                 { FL; повернути yLET; }
+  "nexttime"            { FL; повернути yNEXTTIME; }
+  "reject_on"           { FL; повернути yREJECT_ON; }
+  "s_always"            { FL; повернути yS_ALWAYS; }
+  "s_eventually"        { FL; повернути yS_EVENTUALLY; }
+  "s_nexttime"          { FL; повернути yS_NEXTTIME; }
+  "s_until"             { FL; повернути yS_UNTIL; }
+  "s_until_with"        { FL; повернути yS_UNTIL_WITH; }
+  "strong"              { FL; повернути ySTRONG; }
+  "sync_accept_on"      { FL; повернути ySYNC_ACCEPT_ON; }
+  "sync_reject_on"      { FL; повернути ySYNC_REJECT_ON; }
+  "unique0"             { FL; повернути yUNIQUE0; }
+  "until"               { FL; повернути yUNTIL; }
+  "until_with"          { FL; повернути yUNTIL_WITH; }
+  "untyped"             { FL; повернути yUNTYPED; }
+  "weak"                { FL; повернути yWEAK; }
 }
 
   /* System Verilog 2012 */
 <S12,S17,S23,SAX>{
   /*     System Tasks */
-  "$assertcontrol"      { FL; return yD_ASSERTCTL; }
+  "$assertcontrol"      { FL; повернути yD_ASSERTCTL; }
   /*     Keywords */
-  "implements"          { FL; return yIMPLEMENTS; }
-  "interconnect"        { FL; return yINTERCONNECT; }
-  "nettype"             { FL; return yNETTYPE; }
-  "soft"                { FL; return ySOFT; }
+  "implements"          { FL; повернути yIMPLEMENTS; }
+  "interconnect"        { FL; повернути yINTERCONNECT; }
+  "nettype"             { FL; повернути yNETTYPE; }
+  "soft"                { FL; повернути ySOFT; }
 }
 
   /* System Verilog 2017 */
@@ -718,7 +718,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Default PLI rule */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "$"[a-zA-Z0-9_$]+     { FL; STR; return yaD_PLI; }
+  "$"[a-zA-Z0-9_$]+     { FL; STR; повернути yaD_PLI; }
 }
 
   /************************************************************************/
@@ -737,20 +737,20 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "aliasparam"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analog"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "analysis"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "asin"               { FL; return yD_ASIN; }
-   "asinh"              { FL; return yD_ASINH; }
+   "asin"               { FL; повернути yD_ASIN; }
+   "asinh"              { FL; повернути yD_ASINH; }
    "assert"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "atan"               { FL; return yD_ATAN; }
-   "atan2"              { FL; return yD_ATAN2; }
-   "atanh"              { FL; return yD_ATANH; }
+   "atan"               { FL; повернути yD_ATAN; }
+   "atan2"              { FL; повернути yD_ATAN2; }
+   "atanh"              { FL; повернути yD_ATANH; }
    "branch"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ceil"               { FL; return yD_CEIL; }
+   "ceil"               { FL; повернути yD_CEIL; }
    "connect"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectmodule"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "connectrules"       { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "continuous"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "cos"                { FL; return yD_COS; }
-   "cosh"               { FL; return yD_COSH; }
+   "cos"                { FL; повернути yD_COS; }
+   "cosh"               { FL; повернути yD_COSH; }
    "cross"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ddt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -764,14 +764,14 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "endnature"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "endparamset"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "exclude"            { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "exp"                { FL; return yD_EXP; }
+   "exp"                { FL; повернути yD_EXP; }
    "final_step"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "flicker_noise"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "floor"              { FL; return yD_FLOOR; }
+   "floor"              { FL; повернути yD_FLOOR; }
    "flow"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "from"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "ground"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "hypot"              { FL; return yD_HYPOT; }
+   "hypot"              { FL; повернути yD_HYPOT; }
    "idt"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idt_nature"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "idtmod"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -783,8 +783,8 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "laplace_zp"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "last_crossing"      { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "limexp"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "ln"                 { FL; return yD_LN; }
-   "log"                { FL; return yD_LOG10; }
+   "ln"                 { FL; повернути yD_LN; }
+   "log"                { FL; повернути yD_LOG10; }
    "max"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "merged"             { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "min"                { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -793,21 +793,21 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
    "noise_table"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "paramset"           { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "potential"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "pow"                { FL; return yD_POW; }
+   "pow"                { FL; повернути yD_POW; }
    "resolveto"          { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sin"                { FL; return yD_SIN; }
-   "sinh"               { FL; return yD_SINH; }
+   "sin"                { FL; повернути yD_SIN; }
+   "sinh"               { FL; повернути yD_SINH; }
    "slew"               { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "split"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "sqrt"               { FL; return yD_SQRT; }
-   "string"             { FL; return ySTRING; }
-   "tan"                { FL; return yD_TAN; }
-   "tanh"               { FL; return yD_TANH; }
+   "sqrt"               { FL; повернути yD_SQRT; }
+   "string"             { FL; повернути ySTRING; }
+   "tan"                { FL; повернути yD_TAN; }
+   "tanh"               { FL; повернути yD_TANH; }
    "timer"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "transition"         { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "units"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "white_noise"        { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
-   "wreal"              { FL; return yWREAL; }
+   "wreal"              { FL; повернути yWREAL; }
    "zi_nd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_np"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
    "zi_zd"              { FL; ERROR_RSVD_WORD("AMS"); FL_BRK; }
@@ -820,64 +820,64 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* Converted from //{cmt}verilator ...{cmt} by preprocessor */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
   "/*verilator"{ws}*"*/"                { FL_FWD; FL_BRK; }  /* Ignore empty comments, may be `endif // verilator */
-  "/*verilator clock_enable*/"          { FL; return yVL_CLOCK_ENABLE; }
-  "/*verilator clocker*/"               { FL; return yVL_CLOCKER; }
-  "/*verilator coverage_block_off*/"    { FL; return yVL_COVERAGE_BLOCK_OFF; }
+  "/*verilator clock_enable*/"          { FL; повернути yVL_CLOCK_ENABLE; }
+  "/*verilator clocker*/"               { FL; повернути yVL_CLOCKER; }
+  "/*verilator coverage_block_off*/"    { FL; повернути yVL_COVERAGE_BLOCK_OFF; }
   "/*verilator coverage_off*/"          { FL_FWD; PARSEP->lexFileline()->coverageOn(false); FL_BRK; }
   "/*verilator coverage_on*/"           { FL_FWD; PARSEP->lexFileline()->coverageOn(true); FL_BRK; }
-  "/*verilator dpi_c_decl*/"            { FL; return yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
-  "/*verilator forceable*/"             { FL; return yVL_FORCEABLE; }
-  "/*verilator full_case*/"             { FL; return yVL_FULL_CASE; }
-  "/*verilator hier_block*/"            { FL; return yVL_HIER_BLOCK; }
-  "/*verilator inline_module*/"         { FL; return yVL_INLINE_MODULE; }
-  "/*verilator isolate_assignments*/"   { FL; return yVL_ISOLATE_ASSIGNMENTS; }
+  "/*verilator dpi_c_decl*/"            { FL; повернути yVL_DPI_C_DECL; }  // The "foo(bar)" is converted by the preproc
+  "/*verilator forceable*/"             { FL; повернути yVL_FORCEABLE; }
+  "/*verilator full_case*/"             { FL; повернути yVL_FULL_CASE; }
+  "/*verilator hier_block*/"            { FL; повернути yVL_HIER_BLOCK; }
+  "/*verilator inline_module*/"         { FL; повернути yVL_INLINE_MODULE; }
+  "/*verilator isolate_assignments*/"   { FL; повернути yVL_ISOLATE_ASSIGNMENTS; }
   "/*verilator lint_off"[^*]*"*/"       { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, true); FL_BRK; }
   "/*verilator lint_on"[^*]*"*/"        { FL; PARSEP->lexVerilatorCmtLint(yylval.fl, yytext, false); FL_BRK; }
   "/*verilator lint_restore*/"          { FL; PARSEP->lexVerilatorCmtLintRestore(PARSEP->lexFileline()); FL_BRK; }
   "/*verilator lint_save*/"             { FL; PARSEP->lexVerilatorCmtLintSave(PARSEP->lexFileline()); FL_BRK; }
-  "/*verilator no_clocker*/"            { FL; return yVL_NO_CLOCKER; }
-  "/*verilator no_inline_module*/"      { FL; return yVL_NO_INLINE_MODULE; }
-  "/*verilator no_inline_task*/"        { FL; return yVL_NO_INLINE_TASK; }
-  "/*verilator parallel_case*/"         { FL; return yVL_PARALLEL_CASE; }
-  "/*verilator public*/"                { FL; return yVL_PUBLIC; }
-  "/*verilator public_flat*/"           { FL; return yVL_PUBLIC_FLAT; }
-  "/*verilator public_flat_on*/"        { FL; return yVL_PUBLIC_FLAT_ON; }
-  "/*verilator public_flat_rd*/"        { FL; return yVL_PUBLIC_FLAT_RD; }
-  "/*verilator public_flat_rd_on*/"     { FL; return yVL_PUBLIC_FLAT_RD_ON; }
-  "/*verilator public_flat_rw*/"        { FL; return yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
-  "/*verilator public_flat_rw_on*/"     { FL; return yVL_PUBLIC_FLAT_RW_ON; }
-  "/*verilator public_flat_rw_on_sns*/" { FL; return yVL_PUBLIC_FLAT_RW_ON_SNS; }
-  "/*verilator public_module*/"         { FL; return yVL_PUBLIC_MODULE; }
-  "/*verilator public_on*/"             { FL; return yVL_PUBLIC_ON; }
-  "/*verilator public_off*/"            { FL; return yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
-  "/*verilator sc_biguint*/"            { FL; return yVL_SC_BIGUINT; }
-  "/*verilator sc_bv*/"                 { FL; return yVL_SC_BV; }
+  "/*verilator no_clocker*/"            { FL; повернути yVL_NO_CLOCKER; }
+  "/*verilator no_inline_module*/"      { FL; повернути yVL_NO_INLINE_MODULE; }
+  "/*verilator no_inline_task*/"        { FL; повернути yVL_NO_INLINE_TASK; }
+  "/*verilator parallel_case*/"         { FL; повернути yVL_PARALLEL_CASE; }
+  "/*verilator public*/"                { FL; повернути yVL_PUBLIC; }
+  "/*verilator public_flat*/"           { FL; повернути yVL_PUBLIC_FLAT; }
+  "/*verilator public_flat_on*/"        { FL; повернути yVL_PUBLIC_FLAT_ON; }
+  "/*verilator public_flat_rd*/"        { FL; повернути yVL_PUBLIC_FLAT_RD; }
+  "/*verilator public_flat_rd_on*/"     { FL; повернути yVL_PUBLIC_FLAT_RD_ON; }
+  "/*verilator public_flat_rw*/"        { FL; повернути yVL_PUBLIC_FLAT_RW; }  // The @(edge) is converted by the preproc
+  "/*verilator public_flat_rw_on*/"     { FL; повернути yVL_PUBLIC_FLAT_RW_ON; }
+  "/*verilator public_flat_rw_on_sns*/" { FL; повернути yVL_PUBLIC_FLAT_RW_ON_SNS; }
+  "/*verilator public_module*/"         { FL; повернути yVL_PUBLIC_MODULE; }
+  "/*verilator public_on*/"             { FL; повернути yVL_PUBLIC_ON; }
+  "/*verilator public_off*/"            { FL; повернути yVL_PUBLIC_OFF; }  // terminates previous 'verilator public*_on'
+  "/*verilator sc_biguint*/"            { FL; повернути yVL_SC_BIGUINT; }
+  "/*verilator sc_bv*/"                 { FL; повернути yVL_SC_BV; }
   "/*verilator sc_clock*/"              { FL; yylval.fl->v3warn(DEPRECATED, "sc_clock is ignored"); FL_BRK; }
-  "/*verilator sformat*/"               { FL; return yVL_SFORMAT; }
-  "/*verilator split_var*/"             { FL; return yVL_SPLIT_VAR; }
+  "/*verilator sformat*/"               { FL; повернути yVL_SFORMAT; }
+  "/*verilator split_var*/"             { FL; повернути yVL_SPLIT_VAR; }
   /* Experimental Verilator-specific FSM coverage controls. These names were
    * chosen to match the current extractor behavior, not a published synthesis
    * or simulator pragma standard, so they may evolve as we settle on longer-
    * term compatibility/aliasing.
    */
-  "/*verilator fsm_arc_include_cond*/"  { FL; return yVL_FSM_ARC_INCL_COND; }
-  "/*verilator fsm_arc_include_cond_auto*/"         { FL; return yVL_FSM_ARC_INCL_COND_AUTO; }
-  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; return yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
-  "/*verilator fsm_arc_include_cond_full*/"         { FL; return yVL_FSM_ARC_INCL_COND_FULL; }
+  "/*verilator fsm_arc_include_cond*/"  { FL; повернути yVL_FSM_ARC_INCL_COND; }
+  "/*verilator fsm_arc_include_cond_auto*/"         { FL; повернути yVL_FSM_ARC_INCL_COND_AUTO; }
+  "/*verilator fsm_arc_include_cond_auto_expand*/"  { FL; повернути yVL_FSM_ARC_INCL_COND_AUTO_EXPAND; }
+  "/*verilator fsm_arc_include_cond_full*/"         { FL; повернути yVL_FSM_ARC_INCL_COND_FULL; }
   "/*verilator fsm_reset_arc*/"         { FL; yylval.fl->v3warn(DEPRECATED, "/*verilator fsm_reset_arc*/ is deprecated and aliases /*verilator fsm_state*/");
-                                          return yVL_FSM_STATE; }
-  "/*verilator fsm_state*/"             { FL; return yVL_FSM_STATE; }
-  "/*verilator fsm_state_auto*/"        { FL; return yVL_FSM_STATE_AUTO; }
-  "/*verilator fsm_state_auto_expand*/" { FL; return yVL_FSM_STATE_AUTO_EXPAND; }
-  "/*verilator fsm_state_full*/"        { FL; return yVL_FSM_STATE_FULL; }
+                                          повернути yVL_FSM_STATE; }
+  "/*verilator fsm_state*/"             { FL; повернути yVL_FSM_STATE; }
+  "/*verilator fsm_state_auto*/"        { FL; повернути yVL_FSM_STATE_AUTO; }
+  "/*verilator fsm_state_auto_expand*/" { FL; повернути yVL_FSM_STATE_AUTO_EXPAND; }
+  "/*verilator fsm_state_full*/"        { FL; повернути yVL_FSM_STATE_FULL; }
   "/*verilator tag"[^*]*"*/"            { FL; yylval.strp = PARSEP->newString(V3ParseImp::lexParseTag(yytext));
-                                          return yVL_TAG; }
+                                          повернути yVL_TAG; }
   "/*verilator timing_off*/"            { FL_FWD; PARSEP->lexFileline()->timingOn(false); FL_BRK; }
   "/*verilator timing_on*/"             { FL_FWD; PARSEP->lexFileline()->timingOn(true); FL_BRK; }
   "/*verilator tracing_off*/"           { FL_FWD; PARSEP->lexFileline()->tracingOn(false); FL_BRK; }
   "/*verilator tracing_on*/"            { FL_FWD; PARSEP->lexFileline()->tracingOn(true); FL_BRK; }
-  "/*verilator unroll_disable*/"        { FL; return yVL_UNROLL_DISABLE; }
-  "/*verilator unroll_full*/"           { FL; return yVL_UNROLL_FULL; }
+  "/*verilator unroll_disable*/"        { FL; повернути yVL_UNROLL_DISABLE; }
+  "/*verilator unroll_full*/"           { FL; повернути yVL_UNROLL_FULL; }
 
   "/**/"                                { FL_FWD; FL_BRK; }
   "/*"[^*]+"*/"                         { FL; V3ParseImp::lexVerilatorCmtBad(yylval.fl, yytext); FL_BRK; }
@@ -887,33 +887,33 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Single character operator thingies */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "{"                   { FL; return yytext[0]; }
-  "}"                   { FL; return yytext[0]; }
-  "!"                   { FL; return yytext[0]; }
-  "#"                   { FL; return yytext[0]; }
-  "$"                   { FL; return yytext[0]; }
-  "%"                   { FL; return yytext[0]; }
-  "&"                   { FL; return yytext[0]; }
-  "("                   { FL; return yytext[0]; }
-  ")"                   { FL; return yytext[0]; }
-  "*"                   { FL; return yytext[0]; }
-  "+"                   { FL; return yytext[0]; }
-  ","                   { FL; return yytext[0]; }
-  "-"                   { FL; return yytext[0]; }
-  "."                   { FL; return yytext[0]; }
-  "/"                   { FL; return yytext[0]; }
-  ":"                   { FL; return yytext[0]; }
-  ";"                   { FL; return yytext[0]; }
-  "<"                   { FL; return yytext[0]; }
-  "="                   { FL; return yytext[0]; }
-  ">"                   { FL; return yytext[0]; }
-  "?"                   { FL; return yytext[0]; }
-  "@"                   { FL; return yytext[0]; }
-  "["                   { FL; return yytext[0]; }
-  "]"                   { FL; return yytext[0]; }
-  "^"                   { FL; return yytext[0]; }
-  "|"                   { FL; return yytext[0]; }
-  "~"                   { FL; return yytext[0]; }
+  "{"                   { FL; повернути yytext[0]; }
+  "}"                   { FL; повернути yytext[0]; }
+  "!"                   { FL; повернути yytext[0]; }
+  "#"                   { FL; повернути yytext[0]; }
+  "$"                   { FL; повернути yytext[0]; }
+  "%"                   { FL; повернути yytext[0]; }
+  "&"                   { FL; повернути yytext[0]; }
+  "("                   { FL; повернути yytext[0]; }
+  ")"                   { FL; повернути yytext[0]; }
+  "*"                   { FL; повернути yytext[0]; }
+  "+"                   { FL; повернути yytext[0]; }
+  ","                   { FL; повернути yytext[0]; }
+  "-"                   { FL; повернути yytext[0]; }
+  "."                   { FL; повернути yytext[0]; }
+  "/"                   { FL; повернути yytext[0]; }
+  ":"                   { FL; повернути yytext[0]; }
+  ";"                   { FL; повернути yytext[0]; }
+  "<"                   { FL; повернути yytext[0]; }
+  "="                   { FL; повернути yytext[0]; }
+  ">"                   { FL; повернути yytext[0]; }
+  "?"                   { FL; повернути yytext[0]; }
+  "@"                   { FL; повернути yytext[0]; }
+  "["                   { FL; повернути yytext[0]; }
+  "]"                   { FL; повернути yytext[0]; }
+  "^"                   { FL; повернути yytext[0]; }
+  "|"                   { FL; повернути yytext[0]; }
+  "~"                   { FL; повернути yytext[0]; }
 }
 
   /************************************************************************/
@@ -921,139 +921,139 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /* Verilog 1995 Operators */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "&&"                  { FL; return yP_ANDAND; }
-  "||"                  { FL; return yP_OROR; }
-  "<="                  { FL; return yP_LTE; }
-  ">="                  { FL; return yP_GTE; }
-  "<<"                  { FL; return yP_SLEFT; }
-  ">>"                  { FL; return yP_SRIGHT; }
-  "=="                  { FL; return yP_EQUAL; }
-  "!="                  { FL; return yP_NOTEQUAL; }
-  "==="                 { FL; return yP_CASEEQUAL; }
-  "!=="                 { FL; return yP_CASENOTEQUAL; }
-  "^~"                  { FL; return yP_XNOR; }
-  "~^"                  { FL; return yP_XNOR; }
-  "~&"                  { FL; return yP_NAND; }
-  "~|"                  { FL; return yP_NOR; }
-  "->"                  { FL; return yP_MINUSGT; }
-  "=>"                  { FL; return yP_EQGT; }
-  "*>"                  { FL; return yP_ASTGT; }
-  "&&&"                 { FL; return yP_ANDANDAND; }
+  "&&"                  { FL; повернути yP_ANDAND; }
+  "||"                  { FL; повернути yP_OROR; }
+  "<="                  { FL; повернути yP_LTE; }
+  ">="                  { FL; повернути yP_GTE; }
+  "<<"                  { FL; повернути yP_SLEFT; }
+  ">>"                  { FL; повернути yP_SRIGHT; }
+  "=="                  { FL; повернути yP_EQUAL; }
+  "!="                  { FL; повернути yP_NOTEQUAL; }
+  "==="                 { FL; повернути yP_CASEEQUAL; }
+  "!=="                 { FL; повернути yP_CASENOTEQUAL; }
+  "^~"                  { FL; повернути yP_XNOR; }
+  "~^"                  { FL; повернути yP_XNOR; }
+  "~&"                  { FL; повернути yP_NAND; }
+  "~|"                  { FL; повернути yP_NOR; }
+  "->"                  { FL; повернути yP_MINUSGT; }
+  "=>"                  { FL; повернути yP_EQGT; }
+  "*>"                  { FL; повернути yP_ASTGT; }
+  "&&&"                 { FL; повернути yP_ANDANDAND; }
 }
 
   /* Verilog 2001 Operators */
 <V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX>{
-  "<<<"                 { FL; return yP_SLEFT; }
-  ">>>"                 { FL; return yP_SSRIGHT; }
-  "**"                  { FL; return yP_POW; }
-  "+:"                  { FL; return yP_PLUSCOLON; }
-  "-:"                  { FL; return yP_MINUSCOLON; }
-  ".*"                  { FL; return yP_DOTSTAR; }
+  "<<<"                 { FL; повернути yP_SLEFT; }
+  ">>>"                 { FL; повернути yP_SSRIGHT; }
+  "**"                  { FL; повернути yP_POW; }
+  "+:"                  { FL; повернути yP_PLUSCOLON; }
+  "-:"                  { FL; повернути yP_MINUSCOLON; }
+  ".*"                  { FL; повернути yP_DOTSTAR; }
   ":+"                  { FL; yyless(1);
                           yylval.fl->v3warn(COLONPLUS, "Perhaps instead of ':+' the intent was '+:'?");
-                          return ':'; }
+                          повернути ':'; }
 }
 
   /* SystemVerilog Operators */
 <S05,S09,S12,S17,S23,SAX>{
-  "'"                   { FL; return yP_TICK; }
-  "'{"                  { FL; return yP_TICKBRA; }
-  "==?"                 { FL; return yP_WILDEQUAL; }
-  "!=?"                 { FL; return yP_WILDNOTEQUAL; }
-  "++"                  { FL; return yP_PLUSPLUS; }
-  "--"                  { FL; return yP_MINUSMINUS; }
-  "+="                  { FL; return yP_PLUSEQ; }
-  "-="                  { FL; return yP_MINUSEQ; }
-  "*="                  { FL; return yP_TIMESEQ; }
-  "/="                  { FL; return yP_DIVEQ; }
-  "%="                  { FL; return yP_MODEQ; }
-  "&="                  { FL; return yP_ANDEQ; }
-  "|="                  { FL; return yP_OREQ; }
-  "^="                  { FL; return yP_XOREQ; }
-  "<<="                 { FL; return yP_SLEFTEQ; }
-  ">>="                 { FL; return yP_SRIGHTEQ; }
-  "<<<="                { FL; return yP_SLEFTEQ; }
-  ">>>="                { FL; return yP_SSRIGHTEQ; }
-  "->>"                 { FL; return yP_MINUSGTGT; }
-  "##"                  { FL; return yP_POUNDPOUND; }
-  "#-#"                 { FL; return yP_POUNDMINUSPD; }
-  "#=#"                 { FL; return yP_POUNDEQPD; }
-  "@@"                  { FL; return yP_ATAT; }
-  "::"                  { FL; return yP_COLONCOLON; }
-  ":="                  { FL; return yP_COLONEQ; }
-  ":/"/[^\/\*]          { FL; return yP_COLONDIV; }  /* : then comment is not ":/" */
-  "|->"                 { FL; return yP_ORMINUSGT; }
-  "|=>"                 { FL; return yP_OREQGT; }
+  "'"                   { FL; повернути yP_TICK; }
+  "'{"                  { FL; повернути yP_TICKBRA; }
+  "==?"                 { FL; повернути yP_WILDEQUAL; }
+  "!=?"                 { FL; повернути yP_WILDNOTEQUAL; }
+  "++"                  { FL; повернути yP_PLUSPLUS; }
+  "--"                  { FL; повернути yP_MINUSMINUS; }
+  "+="                  { FL; повернути yP_PLUSEQ; }
+  "-="                  { FL; повернути yP_MINUSEQ; }
+  "*="                  { FL; повернути yP_TIMESEQ; }
+  "/="                  { FL; повернути yP_DIVEQ; }
+  "%="                  { FL; повернути yP_MODEQ; }
+  "&="                  { FL; повернути yP_ANDEQ; }
+  "|="                  { FL; повернути yP_OREQ; }
+  "^="                  { FL; повернути yP_XOREQ; }
+  "<<="                 { FL; повернути yP_SLEFTEQ; }
+  ">>="                 { FL; повернути yP_SRIGHTEQ; }
+  "<<<="                { FL; повернути yP_SLEFTEQ; }
+  ">>>="                { FL; повернути yP_SSRIGHTEQ; }
+  "->>"                 { FL; повернути yP_MINUSGTGT; }
+  "##"                  { FL; повернути yP_POUNDPOUND; }
+  "#-#"                 { FL; повернути yP_POUNDMINUSPD; }
+  "#=#"                 { FL; повернути yP_POUNDEQPD; }
+  "@@"                  { FL; повернути yP_ATAT; }
+  "::"                  { FL; повернути yP_COLONCOLON; }
+  ":="                  { FL; повернути yP_COLONEQ; }
+  ":/"/[^\/\*]          { FL; повернути yP_COLONDIV; }  /* : then comment is not ":/" */
+  "|->"                 { FL; повернути yP_ORMINUSGT; }
+  "|=>"                 { FL; повернути yP_OREQGT; }
   /* Some simulators allow whitespace here. Grr */
-  "["{ws}*"*"           { FL; return yP_BRASTAR; }
-  "["{ws}*"+"{ws}*"]"   { FL; return yP_BRAPLUSKET; }
-  "["{ws}*"->"          { FL; return yP_BRAMINUSGT; }
-  "["{ws}*"="           { FL; return yP_BRAEQ; }
+  "["{ws}*"*"           { FL; повернути yP_BRASTAR; }
+  "["{ws}*"+"{ws}*"]"   { FL; повернути yP_BRAPLUSKET; }
+  "["{ws}*"->"          { FL; повернути yP_BRAMINUSGT; }
+  "["{ws}*"="           { FL; повернути yP_BRAEQ; }
 }
 
   /* SystemVerilog 2009 Operators */
 <S09,S12,S17,S23,SAX,VLT>{
-  "<->"                 { FL; return yP_LTMINUSGT; }
+  "<->"                 { FL; повернути yP_LTMINUSGT; }
 }
 
   /* SystemVerilog 2023 Operators */
 <S23,SAX,VLT>{
-  "+/-"                 { FL; return yP_PLUSSLASHMINUS; }
-  "+%-"                 { FL; return yP_PLUSPCTMINUS; }
+  "+/-"                 { FL; повернути yP_PLUSSLASHMINUS; }
+  "+%-"                 { FL; повернути yP_PLUSPCTMINUS; }
 }
 
   /* Identifiers and numbers */
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   {escid}               { FL; yylval.strp = PARSEP->newString
                                   (AstNode::encodeName(std::string{yytext+1}));  // +1 to skip the backslash
-                          return yaID__LEX;
+                          повернути yaID__LEX;
                         }
   {id}                  { FL; yylval.strp = PARSEP->newString(AstNode::encodeName(std::string{yytext}));
-                          return yaID__LEX;
+                          повернути yaID__LEX;
                         }
   \"[^\"\\]*\"          { FL; yylval.strp = PARSEP->newString(yytext+1, yyleng-2);
-                          return yaSTRING;
+                          повернути yaSTRING;
                         }
   \"                    { yy_push_state(STRING); PARSEP->lexString().clear(); }
   \"\"\"                { yy_push_state(QQQ); PARSEP->lexString().clear(); }
   {vnum}                {
                           /* "# 1'b0" is a delay value so must lex as "#" "1" "'b0" */
-                          if (PARSEP->lexPrevToken()=='#') {
-                              int shortlen = 0;
-                              if (std::isdigit(yytext[shortlen])) {
-                                  while (std::isdigit(yytext[shortlen])
+                          якщо (PARSEP->lexPrevToken()=='#') {
+                              ціле shortlen = 0;
+                              якщо (std::isdigit(yytext[shortlen])) {
+                                  поки (std::isdigit(yytext[shortlen])
                                          || yytext[shortlen]=='_') ++shortlen;
                               }
-                              if (shortlen) {
+                              якщо (shortlen) {
                                   // Push rest past numbers for later parse
                                   PARSEP->lexUnputString(yytext + shortlen, yyleng - shortlen);
                                   // Return is stuff before the tick
                                   yyleng = shortlen;
                                   yytext[yyleng] = '\0';
                                   FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                                  return yaINTNUM;
+                                  повернути yaINTNUM;
                               }
                           }
                           FL; yylval.nump = PARSEP->newNumber(yylval. fl, (char*)yytext);
-                          return yaINTNUM;
+                          повернути yaINTNUM;
                         }
   [0-9][_0-9]*          {
                           FL; yylval.nump = PARSEP->newNumber(yylval.fl, (char*)yytext);
-                          return yaINTNUM;
+                          повернути yaINTNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)([eE][-+]?[_0-9]+)? {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          повернути yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?([eE][-+]?[_0-9]+) {
                           FL; yylval.cdouble = lexParseDouble(yylval.fl, yytext, yyleng);
-                          return yaFLOATNUM;
+                          повернути yaFLOATNUM;
                         }
   [0-9][_0-9]*(\.[_0-9]+)?(fs|ps|ns|us|ms|s) {
                           FL; yylval.cdouble = V3ParseImp::lexParseTimenum(yytext);
-                          return yaTIMENUM;
+                          повернути yaTIMENUM;
                         }
-  1step                 { FL; return y1STEP; }
+  1step                 { FL; повернути y1STEP; }
 }
 
   /************************************************************************/
@@ -1069,7 +1069,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"", 1, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          повернути yaSTRING; }
 <STRING>{word}          { PARSEP->lexString().append(yytext, yyleng); }
 <STRING>.               { PARSEP->lexString().append(yytext, yyleng); }
 
@@ -1085,7 +1085,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                                               PARSEP->lexString().size(), true);
                           PARSEP->lexFileline()->forwardToken("\"\"\"", 3, true);
                           FL; yylval.strp = PARSEP->newString(PARSEP->lexString());
-                          return yaSTRING; }
+                          повернути yaSTRING; }
 <QQQ>\"                 { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>{word}             { PARSEP->lexString().append(yytext, yyleng); }
 <QQQ>.                  { PARSEP->lexString().append(yytext, yyleng); }
@@ -1108,24 +1108,24 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 
   /************************************************************************/
   /* Tables */
-<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* edge_symbol */
-<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); return yaTABLE_FIELD; }  /* level_symbol, next_state */
-<TABLE>":"                              { FL; return yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
-<TABLE>";"                              { FL; return yaTABLE_LINEEND; }
-<TABLE>[\(\)]                           { FL; return yytext[0]; }
+<TABLE>[rRfFpPnN\*]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); повернути yaTABLE_FIELD; }  /* edge_symbol */
+<TABLE>[01xX\?bB\-]                     { FL; yylval.strp = PARSEP->newString(yytext, yyleng); повернути yaTABLE_FIELD; }  /* level_symbol, next_state */
+<TABLE>":"                              { FL; повернути yaTABLE_LRSEP; }  /* LHS and RHS separator for table line. */
+<TABLE>";"                              { FL; повернути yaTABLE_LINEEND; }
+<TABLE>[\(\)]                           { FL; повернути yytext[0]; }
 <TABLE>{ws}|(\\){0,1}{crnl}             { FL_FWD; FL_BRK; }
 <TABLE>"`line"{ws}+[^\n\r]*{crnl}       { FL_FWD; PARSEP->lexPpline(yytext); FL_BRK; }
 <TABLE>"//"[^\n]*                       { FL_FWD; FL_BRK; }  /* Throw away single line comments */
-<TABLE>"endtable"                       { FL; yy_pop_state(); return yENDTABLE; }
+<TABLE>"endtable"                       { FL; yy_pop_state(); повернути yENDTABLE; }
 <TABLE><<EOF>>                          { FL; yylval.fl->v3error("EOF in 'table'");
                                               yyleng = 0; yy_pop_state(); FL_BRK; yyterminate(); }
 
 <EDGEDESC>{
-  01|10|[01][zZxX]|[zZxX][01]  { FL; return yaEDGEDESC; }
+  01|10|[01][zZxX]|[zZxX][01]  { FL; повернути yaEDGEDESC; }
 }
-<EDGEDESC>","|"["         { FL; return yytext[0]; }
+<EDGEDESC>","|"["         { FL; повернути yytext[0]; }
 <EDGEDESC>{ws}            { FL_FWD; FL_BRK; }  /* otherwise ignore white-space */
-<EDGEDESC>"]"             { FL; yy_pop_state(); return yytext[0]; }
+<EDGEDESC>"]"             { FL; yy_pop_state(); повернути yytext[0]; }
 
   /************************************************************************/
   /* Preprocessor */
@@ -1161,7 +1161,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`noremove_gatenames"                 { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`noremove_netnames"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`nosuppress_faults"                  { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
-  "`nounconnected_drive"                { FL; return yaT_NOUNCONNECTED; }
+  "`nounconnected_drive"                { FL; повернути yaT_NOUNCONNECTED; }
   "`portcoerce"                         { FL_FWD; FL_BRK; }
   "`pragma"{ws}*[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog 2005
   "`protect"                            { FL_FWD; FL_BRK; }
@@ -1172,13 +1172,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
                                           v3Global.rootp()->timeInit();
                                           PARSEP->lexFileline()->celldefineOn(false);
                                           PARSEP->unconnectedDrive(VOptionBool::OPT_DEFAULT_FALSE);
-                                          return yaT_RESETALL; }  // Rest handled by preproc
+                                          повернути yaT_RESETALL; }  // Rest handled by preproc
   "`suppress_faults"                    { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
   "`timescale"{ws}+[^\n\r]*             { FL; PARSEP->lexTimescaleParse(yylval.fl,
                                                                         yytext + std::strlen("`timescale"));
                                           FL_BRK; }
-  "`unconnected_drive"{ws}+"pull0"      { FL; return yaT_UNCONNECTED_PULL0; }
-  "`unconnected_drive"{ws}+"pull1"      { FL; return yaT_UNCONNECTED_PULL1; }
+  "`unconnected_drive"{ws}+"pull0"      { FL; повернути yaT_UNCONNECTED_PULL0; }
+  "`unconnected_drive"{ws}+"pull1"      { FL; повернути yaT_UNCONNECTED_PULL1; }
   "`unconnected_drive"                  { FL; yylval.fl->v3error("Bad `unconnected_drive syntax"); FL_BRK; }
   "`uselib"{ws}+[^\n\r]*                { FL_FWD; FL_BRK; }  // Verilog-XL compatibility
 
@@ -1195,9 +1195,9 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   "`begin_keywords"[ \t]*\"1800-2023\"          { FL_FWD; yy_push_state(S23); PARSEP->lexPushKeywords(YY_START); FL_BRK; }
   "`begin_keywords"[ \t]*\"1800[+]VAMS\"        { FL_FWD; yy_push_state(SAX); PARSEP->lexPushKeywords(YY_START); FL_BRK; }  /*Latest SV*/
   "`end_keywords"                               { FL;
-                                                  if (!PARSEP->lexPopKeywords()) {
+                                                  якщо (!PARSEP->lexPopKeywords()) {
                                                       yylval.fl->v3error("`end_keywords when not inside `begin_keywords block");
-                                                  } else { yy_pop_state(); }
+                                                  } інакше { yy_pop_state(); }
                                                   FL_BRK; }
 
   /* Verilator */
@@ -1220,13 +1220,13 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
   /* If add to this list also add to V3LanguageWords.h */
 }
 
-<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDR; }
-<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCHDRP; }
-<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCINT; }
-<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMP; }
-<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCIMPH; }
-<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCCTOR; }
-<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); return yaSCDTOR; }
+<SYSCHDR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCHDR; }
+<SYSCHDRP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCHDRP; }
+<SYSCINT>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCINT; }
+<SYSCIMP>[ \t]*[^` \t\n\r][^\n\r]*{crnl}        { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCIMP; }
+<SYSCIMPH>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCIMPH; }
+<SYSCCTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCCTOR; }
+<SYSCDTOR>[ \t]*[^` \t\n\r][^\n\r]*{crnl}       { FL; yylval.strp = PARSEP->newString(yytext); повернути yaSCDTOR; }
 
   /* Pick up text-type data */
 <SYSCHDR,SYSCHDRP,SYSCINT,SYSCIMP,SYSCIMPH,SYSCCTOR,SYSCDTOR>{
@@ -1240,7 +1240,7 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 <V95,V01NC,V01C,V05,VA5,S05,S09,S12,S17,S23,SAX,VLT>{
   "`"[a-zA-Z_0-9]+      { FL; V3ParseImp::lexErrorPreprocDirective(yylval.fl, yytext); FL_BRK; }
   "//"[^\n]*            { FL_FWD; FL_BRK; }  /* throw away single line comments */
-  .                     { FL; return yytext[0]; }  /* return single char ops. */
+  .                     { FL; повернути yytext[0]; }  /* return single char ops. */
 }
 
   /* Catch all - absolutely last */
@@ -1252,4 +1252,4 @@ vnum    {vnum1}|{vnum2}|{vnum3}|{vnum4}|{vnum5}
 // Avoid code here as cl format misindents
 // For implementation functions see V3ParseImp.cpp
 
-int V3ParseImp::stateVerilogRecent() { return STATE_VERILOG_RECENT; }
+ціле V3ParseImp::stateVerilogRecent() { повернути STATE_VERILOG_RECENT; }
