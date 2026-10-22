@@ -17,28 +17,28 @@
 #ifndef VERILATOR_V3WIDTH_H_
 #define VERILATOR_V3WIDTH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_عقدة;
+class Ast_عقدة_Assign;
+class Ast_عقدة_DType;
 
 //============================================================================
 
 class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+عام:
+    ساكن فراغ width(AstNetlist* nodep) VL_MT_DISABLED;
+    ساكن Ast_عقدة* widthParamsEdit(Ast_عقدة* nodep) VL_MT_DISABLED;
+    ساكن Ast_عقدة* widthGenerateParamsEdit(Ast_عقدة* nodep) VL_MT_DISABLED;
+    ساكن Ast_عقدة* selectNonConstantRecurse(Ast_عقدة* nodep, bool inSel = false) VL_MT_DISABLED;
+    ساكن فراغ streamAssignLowerEdit(Ast_عقدة_Assign* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    ساكن Ast_عقدة* widthSelNoIterEdit(Ast_عقدة* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

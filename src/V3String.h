@@ -17,20 +17,20 @@
 #ifndef VERILATOR_V3STRING_H_
 #define VERILATOR_V3STRING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
 // No V3 headers here - this is a base class for Vlc etc
 
-#include <deque>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
+#ضمن <deque>
+#ضمن <iomanip>
+#ضمن <map>
+#ضمن <set>
+#ضمن <sstream>
+#ضمن <string>
+#ضمن <type_traits>
+#ضمن <unordered_map>
+#ضمن <vector>
 
 using VStringList = std::vector<std::string>;
 using VStringSet = std::set<std::string>;
@@ -39,115 +39,115 @@ using VStringSet = std::set<std::string>;
 // Global string-related functions
 
 template <typename T>
-std::string cvtToStr(const T& t) VL_PURE {
+std::string cvtToStr(ثابت T& t) VL_PURE {
     std::ostringstream os;
     os << t;
-    return os.str();
+    أرجع os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
-cvtToHex(const T tp) VL_PURE {
+typename std::enable_if<std::is_pointer<T>::قيمة, std::string>::type
+cvtToHex(ثابت T tp) VL_PURE {
     std::ostringstream os;
-    os << static_cast<const void*>(tp);
-    return os.str();
+    os << static_cast<ثابت فراغ*>(tp);
+    أرجع os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+typename std::enable_if<std::is_integral<T>::قيمة, std::string>::type cvtToHex(ثابت T t) {
     std::ostringstream os;
-    os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    os << std::hex << std::setw(حجم(T) * 8 / 4) << std::setfill('0') << t;
+    أرجع os.str();
 }
 
-inline string ucfirst(const string& text) {
+مضمن string ucfirst(ثابت string& text) {
     string result = text;
     result[0] = std::toupper(result[0]);
-    return result;
+    أرجع result;
 }
 
 //######################################################################
 // VString - String manipulation
 
 class VString final {
-    static bool wildmatchi(const char* s, const char* p) VL_PURE;
+    ساكن bool wildmatchi(ثابت حرف* s, ثابت حرف* p) VL_PURE;
 
-public:
+عام:
     // METHODS (generic string utilities)
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const char* s, const char* p) VL_PURE;
+    ساكن bool wildmatch(ثابت حرف* s, ثابت حرف* p) VL_PURE;
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const string& s, const string& p) VL_PURE;
+    ساكن bool wildmatch(ثابت string& s, ثابت string& p) VL_PURE;
     // Return {a}{dot}{b}, omitting dot if a or b are empty
-    static string dot(const string& a, const string& dot, const string& b);
+    ساكن string dot(ثابت string& a, ثابت string& dot, ثابت string& b);
     // Convert string to lowercase (tolower)
-    static string downcase(const string& str) VL_PURE;
+    ساكن string downcase(ثابت string& str) VL_PURE;
     // Convert string to upper case (toupper)
-    static string upcase(const string& str) VL_PURE;
+    ساكن string upcase(ثابت string& str) VL_PURE;
     // Insert esc just before tgt
-    static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
+    ساكن string quoteAny(ثابت string& str, حرف tgt, حرف esc) VL_PURE;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    ساكن string quoteBackslash(ثابت string& str) VL_PURE { أرجع quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    ساكن string quotePercent(ثابت string& str) VL_PURE { أرجع quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
-    static string dequotePercent(const string& str);
+    ساكن string dequotePercent(ثابت string& str);
     // Surround a raw string by double quote and escape if necessary
     // e.g. input abc's  becomes "\"abc\'s\""
-    static string escapeStringForPath(const string& str);
+    ساكن string escapeStringForPath(ثابت string& str);
     // Convert SV quoted string input from source code to normal form.
     // Reverse is V3OutFormatter::quoteNameControls(...)
-    static string unquoteSVString(const string& text, string& errOut);
+    ساكن string unquoteSVString(ثابت string& text, string& errOut);
     // Position just past the string literal 'pos' opens with '"', as written by
     // V3OutFormatter::quoteNameControls(...), whose escapes each begin with '\', or npos if the
     // literal does not end
-    static size_t quotedEnd(const string& str, size_t pos) VL_PURE;
+    ساكن size_t quotedEnd(ثابت string& str, size_t pos) VL_PURE;
     // Escape path in Windows
     // e.g. input `C:\Program Files\My Program\My Program.exe` becomes
     // `C:\\Program\ Files\\My\ Program\\My\ Program.exe`
-    static string quoteStringLiteralForShell(const string& str);
+    ساكن string quoteStringLiteralForShell(ثابت string& str);
     // Replace any unprintable with space
     // This includes removing tabs, so column tracking is correct
-    static string spaceUnprintable(const string& str) VL_PURE;
+    ساكن string spaceUnprintable(ثابت string& str) VL_PURE;
     // Remove any whitespace
-    static string removeWhitespace(const string& str);
+    ساكن string removeWhitespace(ثابت string& str);
     // Trim leading/trailing whitespace on each line
-    static string trimWhitespace(const string& str);
+    ساكن string trimWhitespace(ثابت string& str);
     // Return true if only identifer or ""
-    static bool isIdentifier(const string& str);
+    ساكن bool isIdentifier(ثابت string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    ساكن bool isIdentifierChar(حرف c) { أرجع isalnum(c) || c == '_'; }
     // Return true if only whitespace or ""
-    static bool isWhitespace(const string& str);
+    ساكن bool isWhitespace(ثابت string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    ساكن string::size_type leading_Whitespace_عدد(ثابت string& str);
     // Return double by parsing string
-    static double parseDouble(const string& str, bool* successp);
+    ساكن مزدوج parseDouble(ثابت string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
-    static string replaceSubstr(const string& str, const string& from, const string& to);
+    ساكن string replaceSubstr(ثابت string& str, ثابت string& from, ثابت string& to);
     // Replace all occurrences of the word 'from' in 'str' with 'to'. A word is considered
     // to be a consecutive sequence of the characters [a-zA-Z0-9_]. Sub-words are not replaced.
     // e.g.: replaceWords("one apple bad_apple", "apple", "banana") -> "one banana bad_apple"
-    static string replaceWord(const string& str, const string& from, const string& to);
+    ساكن string replaceWord(ثابت string& str, ثابت string& from, ثابت string& to);
     // Return deque of strings split by the given delimiter
-    static std::deque<string> split(const string& str, char delimiter = ',');
+    ساكن std::deque<string> split(ثابت string& str, حرف delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
-    static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+    ساكن bool startsWith(ثابت string& str, ثابت حرف* prefixp) {
+        أرجع !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
-    static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+    ساكن bool startsWith(ثابت string& str, ثابت string& prefix) {
+        أرجع !str.rfind(prefix, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
-    static bool endsWith(const string& str, const string& suffix);
+    ساكن bool endsWith(ثابت string& str, ثابت string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
-    static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    ساكن string aOrAn(ثابت حرف* word);
+    ساكن string aOrAn(ثابت string& word) { أرجع aOrAn(word.c_str()); }
     // Hash the string
-    static uint64_t hashMurmur(const string& str) VL_PURE;
+    ساكن uint64_t hashMurmur(ثابت string& str) VL_PURE;
 
     // Base 64 encode
-    static string base64Enc(const string& str) VL_PURE;
+    ساكن string base64Enc(ثابت string& str) VL_PURE;
 
-    static void selfTest();  // Test this class
+    ساكن فراغ selfTest();  // Test this class
 };
 
 //######################################################################
@@ -164,7 +164,7 @@ class VHashSha512 final {
     string m_remainder;  // Unhashed data
     size_t m_totLength = 0;  // Total all-chunk length as needed by output digest
     bool m_final = false;  // Finalized
-public:
+عام:
     // CONSTRUCTORS
     VHashSha512() {
         m_inthash[0] = 0x6a09e667f3bcc908ULL;
@@ -176,36 +176,36 @@ public:
         m_inthash[6] = 0x1f83d9abfb41bd6bULL;
         m_inthash[7] = 0x5be0cd19137e2179ULL;
     }
-    explicit VHashSha512(const string& data)
+    explicit VHashSha512(ثابت string& data)
         : VHashSha512{} {
-        insert(data);
+        أدرج(data);
     }
-    ~VHashSha512() = default;
+    ~VHashSha512() = افتراضي;
 
     // CONSTANTS
     // Characters digestSymbol24 keeps, 6 bits each, so 144 bits and no collisions in practice
-    static constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
+    ساكن constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_ثنائي();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
-    static void selfTest();  // Test this class
+    ساكن فراغ selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    فراغ أدرج(ثابت فراغ* datap, size_t length);  // Process data into the digest
+    فراغ أدرج(ثابت string& data) {
+        أدرج(data.data(), data.length());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    فراغ أدرج(uint64_t قيمة) { أدرج(cvtToStr(قيمة)); }
+    فراغ أدرج_File(ثابت string& filename);
 
-private:
-    static void selfTestOne(const string& data, const string& data2, const string& exp,
-                            const string& exp64, const string& exp24);
-    void finalize();  // Process remaining data
+خاص:
+    ساكن فراغ selfTestOne(ثابت string& data, ثابت string& data2, ثابت string& exp,
+                            ثابت string& exp64, ثابت string& exp24);
+    فراغ finalize();  // Process remaining data
 };
 
 //######################################################################
@@ -215,27 +215,27 @@ private:
 class VName final {
     string m_name;  // Pre-hashed symbol name
     string m_hashed;  // Hashed version of symbol name
-    static std::map<string, string> s_dehashMap;  // hashed -> original decoder
+    ساكن std::map<string, string> s_dehashMap;  // hashed -> original decoder
 
-    static size_t s_maxLength;  // Length at which to start hashing
-    static size_t s_minLength;  // Length to preserve if over maxLength
+    ساكن size_t s_maxLength;  // Length at which to start hashing
+    ساكن size_t s_minLength;  // Length to preserve if over maxLength
 
-public:
+عام:
     // CONSTRUCTORS
-    explicit VName(const string& name)
+    explicit VName(ثابت string& name)
         : m_name{name} {}
-    ~VName() = default;
+    ~VName() = افتراضي;
     // METHODS
-    void name(const string& name) {
+    فراغ name(ثابت string& name) {
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() ثابت { أرجع m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
-    static void maxLength(size_t flag) { s_maxLength = flag; }
-    static string dehash(const string& in);
+    ساكن فراغ maxLength(size_t flag) { s_maxLength = flag; }
+    ساكن string dehash(ثابت string& in);
 };
 
 //######################################################################
@@ -243,53 +243,53 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
-    static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
+    ساكن constexpr unsigned رقم_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
+    ساكن constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
-    struct Candidate final {
+    using EditDistance = unsigned صحيح;
+    بنية Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string رسالة;  // Message to print on a match
     };
     // MEMBERS
     std::vector<Candidate> m_candidates;  // Strings we try to match
-public:
+عام:
     // CONSTRUCTORS
-    VSpellCheck() = default;
-    ~VSpellCheck() = default;
+    VSpellCheck() = افتراضي;
+    ~VSpellCheck() = افتراضي;
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    فراغ ادفع_Candidate(ثابت string& str) { ادفع_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    فراغ ادفع_Candidate(ثابت string& str, ثابت string& رسالة) {
+        إذا (m_candidates.size() < رقم_CANDIDATE_LIMIT) m_candidates.ادفع_back({str, رسالة});
     }
     // Return candidate is closest to provided string, or "" for none
-    VSpellCheck::Candidate bestCandidate(const string& goal) const {
+    VSpellCheck::Candidate bestCandidate(ثابت string& goal) ثابت {
         EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+        أرجع bestCandidateInfo(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
-        const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+    string best_Candidate_رسالة(ثابت string& goal) ثابت {
+        ثابت auto candidate = bestCandidate(goal);
+        إذا (candidate.رسالة.empty()) أرجع "";
+        أرجع "... Suggested alternative: '"s + candidate.رسالة + "'";
     }
-    static void selfTest();
-    std::vector<std::string> candidates() const {
+    ساكن فراغ selfTest();
+    std::vector<std::string> candidates() ثابت {
         std::vector<std::string> result;
         result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+        لكل (ثابت auto& candidate : m_candidates) { result.ادفع_back(candidate.رسالة); }
+        أرجع result;
     }
 
-private:
-    static EditDistance editDistance(const string& s, const string& t);
-    static EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
-    VSpellCheck::Candidate bestCandidateInfo(const string& goal, EditDistance& distancer) const;
-    static void selfTestDistanceOne(const string& a, const string& b, EditDistance expected);
-    static void selfTestSuggestOne(bool matches, const string& c, const string& goal,
+خاص:
+    ساكن EditDistance editDistance(ثابت string& s, ثابت string& t);
+    ساكن EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
+    VSpellCheck::Candidate bestCandidateInfo(ثابت string& goal, EditDistance& distancer) ثابت;
+    ساكن فراغ selfTestDistanceOne(ثابت string& a, ثابت string& b, EditDistance expected);
+    ساكن فراغ selfTestSuggestOne(bool matches, ثابت string& c, ثابت string& goal,
                                    EditDistance dist);
 };
 
