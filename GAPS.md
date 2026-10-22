@@ -1,0 +1,615 @@
+# What is still missing
+
+76 languages. Each line says in how many languages it is missing.
+
+## Files in languages BURP cannot read yet
+
+
+## Keywords with no word in a language's table
+
+- shraeni:ostream: 75
+- shraeni:get: 75
+- shraeni:clear: 75
+- shabda:yytext: 75
+- shraeni:put: 75
+- shraeni:binary: 75
+- shraeni:setw: 75
+- shraeni:ofstream: 75
+- shraeni:fail: 75
+- shraeni:hex: 75
+- shraeni:dec: 75
+- shraeni:bad: 75
+- shraeni:getline: 75
+- shraeni:fixed: 75
+- shraeni:cerr: 75
+- guru:__FILE__: 75
+- shraeni:ins: 75
+- shraeni:ifstream: 75
+- shraeni:ios: 75
+- shraeni:setfill: 75
+- shraeni:eof: 75
+- shraeni:setprecision: 75
+- shraeni:app: 75
+- shraeni:_exit: 75
+- wyaaka:yyerror: 75
+- shraeni:ate: 75
+- shraeni:istream: 75
+- shabda:yylex: 75
+- wyaaka:yylex: 75
+- shraeni:size_t: 71
+- guru:size_t: 71
+- shraeni:atoi: 71
+- shraeni:times: 71
+- shraeni:tolower: 71
+- shraeni:dirname: 71
+- shabda:EOF: 71
+- shraeni:close: 71
+- shraeni:errno: 71
+- shraeni:remove: 71
+- shraeni:time_t: 71
+- shabda:size_t: 71
+- guru:tolower: 71
+- shraeni:rename: 71
+- shraeni:time: 71
+- shraeni:isxdigit: 71
+- guru:FILE: 71
+- guru:dirname: 71
+- shraeni:abort: 71
+- guru:time: 71
+- shraeni:strerror: 71
+- shraeni:clock: 71
+- shraeni:isprint: 71
+- shraeni:system: 71
+- shraeni:strtod: 71
+- shraeni:DIR: 71
+- shraeni:opendir: 71
+- shraeni:closedir: 71
+- guru:atoi: 71
+- wyaaka:FILE: 71
+- guru:ptrdiff_t: 71
+- shraeni:strtol: 71
+- guru:clock: 71
+- shraeni:floor: 71
+- shraeni:readdir: 71
+- guru:remove: 71
+- shabda:strncpy: 71
+- guru:ceil: 71
+- guru:floor: 71
+- shraeni:ceil: 71
+- shraeni:strtoul: 71
+- shraeni:fork: 71
+- shraeni:fprintf: 71
+- shraeni:stderr: 71
+- shraeni:va_list: 71
+- shraeni:va_start: 71
+- shraeni:va_end: 71
+- shraeni:fclose: 71
+- guru:fopen: 71
+- guru:fwrite: 71
+- guru:abort: 71
+- shraeni:fabs: 71
+- shraeni:atof: 71
+- shraeni:mkdir: 71
+- guru:system: 71
+- shraeni:strchr: 71
+- shraeni:isupper: 71
+- guru:realloc: 71
+- shraeni:puts: 70
+- guru:puts: 70
+- shraeni:rand: 70
+- shraeni:strcmp: 70
+- shraeni:wait: 70
+- guru:rand: 70
+- shraeni:open: 70
+- guru:wait: 70
+- guru:strcmp: 70
+- wyaaka:rand: 70
+- shraeni:memset: 70
+- shraeni:srand: 70
+- shraeni:nullptr: 67
+- shraeni:explicit: 67
+- shraeni:using: 67
+- shraeni:typename: 67
+- shraeni:exp: 67
+- shraeni:mutable: 67
+- soochee:def: 67
+- guru:exp: 67
+- soochee:with: 67
+- soochee:is: 67
+- soochee:None: 67
+- guru:cos: 67
+- guru:log: 67
+- guru:sin: 67
+- guru:#define: 66
+- guru:#endif: 66
+- guru:#ifndef: 66
+- shraeni:cout: 66
+- shraeni:#endif: 66
+- shraeni:left: 66
+- shraeni:#define: 66
+- shraeni:delete: 66
+- shraeni:#ifdef: 66
+- shraeni:right: 66
+- wyaaka:#define: 66
+- guru:#undef: 66
+- guru:#ifdef: 66
+- shraeni:endl: 66
+- shraeni:#ifndef: 66
+- shraeni:#undef: 66
+- shabda:#define: 66
+- guru:#error: 66
+- shabda:#ifdef: 66
+- shabda:#endif: 66
+- shraeni:#error: 66
+- wyaaka:#ifdef: 66
+- wyaaka:#endif: 66
+- shraeni:auto: 62
+- guru:operator: 62
+- shraeni:template: 62
+- guru:template: 62
+- shraeni:unsigned: 62
+- shraeni:operator: 62
+- guru:friend: 62
+- guru:auto: 62
+- shraeni:strlen: 62
+- shraeni:isspace: 62
+- guru:unsigned: 62
+- shraeni:isdigit: 62
+- shraeni:strncmp: 62
+- shraeni:friend: 62
+- shraeni:exit: 62
+- shraeni:isalnum: 62
+- guru:memcpy: 62
+- shabda:isspace: 62
+- shraeni:long: 62
+- guru:printf: 62
+- guru:strlen: 62
+- shraeni:isalpha: 62
+- shraeni:printf: 62
+- shraeni:abs: 62
+- shraeni:pow: 62
+- shabda:strlen: 62
+- shraeni:memcpy: 62
+- shraeni:toupper: 62
+- shabda:isdigit: 62
+- guru:sqrt: 62
+- guru:exit: 62
+- shraeni:sscanf: 62
+- shabda:sscanf: 62
+- shabda:auto: 62
+- guru:isdigit: 62
+- guru:toupper: 62
+- guru:isalnum: 62
+- guru:malloc: 62
+- guru:strncmp: 62
+- wyaaka:template: 62
+- shraeni:main: 54
+- soochee:main: 54
+- guru:main: 54
+- guru:virtual: 40
+- shraeni:virtual: 40
+- shraeni:true: 38
+- shraeni:false: 26
+- shraeni:bool: 26
+- shraeni:namespace: 26
+- soochee:as: 26
+- wyaaka:type: 26
+- soochee:raise: 26
+- soochee:True: 26
+- soochee:except: 26
+- shraeni:const: 25
+- guru:const: 25
+- shraeni:void: 25
+- shraeni:new: 25
+- guru:void: 25
+- guru:public: 25
+- guru:static: 25
+- shraeni:static: 25
+- shraeni:continue: 25
+- shraeni:this: 25
+
+## Names with no dictionary entry (the most common first)
+
+- `nodep`: 76
+- `std`: 76
+- `override`: 76
+- `string`: 76
+- `fl`: 76
+- `varp`: 76
+- `name`: 76
+- `lhsp`: 76
+- `fileline`: 76
+- `flp`: 76
+- `str`: 76
+- `dtypep`: 76
+- `rhsp`: 76
+- `VN_CAST`: 76
+- `newp`: 76
+- `VN_IS`: 76
+- `i`: 76
+- `exprp`: 76
+- `vtxp`: 76
+- `v3Global`: 76
+- `AstConst`: 76
+- `AstVar`: 76
+- `fromp`: 76
+- `final`: 76
+- `UASSERT_OBJ`: 76
+- `itemp`: 76
+- `lhs`: 76
+- `VL_DO_DANGLING`: 76
+- `refp`: 76
+- `UINFO`: 76
+- `nextp`: 76
+- `AstVarRef`: 76
+- `VN_AS`: 76
+- `uint32_t`: 76
+- `rhs`: 76
+- `opt`: 76
+- `it`: 76
+- `vscp`: 76
+- `VAccess`: 76
+- `modp`: 76
+- `ostream`: 76
+- `valuep`: 76
+- `funcp`: 76
+- `iterateChildren`: 76
+- `m_e`: 76
+- `classp`: 76
+- `condp`: 76
+- `FL`: 76
+- `AstVarScope`: 76
+- `VL_RESTORER`: 76
+- `stmtsp`: 76
+- `flag`: 76
+- `vtx`: 76
+- `stmtp`: 76
+- `v3error`: 76
+- `uint64_t`: 76
+- `constp`: 76
+- `subDTypep`: 76
+- `srcp`: 76
+- `scopep`: 76
+- `dump`: 76
+- `pair`: 76
+- `m_modp`: 76
+- `selp`: 76
+- `Const`: 76
+- `os`: 76
+- `rootp`: 76
+- `filename`: 76
+- `s`: 76
+- `replaceWith`: 76
+- `v3warn`: 76
+- `lsb`: 76
+- `skipRefp`: 76
+- `nullptr`: 76
+- `AstNetlist`: 76
+- `backp`: 76
+- `p`: 76
+- `pinp`: 76
+- `argp`: 76
+- `cp`: 76
+- `adtypep`: 76
+- `AstCFunc`: 76
+- `READ`: 76
+- `pos`: 76
+- `VL_MT_DISABLED`: 76
+- `c`: 76
+- `UASSERT_SELFTEST`: 76
+- `portp`: 76
+- `prettyNameQ`: 76
+- `callp`: 76
+- `AstClass`: 76
+- `macro`: 76
+- `m_name`: 76
+- `en`: 76
+- `WRITE`: 76
+- `basicp`: 76
+- `cast`: 76
+- `m_ds`: 76
+- `user1`: 76
+- `VL_MT_STABLE`: 76
+- `ap`: 76
+- `dumpJson`: 76
+- `VCMethod`: 76
+- `foundp`: 76
+- `DECL_OPTION`: 76
+- `graphp`: 76
+- `taskp`: 76
+- `v`: 76
+- `begin`: 76
+- `ascii`: 76
+- `access`: 76
+- `type`: 76
+- `AstCMethodHard`: 76
+- `dtype`: 76
+- `UASSERT`: 76
+- `VSymEnt`: 76
+- `cellp`: 76
+- `rangep`: 76
+- `BOTH`: 76
+- `V3ERROR_NA_RETURN`: 76
+- `make`: 76
+- `AstScope`: 76
+- `GRAMMARP`: 76
+- `id`: 76
+- `m_statep`: 76
+- `binp`: 76
+- `emplace`: 76
+- `itemsp`: 76
+- `bp`: 76
+- `emitC`: 76
+- `sentreep`: 76
+- `dfg`: 76
+- `ifp`: 76
+- `VVarType`: 76
+- `samep`: 76
+- `emitVerilog`: 76
+- `VarRef`: 76
+- `info`: 76
+- `argsp`: 76
+- `m_scopep`: 76
+- `AstBasicDType`: 76
+- `resultp`: 76
+- `iterateChildrenConst`: 76
+- `map`: 76
+- `stmt`: 76
+- `iterate`: 76
+- `classOrPackagep`: 76
+- `v3fatalSrc`: 76
+- `Var`: 76
+- `AstIf`: 76
+- `get`: 76
+- `netlistp`: 76
+- `m_curSymp`: 76
+- `varScopep`: 76
+- `underp`: 76
+- `V3Stats`: 76
+- `dtp`: 76
+- `n`: 76
+- `E_UNSUPPORTED`: 76
+- `edgep`: 76
+- `lsbp`: 76
+- `vertexp`: 76
+- `activep`: 76
+- `putns`: 76
+- `VDfgType`: 76
+- `assignp`: 76
+- `AstSel`: 76
+- `cout`: 76
+- `Super`: 76
+- `lo`: 76
+- `range`: 76
+- `replace`: 76
+- `iterateConst`: 76
+- `loopp`: 76
+- `clear`: 76
+- `declp`: 76
+- `dtypeFrom`: 76
+- `DfgConst`: 76
+- `msb`: 76
+- `other`: 76
+- `m_vup`: 76
+- `UnpackArrayDType`: 76
+- `user1p`: 76
+- `resp`: 76
+- `varrefp`: 76
+- `prettyName`: 76
+- `lifetime`: 76
+- `m_hash`: 76
+- `as`: 76
+- `FL_BRK`: 76
+- `user2p`: 76
+- `DfgSel`: 76
+- `valp`: 76
+- `SELF`: 76
+- `m_mutex`: 76
+- `VSigning`: 76
+- `V3Error`: 76
+- `VString`: 76
+- `Class`: 76
+- `symp`: 76
+- `dumpJsonBoolFuncIf`: 76
+- `a`: 76
+- `state`: 76
+- `optp`: 76
+- `sp`: 76
+- `vertices`: 76
+- `m_state`: 76
+- `senTreep`: 76
+- `VDouble0`: 76
+- `VBasicDTypeKwd`: 76
+- `m_ftaskp`: 76
+- `w`: 76
+- `parentp`: 76
+- `b`: 76
+- `V3Os`: 76
+- `logicp`: 76
+- `isSigned`: 76
+- `thenp`: 76
+- `idAny`: 76
+- `VL_DEFINE_DEBUG_FUNCTIONS`: 76
+- `CLEAN`: 76
+- `uint8_t`: 76
+- `bitp`: 76
+- `ofp`: 76
+- `_e`: 76
+- `withp`: 76
+- `VAttrType`: 76
+- `packed`: 76
+- `max`: 76
+- `foreach`: 76
+- `defaultp`: 76
+- `is`: 76
+- `APPLYING`: 76
+- `LogicMTask`: 76
+- `elsep`: 76
+- `_FOR_EACH_DFG_PEEPHOLE_OPTIMIZATION_APPLY`: 76
+- `AstAlways`: 76
+- `EmitCUtil`: 76
+- `patp`: 76
+- `token`: 76
+- `tok`: 76
+- `val`: 76
+- `mtaskp`: 76
+- `beginp`: 76
+- `unordered_map`: 76
+- `at`: 76
+- `AstUnpackArrayDType`: 76
+- `direction`: 76
+- `makeStmt`: 76
+- `propp`: 76
+- `VNType`: 76
+- `T`: 76
+- `isString`: 76
+- `protect`: 76
+- `m_graphp`: 76
+- `m_dfg`: 76
+- `rp`: 76
+- `dumpJsonGen`: 76
+- `AstPin`: 76
+- `AstCExpr`: 76
+- `indent`: 76
+- `oldp`: 76
+- `hash`: 76
+- `memberp`: 76
+- `PARSEP`: 76
+- `declRange`: 76
+- `TREEOP`: 76
+- `t`: 76
+- `unique_ptr`: 76
+- `asamep`: 76
+- `iterator`: 76
+- `txtp`: 76
+- `currp`: 76
+- `assp`: 76
+- `AstCell`: 76
+- `countp`: 76
+- `paramsp`: 76
+- `arrayp`: 76
+- `idx`: 76
+- `V3Options`: 76
+- `VDirection`: 76
+- `cleanLhs`: 76
+- `FL_FWDC`: 76
+- `verilogKwd`: 76
+- `delayp`: 76
+- `DEL`: 76
+- `VLifetime`: 76
+- `isDouble`: 76
+- `m_lsb`: 76
+- `user2`: 76
+- `ifacep`: 76
+- `hi`: 76
+- `slow`: 76
+- `AstRefDType`: 76
+- `src`: 76
+- `V3Const`: 76
+- `AstMemberSel`: 76
+- `timeunit`: 76
+- `libname`: 76
+- `sdtypep`: 76
+
+## Comments with no translation
+
+- -*- mode: C++; c-file-style: "cc-mode" -*-: 76
+- Code available from: https://verilator.org: 76
+- This program is free software; you can redistribute it and/or modify it: 76
+- METHODS: 76
+- CONSTRUCTORS: 76
+- LCOV_EXCL_LINE: 76
+- STATE: 76
+- Guard: 76
+- VISITORS: 76
+- VL_MT_DISABLED_CODE_UNIT: 76
+- NODE STATE: 76
+- ref: 76
+- MEMBERS: 76
+- LCOV_EXCL_STOP: 76
+- TYPES: 76
+- Blank lines for type insertion: 76
+- LCOV_EXCL_START: 76
+- samep: 76
+- ACCESSORS: 76
+- Destruct before checking: 76
+- cppcheck-suppress noExplicitConstructor: 76
+- cont: 76
+- @astgen makeDfgVertex: 76
+- CONSTRUCTOR: 76
+- clang-format off: 76
+- FALLTHRU: 76
+- Statistic tracking: 76
+- clang-format on: 76
+- Accelerate: 76
+- Need () or GCC 4.8 false warning: 76
+- FindVisitor::: 76
+- Current module: 76
+- bin_identifier: 76
+- STATE - for current visit position (use VL_RESTORER): 76
+- {copied}: 76
+- Correct number of zero bits/width matters: 76
+- mid: 76
+- Process once: 76
+- STATE - across all visitors: 76
+- V3Width will resolve: 76
+- namespace: 76
+- @astgen op1 := exprp : AstNodeExpr: 76
+- Each module:: 76
+- Should not be traced: 76
+- guard: 76
+- This node is a dtype & not both PRELIMed+FINALed: 76
+- @astgen op1 := lhsp : AstNodeExpr: 76
+- Spec says integer return: 76
+- UNSUP ;: 76
+- V3Width processes: 76
+- Only for parser: 76
+- Need () constructor: 76
+- First stage evaluation: 76
+- * = Var name: 76
+- LCOV_EXCL_BR_LINE: 76
+- Verilog-XL compatibility: 76
+- for creator type-overload selection: 76
+- LCOV_EXCL_START // Debug code: 76
+- expression_or_dist: 76
+- CONSTANTS: 76
+- opaque: 76
+- @astgen op1 := fromp : AstNodeExpr: 76
+- ScopeVisitor::: 76
+- namespace V3Sched: 76
+- FINAL in AstSel: 76
+- VARRESET-in-varParam: 76
+- cover_point_id: 76
+- Current function/task: 76
+- From ./astgen: 76
+- cppcheck-suppress constParameterPointer: 76
+- Cleanup: 76
+- Only V3DfgContext can create an instance: 76
+- DESCRIPTION: Verilator: Emit C++ for tree: 76
+- ParamVisitor::: 76
+- visitNext:: 76
+- SPECIAL: $display has 'visual' ordering: 76
+- Eliminated before matters: 76
+- Warn only once: 76
+- nodep: 76
+- globalPass:: 76
+- deferUntyped: 76
+- UNSUP //: 76
+- cppcheck-suppress shadowFunction: 76
+- @astgen ptr := m_refDTypep : Optional[AstNodeDType]  // Elements of this type (post-width): 76
+- @astgen op1 := childDTypep : Optional[AstNodeDType]: 76
+- NOP: 76
+- i op j, 1 bit return, max(L(lhs),L(rhs)) calculation, careful need to X/Z extend.: 76
+- DESCRIPTION: Verilator: Block code ordering: 76
+- See similar handling in visit_cmp_eq_gt where created: 76
+- member: 76
+- sexpression_or_dist: 76
+- cppcheck-suppress duplInheritedMember: 76
+- To avoid LATCH warning: 76
+- cppcheck-suppress unusedFunction  // Debug only: 76
+- lhs > rhs: 76
+- @astgen op1 := childDTypep : Optional[AstNodeDType] // moved to refDTypep() in V3Width: 76
+- Pure state: 76
+- Though deleted before opt: 76
+- for constructor type-overload selection: 76
+- Special emit rules: 76
