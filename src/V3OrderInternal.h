@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#ضمن "V3Order.h"
+#ضمن "V3OrderGraph.h"
+#ضمن "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#ضمن <string>
+#ضمن <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(ثابت V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ثابت std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            ثابت V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+فراغ orderOrderGraph(OrderGraph& graph, ثابت std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+فراغ processDomains(OrderGraph& graph,  //
+                    ثابت std::string& tag,  //
+                    ثابت ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_گرہ_Stmt* createSerial(OrderMoveGraph& moveGraph, ثابت std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_گرہ_Stmt* createParallel(OrderMoveGraph& moveGraph, ثابت std::string& tag, bool slow);
 
 };  // namespace V3Order
 
