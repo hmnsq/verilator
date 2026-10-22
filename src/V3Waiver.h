@@ -14,25 +14,25 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WAIVER_H_
-#define VERILATOR_V3WAIVER_H_
+#यदि_अपरिभाषितम् VERILATOR_V3WAIVER_H_
+#परिभाषय VERILATOR_V3WAIVER_H_
 
-#include "V3Error.h"
-#include "V3Mutex.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Mutex.h"
 
-#include <string>
-#include <vector>
+#अन्तर्भाव <string>
+#अन्तर्भाव <vector>
 
 class V3Waiver final {
     // TYPES
-    using WaiverList = std::vector<std::string>;
-    static V3Mutex s_mutex;  // Protect members
-    static WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
+    using WaiverList = std::सदिशम्<std::string>;
+    स्थिर V3Mutex s_mutex;  // Protect members
+    स्थिर WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
 
-public:
-    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& msg)
+सार्वजनिक:
+    स्थिर शून्य सङ्कलय_प्रविष्टिः(V3_Error_संहिता error_संहिता, ध्रुव string& filename, ध्रुव std::string& सन्देशः_2)
         VL_MT_SAFE_EXCLUDES(s_mutex);
-    static void write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
+    स्थिर शून्य लिख(ध्रुव std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

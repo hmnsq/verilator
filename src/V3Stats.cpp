@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#अन्तर्भाव <iomanip>
+#अन्तर्भाव <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,122 +31,122 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+वर्ग StatsVisitor final : सार्वजनिक VNVisitorConst {
+    संरचना Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::अङ्कः_TYPES()> m_stat_Type_गणनम्{};
         // Prediction of given type
-        std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
+        std::array<uint64_t, VBranchPred::ENUM_अन्तः> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    ध्रुव तार्किक m_fastOnly;  // When true, consider only fast functions
+    तार्किक m_रिक्तानि = सत्य;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
-    std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
-        m_statVarWidthNames;  // Var names of given width
+    std::सदिशम्<uint64_t> m_statVarWidths;  // Variables of given width
+    std::सदिशम्<std::map<ध्रुव std::string, uint32_t>>
+        m_stat_Var_विस्तारः_नामानि;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    शून्य गणनम्_Then_Iterate_Children(Ast_ग्रन्थिः* nodep) {
+        ++m_accump->m_stat_Type_गणनम्[nodep->type()];
+        यदि (nodep->type() != VNType::Netlist) m_रिक्तानि = असत्य;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    शून्य दर्शय(AstVar* nodep) override {
+        यदि (nodep->dtypep()) {
+            यदि (!nodep->const_Pool_प्रविष्टिः()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
-                    m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
-                        m_statVarWidthNames.resize(nodep->width() + 5);
+                यदि (m_statVarWidths.आकार() <= static_cast<आकार_t>(nodep->विस्तारः())) {
+                    m_statVarWidths.resize(nodep->विस्तारः() + 5);
+                    यदि (v3Global.opt.statsVars()) {  //
+                        m_stat_Var_विस्तारः_नामानि.resize(nodep->विस्तारः() + 5);
                     }
                 }
-                ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
-                    ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
+                ++m_statVarWidths.at(nodep->विस्तारः());
+                यदि (v3Global.opt.statsVars()) {
+                    ++m_stat_Var_विस्तारः_नामानि.at(nodep->विस्तारः())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        गणनम्_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    शून्य दर्शय(Ast_ग्रन्थिः_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        गणनम्_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    शून्य दर्शय(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        यदि (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        गणनम्_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { गणनम्_Then_Iterate_Children(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, ध्रुव std::string& stage, तार्किक fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        यदि (m_रिक्तानि) प्रत्यागम;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        ध्रुव स्वचालित सङ्कलय_Stat = [&](ध्रुव std::string& name, द्विगुण गणनम्, अचिह्नित precision = 0) {
+            V3Stats::सङ्कलय_Stat(stage, name, गणनम्, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        प्रति (अचिह्नित i = 0; i < m_statVarWidths.आकार(); i++) {
+            यदि (ध्रुव uint64_t गणनम् = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
-                        addStat(prefix + " " + it.first, it.second);
+                ध्रुव std::string उपसर्गः = ss.str();
+                यदि (v3Global.opt.statsVars()) {
+                    प्रति (ध्रुव स्वचालित& it : m_stat_Var_विस्तारः_नामानि.at(i)) {
+                        सङ्कलय_Stat(उपसर्गः + " " + it.first, it.second);
                     }
-                } else {
-                    addStat(prefix, count);
+                } अन्यथा {
+                    सङ्कलय_Stat(उपसर्गः, गणनम्);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        ध्रुव स्वचालित typeName
+            = [](आकार_t t) { प्रत्यागम std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        ध्रुव स्वचालित type_आकार
+            = [](आकार_t t) { प्रत्यागम VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        आकार_t योग_ग्रन्थिः_स्मृतिः_Usage = 0;
+        प्रति (आकार_t t = 0; t < VNType::अङ्कः_TYPES(); ++t) {
+            यदि (ध्रुव uint64_t गणनम् = m_counters.m_stat_Type_गणनम्[t]) {
+                योग_ग्रन्थिः_स्मृतिः_Usage += गणनम् * type_आकार(t);
+                सङ्कलय_Stat("Node count, " + typeName(t), गणनम्);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        सङ्कलय_Stat("Node mem TOTAL (MiB)", योग_ग्रन्थिः_स्मृतिः_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
-                addStat("Node mem %, " + typeName(t), share, 2);
+        प्रति (आकार_t t = 0; t < VNType::अङ्कः_TYPES(); ++t) {
+            यदि (ध्रुव uint64_t गणनम् = m_counters.m_stat_Type_गणनम्[t]) {
+                ध्रुव द्विगुण share = 100.0 * गणनम् * type_आकार(t) / योग_ग्रन्थिः_स्मृतिः_Usage;
+                सङ्कलय_Stat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
-                addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
+        प्रति (पूर्णाङ्क t = 0; t < VBranchPred::ENUM_अन्तः; ++t) {
+            यदि (ध्रुव uint64_t c = m_counters.m_statPred[t]) {
+                सङ्कलय_Stat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
     }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+शून्य V3Stats::statsStageAll(AstNetlist* nodep, ध्रुव std::string& stage, तार्किक fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

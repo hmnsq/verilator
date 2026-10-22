@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#परिभाषय VL_MT_DISABLED_संहिता_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3GraphPathChecker.h"
+#अन्तर्भाव "V3GraphPathChecker.h"
 
-#include "V3Global.h"
-#include "V3GraphStream.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3GraphStream.h"
 
 //######################################################################
 // GraphPCNode
 
-struct GraphPCNode final {
+संरचना GraphPCNode final {
     // User data for each node in GraphPathChecker.
     //
     // Like the LogicMTasks's, store before and after CPs for the nodes in
@@ -35,118 +35,118 @@ struct GraphPCNode final {
     //
     // Unlike the LogicMTasks's, we have no cost info for the generic graph
     // accepted by GraphPathChecker, so assume each node has unit cost.
-    std::array<uint32_t, GraphWay::NUM_WAYS> m_cp = {};
+    std::array<uint32_t, GraphWay::अङ्कः_WAYS> m_cp = {};
 
     // Detect if we've seen this node before in a given recursive
     // operation. We'll use this in pathExistsInternal() to avoid checking
     // the same node twice, and again in updateHalfCriticalPath() to assert
     // there are no cycles.
-    uint64_t m_seenAtGeneration = 0;
+    uint64_t m_आलोकितम्_At_Generation = 0;
 
     // CONSTRUCTORS
-    GraphPCNode() = default;
-    ~GraphPCNode() = default;
+    GraphPCNode() = स्वभाव;
+    ~GraphPCNode() = स्वभाव;
 };
 
 //######################################################################
 // GraphPathChecker implementation
 
-template <GraphWay::en N_Way>
-void GraphPathChecker::initHalfCriticalPaths(bool checkOnly) {
+प्रतिरूपम् <GraphWay::en N_Way>
+शून्य Graph_मार्गः_Checker::initHalfCriticalPaths(तार्किक checkOnly) {
     constexpr GraphWay way{N_Way};
     constexpr GraphWay rev = way.invert();
-    GraphStreamUnordered order(m_graphp, way);
-    while (const V3GraphVertex* const vertexp = order.nextp()) {
-        unsigned critPathCost = 0;
-        for (const V3GraphEdge& edge : vertexp->edges<rev>()) {
-            if (!m_edgeFuncp(&edge)) continue;
+    Graph_प्रवाहः_Unordered क्रमः(m_graphp, way);
+    यावत् (ध्रुव V3GraphVertex* ध्रुव vertexp = क्रमः.nextp()) {
+        अचिह्नित crit_मार्गः_Cost = 0;
+        प्रति (ध्रुव V3GraphEdge& edge : vertexp->धाराः<rev>()) {
+            यदि (!m_edgeFuncp(&edge)) अनुवर्त;
 
-            const V3GraphVertex* wrelativep = edge.furtherp<rev>();
-            const GraphPCNode* const wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
-            critPathCost = std::max(critPathCost, wrelUserp->m_cp[way] + 1);
+            ध्रुव V3GraphVertex* wrelativep = edge.furtherp<rev>();
+            ध्रुव GraphPCNode* ध्रुव wrelUserp = static_cast<GraphPCNode*>(wrelativep->userp());
+            crit_मार्गः_Cost = std::max(crit_मार्गः_Cost, wrelUserp->m_cp[way] + 1);
         }
 
-        GraphPCNode* const ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
-        if (checkOnly) {
-            UASSERT_OBJ(ourUserp->m_cp[way] == critPathCost, vertexp,
+        GraphPCNode* ध्रुव ourUserp = static_cast<GraphPCNode*>(vertexp->userp());
+        यदि (checkOnly) {
+            UASSERT_OBJ(ourUserp->m_cp[way] == crit_मार्गः_Cost, vertexp,
                         "Validation of critical paths failed");
-        } else {
-            ourUserp->m_cp[way] = critPathCost;
+        } अन्यथा {
+            ourUserp->m_cp[way] = crit_मार्गः_Cost;
         }
     }
 }
 
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::FORWARD>(bool);
-template void GraphPathChecker::initHalfCriticalPaths<GraphWay::REVERSE>(bool);
+प्रतिरूपम् शून्य Graph_मार्गः_Checker::initHalfCriticalPaths<GraphWay::FORWARD>(तार्किक);
+प्रतिरूपम् शून्य Graph_मार्गः_Checker::initHalfCriticalPaths<GraphWay::REVERSE>(तार्किक);
 
-GraphPathChecker::GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
+Graph_मार्गः_Checker::Graph_मार्गः_Checker(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
     : GraphAlg<V3Graph>{graphp, edgeFuncp} {
-    for (V3GraphVertex& vtx : graphp->vertices()) {
+    प्रति (V3GraphVertex& vtx : graphp->vertices()) {
         // Setup tracking structure for each node.  If delete a vertex
         // there would be a leak, but ok as accept only const V3Graph*'s.
-        vtx.userp(new GraphPCNode);
+        vtx.userp(नूतन GraphPCNode);
     }
     // Init critical paths in userp() for each vertex
-    initHalfCriticalPaths<GraphWay::FORWARD>(false);
-    initHalfCriticalPaths<GraphWay::REVERSE>(false);
+    initHalfCriticalPaths<GraphWay::FORWARD>(असत्य);
+    initHalfCriticalPaths<GraphWay::REVERSE>(असत्य);
 }
 
-GraphPathChecker::~GraphPathChecker() {
+Graph_मार्गः_Checker::~Graph_मार्गः_Checker() {
     // Free every GraphPCNode
-    for (V3GraphVertex& vtx : m_graphp->vertices()) {
-        const GraphPCNode* const nodep = static_cast<GraphPCNode*>(vtx.userp());
-        VL_DO_DANGLING(delete nodep, nodep);
-        vtx.userp(nullptr);
+    प्रति (V3GraphVertex& vtx : m_graphp->vertices()) {
+        ध्रुव GraphPCNode* ध्रुव nodep = static_cast<GraphPCNode*>(vtx.userp());
+        VL_DO_DANGLING(विलोपय nodep, nodep);
+        vtx.userp(शून्यसूचकः);
     }
 }
 
-bool GraphPathChecker::pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                                          unsigned* costp) {
-    GraphPCNode* const auserp = static_cast<GraphPCNode*>(ap->userp());
-    const GraphPCNode* const buserp = static_cast<GraphPCNode*>(bp->userp());
+तार्किक Graph_मार्गः_Checker::मार्गः_Exists_आन्तरिकम्(ध्रुव V3GraphVertex* ap, ध्रुव V3GraphVertex* bp,
+                                          अचिह्नित* costp) {
+    GraphPCNode* ध्रुव auserp = static_cast<GraphPCNode*>(ap->userp());
+    ध्रुव GraphPCNode* ध्रुव buserp = static_cast<GraphPCNode*>(bp->userp());
 
     // If have already searched this node on the current search, don't
     // recurse through it again. Since we're still searching, we must not
     // have found a path on the first go either.
-    if (auserp->m_seenAtGeneration == m_generation) {
-        if (costp) *costp = 0;
-        return false;
+    यदि (auserp->m_आलोकितम्_At_Generation == m_generation) {
+        यदि (costp) *costp = 0;
+        प्रत्यागम असत्य;
     }
-    auserp->m_seenAtGeneration = m_generation;
+    auserp->m_आलोकितम्_At_Generation = m_generation;
 
-    if (costp) *costp = 1;  // count 'a' toward the search cost
+    यदि (costp) *costp = 1;  // count 'a' toward the search cost
 
-    if (ap == bp) return true;
+    यदि (ap == bp) प्रत्यागम सत्य;
 
     // Rule out an a->b path based on their CPs
-    if (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) return false;
-    if (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) return false;
+    यदि (auserp->m_cp[GraphWay::REVERSE] < buserp->m_cp[GraphWay::REVERSE] + 1) प्रत्यागम असत्य;
+    यदि (buserp->m_cp[GraphWay::FORWARD] < auserp->m_cp[GraphWay::FORWARD] + 1) प्रत्यागम असत्य;
 
     // Slow path; visit some extended family
-    bool foundPath = false;
-    for (const V3GraphEdge& edge : ap->outEdges()) {
-        if (!m_edgeFuncp(&edge)) continue;
+    तार्किक प्राप्तम्_मार्गः = असत्य;
+    प्रति (ध्रुव V3GraphEdge& edge : ap->बहिर्गमनम्_धाराः()) {
+        यदि (!m_edgeFuncp(&edge)) अनुवर्त;
 
-        unsigned childCost;
-        if (pathExistsInternal(edge.top(), bp, &childCost)) foundPath = true;
-        if (costp) *costp += childCost;
+        अचिह्नित childCost;
+        यदि (मार्गः_Exists_आन्तरिकम्(edge.शिखरम्(), bp, &childCost)) प्राप्तम्_मार्गः = सत्य;
+        यदि (costp) *costp += childCost;
     }
 
-    return foundPath;
+    प्रत्यागम प्राप्तम्_मार्गः;
 }
 
-bool GraphPathChecker::pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) {
+तार्किक Graph_मार्गः_Checker::मार्गः_Exists_From(ध्रुव V3GraphVertex* fromp, ध्रुव V3GraphVertex* शिखरम्) {
     incGeneration();
-    return pathExistsInternal(fromp, top);
+    प्रत्यागम मार्गः_Exists_आन्तरिकम्(fromp, शिखरम्);
 }
 
-bool GraphPathChecker::isTransitiveEdge(const V3GraphEdge* edgep) {
-    const V3GraphVertex* fromp = edgep->fromp();
-    const V3GraphVertex* top = edgep->top();
+तार्किक Graph_मार्गः_Checker::is_संक्रामकम्_Edge(ध्रुव V3GraphEdge* edgep) {
+    ध्रुव V3GraphVertex* fromp = edgep->fromp();
+    ध्रुव V3GraphVertex* शिखरम् = edgep->शिखरम्();
     incGeneration();
-    for (const V3GraphEdge& fromOut : fromp->outEdges()) {
-        if (&fromOut == edgep) continue;
-        if (pathExistsInternal(fromOut.top(), top)) return true;
+    प्रति (ध्रुव V3GraphEdge& from_बहिर्गमनम् : fromp->बहिर्गमनम्_धाराः()) {
+        यदि (&from_बहिर्गमनम् == edgep) अनुवर्त;
+        यदि (मार्गः_Exists_आन्तरिकम्(from_बहिर्गमनम्.शिखरम्(), शिखरम्)) प्रत्यागम सत्य;
     }
-    return false;
+    प्रत्यागम असत्य;
 }

@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LIBMAP_H_
-#define VERILATOR_V3LIBMAP_H_
+#यदि_अपरिभाषितम् VERILATOR_V3LIBMAP_H_
+#परिभाषय VERILATOR_V3LIBMAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <vector>
+#अन्तर्भाव <vector>
 
 class AstNetlist;
 class VInFilter;
@@ -30,38 +30,38 @@ class V3ParseSym;
 
 // State to pass between config parsing and cell linking visitors.
 class LibMapping final {
-    const string m_pattern;  // Pattern to match
-    const string m_libname;  // Library name
-    const string m_base;  // Relative path of the libmap file
+    ध्रुव string m_आदर्शः;  // Pattern to match
+    ध्रुव string m_libname;  // Library name
+    ध्रुव string m_आधारः;  // Relative path of the libmap file
 
-public:
-    LibMapping(const string& pattern_, const string& libname_, const string& base_)
-        : m_pattern{pattern_}
+सार्वजनिक:
+    LibMapping(ध्रुव string& आदर्शः_3, ध्रुव string& libname_, ध्रुव string& आधारः_2)
+        : m_आदर्शः{आदर्शः_3}
         , m_libname{libname_}
-        , m_base{base_} {}
-    string pattern() const { return m_pattern; }
-    string libname() const { return m_libname; }
-    string base() const { return m_base; }
+        , m_आधारः{आधारः_2} {}
+    string आदर्शः_2() ध्रुव { प्रत्यागम m_आदर्शः; }
+    string libname() ध्रुव { प्रत्यागम m_libname; }
+    string आधारः() ध्रुव { प्रत्यागम m_आधारः; }
 };
 
 class V3LibMap final {
-private:
+गुप्त:
     // STATE
     // 33.3.1.1 File path resolution
     //   If a file name potentially matches multiple file path specifications, the path
     //   specifications shall be resolved in the following order: a) File path specifications that
     //   end with an explicit file name b) File path specifications that end with a wildcarded file
     //   name c) File path specifications that end with a directory name
-    std::vector<LibMapping> m_explicitMappings;
-    std::vector<LibMapping> m_wildcardMappings;
-    std::vector<LibMapping> m_directoryMappings;
+    std::सदिशम्<LibMapping> m_explicitMappings;
+    std::सदिशम्<LibMapping> m_wildcardMappings;
+    std::सदिशम्<LibMapping> m_directoryMappings;
 
     // METHODS
-public:
-    string matchMapping(const string& filename);
-    void addPattern(const string& pattern, const string& libname, const string& base);
+सार्वजनिक:
+    string मेलनम्_Mapping(ध्रुव string& filename);
+    शून्य सङ्कलय_आदर्शः(ध्रुव string& आदर्शः_2, ध्रुव string& libname, ध्रुव string& आधारः);
 
-    static void map(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य map(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

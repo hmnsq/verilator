@@ -14,20 +14,20 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DIAGSARIF_H_
-#define VERILATOR_V3DIAGSARIF_H_
+#यदि_अपरिभाषितम् VERILATOR_V3DIAGSARIF_H_
+#परिभाषय VERILATOR_V3DIAGSARIF_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include <V3Error.h>
+#अन्तर्भाव <V3Error.h>
 
 //============================================================================
 
 class V3DiagSarif final {
-public:
-    static void pushMessage(const VErrorMessage& msg) VL_MT_DISABLED;
-    static void output(bool success) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य प्रक्षिप_सन्देशः(ध्रुव VError_सन्देशः& सन्देशः_2) VL_MT_DISABLED;
+    स्थिर शून्य output(bool success) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

@@ -14,31 +14,31 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTH_H_
-#define VERILATOR_V3WIDTH_H_
+#यदि_अपरिभाषितम् VERILATOR_V3_विस्तारः_H
+#परिभाषय VERILATOR_V3_विस्तारः_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
-class AstNode;
-class AstNodeAssign;
-class AstNodeDType;
+class Ast_ग्रन्थिः;
+class Ast_ग्रन्थिः_नियोजय;
+class Ast_ग्रन्थिः_DType;
 
 //============================================================================
 
-class V3Width final {
-public:
-    static void width(AstNetlist* nodep) VL_MT_DISABLED;
-    static AstNode* widthParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* widthGenerateParamsEdit(AstNode* nodep) VL_MT_DISABLED;
-    static AstNode* selectNonConstantRecurse(AstNode* nodep, bool inSel = false) VL_MT_DISABLED;
-    static void streamAssignLowerEdit(AstNodeAssign* nodep) VL_MT_DISABLED;
+class V3_विस्तारः final {
+सार्वजनिक:
+    स्थिर शून्य विस्तारः(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः* विस्तारः_Params_Edit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः* विस्तारः_Generate_Params_Edit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः* selectNonConstantRecurse(Ast_ग्रन्थिः* nodep, bool अन्तर्_Sel = false) VL_MT_DISABLED;
+    स्थिर शून्य प्रवाहः_नियोजय_अधस्तनम्_Edit(Ast_ग्रन्थिः_नियोजय* nodep) VL_MT_DISABLED;
 
     // For use only in WidthVisitor
     // Replace AstSelBit, etc with AstSel/AstArraySel
     // Returns replacement node if nodep was deleted, or null if none.
-    static AstNode* widthSelNoIterEdit(AstNode* nodep) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः* विस्तारः_Sel_No_Iter_Edit(Ast_ग्रन्थिः* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

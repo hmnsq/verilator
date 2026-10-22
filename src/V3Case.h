@@ -14,11 +14,11 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CASE_H_
-#define VERILATOR_V3CASE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3CASE_H_
+#परिभाषय VERILATOR_V3CASE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 class AstGenCase;
@@ -26,9 +26,9 @@ class AstGenCase;
 //============================================================================
 
 class V3Case final {
-public:
-    static void caseAll(AstNetlist* nodep) VL_MT_DISABLED;
-    static void caseLint(AstGenCase* nodep) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य caseAll(AstNetlist* nodep) VL_MT_DISABLED;
+    स्थिर शून्य caseLint(AstGenCase* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

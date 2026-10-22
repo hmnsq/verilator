@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHPATHCHECKER_H_
-#define VERILATOR_V3GRAPHPATHCHECKER_H_
+#यदि_अपरिभाषितम् VERILATOR_V3GRAPHPATHCHECKER_H_
+#परिभाषय VERILATOR_V3GRAPHPATHCHECKER_H_
 
-#include "V3Error.h"
-#include "V3Graph.h"
-#include "V3GraphAlg.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3GraphAlg.h"
 
 //######################################################################
 
@@ -29,35 +29,35 @@
 ///
 /// The graph (or at least, the subset the algorithm sees through
 /// edgeFuncp) must not change during the lifetime of the checker.
-class GraphPathChecker final : GraphAlg<V3Graph> {
+class Graph_मार्गः_Checker final : GraphAlg<V3Graph> {
     // Count "generations" which increases on operations that scan through
     // the graph. Each node is marked with the last generation that scanned
     // it, to enable asserting there are no cycles, and to avoid recursing
     // through the same node twice while searching for a path.
     uint64_t m_generation = 0;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    explicit GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp
+    explicit Graph_मार्गः_Checker(V3Graph* graphp, V3EdgeFuncP edgeFuncp
                                                = V3GraphEdge::followAlwaysTrue) VL_MT_DISABLED;
-    ~GraphPathChecker() VL_MT_DISABLED;
+    ~Graph_मार्गः_Checker() VL_MT_DISABLED;
 
     // METHODS
-    bool pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) VL_MT_DISABLED;
+    bool मार्गः_Exists_From(ध्रुव V3GraphVertex* fromp, ध्रुव V3GraphVertex* शिखरम्) VL_MT_DISABLED;
 
     // If have edges A->B, B->C, and A->C then A->C is considered a
     // "transitive" edge (implied by A->B and B->C) and it could be safely
     // removed. Detect such an edge.
-    bool isTransitiveEdge(const V3GraphEdge* edgep) VL_MT_DISABLED;
+    bool is_संक्रामकम्_Edge(ध्रुव V3GraphEdge* edgep) VL_MT_DISABLED;
 
-private:
-    bool pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                            unsigned* costp = nullptr) VL_MT_DISABLED;
-    template <GraphWay::en N_Way>
-    void initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
-    void incGeneration() { ++m_generation; }
+गुप्त:
+    bool मार्गः_Exists_आन्तरिकम्(ध्रुव V3GraphVertex* ap, ध्रुव V3GraphVertex* bp,
+                            अचिह्नित* costp = nullptr) VL_MT_DISABLED;
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
+    शून्य incGeneration() { ++m_generation; }
 
-    VL_UNCOPYABLE(GraphPathChecker);
+    VL_UNCOPYABLE(Graph_मार्गः_Checker);
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

@@ -16,85 +16,85 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOTIFACECAPTURE_H_
-#define VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#परिभाषय VERILATOR_V3LINKDOTIFACECAPTURE_H_
 
-#include "config_build.h"
+#अन्तर्भाव "config_build.h"
 
-#include "V3Ast.h"
+#अन्तर्भाव "V3Ast.h"
 
-#include <deque>
-#include <functional>
-#include <string>
-#include <unordered_set>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <functional>
+#अन्तर्भाव <string>
+#अन्तर्भाव <unordered_set>
 
 class VSymEnt;
 
 // Capture record of an AstRefDType, shared by all clones of that reference
-class VIfaceCaptureTag final {
-public:
-    enum class Kind : uint8_t {
+class VIface_Capture_चिह्नकम् final {
+सार्वजनिक:
+    गणना class विधा_2 : uint8_t {
         TYPEDEF,  // Refers to a typedef in the interface
         PARAM_TYPE  // Refers to a type parameter of the interface
     };
-    Kind m_kind;  // What the reference refers to
-    string m_cellPath;  // Cell path from the owner module (e.g. "cca_io.tlb_io")
+    विधा_2 m_विधा;  // What the reference refers to
+    string m_cell_मार्गः;  // Cell path from the owner module (e.g. "cca_io.tlb_io")
     string m_ownerModName;  // Name of the interface that owns the target
-    string m_capturedInName;  // Original name of the module the reference was captured in
+    string m_captured_अन्तर्_Name;  // Original name of the module the reference was captured in
 };
 
 class V3LinkDotIfaceCapture final {
-    static std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
-    static bool s_enabled;
+    स्थिर std::deque<VIface_Capture_चिह्नकम्> s_चिह्नकानि;  // Owns every tag; a deque keeps addresses stable
+    स्थिर bool s_enabled;
 
     // --- Internal-only methods (not called outside V3LinkDotIfaceCapture.cpp) ---
-    static void enable(bool flag);  // LCOV_EXCL_LINE
-    static void reset();
-    static void clearModuleCache();
-    static AstIfaceRefDType* ifaceRefFromVarDType(AstNodeDType* dtypep);
+    स्थिर शून्य enable(bool flag);  // LCOV_EXCL_LINE
+    स्थिर शून्य reset();
+    स्थिर शून्य clearModuleCache();
+    स्थिर AstIfaceRefDType* ifaceRefFromVarDType(Ast_ग्रन्थिः_DType* dtypep);
     // Point a reference at a typedef and fix its other links.
-    static void retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
+    स्थिर शून्य retarget_Ref_गन्तव्यम्_Typedef(AstRefDType* refp, AstTypedef* typedefp);
     // Same, for a parameter type.
-    static void retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
+    स्थिर शून्य retarget_Ref_गन्तव्यम्_Param_Type(AstRefDType* refp, AstParamTypeDType* paramTypep);
     // Tag a reference captured in capturedInp
-    static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                    VIfaceCaptureTag::Kind kind, const string& cellPath,
-                    const string& ownerModName);
-    static int resolveCapturedRefs();
-    static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
+    स्थिर शून्य चिह्नकम्(AstRefDType* refp, ध्रुव Ast_ग्रन्थिः_Module* capturedInp,
+                    VIface_Capture_चिह्नकम्::विधा_2 विधा, ध्रुव string& cell_मार्गः,
+                    ध्रुव string& ownerModName);
+    स्थिर पूर्णाङ्क resolveCapturedRefs();
+    स्थिर शून्य verifyNoDeadRefs(ध्रुव std::unordered_समुच्चयः<ध्रुव Ast_ग्रन्थिः*>& जीवितम्_Nodes_2);
 
-public:
-    static bool enabled() { return s_enabled; }
+सार्वजनिक:
+    स्थिर bool enabled() { प्रत्यागम s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
-    static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
-    static AstNodeModule* findOwnerModule(AstNode* nodep);
+    स्थिर ध्रुव VIface_Capture_चिह्नकम्* capture_चिह्नकम्(AstRefDType* refp);
+    स्थिर Ast_ग्रन्थिः_Module* findOwnerModule(Ast_ग्रन्थिः* nodep);
     // Find a Typedef by name in a module's top-level statements
-    static AstTypedef* findTypedefInModule(AstNodeModule* modp, const string& name);
+    स्थिर AstTypedef* find_Typedef_अन्तर्_Module(Ast_ग्रन्थिः_Module* modp, ध्रुव string& name);
     // Find a NodeDType by name and VNType in a module's top-level statements
-    static AstNodeDType* findDTypeInModule(AstNodeModule* modp, const string& name, VNType type);
+    स्थिर Ast_ग्रन्थिः_DType* find_DType_अन्तर्_Module(Ast_ग्रन्थिः_Module* modp, ध्रुव string& name, VNType type);
     // Find a ParamTypeDType by name in a module's top-level statements
-    static AstParamTypeDType* findParamTypeInModule(AstNodeModule* modp, const string& name);
+    स्थिर AstParamTypeDType* find_Param_Type_अन्तर्_Module(Ast_ग्रन्थिः_Module* modp, ध्रुव string& name);
     // Retarget a captured reference at the same-named target in targetModp.
-    static bool retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp);
-    static void addParamType(AstRefDType* refp, const string& cellPath, AstNodeModule* ownerModp,
-                             AstParamTypeDType* paramTypep, const string& paramTypeOwnerModName);
+    स्थिर bool retarget_Ref_गन्तव्यम्_Module(AstRefDType* refp, Ast_ग्रन्थिः_Module* targetModp);
+    स्थिर शून्य सङ्कलय_Param_Type(AstRefDType* refp, ध्रुव string& cell_मार्गः, Ast_ग्रन्थिः_Module* ownerModp,
+                             AstParamTypeDType* paramTypep, ध्रुव string& paramTypeOwnerModName);
 
     // Walk a dot-separated cell path (e.g. "cca_io.tlb_io") starting from
     // startModp, returning the module at the end of the path.  Returns
     // nullptr if any component cannot be resolved.
-    static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
+    स्थिर Ast_ग्रन्थिः_Module* follow_Cell_मार्गः(Ast_ग्रन्थिः_Module* startModp, ध्रुव string& cell_मार्गः);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
-                                      const std::string& dotText, VSymEnt* dotSymp,
-                                      AstNodeModule* modp,
-                                      const std::function<std::string()>& indentFn);
+    स्थिर शून्य captureTypedefContext(AstRefDType* refp, ध्रुव वर्ण* stageLabel, पूर्णाङ्क dotPos,
+                                      ध्रुव std::string& dotText, VSymEnt* dotSymp,
+                                      Ast_ग्रन्थिः_Module* modp,
+                                      ध्रुव std::function<std::string()>& indentFn);
 
     // Debug: dump all captured references
-    static void dumpEntries(const string& label);
+    स्थिर शून्य dumpEntries(ध्रुव string& label);
 
     // Called after V3Param but before V3Dead to fix any remaining cross-interface refs
     // that still point to template nodes (which will be deleted by V3Dead).
-    static void finalizeIfaceCapture();
+    स्थिर शून्य finalizeIfaceCapture();
 };
 
-#endif  // VERILATOR_V3LINKDOTIFACECAPTURE_H_
+#यदि_अन्तः  // VERILATOR_V3LINKDOTIFACECAPTURE_H_

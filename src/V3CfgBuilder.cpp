@@ -18,51 +18,51 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Cfg.h"
-#include "V3EmitV.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Cfg.h"
+#अन्तर्भाव "V3EmitV.h"
 
-#include <deque>
-#include <unordered_map>
-#include <unordered_set>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CfgBuilder final : public VNVisitorConst {
+वर्ग CfgBuilder final : सार्वजनिक VNVisitorConst {
     // STATE
     // The graph being built, or nullptr if failed to build one
-    std::unique_ptr<CfgGraph> m_cfgp{new CfgGraph};
+    std::unique_ptr<CfgGraph> m_cfgp{नूतन CfgGraph};
     // Current basic block to add statements to
-    CfgBlock* m_currBBp = nullptr;
+    Cfg_खण्डम्* m_currBBp = शून्यसूचकः;
     // Continuation block for given JumpBlock
-    std::unordered_map<AstJumpBlock*, CfgBlock*> m_jumpBlockContp;
+    std::unordered_map<Ast_Jump_खण्डम्*, Cfg_खण्डम्*> m_jump_खण्डम्_Contp;
     // Continuation block for given Loop
-    std::unordered_map<AstLoop*, CfgBlock*> m_loopContp;
+    std::unordered_map<AstLoop*, Cfg_खण्डम्*> m_loopContp;
 
     // METHODS
 
     // Add the given statement to the current CfgBlock
-    void addStmt(AstNodeStmt* nodep) { m_currBBp->m_stmtps.emplace_back(nodep); }
+    शून्य सङ्कलय_Stmt(Ast_ग्रन्थिः_Stmt* nodep) { m_currBBp->m_stmtps.emplace_पृष्ठभागः(nodep); }
 
     // Used to handle statements not representable in the CFG
-    void nonRepresentable(AstNodeStmt*) {
-        if (!m_cfgp) return;
+    शून्य nonRepresentable(Ast_ग्रन्थिः_Stmt*) {
+        यदि (!m_cfgp) प्रत्यागम;
         m_cfgp.reset();
     }
 
     // Used to handle simple (non-branching) statements in the CFG
-    void simpleStatement(AstNodeStmt* nodep, bool representable = true) {
-        if (!m_cfgp) return;
+    शून्य simpleStatement(Ast_ग्रन्थिः_Stmt* nodep, तार्किक representable = सत्य) {
+        यदि (!m_cfgp) प्रत्यागम;
         // If non-representable, reset graph
-        if (!representable) {
+        यदि (!representable) {
             m_cfgp.reset();
-            return;
+            प्रत्यागम;
         }
         // Just add to current block
-        addStmt(nodep);
+        सङ्कलय_Stmt(nodep);
     }
 
     // VISITORS
@@ -72,176 +72,176 @@ class CfgBuilder final : public VNVisitorConst {
     // instance we will only handle select statemetns that cover the requied
     // use cases, and in the base case we conservatively assume the statement
     // is non-representable. More visits can be added case by case if needed.
-    void visit(AstNode* nodep) override {
-        if (!m_cfgp) return;
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override {
+        यदि (!m_cfgp) प्रत्यागम;
         UINFO(9, "Unhandled AstNode type " << nodep->typeName());
         m_cfgp.reset();
     }
 
     // Non-representable statements
-    void visit(AstAssignDly* nodep) override { nonRepresentable(nodep); }
-    void visit(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
-    void visit(AstDelay* nodep) override { nonRepresentable(nodep); }
+    शून्य दर्शय(Ast_नियोजय_Dly* nodep) override { nonRepresentable(nodep); }
+    शून्य दर्शय(AstCase* nodep) override { nonRepresentable(nodep); }  // V3Case will eliminate
+    शून्य दर्शय(AstDelay* nodep) override { nonRepresentable(nodep); }
 
     // Representable non control-flow statements
-    void visit(AstAssign* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstAssignW* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
-    void visit(AstComment*) override {}  // ignore entirely
-    void visit(AstDisplay* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinish* nodep) override { simpleStatement(nodep); }
-    void visit(AstFinishFork* nodep) override { simpleStatement(nodep); }
-    void visit(AstStmtExpr* nodep) override { simpleStatement(nodep); }
-    void visit(AstStop* nodep) override { simpleStatement(nodep); }
+    शून्य दर्शय(Ast_नियोजय* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    शून्य दर्शय(Ast_नियोजय_W* nodep) override { simpleStatement(nodep, !nodep->timingControlp()); }
+    शून्य दर्शय(AstComment*) override {}  // ignore entirely
+    शून्य दर्शय(AstDisplay* nodep) override { simpleStatement(nodep); }
+    शून्य दर्शय(AstFinish* nodep) override { simpleStatement(nodep); }
+    शून्य दर्शय(AstFinishFork* nodep) override { simpleStatement(nodep); }
+    शून्य दर्शय(Ast_Stmt_व्यञ्जकम्* nodep) override { simpleStatement(nodep); }
+    शून्य दर्शय(AstStop* nodep) override { simpleStatement(nodep); }
 
     // Representable control flow statements
-    void visit(AstIf* nodep) override {
-        if (!m_cfgp) return;
+    शून्य दर्शय(AstIf* nodep) override {
+        यदि (!m_cfgp) प्रत्यागम;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        सङ्कलय_Stmt(nodep);
 
         // Create then/else/continuation blocks
-        CfgBlock* const thenBBp = m_cfgp->addBlock();
-        CfgBlock* const elseBBp = m_cfgp->addBlock();
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, thenBBp);
-        m_cfgp->addUntknEdge(m_currBBp, elseBBp);
+        Cfg_खण्डम्* ध्रुव thenBBp = m_cfgp->सङ्कलय_खण्डम्();
+        Cfg_खण्डम्* ध्रुव elseBBp = m_cfgp->सङ्कलय_खण्डम्();
+        Cfg_खण्डम्* ध्रुव contBBp = m_cfgp->सङ्कलय_खण्डम्();
+        m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, thenBBp);
+        m_cfgp->सङ्कलय_Untkn_Edge(m_currBBp, elseBBp);
 
         // Build then branch
         m_currBBp = thenBBp;
-        iterateAndNextConstNull(nodep->thensp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_अग्र_Const_Null(nodep->thensp());
+        यदि (!m_cfgp) प्रत्यागम;
+        यदि (m_currBBp) m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, contBBp);
 
         // Build else branch
         m_currBBp = elseBBp;
-        iterateAndNextConstNull(nodep->elsesp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_अग्र_Const_Null(nodep->elsesp());
+        यदि (!m_cfgp) प्रत्यागम;
+        यदि (m_currBBp) m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoop* nodep) override {
+    शून्य दर्शय(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (!m_cfgp) return;
+        यदि (!m_cfgp) प्रत्यागम;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_loopContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstLoop visited twice");
+        Cfg_खण्डम्* ध्रुव contBBp = m_cfgp->सङ्कलय_खण्डम्();
+        ध्रुव तार्किक new_प्रविष्टिः = m_loopContp.emplace(nodep, contBBp).second;
+        UASSERT_OBJ(new_प्रविष्टिः, nodep, "AstLoop visited twice");
 
         // Create the body block
-        CfgBlock* const bodyBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        Cfg_खण्डम्* ध्रुव bodyBBp = m_cfgp->सङ्कलय_खण्डम्();
+        m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, bodyBBp);
 
         // Build the body
         m_currBBp = bodyBBp;
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, bodyBBp);
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        यदि (!m_cfgp) प्रत्यागम;
+        यदि (m_currBBp) m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, bodyBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_cfgp) return;
+    शून्य दर्शय(AstLoopTest* nodep) override {
+        यदि (!m_cfgp) प्रत्यागम;
 
         // Add terminator statement to current block - semantically the condition check only ...
-        addStmt(nodep);
+        सङ्कलय_Stmt(nodep);
 
         // Create continuation blocks
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        m_cfgp->addTakenEdge(m_currBBp, contBBp);
-        m_cfgp->addUntknEdge(m_currBBp, m_loopContp.at(nodep->loopp()));
+        Cfg_खण्डम्* ध्रुव contBBp = m_cfgp->सङ्कलय_खण्डम्();
+        m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, contBBp);
+        m_cfgp->सङ्कलय_Untkn_Edge(m_currBBp, m_loopContp.at(nodep->loopp()));
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpBlock* nodep) override {
-        if (!m_cfgp) return;
+    शून्य दर्शय(Ast_Jump_खण्डम्* nodep) override {
+        यदि (!m_cfgp) प्रत्यागम;
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Create continuation block
-        CfgBlock* const contBBp = m_cfgp->addBlock();
-        const bool newEntry = m_jumpBlockContp.emplace(nodep, contBBp).second;
-        UASSERT_OBJ(newEntry, nodep, "AstJumpBlock visited twice");
+        Cfg_खण्डम्* ध्रुव contBBp = m_cfgp->सङ्कलय_खण्डम्();
+        ध्रुव तार्किक new_प्रविष्टिः = m_jump_खण्डम्_Contp.emplace(nodep, contBBp).second;
+        UASSERT_OBJ(new_प्रविष्टिः, nodep, "AstJumpBlock visited twice");
 
         // Build the body
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!m_cfgp) return;
-        if (m_currBBp) m_cfgp->addTakenEdge(m_currBBp, contBBp);
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        यदि (!m_cfgp) प्रत्यागम;
+        यदि (m_currBBp) m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, contBBp);
 
         // Set continuation
         m_currBBp = contBBp;
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_cfgp) return;
+    शून्य दर्शय(AstJumpGo* nodep) override {
+        यदि (!m_cfgp) प्रत्यागम;
 
         // Non-representable if not last in statement list (V3Const will fix this later)
-        if (nodep->nextp()) {
+        यदि (nodep->nextp()) {
             m_cfgp.reset();
-            return;
+            प्रत्यागम;
         }
 
         // Don't acutally need to add this 'nodep' to any block
 
         // Make current block go to the continuation of the JumpBlock
-        m_cfgp->addTakenEdge(m_currBBp, m_jumpBlockContp.at(nodep->blockp()));
+        m_cfgp->सङ्कलय_गृहीतम्_Edge(m_currBBp, m_jump_खण्डम्_Contp.at(nodep->blockp()));
 
         // There should be no statements after a JumpGo!
-        m_currBBp = nullptr;
+        m_currBBp = शून्यसूचकः;
     }
 
     // CONSTRUCTOR
-    explicit CfgBuilder(AstNode* stmtsp) {
+    स्पष्ट CfgBuilder(Ast_ग्रन्थिः* stmtsp) {
         // Build the graph, starting from the entry block
-        m_currBBp = m_cfgp->addBlock();
+        m_currBBp = m_cfgp->सङ्कलय_खण्डम्();
         m_cfgp->m_enterp = m_currBBp;
         // Visit each statement to build the control flow graph
-        iterateAndNextConstNull(stmtsp);
+        iterate_And_अग्र_Const_Null(stmtsp);
         // If failed, stop now
-        if (!m_cfgp) return;
+        यदि (!m_cfgp) प्रत्यागम;
         // The final block is the exit block
         m_cfgp->m_exitp = m_currBBp;
         // Some blocks might not have predecessors if they are unreachable, remove them
         {
-            std::vector<V3GraphVertex*> unreachableps;
-            for (V3GraphVertex* const vtxp : m_cfgp->vertices().unlinkable()) {
-                if (vtxp == m_cfgp->m_enterp) continue;
-                if (vtxp == m_cfgp->m_exitp) continue;
-                UASSERT_OBJ(!vtxp->outEmpty(), vtxp, "Block with no successor other than exit");
-                if (vtxp->inEmpty()) unreachableps.emplace_back(vtxp);
+            std::सदिशम्<V3GraphVertex*> unreachableps;
+            प्रति (V3GraphVertex* ध्रुव vtxp : m_cfgp->vertices().unlinkable()) {
+                यदि (vtxp == m_cfgp->m_enterp) अनुवर्त;
+                यदि (vtxp == m_cfgp->m_exitp) अनुवर्त;
+                UASSERT_OBJ(!vtxp->बहिर्गमनम्_रिक्तानि(), vtxp, "Block with no successor other than exit");
+                यदि (vtxp->अन्तर्_रिक्तानि()) unreachableps.emplace_पृष्ठभागः(vtxp);
             }
-            while (!unreachableps.empty()) {
-                V3GraphVertex* const vtxp = unreachableps.back();
-                unreachableps.pop_back();
-                for (const V3GraphEdge& edge : vtxp->outEdges()) {
-                    --m_cfgp->m_nEdges;
-                    if (edge.top()->inSize1()) unreachableps.emplace_back(edge.top());
+            यावत् (!unreachableps.रिक्तानि()) {
+                V3GraphVertex* ध्रुव vtxp = unreachableps.पृष्ठभागः();
+                unreachableps.निष्कासय_पृष्ठभागः();
+                प्रति (ध्रुव V3GraphEdge& edge : vtxp->बहिर्गमनम्_धाराः()) {
+                    --m_cfgp->m_n_धाराः;
+                    यदि (edge.शिखरम्()->अन्तर्_Size1()) unreachableps.emplace_पृष्ठभागः(edge.शिखरम्());
                 }
-                --m_cfgp->m_nBlocks;
+                --m_cfgp->m_n_खण्डानि;
                 VL_DO_DANGLING(vtxp->unlinkDelete(m_cfgp.get()), vtxp);
             }
         }
         // Dump the initial graph
-        if (dumpGraphLevel() >= 9) {
-            m_cfgp->rpoBlocks();
+        यदि (dumpGraphLevel() >= 9) {
+            m_cfgp->rpo_खण्डानि();
             m_cfgp->dumpDotFilePrefixed("cfg-builder-initial");
         }
         // Minimize it
         m_cfgp->minimize();
         // Dump the final graph
-        if (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
+        यदि (dumpGraphLevel() >= 8) m_cfgp->dumpDotFilePrefixed("cfg-builder");
     }
 
-public:
-    static std::unique_ptr<CfgGraph> apply(AstNode* stmtsp) {
-        return std::move(CfgBuilder{stmtsp}.m_cfgp);
+सार्वजनिक:
+    स्थिर std::unique_ptr<CfgGraph> apply(Ast_ग्रन्थिः* stmtsp) {
+        प्रत्यागम std::move(CfgBuilder{stmtsp}.m_cfgp);
     }
 };
 
-std::unique_ptr<CfgGraph> CfgGraph::build(AstNode* stmtsp) { return CfgBuilder::apply(stmtsp); }
+std::unique_ptr<CfgGraph> CfgGraph::build(Ast_ग्रन्थिः* stmtsp) { प्रत्यागम CfgBuilder::apply(stmtsp); }

@@ -26,120 +26,120 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERMTASKGRAPH_H_
-#define VERILATOR_V3ORDERMTASKGRAPH_H_
+#यदि_अपरिभाषितम् VERILATOR_V3ORDERMTASKGRAPH_H_
+#परिभाषय VERILATOR_V3ORDERMTASKGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Graph.h"
-#include "V3OrderMoveGraph.h"
-#include "V3PairingHeap.h"
-#include "V3PoolAllocator.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3OrderMoveGraph.h"
+#अन्तर्भाव "V3PairingHeap.h"
+#अन्तर्भाव "V3PoolAllocator.h"
 
-#include <array>
-#include <memory>
-#include <sstream>
-#include <unordered_set>
+#अन्तर्भाव <array>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <sstream>
+#अन्तर्भाव <unordered_set>
 
 class LogicMTask;
-class OrderMTaskGraph;
+class क्रमः_MTask_Graph;
 
 //=============================================================================
 // MTaskEdge graph edges are stored in a PairingHeap in each LogicMTask they
 // connect to, sorted by critical path through that edge (and id for stability).
 
-struct EdgeKey final {
+संरचना Edge_कुञ्चिका final {
     uint64_t m_cp;  // The inclusive critical path of the further MTask of the edge
     uint32_t m_id;  // The ID of the further MTask, for stable comparison
-    void increase(uint64_t cp) {
+    शून्य increase(uint64_t cp) {
         UDEBUGONLY(UASSERT(cp >= m_cp, "Must increase"););
         m_cp = cp;
     }
     // Sort first by critical path, then by ID
-    bool operator<(const EdgeKey& other) const {
-        if (m_cp != other.m_cp) return m_cp < other.m_cp;
-        return m_id < other.m_id;
+    bool संक्रियकः<(ध्रुव Edge_कुञ्चिका& other) ध्रुव {
+        यदि (m_cp != other.m_cp) प्रत्यागम m_cp < other.m_cp;
+        प्रत्यागम m_id < other.m_id;
     }
 };
 
-using EdgeHeap = PairingHeap<EdgeKey>;
+using EdgeHeap = PairingHeap<Edge_कुञ्चिका>;
 
 //=============================================================================
 // LogicMTasks are stored in a PairingHeap during critical path update propagation.
 
-struct PropagatePendingKey final {
+संरचना Propagate_Pending_कुञ्चिका final {
     uint64_t m_increment;  // The amount the critical path of the MTask will grow by
     uint32_t m_id;  // The ID of the MTask, for stable comparison
     LogicMTask* m_mtaskp;  // The MTask the heap entry corresponds to
-    void increase(uint64_t increment) {
+    शून्य increase(uint64_t increment) {
         UDEBUGONLY(UASSERT(increment >= m_increment, "Must increase"););
         m_increment = increment;
     }
     // Sort first by increment, then by ID
-    bool operator<(const PropagatePendingKey& other) const {
-        if (m_increment != other.m_increment) return m_increment < other.m_increment;
-        return m_id < other.m_id;
+    bool संक्रियकः<(ध्रुव Propagate_Pending_कुञ्चिका& other) ध्रुव {
+        यदि (m_increment != other.m_increment) प्रत्यागम m_increment < other.m_increment;
+        प्रत्यागम m_id < other.m_id;
     }
 };
 
-using PropagatePendingHeap = PairingHeap<PropagatePendingKey>;
+using PropagatePendingHeap = PairingHeap<Propagate_Pending_कुञ्चिका>;
 
 //=============================================================================
 // GraphEdge for the MTask graph
 
-class MTaskEdge final : public V3GraphEdge {
+class MTaskEdge final : सार्वजनिक V3GraphEdge {
     VL_RTTI_IMPL(MTaskEdge, V3GraphEdge)
 
-    friend class LogicMTask;
-    friend class OrderMTaskGraph;
+    मित्रम् class LogicMTask;
+    मित्रम् class क्रमः_MTask_Graph;
 
     // MEMBERS
     // This edge can be in 2 EdgeHeaps, one forward and one reverse. We allocate the heap nodes
     // directly within the edge as they are always required and this makes association cheap.
-    std::array<EdgeHeap::Node, GraphWay::NUM_WAYS> m_edgeHeapNode;
+    std::array<EdgeHeap::ग्रन्थिः_2, GraphWay::अङ्कः_WAYS> m_edge_Heap_ग्रन्थिः;
 
     // CONSTRUCTORS
     // Private, so edges can only be created via OrderMTaskGraph, which also updates the critical
     // paths on graph mutation.
-    inline MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top);
+    अन्तःस्थ MTaskEdge(क्रमः_MTask_Graph* graphp, LogicMTask* fromp, LogicMTask* शिखरम्);
 
-public:
+सार्वजनिक:
     VL_UNCOPYABLE(MTaskEdge);
     VL_UNMOVABLE(MTaskEdge);
 
     // METHODS
-    template <GraphWay::en N_Way>
-    inline LogicMTask* furtherMTaskp() const;
-    inline LogicMTask* fromMTaskp() const;
-    inline LogicMTask* toMTaskp() const;
+    प्रतिरूपम् <GraphWay::en N_Way>
+    अन्तःस्थ LogicMTask* furtherMTaskp() ध्रुव;
+    अन्तःस्थ LogicMTask* fromMTaskp() ध्रुव;
+    अन्तःस्थ LogicMTask* गन्तव्यम्_MTaskp() ध्रुव;
 
-    uint64_t cachedCp(GraphWay way) const { return m_edgeHeapNode[way].key().m_cp; }
-    uint32_t cachedId(GraphWay way) const { return m_edgeHeapNode[way].key().m_id; }
+    uint64_t cachedCp(GraphWay way) ध्रुव { प्रत्यागम m_edge_Heap_ग्रन्थिः[way].कुञ्चिका().m_cp; }
+    uint32_t cachedId(GraphWay way) ध्रुव { प्रत्यागम m_edge_Heap_ग्रन्थिः[way].कुञ्चिका().m_id; }
     // Convert from the address of the m_edgeHeapNode[way] in an MTaskEdge back to the MTaskEdge
-    static const MTaskEdge* toMTaskEdge(GraphWay way, const EdgeHeap::Node* nodep) {
-        const size_t offset = VL_OFFSETOF(MTaskEdge, m_edgeHeapNode[way]);
-        return reinterpret_cast<const MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - offset);
+    स्थिर ध्रुव MTaskEdge* गन्तव्यम्_MTask_Edge(GraphWay way, ध्रुव EdgeHeap::ग्रन्थिः_2* nodep) {
+        ध्रुव आकार_t विस्थापनम् = VL_OFFSETOF(MTaskEdge, m_edge_Heap_ग्रन्थिः[way]);
+        प्रत्यागम reinterpret_cast<ध्रुव MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - विस्थापनम्);
     }
 };
 
 //=============================================================================
 // LogicMTask
 
-class LogicMTask final : public V3GraphVertex {
+class LogicMTask final : सार्वजनिक V3GraphVertex {
     VL_RTTI_IMPL(LogicMTask, V3GraphVertex)
 
-    friend class MTaskEdge;
-    friend class OrderMTaskGraph;
+    मित्रम् class MTaskEdge;
+    मित्रम् class क्रमः_MTask_Graph;
 
     // MEMBERS
 
     // List of OrderMoveVertex's assigned to this mtask. LogicMTask does not own the
     // OrderMoveVertex objects, we merely keep them in a list here.
-    OrderMoveVertex::List m_mVertices;
+    क्रमः_Move_Vertex::List m_mVertices;
 
-    static uint32_t s_nextId;  // Next ID number to use
-    const uint32_t m_id = s_nextId++;  // Unique LogicMTask ID number for stable comparison
+    स्थिर uint32_t s_अग्र_Id;  // Next ID number to use
+    ध्रुव uint32_t m_id = s_अग्र_Id++;  // Unique LogicMTask ID number for stable comparison
 
     // Cost estimate for this LogicMTask, derived from V3InstrCount, in abstract time units.
     // Cost estimates and critical path lengths are bounded by number of AstNodes * constant,
@@ -149,12 +149,12 @@ class LogicMTask final : public V3GraphVertex {
     // Critical path in each direction: going FORWARD from graph-start to the start of this vertex,
     // and going REVERSE from graph-exit to the end of this vertex. Exclusive of the cost of this
     // vertex itself, see cpInclusive() for the value including it.
-    std::array<uint64_t, GraphWay::NUM_WAYS> m_cpExclusive = {0, 0};
+    std::array<uint64_t, GraphWay::अङ्कः_WAYS> m_cpExclusive = {0, 0};
 
     // The MTasks this MTask has an out-edge to, so checking for an existing edge is O(1)
-    std::unordered_set<LogicMTask*> m_dependents;
+    std::unordered_समुच्चयः<LogicMTask*> m_dependents;
     // Store the out/in edges in a heaps sorted by the critical path length through each edge
-    std::array<EdgeHeap, GraphWay::NUM_WAYS> m_edgeHeap;
+    std::array<EdgeHeap, GraphWay::अङ्कः_WAYS> m_edgeHeap;
 
     // Count "generations" which are just operations that scan through the
     // graph. We'll mark each node with the last generation that scanned
@@ -164,106 +164,106 @@ class LogicMTask final : public V3GraphVertex {
 
     // Scratch pointer used only by the critical path propagation in OrderMTaskGraph: this MTask's
     // node in the pending heap, or nullptr if this MTask is not pending.
-    PropagatePendingHeap::Node* m_propagateHeapNodep = nullptr;
+    PropagatePendingHeap::ग्रन्थिः_2* m_propagateHeapNodep = nullptr;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    LogicMTask(OrderMTaskGraph& graph, OrderMoveVertex* mVtxp) VL_MT_DISABLED;
+    LogicMTask(क्रमः_MTask_Graph& graph, क्रमः_Move_Vertex* mVtxp) VL_MT_DISABLED;
     VL_UNCOPYABLE(LogicMTask);
     VL_UNMOVABLE(LogicMTask);
 
     // METHODS
-    OrderMoveVertex::List& vertexList() { return m_mVertices; }
-    uint32_t id() const { return m_id; }
-    bool operator<(const LogicMTask& rhs) const { return id() < rhs.id(); }
+    क्रमः_Move_Vertex::List& vertexList() { प्रत्यागम m_mVertices; }
+    uint32_t id() ध्रुव { प्रत्यागम m_id; }
+    bool संक्रियकः<(ध्रुव LogicMTask& rhs) ध्रुव { प्रत्यागम id() < rhs.id(); }
 
-    uint64_t cost() const VL_MT_SAFE { return m_cost; }
-    template <GraphWay::en N_Way>
-    uint64_t cpExclusive() const {
-        return m_cpExclusive[N_Way];
+    uint64_t cost() ध्रुव VL_MT_SAFE { प्रत्यागम m_cost; }
+    प्रतिरूपम् <GraphWay::en N_Way>
+    uint64_t cpExclusive() ध्रुव {
+        प्रत्यागम m_cpExclusive[N_Way];
     }
-    template <GraphWay::en N_Way>
-    uint64_t cpInclusive() const {
-        return m_cpExclusive[N_Way] + m_cost;
+    प्रतिरूपम् <GraphWay::en N_Way>
+    uint64_t cpInclusive() ध्रुव {
+        प्रत्यागम m_cpExclusive[N_Way] + m_cost;
     }
     // The critical path of this MTask without considering the given edge.
-    template <GraphWay::en N_Way>
-    uint64_t cpExclusiveWithout(const V3GraphEdge* edgep) const {
-        const GraphWay way{N_Way};
-        const GraphWay inv = way.invert();
+    प्रतिरूपम् <GraphWay::en N_Way>
+    uint64_t cpExclusiveWithout(ध्रुव V3GraphEdge* edgep) ध्रुव {
+        ध्रुव GraphWay way{N_Way};
+        ध्रुव GraphWay inv = way.invert();
         UDEBUGONLY(UASSERT(edgep->furtherp<N_Way>() == this,
                            "In cpExclusiveWithout(), 'edgep' must further to 'this'"););
         // At most two edges need to be considered: the critical path, if that is not via 'edgep',
         // or the second-worst path, if the critical path is via 'edgep'.
-        const EdgeHeap& edgeHeap = m_edgeHeap[inv];
+        ध्रुव EdgeHeap& edgeHeap = m_edgeHeap[inv];
         // Pick up the critical path edge
-        const EdgeHeap::Node* const maxp = edgeHeap.max();
+        ध्रुव EdgeHeap::ग्रन्थिः_2* ध्रुव maxp = edgeHeap.max();
         UDEBUGONLY(UASSERT(maxp, "Edge not in heap"););
         // If 'edgep' is not the critical path edge, return its critical path
-        if (MTaskEdge::toMTaskEdge(inv, maxp) != edgep) return maxp->key().m_cp;
+        यदि (MTaskEdge::गन्तव्यम्_MTask_Edge(inv, maxp) != edgep) प्रत्यागम maxp->कुञ्चिका().m_cp;
         // Otherwise return the second-worst path, if there is one
-        const EdgeHeap::Node* const secp = edgeHeap.secondMax();
-        if (!secp) return 0;
-        return secp->key().m_cp;
+        ध्रुव EdgeHeap::ग्रन्थिः_2* ध्रुव secp = edgeHeap.secondMax();
+        यदि (!secp) प्रत्यागम 0;
+        प्रत्यागम secp->कुञ्चिका().m_cp;
     }
 
-    bool hasEdgeTo(LogicMTask* dependentp) const { return m_dependents.count(dependentp); }
+    bool has_Edge_गन्तव्यम्(LogicMTask* dependentp) ध्रुव { प्रत्यागम m_dependents.गणनम्(dependentp); }
 
     // For Graphviz dumps only
-    std::string name() const override VL_MT_STABLE {
-        std::ostringstream out;
-        out << "mt" << m_id  //
+    std::string name() ध्रुव override VL_MT_STABLE {
+        std::ostringstream बहिर्गमनम्;
+        बहिर्गमनम् << "mt" << m_id  //
             << " | cpFwd " << m_cpExclusive[GraphWay::FORWARD]  //
             << " | cost " << cost()  //
             << " | cpRev " << m_cpExclusive[GraphWay::REVERSE];
-        return out.str();
+        प्रत्यागम बहिर्गमनम्.str();
     }
 
-private:
+गुप्त:
     // Following only used by OrderMTaskGraph, which maintains cached CPs and graph invariants.
 
-    template <GraphWay::en N_Way>
-    uint64_t cpExclusiveFromEdges() const {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    uint64_t cp_Exclusive_From_धाराः() ध्रुव {
         constexpr GraphWay inv = GraphWay{N_Way}.invert();
-        const EdgeHeap::Node* const maxp = m_edgeHeap[inv].max();
-        return maxp ? maxp->key().m_cp : 0;
+        ध्रुव EdgeHeap::ग्रन्थिः_2* ध्रुव maxp = m_edgeHeap[inv].max();
+        प्रत्यागम maxp ? maxp->कुञ्चिका().m_cp : 0;
     }
-    template <GraphWay::en N_Way>
-    void cpExclusive(uint64_t cp) {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य cpExclusive(uint64_t cp) {
         m_cpExclusive[N_Way] = cp;
     }
 
-    template <GraphWay::en N_Way>
-    void addRelativeEdge(MTaskEdge* edgep) {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य सङ्कलय_Relative_Edge(MTaskEdge* edgep) {
         constexpr GraphWay way{N_Way};
         constexpr GraphWay inv = way.invert();
         // Add to the edge heap
-        LogicMTask* const relativep = edgep->furtherMTaskp<N_Way>();
+        LogicMTask* ध्रुव relativep = edgep->furtherMTaskp<N_Way>();
         // Value is the !way inclusive cp of the relative
-        const uint64_t cp = relativep->cpInclusive<inv>();
-        m_edgeHeap[way].insert(&edgep->m_edgeHeapNode[way], {cp, relativep->id()});
+        ध्रुव uint64_t cp = relativep->cpInclusive<inv>();
+        m_edgeHeap[way].निवेशय(&edgep->m_edge_Heap_ग्रन्थिः[way], {cp, relativep->id()});
     }
-    template <GraphWay::en N_Way>
-    void stealRelativeEdge(MTaskEdge* edgep) {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य stealRelativeEdge(MTaskEdge* edgep) {
         constexpr GraphWay way{N_Way};
         // Make heap node insertable, ruining the heap it is currently in.
-        edgep->m_edgeHeapNode[way].yank();
+        edgep->m_edge_Heap_ग्रन्थिः[way].yank();
         // Add the edge as new
-        addRelativeEdge<N_Way>(edgep);
+        सङ्कलय_Relative_Edge<N_Way>(edgep);
     }
-    template <GraphWay::en N_Way>
-    void removeRelativeEdge(MTaskEdge* edgep) {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य removeRelativeEdge(MTaskEdge* edgep) {
         constexpr GraphWay way{N_Way};
         // Remove from the edge heap
-        m_edgeHeap[way].remove(&edgep->m_edgeHeapNode[way]);
+        m_edgeHeap[way].remove(&edgep->m_edge_Heap_ग्रन्थिः[way]);
     }
 
-    void addDependent(LogicMTask* dependentp) {
-        const bool exists = !m_dependents.emplace(dependentp).second;
+    शून्य सङ्कलय_Dependent(LogicMTask* dependentp) {
+        ध्रुव bool exists = !m_dependents.emplace(dependentp).second;
         UDEBUGONLY(UASSERT(!exists, "Adding existing dependent"););
     }
-    void removeDependent(LogicMTask* dependentp) {
-        const size_t removed = m_dependents.erase(dependentp);
+    शून्य removeDependent(LogicMTask* dependentp) {
+        ध्रुव आकार_t removed = m_dependents.erase(dependentp);
         UDEBUGONLY(UASSERT(removed, "Dependent should have been in set"););
     }
 };
@@ -272,30 +272,30 @@ private:
 // OrderMTaskGraph
 
 // The graph of LogicMTask vertices and MTaskEdge edges, used during multi-threaded scheduling.
-class OrderMTaskGraph final : public V3Graph {
+class क्रमः_MTask_Graph final : सार्वजनिक V3Graph {
     // MEMBERS
-    OrderMoveGraph& m_moveGraph;  // The OrderMoveGraph this graph is built from
-    LogicMTask* const m_entryp;  // The singular entry point vertex
-    LogicMTask* const m_exitp;  // The singular exit point vertex
+    क्रमः_Move_Graph& m_moveGraph;  // The OrderMoveGraph this graph is built from
+    LogicMTask* ध्रुव m_entryp;  // The singular entry point vertex
+    LogicMTask* ध्रुव m_exitp;  // The singular exit point vertex
 
-    const bool m_slowAsserts;  // Take extra time to validate the graph ('--debug-partition')
+    ध्रुव bool m_slowAsserts;  // Take extra time to validate the graph ('--debug-partition')
 
     // Critical path propagation state. Scratch only: the heap is empty, and no MTask is pending,
     // between calls to 'propagate'. The node pool persists to recycle the heap nodes.
     PropagatePendingHeap m_pendingHeap;  // Heap of MTasks pending a critical path update
-    PoolAllocator<PropagatePendingHeap::Node> m_pendingNodePool;  // Allocator for the heap nodes
+    PoolAllocator<PropagatePendingHeap::ग्रन्थिः_2> m_pending_ग्रन्थिः_Pool;  // Allocator for the heap nodes
 
     // Generation counter, e.g. for marking the MTasks visited by algorithms
     uint64_t m_currentGeneration = 0;
 
     // CONSTRUCTOR
-    explicit OrderMTaskGraph(OrderMoveGraph& moveGraph);  // Used by build(), hence private
-    VL_UNCOPYABLE(OrderMTaskGraph);
-    VL_UNMOVABLE(OrderMTaskGraph);
+    explicit क्रमः_MTask_Graph(क्रमः_Move_Graph& moveGraph);  // Used by build(), hence private
+    VL_UNCOPYABLE(क्रमः_MTask_Graph);
+    VL_UNMOVABLE(क्रमः_MTask_Graph);
 
     // METHODS
 
-    bool pathExistsImpl(LogicMTask* fromp, LogicMTask* top, const MTaskEdge* excludedEdgep);
+    bool मार्गः_Exists_Impl(LogicMTask* fromp, LogicMTask* शिखरम्, ध्रुव MTaskEdge* excludedEdgep);
 
     // Bring the critical paths of all MTasks wayward of 'mtaskp' in direction N_Way, and those
     // cached in the edge heaps on the way, up to date. Call after mutating the graph such that
@@ -304,89 +304,89 @@ class OrderMTaskGraph final : public V3Graph {
     //
     // Note critical paths can only ever grow: those cached in the edge heaps are heap keys, and a
     // heap key can be increased in place, but not decreased.
-    template <GraphWay::en N_Way>
-    void propagate(LogicMTask* mtaskp) {
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य propagate(LogicMTask* mtaskp) {
         ++m_currentGeneration;
-        propagatePush<N_Way>(mtaskp);
+        propagate_प्रक्षिप<N_Way>(mtaskp);
         propagateResolve<N_Way>();
     }
     // Push the inclusive critical path of 'mtaskp' onto each of its wayward relatives, and add any
     // relative left with a stale critical path to the pending heap (out of line below)
-    template <GraphWay::en N_Way>
-    void propagatePush(LogicMTask* mtaskp);
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य propagate_प्रक्षिप(LogicMTask* mtaskp);
     // Resolve all pending critical path increases (out of line below)
-    template <GraphWay::en N_Way>
-    void propagateResolve();
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य propagateResolve();
     // Part of 'validate'
-    template <GraphWay::en N_Way>
-    void validateWay() const;
+    प्रतिरूपम् <GraphWay::en N_Way>
+    शून्य validateWay() ध्रुव;
 
-public:
+सार्वजनिक:
     // ACCESSORS
-    OrderMoveGraph& moveGraph() const { return m_moveGraph; }
-    LogicMTask* entryp() const { return m_entryp; }
-    LogicMTask* exitp() const { return m_exitp; }
-    bool slowAsserts() const { return m_slowAsserts; }
+    क्रमः_Move_Graph& moveGraph() ध्रुव { प्रत्यागम m_moveGraph; }
+    LogicMTask* entryp() ध्रुव { प्रत्यागम m_entryp; }
+    LogicMTask* exitp() ध्रुव { प्रत्यागम m_exitp; }
+    bool slowAsserts() ध्रुव { प्रत्यागम m_slowAsserts; }
 
     // METHODS
-    uint64_t totalCost() const;  // O(V), called once
+    uint64_t योग_Cost() ध्रुव;  // O(V), called once
 
     // True if there's a path from 'fromp' to 'top' excluding 'excludedEdgep', false otherwise.
     // 'excludedEdgep' may be nullptr in which case no edge is excluded. If 'excludedEdgep' is
     // non-nullptr it must connect fromp and top.
-    bool pathExists(LogicMTask* fromp, LogicMTask* top, const MTaskEdge* excludedEdgep) {
+    bool मार्गः_Exists(LogicMTask* fromp, LogicMTask* शिखरम्, ध्रुव MTaskEdge* excludedEdgep) {
         ++m_currentGeneration;
-        return pathExistsImpl(fromp, top, excludedEdgep);
+        प्रत्यागम मार्गः_Exists_Impl(fromp, शिखरम्, excludedEdgep);
     }
 
     // Add an edge to the graph, update impacted critical paths
-    void addEdge(LogicMTask* fromp, LogicMTask* top);
+    शून्य सङ्कलय_Edge(LogicMTask* fromp, LogicMTask* शिखरम्);
 
     // Merge 'donorp' into 'recipientp': move the contents and all edges of 'donorp' onto
     // 'recipientp', update impacted critical paths, then delete 'donorp'. The edge connecting the
     // two (if any) becomes internal to the merged MTask and is deleted, as is one of each pair of
     // edges the two have to a common relative. Note this deletes edges, so the caller must have
     // released any auxiliary data it attached to them via their user pointer.
-    void mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp);
+    शून्य mergeMTasks(LogicMTask* recipientp, LogicMTask* donorp);
 
     // Remove all transitive edges. (This deliberately hides V3Graph::removeTransitiveEdges,
     // which would leave the auxiliary data structures stale.)
     // cppcheck-suppress duplInheritedMember
-    void removeTransitiveEdges();
+    शून्य remove_संक्रामकम्_धाराः();
 
     // Remove all MTasks holding no logic (except for entry and exit, which are kept even if
     // empty), connecting their predecessors directly to their successors.
-    void removeEmptyMTasks();
+    शून्य remove_रिक्तानि_MTasks();
 
     // Do an expensive check that the maintained critical paths, including the ones cached in the
     // edge heaps, match those implied by the current edges of the graph, and that auxiliary data
     // structures are consistent.
-    void validate() const;
+    शून्य validate() ध्रुव;
 
     // STATIC METHODS
     // Build an MTask graph from 'moveGraph'
-    static std::unique_ptr<OrderMTaskGraph> build(OrderMoveGraph& moveGraph) VL_MT_DISABLED;
+    स्थिर std::unique_ptr<क्रमः_MTask_Graph> build(क्रमः_Move_Graph& moveGraph) VL_MT_DISABLED;
     // Fix data hazards in the MTask graph
-    static void fixDataHazards(OrderMTaskGraph& mtaskGraph) VL_MT_DISABLED;
+    स्थिर शून्य fix_दत्त_Hazards(क्रमः_MTask_Graph& mtaskGraph) VL_MT_DISABLED;
     // Coarsen the MTask graph by merging MTasks until the given critical-path limit is reached
-    static void contract(OrderMTaskGraph& mtaskGraph, uint64_t scoreLimit) VL_MT_DISABLED;
+    स्थिर शून्य contract(क्रमः_MTask_Graph& mtaskGraph, uint64_t score_सीमा) VL_MT_DISABLED;
 };
 
 //=============================================================================
 // MTaskEdge method definitions (need the full definition of LogicMTask)
 
-MTaskEdge::MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top)
-    : V3GraphEdge{graphp, fromp, top, 1} {
-    fromp->addDependent(top);
-    fromp->addRelativeEdge<GraphWay::FORWARD>(this);
-    top->addRelativeEdge<GraphWay::REVERSE>(this);
+MTaskEdge::MTaskEdge(क्रमः_MTask_Graph* graphp, LogicMTask* fromp, LogicMTask* शिखरम्)
+    : V3GraphEdge{graphp, fromp, शिखरम्, 1} {
+    fromp->सङ्कलय_Dependent(शिखरम्);
+    fromp->सङ्कलय_Relative_Edge<GraphWay::FORWARD>(this);
+    शिखरम्->सङ्कलय_Relative_Edge<GraphWay::REVERSE>(this);
 }
 
-template <GraphWay::en N_Way>
-LogicMTask* MTaskEdge::furtherMTaskp() const {
-    return static_cast<LogicMTask*>(this->furtherp<N_Way>());
+प्रतिरूपम् <GraphWay::en N_Way>
+LogicMTask* MTaskEdge::furtherMTaskp() ध्रुव {
+    प्रत्यागम static_cast<LogicMTask*>(this->furtherp<N_Way>());
 }
-LogicMTask* MTaskEdge::fromMTaskp() const { return static_cast<LogicMTask*>(fromp()); }
-LogicMTask* MTaskEdge::toMTaskp() const { return static_cast<LogicMTask*>(top()); }
+LogicMTask* MTaskEdge::fromMTaskp() ध्रुव { प्रत्यागम static_cast<LogicMTask*>(fromp()); }
+LogicMTask* MTaskEdge::गन्तव्यम्_MTaskp() ध्रुव { प्रत्यागम static_cast<LogicMTask*>(शिखरम्()); }
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

@@ -26,74 +26,74 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Const.h"
-#include "V3Width.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Width.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Width state, as a visitor of each AstNode
 
-class WidthSelVisitor final : public VNVisitor {
+वर्ग विस्तारः_Sel_Visitor final : सार्वजनिक VNVisitor {
     // IMPORTANT
     //**** This is not a normal visitor, in that all iteration is instead
     //  done by the caller (V3Width).  This avoids duplicating much of the
     //  complicated GenCase/GenFor/Cell/Function call logic that all depends
     //  on if widthing top-down or just for parameters.
-#define iterateChildren DO_NOT_iterateChildern_IN_V3WidthSel
+#परिभाषय iterateChildren DO_NOT_iterate_Childern_अन्तर्_V3_विस्तारः_Sel
 
     // METHODS
 
-    void checkConstantOrReplace(AstNode* nodep, const string& message) {
+    शून्य checkConstantOrReplace(Ast_ग्रन्थिः* nodep, ध्रुव string& सन्देशः) {
         // See also V3Width::checkConstantOrReplace
         // Note can't call V3Const::constifyParam(nodep) here, as constify may change nodep on us!
-        if (!VN_IS(nodep, Const)) {
-            nodep->v3error(message);
-            nodep->replaceWith(new AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        यदि (!VN_IS(nodep, Const)) {
+            nodep->v3error(सन्देशः);
+            nodep->replaceWith(नूतन AstConst{nodep->fileline(), AstConst::Unsized32{}, 1});
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
         }
     }
 
     // RETURN TYPE
-    struct FromData final {
-        AstNodeDType* const m_errp;  // Node that was found, for error reporting if not known type
-        AstNodeDType* const m_dtypep;  // Data type for the 'from' slice
+    संरचना From_दत्त final {
+        Ast_ग्रन्थिः_DType* ध्रुव m_errp;  // Node that was found, for error reporting if not known type
+        Ast_ग्रन्थिः_DType* ध्रुव m_dtypep;  // Data type for the 'from' slice
         VNumRange m_fromRange;  // Numeric range bounds for the 'from' slice
-        FromData(AstNodeDType* errp, AstNodeDType* dtypep, const VNumRange& fromRange)
+        From_दत्त(Ast_ग्रन्थिः_DType* errp, Ast_ग्रन्थिः_DType* dtypep, ध्रुव VNumRange& fromRange)
             : m_errp{errp}
             , m_dtypep{dtypep}
             , m_fromRange{fromRange} {}
-        ~FromData() = default;
+        ~From_दत्त() = स्वभाव;
     };
-    static FromData fromDataForArray(AstNode* nodep, AstNode* basefromp) {
+    स्थिर From_दत्त from_दत्त_For_Array(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः* basefromp) {
         // What is the data type and information for this SEL-ish's from()?
         UINFO(9, "  fromData start ddtypep = " << basefromp);
         VNumRange fromRange;  // constructs to isRanged(false)
-        while (basefromp) {
-            if (VN_IS(basefromp, AttrOf)) {
-                basefromp = VN_AS(basefromp, AttrOf)->fromp();
-                continue;
+        यावत् (basefromp) {
+            यदि (VN_IS(basefromp, Attr_सम्बन्धि)) {
+                basefromp = VN_AS(basefromp, Attr_सम्बन्धि)->fromp();
+                अनुवर्त;
             }
-            break;
+            भङ्ग;
         }
         UASSERT_OBJ(basefromp && basefromp->dtypep(), nodep, "Select with no from dtype");
-        AstNodeDType* const ddtypep = basefromp->dtypep()->skipRefp();
-        AstNodeDType* const errp = ddtypep;
+        Ast_ग्रन्थिः_DType* ध्रुव ddtypep = basefromp->dtypep()->skipRefp();
+        Ast_ग्रन्थिः_DType* ध्रुव errp = ddtypep;
         UINFO(9, "  fromData.ddtypep = " << ddtypep);
-        if (const AstNodeArrayDType* const adtypep = VN_CAST(ddtypep, NodeArrayDType)) {
+        यदि (ध्रुव Ast_ग्रन्थिः_Array_DType* ध्रुव adtypep = VN_CAST(ddtypep, ग्रन्थिः_Array_DType)) {
             fromRange = adtypep->declRange();
-        } else if (VN_IS(ddtypep, AssocArrayDType)) {
-        } else if (VN_IS(ddtypep, WildcardArrayDType)) {
-        } else if (VN_IS(ddtypep, DynArrayDType)) {
-        } else if (VN_IS(ddtypep, QueueDType)) {
-        } else if (const AstNodeUOrStructDType* const adtypep
-                   = VN_CAST(ddtypep, NodeUOrStructDType)) {
+        } अन्यथा यदि (VN_IS(ddtypep, AssocArrayDType)) {
+        } अन्यथा यदि (VN_IS(ddtypep, WildcardArrayDType)) {
+        } अन्यथा यदि (VN_IS(ddtypep, DynArrayDType)) {
+        } अन्यथा यदि (VN_IS(ddtypep, QueueDType)) {
+        } अन्यथा यदि (ध्रुव Ast_ग्रन्थिः_UOr_Struct_DType* ध्रुव adtypep
+                   = VN_CAST(ddtypep, ग्रन्थिः_UOr_Struct_DType)) {
             fromRange = adtypep->declRange();
-        } else if (const AstBasicDType* const adtypep = VN_CAST(ddtypep, BasicDType)) {
-            if (adtypep->isString() && VN_IS(nodep, SelBit)) {
-            } else if (adtypep->isRanged()) {
+        } अन्यथा यदि (ध्रुव AstBasicDType* ध्रुव adtypep = VN_CAST(ddtypep, BasicDType)) {
+            यदि (adtypep->isString() && VN_IS(nodep, SelBit)) {
+            } अन्यथा यदि (adtypep->isRanged()) {
                 UASSERT_OBJ(
                     !(adtypep->rangep()
                       && (!VN_IS(adtypep->rangep()->leftp(), Const)
@@ -101,119 +101,119 @@ class WidthSelVisitor final : public VNVisitor {
                     nodep,
                     "Non-constant variable range; errored earlier");  // in constifyParam(bfdtypep)
                 fromRange = adtypep->declRange();
-            } else {
+            } अन्यथा {
                 nodep->v3error("Illegal bit or array select; type does not have a bit range, or "
                                << "bad dimension: data type is " << errp->prettyDTypeNameQ());
             }
-        } else {
+        } अन्यथा {
             nodep->v3error("Illegal bit or array select; type already selected, or bad dimension: "
                            << "data type is " << errp->prettyDTypeNameQ());
         }
-        return FromData(errp, ddtypep, fromRange);
+        प्रत्यागम From_दत्त(errp, ddtypep, fromRange);
     }
 
-    AstNodeExpr* newSubNeg(AstNodeExpr* lhsp, int32_t rhs) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* newSubNeg(Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, int32_t rhs) {
         // Return lhs-rhs, but if rhs is negative use an add, so we won't
         // have to deal with signed math and related 32bit sign extension problems
-        if (rhs == 0) {
-            return lhsp;
-        } else if (VN_IS(lhsp, Const)) {
+        यदि (rhs == 0) {
+            प्रत्यागम lhsp;
+        } अन्यथा यदि (VN_IS(lhsp, Const)) {
             // Optional vs just making add/sub below, but saves constification some work
-            V3Number num(lhsp, lhsp->width());
-            num.opSub(VN_AS(lhsp, Const)->num(), V3Number(lhsp, 32, rhs));
-            num.isSigned(lhsp->isSigned());
-            return new AstConst{lhsp->fileline(), num};
-        } else if (rhs > 0) {
-            AstNodeExpr* const newp
-                = new AstSub{lhsp->fileline(), lhsp,
-                             new AstConst(lhsp->fileline(), AstConst::Unsized32{}, rhs)};
+            V3_सङ्ख्या अङ्कः(lhsp, lhsp->विस्तारः());
+            अङ्कः.opSub(VN_AS(lhsp, Const)->अङ्कः(), V3_सङ्ख्या(lhsp, 32, rhs));
+            अङ्कः.isSigned(lhsp->isSigned());
+            प्रत्यागम नूतन AstConst{lhsp->fileline(), अङ्कः};
+        } अन्यथा यदि (rhs > 0) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव newp
+                = नूतन AstSub{lhsp->fileline(), lhsp,
+                             नूतन AstConst(lhsp->fileline(), AstConst::Unsized32{}, rhs)};
             // We must make sure sub gets sign of original value, not from the constant
             newp->dtypeFrom(lhsp);
-            return newp;
-        } else {  // rhs < 0;
-            AstNodeExpr* const newp
-                = new AstAdd{lhsp->fileline(), lhsp,
-                             new AstConst(lhsp->fileline(), AstConst::Unsized32{}, -rhs)};
+            प्रत्यागम newp;
+        } अन्यथा {  // rhs < 0;
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव newp
+                = नूतन Ast_सङ्कलय{lhsp->fileline(), lhsp,
+                             नूतन AstConst(lhsp->fileline(), AstConst::Unsized32{}, -rhs)};
             // We must make sure sub gets sign of original value, not from the constant
             newp->dtypeFrom(lhsp);
-            return newp;
+            प्रत्यागम newp;
         }
     }
-    AstNodeExpr* newSubNeg(int32_t lhs, AstNodeExpr* rhsp) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* newSubNeg(int32_t lhs, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp) {
         // Return lhs-rhs
         // We must make sure sub gets sign of original value
-        AstNodeExpr* const newp = new AstSub{
-            rhsp->fileline(), new AstConst(rhsp->fileline(), AstConst::Unsized32{}, lhs), rhsp};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव newp = नूतन AstSub{
+            rhsp->fileline(), नूतन AstConst(rhsp->fileline(), AstConst::Unsized32{}, lhs), rhsp};
         newp->dtypeFrom(rhsp);  // Important as AstSub default is lhs's sign
-        return newp;
+        प्रत्यागम newp;
     }
 
-    AstNodeExpr* newSubLsbOf(AstNodeExpr* underp, const VNumRange& fromRange) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* new_Sub_Lsb_सम्बन्धि(Ast_ग्रन्थिः_व्यञ्जकम्* underp, ध्रुव VNumRange& fromRange) {
         // Account for a variable's LSB in bit selections
         // Will likely become SUB(underp, lsb_of_signal).
         // Don't report WIDTH warnings etc here, as may be inside a
         // generate branch that will be deleted.
         // SUB #'s Not needed when LSB==0 and MSB>=0 (ie [0:-13] must still get added!)
-        if (!fromRange.ranged()) {
+        यदि (!fromRange.ranged()) {
             // vector without range, or 0 lsb is ok, for example a INTEGER x; y = x[21:0];
-            return underp;
-        } else {
-            if (fromRange.ascending()) {
+            प्रत्यागम underp;
+        } अन्यथा {
+            यदि (fromRange.ascending()) {
                 // reg [1:3] was swapped to [3:1] (lsbEndianedp==3) and needs a SUB(3,under)
-                return newSubNeg(fromRange.hi(), underp);
-            } else {
+                प्रत्यागम newSubNeg(fromRange.hi(), underp);
+            } अन्यथा {
                 // reg [3:1] needs a SUB(under,1)
-                return newSubNeg(underp, fromRange.lo());
+                प्रत्यागम newSubNeg(underp, fromRange.lo());
             }
         }
     }
-    AstNodeExpr* newMulConst(FileLine* fl, uint32_t elwidth, AstNodeExpr* indexp) {
-        AstNodeExpr* extendp;
-        const int widthMin = std::max(V3Number::log2b(elwidth) + 1, indexp->widthMin());
-        if (indexp->width() > 32) {
-            extendp = new AstSel{fl, indexp, 0, 32, widthMin};
-        } else {
-            extendp = new AstExtend{fl, indexp, 32, widthMin};
+    Ast_ग्रन्थिः_व्यञ्जकम्* newMulConst(File_पङ्क्तिः* fl, uint32_t elwidth, Ast_ग्रन्थिः_व्यञ्जकम्* indexp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* extendp;
+        ध्रुव पूर्णाङ्क विस्तारः_Min = std::max(V3_सङ्ख्या::log2b(elwidth) + 1, indexp->विस्तारः_Min());
+        यदि (indexp->विस्तारः() > 32) {
+            extendp = नूतन AstSel{fl, indexp, 0, 32, विस्तारः_Min};
+        } अन्यथा {
+            extendp = नूतन AstExtend{fl, indexp, 32, विस्तारः_Min};
         }
-        AstNodeExpr* const mulp
-            = new AstMul{fl, new AstConst{fl, AstConst::Unsized32{}, elwidth},
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव mulp
+            = नूतन AstMul{fl, नूतन AstConst{fl, AstConst::Unsized32{}, elwidth},
                          // Extend needed as index might be e.g. 3 bits but constant e.g. 5 bits
                          extendp};
-        return mulp;
+        प्रत्यागम mulp;
     }
 
-    AstNodeDType* sliceDType(AstPackArrayDType* nodep, int msb, int lsb) {
+    Ast_ग्रन्थिः_DType* खण्डिका_DType(AstPackArrayDType* nodep, पूर्णाङ्क msb, पूर्णाङ्क lsb) {
         // Return slice needed for msb/lsb, either as original dtype or a new slice dtype
-        if (nodep->declRange().elements() == (msb - lsb + 1)  // Extracting whole of original array
+        यदि (nodep->declRange().elements() == (msb - lsb + 1)  // Extracting whole of original array
             && nodep->declRange().lo() == lsb) {
-            return nodep;
-        } else {
+            प्रत्यागम nodep;
+        } अन्यथा {
             // Need a slice data type, which is an array of the extracted
             // type, but with (presumably) different size
-            const VNumRange newRange{msb, lsb, nodep->declRange().ascending()};
-            AstNodeDType* const vardtypep
-                = new AstPackArrayDType{nodep->fileline(),
+            ध्रुव VNumRange newRange{msb, lsb, nodep->declRange().ascending()};
+            Ast_ग्रन्थिः_DType* ध्रुव vardtypep
+                = नूतन AstPackArrayDType{nodep->fileline(),
                                         nodep->subDTypep(),  // Need to strip off array reference
-                                        new AstRange{nodep->fileline(), newRange}};
-            v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
-            return vardtypep;
+                                        नूतन AstRange{nodep->fileline(), newRange}};
+            v3Global.rootp()->typeTablep()->सङ्कलय_Typesp(vardtypep);
+            प्रत्यागम vardtypep;
         }
     }
 
-    AstNodeExpr* selQueueBackness(AstNode* nodep) {
-        if (VN_IS(nodep, Unbounded)) {  // e.g. "[$]"
-            return new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
-        } else if (VN_IS(nodep, Sub) && VN_IS(VN_CAST(nodep, Sub)->lhsp(), Unbounded)) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* selQueueBackness(Ast_ग्रन्थिः* nodep) {
+        यदि (VN_IS(nodep, Unbounded)) {  // e.g. "[$]"
+            प्रत्यागम नूतन AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
+        } अन्यथा यदि (VN_IS(nodep, Sub) && VN_IS(VN_CAST(nodep, Sub)->lhsp(), Unbounded)) {
             // e.g. "q[$ - 1]", where 1 is subnodep
-            AstNodeExpr* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlinkFrBack();
-            return subrhsp;
-        } else {
-            return nullptr;
+            Ast_ग्रन्थिः_व्यञ्जकम्* subrhsp = VN_CAST(nodep, Sub)->rhsp()->unlink_Fr_पृष्ठभागः();
+            प्रत्यागम subrhsp;
+        } अन्यथा {
+            प्रत्यागम शून्यसूचकः;
         }
     }
 
-    void warnTri(AstNode* nodep) {
-        if (VN_IS(nodep, Const) && VN_AS(nodep, Const)->num().isFourState()) {
+    शून्य warnTri(Ast_ग्रन्थिः* nodep) {
+        यदि (VN_IS(nodep, Const) && VN_AS(nodep, Const)->अङ्कः().isFourState()) {
             nodep->v3error(
                 "Selection index is constantly unknown or tristated: " << nodep->name());
         }
@@ -222,151 +222,151 @@ class WidthSelVisitor final : public VNVisitor {
     // VISITORS
     // If adding new visitors, ensure V3Width's visit(TYPE) calls into here
 
-    void visit(AstSelBit* nodep) override {
+    शून्य दर्शय(AstSelBit* nodep) override {
         // Select of a non-width specified part of an array, i.e. "array[2]"
         // This select style has a lsb and msb (no user specified width)
         UINFO(6, "SELBIT " << nodep);
         UINFOTREE(9, nodep->backp(), "", "SELBT0");
         // lhsp/rhsp do not need to be constant
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->bitp()->unlinkFrBack();  // bit we're extracting
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव fromp = nodep->fromp()->unlink_Fr_पृष्ठभागः();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = nodep->bitp()->unlink_Fr_पृष्ठभागः();  // bit we're extracting
         UINFOTREE(9, nodep, "", "SELBT2");
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
+        ध्रुव From_दत्त fromdata = from_दत्त_For_Array(nodep, fromp);
+        Ast_ग्रन्थिः_DType* ध्रुव ddtypep = fromdata.m_dtypep;
+        ध्रुव VNumRange fromRange = fromdata.m_fromRange;
         UINFO(6, "  ddtypep " << ddtypep);
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(ddtypep, UnpackArrayDType)) {
+        यदि (ध्रुव AstUnpackArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, UnpackArrayDType)) {
             // SELBIT(array, index) -> ARRAYSEL(array, index)
-            AstNodeExpr* subp = rhsp;
-            if (fromRange.lo() != 0 || fromRange.hi() < 0) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* subp = rhsp;
+            यदि (fromRange.lo() != 0 || fromRange.hi() < 0) {
                 subp = newSubNeg(subp, fromRange.lo());
             }
-            AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, subp};
+            AstArraySel* ध्रुव newp = नूतन AstArraySel{nodep->fileline(), fromp, subp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (ध्रुव AstPackArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELBIT(array, index) -> SEL(array, index*width-of-subindex, width-of-subindex)
-            AstNodeExpr* subp = rhsp;
-            if (fromRange.ascending()) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* subp = rhsp;
+            यदि (fromRange.ascending()) {
                 subp = newSubNeg(fromRange.hi(), subp);
-            } else {
+            } अन्यथा {
                 subp = newSubNeg(subp, fromRange.lo());
             }
-            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->width() % fromRange.elements()) != 0),
+            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->विस्तारः() % fromRange.elements()) != 0),
                         adtypep,
-                        "Array extraction with width miscomputed " << adtypep->width() << "/"
+                        "Array extraction with width miscomputed " << adtypep->विस्तारः() << "/"
                                                                    << fromRange.elements());
             // cppcheck-suppress zerodivcond
-            const int elwidth = adtypep->width() / fromRange.elements();
-            AstSel* const newp = new AstSel{
+            ध्रुव पूर्णाङ्क elwidth = adtypep->विस्तारः() / fromRange.elements();
+            AstSel* ध्रुव newp = नूतन AstSel{
                 nodep->fileline(), fromp, newMulConst(nodep->fileline(), elwidth, subp), elwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
+            newp->decl_El_विस्तारः(elwidth);
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
-            if (VN_IS(adtypep->subDTypep(), BasicDType)) {
+            यदि (VN_IS(adtypep->subDTypep(), BasicDType)) {
                 // IEEE 1800-2023 7.4.1 Packed arrays says:
                 //   The individual elements of the array are unsigned
                 //   unless they are of a named type declared as signed.
-                newp->dtypep()->numeric(VSigning::fromBool(false));
+                newp->dtypep()->numeric(VSigning::fromBool(असत्य));
             }
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstAssocArrayDType* const adtypep = VN_CAST(ddtypep, AssocArrayDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (ध्रुव AstAssocArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, AssocArrayDType)) {
             // SELBIT(array, index) -> ASSOCSEL(array, index)
-            AstAssocSel* const newp = new AstAssocSel{nodep->fileline(), fromp, rhsp};
+            AstAssocSel* ध्रुव newp = नूतन AstAssocSel{nodep->fileline(), fromp, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstWildcardArrayDType* const adtypep
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (ध्रुव AstWildcardArrayDType* ध्रुव adtypep
                    = VN_CAST(ddtypep, WildcardArrayDType)) {
             // SELBIT(array, index) -> WILDCARDSEL(array, index)
-            AstWildcardSel* const newp = new AstWildcardSel{nodep->fileline(), fromp, rhsp};
+            AstWildcardSel* ध्रुव newp = नूतन AstWildcardSel{nodep->fileline(), fromp, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off array reference
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstDynArrayDType* const adtypep = VN_CAST(ddtypep, DynArrayDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (ध्रुव AstDynArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, DynArrayDType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
-            const VCMethod method
+            ध्रुव VCMethod विधानम्
                 = nodep->access().isWriteOrRW() ? VCMethod::ARRAY_AT_WRITE : VCMethod::ARRAY_AT;
-            AstCMethodHard* const newp
-                = new AstCMethodHard{nodep->fileline(), fromp, method, rhsp};
+            AstCMethodHard* ध्रुव newp
+                = नूतन AstCMethodHard{nodep->fileline(), fromp, विधानम्, rhsp};
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (const AstQueueDType* const adtypep = VN_CAST(ddtypep, QueueDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (ध्रुव AstQueueDType* ध्रुव adtypep = VN_CAST(ddtypep, QueueDType)) {
             // SELBIT(array, index) -> CMETHODCALL(queue, "at", index)
             AstCMethodHard* newp;
-            if (AstNodeExpr* const backnessp = selQueueBackness(rhsp)) {
-                const VCMethod method = nodep->access().isWriteOrRW()
-                                            ? VCMethod::DYN_AT_WRITE_APPEND_BACK
-                                            : VCMethod::ARRAY_AT_BACK;
-                newp = new AstCMethodHard{nodep->fileline(), fromp, method, backnessp};
-            } else {
-                const VCMethod method = nodep->access().isWriteOrRW()
+            यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव backnessp = selQueueBackness(rhsp)) {
+                ध्रुव VCMethod विधानम् = nodep->access().isWriteOrRW()
+                                            ? VCMethod::DYN_AT_WRITE_APPEND_पृष्ठभागः
+                                            : VCMethod::ARRAY_AT_पृष्ठभागः;
+                newp = नूतन AstCMethodHard{nodep->fileline(), fromp, विधानम्, backnessp};
+            } अन्यथा {
+                ध्रुव VCMethod विधानम् = nodep->access().isWriteOrRW()
                                             ? VCMethod::DYN_AT_WRITE_APPEND
                                             : VCMethod::ARRAY_AT;
-                newp = new AstCMethodHard{nodep->fileline(), fromp, method, rhsp};
+                newp = नूतन AstCMethodHard{nodep->fileline(), fromp, विधानम्, rhsp};
             }
             newp->dtypeFrom(adtypep->subDTypep());  // Need to strip off queue reference
             UINFOTREE(9, newp, "", "SELBTq");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType) && ddtypep->isString()) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (VN_IS(ddtypep, BasicDType) && ddtypep->isString()) {
             // SELBIT(string, index) -> GETC(string, index)
-            AstNodeExpr* exprp = fromp;
-            while (true) {
-                if (AstMemberSel* const memberselp = VN_CAST(exprp, MemberSel)) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* exprp = fromp;
+            यावत् (सत्य) {
+                यदि (AstMemberSel* ध्रुव memberselp = VN_CAST(exprp, MemberSel)) {
                     exprp = memberselp->fromp();
-                } else if (AstStructSel* const structselp = VN_CAST(exprp, StructSel)) {
+                } अन्यथा यदि (AstStructSel* ध्रुव structselp = VN_CAST(exprp, StructSel)) {
                     exprp = structselp->fromp();
-                } else {
-                    break;
+                } अन्यथा {
+                    भङ्ग;
                 }
             }
-            const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef);
-            AstNodeExpr* newp;
-            if (!varrefp || varrefp->access().isReadOnly()) {
-                newp = new AstGetcN{nodep->fileline(), fromp, rhsp};
-            } else {
-                newp = new AstGetcRefN{nodep->fileline(), fromp, rhsp};
+            ध्रुव Ast_ग्रन्थिः_Var_Ref* ध्रुव varrefp = VN_CAST(exprp, ग्रन्थिः_Var_Ref);
+            Ast_ग्रन्थिः_व्यञ्जकम्* newp;
+            यदि (!varrefp || varrefp->access().isReadOnly()) {
+                newp = नूतन AstGetcN{nodep->fileline(), fromp, rhsp};
+            } अन्यथा {
+                newp = नूतन AstGetcRefN{nodep->fileline(), fromp, rhsp};
             }
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (VN_IS(ddtypep, BasicDType)) {
             // SELBIT(range, index) -> SEL(array, index, 1)
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp, newSubLsbOf(rhsp, fromRange), 1};
+            AstSel* ध्रुव newp
+                = नूतन AstSel{nodep->fileline(), fromp, new_Sub_Lsb_सम्बन्धि(rhsp, fromRange), 1};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {  // A bit from the packed struct
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (VN_IS(ddtypep, ग्रन्थिः_UOr_Struct_DType)) {  // A bit from the packed struct
             // SELBIT(range, index) -> SEL(array, index, 1)
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp, newSubLsbOf(rhsp, fromRange), 1};
+            AstSel* ध्रुव newp
+                = नूतन AstSel{nodep->fileline(), fromp, new_Sub_Lsb_सम्बन्धि(rhsp, fromRange), 1};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELBTn");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal bit or array select; type already selected, or bad dimension: "
                            << "data type is" << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
         }
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
+        यदि (!rhsp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(rhsp), rhsp);
     }
-    void visit(AstSelExtract* nodep) override {
+    शून्य दर्शय(AstSelExtract* nodep) override {
         // Select of a range specified part of an array, i.e. "array[2:3]"
         // SELEXTRACT(from,msb,lsb) -> SEL(from, lsb, 1+msb-lsb)
         // This select style has a (msb or lsb) and width
@@ -376,80 +376,80 @@ class WidthSelVisitor final : public VNVisitor {
         V3Const::constifyParamsNoWarnEdit(nodep->leftp());  // May relink pointed to node
         V3Const::constifyParamsNoWarnEdit(nodep->rightp());  // May relink pointed to node
         // UINFOTREE(9, nodep, "", "SELEX3");
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
-        if (VN_IS(ddtypep, QueueDType)) {
-            AstNodeExpr* const qleftp = nodep->leftp()->unlinkFrBack();
-            AstNodeExpr* const qrightp = nodep->rightp()->unlinkFrBack();
-            AstNodeExpr* const qleftBacknessp = selQueueBackness(qleftp);
-            AstNodeExpr* const qrightBacknessp = selQueueBackness(qrightp);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव fromp = nodep->fromp()->unlink_Fr_पृष्ठभागः();
+        ध्रुव From_दत्त fromdata = from_दत्त_For_Array(nodep, fromp);
+        Ast_ग्रन्थिः_DType* ध्रुव ddtypep = fromdata.m_dtypep;
+        ध्रुव VNumRange fromRange = fromdata.m_fromRange;
+        यदि (VN_IS(ddtypep, QueueDType)) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव qleftp = nodep->leftp()->unlink_Fr_पृष्ठभागः();
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव qrightp = nodep->rightp()->unlink_Fr_पृष्ठभागः();
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव qleftBacknessp = selQueueBackness(qleftp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव qrightBacknessp = selQueueBackness(qrightp);
             // Use special methods to refer to back rather than math using
             // queue size, this allows a single queue reference, to support
             // for equations in side effects that select the queue to
             // operate upon.
-            const VCMethod method = (qleftBacknessp    ? VCMethod::DYN_SLICE_BACK_BACK
-                                     : qrightBacknessp ? VCMethod::DYN_SLICE_FRONT_BACK
-                                                       : VCMethod::DYN_SLICE);
-            AstCMethodHard* const newp = new AstCMethodHard{nodep->fileline(), fromp, method};
-            if (qleftBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qleftp), qleftp);
-                newp->addPinsp(qleftBacknessp);
-            } else {
-                newp->addPinsp(qleftp);
+            ध्रुव VCMethod विधानम् = (qleftBacknessp    ? VCMethod::DYN_खण्डिका_पृष्ठभागः_पृष्ठभागः
+                                     : qrightBacknessp ? VCMethod::DYN_खण्डिका_FRONT_पृष्ठभागः
+                                                       : VCMethod::DYN_खण्डिका);
+            AstCMethodHard* ध्रुव newp = नूतन AstCMethodHard{nodep->fileline(), fromp, विधानम्};
+            यदि (qleftBacknessp) {
+                VL_DO_DANGLING(प्रक्षिप_Deletep(qleftp), qleftp);
+                newp->सङ्कलय_Pinsp(qleftBacknessp);
+            } अन्यथा {
+                newp->सङ्कलय_Pinsp(qleftp);
             }
-            if (qrightBacknessp) {
-                VL_DO_DANGLING(pushDeletep(qrightp), qrightp);
-                newp->addPinsp(qrightBacknessp);
-            } else {
-                newp->addPinsp(qrightp);
+            यदि (qrightBacknessp) {
+                VL_DO_DANGLING(प्रक्षिप_Deletep(qrightp), qrightp);
+                newp->सङ्कलय_Pinsp(qrightBacknessp);
+            } अन्यथा {
+                newp->सङ्कलय_Pinsp(qrightp);
             }
             newp->dtypep(ddtypep);
-            newp->didWidth(true);
-            newp->protect(false);
+            newp->did_विस्तारः(सत्य);
+            newp->protect(असत्य);
             UINFO(6, "   new " << newp);
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            प्रत्यागम;
         }
         // Non-queue
         checkConstantOrReplace(nodep->leftp(),
                                "First value of [a:b] isn't a constant, maybe you want +: or -:");
         checkConstantOrReplace(nodep->rightp(),
                                "Second value of [a:b] isn't a constant, maybe you want +: or -:");
-        AstNodeExpr* const msbp = nodep->leftp()->unlinkFrBack();
-        AstNodeExpr* const lsbp = nodep->rightp()->unlinkFrBack();
-        int32_t msb = VN_AS(msbp, Const)->toSInt();
-        int32_t lsb = VN_AS(lsbp, Const)->toSInt();
-        const int32_t elem = (msb > lsb) ? (msb - lsb + 1) : (lsb - msb + 1);
-        if (VN_IS(ddtypep, UnpackArrayDType)) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव msbp = nodep->leftp()->unlink_Fr_पृष्ठभागः();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lsbp = nodep->rightp()->unlink_Fr_पृष्ठभागः();
+        int32_t msb = VN_AS(msbp, Const)->गन्तव्यम्_SInt();
+        int32_t lsb = VN_AS(lsbp, Const)->गन्तव्यम्_SInt();
+        ध्रुव int32_t elem = (msb > lsb) ? (msb - lsb + 1) : (lsb - msb + 1);
+        यदि (VN_IS(ddtypep, UnpackArrayDType)) {
             // Slice extraction
-            if (fromRange.elements() == elem
+            यदि (fromRange.elements() == elem
                 && fromRange.lo() == lsb) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (fromRange.elements() == 1) {  // Extracting single element
-                AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, lsbp};
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            } अन्यथा यदि (fromRange.elements() == 1) {  // Extracting single element
+                AstArraySel* ध्रुव newp = नूतन AstArraySel{nodep->fileline(), fromp, lsbp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {  // Slice
-                AstSliceSel* const newp
-                    = new AstSliceSel{nodep->fileline(), fromp,
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            } अन्यथा {  //खण्डिका
+                Ast_खण्डिका_Sel* ध्रुव newp
+                    = नूतन Ast_खण्डिका_Sel{nodep->fileline(), fromp,
                                       VNumRange{msb - fromRange.lo(), lsb - fromRange.lo()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
             }
-        } else if (AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+        } अन्यथा यदि (AstPackArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, PackArrayDType)) {
             // SELEXTRACT(array, msb, lsb) -> SEL(array,
             //             lsb*width-of-subindex, width-of-subindex*(msb-lsb))
-            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->width() % fromRange.elements()) != 0),
+            UASSERT_OBJ(!(!fromRange.elements() || (adtypep->विस्तारः() % fromRange.elements()) != 0),
                         adtypep,
-                        "Array extraction with width miscomputed " << adtypep->width() << "/"
+                        "Array extraction with width miscomputed " << adtypep->विस्तारः() << "/"
                                                                    << fromRange.elements());
             // Below code assumes descending bit range; just works out if we swap
-            if (fromRange.ascending()) std::swap(msb, lsb);
-            if (lsb > msb) {
+            यदि (fromRange.ascending()) std::swap(msb, lsb);
+            यदि (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
@@ -457,22 +457,22 @@ class WidthSelVisitor final : public VNVisitor {
                         << ":" << msb << "]");
                 std::swap(msb, lsb);
             }
-            const int elwidth = adtypep->width() / fromRange.elements();
-            AstSel* const newp
-                = new AstSel{nodep->fileline(), fromp,
-                             newMulConst(nodep->fileline(), elwidth, newSubLsbOf(lsbp, fromRange)),
+            ध्रुव पूर्णाङ्क elwidth = adtypep->विस्तारः() / fromRange.elements();
+            AstSel* ध्रुव newp
+                = नूतन AstSel{nodep->fileline(), fromp,
+                             newMulConst(nodep->fileline(), elwidth, new_Sub_Lsb_सम्बन्धि(lsbp, fromRange)),
                              (msb - lsb + 1) * elwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
-            newp->dtypeFrom(sliceDType(adtypep, msb, lsb));
+            newp->decl_El_विस्तारः(elwidth);
+            newp->dtypeFrom(खण्डिका_DType(adtypep, msb, lsb));
             // UINFOTREE(9, newp, "", "EXTBTn");
-            UASSERT_OBJ(newp->widthMin() == newp->widthConst(), nodep, "Width mismatch");
+            UASSERT_OBJ(newp->विस्तारः_Min() == newp->विस्तारः_Const(), nodep, "Width mismatch");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, BasicDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (VN_IS(ddtypep, BasicDType)) {
             // Below code assumes descending bit range; just works out if we swap
-            if (fromRange.ascending()) std::swap(msb, lsb);
-            if (lsb > msb) {
+            यदि (fromRange.ascending()) std::swap(msb, lsb);
+            यदि (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
@@ -480,16 +480,16 @@ class WidthSelVisitor final : public VNVisitor {
                         << ":" << msb << "]");
                 std::swap(msb, lsb);
             }
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newSubLsbOf(lsbp, fromRange),
+            AstSel* ध्रुव newp = नूतन AstSel{nodep->fileline(), fromp, new_Sub_Lsb_सम्बन्धि(lsbp, fromRange),
                                             msb + 1 - lsb};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else if (VN_IS(ddtypep, NodeUOrStructDType)) {
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा यदि (VN_IS(ddtypep, ग्रन्थिः_UOr_Struct_DType)) {
             // Classes don't have an ascending range
-            if (lsb > msb) {
+            यदि (lsb > msb) {
                 nodep->v3warn(
                     SELRANGE,
                     "[" << msb << ":" << lsb
@@ -497,156 +497,156 @@ class WidthSelVisitor final : public VNVisitor {
                         << ":" << msb << "]");
                 std::swap(msb, lsb);
             }
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newSubLsbOf(lsbp, fromRange),
+            AstSel* ध्रुव newp = नूतन AstSel{nodep->fileline(), fromp, new_Sub_Lsb_सम्बन्धि(lsbp, fromRange),
                                             msb + 1 - lsb};
             newp->declRange(fromRange);
             UINFO(6, "   new " << newp);
             // UINFOTREE(9, newp, "", "SELEXnew");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal range select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             UINFO(1, "    Related ddtype: " << ddtypep);
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!msbp->backp()) VL_DO_DANGLING(pushDeletep(msbp), msbp);
-        if (!lsbp->backp()) VL_DO_DANGLING(pushDeletep(lsbp), lsbp);
+        यदि (!fromp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(fromp), fromp);
+        यदि (!msbp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(msbp), msbp);
+        यदि (!lsbp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(lsbp), lsbp);
     }
 
-    void replaceSelPlusMinus(AstNodePreSel* nodep) {
+    शून्य replaceSelPlusMinus(Ast_ग्रन्थिः_Pre_Sel* nodep) {
         // Select of a range specified with +: or -:, i.e. "array[2+:3], [2-:3]"
         // This select style has a lsb and width
         UINFO(6, "SELPLUS/MINUS " << nodep);
         // Below 2 lines may change nodep->widthp()
         UINFOTREE(9, nodep, "", "SELPM0");
-        V3Width::widthParamsEdit(nodep->rhsp());  // constifyEdit doesn't ensure widths finished
+        V3_विस्तारः::विस्तारः_Params_Edit(nodep->rhsp());  // constifyEdit doesn't ensure widths finished
         V3Const::constifyEdit(nodep->rhsp());  // May relink pointed to node, ok if not const
         V3Const::constifyParamsEdit(nodep->thsp());  // May relink pointed to node
         checkConstantOrReplace(nodep->thsp(),
                                "Width of :+ or :- bit slice range isn't a constant");
         UINFOTREE(9, nodep, "", "SELPM3");
         // Now replace it with an AstSel
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-        AstNodeExpr* const widthp = nodep->thsp()->unlinkFrBack();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव fromp = nodep->fromp()->unlink_Fr_पृष्ठभागः();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = nodep->rhsp()->unlink_Fr_पृष्ठभागः();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव widthp = nodep->thsp()->unlink_Fr_पृष्ठभागः();
         warnTri(rhsp);
-        const int width = VN_AS(widthp, Const)->toSInt();
-        if (width > (1 << 28)) {
+        ध्रुव पूर्णाङ्क विस्तारः = VN_AS(widthp, Const)->गन्तव्यम्_SInt();
+        यदि (विस्तारः > (1 << 28)) {
             nodep->v3error("Width of :+ or :- is huge; vector of over 1 billion bits: "
                            << widthp->prettyName());
         }
-        if (width < 0) nodep->v3error("Width of :+ or :- is < 0: " << widthp->prettyName());
-        const FromData fromdata = fromDataForArray(nodep, fromp);
-        const AstNodeDType* const ddtypep = fromdata.m_dtypep;
-        const VNumRange fromRange = fromdata.m_fromRange;
-        if (VN_IS(ddtypep, UnpackArrayDType)) {
+        यदि (विस्तारः < 0) nodep->v3error("Width of :+ or :- is < 0: " << widthp->prettyName());
+        ध्रुव From_दत्त fromdata = from_दत्त_For_Array(nodep, fromp);
+        ध्रुव Ast_ग्रन्थिः_DType* ध्रुव ddtypep = fromdata.m_dtypep;
+        ध्रुव VNumRange fromRange = fromdata.m_fromRange;
+        यदि (VN_IS(ddtypep, UnpackArrayDType)) {
             // Slice +: and -: extraction
-            if (fromRange.elements() == width && VN_IS(rhsp, Const)
-                && VN_AS(rhsp, Const)->toSInt()
+            यदि (fromRange.elements() == विस्तारः && VN_IS(rhsp, Const)
+                && VN_AS(rhsp, Const)->गन्तव्यम्_SInt()
                        == fromRange.lo()) {  // Extracting whole of original array
                 nodep->replaceWith(fromp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (fromRange.elements() == 1) {  // Extracting single element
-                AstArraySel* const newp = new AstArraySel{nodep->fileline(), fromp, rhsp};
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            } अन्यथा यदि (fromRange.elements() == 1) {  // Extracting single element
+                AstArraySel* ध्रुव newp = नूतन AstArraySel{nodep->fileline(), fromp, rhsp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else if (VN_IS(rhsp, Const)) {  // Slice
-                const int32_t rhs = VN_AS(rhsp, Const)->toSInt();
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            } अन्यथा यदि (VN_IS(rhsp, Const)) {  //खण्डिका
+                ध्रुव int32_t rhs = VN_AS(rhsp, Const)->गन्तव्यम्_SInt();
                 // down array: lsb/lo +: width
                 // down array: msb/hi -: width
                 // up array:   msb/lo +: width
                 // up array:   lsb/hi -: width
-                const int32_t msb
-                    = (VN_IS(nodep, SelPlus) ? rhs + width - 1 : rhs) - fromRange.lo();
-                const int32_t lsb
-                    = (VN_IS(nodep, SelPlus) ? rhs : rhs - width + 1) - fromRange.lo();
-                AstSliceSel* const newp = new AstSliceSel{
+                ध्रुव int32_t msb
+                    = (VN_IS(nodep, SelPlus) ? rhs + विस्तारः - 1 : rhs) - fromRange.lo();
+                ध्रुव int32_t lsb
+                    = (VN_IS(nodep, SelPlus) ? rhs : rhs - विस्तारः + 1) - fromRange.lo();
+                Ast_खण्डिका_Sel* ध्रुव newp = नूतन Ast_खण्डिका_Sel{
                     nodep->fileline(), fromp, VNumRange{msb, lsb, fromRange.ascending()}};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
+                VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+            } अन्यथा {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: Slice of non-constant bounds");
             }
-        } else if (VN_IS(ddtypep, BasicDType) || VN_IS(ddtypep, PackArrayDType)
-                   || (VN_IS(ddtypep, NodeUOrStructDType)
-                       && VN_AS(ddtypep, NodeUOrStructDType)->packedUnsup())) {
-            int elwidth = 1;
-            int newwidth = width;
-            if (const AstPackArrayDType* const adtypep = VN_CAST(ddtypep, PackArrayDType)) {
-                elwidth = adtypep->width() / fromRange.elements();
-                newwidth = width * elwidth;
+        } अन्यथा यदि (VN_IS(ddtypep, BasicDType) || VN_IS(ddtypep, PackArrayDType)
+                   || (VN_IS(ddtypep, ग्रन्थिः_UOr_Struct_DType)
+                       && VN_AS(ddtypep, ग्रन्थिः_UOr_Struct_DType)->packedUnsup())) {
+            पूर्णाङ्क elwidth = 1;
+            पूर्णाङ्क newwidth = विस्तारः;
+            यदि (ध्रुव AstPackArrayDType* ध्रुव adtypep = VN_CAST(ddtypep, PackArrayDType)) {
+                elwidth = adtypep->विस्तारः() / fromRange.elements();
+                newwidth = विस्तारः * elwidth;
             }
-            AstNodeExpr* newlsbp = nullptr;
-            if (VN_IS(nodep, SelPlus)) {
-                if (fromRange.ascending()) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* newlsbp = शून्यसूचकः;
+            यदि (VN_IS(nodep, SelPlus)) {
+                यदि (fromRange.ascending()) {
                     // SELPLUS(from,lsb,width) -> SEL(from, (vector_msb-width+1)-sel, width)
-                    newlsbp = newSubNeg((fromRange.hi() - width + 1), rhsp);
-                } else {
+                    newlsbp = newSubNeg((fromRange.hi() - विस्तारः + 1), rhsp);
+                } अन्यथा {
                     // SELPLUS(from,lsb,width) -> SEL(from, lsb-vector_lsb, width)
                     newlsbp = newSubNeg(rhsp, fromRange.lo());
                 }
-            } else if (VN_IS(nodep, SelMinus)) {
-                if (fromRange.ascending()) {
+            } अन्यथा यदि (VN_IS(nodep, SelMinus)) {
+                यदि (fromRange.ascending()) {
                     // SELMINUS(from,msb,width) -> SEL(from, msb-[bit])
                     newlsbp = newSubNeg(fromRange.hi(), rhsp);
-                } else {
+                } अन्यथा {
                     // SELMINUS(from,msb,width) -> SEL(from, msb-(width-1)-lsb#)
-                    newlsbp = newSubNeg(rhsp, fromRange.lo() + (width - 1));
+                    newlsbp = newSubNeg(rhsp, fromRange.lo() + (विस्तारः - 1));
                 }
-            } else {
+            } अन्यथा {
                 nodep->v3fatalSrc("Bad Case");
             }
-            if (elwidth != 1) newlsbp = newMulConst(nodep->fileline(), elwidth, newlsbp);
-            AstSel* const newp = new AstSel{nodep->fileline(), fromp, newlsbp, newwidth};
+            यदि (elwidth != 1) newlsbp = newMulConst(nodep->fileline(), elwidth, newlsbp);
+            AstSel* ध्रुव newp = नूतन AstSel{nodep->fileline(), fromp, newlsbp, newwidth};
             newp->declRange(fromRange);
-            newp->declElWidth(elwidth);
+            newp->decl_El_विस्तारः(elwidth);
             UINFO(6, "   new " << newp);
             UINFOTREE(9, newp, "", "SELNEW");
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {  // nullptr=bad extract, or unknown node type
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
+        } अन्यथा {  // nullptr=bad extract, or unknown node type
             nodep->v3error("Illegal +: or -: select; type already selected, or bad dimension: "
                            << "data type is " << fromdata.m_errp->prettyDTypeNameQ());
             // How to recover?  We'll strip a dimension.
             nodep->replaceWith(fromp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
         }
         // delete whatever we didn't use in reconstruction
-        if (!fromp->backp()) VL_DO_DANGLING(pushDeletep(fromp), fromp);
-        if (!rhsp->backp()) VL_DO_DANGLING(pushDeletep(rhsp), rhsp);
-        if (!widthp->backp()) VL_DO_DANGLING(pushDeletep(widthp), widthp);
+        यदि (!fromp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(fromp), fromp);
+        यदि (!rhsp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(rhsp), rhsp);
+        यदि (!widthp->backp()) VL_DO_DANGLING(प्रक्षिप_Deletep(widthp), widthp);
     }
-    void visit(AstSelPlus* nodep) override { replaceSelPlusMinus(nodep); }
-    void visit(AstSelMinus* nodep) override { replaceSelPlusMinus(nodep); }
+    शून्य दर्शय(AstSelPlus* nodep) override { replaceSelPlusMinus(nodep); }
+    शून्य दर्शय(AstSelMinus* nodep) override { replaceSelPlusMinus(nodep); }
     // If adding new visitors, ensure V3Width's visit(TYPE) calls into here
 
     //--------------------
     // Default
-    void visit(AstNode* nodep) override {  // LCOV_EXCL_LINE
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override {  // LCOV_EXCL_LINE
         // See notes above; we never iterate
         nodep->v3fatalSrc("Shouldn't iterate in V3WidthSel");
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    WidthSelVisitor() = default;
-    ~WidthSelVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    विस्तारः_Sel_Visitor() = स्वभाव;
+    ~विस्तारः_Sel_Visitor() override = स्वभाव;
+    Ast_ग्रन्थिः* mainAcceptEdit(Ast_ग्रन्थिः* nodep) { प्रत्यागम iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 // Width class functions
 
-AstNode* V3Width::widthSelNoIterEdit(AstNode* nodep) {
+Ast_ग्रन्थिः* V3_विस्तारः::विस्तारः_Sel_No_Iter_Edit(Ast_ग्रन्थिः* nodep) {
     UINFO(4, __FUNCTION__ << ": " << nodep);
-    WidthSelVisitor visitor;
+    विस्तारः_Sel_Visitor visitor;
     nodep = visitor.mainAcceptEdit(nodep);
-    return nodep;
+    प्रत्यागम nodep;
 }
 
-#undef iterateChildren
+#अपरिभाषय iterateChildren

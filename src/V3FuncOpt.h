@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCOPT_H_
-#define VERILATOR_V3FUNCOPT_H_
+#यदि_अपरिभाषितम् VERILATOR_V3FUNCOPT_H_
+#परिभाषय VERILATOR_V3FUNCOPT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3FuncOpt final {
-public:
-    static void funcOptAll(AstNetlist* nodep);
+सार्वजनिक:
+    स्थिर शून्य funcOptAll(AstNetlist* nodep);
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

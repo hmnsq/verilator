@@ -14,23 +14,23 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SYMTABLE_H_
-#define VERILATOR_V3SYMTABLE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3SYMTABLE_H_
+#परिभाषय VERILATOR_V3SYMTABLE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3File.h"
-#include "V3Global.h"
-#include "V3String.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3File.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3String.h"
 
-#include <cstdarg>
-#include <iomanip>
-#include <map>
-#include <memory>
-#include <unordered_set>
-#include <vector>
+#अन्तर्भाव <cstdarg>
+#अन्तर्भाव <iomanip>
+#अन्तर्भाव <map>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <vector>
 
 class VSymGraph;
 class VSymEnt;
@@ -38,298 +38,298 @@ class VSymEnt;
 //######################################################################
 // Symbol table
 
-using VSymConstMap = std::unordered_set<const VSymEnt*>;
+using VSymConstMap = std::unordered_समुच्चयः<ध्रुव VSymEnt*>;
 
 class VSymEnt final {
     // Symbol table that can have a "superior" table for resolving upper references
     // MEMBERS
     using IdNameMap = std::multimap<std::string, VSymEnt*>;
     IdNameMap m_idNameMap;  // Hash of variables by name
-    std::unordered_set<std::string> m_idNameSimilarMap;  // Variables by name with same case
-    AstNode* m_nodep;  // Node that entry belongs to
+    std::unordered_समुच्चयः<std::string> m_idNameSimilarMap;  // Variables by name with same case
+    Ast_ग्रन्थिः* m_nodep;  // Node that entry belongs to
     VSymEnt* m_fallbackp = nullptr;  // Table "above" this in name scope, for fallback resolution
     VSymEnt* m_parentp = nullptr;  // Table that created this
-    AstNodeModule* m_classOrPackagep = nullptr;  // Package node is in (for V3LinkDot, unused here)
-    string m_symPrefix;  // String to prefix symbols with (for V3LinkDot, unused here)
+    Ast_ग्रन्थिः_Module* m_classOrPackagep = nullptr;  // Package node is in (for V3LinkDot, unused here)
+    string m_sym_उपसर्गः;  // String to prefix symbols with (for V3LinkDot, unused here)
     bool m_exported = true;  // Allow importing
     bool m_imported = false;  // Was imported
-#ifdef VL_DEBUG
+#यदि_परिभाषितम् VL_DEBUG
     VL_DEFINE_DEBUG_FUNCTIONS;
-#else
-    static constexpr int debug() { return 0; }  // NOT runtime, too hot of a function
-#endif
-public:
+#अन्यथा
+    स्थिर constexpr पूर्णाङ्क debug() { प्रत्यागम 0; }  // NOT runtime, too hot of a function
+#यदि_अन्तः
+सार्वजनिक:
     using const_iterator = IdNameMap::const_iterator;
-    const_iterator begin() const { return m_idNameMap.begin(); }
-    const_iterator end() const { return m_idNameMap.end(); }
+    const_iterator begin() ध्रुव { प्रत्यागम m_idNameMap.begin(); }
+    const_iterator अन्तः_2() ध्रुव { प्रत्यागम m_idNameMap.अन्तः_2(); }
 
-    void dumpIterate(std::ostream& os, VSymConstMap& doneSymsr, const string& indent,
-                     int numLevels, const string& searchName) const {
-        os << indent << "+ " << std::left << std::setw(30) << ("'"s + searchName + "'"s)
-           << std::setw(0) << std::right;
-        os << "  se" << cvtToHex(this) << std::setw(0);
-        os << "  fallb=se" << cvtToHex(m_fallbackp);
-        if (m_imported || m_exported) {
+    शून्य dumpIterate(std::ostream& os, VSymConstMap& समाप्तम्_Symsr, ध्रुव string& indent,
+                     पूर्णाङ्क अङ्कः_स्तराः, ध्रुव string& अन्वेषणम्_Name) ध्रुव {
+        os << indent << "+ " << std::वामः << std::setw(30) << ("'"s + अन्वेषणम्_Name + "'"s)
+           << std::setw(0) << std::दक्षिणः;
+        os << "  se" << cvt_गन्तव्यम्_Hex(this) << std::setw(0);
+        os << "  fallb=se" << cvt_गन्तव्यम्_Hex(m_fallbackp);
+        यदि (m_imported || m_exported) {
             os << "  ";
-            if (m_imported) os << "[I]";
-            if (m_exported) os << "[E]";
+            यदि (m_imported) os << "[I]";
+            यदि (m_exported) os << "[E]";
         }
-        if (m_symPrefix != "") os << "  symPrefix=" << m_symPrefix;
-        if (nodep()) os << "  n=" << nodep();
+        यदि (m_sym_उपसर्गः != "") os << "  symPrefix=" << m_sym_उपसर्गः;
+        यदि (nodep()) os << "  n=" << nodep();
         os << '\n';
-        if (VL_UNCOVERABLE(!doneSymsr.insert(this).second)) {
+        यदि (VL_UNCOVERABLE(!समाप्तम्_Symsr.निवेशय(this).second)) {
             os << indent << "| ^ duplicate, so no children printed\n";  // LCOV_EXCL_LINE
-        } else {
-            for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-                if (numLevels >= 1) {
-                    it->second->dumpIterate(os, doneSymsr, indent + "| ", numLevels - 1,
+        } अन्यथा {
+            प्रति (स्वचालित it = m_idNameMap.begin(); it != m_idNameMap.अन्तः_2(); ++it) {
+                यदि (अङ्कः_स्तराः >= 1) {
+                    it->second->dumpIterate(os, समाप्तम्_Symsr, indent + "| ", अङ्कः_स्तराः - 1,
                                             it->first);
                 }
             }
         }
     }
-    void dumpSelf(std::ostream& os, const string& indent = "", int numLevels = 1) const {
-        VSymConstMap doneSyms;
-        dumpIterate(os, doneSyms, indent, numLevels, "TOP");
+    शून्य dumpSelf(std::ostream& os, ध्रुव string& indent = "", पूर्णाङ्क अङ्कः_स्तराः = 1) ध्रुव {
+        VSymConstMap समाप्तम्_Syms;
+        dumpIterate(os, समाप्तम्_Syms, indent, अङ्कः_स्तराः, "TOP");
     }
 
     // METHODS
-    VSymEnt(VSymGraph* graphp, const VSymEnt* symp);  // Below
-    VSymEnt(VSymGraph* graphp, AstNode* nodep);  // Below
+    VSymEnt(VSymGraph* graphp, ध्रुव VSymEnt* symp);  //अधः
+    VSymEnt(VSymGraph* graphp, Ast_ग्रन्थिः* nodep);  //अधः
     ~VSymEnt() {
         // Change links so we coredump if used
-#ifdef VL_DEBUG
-        m_nodep = reinterpret_cast<AstNode*>(1);
+#यदि_परिभाषितम् VL_DEBUG
+        m_nodep = reinterpret_cast<Ast_ग्रन्थिः*>(1);
         m_fallbackp = reinterpret_cast<VSymEnt*>(1);
         m_parentp = reinterpret_cast<VSymEnt*>(1);
-        m_classOrPackagep = reinterpret_cast<AstNodeModule*>(1);
-#endif
+        m_classOrPackagep = reinterpret_cast<Ast_ग्रन्थिः_Module*>(1);
+#यदि_अन्तः
     }
-#if (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
+#यदि (defined(VL_DEBUG) || defined(VL_ALLOC_RANDOM_CHECKS)) && !defined(VL_LEAK_CHECKS)
     // For testing, leak so above destructor 1 assignments work
-    void* operator new(size_t size) { return std::malloc(size); }
-    void operator delete(void* objp, size_t size) {}
-#endif
-    void fallbackp(VSymEnt* entp) { m_fallbackp = entp; }
-    VSymEnt* fallbackp() const { return m_fallbackp; }
-    void parentp(VSymEnt* entp) { m_parentp = entp; }
-    VSymEnt* parentp() const { return m_parentp; }
-    void classOrPackagep(AstNodeModule* entp) { m_classOrPackagep = entp; }
-    AstNodeModule* classOrPackagep() const { return m_classOrPackagep; }
-    AstNode* nodep() const { return m_nodep; }
-    string symPrefix() const { return m_symPrefix; }
-    void symPrefix(const string& name) { m_symPrefix = name; }
-    bool exported() const { return m_exported; }
-    void exported(bool flag) { m_exported = flag; }
-    bool imported() const { return m_imported; }
-    void imported(bool flag) { m_imported = flag; }
-    VSymEnt* insert(const string& name, VSymEnt* entp) {
-        UINFO(9, "     SymInsert se" << cvtToHex(this) << " '" << name << "' se" << cvtToHex(entp)
+    शून्य* संक्रियकः new(आकार_t आकार) { प्रत्यागम std::स्मृतिं_देहि(आकार); }
+    शून्य संक्रियकः delete(शून्य* objp, आकार_t आकार) {}
+#यदि_अन्तः
+    शून्य fallbackp(VSymEnt* entp) { m_fallbackp = entp; }
+    VSymEnt* fallbackp() ध्रुव { प्रत्यागम m_fallbackp; }
+    शून्य parentp(VSymEnt* entp) { m_parentp = entp; }
+    VSymEnt* parentp() ध्रुव { प्रत्यागम m_parentp; }
+    शून्य classOrPackagep(Ast_ग्रन्थिः_Module* entp) { m_classOrPackagep = entp; }
+    Ast_ग्रन्थिः_Module* classOrPackagep() ध्रुव { प्रत्यागम m_classOrPackagep; }
+    Ast_ग्रन्थिः* nodep() ध्रुव { प्रत्यागम m_nodep; }
+    string sym_उपसर्गः() ध्रुव { प्रत्यागम m_sym_उपसर्गः; }
+    शून्य sym_उपसर्गः(ध्रुव string& name) { m_sym_उपसर्गः = name; }
+    bool exported() ध्रुव { प्रत्यागम m_exported; }
+    शून्य exported(bool flag) { m_exported = flag; }
+    bool imported() ध्रुव { प्रत्यागम m_imported; }
+    शून्य imported(bool flag) { m_imported = flag; }
+    VSymEnt* निवेशय(ध्रुव string& name, VSymEnt* entp) {
+        UINFO(9, "     SymInsert se" << cvt_गन्तव्यम्_Hex(this) << " '" << name << "' se" << cvt_गन्तव्यम्_Hex(entp)
                                      << "  " << entp->nodep());
-        if (name != "" && m_idNameMap.find(name) != m_idNameMap.end()) {
+        यदि (name != "" && m_idNameMap.find(name) != m_idNameMap.अन्तः_2()) {
             // If didn't already report warning
-            if (!V3Error::errorCount()) {  // LCOV_EXCL_START
-                if (debug() >= 9 || V3Error::debugDefault())
+            यदि (!V3Error::error_गणनम्()) {  // LCOV_EXCL_START
+                यदि (debug() >= 9 || V3Error::debugDefault())
                     dumpSelf(std::cout, "- err-dump: ", 1);
                 entp->nodep()->v3fatalSrc("Inserting two symbols with same name: " << name);
             }  // LCOV_EXCL_STOP
-        } else {
+        } अन्यथा {
             m_idNameMap.emplace(name, entp);
         }
-        if (!name.empty() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
+        यदि (!name.रिक्तानि() && name.find("__DOT__") == std::string::npos  // ignore hierarchical
             && checkSimilarname(entp->nodep())) {
             string lc = name;
-            for (auto& c : lc) c = (char)tolower(c);
-            if (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.end())
-                m_idNameSimilarMap.insert(lc);
+            प्रति (स्वचालित& c : lc) c = (वर्ण)tolower(c);
+            यदि (m_idNameSimilarMap.find(lc) == m_idNameSimilarMap.अन्तः_2())
+                m_idNameSimilarMap.निवेशय(lc);
         }
 
-        return entp;
+        प्रत्यागम entp;
     }
-    void reinsert(const string& name, VSymEnt* entp) {
-        const auto it = m_idNameMap.find(name);
-        if (name != "" && it != m_idNameMap.end()) {
-            UINFO(9, "     SymReinsert se" << cvtToHex(this) << " '" << name << "' se"
-                                           << cvtToHex(entp) << "  " << entp->nodep());
+    शून्य reinsert(ध्रुव string& name, VSymEnt* entp) {
+        ध्रुव स्वचालित it = m_idNameMap.find(name);
+        यदि (name != "" && it != m_idNameMap.अन्तः_2()) {
+            UINFO(9, "     SymReinsert se" << cvt_गन्तव्यम्_Hex(this) << " '" << name << "' se"
+                                           << cvt_गन्तव्यम्_Hex(entp) << "  " << entp->nodep());
             it->second = entp;  // Replace
-        } else {
-            insert(name, entp);
+        } अन्यथा {
+            निवेशय(name, entp);
         }
     }
-    VSymEnt* findIdFlat(const string& name) const {
+    VSymEnt* findIdFlat(ध्रुव string& name) ध्रुव {
         // Find identifier without looking upward through symbol hierarchy
         // First, scan this begin/end block or module for the name
-        const auto it = m_idNameMap.find(name);
+        ध्रुव स्वचालित it = m_idNameMap.find(name);
         UINFO(9, "     SymFind   se"
-                     << cvtToHex(this) << " '" << name << "' -> "
-                     << (it == m_idNameMap.end() ? "NONE"
-                                                 : "se" + cvtToHex(it->second)
-                                                       + " n=" + cvtToHex(it->second->nodep())));
-        if (it != m_idNameMap.end()) return it->second;
-        return nullptr;
+                     << cvt_गन्तव्यम्_Hex(this) << " '" << name << "' -> "
+                     << (it == m_idNameMap.अन्तः_2() ? "NONE"
+                                                 : "se" + cvt_गन्तव्यम्_Hex(it->second)
+                                                       + " n=" + cvt_गन्तव्यम्_Hex(it->second->nodep())));
+        यदि (it != m_idNameMap.अन्तः_2()) प्रत्यागम it->second;
+        प्रत्यागम nullptr;
     }
-    static bool checkSimilarname(const AstNode* nodep) {
+    स्थिर bool checkSimilarname(ध्रुव Ast_ग्रन्थिः* nodep) {
         // Only declarations that can contribute a name to the netlist handed
         // to a backend tool.
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-            return !varp->isParam() && !varp->isGenVar();
+        यदि (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) {
+            प्रत्यागम !varp->isParam() && !varp->isGenVar();
         }
-        return VN_IS(nodep, Cell)  //
-               || VN_IS(nodep, NodeBlock)  //
-               || VN_IS(nodep, GenBlock)  //
+        प्रत्यागम VN_IS(nodep, Cell)  //
+               || VN_IS(nodep, ग्रन्थिः_खण्डम्)  //
+               || VN_IS(nodep, Gen_खण्डम्)  //
                || VN_IS(nodep, Func)  // Note: not AstNodeFTask (Property/Sequence)
                || VN_IS(nodep, Task);
     }
-    VSymEnt* findSimilarIdFlat(const string& name) const {
+    VSymEnt* findSimilarIdFlat(ध्रुव string& name) ध्रुव {
         // Find identifier without looking upward through symbol hierarchy
         // Were looking for symbols that are the same when compared without
         // caring about case, but that are not the same name
-        if (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
-            return nullptr;
+        यदि (name.find("__DOT__") != std::string::npos)  // ignore hierarchical equivalents
+            प्रत्यागम nullptr;
         string s = name;
-        for (auto& c : s) c = (char)tolower(c);
-        if (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.end()) return nullptr;
-        for (auto it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
+        प्रति (स्वचालित& c : s) c = (वर्ण)tolower(c);
+        यदि (m_idNameSimilarMap.find(s) == m_idNameSimilarMap.अन्तः_2()) प्रत्यागम nullptr;
+        प्रति (स्वचालित it = m_idNameMap.begin(); it != m_idNameMap.अन्तः_2(); ++it) {
             // Only report a declaration that is itself checked, otherwise we
             // might point at e.g. a localparam that merely sorts first
-            if (!checkSimilarname(it->second->nodep())) continue;
+            यदि (!checkSimilarname(it->second->nodep())) अनुवर्त;
             string t = it->first;
-            for (auto& c : t) c = (char)tolower(c);
-            if (t == s && name != it->first) { return it->second; }
+            प्रति (स्वचालित& c : t) c = (वर्ण)tolower(c);
+            यदि (t == s && name != it->first) { प्रत्यागम it->second; }
         }
-        return nullptr;
+        प्रत्यागम nullptr;
     }
-    VSymEnt* findIdFallback(const string& name) const {
+    VSymEnt* findIdFallback(ध्रुव string& name) ध्रुव {
         // Find identifier looking upward through symbol hierarchy
         // First, scan this begin/end block or module for the name
-        if (VSymEnt* const entp = findIdFlat(name)) return entp;
+        यदि (VSymEnt* ध्रुव entp = findIdFlat(name)) प्रत्यागम entp;
         // Then scan the upper begin/end block or module for the name
-        if (m_fallbackp) return m_fallbackp->findIdFallback(name);
-        return nullptr;
+        यदि (m_fallbackp) प्रत्यागम m_fallbackp->findIdFallback(name);
+        प्रत्यागम nullptr;
     }
-    void candidateIdFlat(VSpellCheck* spellerp, const VNodeMatcher* matcherp,
-                         bool includeType) const {
+    शून्य candidateIdFlat(VSpellCheck* spellerp, ध्रुव VNodeMatcher* matcherp,
+                         bool includeType) ध्रुव {
         // Suggest alternative symbol candidates without looking upward through symbol
         // hierarchy
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            const AstNode* const itemp = it->second->nodep();
-            if (itemp && (!matcherp || matcherp->nodeMatch(itemp))) {
-                if (includeType) {
-                    spellerp->pushCandidate(itemp->prettyName(), itemp->prettyTypeName());
-                } else {
-                    spellerp->pushCandidate(itemp->prettyName());
+        प्रति (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.अन्तः_2(); ++it) {
+            ध्रुव Ast_ग्रन्थिः* ध्रुव itemp = it->second->nodep();
+            यदि (itemp && (!matcherp || matcherp->ग्रन्थिः_मेलनम्(itemp))) {
+                यदि (includeType) {
+                    spellerp->प्रक्षिप_Candidate(itemp->prettyName(), itemp->prettyTypeName());
+                } अन्यथा {
+                    spellerp->प्रक्षिप_Candidate(itemp->prettyName());
                 }
             }
         }
     }
-    void candidateIdFallback(VSpellCheck* spellerp, const VNodeMatcher* matcherp) const {
+    शून्य candidateIdFallback(VSpellCheck* spellerp, ध्रुव VNodeMatcher* matcherp) ध्रुव {
         // Suggest alternative symbol candidates with looking upward through symbol hierarchy
         // Note VSpellCheck wants the most important (closest) items pushed first
         candidateIdFlat(spellerp, matcherp, false);
         // Then suggest the upper begin/end block or module
-        if (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
+        यदि (m_fallbackp) m_fallbackp->candidateIdFallback(spellerp, matcherp);
     }
 
-private:
-    void importOneSymbol(VSymGraph* graphp, const string& name, const VSymEnt* srcp,
+गुप्त:
+    शून्य import_One_चिह्नम्(VSymGraph* graphp, ध्रुव string& name, ध्रुव VSymEnt* srcp,
                          bool honorExport) {
-        if ((!honorExport || srcp->exported())
+        यदि ((!honorExport || srcp->exported())
             && !findIdFlat(name)) {  // Don't insert over existing entry
-            VSymEnt* const symp = new VSymEnt{graphp, srcp};
+            VSymEnt* ध्रुव symp = new VSymEnt{graphp, srcp};
             symp->exported(false);  // Can't reimport an import without an export
             symp->imported(true);
             reinsert(name, symp);
         }
     }
-    void exportOneSymbol(VSymGraph* /*graphp*/, const string& name, const VSymEnt* srcp) const {
-        if (srcp->exported()) {
-            if (VSymEnt* const symp = findIdFlat(name)) {  // Should already exist in current table
-                if (!symp->exported()) symp->exported(true);
+    शून्य export_One_चिह्नम्(VSymGraph* /*graphp*/, ध्रुव string& name, ध्रुव VSymEnt* srcp) ध्रुव {
+        यदि (srcp->exported()) {
+            यदि (VSymEnt* ध्रुव symp = findIdFlat(name)) {  // Should already exist in current table
+                यदि (!symp->exported()) symp->exported(true);
             }
         }
     }
 
-public:
-    void importFromClass(VSymGraph* graphp, const VSymEnt* srcp) {
+सार्वजनिक:
+    शून्य importFromClass(VSymGraph* graphp, ध्रुव VSymEnt* srcp) {
         // Import tokens from source symbol table into this symbol table
         // Used for classes in early parsing only to handle "extends"
 
         // If an "extern foo" exists, then we can't import "foo" from the base class.
         // But ok for "extern foo" and "foo" to both come from base (so must check before
         // insert)
-        std::unordered_set<std::string> haveExterns;
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
-             it != srcp->m_idNameMap.end(); ++it) {
-            if (m_idNameMap.count("extern " + it->first)) haveExterns.emplace(it->first);
+        std::unordered_समुच्चयः<std::string> haveExterns;
+        प्रति (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+             it != srcp->m_idNameMap.अन्तः_2(); ++it) {
+            यदि (m_idNameMap.गणनम्("extern " + it->first)) haveExterns.emplace(it->first);
         }
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
-             it != srcp->m_idNameMap.end(); ++it) {
-            if (!haveExterns.count(it->first))
-                importOneSymbol(graphp, it->first, it->second, false);
+        प्रति (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+             it != srcp->m_idNameMap.अन्तः_2(); ++it) {
+            यदि (!haveExterns.गणनम्(it->first))
+                import_One_चिह्नम्(graphp, it->first, it->second, false);
         }
     }
-    void importFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
+    शून्य importFromPackage(VSymGraph* graphp, ध्रुव VSymEnt* srcp, ध्रुव string& id_or_तारकम्) {
         // Import tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
-            const auto it = srcp->m_idNameMap.find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) {
-                importOneSymbol(graphp, it->first, it->second, true);
+        यदि (id_or_तारकम् != "*") {
+            ध्रुव स्वचालित it = srcp->m_idNameMap.find(id_or_तारकम्);
+            यदि (it != srcp->m_idNameMap.अन्तः_2()) {
+                import_One_चिह्नम्(graphp, it->first, it->second, true);
             }
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
-                 it != srcp->m_idNameMap.end(); ++it) {
-                importOneSymbol(graphp, it->first, it->second, true);
+        } अन्यथा {
+            प्रति (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+                 it != srcp->m_idNameMap.अन्तः_2(); ++it) {
+                import_One_चिह्नम्(graphp, it->first, it->second, true);
             }
         }
     }
-    void exportFromPackage(VSymGraph* graphp, const VSymEnt* srcp, const string& id_or_star) {
+    शून्य exportFromPackage(VSymGraph* graphp, ध्रुव VSymEnt* srcp, ध्रुव string& id_or_तारकम्) {
         // Export tokens from source symbol table into this symbol table
-        if (id_or_star != "*") {
-            const auto it = vlstd::as_const(srcp->m_idNameMap).find(id_or_star);
-            if (it != srcp->m_idNameMap.end()) exportOneSymbol(graphp, it->first, it->second);
-        } else {
-            for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
-                 it != srcp->m_idNameMap.end(); ++it) {
-                exportOneSymbol(graphp, it->first, it->second);
+        यदि (id_or_तारकम् != "*") {
+            ध्रुव स्वचालित it = vlstd::as_const(srcp->m_idNameMap).find(id_or_तारकम्);
+            यदि (it != srcp->m_idNameMap.अन्तः_2()) export_One_चिह्नम्(graphp, it->first, it->second);
+        } अन्यथा {
+            प्रति (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+                 it != srcp->m_idNameMap.अन्तः_2(); ++it) {
+                export_One_चिह्नम्(graphp, it->first, it->second);
             }
         }
     }
-    void exportStarStar(VSymGraph* /*graphp*/) {
+    शून्य export_तारकम्_तारकम्(VSymGraph* /*graphp*/) {
         // Export *:*: Export all tokens from imported packages
-        for (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            VSymEnt* const symp = it->second;
-            if (!symp->exported()) symp->exported(true);
+        प्रति (IdNameMap::const_iterator it = m_idNameMap.begin(); it != m_idNameMap.अन्तः_2(); ++it) {
+            VSymEnt* ध्रुव symp = it->second;
+            यदि (!symp->exported()) symp->exported(true);
         }
     }
-    void importFromIface(VSymGraph* graphp, const VSymEnt* srcp, bool onlyUnmodportable = false) {
+    शून्य importFromIface(VSymGraph* graphp, ध्रुव VSymEnt* srcp, bool onlyUnmodportable = false) {
         // Import interface tokens from source symbol table into this symbol table, recursively
-        UINFO(9, "     importIf  se" << cvtToHex(this) << " from se" << cvtToHex(srcp));
-        for (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
-             it != srcp->m_idNameMap.end(); ++it) {
-            const string& name = it->first;
-            VSymEnt* const subSrcp = it->second;
-            const AstVar* const varp = VN_CAST(subSrcp->nodep(), Var);
-            if (!onlyUnmodportable || (varp && varp->isParam())) {
-                VSymEnt* const subSymp = new VSymEnt{graphp, subSrcp};
+        UINFO(9, "     importIf  se" << cvt_गन्तव्यम्_Hex(this) << " from se" << cvt_गन्तव्यम्_Hex(srcp));
+        प्रति (IdNameMap::const_iterator it = srcp->m_idNameMap.begin();
+             it != srcp->m_idNameMap.अन्तः_2(); ++it) {
+            ध्रुव string& name = it->first;
+            VSymEnt* ध्रुव subSrcp = it->second;
+            ध्रुव AstVar* ध्रुव varp = VN_CAST(subSrcp->nodep(), Var);
+            यदि (!onlyUnmodportable || (varp && varp->isParam())) {
+                VSymEnt* ध्रुव subSymp = new VSymEnt{graphp, subSrcp};
                 reinsert(name, subSymp);
                 // And recurse to create children
                 subSymp->importFromIface(graphp, subSrcp);
             }
         }
     }
-    string cellErrorScopes(const AstNode* lookp, string prettyName = "") {
-        if (prettyName == "") prettyName = lookp->prettyName();
+    string cellErrorScopes(ध्रुव Ast_ग्रन्थिः* lookp, string prettyName = "") {
+        यदि (prettyName == "") prettyName = lookp->prettyName();
         string scopes;
-        for (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.end(); ++it) {
-            const AstNode* const itemp = it->second->nodep();
-            if (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->isTop())) {
-                if (scopes != "") scopes += ", ";
-                scopes += AstNode::prettyName(it->first);
+        प्रति (IdNameMap::iterator it = m_idNameMap.begin(); it != m_idNameMap.अन्तः_2(); ++it) {
+            ध्रुव Ast_ग्रन्थिः* ध्रुव itemp = it->second->nodep();
+            यदि (VN_IS(itemp, Cell) || (VN_IS(itemp, Module) && VN_AS(itemp, Module)->is_शिखरम्())) {
+                यदि (scopes != "") scopes += ", ";
+                scopes += Ast_ग्रन्थिः::prettyName(it->first);
             }
         }
-        if (scopes == "") scopes = "<no instances found>";
-        if (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
-        return V3Error::warnMore() + "... Known scopes under '" + prettyName + "': " + scopes
+        यदि (scopes == "") scopes = "<no instances found>";
+        यदि (debug()) dumpSelf(std::cerr, "       KnownScope: ", 1);
+        प्रत्यागम V3Error::warn_अधिकम्() + "... Known scopes under '" + prettyName + "': " + scopes
                + '\n';
     }
 };
@@ -340,74 +340,74 @@ public:
 class VSymGraph final {
     // Collection of symbol tables
     // TYPES
-    using SymStack = std::vector<VSymEnt*>;
+    using Sym_राशिः = std::सदिशम्<VSymEnt*>;
 
     // MEMBERS
     VSymEnt* m_symRootp;  // Root symbol table
-    SymStack m_symsp;  // All symbol tables, to cleanup
+    Sym_राशिः m_symsp;  // All symbol tables, to cleanup
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(VSymGraph);
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+सार्वजनिक:
     explicit VSymGraph(AstNetlist* nodep) { m_symRootp = new VSymEnt{this, nodep}; }
     ~VSymGraph() {
-        for (const VSymEnt* entp : m_symsp) delete entp;
+        प्रति (ध्रुव VSymEnt* entp : m_symsp) delete entp;
     }
 
     // METHODS
-    VSymEnt* rootp() const { return m_symRootp; }
+    VSymEnt* rootp() ध्रुव { प्रत्यागम m_symRootp; }
     // Debug
-    void dumpSelf(std::ostream& os, const string& indent = "") {
-        VSymConstMap doneSyms;
+    शून्य dumpSelf(std::ostream& os, ध्रुव string& indent = "") {
+        VSymConstMap समाप्तम्_Syms;
         os << "SymEnt Dump:\n";
-        m_symRootp->dumpIterate(os, doneSyms, indent, 9999, "$root");
+        m_symRootp->dumpIterate(os, समाप्तम्_Syms, indent, 9999, "$root");
         bool first = true;
-        for (SymStack::iterator it = m_symsp.begin(); it != m_symsp.end(); ++it) {
-            if (doneSyms.find(*it) == doneSyms.end()) {
-                if (first) {
+        प्रति (Sym_राशिः::iterator it = m_symsp.begin(); it != m_symsp.अन्तः_2(); ++it) {
+            यदि (समाप्तम्_Syms.find(*it) == समाप्तम्_Syms.अन्तः_2()) {
+                यदि (first) {
                     first = false;
                     os << "%%Warning: SymEnt Orphans:\n";
                 }
-                (*it)->dumpIterate(os, doneSyms, indent, 9999, "Orphan");
+                (*it)->dumpIterate(os, समाप्तम्_Syms, indent, 9999, "Orphan");
             }
         }
     }
-    void dumpFilePrefixed(const string& nameComment) {
-        if (dumpTreeLevel()) {
-            const string filename = v3Global.debugFilename(nameComment) + ".txt";
+    शून्य dumpFilePrefixed(ध्रुव string& nameComment) {
+        यदि (dump_वृक्षः_Level()) {
+            ध्रुव string filename = v3Global.debugFilename(nameComment) + ".txt";
             UINFO(2, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-            if (logp->fail()) v3fatal("Can't write file: " << filename);
+            ध्रुव std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+            यदि (logp->fail()) v3fatal("Can't write file: " << filename);
             dumpSelf(*logp, "");
         }
     }
 
-protected:
-    friend class VSymEnt;
-    void pushNewEnt(VSymEnt* entp) { m_symsp.push_back(entp); }
+रक्षित:
+    मित्रम् class VSymEnt;
+    शून्य प्रक्षिप_New_Ent(VSymEnt* entp) { m_symsp.प्रक्षिप_पृष्ठभागः(entp); }
 };
 
 //######################################################################
 
-inline VSymEnt::VSymEnt(VSymGraph* graphp, AstNode* nodep)
+अन्तःस्थ VSymEnt::VSymEnt(VSymGraph* graphp, Ast_ग्रन्थिः* nodep)
     : m_nodep{nodep} {
     // No argument to set fallbackp, as generally it's wrong to set it in the new call,
     // Instead it needs to be set on a "findOrNew()" return, as it may have been new'ed
     // by an earlier search insertion.
-    graphp->pushNewEnt(this);
+    graphp->प्रक्षिप_New_Ent(this);
 }
 
-inline VSymEnt::VSymEnt(VSymGraph* graphp, const VSymEnt* symp)
+अन्तःस्थ VSymEnt::VSymEnt(VSymGraph* graphp, ध्रुव VSymEnt* symp)
     : m_nodep{symp->m_nodep}
     , m_fallbackp{symp->m_fallbackp}
     , m_parentp{symp->m_parentp}
     , m_classOrPackagep{symp->m_classOrPackagep}
     , m_exported{symp->m_exported}
     , m_imported{symp->m_imported} {
-    graphp->pushNewEnt(this);
+    graphp->प्रक्षिप_New_Ent(this);
 }
 
-#endif  // guard
+#यदि_अन्तः  // guard

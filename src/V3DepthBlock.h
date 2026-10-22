@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3DEPTHBLOCK_H_
-#define VERILATOR_V3DEPTHBLOCK_H_
+#यदि_अपरिभाषितम् VERILATOR_V3DEPTHBLOCK_H_
+#परिभाषय VERILATOR_V3DEPTHBLOCK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3DepthBlock final {
-public:
-    static void depthBlockAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_गभीरता_खण्डम् final {
+सार्वजनिक:
+    स्थिर शून्य गभीरता_खण्डम्_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

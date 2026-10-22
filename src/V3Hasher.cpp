@@ -14,65 +14,65 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3Hasher.h"
+#अन्तर्भाव "V3Hasher.h"
 
-#include <functional>
+#अन्तर्भाव <functional>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Visitor that computes node hashes
 
-class HasherVisitor final : public VNVisitorConst {
+वर्ग HasherVisitor final : सार्वजनिक VNVisitorConst {
     // NODE STATE
     //  AstNode::user4() -> V3Hash.  Hash value of this node (hash of 0 is illegal)
     // VNUser4InUse     in V3Hasher.h
 
     // STATE
     V3Hash m_hash;  // Hash value accumulator
-    const bool m_cacheInUser4;  // Use user4 to cache each V3Hash?
-    std::set<AstNode*> m_visited;  // Keeps track of some visited nodes to prevent
+    ध्रुव तार्किक m_cache_अन्तर्_User4;  // Use user4 to cache each V3Hash?
+    std::समुच्चयः<Ast_ग्रन्थिः*> m_visited;  // Keeps track of some visited nodes to prevent
                                    // infinite recursion
 
     // METHODS
 
-    void guardRecursion(AstNode* const nodep, std::function<void()>&& f) {
+    शून्य guardRecursion(Ast_ग्रन्थिः* ध्रुव nodep, std::function<शून्य()>&& f) {
         // Guard against infinite recursion if there's no caching
         // Otherwise caching does the same but faster
-        if (!m_cacheInUser4) {
-            if (m_visited.find(nodep) != m_visited.end()) {
+        यदि (!m_cache_अन्तर्_User4) {
+            यदि (m_visited.find(nodep) != m_visited.अन्तः_2()) {
                 m_hash += V3Hash{nodep->name()};
-                return;
+                प्रत्यागम;
             }
-            m_visited.insert(nodep);
+            m_visited.निवेशय(nodep);
         }
         f();
     }
 
-    V3Hash hashNodeAndIterate(AstNode* nodep, bool hashDType, bool hashChildren,
-                              std::function<void()>&& f) {
+    V3Hash hash_ग्रन्थिः_And_Iterate(Ast_ग्रन्थिः* nodep, तार्किक hashDType, तार्किक hashChildren,
+                              std::function<शून्य()>&& f) {
         // See comments in visit(AstCFunc) about this breaking recursion
-        if (m_cacheInUser4 && nodep->user4()) {
-            return V3Hash{static_cast<uint32_t>(nodep->user4())};
-        } else {
+        यदि (m_cache_अन्तर्_User4 && nodep->user4()) {
+            प्रत्यागम V3Hash{static_cast<uint32_t>(nodep->user4())};
+        } अन्यथा {
             VL_RESTORER(m_hash);
             // Reset accumulator
             m_hash = V3Hash{nodep->type().hash()};  // Node type
             f();  // Node-specific hash
-            if (hashDType && nodep != nodep->dtypep())
+            यदि (hashDType && nodep != nodep->dtypep())
                 iterateConstNull(nodep->dtypep());  // Node dtype
-            if (hashChildren) iterateChildrenConst(nodep);  // Children
-            if (m_cacheInUser4) nodep->user4(m_hash.value());
-            return m_hash;
+            यदि (hashChildren) iterateChildrenConst(nodep);  // Children
+            यदि (m_cache_अन्तर्_User4) nodep->user4(m_hash.मानम्());
+            प्रत्यागम m_hash;
         }
     }
 
     // VISITORS
 
-    constexpr static bool HASH_DTYPE = true;
-    constexpr static bool HASH_CHILDREN = true;
+    constexpr स्थिर तार्किक HASH_DTYPE = सत्य;
+    constexpr स्थिर तार्किक HASH_CHILDREN = सत्य;
 
     // Each visitor below contributes to the hash any node-specific content
     // that is not dependent on either of the following, as these are
@@ -95,337 +95,337 @@ class HasherVisitor final : public VNVisitorConst {
     //------------------------------------------------------------
     // AstNode - Warns to help find missing cases
 
-    void visit(AstNode* nodep) override {
-#if VL_DEBUG
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override {
+#यदि VL_DEBUG
         UINFO(0, "%Warning: Hashing node as AstNode: " << nodep);
-#endif
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [=]() {});
+#यदि_अन्तः
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [=]() {});
     }
 
     //------------------------------------------------------------
     // AstNodeDType
-    void visit(AstNodeArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(Ast_ग्रन्थिः_Array_DType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->virtRefDTypep());
-            m_hash += nodep->left();
-            m_hash += nodep->right();
+            m_hash += nodep->वामतः();
+            m_hash += nodep->दक्षिणतः();
         });
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, false, [this, nodep]() {  //
-            m_hash += nodep->uniqueNum();
+    शून्य दर्शय(Ast_ग्रन्थिः_UOr_Struct_DType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, असत्य, [एतत्, nodep]() {  //
+            m_hash += nodep->unique_अङ्कः();
         });
     }
-    void visit(AstParamTypeDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstParamTypeDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             m_hash += nodep->varType();
         });
     }
-    void visit(AstMemberDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstMemberDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstDefImplicitDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->uniqueNum();
+    शून्य दर्शय(AstDefImplicitDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->unique_अङ्कः();
         });
     }
-    void visit(AstAssocArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstAssocArrayDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->virtRefDTypep());
             iterateConstNull(nodep->virtRefDType2p());
         });
     }
-    void visit(AstBracketArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstBracketArrayDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstDynArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstDynArrayDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstUnsizedArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstUnsizedArrayDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstWildcardArrayDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstWildcardArrayDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstBasicDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstBasicDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->keyword();
             m_hash += nodep->numeric();
-            m_hash += nodep->nrange().left();
-            m_hash += nodep->nrange().right();
+            m_hash += nodep->nrange().वामतः();
+            m_hash += nodep->nrange().दक्षिणतः();
         });
     }
-    void visit(AstCDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstCDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstConstDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstConstDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstClassRefDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstClassRefDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->classp());
         });
     }
-    void visit(AstIfaceRefDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstIfaceRefDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->cellp());
         });
     }
-    void visit(AstQueueDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstQueueDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->virtRefDTypep());
         });
     }
-    void visit(AstRefDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstRefDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             iterateConstNull(nodep->typedefp());
             iterateConstNull(nodep->refDTypep());
         });
     }
-    void visit(AstStreamDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_प्रवाहः_DType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstVoidDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstVoidDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstEnumDType* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, false, [this, nodep]() {  //
-            m_hash += nodep->uniqueNum();
+    शून्य दर्शय(AstEnumDType* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, असत्य, [एतत्, nodep]() {  //
+            m_hash += nodep->unique_अङ्कः();
         });
     }
 
     //------------------------------------------------------------
     // AstNodeExpr
-    void visit(AstNodeExpr* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstSel* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->widthConst();
+    शून्य दर्शय(AstSel* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->विस्तारः_Const();
         });
     }
-    void visit(AstConst* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->num().toHash();
+    शून्य दर्शय(AstConst* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->अङ्कः().गन्तव्यम्_Hash();
         });
     }
-    void visit(AstNullCheck* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstNullCheck* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstCCast* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->size();
+    शून्य दर्शय(AstCCast* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->आकार();
         });
     }
-    void visit(AstVarRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
-            if (nodep->varScopep()) {
+    शून्य दर्शय(AstVarRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
+            यदि (nodep->varScopep()) {
                 iterateConstNull(nodep->varScopep());
-            } else {
+            } अन्यथा {
                 iterateConstNull(nodep->varp());
                 m_hash += nodep->selfPointer().asString();
             }
         });
     }
-    void visit(AstVarXRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstVarXRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->varp());
             m_hash += nodep->dotted();
         });
     }
-    void visit(AstMemberSel* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstMemberSel* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstFScanF* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstFScanF* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->text();
         });
     }
-    void visit(AstSScanF* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstSScanF* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->text();
         });
     }
-    void visit(AstAddrOfCFunc* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_Addr_सम्बन्धि_CFunc* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->funcp());
         });
     }
-    void visit(AstTriggered* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
-            for (const uint32_t index : nodep->indices()) m_hash += index;
+    शून्य दर्शय(AstTriggered* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
+            प्रति (ध्रुव uint32_t सूचकांक : nodep->indices()) m_hash += सूचकांक;
         });
     }
 
     //------------------------------------------------------------
     // AstNodeStmt
-    void visit(AstNodeStmt* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_Stmt* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstNodeCCall* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_ग्रन्थिः_CCall* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->funcp());
         });
     }
-    void visit(AstCaseItem* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCaseItem* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(Ast_ग्रन्थिः_FTask_Ref* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->taskp());
             iterateConstNull(nodep->classOrPackagep());
         });
     }
-    void visit(AstCMethodHard* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->method();
+    शून्य दर्शय(AstCMethodHard* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->विधानम्();
         });
     }
-    void visit(AstCAwait* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstCAwait* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->sentreep());
         });
     }
-    void visit(AstCLocalScope* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCLocalScope* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstCoverInc* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstCoverInc* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->declp());
         });
     }
-    void visit(AstDisplay* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstDisplay* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->displayType();
         });
     }
-    void visit(AstMonitorOff* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstMonitorOff* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->off();
         });
     }
-    void visit(AstJumpGo* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, false, []() {});
+    शून्य दर्शय(AstJumpGo* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, असत्य, []() {});
     }
-    void visit(AstTraceInc* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstTraceInc* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->declp());
         });
     }
-    void visit(AstNodeCoverOrAssert* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_ग्रन्थिः_Cover_Or_Assert* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
 
     //------------------------------------------------------------
     // AstNode direct descendants
-    void visit(AstNodeRange* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_Range* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstNodeModule* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, false, [this, nodep]() {  //
+    शून्य दर्शय(Ast_ग्रन्थिः_Module* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, असत्य, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstNodePreSel* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_Pre_Sel* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstClassExtends* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstClassExtends* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstForeachHeader* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_Foreach_शीर्षकम्* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstDefParam* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstDefParam* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstArg* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstArg* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstParseRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstParseRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstClassOrPackageRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstClassOrPackageRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->classOrPackageNodep());
         });
     }
-    void visit(AstSenItem* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstSenItem* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->edgeType();
         });
     }
-    void visit(AstSenTree* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_Sen_वृक्षः* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstSFormatF* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstSFormatF* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->text();
         });
     }
-    void visit(AstElabDisplay* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstElabDisplay* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->displayType();
         });
     }
-    void visit(AstNodeConsItem* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_Cons_Item* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstConsArray* nodep) override {
+    शून्य दर्शय(AstConsArray* nodep) override {
         // Hash unpacked array values by element, so equal values hash the same whether or not
         // they use a default
-        const AstUnpackArrayDType* const dtypep
+        ध्रुव AstUnpackArrayDType* ध्रुव dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, /* hashChildren: */ false,
-                                     [this, nodep, dtypep]() {
-                                         const uint32_t size = dtypep->elementsConst();
-                                         for (uint32_t n = 0; n < size; ++n) {  //
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, /* hashChildren: */ असत्य,
+                                     [एतत्, nodep, dtypep]() {
+                                         ध्रुव uint32_t आकार = dtypep->elementsConst();
+                                         प्रति (uint32_t n = 0; n < आकार; ++n) {  //
                                              iterateConstNull(nodep->valuep(n));
                                          }
                                      });
     }
-    void visit(AstPragma* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstPragma* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->pragType();
         });
     }
-    void visit(AstAttrOf* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_Attr_सम्बन्धि* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->attrType();
         });
     }
-    void visit(AstNodeFile* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_ग्रन्थिः_File* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstCFunc* nodep) override {
-        guardRecursion(nodep, [this, nodep]() {  //
-            m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstCFunc* nodep) override {
+        guardRecursion(nodep, [एतत्, nodep]() {  //
+            m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
                 // We might be in a recursive function, if so on *second* call
                 // here we need to break what would be an infinite loop.
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());  // Set this "first" call
+                यदि (m_cache_अन्तर्_User4) nodep->user4(V3Hash{1}.मानम्());  // Set this "first" call
                 // So that a second call will then exit hashNodeAndIterate
                 // Having a constant in the hash just means the recursion will
                 // end, it shouldn't change the CFunc having a unique hash itself.
@@ -433,167 +433,167 @@ class HasherVisitor final : public VNVisitorConst {
             });
         });
     }
-    void visit(AstVar* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstVar* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             m_hash += nodep->varType();
         });
     }
-    void visit(AstScope* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, false, [this, nodep]() {
+    शून्य दर्शय(AstScope* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, असत्य, [एतत्, nodep]() {
             m_hash += nodep->name();
             iterateConstNull(nodep->aboveScopep());
         });
     }
-    void visit(AstVarScope* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstVarScope* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             iterateConstNull(nodep->varp());
             iterateConstNull(nodep->scopep());
         });
     }
-    void visit(AstEnumItem* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstEnumItem* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstTypedef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstTypedef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstTypedefFwd* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstTypedefFwd* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstActive* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_सक्रिय* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             iterateConstNull(nodep->sentreep());
         });
     }
-    void visit(AstCell* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstCell* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             iterateConstNull(nodep->modp());
         });
     }
-    void visit(AstCellInline* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN,
-                                     [this, nodep]() { m_hash += nodep->name(); });
+    शून्य दर्शय(AstCellInline* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN,
+                                     [एतत्, nodep]() { m_hash += nodep->name(); });
     }
-    void visit(AstNodeFTask* nodep) override {
-        guardRecursion(nodep, [this, nodep]() {  //
-            m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(Ast_ग्रन्थिः_FTask* nodep) override {
+        guardRecursion(nodep, [एतत्, nodep]() {  //
+            m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
                 m_hash += nodep->name();
                 // See comments in AstCFunc
-                if (m_cacheInUser4) nodep->user4(V3Hash{1}.value());
+                यदि (m_cache_अन्तर्_User4) nodep->user4(V3Hash{1}.मानम्());
             });
         });
     }
-    void visit(AstModport* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstModport* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstModportVarRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstModportVarRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             iterateConstNull(nodep->varp());
         });
     }
-    void visit(AstModportFTaskRef* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstModportFTaskRef* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
             iterateConstNull(nodep->ftaskp());
         });
     }
-    void visit(AstNodeProcedure* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(Ast_ग्रन्थिः_Procedure* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstBegin* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstBegin* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
         });
     }
-    void visit(AstFork* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstFork* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->name();
             m_hash += nodep->joinType();
-            m_hash += nodep->immediateStart();
+            m_hash += nodep->तात्कालिकम्_Start();
         });
     }
-    void visit(AstPin* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, [this, nodep]() {
+    शून्य दर्शय(AstPin* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, [एतत्, nodep]() {
             m_hash += nodep->name();
-            m_hash += nodep->pinNum();
+            m_hash += nodep->pin_अङ्कः();
         });
     }
-    void visit(AstText* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
+    शून्य दर्शय(AstText* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
             m_hash += nodep->text();
         });
     }
-    void visit(AstTextBlock* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, [this, nodep]() {  //
-            m_hash += nodep->prefix();
+    शून्य दर्शय(Ast_Text_खण्डम्* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, [एतत्, nodep]() {  //
+            m_hash += nodep->उपसर्गः();
             m_hash += nodep->separator();
             m_hash += nodep->suffix();
         });
     }
-    void visit(AstCStmt* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCStmt* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstCStmtUser* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, false, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCStmtUser* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, असत्य, HASH_CHILDREN, []() {});
     }
-    void visit(AstCExpr* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCExpr* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstCExprUser* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstCExprUser* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
-    void visit(AstWith* nodep) override {
-        m_hash += hashNodeAndIterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
+    शून्य दर्शय(AstWith* nodep) override {
+        m_hash += hash_ग्रन्थिः_And_Iterate(nodep, HASH_DTYPE, HASH_CHILDREN, []() {});
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    explicit HasherVisitor(AstNode* nodep)
-        : m_cacheInUser4{true} {
+    स्पष्ट HasherVisitor(Ast_ग्रन्थिः* nodep)
+        : m_cache_अन्तर्_User4{सत्य} {
         iterateConst(nodep);
     }
-    class Uncached {};
-    HasherVisitor(const AstNode* nodep, Uncached)
-        : m_cacheInUser4{false} {
-        iterateConst(const_cast<AstNode*>(nodep));
+    वर्ग Uncached {};
+    HasherVisitor(ध्रुव Ast_ग्रन्थिः* nodep, Uncached)
+        : m_cache_अन्तर्_User4{असत्य} {
+        iterateConst(const_cast<Ast_ग्रन्थिः*>(nodep));
     }
-    V3Hash finalHash() const { return m_hash; }
-    ~HasherVisitor() override = default;
+    V3Hash finalHash() ध्रुव { प्रत्यागम m_hash; }
+    ~HasherVisitor() override = स्वभाव;
 };
 
 //######################################################################
 // V3Hasher methods
 
-V3Hash V3Hasher::operator()(AstNode* nodep) const {
-    if (!nodep->user4()) HasherVisitor{nodep};
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+V3Hash V3Hasher::संक्रियकः()(Ast_ग्रन्थिः* nodep) ध्रुव {
+    यदि (!nodep->user4()) HasherVisitor{nodep};
+    प्रत्यागम V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
-V3Hash V3Hasher::rehash(AstNode* nodep) const {
+V3Hash V3Hasher::rehash(Ast_ग्रन्थिः* nodep) ध्रुव {
     nodep->user4(0);
     { HasherVisitor{nodep}; }
-    return V3Hash{static_cast<uint32_t>(nodep->user4())};
+    प्रत्यागम V3Hash{static_cast<uint32_t>(nodep->user4())};
 }
 
-V3Hash V3Hasher::uncachedHash(const AstNode* nodep) {
-    const HasherVisitor visitor{nodep, HasherVisitor::Uncached{}};
-    return visitor.finalHash();
+V3Hash V3Hasher::uncachedHash(ध्रुव Ast_ग्रन्थिः* nodep) {
+    ध्रुव HasherVisitor visitor{nodep, HasherVisitor::Uncached{}};
+    प्रत्यागम visitor.finalHash();
 }
 
 //######################################################################
 // This is used by the std::hash specialization for VNRef.
 // Declared separately to avoid a circular header dependency.
 
-size_t V3HasherUncachedHash(const AstNode& node) {
-    return static_cast<size_t>(V3Hasher::uncachedHash(&node).value());
+आकार_t V3HasherUncachedHash(ध्रुव Ast_ग्रन्थिः& ग्रन्थिः) {
+    प्रत्यागम static_cast<आकार_t>(V3Hasher::uncachedHash(&ग्रन्थिः).मानम्());
 }

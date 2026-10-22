@@ -13,30 +13,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PCHASTMT_H_
-#define VERILATOR_V3PCHASTMT_H_
+#यदि_अपरिभाषितम् VERILATOR_V3PCHASTMT_H_
+#परिभाषय VERILATOR_V3PCHASTMT_H_
 
-#ifdef VL_PCH_INCLUDED
-#error "Including multiple V3Pch*.h flavors"
-#endif
-#define VL_PCH_INCLUDED
+#यदि_परिभाषितम् VL_PCH_INCLUDED
+#दोषः "Including multiple V3Pch*.h flavors"
+#यदि_अन्तः
+#परिभाषय VL_PCH_INCLUDED
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Broken.h"
+#अन्तर्भाव "V3Container.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3FileLine.h"
+#अन्तर्भाव "V3FunctionTraits.h"
+#अन्तर्भाव "V3Global.h"
+#अन्तर्भाव "V3Mutex.h"
+#अन्तर्भाव "V3Number.h"
+#अन्तर्भाव "V3Options.h"
+#अन्तर्भाव "V3StdFuture.h"
+#अन्तर्भाव "V3String.h"
 
-#include <algorithm>
+#अन्तर्भाव <algorithm>
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#यदि_अपरिभाषितम् VERILATOR_VLCTOP_H_
+#परिभाषय VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#अन्तर्भाव "VlcOptions.h"
+#अन्तर्भाव "VlcPoint.h"
+#अन्तर्भाव "VlcSource.h"
+#अन्तर्भाव "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_शिखरम् final {
+सार्वजनिक:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+गुप्त:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    शून्य annotateCalc();
+    शून्य annotateCalcNeeded();
+    शून्य annotateOutputFiles(ध्रुव string& dirname);
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_शिखरम्() = स्वभाव;
+    ~Vlc_शिखरम्() = स्वभाव;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { प्रत्यागम m_tests; }
+    VlcPoints& points() { प्रत्यागम m_points; }
+    VlcSources& sources() { प्रत्यागम m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    शून्य annotate(ध्रुव string& dirname);
+    शून्य printHierarchyReport();
+    शून्य printTypeSummary();
+    शून्य readCoverage(ध्रुव string& filename, bool nonfatal = false);
+    शून्य writeCoverage(ध्रुव string& filename);
+    शून्य writeInfo(ध्रुव string& filename);
 
-    void rank();
+    शून्य rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#यदि_अन्तः  // guard

@@ -14,141 +14,141 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3File.h"
+#अन्तर्भाव "V3File.h"
 
-#include "V3Os.h"
-#include "V3String.h"
+#अन्तर्भाव "V3Os.h"
+#अन्तर्भाव "V3String.h"
 
-#include <cerrno>
-#include <cstdarg>
-#include <fcntl.h>
-#include <iomanip>
-#include <map>
-#include <memory>
+#अन्तर्भाव <cerrno>
+#अन्तर्भाव <cstdarg>
+#अन्तर्भाव <fcntl.h>
+#अन्तर्भाव <iomanip>
+#अन्तर्भाव <map>
+#अन्तर्भाव <memory>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#अन्तर्भाव <sys/stat.h>
+#अन्तर्भाव <sys/types.h>
 
 // clang-format off
-#if defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
+#यदि defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__)) || defined(VL_CPPCHECK)
 # define INFILTER_PIPE  // Allow pipe filtering.  Needs fork()
-#endif
+#यदि_अन्तः
 
-#ifdef HAVE_STAT_NSEC  // i.e. Linux 2.6, from configure
+#यदि_परिभाषितम् HAVE_STAT_NSEC  // i.e. Linux 2.6, from configure
 # define VL_STAT_CTIME_NSEC(stat) ((stat).st_ctim.tv_nsec)  // Nanoseconds
 # define VL_STAT_MTIME_NSEC(stat) ((stat).st_mtim.tv_nsec)  // Nanoseconds
-#else
+#अन्यथा
 # define VL_STAT_CTIME_NSEC(stat) (0)
 # define VL_STAT_MTIME_NSEC(stat) (0)
-#endif
+#यदि_अन्तः
 
-#ifdef INFILTER_PIPE
+#यदि_परिभाषितम् INFILTER_PIPE
 # include <sys/wait.h>
-#endif
+#यदि_अन्तः
 
-#if defined(_WIN32) || defined(__MINGW32__)
+#यदि defined(_WIN32) || defined(__MINGW32__)
 # include <io.h>  // open, read, write, close
-#endif
+#यदि_अन्तः
 // clang-format on
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // If change this code, run a test with the below size set very small
 // #define INFILTER_IPC_BUFSIZ 16
-constexpr int INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
-constexpr int INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
+constexpr पूर्णाङ्क INFILTER_IPC_BUFSIZ = (64 * 1024);  // For debug, try this as a small number
+constexpr पूर्णाङ्क INFILTER_CACHE_MAX = (64 * 1024);  // Maximum bytes to cache if same file read twice
 
-constexpr off_t FILE_HASH_SIZE_MAX = 1 * 1024 * 1024;  // Maxium size file to hash
+constexpr off_t FILE_HASH_आकार_MAX = 1 * 1024 * 1024;  // Maxium size file to hash
 
 //######################################################################
 // V3File Internal state
 
-class V3FileDependImp final {
+वर्ग V3FileDependImp final {
     // TYPES
-    class DependFile final {
+    वर्ग DependFile final {
         // A single file
-        const bool m_target;  // True if write, else read
-        bool m_exists = true;  // File exists
-        const string m_filename;  // Filename
-        struct stat m_stat;  // Stat information
+        ध्रुव तार्किक m_target;  // True if write, else read
+        तार्किक m_exists = सत्य;  // File exists
+        ध्रुव string m_filename;  // Filename
+        संरचना stat m_stat;  // Stat information
         VHashSha512 m_hash;  // SHA hash of file contents
-    public:
-        DependFile(const string& filename, bool target)
+    सार्वजनिक:
+        DependFile(ध्रुव string& filename, तार्किक target)
             : m_target{target}
             , m_filename{filename} {
             m_stat.st_ctime = 0;
             m_stat.st_mtime = 0;
         }
-        ~DependFile() = default;
-        const string& filename() const { return m_filename; }
-        bool target() const { return m_target; }
-        bool exists() const { return m_exists; }
-        off_t size() const { return m_stat.st_size; }
-        ino_t ino() const { return m_stat.st_ino; }
-        time_t cstime() const { return m_stat.st_ctime; }  // Seconds
-        time_t cnstime() const { return VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
-        time_t mstime() const { return m_stat.st_mtime; }  // Seconds
-        time_t mnstime() const { return VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
-        string hashDigestSymbol() {
-            static VHashSha512 s_emptyHash;
-            return m_hash.digestSymbol24() != s_emptyHash.digestSymbol24()
+        ~DependFile() = स्वभाव;
+        ध्रुव string& filename() ध्रुव { प्रत्यागम m_filename; }
+        तार्किक target() ध्रुव { प्रत्यागम m_target; }
+        तार्किक exists() ध्रुव { प्रत्यागम m_exists; }
+        off_t आकार() ध्रुव { प्रत्यागम m_stat.st_आकार; }
+        ino_t ino() ध्रुव { प्रत्यागम m_stat.st_ino; }
+        time_t cstime() ध्रुव { प्रत्यागम m_stat.st_ctime; }  // Seconds
+        time_t cnstime() ध्रुव { प्रत्यागम VL_STAT_CTIME_NSEC(m_stat); }  // Nanoseconds
+        time_t mstime() ध्रुव { प्रत्यागम m_stat.st_mtime; }  // Seconds
+        time_t mnstime() ध्रुव { प्रत्यागम VL_STAT_MTIME_NSEC(m_stat); }  // Nanoseconds
+        string hash_Digest_चिह्नम्() {
+            स्थिर VHashSha512 s_रिक्तानि_Hash;
+            प्रत्यागम m_hash.digestSymbol24() != s_रिक्तानि_Hash.digestSymbol24()
                        ? m_hash.digestSymbol24()
                        : "unhashed";
         }
-        void loadStats() {
-            if (!m_stat.st_mtime) {
-                const string fn = filename();
-                const int err = stat(fn.c_str(), &m_stat);
-                if (err != 0) {
-                    std::memset(&m_stat, 0, sizeof(m_stat));
+        शून्य आरोपय_Stats() {
+            यदि (!m_stat.st_mtime) {
+                ध्रुव string fn = filename();
+                ध्रुव पूर्णाङ्क err = stat(fn.c_str(), &m_stat);
+                यदि (err != 0) {
+                    std::स्मृतिं_पूरय(&m_stat, 0, परिमाण(m_stat));
                     m_stat.st_mtime = 1;
-                    m_exists = false;
+                    m_exists = असत्य;
                     // Not an error... This can occur due to `line directives in the .vpp files
                     UINFO(1, "-Info: File not statable: " << filename());
-                } else {
+                } अन्यथा {
                     // For speed, don't hash large files (e.g. verilator_bin)
-                    if (!target() && size() <= FILE_HASH_SIZE_MAX) m_hash.insertFile(filename());
+                    यदि (!target() && आकार() <= FILE_HASH_आकार_MAX) m_hash.निवेशय_File(filename());
                 }
             }
         }
-        bool operator<(const DependFile& rhs) const { return filename() < rhs.filename(); }
+        तार्किक संक्रियकः<(ध्रुव DependFile& rhs) ध्रुव { प्रत्यागम filename() < rhs.filename(); }
     };
 
     // MEMBERS
     V3Mutex m_mutex;  // Protects members
-    std::set<string> m_filenameSet VL_GUARDED_BY(m_mutex);  // Files generated (elim duplicates)
-    std::set<DependFile> m_filenameList;  // Files sourced/generated
+    std::समुच्चयः<string> m_filename_समुच्चयः VL_GUARDED_BY(m_mutex);  // Files generated (elim duplicates)
+    std::समुच्चयः<DependFile> m_filenameList;  // Files sourced/generated
 
-    static string stripQuotes(const string& in) {
-        string pretty = in;
-        string::size_type pos;
-        while ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
-        while ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
-        return pretty;
+    स्थिर string stripQuotes(ध्रुव string& अन्तर्) {
+        string pretty = अन्तर्;
+        string::आकार_type pos;
+        यावत् ((pos = pretty.find('\"')) != string::npos) pretty.replace(pos, 1, "_");
+        यावत् ((pos = pretty.find('\n')) != string::npos) pretty.replace(pos, 1, "_");
+        प्रत्यागम pretty;
     }
 
-public:
+सार्वजनिक:
     // ACCESSOR METHODS
-    void addSrcDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) {
-            DependFile df{filename, false};
-            df.loadStats();  // Get size now, in case changes during the run
-            m_filenameList.insert(df);
+    शून्य सङ्कलय_Src_Depend(ध्रुव string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        ध्रुव V3_तालकम्_Guard तालकम्_2{m_mutex};
+        ध्रुव स्वचालित it_प्राप्तम्_Pair = m_filename_समुच्चयः.निवेशय(filename);
+        यदि (it_प्राप्तम्_Pair.second) {
+            DependFile df{filename, असत्य};
+            df.आरोपय_Stats();  // Get size now, in case changes during the run
+            m_filenameList.निवेशय(df);
         }
     }
-    void addTgtDepend(const string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        const V3LockGuard lock{m_mutex};
-        const auto itFoundPair = m_filenameSet.insert(filename);
-        if (itFoundPair.second) m_filenameList.insert(DependFile{filename, true});
+    शून्य सङ्कलय_Tgt_Depend(ध्रुव string& filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        ध्रुव V3_तालकम्_Guard तालकम्_2{m_mutex};
+        ध्रुव स्वचालित it_प्राप्तम्_Pair = m_filename_समुच्चयः.निवेशय(filename);
+        यदि (it_प्राप्तम्_Pair.second) m_filenameList.निवेशय(DependFile{filename, सत्य});
     }
-    void writeDepend(const string& filename);
-    std::vector<string> getAllDeps() const;
-    void writeTimes(const string& filename, const string& cmdlineIn);
-    bool checkTimes(const string& filename, const string& cmdlineIn);
+    शून्य writeDepend(ध्रुव string& filename);
+    std::सदिशम्<string> getAllDeps() ध्रुव;
+    शून्य writeTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्);
+    तार्किक checkTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्);
 };
 
 V3FileDependImp dependImp;  // Depend implementation class
@@ -156,108 +156,108 @@ V3FileDependImp dependImp;  // Depend implementation class
 //######################################################################
 // V3FileDependImp
 
-void V3FileDependImp::writeDepend(const string& filename) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+शून्य V3FileDependImp::writeDepend(ध्रुव string& filename) {
+    ध्रुव std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    यदि (ofp->fail()) v3fatal("Can't write file: " << filename);
 
-    for (const DependFile& i : m_filenameList) {
-        if (i.target()) *ofp << i.filename() << " ";
+    प्रति (ध्रुव DependFile& i : m_filenameList) {
+        यदि (i.target()) *ofp << i.filename() << " ";
     }
     *ofp << " : ";
     *ofp << v3Global.opt.buildDepBin();
     *ofp << " ";
 
-    for (const DependFile& i : m_filenameList) {
-        if (!i.target()) *ofp << i.filename() << " ";
+    प्रति (ध्रुव DependFile& i : m_filenameList) {
+        यदि (!i.target()) *ofp << i.filename() << " ";
     }
 
     *ofp << '\n';
 
-    if (v3Global.opt.makePhony()) {
+    यदि (v3Global.opt.makePhony()) {
         *ofp << '\n';
-        for (const DependFile& i : m_filenameList) {
-            if (!i.target()) *ofp << i.filename() << ":\n";
+        प्रति (ध्रुव DependFile& i : m_filenameList) {
+            यदि (!i.target()) *ofp << i.filename() << ":\n";
         }
     }
 }
 
-std::vector<string> V3FileDependImp::getAllDeps() const {
-    std::vector<string> r;
-    for (const auto& itr : m_filenameList) {
-        if (!itr.target() && itr.exists()) r.push_back(itr.filename());
+std::सदिशम्<string> V3FileDependImp::getAllDeps() ध्रुव {
+    std::सदिशम्<string> r;
+    प्रति (ध्रुव स्वचालित& itr : m_filenameList) {
+        यदि (!itr.target() && itr.exists()) r.प्रक्षिप_पृष्ठभागः(itr.filename());
     }
-    return r;
+    प्रत्यागम r;
 }
 
-void V3FileDependImp::writeTimes(const string& filename, const string& cmdlineIn) {
-    const std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
-    if (ofp->fail()) v3fatal("Can't write file: " << filename);
+शून्य V3FileDependImp::writeTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्) {
+    ध्रुव std::unique_ptr<std::ofstream> ofp{V3File::new_ofstream(filename)};
+    यदि (ofp->fail()) v3fatal("Can't write file: " << filename);
 
-    const string cmdline = stripQuotes(cmdlineIn);
+    ध्रुव string cmdline = stripQuotes(cmdline_अन्तर्);
     *ofp << "# DESCR"
          << "IPTION: Verilator output: Timestamp data for --skip-identical.  Delete at will.\n";
     *ofp << "C \"" << cmdline << "\"\n";
 
-    for (auto& it : m_filenameList) {
-        DependFile* const depfilep = const_cast<DependFile*>(&it);
+    प्रति (स्वचालित& it : m_filenameList) {
+        DependFile* ध्रुव depfilep = const_cast<DependFile*>(&it);
         // Read stats of files we create after we're done making them
         // (except for this file, of course)
         V3Os::filesystemFlush(depfilep->filename());
-        depfilep->loadStats();
-        off_t showSize = depfilep->size();
+        depfilep->आरोपय_Stats();
+        off_t show_आकार = depfilep->आकार();
         ino_t showIno = depfilep->ino();
-        if (depfilep->filename() == filename) {
-            showSize = 0;
+        यदि (depfilep->filename() == filename) {
+            show_आकार = 0;
             showIno = 0;  // We're writing it, so need to ignore it
         }
 
         *ofp << (depfilep->target() ? "T" : "S") << " ";
-        *ofp << " " << std::setw(8) << showSize;
+        *ofp << " " << std::setw(8) << show_आकार;
         *ofp << " " << std::setw(8) << showIno;
         *ofp << " " << std::setw(11) << depfilep->cstime();
         *ofp << " " << std::setw(11) << depfilep->cnstime();
         *ofp << " " << std::setw(11) << depfilep->mstime();
         *ofp << " " << std::setw(11) << depfilep->mnstime();
-        *ofp << " \"" << depfilep->hashDigestSymbol() << "\"";
+        *ofp << " \"" << depfilep->hash_Digest_चिह्नम्() << "\"";
         *ofp << " \"" << depfilep->filename() << "\"";
         *ofp << '\n';
     }
 }
 
-bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn) {
-    const std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream_nodepend(filename)};
-    if (ifp->fail()) {
+तार्किक V3FileDependImp::checkTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्) {
+    ध्रुव std::unique_ptr<std::ifstream> ifp{V3File::new_ifstream_nodepend(filename)};
+    यदि (ifp->fail()) {
         UINFO(2, "   --check-times failed: no input " << filename);
-        return false;
+        प्रत्यागम असत्य;
     }
     {
-        const string ignore = V3Os::getline(*ifp);
-        if (ignore.empty()) { /*used*/
+        ध्रुव string ignore = V3Os::getline(*ifp);
+        यदि (ignore.रिक्तानि()) { /*प्रयुक्तम्*/
         }
     }
     {
-        char chkDir;
+        वर्ण chkDir;
         *ifp >> chkDir;
-        char quote;
+        वर्ण quote;
         *ifp >> quote;
-        const string chkCmdline = V3Os::getline(*ifp, '"');
-        const string cmdline = stripQuotes(cmdlineIn);
-        if (cmdline != chkCmdline) {
+        ध्रुव string chkCmdline = V3Os::getline(*ifp, '"');
+        ध्रुव string cmdline = stripQuotes(cmdline_अन्तर्);
+        यदि (cmdline != chkCmdline) {
             UINFO(2, "   --check-times failed: different command line");
-            return false;
+            प्रत्यागम असत्य;
         }
     }
 
-    const bool skipHashing = !V3Os::getenvStr("VERILATOR_DEBUG_SKIP_HASH", "").empty();
+    ध्रुव तार्किक skipHashing = !V3Os::getenvStr("VERILATOR_DEBUG_SKIP_HASH", "").रिक्तानि();
 
-    while (!ifp->eof()) {
-        char chkDir;
+    यावत् (!ifp->eof()) {
+        वर्ण chkDir;
         *ifp >> chkDir;
-        off_t chkSize;
-        *ifp >> chkSize;
+        off_t chk_आकार;
+        *ifp >> chk_आकार;
         ino_t chkIno;
         *ifp >> chkIno;
-        if (ifp->eof()) break;  // Needed to read final whitespace before found eof
+        यदि (ifp->eof()) भङ्ग;  // Needed to read final whitespace before found eof
         time_t chkCstime;
         *ifp >> chkCstime;
         time_t chkCnstime;
@@ -266,28 +266,28 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         *ifp >> chkMstime;
         time_t chkMnstime;
         *ifp >> chkMnstime;
-        char quote;
+        वर्ण quote;
         *ifp >> quote;
-        const string chkHash = V3Os::getline(*ifp, '"');
+        ध्रुव string chkHash = V3Os::getline(*ifp, '"');
         *ifp >> quote;
-        const string chkFilename = V3Os::getline(*ifp, '"');
+        ध्रुव string chkFilename = V3Os::getline(*ifp, '"');
 
         V3Os::filesystemFlush(chkFilename);
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
-        struct stat curStat;
-        const int err = stat(chkFilename.c_str(), &curStat);
-        if (err != 0) {
+        संरचना stat curStat;
+        ध्रुव पूर्णाङ्क err = stat(chkFilename.c_str(), &curStat);
+        यदि (err != 0) {
             UINFO(2, "   --check-times failed: missing " << chkFilename);
-            return false;
+            प्रत्यागम असत्य;
         }
 
         // Skip the .dat file itself, as we were writing it at the time was being made
-        if (filename == chkFilename) continue;
+        यदि (filename == chkFilename) अनुवर्त;
 
-        UINFO(9, " got d=" << chkDir << " s=" << chkSize << " ct=" << chkCstime << "."
+        UINFO(9, " got d=" << chkDir << " s=" << chk_आकार << " ct=" << chkCstime << "."
                            << chkCnstime << " mt=" << chkMstime << "." << chkMnstime
                            << " h=" << chkHash << " fn= " << chkFilename);
-        UINFO(9, " nowSt  s=" << curStat.st_size << " mt=" << curStat.st_mtime
+        UINFO(9, " nowSt  s=" << curStat.st_आकार << " mt=" << curStat.st_mtime
                               << " ct=" << curStat.st_ctime);
 
         // We'd like this rule:
@@ -296,236 +296,236 @@ bool V3FileDependImp::checkTimes(const string& filename, const string& cmdlineIn
         // However NFS messes us up, as there might be some data outstanding when
         // we determined the original size.  For safety, we know the creation time
         // must be within a few second window... call it 20 sec.
-        if (!(curStat.st_size >= chkSize && curStat.st_ino == chkIno
+        यदि (!(curStat.st_आकार >= chk_आकार && curStat.st_ino == chkIno
               && curStat.st_ctime == chkCstime && VL_STAT_CTIME_NSEC(curStat) == chkCnstime
               && curStat.st_mtime <= (chkMstime + 20)
               // Not comparing chkMnstime
               )) {
             UINFO(2, "   --check-times: out-of-date "
-                         << chkFilename << "; " << curStat.st_size << "=?" << chkSize << " "
+                         << chkFilename << "; " << curStat.st_आकार << "=?" << chk_आकार << " "
                          << curStat.st_ctime << "." << VL_STAT_CTIME_NSEC(curStat) << "=?"
                          << chkCstime << "." << chkCnstime << " " << curStat.st_mtime << "."
                          << VL_STAT_MTIME_NSEC(curStat) << "=?" << chkMstime << "." << chkMnstime);
-            if (skipHashing) return false;
+            यदि (skipHashing) प्रत्यागम असत्य;
             // We didn't hash target output files, nor large files,
             // as unlikely to find a match and can be large
-            if (chkHash == "unhashed") return false;
+            यदि (chkHash == "unhashed") प्रत्यागम असत्य;
 
             VHashSha512 curHash;
-            curHash.insertFile(chkFilename);
-            if (curHash.digestSymbol24() != chkHash) {
+            curHash.निवेशय_File(chkFilename);
+            यदि (curHash.digestSymbol24() != chkHash) {
                 UINFO(2, "   --check-times: hash differs " << chkFilename << "; "
                                                            << curHash.digestSymbol24() << "=?"
                                                            << chkHash);
-                return false;
+                प्रत्यागम असत्य;
             }
         }
     }
-    return true;
+    प्रत्यागम सत्य;
 }
 
 //######################################################################
 // V3File
 
-void V3File::addSrcDepend(const string& filename) VL_MT_SAFE { dependImp.addSrcDepend(filename); }
-void V3File::addTgtDepend(const string& filename) VL_MT_SAFE { dependImp.addTgtDepend(filename); }
-void V3File::writeDepend(const string& filename) { dependImp.writeDepend(filename); }
-std::vector<string> V3File::getAllDeps() { return dependImp.getAllDeps(); }
-void V3File::writeTimes(const string& filename, const string& cmdlineIn) {
-    dependImp.writeTimes(filename, cmdlineIn);
+शून्य V3File::सङ्कलय_Src_Depend(ध्रुव string& filename) VL_MT_SAFE { dependImp.सङ्कलय_Src_Depend(filename); }
+शून्य V3File::सङ्कलय_Tgt_Depend(ध्रुव string& filename) VL_MT_SAFE { dependImp.सङ्कलय_Tgt_Depend(filename); }
+शून्य V3File::writeDepend(ध्रुव string& filename) { dependImp.writeDepend(filename); }
+std::सदिशम्<string> V3File::getAllDeps() { प्रत्यागम dependImp.getAllDeps(); }
+शून्य V3File::writeTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्) {
+    dependImp.writeTimes(filename, cmdline_अन्तर्);
 }
-bool V3File::checkTimes(const string& filename, const string& cmdlineIn) {
-    return dependImp.checkTimes(filename, cmdlineIn);
+तार्किक V3File::checkTimes(ध्रुव string& filename, ध्रुव string& cmdline_अन्तर्) {
+    प्रत्यागम dependImp.checkTimes(filename, cmdline_अन्तर्);
 }
-void V3File::createMakeDirFor(const string& filename) {
-    if (filename != VL_DEV_NULL
+शून्य V3File::createMakeDirFor(ध्रुव string& filename) {
+    यदि (filename != VL_DEV_NULL
         // If doesn't start with makeDir then some output file user requested
-        && filename.substr(0, v3Global.opt.makeDir().length() + 1)
+        && filename.substr(0, v3Global.opt.makeDir().दीर्घता_2() + 1)
                == v3Global.opt.makeDir() + "/") {
         createMakeDir();
     }
 }
-void V3File::createMakeDir() {
-    static bool s_created = false;
-    if (!s_created) {
-        s_created = true;
+शून्य V3File::createMakeDir() {
+    स्थिर तार्किक s_created = असत्य;
+    यदि (!s_created) {
+        s_created = सत्य;
         V3Os::createDir(v3Global.opt.makeDir());
-        if (v3Global.opt.hierTop()) V3Os::createDir(v3Global.opt.hierTopDataDir());
+        यदि (v3Global.opt.hier_शिखरम्()) V3Os::createDir(v3Global.opt.hier_शिखरम्_दत्त_Dir());
     }
 }
 
 //######################################################################
 // VInFilterImp
 
-class VInFilterImp final {
-    using StrList = VInFilter::StrList;
+वर्ग VInFilterImp final {
+    उपयुज्य StrList = VInFilter::StrList;
 
-    std::map<const std::string, std::string> m_contentsMap;  // Cache of file contents
-    bool m_readEof = false;  // Received EOF on read
-#ifdef INFILTER_PIPE
+    std::map<ध्रुव std::string, std::string> m_contentsMap;  // Cache of file contents
+    तार्किक m_readEof = असत्य;  // Received EOF on read
+#यदि_परिभाषितम् INFILTER_PIPE
     pid_t m_pid = 0;  // fork() process id
-#else
-    int m_pid = 0;  // fork() process id - always zero as disabled
-#endif
-    bool m_pidExited = false;  //  waitpid() reaped the filter process
-    int m_pidStatus = 0;  // Exit status of the filter process
-    int m_writeFd = 0;  // File descriptor TO filter
-    int m_readFd = 0;  // File descriptor FROM filter
+#अन्यथा
+    पूर्णाङ्क m_pid = 0;  // fork() process id - always zero as disabled
+#यदि_अन्तः
+    तार्किक m_pidExited = असत्य;  //  waitpid() reaped the filter process
+    पूर्णाङ्क m_pid_स्थितिः = 0;  // Exit status of the filter process
+    पूर्णाङ्क m_writeFd = 0;  // File descriptor TO filter
+    पूर्णाङ्क m_readFd = 0;  // File descriptor FROM filter
 
-private:
+गुप्त:
     // METHODS
 
-    bool readContents(const string& filename, StrList& outl) {
-        if (m_pid) {
-            return readContentsFilter(filename, outl);
-        } else {
-            return readContentsFile(filename, outl);
+    तार्किक readContents(ध्रुव string& filename, StrList& outl) {
+        यदि (m_pid) {
+            प्रत्यागम readContentsFilter(filename, outl);
+        } अन्यथा {
+            प्रत्यागम readContentsFile(filename, outl);
         }
     }
-    bool readContentsFile(const string& filename, StrList& outl) {
-        const int fd = open(filename.c_str(), O_RDONLY);
-        if (fd < 0) return false;
-        m_readEof = false;
-        readBlocks(fd, -1, outl);
+    तार्किक readContentsFile(ध्रुव string& filename, StrList& outl) {
+        ध्रुव पूर्णाङ्क fd = उद्घाटय(filename.c_str(), O_RDONLY);
+        यदि (fd < 0) प्रत्यागम असत्य;
+        m_readEof = असत्य;
+        read_खण्डानि(fd, -1, outl);
         close(fd);
-        return true;
+        प्रत्यागम सत्य;
     }
     // cppcheck-suppress constParameterReference
-    bool readContentsFilter(const string& filename, StrList& outl) {
-        (void)filename;  // Prevent unused variable warning
-        (void)outl;  // Prevent unused variable warning
-#ifdef INFILTER_PIPE
+    तार्किक readContentsFilter(ध्रुव string& filename, StrList& outl) {
+        (शून्य)filename;  // Prevent unused variable warning
+        (शून्य)outl;  // Prevent unused variable warning
+#यदि_परिभाषितम् INFILTER_PIPE
         writeFilter("read \"" + filename + "\"\n");
-        const string line = readFilterLine();
-        if (line.find("Content-Length") != string::npos) {
-            int len = 0;
-            sscanf(line.c_str(), "Content-Length: %d\n", &len);
-            readBlocks(m_readFd, len, outl);
-            return true;
-        } else {
-            if (line != "") v3error("--pipe-filter protocol error, unexpected: " << line);
-            return false;
+        ध्रुव string पङ्क्तिः = read_Filter_पङ्क्तिः();
+        यदि (पङ्क्तिः.find("Content-Length") != string::npos) {
+            पूर्णाङ्क len = 0;
+            वाक्यात्_पठ(पङ्क्तिः.c_str(), "Content-Length: %d\n", &len);
+            read_खण्डानि(m_readFd, len, outl);
+            प्रत्यागम सत्य;
+        } अन्यथा {
+            यदि (पङ्क्तिः != "") v3error("--pipe-filter protocol error, unexpected: " << पङ्क्तिः);
+            प्रत्यागम असत्य;
         }
-#else
+#अन्यथा
         v3fatalSrc("--pipe-filter not implemented on this platform");
-        return false;
-#endif
+        प्रत्यागम असत्य;
+#यदि_अन्तः
     }
 
     // cppcheck-suppress functionConst
-    void checkFilter(bool hang) {
-#ifdef INFILTER_PIPE
-        if (!m_pidExited && waitpid(m_pid, &m_pidStatus, hang ? 0 : WNOHANG)) {
+    शून्य checkFilter(तार्किक hang) {
+#यदि_परिभाषितम् INFILTER_PIPE
+        यदि (!m_pidExited && waitpid(m_pid, &m_pid_स्थितिः, hang ? 0 : WNOHANG)) {
             UINFO(1, "--pipe-filter: Exited, status "
-                         << m_pidStatus << " exit=" << WEXITSTATUS(m_pidStatus) << " err"
+                         << m_pid_स्थितिः << " exit=" << WEXITSTATUS(m_pid_स्थितिः) << " err"
                          << std::strerror(errno));
-            m_readEof = true;
-            m_pidExited = true;
+            m_readEof = सत्य;
+            m_pidExited = सत्य;
         }
-#endif
+#यदि_अन्तः
     }
 
-    void readBlocks(int fd, int size, StrList& outl) {
-        char buf[INFILTER_IPC_BUFSIZ];
+    शून्य read_खण्डानि(पूर्णाङ्क fd, पूर्णाङ्क आकार, StrList& outl) {
+        वर्ण buf[INFILTER_IPC_BUFSIZ];
         ssize_t sizegot = 0;
-        while (!m_readEof && (size < 0 || size > sizegot)) {
+        यावत् (!m_readEof && (आकार < 0 || आकार > sizegot)) {
             ssize_t todo = INFILTER_IPC_BUFSIZ;
-            if (size > 0 && size < todo) todo = size;
+            यदि (आकार > 0 && आकार < todo) todo = आकार;
             errno = 0;
-            const ssize_t got = read(fd, buf, todo);
+            ध्रुव ssize_t got = पठ(fd, buf, todo);
             // UINFO(9, "RD GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
-                outl.emplace_back(string(buf, got));
+            यदि (got > 0) {
+                outl.emplace_पृष्ठभागः(string(buf, got));
                 sizegot += got;
-            } else if (errno == EINTR || errno == EAGAIN
-#ifdef EWOULDBLOCK
+            } अन्यथा यदि (errno == EINTR || errno == EAGAIN
+#यदि_परिभाषितम् EWOULDBLOCK
                        || errno == EWOULDBLOCK
-#endif
+#यदि_अन्तः
             ) {
-                checkFilter(false);
+                checkFilter(असत्य);
                 V3Os::u_sleep(1000);
-                continue;
-            } else {
-                m_readEof = true;
-                break;
+                अनुवर्त;
+            } अन्यथा {
+                m_readEof = सत्य;
+                भङ्ग;
             }
         }
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
-    string readFilterLine() {
+    string read_Filter_पङ्क्तिः() {
         // Slow, but we don't need it much
         UINFO(9, "readFilterLine");
-        string line;
-        while (!m_readEof) {
+        string पङ्क्तिः;
+        यावत् (!m_readEof) {
             StrList outl;
-            readBlocks(m_readFd, 1, outl);
-            const string onechar = listString(outl);
-            line += onechar;
-            if (onechar == "\n") {
-                if (line == "\n") {
-                    line = "";
-                    continue;
-                } else {
-                    break;
+            read_खण्डानि(m_readFd, 1, outl);
+            ध्रुव string onechar = listString(outl);
+            पङ्क्तिः += onechar;
+            यदि (onechar == "\n") {
+                यदि (पङ्क्तिः == "\n") {
+                    पङ्क्तिः = "";
+                    अनुवर्त;
+                } अन्यथा {
+                    भङ्ग;
                 }
             }
         }
-        UINFO(6, "filter-line-in: " << line);
-        return line;
+        UINFO(6, "filter-line-in: " << पङ्क्तिः);
+        प्रत्यागम पङ्क्तिः;
     }
     // cppverilator-suppress unusedFunction unusedPrivateFunction
-    void writeFilter(const string& out) {
-        if (debug() >= 6) {
-            UINFO(6, "filter-out: " << out);
-            if (out[out.length() - 1] != '\n') cout << '\n';
+    शून्य writeFilter(ध्रुव string& बहिर्गमनम्) {
+        यदि (debug() >= 6) {
+            UINFO(6, "filter-out: " << बहिर्गमनम्);
+            यदि (बहिर्गमनम्[बहिर्गमनम्.दीर्घता_2() - 1] != '\n') निर्गमः << '\n';
         }
-        if (!m_pid) {
+        यदि (!m_pid) {
             v3error("--pipe-filter: write to closed file\n");
-            m_readEof = true;
+            m_readEof = सत्य;
             stop();
         }
-        unsigned offset = 0;
-        while (!m_readEof && out.length() > offset) {
+        अचिह्नित विस्थापनम् = 0;
+        यावत् (!m_readEof && बहिर्गमनम्.दीर्घता_2() > विस्थापनम्) {
             errno = 0;
-            const int got = write(m_writeFd, (out.c_str()) + offset, out.length() - offset);
+            ध्रुव पूर्णाङ्क got = लिख(m_writeFd, (बहिर्गमनम्.c_str()) + विस्थापनम्, बहिर्गमनम्.दीर्घता_2() - विस्थापनम्);
             // UINFO(9, "WR GOT g " << got << " e " << errno << " " << strerror(errno));
             // usleep(50*1000);
-            if (got > 0) {
-                offset += got;
-            } else if (errno == EINTR || errno == EAGAIN
-#ifdef EWOULDBLOCK
+            यदि (got > 0) {
+                विस्थापनम् += got;
+            } अन्यथा यदि (errno == EINTR || errno == EAGAIN
+#यदि_परिभाषितम् EWOULDBLOCK
                        || errno == EWOULDBLOCK
-#endif
+#यदि_अन्तः
             ) {
-                checkFilter(false);
+                checkFilter(असत्य);
                 V3Os::u_sleep(1000);
-                continue;
-            } else {
-                break;
+                अनुवर्त;
+            } अन्यथा {
+                भङ्ग;
             }
         }
     }
 
     // Start the filter
-    void start(const string& command) {
-        if (command == "") {
+    शून्य start(ध्रुव string& command) {
+        यदि (command == "") {
             m_pid = 0;  // Disabled
-        } else {
+        } अन्यथा {
             startFilter(command);
         }
     }
-    void startFilter(const string& command) {
-        (void)command;  // Prevent Unused variable warning
-#ifdef INFILTER_PIPE
-        int fd_stdin[2];  // Can't use std::array
-        int fd_stdout[2];  // Can't use std::array
-        constexpr int P_RD = 0;
-        constexpr int P_WR = 1;
+    शून्य startFilter(ध्रुव string& command) {
+        (शून्य)command;  // Prevent Unused variable warning
+#यदि_परिभाषितम् INFILTER_PIPE
+        पूर्णाङ्क fd_stdin[2];  // Can't use std::array
+        पूर्णाङ्क fd_stdout[2];  // Can't use std::array
+        constexpr पूर्णाङ्क P_RD = 0;
+        constexpr पूर्णाङ्क P_WR = 1;
 
-        if (VL_UNCOVERABLE(pipe(fd_stdin) != 0 || pipe(fd_stdout) != 0))
+        यदि (VL_UNCOVERABLE(प्रणाल(fd_stdin) != 0 || प्रणाल(fd_stdout) != 0))
             v3fatal("--pipe-filter: Can't pipe: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
+        यदि (fd_stdin[P_RD] <= 2 || fd_stdin[P_WR] <= 2 || fd_stdout[P_RD] <= 2
             || fd_stdout[P_WR] <= 2) {
             // We'd have to rearrange all of the FD usages in this case.
             // Too unlikely; verilator isn't a daemon.
@@ -534,10 +534,10 @@ private:
 
         UINFO(1, "--pipe-filter: /bin/sh -c " << command);
 
-        const pid_t pid = fork();
-        if (VL_UNCOVERABLE(pid < 0))
+        ध्रुव pid_t pid = fork();
+        यदि (VL_UNCOVERABLE(pid < 0))
             v3fatal("--pipe-filter: fork failed: " << std::strerror(errno));  // LCOV_EXCL_LINE
-        if (pid == 0) {  // Child
+        यदि (pid == 0) {  // Child
             UINFO(6, "In child");
             close(fd_stdin[P_WR]);
             dup2(fd_stdin[P_RD], 0);
@@ -545,85 +545,85 @@ private:
             dup2(fd_stdout[P_WR], 1);
             // And stderr comes from parent
 
-            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<char*>(nullptr));
+            execl("/bin/sh", "sh", "-c", command.c_str(), static_cast<वर्ण*>(शून्यसूचकः));
             // Don't use v3fatal, we don't share the common structures any more
             fprintf(stderr, "--pipe-filter: exec failed: %s\n", std::strerror(errno));
             _exit(1);
-        } else {  // Parent
+        } अन्यथा {  // Parent
             UINFO(6, "In parent, child pid " << pid << " stdin " << fd_stdin[P_WR] << "->"
                                              << fd_stdin[P_RD] << " stdout " << fd_stdout[P_WR]
                                              << "->" << fd_stdout[P_RD]);
             m_pid = pid;
-            m_pidExited = false;
-            m_pidStatus = 0;
+            m_pidExited = असत्य;
+            m_pid_स्थितिः = 0;
             m_writeFd = fd_stdin[P_WR];
             m_readFd = fd_stdout[P_RD];
-            m_readEof = false;
+            m_readEof = असत्य;
 
             close(fd_stdin[P_RD]);
             close(fd_stdout[P_WR]);
 
-            int flags = fcntl(m_readFd, F_GETFL, 0);
+            पूर्णाङ्क flags = fcntl(m_readFd, F_GETFL, 0);
             fcntl(m_readFd, F_SETFL, flags | O_NONBLOCK);
 
             flags = fcntl(m_writeFd, F_GETFL, 0);
             fcntl(m_writeFd, F_SETFL, flags | O_NONBLOCK);
         }
         UINFO(6, "startFilter complete");
-#else
+#अन्यथा
         v3fatalSrc("--pipe-filter not implemented on this platform");
-#endif
+#यदि_अन्तः
     }
 
-    void stop() {
-        if (m_pid) stopFilter();
+    शून्य stop() {
+        यदि (m_pid) stopFilter();
     }
-    void stopFilter() {
+    शून्य stopFilter() {
         UINFO(6, "Stopping filter process");
-#ifdef INFILTER_PIPE
+#यदि_परिभाषितम् INFILTER_PIPE
         close(m_writeFd);
-        checkFilter(true);
-        if (!WIFEXITED(m_pidStatus) || WEXITSTATUS(m_pidStatus) != 0) {
+        checkFilter(सत्य);
+        यदि (!WIFEXITED(m_pid_स्थितिः) || WEXITSTATUS(m_pid_स्थितिः) != 0) {
             v3fatal("--pipe-filter returned bad status");
         }
         m_pid = 0;
         close(m_readFd);
         UINFO(6, "Closed");
-#else
+#अन्यथा
         v3fatalSrc("--pipe-filter not implemented on this platform");
-#endif
+#यदि_अन्तः
     }
 
-protected:
-    friend class VInFilter;
+रक्षित:
+    मित्रम् वर्ग VInFilter;
     // Read file contents and return it
-    bool readWholefile(const string& filename, StrList& outl) {
-        const auto it = m_contentsMap.find(filename);
-        if (it != m_contentsMap.end()) {
-            outl.push_back(it->second);
-            return true;
+    तार्किक readWholefile(ध्रुव string& filename, StrList& outl) {
+        ध्रुव स्वचालित it = m_contentsMap.find(filename);
+        यदि (it != m_contentsMap.अन्तः_2()) {
+            outl.प्रक्षिप_पृष्ठभागः(it->second);
+            प्रत्यागम सत्य;
         }
-        if (!readContents(filename, outl)) return false;
-        if (listSize(outl) < INFILTER_CACHE_MAX) {
+        यदि (!readContents(filename, outl)) प्रत्यागम असत्य;
+        यदि (list_आकार(outl) < INFILTER_CACHE_MAX) {
             // Cache small files (only to save space)
             // It's quite common to `include "timescale" thousands of times
             // This isn't so important if it's just an open(), but filtering can be slow
             m_contentsMap.emplace(filename, listString(outl));
         }
-        return true;
+        प्रत्यागम सत्य;
     }
-    static size_t listSize(const StrList& sl) {
-        size_t result = 0;
-        for (const string& i : sl) result += i.length();
-        return result;
+    स्थिर आकार_t list_आकार(ध्रुव StrList& sl) {
+        आकार_t परिणाम = 0;
+        प्रति (ध्रुव string& i : sl) परिणाम += i.दीर्घता_2();
+        प्रत्यागम परिणाम;
     }
-    static string listString(const StrList& sl) {
-        string result;
-        for (const string& i : sl) result += i;
-        return result;
+    स्थिर string listString(ध्रुव StrList& sl) {
+        string परिणाम;
+        प्रति (ध्रुव string& i : sl) परिणाम += i;
+        प्रत्यागम परिणाम;
     }
     // CONSTRUCTORS
-    explicit VInFilterImp(const string& command) { start(command); }
+    स्पष्ट VInFilterImp(ध्रुव string& command) { start(command); }
     ~VInFilterImp() { stop(); }
 };
 
@@ -631,420 +631,420 @@ protected:
 // VInFilter
 // Just dispatch to the implementation
 
-VInFilter::VInFilter(const string& command) { m_impp = new VInFilterImp{command}; }
+VInFilter::VInFilter(ध्रुव string& command) { m_impp = नूतन VInFilterImp{command}; }
 VInFilter::~VInFilter() {
-    if (m_impp) VL_DO_CLEAR(delete m_impp, m_impp = nullptr);
+    यदि (m_impp) VL_DO_CLEAR(विलोपय m_impp, m_impp = शून्यसूचकः);
 }
 
-bool VInFilter::readWholefile(const string& filename, VInFilter::StrList& outl) {
+तार्किक VInFilter::readWholefile(ध्रुव string& filename, VInFilter::StrList& outl) {
     UASSERT(m_impp, "readWholefile on invalid filter");
-    return m_impp->readWholefile(filename, outl);
+    प्रत्यागम m_impp->readWholefile(filename, outl);
 }
 
 //######################################################################
 // V3OutFormatter: A class for printing code with automatic indentation.
 
-V3OutFormatter::V3OutFormatter(V3OutFormatter::Language lang)
+V3_बहिर्गमनम्_Formatter::V3_बहिर्गमनम्_Formatter(V3_बहिर्गमनम्_Formatter::Language lang)
     : m_lang{lang} {
-    m_blockIndent = v3Global.opt.decoration() ? 4 : 1;
-    m_commaWidth = v3Global.opt.decoration() ? 50 : 150;
+    m_खण्डम्_Indent = v3Global.opt.decoration() ? 4 : 1;
+    m_comma_विस्तारः = v3Global.opt.decoration() ? 50 : 150;
 }
 
 //----------------------------------------------------------------------
 
-static constexpr int MAXSPACE = 80;  // After this indent, stop indenting more
+स्थिर constexpr पूर्णाङ्क MAXSPACE = 80;  // After this indent, stop indenting more
 
 // Table of spaces, so we don't have to alloc/free them all the time
-static const std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
-    std::array<std::string, MAXSPACE + 1> table;
-    for (int i = 0; i <= MAXSPACE; ++i) table[i] = std::string(static_cast<size_t>(i), ' ');
-    return table;
+स्थिर ध्रुव std::array<std::string, MAXSPACE + 1> s_indentSpaces = []() {
+    std::array<std::string, MAXSPACE + 1> सारणी;
+    प्रति (पूर्णाङ्क i = 0; i <= MAXSPACE; ++i) सारणी[i] = std::string(static_cast<आकार_t>(i), ' ');
+    प्रत्यागम सारणी;
 }();
 
-const std::string& V3OutFormatter::indentSpaces(int num) {
+ध्रुव std::string& V3_बहिर्गमनम्_Formatter::indentSpaces(पूर्णाङ्क अङ्कः) {
     // Indent the specified number of spaces.
-    return s_indentSpaces[std::max(0, std::min(num, MAXSPACE))];
+    प्रत्यागम s_indentSpaces[std::max(0, std::min(अङ्कः, MAXSPACE))];
 }
 
-bool V3OutFormatter::tokenMatch(const char* cp, const char* cmp) {
-    while (*cmp && *cmp == *cp) {
+तार्किक V3_बहिर्गमनम्_Formatter::token_मेलनम्(ध्रुव वर्ण* cp, ध्रुव वर्ण* cmp) {
+    यावत् (*cmp && *cmp == *cp) {
         ++cp;
         ++cmp;
     }
-    if (*cmp) return false;
-    if (*cp && !std::isspace(*cp)) return false;
-    return true;
+    यदि (*cmp) प्रत्यागम असत्य;
+    यदि (*cp && !std::रिक्तम्_वा(*cp)) प्रत्यागम असत्य;
+    प्रत्यागम सत्य;
 }
 
-bool V3OutFormatter::tokenStart(const char* cp) {
-    return (tokenMatch(cp, "begin") || tokenMatch(cp, "case") || tokenMatch(cp, "casex")
-            || tokenMatch(cp, "casez") || tokenMatch(cp, "class") || tokenMatch(cp, "function")
-            || tokenMatch(cp, "interface") || tokenMatch(cp, "module") || tokenMatch(cp, "package")
-            || tokenMatch(cp, "task"));
+तार्किक V3_बहिर्गमनम्_Formatter::tokenStart(ध्रुव वर्ण* cp) {
+    प्रत्यागम (token_मेलनम्(cp, "begin") || token_मेलनम्(cp, "case") || token_मेलनम्(cp, "casex")
+            || token_मेलनम्(cp, "casez") || token_मेलनम्(cp, "class") || token_मेलनम्(cp, "function")
+            || token_मेलनम्(cp, "interface") || token_मेलनम्(cp, "module") || token_मेलनम्(cp, "package")
+            || token_मेलनम्(cp, "task"));
 }
 
-bool V3OutFormatter::tokenEnd(const char* cp) {
-    return (tokenMatch(cp, "end") || tokenMatch(cp, "endcase") || tokenMatch(cp, "endclass")
-            || tokenMatch(cp, "endfunction") || tokenMatch(cp, "endinterface")
-            || tokenMatch(cp, "endmodule") || tokenMatch(cp, "endpackage")
-            || tokenMatch(cp, "endtask"));
+तार्किक V3_बहिर्गमनम्_Formatter::token_अन्तः(ध्रुव वर्ण* cp) {
+    प्रत्यागम (token_मेलनम्(cp, "end") || token_मेलनम्(cp, "endcase") || token_मेलनम्(cp, "endclass")
+            || token_मेलनम्(cp, "endfunction") || token_मेलनम्(cp, "endinterface")
+            || token_मेलनम्(cp, "endmodule") || token_मेलनम्(cp, "endpackage")
+            || token_मेलनम्(cp, "endtask"));
 }
 
-bool V3OutFormatter::tokenNotStart(const char* cp) {
-    return (tokenMatch(cp, "export") || tokenMatch(cp, "import"));
+तार्किक V3_बहिर्गमनम्_Formatter::tokenNotStart(ध्रुव वर्ण* cp) {
+    प्रत्यागम (token_मेलनम्(cp, "export") || token_मेलनम्(cp, "import"));
 }
 
-int V3OutFormatter::endLevels(const char* strg) {
-    int levels = m_indentLevel;
+पूर्णाङ्क V3_बहिर्गमनम्_Formatter::अन्तः_स्तराः(ध्रुव वर्ण* strg) {
+    पूर्णाङ्क स्तराः = m_indentLevel;
     {
-        const char* cp = strg;
-        while (std::isspace(*cp)) ++cp;
-        switch (*cp) {
-        case '\n':  // Newlines.. No need for whitespace before it
-            return 0;
-        case '#':  // Preproc directive
-            if (m_lang == LA_C) return 0;
+        ध्रुव वर्ण* cp = strg;
+        यावत् (std::रिक्तम्_वा(*cp)) ++cp;
+        विकल्प (*cp) {
+        पक्ष '\n':  // Newlines.. No need for whitespace before it
+            प्रत्यागम 0;
+        पक्ष '#':  // Preproc directive
+            यदि (m_lang == LA_C) प्रत्यागम 0;
         }
         {
             // label/public/private:  Deindent by 2 spaces
-            const char* mp = cp;
-            for (; std::isalnum(*mp); ++mp) {}
-            if (mp[0] == ':' && mp[1] != ':') return (levels - m_blockIndent / 2);
+            ध्रुव वर्ण* mp = cp;
+            प्रति (; std::अक्षरम्_अङ्कः_वा(*mp); ++mp) {}
+            यदि (mp[0] == ':' && mp[1] != ':') प्रत्यागम (स्तराः - m_खण्डम्_Indent / 2);
         }
     }
     // We want "} else {" to be one level to the left of normal
-    for (const char* cp = strg; *cp; ++cp) {
-        switch (*cp) {
-        case '}':
-        case ')': levels -= m_blockIndent; break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') levels -= m_blockIndent;
+    प्रति (ध्रुव वर्ण* cp = strg; *cp; ++cp) {
+        विकल्प (*cp) {
+        पक्ष '}':
+        पक्ष ')': स्तराः -= m_खण्डम्_Indent; भङ्ग;
+        पक्ष '<':
+            यदि (m_lang == LA_XML) {
+                यदि (cp[1] == '/') स्तराः -= m_खण्डम्_Indent;
             }
-            break;
-        case 'e':
-            if (m_lang == LA_VERILOG && tokenEnd(cp)) levels -= m_blockIndent;
-            break;
-        case '\t':
-        case ' ': break;  // Continue
-        default: return levels;  // Letter
+            भङ्ग;
+        पक्ष 'e':
+            यदि (m_lang == LA_VERILOG && token_अन्तः(cp)) स्तराः -= m_खण्डम्_Indent;
+            भङ्ग;
+        पक्ष '\t':
+        पक्ष ' ': भङ्ग;  // Continue
+        स्वभाव: प्रत्यागम स्तराः;  // Letter
         }
     }
-    return levels;
+    प्रत्यागम स्तराः;
 }
 
-void V3OutFormatter::putns(const AstNode* nodep, const char* strg) {
-    if (!v3Global.opt.decoration()) {
+शून्य V3_बहिर्गमनम्_Formatter::putns(ध्रुव Ast_ग्रन्थिः* nodep, ध्रुव वर्ण* strg) {
+    यदि (!v3Global.opt.decoration()) {
         putsOutput(strg);
-        return;
+        प्रत्यागम;
     }
 
-    const bool putNodeDecoration =  //
+    ध्रुव तार्किक put_ग्रन्थिः_Decoration =  //
         nodep  //
         && v3Global.opt.decorationNodes()  //
         && !v3Global.opt.protectIds()  //
-        && (m_sourceLastFilenameno != nodep->fileline()->filenameno()  //
-            || m_sourceLastLineno != nodep->fileline()->firstLineno())  //
-        && FileLine::builtInFilename() != nodep->fileline()->filename();
+        && (m_source_चरमः_Filenameno != nodep->fileline()->filenameno()  //
+            || m_source_चरमः_Lineno != nodep->fileline()->firstLineno())  //
+        && File_पङ्क्तिः::built_अन्तर्_Filename() != nodep->fileline()->filename();
 
-    if (m_prependIndent && ((strg[0] && strg[0] != '\n') || putNodeDecoration)) {
-        putsNoTracking(indentSpaces(endLevels(strg)));
-        m_prependIndent = false;
+    यदि (m_prependIndent && ((strg[0] && strg[0] != '\n') || put_ग्रन्थिः_Decoration)) {
+        putsNoTracking(indentSpaces(अन्तः_स्तराः(strg)));
+        m_prependIndent = असत्य;
     }
 
-    if (putNodeDecoration) {
-        const FileLine* const flp = nodep->fileline();
-        m_sourceLastLineno = flp->firstLineno();
-        m_sourceLastFilenameno = flp->filenameno();
-        const std::string lineno = std::to_string(flp->lineno());
-        putsNoTracking("/*" + flp->filename() + ":" + lineno + " " + cvtToHex(nodep) + "*/");
+    यदि (put_ग्रन्थिः_Decoration) {
+        ध्रुव File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
+        m_source_चरमः_Lineno = flp->firstLineno();
+        m_source_चरमः_Filenameno = flp->filenameno();
+        ध्रुव std::string lineno = std::गन्तव्यम्_string(flp->lineno());
+        putsNoTracking("/*" + flp->filename() + ":" + lineno + " " + cvt_गन्तव्यम्_Hex(nodep) + "*/");
     }
 
-    bool notstart = false;
-    bool wordstart = true;
-    bool equalsForBracket = false;  // Looking for "= {"
-    for (const char* cp = strg; *cp; ++cp) {
+    तार्किक notstart = असत्य;
+    तार्किक wordstart = सत्य;
+    तार्किक equalsForBracket = असत्य;  // Looking for "= {"
+    प्रति (ध्रुव वर्ण* cp = strg; *cp; ++cp) {
         putcNoTracking(*cp);
-        if (std::isalpha(*cp)) {
-            if (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = true;
-            if (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
-            if (wordstart && m_lang == LA_VERILOG && tokenEnd(cp)) indentDec();
+        यदि (std::अक्षरम्_वा(*cp)) {
+            यदि (wordstart && m_lang == LA_VERILOG && tokenNotStart(cp)) notstart = सत्य;
+            यदि (wordstart && m_lang == LA_VERILOG && !notstart && tokenStart(cp)) indentInc();
+            यदि (wordstart && m_lang == LA_VERILOG && token_अन्तः(cp)) indentDec();
         }
-        const bool wasInBackslash = m_inBackslash;
-        m_inBackslash = false;
-        switch (*cp) {
-        case '\n':
+        ध्रुव तार्किक was_अन्तर्_Backslash = m_अन्तर्_Backslash;
+        m_अन्तर्_Backslash = असत्य;
+        विकल्प (*cp) {
+        पक्ष '\n':
             ++m_lineno;
-            wordstart = true;
-            if (cp[1] == '\0') {
+            wordstart = सत्य;
+            यदि (cp[1] == '\0') {
                 // Add the indent later, may be a indentInc/indentDec
                 // called between now and then
-                m_prependIndent = true;
-            } else {
-                m_prependIndent = false;
-                putsNoTracking(indentSpaces(endLevels(cp + 1)));
+                m_prependIndent = सत्य;
+            } अन्यथा {
+                m_prependIndent = असत्य;
+                putsNoTracking(indentSpaces(अन्तः_स्तराः(cp + 1)));
             }
-            break;
-        case ' ': wordstart = true; break;
-        case '\t': wordstart = true; break;
-        case '"':
-            wordstart = false;
-            if (!wasInBackslash) m_inStringLiteral = !m_inStringLiteral;
-            break;
-        case '\\':
-            wordstart = false;
-            if (!wasInBackslash) m_inBackslash = true;
-            break;
-        case '/':
-            if (m_lang == LA_C || m_lang == LA_VERILOG) {
-                if (cp > strg && cp[-1] == '/' && !m_inStringLiteral) {
+            भङ्ग;
+        पक्ष ' ': wordstart = सत्य; भङ्ग;
+        पक्ष '\t': wordstart = सत्य; भङ्ग;
+        पक्ष '"':
+            wordstart = असत्य;
+            यदि (!was_अन्तर्_Backslash) m_अन्तर्_String_Literal = !m_अन्तर्_String_Literal;
+            भङ्ग;
+        पक्ष '\\':
+            wordstart = असत्य;
+            यदि (!was_अन्तर्_Backslash) m_अन्तर्_Backslash = सत्य;
+            भङ्ग;
+        पक्ष '/':
+            यदि (m_lang == LA_C || m_lang == LA_VERILOG) {
+                यदि (cp > strg && cp[-1] == '/' && !m_अन्तर्_String_Literal) {
                     // Output ignoring contents to EOL
                     ++cp;
-                    while (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
-                    if (*cp) putcNoTracking(*cp);
+                    यावत् (*cp && cp[1] && cp[1] != '\n') putcNoTracking(*cp++);
+                    यदि (*cp) putcNoTracking(*cp);
                 }
             }
-            break;
-        case '{':
-            if (!m_inStringLiteral) {
-                if (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
+            भङ्ग;
+        पक्ष '{':
+            यदि (!m_अन्तर्_String_Literal) {
+                यदि (m_lang == LA_C && (equalsForBracket || m_bracketLevel)) {
                     // Break up large code inside "= { ..."
-                    m_parenVec.push(m_indentLevel
-                                    * m_blockIndent);  // Line up continuation with block+1
+                    m_parenVec.प्रक्षिप(m_indentLevel
+                                    * m_खण्डम्_Indent);  // Line up continuation with block+1
                     ++m_bracketLevel;
                 }
                 indentInc();
             }
-            break;
-        case '}':
-            if (!m_inStringLiteral) {
-                if (m_bracketLevel > 0) {
-                    m_parenVec.pop();
+            भङ्ग;
+        पक्ष '}':
+            यदि (!m_अन्तर्_String_Literal) {
+                यदि (m_bracketLevel > 0) {
+                    m_parenVec.निष्कासय();
                     --m_bracketLevel;
                 }
                 indentDec();
             }
-            break;
-        case '(':
-            if (!m_inStringLiteral) {
+            भङ्ग;
+        पक्ष '(':
+            यदि (!m_अन्तर्_String_Literal) {
                 indentInc();
                 // Line up continuation with open paren, plus one indent
-                m_parenVec.push(m_column);
+                m_parenVec.प्रक्षिप(m_column);
             }
-            break;
-        case ')':
-            if (!m_inStringLiteral) {
-                if (!m_parenVec.empty()) m_parenVec.pop();
+            भङ्ग;
+        पक्ष ')':
+            यदि (!m_अन्तर्_String_Literal) {
+                यदि (!m_parenVec.रिक्तानि()) m_parenVec.निष्कासय();
                 indentDec();
             }
-            break;
-        case '<':
-            if (m_lang == LA_XML) {
-                if (cp[1] == '/') {
+            भङ्ग;
+        पक्ष '<':
+            यदि (m_lang == LA_XML) {
+                यदि (cp[1] == '/') {
                     // Zero as the > will result in net decrease by one
-                } else if (cp[1] == '!' || cp[1] == '?') {
+                } अन्यथा यदि (cp[1] == '!' || cp[1] == '?') {
                     indentInc();  // net same indent
-                } else {
+                } अन्यथा {
                     indentInc();  // net increase by one
                     indentInc();
                 }
             }
-            break;
-        case '>':
-            if (m_lang == LA_XML) {
+            भङ्ग;
+        पक्ष '>':
+            यदि (m_lang == LA_XML) {
                 indentDec();
-                if (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
+                यदि (cp > strg && cp[-1] == '/') indentDec();  // < ..... /> stays same level
             }
-            break;
-        default: wordstart = false; break;
+            भङ्ग;
+        स्वभाव: wordstart = असत्य; भङ्ग;
         }
 
-        switch (*cp) {
-        case '=': equalsForBracket = true; break;
-        case ' ': break;
-        default: equalsForBracket = false; break;
+        विकल्प (*cp) {
+        पक्ष '=': equalsForBracket = सत्य; भङ्ग;
+        पक्ष ' ': भङ्ग;
+        स्वभाव: equalsForBracket = असत्य; भङ्ग;
         }
     }
 }
 
-void V3OutFormatter::putBreakExpr() {
-    if (!m_parenVec.empty()) putBreak();
+शून्य V3_बहिर्गमनम्_Formatter::put_Break_व्यञ्जकम्() {
+    यदि (!m_parenVec.रिक्तानि()) putBreak();
 }
 
 // Add a line break if too wide
-void V3OutFormatter::putBreak() {
-    if (!v3Global.opt.decoration()) return;
-    if (!m_nobreak) {
+शून्य V3_बहिर्गमनम्_Formatter::putBreak() {
+    यदि (!v3Global.opt.decoration()) प्रत्यागम;
+    यदि (!m_nobreak) {
         // char s[1000]; sprintf(s, "{%d,%d}", m_column, m_parenVec.top()); putsNoTracking(s);
-        if (exceededWidth()) {
+        यदि (exceeded_विस्तारः()) {
             putcNoTracking('\n');
-            if (!m_parenVec.empty()) putsNoTracking(indentSpaces(m_parenVec.top()));
+            यदि (!m_parenVec.रिक्तानि()) putsNoTracking(indentSpaces(m_parenVec.शिखरम्()));
         }
     }
 }
 
-void V3OutFormatter::putsQuoted(const string& strg) {
+शून्य V3_बहिर्गमनम्_Formatter::putsQuoted(ध्रुव string& strg) {
     // Quote \ and " for use inside C programs
     // Don't use to quote a filename for #include - #include doesn't \ escape.
-    const string quoted = quoteNameControls(strg);
+    ध्रुव string quoted = quoteNameControls(strg);
     putcNoTracking('"');
-    for (const char c : quoted) putcNoTracking(c);
+    प्रति (ध्रुव वर्ण c : quoted) putcNoTracking(c);
     putcNoTracking('"');
-    if (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
+    यदि (strg.find('\0') != std::string::npos) putcNoTracking('s');  // C++14 std::string
 }
-void V3OutFormatter::putsNoTracking(const string& strg) {
-    if (!v3Global.opt.decoration()) {
+शून्य V3_बहिर्गमनम्_Formatter::putsNoTracking(ध्रुव string& strg) {
+    यदि (!v3Global.opt.decoration()) {
         putsOutput(strg.c_str());
-        return;
+        प्रत्यागम;
     }
     // Don't track {}'s, probably because it's a $display format string
-    for (const char c : strg) putcNoTracking(c);
+    प्रति (ध्रुव वर्ण c : strg) putcNoTracking(c);
 }
 
-void V3OutFormatter::putcNoTracking(char chr) {
-    if (!v3Global.opt.decoration()) {
+शून्य V3_बहिर्गमनम्_Formatter::putcNoTracking(वर्ण chr) {
+    यदि (!v3Global.opt.decoration()) {
         putcOutput(chr);
-        return;
+        प्रत्यागम;
     }
-    switch (chr) {
-    case '\n':
+    विकल्प (chr) {
+    पक्ष '\n':
         ++m_lineno;
         m_column = 0;
-        m_nobreak = true;
-        break;
-    case '\t': m_column = ((m_column + 9) / 8) * 8; break;
-    case ' ':
-    case '(':
-    case '|':
-    case '&': ++m_column; break;
-    default:
+        m_nobreak = सत्य;
+        भङ्ग;
+    पक्ष '\t': m_column = ((m_column + 9) / 8) * 8; भङ्ग;
+    पक्ष ' ':
+    पक्ष '(':
+    पक्ष '|':
+    पक्ष '&': ++m_column; भङ्ग;
+    स्वभाव:
         ++m_column;
-        m_nobreak = false;
-        break;
+        m_nobreak = असत्य;
+        भङ्ग;
     }
     putcOutput(chr);
 }
 
-string V3OutFormatter::quoteNameControls(const string& namein,
-                                         V3OutFormatter::Language lang) VL_PURE {
+string V3_बहिर्गमनम्_Formatter::quoteNameControls(ध्रुव string& namein,
+                                         V3_बहिर्गमनम्_Formatter::Language lang) VL_विशुद्धम् {
     // Encode control chars into output-appropriate escapes
     // Reverse is VString::unquoteSVString
-    string out;
-    if (lang == LA_XML) {
+    string बहिर्गमनम्;
+    यदि (lang == LA_XML) {
         // Encode chars into XML string
-        for (const char c : namein) {
-            if (c == '"') {
-                out += "&quot;"s;
-            } else if (c == '\'') {
-                out += "&apos;"s;
-            } else if (c == '<') {
-                out += "&lt;"s;
-            } else if (c == '>') {
-                out += "&gt;"s;
-            } else if (c == '&') {
-                out += "&amp;"s;
-            } else if (std::isprint(c)) {
-                out += c;
-            } else {
-                out += "&#"s + cvtToStr(static_cast<unsigned int>(c & 0xff)) + ";";
+        प्रति (ध्रुव वर्ण c : namein) {
+            यदि (c == '"') {
+                बहिर्गमनम् += "&quot;"s;
+            } अन्यथा यदि (c == '\'') {
+                बहिर्गमनम् += "&apos;"s;
+            } अन्यथा यदि (c == '<') {
+                बहिर्गमनम् += "&lt;"s;
+            } अन्यथा यदि (c == '>') {
+                बहिर्गमनम् += "&gt;"s;
+            } अन्यथा यदि (c == '&') {
+                बहिर्गमनम् += "&amp;"s;
+            } अन्यथा यदि (std::isprint(c)) {
+                बहिर्गमनम् += c;
+            } अन्यथा {
+                बहिर्गमनम् += "&#"s + cvt_गन्तव्यम्_Str(static_cast<अचिह्नित पूर्णाङ्क>(c & 0xff)) + ";";
             }
         }
-    } else {
+    } अन्यथा {
         // Encode control chars into C style escapes
-        for (const char c : namein) {
-            if (c == '\\' || c == '"') {
-                out += "\\"s + c;
-            } else if (c == '\n') {
-                out += "\\n";
-            } else if (c == '\r') {
-                out += "\\r";
-            } else if (c == '\t') {
-                out += "\\t";
-            } else if (std::isprint(c)) {
-                out += c;
-            } else {
+        प्रति (ध्रुव वर्ण c : namein) {
+            यदि (c == '\\' || c == '"') {
+                बहिर्गमनम् += "\\"s + c;
+            } अन्यथा यदि (c == '\n') {
+                बहिर्गमनम् += "\\n";
+            } अन्यथा यदि (c == '\r') {
+                बहिर्गमनम् += "\\r";
+            } अन्यथा यदि (c == '\t') {
+                बहिर्गमनम् += "\\t";
+            } अन्यथा यदि (std::isprint(c)) {
+                बहिर्गमनम् += c;
+            } अन्यथा {
                 // This will also cover \a etc
-                const string octal
-                    = "\\"s + cvtToStr((c >> 6) & 3) + cvtToStr((c >> 3) & 7) + cvtToStr(c & 7);
-                out += octal;
+                ध्रुव string octal
+                    = "\\"s + cvt_गन्तव्यम्_Str((c >> 6) & 3) + cvt_गन्तव्यम्_Str((c >> 3) & 7) + cvt_गन्तव्यम्_Str(c & 7);
+                बहिर्गमनम् += octal;
             }
         }
     }
-    return out;
+    प्रत्यागम बहिर्गमनम्;
 }
 
 //----------------------------------------------------------------------
 // Simple wrappers
 
-void V3OutFormatter::printf(const char* fmt...) {
-    constexpr size_t bufsize = 5000;
-    char sbuff[bufsize];
+शून्य V3_बहिर्गमनम्_Formatter::प्रारूप_लिख(ध्रुव वर्ण* fmt...) {
+    constexpr आकार_t bufsize = 5000;
+    वर्ण sbuff[bufsize];
     va_list ap;
     va_start(ap, fmt);
     VL_VSNPRINTF(sbuff, bufsize, fmt, ap);
-    va_end(ap);
-    this->puts(sbuff);
+    va_अन्तः(ap);
+    एतत्->पङ्क्तिं_लिख(sbuff);
 }
 
 //######################################################################
 // V3OutFormatter: A class for printing to a file, with automatic indentation of C++ code.
 
-V3OutFile::V3OutFile(const string& filename, V3OutFormatter::Language lang)
-    : V3OutFormatter{lang}
+V3_बहिर्गमनम्_File::V3_बहिर्गमनम्_File(ध्रुव string& filename, V3_बहिर्गमनम्_Formatter::Language lang)
+    : V3_बहिर्गमनम्_Formatter{lang}
     , m_filename{filename}
-    , m_bufferp{new std::array<char, WRITE_BUFFER_SIZE_BYTES>{}} {
-    if ((m_fp = V3File::new_fopen_w(filename)) == nullptr) {
+    , m_bufferp{नूतन std::array<वर्ण, WRITE_बफर_आकार_अष्टकानि>{}} {
+    यदि ((m_fp = V3File::new_fopen_w(filename)) == शून्यसूचकः) {
         v3fatal("Can't write file: " << filename);
     }
 }
 
-V3OutFile::~V3OutFile() {
-    writeBlock();
+V3_बहिर्गमनम्_File::~V3_बहिर्गमनम्_File() {
+    write_खण्डम्();
 
-    if (m_fp) fclose(m_fp);
-    m_fp = nullptr;
+    यदि (m_fp) fclose(m_fp);
+    m_fp = शून्यसूचकः;
 }
 
-void V3OutFile::putsForceIncs() {
-    const VStringList& forceIncs = v3Global.opt.forceIncs();
-    for (const string& i : forceIncs) puts("#include \"" + i + "\"\n");
+शून्य V3_बहिर्गमनम्_File::putsForceIncs() {
+    ध्रुव VStringList& forceIncs = v3Global.opt.forceIncs();
+    प्रति (ध्रुव string& i : forceIncs) पङ्क्तिं_लिख("#include \"" + i + "\"\n");
 }
 
-void V3OutCFile::putsGuard() {
+शून्य V3_बहिर्गमनम्_CFile::putsGuard() {
     UASSERT(!m_guard, "Already called putsGuard in emit file");
-    m_guard = true;
+    m_guard = सत्य;
     string var = VString::upcase("VERILATED_"s + V3Os::filenameNonDir(filename()) + "_");
-    for (char& c : var) {
-        if (!std::isalnum(c)) c = '_';
+    प्रति (वर्ण& c : var) {
+        यदि (!std::अक्षरम्_अङ्कः_वा(c)) c = '_';
     }
-    puts("\n#ifndef " + var + "\n");
-    puts("#define " + var + "  // guard\n");
+    पङ्क्तिं_लिख("\n#ifndef " + var + "\n");
+    पङ्क्तिं_लिख("#define " + var + "  // guard\n");
 }
 
 //######################################################################
 // V3OutStream
 
-V3OutStream::V3OutStream(std::ostream& ostream, V3OutFormatter::Language lang)
-    : V3OutFormatter{lang}
+V3_बहिर्गमनम्_प्रवाहः::V3_बहिर्गमनम्_प्रवाहः(std::ostream& ostream, V3_बहिर्गमनम्_Formatter::Language lang)
+    : V3_बहिर्गमनम्_Formatter{lang}
     , m_ostream{ostream} {}
 
 //######################################################################
 // VIdProtect
 
-class VIdProtectImp final {
+वर्ग VIdProtectImp final {
     // MEMBERS
     V3Mutex m_mutex;  // Protects members
-    std::map<const std::string, std::string> m_nameMap;  // Map of old name into new name
-    std::unordered_set<std::string> m_newIdSet VL_GUARDED_BY(m_mutex);  // Which new names exist
-protected:
+    std::map<ध्रुव std::string, std::string> m_nameMap;  // Map of old name into new name
+    std::unordered_समुच्चयः<std::string> m_new_Id_समुच्चयः VL_GUARDED_BY(m_mutex);  // Which new names exist
+रक्षित:
     // CONSTRUCTORS
-    friend class VIdProtect;
-    static VIdProtectImp& singleton() VL_MT_SAFE {
-        static VIdProtectImp s;
-        return s;
+    मित्रम् वर्ग VIdProtect;
+    स्थिर VIdProtectImp& singleton() VL_MT_SAFE {
+        स्थिर VIdProtectImp s;
+        प्रत्यागम s;
     }
 
-public:
+सार्वजनिक:
     VIdProtectImp() {
         passthru("this");
         passthru("TOP");
@@ -1052,60 +1052,60 @@ public:
         passthru("vlSelf");
         passthru("vlSymsp");
     }
-    ~VIdProtectImp() = default;
+    ~VIdProtectImp() = स्वभाव;
     // METHODS
-    string passthru(const string& old) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds()) return old;
-        const V3LockGuard lock{m_mutex};
-        const auto it = m_nameMap.find(old);
-        if (it != m_nameMap.end()) {
+    string passthru(ध्रुव string& old) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        यदि (!v3Global.opt.protectIds()) प्रत्यागम old;
+        ध्रुव V3_तालकम्_Guard तालकम्_2{m_mutex};
+        ध्रुव स्वचालित it = m_nameMap.find(old);
+        यदि (it != m_nameMap.अन्तः_2()) {
             // No way to go back and correct the older crypt name
             UASSERT(old == it->second,
                     "Pass-thru request for '" + old + "' after already --protect-ids of it.");
-        } else {
+        } अन्यथा {
             m_nameMap.emplace(old, old);
-            m_newIdSet.insert(old);
+            m_new_Id_समुच्चयः.निवेशय(old);
         }
-        return old;
+        प्रत्यागम old;
     }
-    string protectIf(const string& old, bool doIt) VL_MT_SAFE_EXCLUDES(m_mutex) {
-        if (!v3Global.opt.protectIds() || old.empty() || !doIt) return old;
-        const V3LockGuard lock{m_mutex};
-        const auto pair = m_nameMap.emplace(old, "");
-        if (pair.second) {
-            string out;
-            if (v3Global.opt.debugProtect()) {
+    string protectIf(ध्रुव string& old, तार्किक doIt) VL_MT_SAFE_EXCLUDES(m_mutex) {
+        यदि (!v3Global.opt.protectIds() || old.रिक्तानि() || !doIt) प्रत्यागम old;
+        ध्रुव V3_तालकम्_Guard तालकम्_2{m_mutex};
+        ध्रुव स्वचालित pair = m_nameMap.emplace(old, "");
+        यदि (pair.second) {
+            string बहिर्गमनम्;
+            यदि (v3Global.opt.debugProtect()) {
                 // This lets us see the symbol being protected to debug cases
                 // where e.g. the definition is protect() but reference is
                 // missing a protect()
-                out = "PS" + old;
-            } else {
-                VHashSha512 digest{v3Global.opt.protectKeyDefaulted()};
-                digest.insert(old);
+                बहिर्गमनम् = "PS" + old;
+            } अन्यथा {
+                VHashSha512 digest{v3Global.opt.protect_कुञ्चिका_Defaulted()};
+                digest.निवेशय(old);
                 // Add "PS" prefix (Protect Symbols) as cannot start symbol with number
-                out = "PS" + digest.digestSymbol24();
+                बहिर्गमनम् = "PS" + digest.digestSymbol24();
                 // See if we can shrink the digest symbol to something smaller
-                for (size_t len = 6; len < out.size() - 3; len += 3) {
-                    const string tryout = out.substr(0, len);
-                    if (m_newIdSet.insert(tryout).second) {
-                        out = tryout;
-                        break;
+                प्रति (आकार_t len = 6; len < बहिर्गमनम्.आकार() - 3; len += 3) {
+                    ध्रुव string tryout = बहिर्गमनम्.substr(0, len);
+                    यदि (m_new_Id_समुच्चयः.निवेशय(tryout).second) {
+                        बहिर्गमनम् = tryout;
+                        भङ्ग;
                     }
                 }
             }
-            pair.first->second = out;
+            pair.first->second = बहिर्गमनम्;
         }
-        return pair.first->second;
+        प्रत्यागम pair.first->second;
     }
-    string protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
+    string protect_शब्दाः_If(ध्रुव string& old, तार्किक doIt) VL_MT_SAFE {
         // Split at " " (for traces), "." (for scopes), "->", "(", "&", ")" (for self pointers)
-        if (!(doIt && v3Global.opt.protectIds())) return old;
-        string out;
-        string::size_type start = 0;
+        यदि (!(doIt && v3Global.opt.protectIds())) प्रत्यागम old;
+        string बहिर्गमनम्;
+        string::आकार_type start = 0;
         // space, ., ->
-        while (true) {
+        यावत् (सत्य) {
             // When C++11, use find_if and lambda
-            string::size_type pos = string::npos;
+            string::आकार_type pos = string::npos;
             string separator;
             trySep(old, start, " ", pos /*ref*/, separator /*ref*/);
             trySep(old, start, ".", pos /*ref*/, separator /*ref*/);
@@ -1113,33 +1113,33 @@ public:
             trySep(old, start, "(", pos /*ref*/, separator /*ref*/);
             trySep(old, start, "&", pos /*ref*/, separator /*ref*/);
             trySep(old, start, ")", pos /*ref*/, separator /*ref*/);
-            if (pos == string::npos) break;
-            out += protectIf(old.substr(start, pos - start), true) + separator;
-            start = pos + separator.length();
+            यदि (pos == string::npos) भङ्ग;
+            बहिर्गमनम् += protectIf(old.substr(start, pos - start), सत्य) + separator;
+            start = pos + separator.दीर्घता_2();
         }
-        out += protectIf(old.substr(start), true);
-        return out;
+        बहिर्गमनम् += protectIf(old.substr(start), सत्य);
+        प्रत्यागम बहिर्गमनम्;
     }
-    void writeMapFile(const string& filename) const {
-        V3OutXmlFile of{filename};
-        of.putsHeader();
-        of.puts("<!-- DESCR"
+    शून्य writeMapFile(ध्रुव string& filename) ध्रुव {
+        V3_बहिर्गमनम्_Xml_File सम्बन्धि{filename};
+        सम्बन्धि.puts_शीर्षकम्();
+        सम्बन्धि.पङ्क्तिं_लिख("<!-- DESCR"
                 "IPTION: Verilator output: XML representation of netlist -->\n");
-        of.puts("<verilator_id_map>\n");
+        सम्बन्धि.पङ्क्तिं_लिख("<verilator_id_map>\n");
         {
-            for (const auto& itr : m_nameMap) {
-                of.puts("<map from=\"" + itr.second + "\" to=\"" + itr.first + "\"/>\n");
+            प्रति (ध्रुव स्वचालित& itr : m_nameMap) {
+                सम्बन्धि.पङ्क्तिं_लिख("<map from=\"" + itr.second + "\" to=\"" + itr.first + "\"/>\n");
             }
         }
-        of.puts("</verilator_id_map>\n");
+        सम्बन्धि.पङ्क्तिं_लिख("</verilator_id_map>\n");
     }
 
-private:
-    void trySep(const string& old, string::size_type start, const string& trySep,
-                string::size_type& posr, string& separatorr) VL_PURE {
-        const string::size_type trypos = old.find(trySep, start);
-        if (trypos != string::npos) {
-            if (posr == string::npos || (posr > trypos)) {
+गुप्त:
+    शून्य trySep(ध्रुव string& old, string::आकार_type start, ध्रुव string& trySep,
+                string::आकार_type& posr, string& separatorr) VL_विशुद्धम् {
+        ध्रुव string::आकार_type trypos = old.find(trySep, start);
+        यदि (trypos != string::npos) {
+            यदि (posr == string::npos || (posr > trypos)) {
                 posr = trypos;
                 separatorr = trySep;
             }
@@ -1147,15 +1147,15 @@ private:
     }
 };
 
-string VIdProtect::ifNoProtect(const string& in) VL_MT_SAFE {
-    return v3Global.opt.protectIds() ? "" : in;
+string VIdProtect::ifNoProtect(ध्रुव string& अन्तर्) VL_MT_SAFE {
+    प्रत्यागम v3Global.opt.protectIds() ? "" : अन्तर्;
 }
-string VIdProtect::protectIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectIf(old, doIt);
+string VIdProtect::protectIf(ध्रुव string& old, तार्किक doIt) VL_MT_SAFE {
+    प्रत्यागम VIdProtectImp::singleton().protectIf(old, doIt);
 }
-string VIdProtect::protectWordsIf(const string& old, bool doIt) VL_MT_SAFE {
-    return VIdProtectImp::singleton().protectWordsIf(old, doIt);
+string VIdProtect::protect_शब्दाः_If(ध्रुव string& old, तार्किक doIt) VL_MT_SAFE {
+    प्रत्यागम VIdProtectImp::singleton().protect_शब्दाः_If(old, doIt);
 }
-void VIdProtect::writeMapFile(const string& filename) {
+शून्य VIdProtect::writeMapFile(ध्रुव string& filename) {
     VIdProtectImp::singleton().writeMapFile(filename);
 }

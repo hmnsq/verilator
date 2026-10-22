@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TABLE_H_
-#define VERILATOR_V3TABLE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3_सारणी_H
+#परिभाषय VERILATOR_V3_सारणी_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Table final {
-public:
-    static void tableAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_सारणी final {
+सार्वजनिक:
+    स्थिर शून्य सारणी_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

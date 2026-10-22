@@ -26,353 +26,353 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AssertNfa.h"
+#अन्तर्भाव "V3AssertNfa.h"
 
-#include "V3Assert.h"
-#include "V3Const.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
+#अन्तर्भाव "V3Assert.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3Stats.h"
+#अन्तर्भाव "V3Task.h"
+#अन्तर्भाव "V3UniqueNames.h"
 
-#include <set>
-#include <unordered_set>
-#include <vector>
+#अन्तर्भाव <set>
+#अन्तर्भाव <unordered_set>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // NFA Graph Data Structures (V3Graph-derived per upstream convention)
 
-namespace {
+नामाकाश {
 
-class SvaStateVertex;
+वर्ग SvaStateVertex;
 
 // Per-vertex algorithm data, stored via V3GraphVertex::userp() during lowering
-struct SvaVertexData final {
-    AstVar* stateVarp = nullptr;  // NBA state register for this vertex
-    AstVar* delayRingVarp = nullptr;  // Packed occupancy bits or per-slot match counts
-    AstVar* delayRingHeadVarp
-        = nullptr;  // Cached outgoing slot; isolates readers from in-place writes
-    AstVar* delayRingIdxVarp = nullptr;  // Next slot written in delayRingVarp
-    AstVar* delayRingLiveCountVarp = nullptr;  // Number of threads in delayRingVarp
-    AstVar* delayRingWrappedVarp = nullptr;  // All slots written since the last clear
-    AstVar* doneLVarp = nullptr;  // SAnd LHS done-latch
-    AstVar* doneRVarp = nullptr;  // SAnd RHS done-latch
-    AstNodeExpr* stateSigp = nullptr;  // Combinational state signal; OWNED during lowering
-    AstNodeExpr* stateCountSigp = nullptr;  // Cover-sequence match count; OWNED during lowering
-    AstNodeExpr* stateCountOverflowSigp = nullptr;  // Count overflow; OWNED during lowering
-    bool delayRingCounts = false;  // Ring slots hold cover-sequence match counts
-    bool needsReg = false;  // True if vertex has incoming clocked edge
+संरचना Sva_Vertex_दत्त final {
+    AstVar* stateVarp = शून्यसूचकः;  // NBA state register for this vertex
+    AstVar* delayRingVarp = शून्यसूचकः;  // Packed occupancy bits or per-slot match counts
+    AstVar* delay_Ring_शीर्ष_Varp
+        = शून्यसूचकः;  // Cached outgoing slot; isolates readers from in-place writes
+    AstVar* delayRingIdxVarp = शून्यसूचकः;  // Next slot written in delayRingVarp
+    AstVar* delay_Ring_जीवितम्_गणनम्_Varp = शून्यसूचकः;  // Number of threads in delayRingVarp
+    AstVar* delayRingWrappedVarp = शून्यसूचकः;  // All slots written since the last clear
+    AstVar* समाप्तम्_LVarp = शून्यसूचकः;  // SAnd LHS done-latch
+    AstVar* समाप्तम्_RVarp = शून्यसूचकः;  // SAnd RHS done-latch
+    Ast_ग्रन्थिः_व्यञ्जकम्* stateSigp = शून्यसूचकः;  // Combinational state signal; OWNED during lowering
+    Ast_ग्रन्थिः_व्यञ्जकम्* state_गणनम्_Sigp = शून्यसूचकः;  // Cover-sequence match count; OWNED during lowering
+    Ast_ग्रन्थिः_व्यञ्जकम्* state_गणनम्_अतिप्रवाहः_Sigp = शून्यसूचकः;  // Count overflow; OWNED during lowering
+    तार्किक delayRingCounts = असत्य;  // Ring slots hold cover-sequence match counts
+    तार्किक needsReg = असत्य;  // True if vertex has incoming clocked edge
 };
 
 // NFA state vertex -- one per NFA position in the sequence evaluation
-class SvaStateVertex final : public V3GraphVertex {
+वर्ग SvaStateVertex final : सार्वजनिक V3GraphVertex {
     VL_RTTI_IMPL(SvaStateVertex, V3GraphVertex)
-public:
+सार्वजनिक:
     // True if this is the sequence-match terminal vertex
-    bool m_isMatch = false;
+    तार्किक m_is_मेलनम् = असत्य;
     // OWNED throughout-guard condition clones; IEEE 1800-2023 16.9.9
-    std::vector<AstNodeExpr*> m_throughoutConds;
+    std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*> m_throughoutConds;
     // Nonzero for a ring-buffer vertex for ## delays.
-    bool m_isFixedDelayRing = false;
-    unsigned m_delayRingSize = 0;  // Number of ring slots. Range: max-min+1.
-    AstNodeExpr* m_delayRingClearCondp = nullptr;  // local RHS for pure-boolean range
-    AstNodeExpr* m_delayRingAdvanceCondp = nullptr;  // Advance only when this condition holds
-    bool m_replayAbortReject = false;  // Compressed repetition needs per-thread abort replay
+    तार्किक m_isFixedDelayRing = असत्य;
+    अचिह्नित m_delay_Ring_आकार = 0;  // Number of ring slots. Range: max-min+1.
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_delayRingClearCondp = शून्यसूचकः;  // local RHS for pure-boolean range
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_delayRingAdvanceCondp = शून्यसूचकः;  // Advance only when this condition holds
+    तार्किक m_replayAbortReject = असत्य;  // Compressed repetition needs per-thread abort replay
     // OWNED; enclosing-abort fire condition clearing state or suppressing guard rejection
-    AstNodeExpr* m_abortClearp = nullptr;
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_abortClearp = शून्यसूचकः;
     // OWNED; reject-abort fire condition rejecting all represented live threads
-    AstNodeExpr* m_abortRejectp = nullptr;
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_abortRejectp = शून्यसूचकः;
     // Liveness terminal (IEEE weak semantics): reject must not fire from this source
-    bool m_isUnbounded = false;
+    तार्किक m_isUnbounded = असत्य;
     // Temporal sequence AND combiner; IEEE 1800-2023 16.9.5
-    bool m_isAndCombiner = false;
-    SvaStateVertex* m_andLhsTermp = nullptr;  // LHS sub-NFA terminal vertex
-    SvaStateVertex* m_andRhsTermp = nullptr;  // RHS sub-NFA terminal vertex
-    AstNodeExpr* m_andLhsCondp = nullptr;  // OWNED; LHS final condition (may be nullptr)
-    AstNodeExpr* m_andRhsCondp = nullptr;  // OWNED; RHS final condition (may be nullptr)
+    तार्किक m_isAndCombiner = असत्य;
+    SvaStateVertex* m_andLhsTermp = शून्यसूचकः;  // LHS sub-NFA terminal vertex
+    SvaStateVertex* m_andRhsTermp = शून्यसूचकः;  // RHS sub-NFA terminal vertex
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_andLhsCondp = शून्यसूचकः;  // OWNED; LHS final condition (may be nullptr)
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_andRhsCondp = शून्यसूचकः;  // OWNED; RHS final condition (may be nullptr)
     // Reject sink for SAnd rejectOnFail wiring; not a state-signal source
-    bool m_isRejectSink = false;
+    तार्किक m_isRejectSink = असत्य;
     // In-window vertex of a strong s_always[m:n]: if its state is still set at
     // end-of-simulation the universal-quantifier window never completed, which is
     // a liveness failure (IEEE 1800-2023 16.12.11 strong semantics).
-    bool m_strongPending = false;
+    तार्किक m_strongPending = असत्य;
     // Ring introduced for the checked portion of a bounded strong s_always window.
-    bool m_strongAlwaysRing = false;
+    तार्किक m_strongAlwaysRing = असत्य;
 
     // CONSTRUCTORS
-    explicit SvaStateVertex(V3Graph* graphp)
+    स्पष्ट SvaStateVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
     ~SvaStateVertex() override {
-        for (AstNodeExpr* cp : m_throughoutConds) VL_DO_DANGLING(cp->deleteTree(), cp);
-        if (m_delayRingClearCondp)
-            VL_DO_DANGLING(m_delayRingClearCondp->deleteTree(), m_delayRingClearCondp);
-        if (m_delayRingAdvanceCondp)
-            VL_DO_DANGLING(m_delayRingAdvanceCondp->deleteTree(), m_delayRingAdvanceCondp);
-        if (m_abortClearp) VL_DO_DANGLING(m_abortClearp->deleteTree(), m_abortClearp);
-        if (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->deleteTree(), m_abortRejectp);
-        if (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->deleteTree(), m_andLhsCondp);
-        if (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->deleteTree(), m_andRhsCondp);
+        प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* cp : m_throughoutConds) VL_DO_DANGLING(cp->delete_वृक्षः(), cp);
+        यदि (m_delayRingClearCondp)
+            VL_DO_DANGLING(m_delayRingClearCondp->delete_वृक्षः(), m_delayRingClearCondp);
+        यदि (m_delayRingAdvanceCondp)
+            VL_DO_DANGLING(m_delayRingAdvanceCondp->delete_वृक्षः(), m_delayRingAdvanceCondp);
+        यदि (m_abortClearp) VL_DO_DANGLING(m_abortClearp->delete_वृक्षः(), m_abortClearp);
+        यदि (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->delete_वृक्षः(), m_abortRejectp);
+        यदि (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->delete_वृक्षः(), m_andLhsCondp);
+        यदि (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->delete_वृक्षः(), m_andRhsCondp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string name() const override {
-        string name = "s" + cvtToStr(color());
-        if (m_delayRingSize) {
+    string name() ध्रुव override {
+        string name = "s" + cvt_गन्तव्यम्_Str(color());
+        यदि (m_delay_Ring_आकार) {
             name += "\\n";
             name += m_isFixedDelayRing ? "fixed chain " : "range chain ";
-            name += cvtToStr(m_delayRingSize) + " slots";
+            name += cvt_गन्तव्यम्_Str(m_delay_Ring_आकार) + " slots";
         }
-        return name;
+        प्रत्यागम name;
     }
-    string dotColor() const override {
-        if (m_isMatch) return "red";
-        if (m_delayRingSize) return "blue";
-        if (m_isAndCombiner) return "purple";
-        return "black";
+    string dotColor() ध्रुव override {
+        यदि (m_is_मेलनम्) प्रत्यागम "red";
+        यदि (m_delay_Ring_आकार) प्रत्यागम "blue";
+        यदि (m_isAndCombiner) प्रत्यागम "purple";
+        प्रत्यागम "black";
     }
     // LCOV_EXCL_STOP
     // Access per-vertex algorithm data (valid only during lowering phase)
-    SvaVertexData* datap() const { return static_cast<SvaVertexData*>(userp()); }
+    Sva_Vertex_दत्त* datap() ध्रुव { प्रत्यागम static_cast<Sva_Vertex_दत्त*>(userp()); }
 };
 
 // NFA transition edge -- clocked (##1) or combinational link (##0)
-class SvaTransEdge final : public V3GraphEdge {
+वर्ग SvaTransEdge final : सार्वजनिक V3GraphEdge {
     VL_RTTI_IMPL(SvaTransEdge, V3GraphEdge)
-public:
-    AstNodeExpr* m_condp;  // Transition condition; nullptr = unconditional; OWNED
-    bool m_consumesCycle;  // true = clocked edge (##1), false = link (##0/boolean)
+सार्वजनिक:
+    Ast_ग्रन्थिः_व्यञ्जकम्* m_condp;  // Transition condition; nullptr = unconditional; OWNED
+    तार्किक m_consumes_आवृत्तिः;  // true = clocked edge (##1), false = link (##0/boolean)
     // Reject when source is active and condp is false; set only on
     // outermost required-step Link
-    bool m_rejectOnFail = false;
+    तार्किक m_rejectOnFail = असत्य;
     // Optional dynamic condition vertex for m_rejectOnFail. Used when the
     // success condition is another NFA state rather than a static expression.
-    SvaStateVertex* m_condVtxp = nullptr;
+    SvaStateVertex* m_condVtxp = शून्यसूचकः;
 
     // CONSTRUCTORS
-    SvaTransEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, AstNodeExpr* condp,
-                 bool consumesCycle)
-        : V3GraphEdge{graphp, fromp, top, /*weight=*/1}
+    SvaTransEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* शिखरम्, Ast_ग्रन्थिः_व्यञ्जकम्* condp,
+                 तार्किक consumes_आवृत्तिः)
+        : V3GraphEdge{graphp, fromp, शिखरम्, /*weight=*/1}
         , m_condp{condp}
-        , m_consumesCycle{consumesCycle} {}
+        , m_consumes_आवृत्तिः{consumes_आवृत्तिः} {}
     ~SvaTransEdge() override {
-        if (m_condp) VL_DO_DANGLING(m_condp->deleteTree(), m_condp);
+        यदि (m_condp) VL_DO_DANGLING(m_condp->delete_वृक्षः(), m_condp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string dotLabel() const override { return m_consumesCycle ? "##1" : "link"; }
-    string dotStyle() const override { return m_consumesCycle ? "" : "dashed"; }
+    string dotLabel() ध्रुव override { प्रत्यागम m_consumes_आवृत्तिः ? "##1" : "link"; }
+    string dotStyle() ध्रुव override { प्रत्यागम m_consumes_आवृत्तिः ? "" : "dashed"; }
     // LCOV_EXCL_STOP
     // Typed accessors for NFA vertices
-    SvaStateVertex* fromVtxp() const { return static_cast<SvaStateVertex*>(fromp()); }
-    SvaStateVertex* toVtxp() const { return static_cast<SvaStateVertex*>(top()); }
+    SvaStateVertex* fromVtxp() ध्रुव { प्रत्यागम static_cast<SvaStateVertex*>(fromp()); }
+    SvaStateVertex* गन्तव्यम्_Vtxp() ध्रुव { प्रत्यागम static_cast<SvaStateVertex*>(शिखरम्()); }
 };
 
 // NFA graph container
-class SvaGraph final {
-public:
+वर्ग SvaGraph final {
+सार्वजनिक:
     V3Graph m_graph;  // Owns all vertices and edges
-    SvaStateVertex* m_startVertexp = nullptr;  // Trigger/start vertex
-    SvaStateVertex* m_matchVertexp = nullptr;  // Sequence-match terminal vertex
+    SvaStateVertex* m_startVertexp = शून्यसूचकः;  // Trigger/start vertex
+    SvaStateVertex* m_मेलनम्_Vertexp = शून्यसूचकः;  // Sequence-match terminal vertex
 
     // Create a new state vertex
-    SvaStateVertex* createStateVertex() { return new SvaStateVertex{&m_graph}; }
+    SvaStateVertex* createStateVertex() { प्रत्यागम नूतन SvaStateVertex{&m_graph}; }
     // Create the match terminal vertex
-    SvaStateVertex* createMatchVertex() {
-        SvaStateVertex* const vtxp = createStateVertex();
-        vtxp->m_isMatch = true;
-        m_matchVertexp = vtxp;
-        return vtxp;
+    SvaStateVertex* create_मेलनम्_Vertex() {
+        SvaStateVertex* ध्रुव vtxp = createStateVertex();
+        vtxp->m_is_मेलनम् = सत्य;
+        m_मेलनम्_Vertexp = vtxp;
+        प्रत्यागम vtxp;
     }
     // Add a clocked transition edge (##1)
-    SvaTransEdge* addClockedEdge(SvaStateVertex* fromp, SvaStateVertex* top,
-                                 AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/true};
+    SvaTransEdge* सङ्कलय_Clocked_Edge(SvaStateVertex* fromp, SvaStateVertex* शिखरम्,
+                                 Ast_ग्रन्थिः_व्यञ्जकम्* condp = शून्यसूचकः) {
+        प्रत्यागम नूतन SvaTransEdge{&m_graph, fromp, शिखरम्, condp, /*consumesCycle=*/सत्य};
     }
     // Add a combinational link (##0 / boolean condition)
-    SvaTransEdge* addLink(SvaStateVertex* fromp, SvaStateVertex* top,
-                          AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/false};
+    SvaTransEdge* सङ्कलय_Link(SvaStateVertex* fromp, SvaStateVertex* शिखरम्,
+                          Ast_ग्रन्थिः_व्यञ्जकम्* condp = शून्यसूचकः) {
+        प्रत्यागम नूतन SvaTransEdge{&m_graph, fromp, शिखरम्, condp, /*consumesCycle=*/असत्य};
     }
     // Collect all edges into a flat vector for iteration.
     // Used by the lowering phase which needs global edge scans.
-    std::vector<const SvaTransEdge*> allEdges() const {
-        std::vector<const SvaTransEdge*> result;
-        for (const V3GraphVertex& vtxr : m_graph.vertices()) {
-            for (const V3GraphEdge& edger : vtxr.outEdges()) {
-                result.push_back(static_cast<const SvaTransEdge*>(&edger));
+    std::सदिशम्<ध्रुव SvaTransEdge*> all_धाराः() ध्रुव {
+        std::सदिशम्<ध्रुव SvaTransEdge*> परिणाम;
+        प्रति (ध्रुव V3GraphVertex& vtxr : m_graph.vertices()) {
+            प्रति (ध्रुव V3GraphEdge& edger : vtxr.बहिर्गमनम्_धाराः()) {
+                परिणाम.प्रक्षिप_पृष्ठभागः(static_cast<ध्रुव SvaTransEdge*>(&edger));
             }
         }
-        return result;
+        प्रत्यागम परिणाम;
     }
 };
 
 //######################################################################
 // Builder result: terminal vertex + optional final condition (match Link condition).
-struct BuildResult final {
-    SvaStateVertex* termVertexp;  // Primary terminal; contributes to both match and reject
-    AstNodeExpr* finalCondp;  // nullptr = unconditional
+संरचना Build_परिणाम final {
+    SvaStateVertex* पदांशः_Vertexp;  // Primary terminal; contributes to both match and reject
+    Ast_ग्रन्थिः_व्यञ्जकम्* finalCondp;  // nullptr = unconditional
     // Mid-window sources for range delays (pure boolean RHS): match-only (isUnbounded)
-    std::vector<SvaStateVertex*> midSources;
-    bool errorEmitted = false;  // Builder already emitted specific error; skip generic
+    std::सदिशम्<SvaStateVertex*> midSources;
+    तार्किक errorEmitted = असत्य;  // Builder already emitted specific error; skip generic
     // For cover_sequence: when true, midSources already enumerate every
     // end-of-match, so wireMatchAndMidSources must NOT add the main
     // termVtxp -> matchVertex Link (would double-count via the merge vertex).
-    bool termIsMidMerge = false;
-    bool valid() const { return termVertexp != nullptr; }
-    static BuildResult fail(bool errored = false) { return {nullptr, nullptr, {}, errored}; }
-    static BuildResult failWithError() { return {nullptr, nullptr, {}, true}; }
+    तार्किक पदांशः_Is_Mid_Merge = असत्य;
+    तार्किक valid() ध्रुव { प्रत्यागम पदांशः_Vertexp != शून्यसूचकः; }
+    स्थिर Build_परिणाम fail(तार्किक errored = असत्य) { प्रत्यागम {शून्यसूचकः, शून्यसूचकः, {}, errored}; }
+    स्थिर Build_परिणाम failWithError() { प्रत्यागम {शून्यसूचकः, शून्यसूचकः, {}, सत्य}; }
 };
 
 // Parser-marked SAnd of overlapped implications: a property if/else/case.
-static bool hasPropertyControlConjunction(const AstNodeExpr* nodep) {
-    return nodep->exists([](const AstSAnd* andp) { return andp->propertyControl(); });
+स्थिर तार्किक hasPropertyControlConjunction(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+    प्रत्यागम nodep->exists([](ध्रुव AstSAnd* andp) { प्रत्यागम andp->propertyControl(); });
 }
 
-static AstConst* newTypedConstp(FileLine* const flp, const AstNodeDType* const dtypep,
-                                const uint32_t value) {
-    AstConst* const constp = new AstConst{flp, AstConst::DTyped{}, dtypep};
-    constp->num().setLong(value);
-    return constp;
+स्थिर AstConst* newTypedConstp(File_पङ्क्तिः* ध्रुव flp, ध्रुव Ast_ग्रन्थिः_DType* ध्रुव dtypep,
+                                ध्रुव uint32_t मानम्) {
+    AstConst* ध्रुव constp = नूतन AstConst{flp, AstConst::DTyped{}, dtypep};
+    constp->अङ्कः().समुच्चयः_Long(मानम्);
+    प्रत्यागम constp;
 }
 
-static AstNodeExpr* sampled(AstNodeExpr* exprp) {
-    return new AstSampled{exprp->fileline(), exprp, exprp->dtypep(), true};
+स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* sampled(Ast_ग्रन्थिः_व्यञ्जकम्* exprp) {
+    प्रत्यागम नूतन AstSampled{exprp->fileline(), exprp, exprp->dtypep(), सत्य};
 }
 
-static const char* assertPassOnQuery(bool vacuous) {
-    static constexpr const char* queries[2]
+स्थिर ध्रुव वर्ण* assertPassOnQuery(तार्किक vacuous) {
+    स्थिर constexpr ध्रुव वर्ण* queries[2]
         = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-    return queries[vacuous];
+    प्रत्यागम queries[vacuous];
 }
 
-static AstNodeExpr* assertOnCond(FileLine* flp, VAssertType type,
+स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* assertOnCond(File_पङ्क्तिः* flp, VAssertType type,
                                  VAssertDirectiveType directiveType) {
-    if (!v3Global.opt.assertOn()) { return new AstConst{flp, AstConst::BitFalse{}}; }
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    यदि (!v3Global.opt.assertOn()) { प्रत्यागम नूतन AstConst{flp, AstConst::BitFalse{}}; }
+    प्रत्यागम नूतन AstCExpr{flp, AstCExpr::विशुद्धम्{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
 }
 
-static AstNodeExpr* assertKillGet(FileLine* flp, VAssertType type,
+स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* assertKillGet(File_पङ्क्तिः* flp, VAssertType type,
                                   VAssertDirectiveType directiveType) {
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    प्रत्यागम नूतन AstCExpr{flp, AstCExpr::विशुद्धम्{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_KILL", type, directiveType),
                         32};
 }
 
-static string assertActionControlPrefix(VAssertDirectiveType directiveType) {
-    const int controlled = !!(static_cast<int>(directiveType)
-                              & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                                 | static_cast<int>(VAssertDirectiveType::COVER)
-                                 | static_cast<int>(VAssertDirectiveType::ASSUME)));
-    const int checkRuntime = controlled & static_cast<int>(v3Global.opt.assertOn());
-    return "("s + std::to_string(controlled ^ 1) + " || ("s + std::to_string(checkRuntime)
+स्थिर string assert_Action_Control_उपसर्गः(VAssertDirectiveType directiveType) {
+    ध्रुव पूर्णाङ्क controlled = !!(static_cast<पूर्णाङ्क>(directiveType)
+                              & (static_cast<पूर्णाङ्क>(VAssertDirectiveType::ASSERT)
+                                 | static_cast<पूर्णाङ्क>(VAssertDirectiveType::COVER)
+                                 | static_cast<पूर्णाङ्क>(VAssertDirectiveType::ASSUME)));
+    ध्रुव पूर्णाङ्क checkRuntime = controlled & static_cast<पूर्णाङ्क>(v3Global.opt.assertOn());
+    प्रत्यागम "("s + std::गन्तव्यम्_string(controlled ^ 1) + " || ("s + std::गन्तव्यम्_string(checkRuntime)
            + " && "s;
 }
 
-static AstNodeExpr* assertPassOnCond(FileLine* flp, VAssertType type,
-                                     VAssertDirectiveType directiveType, bool vacuous) {
-    return new AstCExpr{
-        flp, AstCExpr::Pure{},
-        assertActionControlPrefix(directiveType)
+स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* assertPassOnCond(File_पङ्क्तिः* flp, VAssertType type,
+                                     VAssertDirectiveType directiveType, तार्किक vacuous) {
+    प्रत्यागम नूतन AstCExpr{
+        flp, AstCExpr::विशुद्धम्{},
+        assert_Action_Control_उपसर्गः(directiveType)
             + V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType)
             + "))"s,
         1};
 }
 
-static AstNodeExpr* assertFailOnCond(FileLine* flp, VAssertType type,
+स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* assertFailOnCond(File_पङ्क्तिः* flp, VAssertType type,
                                      VAssertDirectiveType directiveType) {
-    return new AstCExpr{
-        flp, AstCExpr::Pure{},
-        assertActionControlPrefix(directiveType)
+    प्रत्यागम नूतन AstCExpr{
+        flp, AstCExpr::विशुद्धम्{},
+        assert_Action_Control_उपसर्गः(directiveType)
             + V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType) + "))"s,
         1};
 }
 
-static AstIf* newPassOnIf(FileLine* flp, AstNodeExpr* firep, AstNode* bodyp, VAssertType type,
-                          VAssertDirectiveType directiveType, bool vacuous) {
-    AstNodeExpr* const condp
-        = new AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
-    ifp->isBoundsCheck(true);
-    ifp->user1(true);
-    return ifp;
+स्थिर AstIf* newPassOnIf(File_पङ्क्तिः* flp, Ast_ग्रन्थिः_व्यञ्जकम्* firep, Ast_ग्रन्थिः* bodyp, VAssertType type,
+                          VAssertDirectiveType directiveType, तार्किक vacuous) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp
+        = नूतन AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
+    AstIf* ध्रुव ifp = नूतन AstIf{flp, condp, bodyp};
+    ifp->isBoundsCheck(सत्य);
+    ifp->user1(सत्य);
+    प्रत्यागम ifp;
 }
 
-static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+स्थिर Ast_ग्रन्थिः_Stmt* newIfAssertFailOn(Ast_ग्रन्थिः* bodyp, VAssertDirectiveType directiveType,
                                       VAssertType type) {
-    FileLine* const flp = bodyp->fileline();
-    AstNodeExpr* const condp = assertFailOnCond(flp, type, directiveType);
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
-    ifp->isBoundsCheck(true);
-    ifp->user1(true);
-    return ifp;
+    File_पङ्क्तिः* ध्रुव flp = bodyp->fileline();
+    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp = assertFailOnCond(flp, type, directiveType);
+    AstIf* ध्रुव ifp = नूतन AstIf{flp, condp, bodyp};
+    ifp->isBoundsCheck(सत्य);
+    ifp->user1(सत्य);
+    प्रत्यागम ifp;
 }
 
 //######################################################################
 // NFA Builder
 
-class SvaNfaBuilder final {
+वर्ग SvaNfaBuilder final {
     SvaGraph& m_graph;  // NFA graph being built
-    AstNodeModule* const m_modp;  // Module to receive hoisted sampled-prop temps
-    V3UniqueNames& m_propTempNames;  // Module-shared temp-var name source
-    std::vector<AstNodeExpr*> m_temporalGuardStack;  // Guards active across nested temporal states
+    Ast_ग्रन्थिः_Module* ध्रुव m_modp;  // Module to receive hoisted sampled-prop temps
+    V3_Unique_नामानि& m_prop_अस्थायी_नामानि;  // Module-shared temp-var name source
+    std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*> m_temporal_Guard_राशिः;  // Guards active across nested temporal states
     // Outer abort conditions, AND-ed as !cond into inner abort edges
     // (IEEE 1800-2023 16.12.14 outer-wraps-inner).
-    std::vector<AstNodeExpr*> m_outerAbortStack;
-    bool m_inUnboundedScope = false;  // Sticky: nodes created after inherit liveness
-    bool m_markStrongPending = false;  // Mark new vertices as strong s_always in-window
-    bool m_isCover = false;  // Cover directives do not fail at end-of-simulation
+    std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*> m_outer_Abort_राशिः;
+    तार्किक m_अन्तर्_Unbounded_Scope = असत्य;  // Sticky: nodes created after inherit liveness
+    तार्किक m_markStrongPending = असत्य;  // Mark new vertices as strong s_always in-window
+    तार्किक m_isCover = असत्य;  // Cover directives do not fail at end-of-simulation
     // IEEE 1800-2023 16.14.3 cover sequence: each end-of-match fires the action,
     // not just the first. Builder builds parallel-branch (no first-match-wins)
     // topology when true. Default false preserves cover_property semantics.
-    bool m_isCoverSeq = false;
+    तार्किक m_isCoverSeq = असत्य;
     // Unsupported endpoint topology must reject, not ignore, or the wait hangs
-    bool m_isSeqEvent = false;
-    bool m_inSequencePrefix = false;  // Prefix composition does not preserve every endpoint
-    bool m_wantBoolLeaf = false;  // Building a |-> / |=> or top-level body (see buildOrMerge)
+    तार्किक m_isSeqEvent = असत्य;
+    तार्किक m_अन्तर्_Sequence_उपसर्गः = असत्य;  // Prefix composition does not preserve every endpoint
+    तार्किक m_want_Bool_पर्णम् = असत्य;  // Building a |-> / |=> or top-level body (see buildOrMerge)
 
-    struct RangeDelayRejectInfo final {
-        SvaStateVertex* startp = nullptr;
-        unsigned range = 0;
-        int rhsLen = 0;
+    संरचना RangeDelayRejectInfo final {
+        SvaStateVertex* startp = शून्यसूचकः;
+        अचिह्नित range = 0;
+        पूर्णाङ्क rhsLen = 0;
     };
 
-    void warnEndpointUnsupported(FileLine* flp, const string& what) const {
-        if (m_isSeqEvent) {
+    शून्य warnEndpointUnsupported(File_पङ्क्तिः* flp, ध्रुव string& what) ध्रुव {
+        यदि (m_isSeqEvent) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: sequence used as an event control with " << what);
-        } else {
+        } अन्यथा {
             flp->v3warn(COVERIGN, "Ignoring unsupported: cover sequence with " << what);
         }
     }
 
-    AstNodeExpr* throughoutCond(AstNodeExpr* baseCondp, FileLine* flp) {
-        if (m_temporalGuardStack.empty()) return baseCondp;
+    Ast_ग्रन्थिः_व्यञ्जकम्* throughoutCond(Ast_ग्रन्थिः_व्यञ्जकम्* आधारः_Condp, File_पङ्क्तिः* flp) {
+        यदि (m_temporal_Guard_राशिः.रिक्तानि()) प्रत्यागम आधारः_Condp;
         // AND all active temporal guards (supports nesting)
         // Each must use $sampled values.
-        AstNodeExpr* guardp = nullptr;
-        for (AstNodeExpr* const condp : m_temporalGuardStack) {
-            AstNodeExpr* const clonep = sampled(condp->cloneTreePure(false));
-            if (!guardp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* guardp = शून्यसूचकः;
+        प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp : m_temporal_Guard_राशिः) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव clonep = sampled(condp->clone_वृक्षः_विशुद्धम्(असत्य));
+            यदि (!guardp) {
                 guardp = clonep;
-            } else {
-                guardp = new AstLogAnd{flp, guardp, clonep};
+            } अन्यथा {
+                guardp = नूतन AstLogAnd{flp, guardp, clonep};
             }
         }
-        if (baseCondp) { guardp = new AstLogAnd{flp, baseCondp, guardp}; }
-        return guardp;
+        यदि (आधारः_Condp) { guardp = नूतन AstLogAnd{flp, आधारः_Condp, guardp}; }
+        प्रत्यागम guardp;
     }
 
-    static unsigned getConstUInt(AstNodeExpr* exprp) {
-        AstNodeExpr* const constp = V3Const::constifyEdit(exprp->cloneTreePure(false));
-        const AstConst* const cp = VN_CAST(constp, Const);
-        const unsigned val = cp ? cp->toUInt() : 0;
-        VL_DO_DANGLING(constp->deleteTree(), constp);
-        return val;
+    स्थिर अचिह्नित getConstUInt(Ast_ग्रन्थिः_व्यञ्जकम्* exprp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव constp = V3Const::constifyEdit(exprp->clone_वृक्षः_विशुद्धम्(असत्य));
+        ध्रुव AstConst* ध्रुव cp = VN_CAST(constp, Const);
+        ध्रुव अचिह्नित val = cp ? cp->गन्तव्यम्_UInt() : 0;
+        VL_DO_DANGLING(constp->delete_वृक्षः(), constp);
+        प्रत्यागम val;
     }
 
     // Static fixed-length analysis: clock ticks from entry to terminal, or -1.
@@ -388,55 +388,55 @@ class SvaNfaBuilder final {
     //  - Unbounded waits ##[M:$]             -> infinite/variable
     //  - ConsRep / SGotoRep / SAnd / SOr     -> defer (rare in intersect)
     //  - SIntersect nested in SIntersect     -> defer
-    static int fixedLength(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return -1;
-            unsigned delayCycles;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return -1;  // LCOV_EXCL_LINE
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
-                if (minD != maxD) return -1;
-                delayCycles = minD;
-            } else {
-                delayCycles = getConstUInt(delayp->lhsp());
+    स्थिर पूर्णाङ्क fixed_दीर्घता(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        यदि (AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ध्रुव delayp = VN_CAST(sexprp->delayp(), Delay);
+            यदि (!delayp || !delayp->is_आवृत्तिः_Delay()) प्रत्यागम -1;
+            अचिह्नित delay_आवृत्तयः;
+            यदि (delayp->isRangeDelay()) {
+                यदि (delayp->isUnbounded()) प्रत्यागम -1;  // LCOV_EXCL_LINE
+                ध्रुव अचिह्नित minD = getConstUInt(delayp->lhsp());
+                ध्रुव अचिह्नित maxD = getConstUInt(delayp->rhsp());
+                यदि (minD != maxD) प्रत्यागम -1;
+                delay_आवृत्तयः = minD;
+            } अन्यथा {
+                delay_आवृत्तयः = getConstUInt(delayp->lhsp());
             }
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preLen = fixedLength(prep);
-                if (preLen < 0) return -1;  // LCOV_EXCL_LINE
+            पूर्णाङ्क preLen = 0;
+            यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव prep = sexprp->preExprp()) {
+                preLen = fixed_दीर्घता(prep);
+                यदि (preLen < 0) प्रत्यागम -1;  // LCOV_EXCL_LINE
             }
-            const int bodyLen = fixedLength(sexprp->exprp());
-            if (bodyLen < 0) return -1;  // LCOV_EXCL_LINE
-            return preLen + delayCycles + bodyLen;
+            ध्रुव पूर्णाङ्क bodyLen = fixed_दीर्घता(sexprp->exprp());
+            यदि (bodyLen < 0) प्रत्यागम -1;  // LCOV_EXCL_LINE
+            प्रत्यागम preLen + delay_आवृत्तयः + bodyLen;
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return fixedLength(throughp->rhsp());
+        यदि (AstSThroughout* ध्रुव throughp = VN_CAST(nodep, SThroughout)) {
+            प्रत्यागम fixed_दीर्घता(throughp->rhsp());
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
+        यदि (AstSOr* ध्रुव orp = VN_CAST(nodep, SOr)) {
             // Alternatives must share one end cycle; buildSWithin relies on
             // this to pair the OR with an SIntersect.
-            const int lhsLen = fixedLength(orp->lhsp());
-            const int rhsLen = fixedLength(orp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) return -1;
-            return lhsLen;
+            ध्रुव पूर्णाङ्क lhsLen = fixed_दीर्घता(orp->lhsp());
+            ध्रुव पूर्णाङ्क rhsLen = fixed_दीर्घता(orp->rhsp());
+            यदि (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) प्रत्यागम -1;
+            प्रत्यागम lhsLen;
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
+        यदि (AstSWithin* ध्रुव withinp = VN_CAST(nodep, SWithin)) {
             // `seq1 within seq2` ends at seq2's end cycle (IEEE 16.9.10).
-            const int lhsLen = fixedLength(withinp->lhsp());
-            const int rhsLen = fixedLength(withinp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) return -1;
-            return rhsLen;
+            ध्रुव पूर्णाङ्क lhsLen = fixed_दीर्घता(withinp->lhsp());
+            ध्रुव पूर्णाङ्क rhsLen = fixed_दीर्घता(withinp->rhsp());
+            यदि (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) प्रत्यागम -1;
+            प्रत्यागम rhsLen;
         }
         // LCOV_EXCL_START -- defensive: V3AssertPre rejects composite SVA ops
         // nested in an intersect arm before fixedLength runs (clock-context
         // resolution fails). Kept as a guard in case future parser relaxations
         // permit it.
-        if (nodep->isMultiCycleSva()) return -1;
+        यदि (nodep->is_Multi_आवृत्तिः_Sva()) प्रत्यागम -1;
         // LCOV_EXCL_STOP
         // Plain boolean expression (no SVA constructs) -- 0 cycles.
-        return 0;
+        प्रत्यागम 0;
     }
 
     // Contiguous match-length range [lo,hi] for an operand whose length varies
@@ -444,65 +444,65 @@ class SvaNfaBuilder final {
     // variable-length `intersect` lowering (IEEE 1800-2023 16.9.6): more than
     // one ranged delay would make the per-length realization ambiguous, so it
     // is reported unsupported rather than mis-paired.
-    static std::pair<int, int> lengthRange(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return {-1, -1};
-            std::pair<int, int> delayRange;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return {-1, -1};
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
+    स्थिर std::pair<पूर्णाङ्क, पूर्णाङ्क> दीर्घता_Range(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        यदि (AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ध्रुव delayp = VN_CAST(sexprp->delayp(), Delay);
+            यदि (!delayp || !delayp->is_आवृत्तिः_Delay()) प्रत्यागम {-1, -1};
+            std::pair<पूर्णाङ्क, पूर्णाङ्क> delayRange;
+            यदि (delayp->isRangeDelay()) {
+                यदि (delayp->isUnbounded()) प्रत्यागम {-1, -1};
+                ध्रुव अचिह्नित minD = getConstUInt(delayp->lhsp());
+                ध्रुव अचिह्नित maxD = getConstUInt(delayp->rhsp());
                 delayRange = {minD, maxD};
-            } else {
-                const unsigned d = getConstUInt(delayp->lhsp());
+            } अन्यथा {
+                ध्रुव अचिह्नित d = getConstUInt(delayp->lhsp());
                 delayRange = {d, d};
             }
-            std::pair<int, int> preRange{0, 0};
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preRange = lengthRange(prep);
-                if (preRange.first < 0) return {-1, -1};
+            std::pair<पूर्णाङ्क, पूर्णाङ्क> preRange{0, 0};
+            यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव prep = sexprp->preExprp()) {
+                preRange = दीर्घता_Range(prep);
+                यदि (preRange.first < 0) प्रत्यागम {-1, -1};
             }
-            const std::pair<int, int> bodyRange = lengthRange(sexprp->exprp());
-            if (bodyRange.first < 0) return {-1, -1};
-            const int variableParts = (preRange.first != preRange.second)
+            ध्रुव std::pair<पूर्णाङ्क, पूर्णाङ्क> bodyRange = दीर्घता_Range(sexprp->exprp());
+            यदि (bodyRange.first < 0) प्रत्यागम {-1, -1};
+            ध्रुव पूर्णाङ्क variableParts = (preRange.first != preRange.second)
                                       + (delayRange.first != delayRange.second)
                                       + (bodyRange.first != bodyRange.second);
-            if (variableParts > 1) return {-1, -1};
-            return {preRange.first + delayRange.first + bodyRange.first,
+            यदि (variableParts > 1) प्रत्यागम {-1, -1};
+            प्रत्यागम {preRange.first + delayRange.first + bodyRange.first,
                     preRange.second + delayRange.second + bodyRange.second};
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return lengthRange(throughp->rhsp());
+        यदि (AstSThroughout* ध्रुव throughp = VN_CAST(nodep, SThroughout)) {
+            प्रत्यागम दीर्घता_Range(throughp->rhsp());
         }
-        if (nodep->isMultiCycleSva()) return {-1, -1};
-        return {0, 0};  // plain boolean -- 0 cycles
+        यदि (nodep->is_Multi_आवृत्तिः_Sva()) प्रत्यागम {-1, -1};
+        प्रत्यागम {0, 0};  // plain boolean -- 0 cycles
     }
 
     // Clone `operand` with its sole variable ranged cycle delay pinned so the
     // total match length is exactly `len`. `lo` is the operand's minimum length
     // (lengthRange().first). A fixed operand has no such delay and is returned
     // as a plain clone (callers only request its single achievable length).
-    static AstNodeExpr* realizeAtLength(AstNodeExpr* operand, int len, int lo) {
-        AstNodeExpr* const clonep = operand->cloneTreePure(false);
-        AstDelay* rangeDelayp = nullptr;
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* realize_At_दीर्घता(Ast_ग्रन्थिः_व्यञ्जकम्* सङ्कार्यम्, पूर्णाङ्क len, पूर्णाङ्क lo) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव clonep = सङ्कार्यम्->clone_वृक्षः_विशुद्धम्(असत्य);
+        AstDelay* rangeDelayp = शून्यसूचकः;
         clonep->foreach([&](AstDelay* dp) {
-            if (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
+            यदि (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
                 && getConstUInt(dp->lhsp()) != getConstUInt(dp->rhsp())) {
                 rangeDelayp = dp;
             }
         });
-        if (rangeDelayp) {
-            FileLine* const flp = rangeDelayp->fileline();
-            const unsigned pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
-            AstNodeExpr* const oldMinp = rangeDelayp->lhsp();
-            oldMinp->replaceWith(new AstConst{flp, pinned});
-            VL_DO_DANGLING(oldMinp->deleteTree(), oldMinp);
+        यदि (rangeDelayp) {
+            File_पङ्क्तिः* ध्रुव flp = rangeDelayp->fileline();
+            ध्रुव अचिह्नित pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव oldMinp = rangeDelayp->lhsp();
+            oldMinp->replaceWith(नूतन AstConst{flp, pinned});
+            VL_DO_DANGLING(oldMinp->delete_वृक्षः(), oldMinp);
             // Drop the max bound so it lowers as a fixed `##d`, not `##[d:d]`.
-            AstNode* const oldMaxp = rangeDelayp->rhsp()->unlinkFrBack();
-            VL_DO_DANGLING(oldMaxp->deleteTree(), oldMaxp);
+            Ast_ग्रन्थिः* ध्रुव oldMaxp = rangeDelayp->rhsp()->unlink_Fr_पृष्ठभागः();
+            VL_DO_DANGLING(oldMaxp->delete_वृक्षः(), oldMaxp);
         }
-        return clonep;
+        प्रत्यागम clonep;
     }
 
     // Cuts AST size from O(N * sizeof(exprp)) to O(N) + O(sizeof(exprp)) by
@@ -511,355 +511,355 @@ class SvaNfaBuilder final {
     // any exprp -- even an impure one would now evaluate exactly once per
     // clock instead of N times. Orphan temps from failed builds are unused
     // MODULETEMPs and are removed by V3Dead.
-    AstVar* tryHoistSampled(AstNodeExpr* exprp, FileLine* flp, unsigned cloneCount) {
-        constexpr unsigned kHoistThreshold = 2;
-        if (cloneCount < kHoistThreshold) return nullptr;
-        AstVar* const tempVarp
-            = new AstVar{flp, VVarType::MODULETEMP, m_propTempNames.get(exprp), exprp->dtypep()};
-        m_modp->addStmtsp(tempVarp);
-        AstAssign* const assignp = new AstAssign{flp, new AstVarRef{flp, tempVarp, VAccess::WRITE},
-                                                 sampled(exprp->cloneTreePure(false))};
-        m_modp->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, assignp});
-        return tempVarp;
+    AstVar* tryHoistSampled(Ast_ग्रन्थिः_व्यञ्जकम्* exprp, File_पङ्क्तिः* flp, अचिह्नित clone_गणनम्) {
+        constexpr अचिह्नित k_Hoist_देहली = 2;
+        यदि (clone_गणनम् < k_Hoist_देहली) प्रत्यागम शून्यसूचकः;
+        AstVar* ध्रुव अस्थायी_Varp
+            = नूतन AstVar{flp, VVarType::MODULETEMP, m_prop_अस्थायी_नामानि.get(exprp), exprp->dtypep()};
+        m_modp->सङ्कलय_Stmtsp(अस्थायी_Varp);
+        Ast_नियोजय* ध्रुव assignp = नूतन Ast_नियोजय{flp, नूतन AstVarRef{flp, अस्थायी_Varp, VAccess::WRITE},
+                                                 sampled(exprp->clone_वृक्षः_विशुद्धम्(असत्य))};
+        m_modp->सङ्कलय_Stmtsp(नूतन AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, शून्यसूचकः, assignp});
+        प्रत्यागम अस्थायी_Varp;
     }
 
-    static AstNodeExpr* sampledRefOrClone(AstVar* hoistVarp, AstNodeExpr* exprp, FileLine* flp) {
-        if (hoistVarp) return new AstVarRef{flp, hoistVarp, VAccess::READ};
-        return sampled(exprp->cloneTreePure(false));
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* sampledRefOrClone(AstVar* hoistVarp, Ast_ग्रन्थिः_व्यञ्जकम्* exprp, File_पङ्क्तिः* flp) {
+        यदि (hoistVarp) प्रत्यागम नूतन AstVarRef{flp, hoistVarp, VAccess::READ};
+        प्रत्यागम sampled(exprp->clone_वृक्षः_विशुद्धम्(असत्य));
     }
 
     // Create vertex and inherit temporal guards from the current scope.
     SvaStateVertex* scopedCreateVertex() {
-        SvaStateVertex* const vtxp = m_graph.createStateVertex();
-        for (AstNodeExpr* const cp : m_temporalGuardStack) {
-            vtxp->m_throughoutConds.push_back(cp->cloneTreePure(false));
+        SvaStateVertex* ध्रुव vtxp = m_graph.createStateVertex();
+        प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव cp : m_temporal_Guard_राशिः) {
+            vtxp->m_throughoutConds.प्रक्षिप_पृष्ठभागः(cp->clone_वृक्षः_विशुद्धम्(असत्य));
         }
-        if (m_inUnboundedScope) vtxp->m_isUnbounded = true;
-        if (m_markStrongPending) vtxp->m_strongPending = true;
-        return vtxp;
+        यदि (m_अन्तर्_Unbounded_Scope) vtxp->m_isUnbounded = सत्य;
+        यदि (m_markStrongPending) vtxp->m_strongPending = सत्य;
+        प्रत्यागम vtxp;
     }
 
     // AND current temporal guards into every edge/link.
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(condp, flp));
+    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* शिखरम्, Ast_ग्रन्थिः_व्यञ्जकम्* condp,
+                              File_पङ्क्तिः* flp) {
+        प्रत्यागम m_graph.सङ्कलय_Link(fromp, शिखरम्, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(nullptr, flp));
+    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* शिखरम्, File_पङ्क्तिः* flp) {
+        प्रत्यागम m_graph.सङ्कलय_Link(fromp, शिखरम्, throughoutCond(शून्यसूचकः, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(condp, flp));
+    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* शिखरम्, Ast_ग्रन्थिः_व्यञ्जकम्* condp,
+                              File_पङ्क्तिः* flp) {
+        प्रत्यागम m_graph.सङ्कलय_Clocked_Edge(fromp, शिखरम्, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(nullptr, flp));
+    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* शिखरम्, File_पङ्क्तिः* flp) {
+        प्रत्यागम m_graph.सङ्कलय_Clocked_Edge(fromp, शिखरम्, throughoutCond(शून्यसूचकः, flp));
     }
 
-    SvaStateVertex* addDelayChain(SvaStateVertex* startp, unsigned size, FileLine* flp,
-                                  bool isFixed = true, AstNodeExpr* clearCondp = nullptr,
-                                  AstNodeExpr* advanceCondp = nullptr) {
-        if (isFixed && size == 0) return startp;
-        UASSERT_OBJ(size > 0, startp, "Delay chain needs at least one slot");
-        if (isFixed && size == 1 && !advanceCondp) {
-            SvaStateVertex* const nextp = scopedCreateVertex();
+    SvaStateVertex* सङ्कलय_Delay_Chain(SvaStateVertex* startp, अचिह्नित आकार, File_पङ्क्तिः* flp,
+                                  तार्किक isFixed = सत्य, Ast_ग्रन्थिः_व्यञ्जकम्* clearCondp = शून्यसूचकः,
+                                  Ast_ग्रन्थिः_व्यञ्जकम्* advanceCondp = शून्यसूचकः) {
+        यदि (isFixed && आकार == 0) प्रत्यागम startp;
+        UASSERT_OBJ(आकार > 0, startp, "Delay chain needs at least one slot");
+        यदि (isFixed && आकार == 1 && !advanceCondp) {
+            SvaStateVertex* ध्रुव nextp = scopedCreateVertex();
             guardedEdge(startp, nextp, flp);
-            return nextp;
+            प्रत्यागम nextp;
         }
-        SvaStateVertex* const ringVtxp = scopedCreateVertex();
+        SvaStateVertex* ध्रुव ringVtxp = scopedCreateVertex();
         ringVtxp->m_isFixedDelayRing = isFixed;
-        ringVtxp->m_delayRingSize = size;
-        if (clearCondp) {
+        ringVtxp->m_delay_Ring_आकार = आकार;
+        यदि (clearCondp) {
             UASSERT_OBJ(!isFixed, startp, "Fixed delay cannot have a clear condition");
-            ringVtxp->m_delayRingClearCondp = clearCondp->cloneTreePure(false);
+            ringVtxp->m_delayRingClearCondp = clearCondp->clone_वृक्षः_विशुद्धम्(असत्य);
         }
         ringVtxp->m_delayRingAdvanceCondp = advanceCondp;
-        if (isFixed) {
+        यदि (isFixed) {
             guardedEdge(startp, ringVtxp, flp);
-        } else {
+        } अन्यथा {
             guardedLink(startp, ringVtxp, flp);
         }
-        return ringVtxp;
+        प्रत्यागम ringVtxp;
     }
 
     // Build NFA for an SExpr. finalCond = RHS (not yet added as a vertex).
     // isTopLevelStep: marks outermost required boolean check as rejectOnFail.
     // Apply a range delay `##[M:N]` to currentp. Returns true on success. On
     // failure, emits a diagnostic and returns false.
-    bool applyRangeDelay(AstSExpr* sexprp, SvaStateVertex*& currentp,
-                         std::vector<SvaStateVertex*>& midSources,
-                         RangeDelayRejectInfo* rangeRejectInfop = nullptr) {
-        FileLine* const flp = sexprp->fileline();
-        AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
-        AstNodeExpr* const rhsExprp = sexprp->exprp();
-        const unsigned minDelay = getConstUInt(delayp->lhsp());
-        if (delayp->isUnbounded()) {
+    तार्किक applyRangeDelay(AstSExpr* sexprp, SvaStateVertex*& currentp,
+                         std::सदिशम्<SvaStateVertex*>& midSources,
+                         RangeDelayRejectInfo* rangeRejectInfop = शून्यसूचकः) {
+        File_पङ्क्तिः* ध्रुव flp = sexprp->fileline();
+        AstDelay* ध्रुव delayp = VN_AS(sexprp->delayp(), Delay);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsExprp = sexprp->exprp();
+        ध्रुव अचिह्नित minDelay = getConstUInt(delayp->lhsp());
+        यदि (delayp->isUnbounded()) {
             // `##[M:$]`: wait M cycles, then retain every matured attempt in a
             // one-slot ring while also exposing the first eligible tick.
-            currentp = addDelayChain(currentp, minDelay, flp);
-            SvaStateVertex* const waitRingp = addDelayChain(currentp, 1, flp, false);
+            currentp = सङ्कलय_Delay_Chain(currentp, minDelay, flp);
+            SvaStateVertex* ध्रुव waitRingp = सङ्कलय_Delay_Chain(currentp, 1, flp, असत्य);
             // The ring's live count is updated in NBA, so this link retains the previous
             // tick's live attempts alongside new arrivals for the next tick.
             guardedLink(waitRingp, waitRingp, flp);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+            SvaStateVertex* ध्रुव mergeVtxp = scopedCreateVertex();
             guardedLink(currentp, mergeVtxp, flp);
             guardedLink(waitRingp, mergeVtxp, flp);
             currentp = mergeVtxp;
-            currentp->m_isUnbounded = true;  // Liveness, so no reject.
-            m_inUnboundedScope = true;
-            return true;
+            currentp->m_isUnbounded = सत्य;  // Liveness, so no reject.
+            m_अन्तर्_Unbounded_Scope = सत्य;
+            प्रत्यागम सत्य;
         }
-        const unsigned maxDelay = getConstUInt(delayp->rhsp());
-        if (minDelay == maxDelay) {
-            currentp = addDelayChain(currentp, minDelay, flp);
-            return true;
+        ध्रुव अचिह्नित maxDelay = getConstUInt(delayp->rhsp());
+        यदि (minDelay == maxDelay) {
+            currentp = सङ्कलय_Delay_Chain(currentp, minDelay, flp);
+            प्रत्यागम सत्य;
         }
-        const unsigned range = maxDelay - minDelay;
-        currentp = addDelayChain(currentp, minDelay, flp);
-        const bool multiCycleRhs = rhsExprp->isMultiCycleSva();
-        const AstNodeExpr* const preExprp = sexprp->preExprp();
+        ध्रुव अचिह्नित range = maxDelay - minDelay;
+        currentp = सङ्कलय_Delay_Chain(currentp, minDelay, flp);
+        ध्रुव तार्किक multi_आवृत्तिः_Rhs = rhsExprp->is_Multi_आवृत्तिः_Sva();
+        ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव preExprp = sexprp->preExprp();
         // Prefix and nested-sequence composition can lose endpoints or their multiplicity
         // required by cover sequence (IEEE 1800-2023 16.14.3), regardless of the range width.
-        if (m_isCoverSeq
-            && (multiCycleRhs || m_inSequencePrefix
-                || (preExprp && preExprp->isMultiCycleSva()))) {
+        यदि (m_isCoverSeq
+            && (multi_आवृत्तिः_Rhs || m_अन्तर्_Sequence_उपसर्गः
+                || (preExprp && preExprp->is_Multi_आवृत्तिः_Sva()))) {
             warnEndpointUnsupported(flp, "this ranged cycle delay");
-            return false;
+            प्रत्यागम असत्य;
         }
-        if (m_inSequencePrefix) {
+        यदि (m_अन्तर्_Sequence_उपसर्गः) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: Bounded ranged cycle delay in a sequence prefix");
-            return false;
+            प्रत्यागम असत्य;
         }
-        if (multiCycleRhs) {
+        यदि (multi_आवृत्तिः_Rhs) {
             // Launch a candidate at every eligible tick. Candidate-local misses are not
             // assertion rejects while a later position can still match.
-            if (rangeRejectInfop) {
-                const int rhsLen = fixedLength(rhsExprp);
-                if (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
+            यदि (rangeRejectInfop) {
+                ध्रुव पूर्णाङ्क rhsLen = fixed_दीर्घता(rhsExprp);
+                यदि (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
             }
-            SvaStateVertex* const tailp = addDelayChain(currentp, range + 1U, flp, false);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-            mergeVtxp->m_isUnbounded = true;
+            SvaStateVertex* ध्रुव tailp = सङ्कलय_Delay_Chain(currentp, range + 1U, flp, असत्य);
+            SvaStateVertex* ध्रुव mergeVtxp = scopedCreateVertex();
+            mergeVtxp->m_isUnbounded = सत्य;
             guardedLink(currentp, mergeVtxp, flp);
             guardedLink(tailp, mergeVtxp, flp);
             currentp = mergeVtxp;
-            m_inUnboundedScope = true;
-        } else {
+            m_अन्तर्_Unbounded_Scope = सत्य;
+        } अन्यथा {
             // The first eligible tick is explicit. The ring retains attempts for the
             // remaining ticks and exposes the final tick for rejection. Only properties
             // clear on success, since cover sequence counts every endpoint.
-            midSources.push_back(currentp);
-            currentp = addDelayChain(currentp, range + 1U, flp, false,
-                                     m_isCoverSeq ? nullptr : rhsExprp);
+            midSources.प्रक्षिप_पृष्ठभागः(currentp);
+            currentp = सङ्कलय_Delay_Chain(currentp, range + 1U, flp, असत्य,
+                                     m_isCoverSeq ? शून्यसूचकः : rhsExprp);
         }
-        return true;
+        प्रत्यागम सत्य;
     }
 
-    void addFiniteRangeReject(const RangeDelayRejectInfo& info, const BuildResult& result,
-                              FileLine* flp) {
-        if (!info.startp) return;
+    शून्य सङ्कलय_Finite_Range_Reject(ध्रुव RangeDelayRejectInfo& info, ध्रुव Build_परिणाम& परिणाम,
+                              File_पङ्क्तिः* flp) {
+        यदि (!info.startp) प्रत्यागम;
 
-        SvaStateVertex* const expiryVtxp
-            = addDelayChain(info.startp, info.range + info.rhsLen, flp);
-        SvaStateVertex* const expiryMatchp = scopedCreateVertex();
-        std::vector<SvaStateVertex*> sources = result.midSources;
-        sources.push_back(result.termVertexp);
-        for (SvaStateVertex* const srcp : sources) {
-            AstNodeExpr* const condp
-                = result.finalCondp ? sampled(result.finalCondp->cloneTreePure(false)) : nullptr;
-            SvaStateVertex* const successNowp = scopedCreateVertex();
+        SvaStateVertex* ध्रुव expiryVtxp
+            = सङ्कलय_Delay_Chain(info.startp, info.range + info.rhsLen, flp);
+        SvaStateVertex* ध्रुव expiryMatchp = scopedCreateVertex();
+        std::सदिशम्<SvaStateVertex*> sources = परिणाम.midSources;
+        sources.प्रक्षिप_पृष्ठभागः(परिणाम.पदांशः_Vertexp);
+        प्रति (SvaStateVertex* ध्रुव srcp : sources) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp
+                = परिणाम.finalCondp ? sampled(परिणाम.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)) : शून्यसूचकः;
+            SvaStateVertex* ध्रुव successNowp = scopedCreateVertex();
             guardedLink(srcp, successNowp, condp, flp);
             // Retain a success through the latest deadline it can satisfy.
-            SvaStateVertex* const historyp
-                = addDelayChain(successNowp, info.range + 1U, flp, false);
+            SvaStateVertex* ध्रुव historyp
+                = सङ्कलय_Delay_Chain(successNowp, info.range + 1U, flp, असत्य);
             guardedLink(successNowp, expiryMatchp, flp);
             guardedLink(historyp, expiryMatchp, flp);
         }
 
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-        sinkVtxp->m_isRejectSink = true;
-        SvaTransEdge* const rejectp = m_graph.addLink(expiryVtxp, sinkVtxp);
-        rejectp->m_rejectOnFail = true;
+        SvaStateVertex* ध्रुव sinkVtxp = m_graph.createStateVertex();
+        sinkVtxp->m_isRejectSink = सत्य;
+        SvaTransEdge* ध्रुव rejectp = m_graph.सङ्कलय_Link(expiryVtxp, sinkVtxp);
+        rejectp->m_rejectOnFail = सत्य;
         rejectp->m_condVtxp = expiryMatchp;
     }
 
-    BuildResult buildSExpr(AstSExpr* sexprp, SvaStateVertex* entryVtxp,
-                           bool isTopLevelStep = false) {
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay()) return BuildResult::fail();
+    Build_परिणाम buildSExpr(AstSExpr* sexprp, SvaStateVertex* प्रविष्टिः_Vtxp,
+                           तार्किक is_शिखरम्_Level_चरणः = असत्य) {
+        AstDelay* ध्रुव delayp = VN_CAST(sexprp->delayp(), Delay);
+        यदि (!delayp || !delayp->is_आवृत्तिः_Delay()) प्रत्यागम Build_परिणाम::fail();
 
-        FileLine* const flp = sexprp->fileline();
-        AstNodeExpr* const exprp = sexprp->exprp();
+        File_पङ्क्तिः* ध्रुव flp = sexprp->fileline();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = sexprp->exprp();
 
         // Handle LHS (preExpr)
-        SvaStateVertex* currentp = entryVtxp;
-        if (AstNodeExpr* const preExprp = sexprp->preExprp()) {
-            VL_RESTORER(m_inSequencePrefix);
-            m_inSequencePrefix = true;
-            const BuildResult pre = buildExpr(preExprp, currentp, isTopLevelStep);
-            if (!pre.valid()) return BuildResult::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
-            if (pre.finalCondp) {
-                SvaStateVertex* const condVtxp = scopedCreateVertex();
-                SvaTransEdge* const edgep = guardedLink(
-                    pre.termVertexp, condVtxp, sampled(pre.finalCondp->cloneTreePure(false)), flp);
-                if (isTopLevelStep && !pre.termVertexp->m_isUnbounded && !m_inUnboundedScope) {
+        SvaStateVertex* currentp = प्रविष्टिः_Vtxp;
+        यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव preExprp = sexprp->preExprp()) {
+            VL_RESTORER(m_अन्तर्_Sequence_उपसर्गः);
+            m_अन्तर्_Sequence_उपसर्गः = सत्य;
+            ध्रुव Build_परिणाम pre = build_व्यञ्जकम्(preExprp, currentp, is_शिखरम्_Level_चरणः);
+            यदि (!pre.valid()) प्रत्यागम Build_परिणाम::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
+            यदि (pre.finalCondp) {
+                SvaStateVertex* ध्रुव condVtxp = scopedCreateVertex();
+                SvaTransEdge* ध्रुव edgep = guardedLink(
+                    pre.पदांशः_Vertexp, condVtxp, sampled(pre.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)), flp);
+                यदि (is_शिखरम्_Level_चरणः && !pre.पदांशः_Vertexp->m_isUnbounded && !m_अन्तर्_Unbounded_Scope) {
                     // Do not mark liveness sources: first boolean check is deferred.
-                    edgep->m_rejectOnFail = true;
+                    edgep->m_rejectOnFail = सत्य;
                 }
                 freeUnlinkedCondp(pre.finalCondp);
                 currentp = condVtxp;
-            } else {
-                currentp = pre.termVertexp;
+            } अन्यथा {
+                currentp = pre.पदांशः_Vertexp;
             }
         }
 
         // Handle delay
-        std::vector<SvaStateVertex*> rangeMidSources;
+        std::सदिशम्<SvaStateVertex*> rangeMidSources;
         RangeDelayRejectInfo rangeRejectInfo;
-        const bool addRangeReject = isTopLevelStep && !m_inUnboundedScope;
-        if (delayp->isRangeDelay()) {
-            if (!applyRangeDelay(sexprp, currentp, rangeMidSources,
-                                 addRangeReject ? &rangeRejectInfo : nullptr)) {
-                return BuildResult::failWithError();
+        ध्रुव तार्किक सङ्कलय_Range_Reject = is_शिखरम्_Level_चरणः && !m_अन्तर्_Unbounded_Scope;
+        यदि (delayp->isRangeDelay()) {
+            यदि (!applyRangeDelay(sexprp, currentp, rangeMidSources,
+                                 सङ्कलय_Range_Reject ? &rangeRejectInfo : शून्यसूचकः)) {
+                प्रत्यागम Build_परिणाम::failWithError();
             }
-        } else {
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
-            currentp = addDelayChain(currentp, delayCycles, flp);
+        } अन्यथा {
+            ध्रुव अचिह्नित delay_आवृत्तयः = getConstUInt(delayp->lhsp());
+            currentp = सङ्कलय_Delay_Chain(currentp, delay_आवृत्तयः, flp);
         }
 
         // Multi-cycle RHS: recurse (only plain boolean is returned as finalCondp).
-        if (exprp->isMultiCycleSva()) {
-            const BuildResult result = buildExpr(exprp, currentp, isTopLevelStep);
-            if (result.valid()) addFiniteRangeReject(rangeRejectInfo, result, flp);
-            return result;
+        यदि (exprp->is_Multi_आवृत्तिः_Sva()) {
+            ध्रुव Build_परिणाम परिणाम = build_व्यञ्जकम्(exprp, currentp, is_शिखरम्_Level_चरणः);
+            यदि (परिणाम.valid()) सङ्कलय_Finite_Range_Reject(rangeRejectInfo, परिणाम, flp);
+            प्रत्यागम परिणाम;
         }
-        return {currentp, exprp, std::move(rangeMidSources)};
+        प्रत्यागम {currentp, exprp, std::move(rangeMidSources)};
     }
 
-    BuildResult buildConsRep(AstSConsRep* repp, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
+    Build_परिणाम buildConsRep(AstSConsRep* repp, SvaStateVertex* प्रविष्टिः_Vtxp,
+                             तार्किक is_शिखरम्_Level_चरणः = असत्य) {
+        File_पङ्क्तिः* ध्रुव flp = repp->fileline();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = repp->exprp();
         // Multi-cycle expr in ConsRep not yet supported; bail to avoid invalid AST.
-        if (exprp->isMultiCycleSva()) {
+        यदि (exprp->is_Multi_आवृत्तिः_Sva()) {
             repp->v3warn(E_UNSUPPORTED, "Unsupported: multi-cycle sequence expression inside"
                                         " consecutive repetition (IEEE 1800-2023 16.9.2)");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        const unsigned minN = getConstUInt(repp->countp());
+        ध्रुव अचिह्नित minN = getConstUInt(repp->countp());
 
         // Sum sites across prefix + unbounded/range tail so one hoist covers
         // every check edge of this repetition.
-        unsigned totalSites = minN;
-        if (repp->unbounded()) {
-            totalSites += 1;
-        } else if (repp->maxCountp()) {
-            totalSites += getConstUInt(repp->maxCountp()) - minN;
+        अचिह्नित योग_Sites = minN;
+        यदि (repp->unbounded()) {
+            योग_Sites += 1;
+        } अन्यथा यदि (repp->maxCountp()) {
+            योग_Sites += getConstUInt(repp->maxCountp()) - minN;
         }
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, totalSites);
+        AstVar* ध्रुव hoistVarp = tryHoistSampled(exprp, flp, योग_Sites);
 
         // Cover-sequence (IEEE 1800-2023 16.14.3): collect each end-of-match
         // position so they all fire the action, not just the merged terminal.
-        std::vector<SvaStateVertex*> consMidSources;
+        std::सदिशम्<SvaStateVertex*> consMidSources;
 
-        SvaStateVertex* currentp = entryVtxp;
-        for (unsigned i = 0; i < minN; ++i) {
+        SvaStateVertex* currentp = प्रविष्टिः_Vtxp;
+        प्रति (अचिह्नित i = 0; i < minN; ++i) {
             // Keep the first repetition explicit, collapse all remaining checks into the ring.
-            if (i == 1) {
-                currentp = addDelayChain(currentp, minN - 1, flp);
+            यदि (i == 1) {
+                currentp = सङ्कलय_Delay_Chain(currentp, minN - 1, flp);
                 currentp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
-                currentp->m_replayAbortReject = true;
-                if (isTopLevelStep) {
-                    currentp->m_throughoutConds.push_back(
+                    = नूतन AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                currentp->m_replayAbortReject = सत्य;
+                यदि (is_शिखरम्_Level_चरणः) {
+                    currentp->m_throughoutConds.प्रक्षिप_पृष्ठभागः(
                         sampledRefOrClone(hoistVarp, exprp, flp));
                 }
                 i = minN - 1;
             }
             // Every repetition in the minimum prefix is required.
-            SvaStateVertex* const condVtxp = scopedCreateVertex();
-            SvaTransEdge* const linkp
+            SvaStateVertex* ध्रुव condVtxp = scopedCreateVertex();
+            SvaTransEdge* ध्रुव linkp
                 = guardedLink(currentp, condVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             // Only an outermost required step rejects the property. Its first check is explicit,
             // later required checks reject through the ring's throughout guard.
-            if (isTopLevelStep && i == 0) linkp->m_rejectOnFail = true;
+            यदि (is_शिखरम्_Level_चरणः && i == 0) linkp->m_rejectOnFail = सत्य;
             currentp = condVtxp;
         }
         // After minN: currentp is the first valid end-of-match position for [*m:n].
-        if (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
-            consMidSources.push_back(currentp);
+        यदि (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
+            consMidSources.प्रक्षिप_पृष्ठभागः(currentp);
         }
 
-        if (repp->unbounded()) {
-            if (minN == 0) {
-                SvaStateVertex* const waitVtxp = scopedCreateVertex();
+        यदि (repp->unbounded()) {
+            यदि (minN == 0) {
+                SvaStateVertex* ध्रुव waitVtxp = scopedCreateVertex();
                 guardedEdge(currentp, waitVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
+                SvaStateVertex* ध्रुव checkVtxp = scopedCreateVertex();
                 guardedLink(waitVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedEdge(checkVtxp, waitVtxp, flp);
                 guardedLink(currentp, checkVtxp, flp);
                 currentp = checkVtxp;
-            } else {
-                SvaStateVertex* const loopBackVtxp = scopedCreateVertex();
-                guardedEdge(currentp, loopBackVtxp, flp);
-                SvaStateVertex* const reCheckVtxp = scopedCreateVertex();
-                guardedLink(loopBackVtxp, reCheckVtxp, sampledRefOrClone(hoistVarp, exprp, flp),
+            } अन्यथा {
+                SvaStateVertex* ध्रुव loop_पृष्ठभागः_Vtxp = scopedCreateVertex();
+                guardedEdge(currentp, loop_पृष्ठभागः_Vtxp, flp);
+                SvaStateVertex* ध्रुव reCheckVtxp = scopedCreateVertex();
+                guardedLink(loop_पृष्ठभागः_Vtxp, reCheckVtxp, sampledRefOrClone(hoistVarp, exprp, flp),
                             flp);
-                guardedEdge(reCheckVtxp, loopBackVtxp, flp);
+                guardedEdge(reCheckVtxp, loop_पृष्ठभागः_Vtxp, flp);
                 guardedLink(reCheckVtxp, currentp, flp);
             }
-            currentp->m_isUnbounded = true;
-            m_inUnboundedScope = true;
-        } else if (repp->maxCountp()) {
-            const unsigned maxN = getConstUInt(repp->maxCountp());
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+            currentp->m_isUnbounded = सत्य;
+            m_अन्तर्_Unbounded_Scope = सत्य;
+        } अन्यथा यदि (repp->maxCountp()) {
+            ध्रुव अचिह्नित maxN = getConstUInt(repp->maxCountp());
+            SvaStateVertex* ध्रुव mergeVtxp = scopedCreateVertex();
             guardedLink(currentp, mergeVtxp, flp);
-            unsigned tailMinN = minN;
-            SvaStateVertex* tailStartp = currentp;
-            if (minN == 0) {
+            अचिह्नित पुच्छ_Min_N = minN;
+            SvaStateVertex* पुच्छ_Startp = currentp;
+            यदि (minN == 0) {
                 // Build the first optional iteration explicitly. Feeding the empty endpoint
                 // directly into a range ring would incorrectly keep that match alive.
-                SvaStateVertex* const nextVtxp = scopedCreateVertex();
-                guardedEdge(currentp, nextVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
-                guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
+                SvaStateVertex* ध्रुव अग्र_Vtxp = scopedCreateVertex();
+                guardedEdge(currentp, अग्र_Vtxp, flp);
+                SvaStateVertex* ध्रुव checkVtxp = scopedCreateVertex();
+                guardedLink(अग्र_Vtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
-                tailStartp = checkVtxp;
-                tailMinN = 1;
+                यदि (m_isCoverSeq) consMidSources.प्रक्षिप_पृष्ठभागः(checkVtxp);
+                पुच्छ_Startp = checkVtxp;
+                पुच्छ_Min_N = 1;
             }
-            if (maxN > tailMinN) {
+            यदि (maxN > पुच्छ_Min_N) {
                 // Add tail-ring only if the tail is non-empty.
-                SvaStateVertex* const nextVtxp
-                    = addDelayChain(tailStartp, maxN - tailMinN + 1, flp, false);
-                nextVtxp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
-                nextVtxp->m_replayAbortReject = true;
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
-                guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
+                SvaStateVertex* ध्रुव अग्र_Vtxp
+                    = सङ्कलय_Delay_Chain(पुच्छ_Startp, maxN - पुच्छ_Min_N + 1, flp, असत्य);
+                अग्र_Vtxp->m_delayRingClearCondp
+                    = नूतन AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                अग्र_Vtxp->m_replayAbortReject = सत्य;
+                SvaStateVertex* ध्रुव checkVtxp = scopedCreateVertex();
+                guardedLink(अग्र_Vtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
+                यदि (m_isCoverSeq) consMidSources.प्रक्षिप_पृष्ठभागः(checkVtxp);
             }
             currentp = mergeVtxp;
         }
         // finalCond = nullptr (already checked via Links)
-        BuildResult res;
-        res.termVertexp = currentp;
-        res.finalCondp = nullptr;
+        Build_परिणाम res;
+        res.पदांशः_Vertexp = currentp;
+        res.finalCondp = शून्यसूचकः;
         res.midSources = std::move(consMidSources);
         // mergeVtxp is the OR of all the end-positions we already pushed to
         // midSources, so the main termVtxp -> matchVertex Link would duplicate.
-        res.termIsMidMerge = m_isCoverSeq && !res.midSources.empty();
-        return res;
+        res.पदांशः_Is_Mid_Merge = m_isCoverSeq && !res.midSources.रिक्तानि();
+        प्रत्यागम res;
     }
 
     // always[lo:hi] / s_always[lo:hi] (IEEE 1800-2023 16.12.11).
-    BuildResult buildPropAlways(AstPropAlways* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const propp = nodep->propp();
-        const unsigned lo = getConstUInt(nodep->loBoundp());
-        if (VN_IS(nodep->hiBoundp(), Unbounded)) {
+    Build_परिणाम buildPropAlways(AstPropAlways* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                                तार्किक is_शिखरम्_Level_चरणः = असत्य) {
+        File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव propp = nodep->propp();
+        ध्रुव अचिह्नित lo = getConstUInt(nodep->loBoundp());
+        यदि (VN_IS(nodep->hiBoundp(), Unbounded)) {
             // Weak always [lo:$]: unbounded upper bound (IEEE 1800-2023 16.12.11).
             // p must hold at every clock tick at least lo cycles after the attempt
             // start; those ticks are not required to exist, so there is no
@@ -867,17 +867,17 @@ class SvaNfaBuilder final {
             // every cycle; each observed cycle is a safety obligation, so a false p
             // rejects immediately.
             UASSERT_OBJ(!nodep->isStrong(), nodep, "Unbounded always must be weak (V3Width)");
-            SvaStateVertex* const livep = addDelayChain(entryVtxp, lo, flp);
-            livep->m_isUnbounded = true;
+            SvaStateVertex* ध्रुव livep = सङ्कलय_Delay_Chain(प्रविष्टिः_Vtxp, lo, flp);
+            livep->m_isUnbounded = सत्य;
             guardedEdge(livep, livep, flp);  // stay active every subsequent cycle
-            SvaStateVertex* const sinkp = m_graph.createStateVertex();
-            sinkp->m_isRejectSink = true;
-            SvaTransEdge* const rejEdgep
-                = guardedLink(livep, sinkp, sampled(propp->cloneTreePure(false)), flp);
-            if (isTopLevelStep) rejEdgep->m_rejectOnFail = true;
-            return {livep, nullptr, {}};
+            SvaStateVertex* ध्रुव sinkp = m_graph.createStateVertex();
+            sinkp->m_isRejectSink = सत्य;
+            SvaTransEdge* ध्रुव rejEdgep
+                = guardedLink(livep, sinkp, sampled(propp->clone_वृक्षः_विशुद्धम्(असत्य)), flp);
+            यदि (is_शिखरम्_Level_चरणः) rejEdgep->m_rejectOnFail = सत्य;
+            प्रत्यागम {livep, शून्यसूचकः, {}};
         }
-        const unsigned hi = getConstUInt(nodep->hiBoundp());
+        ध्रुव अचिह्नित hi = getConstUInt(nodep->hiBoundp());
         // Strong s_always[m:n]: mark every in-window registered vertex so an
         // attempt still mid-window at end-of-simulation is reported as a liveness
         // failure (IEEE strong: the n+1 ticks must exist). An attempt that has
@@ -888,231 +888,231 @@ class SvaNfaBuilder final {
         m_markStrongPending = nodep->isStrong();
         // Check the first in-window tick, then reuse a guarded fixed-delay ring
         // for the remaining ticks instead of creating one state per cycle.
-        SvaStateVertex* currentp = addDelayChain(entryVtxp, lo, flp);
-        SvaStateVertex* const checkp = scopedCreateVertex();
-        SvaTransEdge* const linkp
-            = guardedLink(currentp, checkp, sampled(propp->cloneTreePure(false)), flp);
-        if (isTopLevelStep) linkp->m_rejectOnFail = true;
+        SvaStateVertex* currentp = सङ्कलय_Delay_Chain(प्रविष्टिः_Vtxp, lo, flp);
+        SvaStateVertex* ध्रुव checkp = scopedCreateVertex();
+        SvaTransEdge* ध्रुव linkp
+            = guardedLink(currentp, checkp, sampled(propp->clone_वृक्षः_विशुद्धम्(असत्य)), flp);
+        यदि (is_शिखरम्_Level_चरणः) linkp->m_rejectOnFail = सत्य;
         currentp = checkp;
-        m_temporalGuardStack.push_back(propp);
-        currentp = addDelayChain(currentp, hi - lo, flp);
-        if (nodep->isStrong() && currentp->m_delayRingSize) currentp->m_strongAlwaysRing = true;
-        m_temporalGuardStack.pop_back();
-        return {currentp, propp, {}};
+        m_temporal_Guard_राशिः.प्रक्षिप_पृष्ठभागः(propp);
+        currentp = सङ्कलय_Delay_Chain(currentp, hi - lo, flp);
+        यदि (nodep->isStrong() && currentp->m_delay_Ring_आकार) currentp->m_strongAlwaysRing = सत्य;
+        m_temporal_Guard_राशिः.निष्कासय_पृष्ठभागः();
+        प्रत्यागम {currentp, propp, {}};
     }
 
-    BuildResult buildGotoRep(AstSGotoRep* repp, SvaStateVertex* entryVtxp) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
-        const unsigned minN = getConstUInt(repp->countp());
-        if (minN == 0) return BuildResult::fail();
-        const bool hasMax = repp->maxCountp() != nullptr;
-        const unsigned maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
-        if (m_isCoverSeq) {
+    Build_परिणाम buildGotoRep(AstSGotoRep* repp, SvaStateVertex* प्रविष्टिः_Vtxp) {
+        File_पङ्क्तिः* ध्रुव flp = repp->fileline();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = repp->exprp();
+        ध्रुव अचिह्नित minN = getConstUInt(repp->countp());
+        यदि (minN == 0) प्रत्यागम Build_परिणाम::fail();
+        ध्रुव तार्किक hasMax = repp->maxCountp() != शून्यसूचकः;
+        ध्रुव अचिह्नित maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
+        यदि (m_isCoverSeq) {
             // Several attempts may coalesce in the one-bit wait vertex before reaching the ring,
             // so a cover sequence action block could run too few times.
             warnEndpointUnsupported(flp, "a goto repetition");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
 
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, 2);
+        AstVar* ध्रुव hoistVarp = tryHoistSampled(exprp, flp, 2);
 
         // The first guardedEdge is the ##1 before waiting for a match. In the wait state, false
         // takes the clocked self-loop, while true takes the zero-delay guardedLink on that tick.
-        SvaStateVertex* const waitVtxp = scopedCreateVertex();
-        guardedEdge(entryVtxp, waitVtxp, flp);
+        SvaStateVertex* ध्रुव waitVtxp = scopedCreateVertex();
+        guardedEdge(प्रविष्टिः_Vtxp, waitVtxp, flp);
         guardedEdge(waitVtxp, waitVtxp,
-                    new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
+                    नूतन AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
         SvaStateVertex* currentp = scopedCreateVertex();
         guardedLink(waitVtxp, currentp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
 
-        if (minN > 1) {
-            SvaStateVertex* const ringVtxp = addDelayChain(
-                currentp, minN - 1, flp, true, nullptr, sampledRefOrClone(hoistVarp, exprp, flp));
-            ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+        यदि (minN > 1) {
+            SvaStateVertex* ध्रुव ringVtxp = सङ्कलय_Delay_Chain(
+                currentp, minN - 1, flp, सत्य, शून्यसूचकः, sampledRefOrClone(hoistVarp, exprp, flp));
+            ringVtxp->m_replayAbortReject = सत्य;
+            SvaStateVertex* ध्रुव checkVtxp = scopedCreateVertex();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             currentp = checkVtxp;
         }
-        if (!hasMax) {
-            currentp->m_isUnbounded = true;  // [->N] waits unboundedly
-            m_inUnboundedScope = true;
-            return {currentp, nullptr, {}};
+        यदि (!hasMax) {
+            currentp->m_isUnbounded = सत्य;  // [->N] waits unboundedly
+            m_अन्तर्_Unbounded_Scope = सत्य;
+            प्रत्यागम {currentp, शून्यसूचकः, {}};
         }
 
         // [->M:N]: the range ring holds matches from M through N and advances
         // only on expr, preserving arbitrarily long gaps between occurrences.
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+        SvaStateVertex* ध्रुव mergeVtxp = scopedCreateVertex();
         guardedLink(currentp, mergeVtxp, flp);  // accept at match_M
-        if (maxN > minN) {
-            SvaStateVertex* const ringVtxp
-                = addDelayChain(currentp, maxN - minN + 1, flp, false, nullptr,
+        यदि (maxN > minN) {
+            SvaStateVertex* ध्रुव ringVtxp
+                = सङ्कलय_Delay_Chain(currentp, maxN - minN + 1, flp, असत्य, शून्यसूचकः,
                                 sampledRefOrClone(hoistVarp, exprp, flp));
-            ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+            ringVtxp->m_replayAbortReject = सत्य;
+            SvaStateVertex* ध्रुव checkVtxp = scopedCreateVertex();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             guardedLink(checkVtxp, mergeVtxp, flp);
         }
-        mergeVtxp->m_isUnbounded = true;  // [->M:N] still has unbounded waits between matches
-        m_inUnboundedScope = true;
-        return {mergeVtxp, nullptr, {}};
+        mergeVtxp->m_isUnbounded = सत्य;  // [->M:N] still has unbounded waits between matches
+        m_अन्तर्_Unbounded_Scope = सत्य;
+        प्रत्यागम {mergeVtxp, शून्यसूचकः, {}};
     }
 
     // True if the sequence has a zero-minimum consecutive repetition, which may match empty
-    static bool hasZeroMinRep(const AstNodeExpr* seqp) {
-        return seqp->exists(
-            [](const AstSConsRep* repp) { return getConstUInt(repp->countp()) == 0; });
+    स्थिर तार्किक hasZeroMinRep(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* seqp) {
+        प्रत्यागम seqp->exists(
+            [](ध्रुव AstSConsRep* repp) { प्रत्यागम getConstUInt(repp->countp()) == 0; });
     }
 
     // True if a leaf's condition has no implication or multi-cycle sequence in it
     // (a leaf can be e.g. 'not (x |-> y)')
-    static bool isPlainBoolean(const AstNodeExpr* condp) {
-        return !condp->exists(
-            [](const AstNodeExpr* np) { return np->isMultiCycleSva() || VN_IS(np, Implication); });
+    स्थिर तार्किक isPlainBoolean(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* condp) {
+        प्रत्यागम !condp->exists(
+            [](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* np) { प्रत्यागम np->is_Multi_आवृत्तिः_Sva() || VN_IS(np, Implication); });
     }
 
     // Build merge vertex for SOr / LogOr: both branches feed into one vertex.
-    BuildResult buildOrMerge(AstNodeExpr* lhsp, AstNodeExpr* rhsp, SvaStateVertex* entryVtxp,
-                             FileLine* flp, bool wantBoolLeaf) {
-        const BuildResult lhs = buildExpr(lhsp, entryVtxp);
-        const BuildResult rhs = buildExpr(rhsp, entryVtxp);
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+    Build_परिणाम buildOrMerge(Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp, SvaStateVertex* प्रविष्टिः_Vtxp,
+                             File_पङ्क्तिः* flp, तार्किक want_Bool_पर्णम्) {
+        ध्रुव Build_परिणाम lhs = build_व्यञ्जकम्(lhsp, प्रविष्टिः_Vtxp);
+        ध्रुव Build_परिणाम rhs = build_व्यञ्जकम्(rhsp, प्रविष्टिः_Vtxp);
+        यदि (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            प्रत्यागम Build_परिणाम::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
         // IEEE 1800-2023 16.14.3: a cover sequence counts every end-of-match. A
         // sequence operand of 'or' can end more than once, but only its final
         // end reaches the merge vertex below, so reject sequence operands rather
         // than under-count. Plain boolean disjunction has one end per cycle and
         // is handled by the OR-fold.
-        const bool booleanOnly = lhs.termVertexp == entryVtxp && lhs.finalCondp
-                                 && rhs.termVertexp == entryVtxp && rhs.finalCondp;
-        if (m_isCoverSeq && !booleanOnly) {
+        ध्रुव तार्किक booleanOnly = lhs.पदांशः_Vertexp == प्रविष्टिः_Vtxp && lhs.finalCondp
+                                 && rhs.पदांशः_Vertexp == प्रविष्टिः_Vtxp && rhs.finalCondp;
+        यदि (m_isCoverSeq && !booleanOnly) {
             warnEndpointUnsupported(flp, "a sequence operand of 'or'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        if (booleanOnly && wantBoolLeaf) {
-            if (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
+        यदि (booleanOnly && want_Bool_पर्णम्) {
+            यदि (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
                 // As a |-> / |=> or top-level body, a disjunction of two plain booleans must
                 // be able to reject: return it as a boolean finalCondp. The merge vertex
                 // below drops the attempt silently when both operands are false.
-                AstNodeExpr* const orCondp
-                    = new AstLogOr{flp, lhs.finalCondp->cloneTreePure(false),
-                                   rhs.finalCondp->cloneTreePure(false)};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव orCondp
+                    = नूतन AstLogOr{flp, lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य),
+                                   rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)};
                 freeUnlinkedCondp(lhs.finalCondp);
                 freeUnlinkedCondp(rhs.finalCondp);
-                return {entryVtxp, orCondp, {}};
+                प्रत्यागम {प्रविष्टिः_Vtxp, orCondp, {}};
             }
         }
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-        if (booleanOnly) {
+        SvaStateVertex* ध्रुव mergeVtxp = scopedCreateVertex();
+        यदि (booleanOnly) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsp,
                         "Single-cycle SOr operands must have finalCondp");
-            guardedLink(entryVtxp, mergeVtxp,
-                        new AstLogOr{flp, sampled(lhs.finalCondp->cloneTreePure(false)),
-                                     sampled(rhs.finalCondp->cloneTreePure(false))},
+            guardedLink(प्रविष्टिः_Vtxp, mergeVtxp,
+                        नूतन AstLogOr{flp, sampled(lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)),
+                                     sampled(rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य))},
                         flp);
-        } else {
-            if (lhs.finalCondp) {
-                guardedLink(lhs.termVertexp, mergeVtxp,
-                            sampled(lhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
-                guardedLink(lhs.termVertexp, mergeVtxp, flp);
+        } अन्यथा {
+            यदि (lhs.finalCondp) {
+                guardedLink(lhs.पदांशः_Vertexp, mergeVtxp,
+                            sampled(lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)), flp);
+            } अन्यथा {
+                guardedLink(lhs.पदांशः_Vertexp, mergeVtxp, flp);
             }
-            if (rhs.finalCondp) {
-                guardedLink(rhs.termVertexp, mergeVtxp,
-                            sampled(rhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
-                guardedLink(rhs.termVertexp, mergeVtxp, flp);
+            यदि (rhs.finalCondp) {
+                guardedLink(rhs.पदांशः_Vertexp, mergeVtxp,
+                            sampled(rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)), flp);
+            } अन्यथा {
+                guardedLink(rhs.पदांशः_Vertexp, mergeVtxp, flp);
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {mergeVtxp, nullptr, {}};
+        प्रत्यागम {mergeVtxp, शून्यसूचकः, {}};
     }
 
     // Build done-latch combiner for SAnd/SIntersect (IEEE 1800-2023 16.9.5).
-    BuildResult buildAndCombiner(AstNodeExpr* lhsExprp, AstNodeExpr* rhsExprp,
-                                 SvaStateVertex* entryVtxp, FileLine* flp) {
+    Build_परिणाम buildAndCombiner(Ast_ग्रन्थिः_व्यञ्जकम्* lhsExprp, Ast_ग्रन्थिः_व्यञ्जकम्* rhsExprp,
+                                 SvaStateVertex* प्रविष्टिः_Vtxp, File_पङ्क्तिः* flp) {
         // Snapshot-restore scope so LHS liveness does not leak into RHS.
-        const bool savedScope = m_inUnboundedScope;
-        const BuildResult lhs = buildExpr(lhsExprp, entryVtxp);
-        const bool lhsScope = m_inUnboundedScope;
-        m_inUnboundedScope = savedScope;
-        const BuildResult rhs = buildExpr(rhsExprp, entryVtxp);
-        const bool rhsScope = m_inUnboundedScope;
-        m_inUnboundedScope = savedScope || lhsScope || rhsScope;
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+        ध्रुव तार्किक savedScope = m_अन्तर्_Unbounded_Scope;
+        ध्रुव Build_परिणाम lhs = build_व्यञ्जकम्(lhsExprp, प्रविष्टिः_Vtxp);
+        ध्रुव तार्किक lhsScope = m_अन्तर्_Unbounded_Scope;
+        m_अन्तर्_Unbounded_Scope = savedScope;
+        ध्रुव Build_परिणाम rhs = build_व्यञ्जकम्(rhsExprp, प्रविष्टिः_Vtxp);
+        ध्रुव तार्किक rhsScope = m_अन्तर्_Unbounded_Scope;
+        m_अन्तर्_Unbounded_Scope = savedScope || lhsScope || rhsScope;
+        यदि (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            प्रत्यागम Build_परिणाम::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
 
         // Single-cycle operands: use boolean AND (done-latch would fire across cycles).
         // If both operands stayed at entry, they must be boolean leaves which
         // buildExpr returns with finalCondp=nodep (non-null).
-        if (lhs.termVertexp == entryVtxp && rhs.termVertexp == entryVtxp) {
+        यदि (lhs.पदांशः_Vertexp == प्रविष्टिः_Vtxp && rhs.पदांशः_Vertexp == प्रविष्टिः_Vtxp) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsExprp,
                         "Single-cycle SAnd operands must have finalCondp");
-            AstNodeExpr* const condp = new AstLogAnd{flp, lhs.finalCondp->cloneTreePure(false),
-                                                     rhs.finalCondp->cloneTreePure(false)};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp = नूतन AstLogAnd{flp, lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य),
+                                                     rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)};
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return {entryVtxp, condp, {}};
+            प्रत्यागम {प्रविष्टिः_Vtxp, condp, {}};
         }
         // Range-delay mid-window sources in either sub-branch would need
         // to be folded into the latch's match-now signal, which the
         // current combiner does not support.
-        if (!lhs.midSources.empty() || !rhs.midSources.empty()) {
+        यदि (!lhs.midSources.रिक्तानि() || !rhs.midSources.रिक्तानि()) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: ranged cycle delay in an operand of property 'and'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        SvaStateVertex* const combVtxp = scopedCreateVertex();
-        combVtxp->m_isAndCombiner = true;
-        combVtxp->m_andLhsTermp = lhs.termVertexp;
-        combVtxp->m_andRhsTermp = rhs.termVertexp;
-        if (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->cloneTreePure(false);
-        if (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->cloneTreePure(false);
-        if (lhs.termVertexp->m_isUnbounded || rhs.termVertexp->m_isUnbounded) {
-            combVtxp->m_isUnbounded = true;
+        SvaStateVertex* ध्रुव combVtxp = scopedCreateVertex();
+        combVtxp->m_isAndCombiner = सत्य;
+        combVtxp->m_andLhsTermp = lhs.पदांशः_Vertexp;
+        combVtxp->m_andRhsTermp = rhs.पदांशः_Vertexp;
+        यदि (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य);
+        यदि (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य);
+        यदि (lhs.पदांशः_Vertexp->m_isUnbounded || rhs.पदांशः_Vertexp->m_isUnbounded) {
+            combVtxp->m_isUnbounded = सत्य;
         }
         // Wire terminal-boolean rejects to a dedicated sink so each side can fail
         // the AND independently. Skip for liveness or single-cycle operands
         // (single-cycle termVertexp == entryVtxp would fire every cycle).
-        if (!combVtxp->m_isUnbounded) {
-            bool needSink = false;
-            const bool lhsMultiCycle = (lhs.termVertexp != entryVtxp);
-            const bool rhsMultiCycle = (rhs.termVertexp != entryVtxp);
-            if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
-                needSink = true;
+        यदि (!combVtxp->m_isUnbounded) {
+            तार्किक needSink = असत्य;
+            ध्रुव तार्किक lhs_Multi_आवृत्तिः = (lhs.पदांशः_Vertexp != प्रविष्टिः_Vtxp);
+            ध्रुव तार्किक rhs_Multi_आवृत्तिः = (rhs.पदांशः_Vertexp != प्रविष्टिः_Vtxp);
+            यदि (lhs.finalCondp && lhs_Multi_आवृत्तिः && !lhs.पदांशः_Vertexp->m_isUnbounded) {
+                needSink = सत्य;
             }
-            if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
-                needSink = true;
+            यदि (rhs.finalCondp && rhs_Multi_आवृत्तिः && !rhs.पदांशः_Vertexp->m_isUnbounded) {
+                needSink = सत्य;
             }
-            if (needSink) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-                sinkVtxp->m_isRejectSink = true;
-                if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        lhs.termVertexp, sinkVtxp, sampled(lhs.finalCondp->cloneTreePure(false)));
-                    ep->m_rejectOnFail = true;
+            यदि (needSink) {
+                SvaStateVertex* ध्रुव sinkVtxp = m_graph.createStateVertex();
+                sinkVtxp->m_isRejectSink = सत्य;
+                यदि (lhs.finalCondp && lhs_Multi_आवृत्तिः && !lhs.पदांशः_Vertexp->m_isUnbounded) {
+                    SvaTransEdge* ध्रुव ep = m_graph.सङ्कलय_Link(
+                        lhs.पदांशः_Vertexp, sinkVtxp, sampled(lhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)));
+                    ep->m_rejectOnFail = सत्य;
                 }
-                if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        rhs.termVertexp, sinkVtxp, sampled(rhs.finalCondp->cloneTreePure(false)));
-                    ep->m_rejectOnFail = true;
+                यदि (rhs.finalCondp && rhs_Multi_आवृत्तिः && !rhs.पदांशः_Vertexp->m_isUnbounded) {
+                    SvaTransEdge* ध्रुव ep = m_graph.सङ्कलय_Link(
+                        rhs.पदांशः_Vertexp, sinkVtxp, sampled(rhs.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)));
+                    ep->m_rejectOnFail = सत्य;
                 }
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {combVtxp, nullptr, {}};
+        प्रत्यागम {combVtxp, शून्यसूचकः, {}};
     }
 
     // Lower `seq1 within seq2` (IEEE 1800-2023 16.9.10) as:
@@ -1121,161 +1121,161 @@ class SvaNfaBuilder final {
     // The OR lives inside a single SIntersect so one AndCombiner done-latch
     // serves all offsets; lifting it out would double-count matches where
     // multiple offsets accept on the same seq2 end cycle.
-    BuildResult buildSWithin(AstSWithin* nodep, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        const int innerLen = fixedLength(nodep->lhsp());
-        const int outerLen = fixedLength(nodep->rhsp());
-        if (innerLen < 0 || outerLen < 0) {
+    Build_परिणाम buildSWithin(AstSWithin* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                             तार्किक is_शिखरम्_Level_चरणः = असत्य) {
+        ध्रुव पूर्णाङ्क innerLen = fixed_दीर्घता(nodep->lhsp());
+        ध्रुव पूर्णाङ्क outerLen = fixed_दीर्घता(nodep->rhsp());
+        यदि (innerLen < 0 || outerLen < 0) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: within with ranged cycle-delay operand");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        if (innerLen > outerLen) {
-            return buildNeverMatchIntersect(
-                nodep, entryVtxp, isTopLevelStep,
+        यदि (innerLen > outerLen) {
+            प्रत्यागम build_Never_मेलनम्_Intersect(
+                nodep, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः,
                 "the inner sequence is longer than the outer sequence");
         }
-        FileLine* const flp = nodep->fileline();
-        const int slack = outerLen - innerLen;
-        AstNodeExpr* innerOrp = nullptr;
-        for (int i = 0; i <= slack; ++i) {
-            const int postPad = slack - i;
-            AstNodeExpr* branchp = nodep->lhsp()->cloneTreePure(false);
-            if (i > 0) {
-                AstConst* const prePadp = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(i)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, prePadp, delayp, branchp};
-                wrapped->dtypeSetBit();
+        File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
+        ध्रुव पूर्णाङ्क slack = outerLen - innerLen;
+        Ast_ग्रन्थिः_व्यञ्जकम्* innerOrp = शून्यसूचकः;
+        प्रति (पूर्णाङ्क i = 0; i <= slack; ++i) {
+            ध्रुव पूर्णाङ्क postPad = slack - i;
+            Ast_ग्रन्थिः_व्यञ्जकम्* branchp = nodep->lhsp()->clone_वृक्षः_विशुद्धम्(असत्य);
+            यदि (i > 0) {
+                AstConst* ध्रुव prePadp = नूतन AstConst{flp, AstConst::BitTrue{}};
+                AstDelay* ध्रुव delayp
+                    = नूतन AstDelay{flp, नूतन AstConst{flp, static_cast<uint32_t>(i)}, सत्य};
+                AstSExpr* ध्रुव wrapped = नूतन AstSExpr{flp, prePadp, delayp, branchp};
+                wrapped->dtype_समुच्चयः_Bit();
                 branchp = wrapped;
             }
-            if (postPad > 0) {
-                AstConst* const postTruep = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(postPad)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, branchp, delayp, postTruep};
-                wrapped->dtypeSetBit();
+            यदि (postPad > 0) {
+                AstConst* ध्रुव postTruep = नूतन AstConst{flp, AstConst::BitTrue{}};
+                AstDelay* ध्रुव delayp
+                    = नूतन AstDelay{flp, नूतन AstConst{flp, static_cast<uint32_t>(postPad)}, सत्य};
+                AstSExpr* ध्रुव wrapped = नूतन AstSExpr{flp, branchp, delayp, postTruep};
+                wrapped->dtype_समुच्चयः_Bit();
                 branchp = wrapped;
             }
-            innerOrp = innerOrp ? static_cast<AstNodeExpr*>(new AstSOr{flp, innerOrp, branchp})
+            innerOrp = innerOrp ? static_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(नूतन AstSOr{flp, innerOrp, branchp})
                                 : branchp;
         }
-        AstNodeExpr* const outerClonep = nodep->rhsp()->cloneTreePure(false);
-        AstNodeExpr* const combinedp = new AstSIntersect{flp, innerOrp, outerClonep};
-        BuildResult result = buildExpr(combinedp, entryVtxp, isTopLevelStep);
-        VL_DO_DANGLING(combinedp->deleteTree(), combinedp);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव outerClonep = nodep->rhsp()->clone_वृक्षः_विशुद्धम्(असत्य);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव combinedp = नूतन AstSIntersect{flp, innerOrp, outerClonep};
+        Build_परिणाम परिणाम = build_व्यञ्जकम्(combinedp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
+        VL_DO_DANGLING(combinedp->delete_वृक्षः(), combinedp);
         // When both operands are plain booleans, buildAndCombiner returns a
         // freshly-allocated AstAnd as finalCondp with no parent. Callers up
         // the chain clone-and-discard finalCondp, so leave it parent-less and
         // it leaks; anchor it in the graph now via an edge.
-        if (result.valid() && result.finalCondp && !result.finalCondp->backp()) {
-            SvaStateVertex* const wrapVtxp = scopedCreateVertex();
-            guardedLink(result.termVertexp, wrapVtxp, sampled(result.finalCondp), flp);
-            result = {wrapVtxp, nullptr, result.midSources};
+        यदि (परिणाम.valid() && परिणाम.finalCondp && !परिणाम.finalCondp->backp()) {
+            SvaStateVertex* ध्रुव wrapVtxp = scopedCreateVertex();
+            guardedLink(परिणाम.पदांशः_Vertexp, wrapVtxp, sampled(परिणाम.finalCondp), flp);
+            परिणाम = {wrapVtxp, शून्यसूचकः, परिणाम.midSources};
         }
-        return result;
+        प्रत्यागम परिणाम;
     }
 
     // Collect the boolean leaf checks of a fixed-length sequence keyed by their
     // clock offset from the start. Returns false for anything other than nested
     // AstSExpr with fixed cycle delays over boolean leaves (e.g. throughout).
-    static bool flattenFixedSeq(AstNodeExpr* nodep, int baseOffset,
-                                std::map<int, std::vector<AstNodeExpr*>>& out) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay() || delayp->isUnbounded()) return false;
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
-            if (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delayCycles)
-                return false;
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                if (!flattenFixedSeq(prep, baseOffset, out)) return false;
-                preLen = fixedLength(prep);
-                if (preLen < 0) return false;
+    स्थिर तार्किक flattenFixedSeq(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, पूर्णाङ्क आधारः_विस्थापनम्,
+                                std::map<पूर्णाङ्क, std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*>>& बहिर्गमनम्) {
+        यदि (AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ध्रुव delayp = VN_CAST(sexprp->delayp(), Delay);
+            यदि (!delayp || !delayp->is_आवृत्तिः_Delay() || delayp->isUnbounded()) प्रत्यागम असत्य;
+            ध्रुव अचिह्नित delay_आवृत्तयः = getConstUInt(delayp->lhsp());
+            यदि (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delay_आवृत्तयः)
+                प्रत्यागम असत्य;
+            पूर्णाङ्क preLen = 0;
+            यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव prep = sexprp->preExprp()) {
+                यदि (!flattenFixedSeq(prep, आधारः_विस्थापनम्, बहिर्गमनम्)) प्रत्यागम असत्य;
+                preLen = fixed_दीर्घता(prep);
+                यदि (preLen < 0) प्रत्यागम असत्य;
             }
-            return flattenFixedSeq(sexprp->exprp(), baseOffset + preLen + delayCycles, out);
+            प्रत्यागम flattenFixedSeq(sexprp->exprp(), आधारः_विस्थापनम् + preLen + delay_आवृत्तयः, बहिर्गमनम्);
         }
-        if (nodep->isMultiCycleSva()) return false;
-        out[baseOffset].push_back(nodep);
-        return true;
+        यदि (nodep->is_Multi_आवृत्तिः_Sva()) प्रत्यागम असत्य;
+        बहिर्गमनम्[आधारः_विस्थापनम्].प्रक्षिप_पृष्ठभागः(nodep);
+        प्रत्यागम सत्य;
     }
 
     // Conjoin two equal-length fixed sequences into one: at each clock offset
     // AND the boolean checks of both operands (IEEE 1800-2023 16.9.6 -- both
     // operands match the same window). Returns null if either operand is not a
     // plain fixed sequence of boolean leaves.
-    static AstNodeExpr* conjoinFixedSeqs(AstNodeExpr* lhsp, AstNodeExpr* rhsp, FileLine* flp) {
-        std::map<int, std::vector<AstNodeExpr*>> checks;
-        if (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) return nullptr;
-        if (checks.empty()) return nullptr;
-        AstNodeExpr* resultp = nullptr;
-        int prevOffset = 0;
-        for (const auto& offsetChecks : checks) {
-            const int offset = offsetChecks.first;
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const leafp : offsetChecks.second) {
-                AstNodeExpr* const clonep = leafp->cloneTreePure(false);
-                if (!condp) {
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* conjoinFixedSeqs(Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Ast_ग्रन्थिः_व्यञ्जकम्* rhsp, File_पङ्क्तिः* flp) {
+        std::map<पूर्णाङ्क, std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*>> checks;
+        यदि (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) प्रत्यागम शून्यसूचकः;
+        यदि (checks.रिक्तानि()) प्रत्यागम शून्यसूचकः;
+        Ast_ग्रन्थिः_व्यञ्जकम्* resultp = शून्यसूचकः;
+        पूर्णाङ्क पूर्व_विस्थापनम् = 0;
+        प्रति (ध्रुव स्वचालित& विस्थापनम्_Checks : checks) {
+            ध्रुव पूर्णाङ्क विस्थापनम् = विस्थापनम्_Checks.first;
+            Ast_ग्रन्थिः_व्यञ्जकम्* condp = शून्यसूचकः;
+            प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव leafp : विस्थापनम्_Checks.second) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव clonep = leafp->clone_वृक्षः_विशुद्धम्(असत्य);
+                यदि (!condp) {
                     condp = clonep;
-                } else {
-                    condp = new AstLogAnd{flp, condp, clonep};
-                    condp->dtypeSetBit();
+                } अन्यथा {
+                    condp = नूतन AstLogAnd{flp, condp, clonep};
+                    condp->dtype_समुच्चयः_Bit();
                 }
             }
-            if (!resultp) {
-                if (offset > 0) {
-                    AstDelay* const delayp = new AstDelay{
-                        flp, new AstConst{flp, static_cast<uint32_t>(offset)}, /*isCycle=*/true};
+            यदि (!resultp) {
+                यदि (विस्थापनम् > 0) {
+                    AstDelay* ध्रुव delayp = नूतन AstDelay{
+                        flp, नूतन AstConst{flp, static_cast<uint32_t>(विस्थापनम्)}, /*isCycle=*/सत्य};
                     resultp
-                        = new AstSExpr{flp, new AstConst{flp, AstConst::BitTrue{}}, delayp, condp};
-                    resultp->dtypeSetBit();
-                } else {
+                        = नूतन AstSExpr{flp, नूतन AstConst{flp, AstConst::BitTrue{}}, delayp, condp};
+                    resultp->dtype_समुच्चयः_Bit();
+                } अन्यथा {
                     resultp = condp;
                 }
-            } else {
-                AstDelay* const delayp = new AstDelay{
-                    flp, new AstConst{flp, static_cast<uint32_t>(offset - prevOffset)},
-                    /*isCycle=*/true};
-                resultp = new AstSExpr{flp, resultp, delayp, condp};
-                resultp->dtypeSetBit();
+            } अन्यथा {
+                AstDelay* ध्रुव delayp = नूतन AstDelay{
+                    flp, नूतन AstConst{flp, static_cast<uint32_t>(विस्थापनम् - पूर्व_विस्थापनम्)},
+                    /*isCycle=*/सत्य};
+                resultp = नूतन AstSExpr{flp, resultp, delayp, condp};
+                resultp->dtype_समुच्चयः_Bit();
             }
-            prevOffset = offset;
+            पूर्व_विस्थापनम् = विस्थापनम्;
         }
-        return resultp;
+        प्रत्यागम resultp;
     }
 
     // `seq` is a simple ranged sequence `start ##[m:n] end` (start/end boolean,
     // start may be absent). Used to collapse a both-variable intersect to one
     // ranged delay.
-    struct SimpleRanged final {
-        bool ok = false;
-        AstNodeExpr* startp = nullptr;  // may be null (absent start)
-        AstNodeExpr* endp = nullptr;
+    संरचना SimpleRanged final {
+        तार्किक ok = असत्य;
+        Ast_ग्रन्थिः_व्यञ्जकम्* startp = शून्यसूचकः;  // may be null (absent start)
+        Ast_ग्रन्थिः_व्यञ्जकम्* endp = शून्यसूचकः;
     };
-    static SimpleRanged asSimpleRanged(AstNodeExpr* nodep) {
-        AstSExpr* const sexprp = VN_CAST(nodep, SExpr);
-        if (!sexprp) return {};
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay() || !delayp->isRangeDelay() || delayp->isUnbounded())
-            return {};
-        if (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) return {};
-        AstNodeExpr* const prep = sexprp->preExprp();
-        if (prep && fixedLength(prep) != 0) return {};
-        if (fixedLength(sexprp->exprp()) != 0) return {};
-        return {true, prep, sexprp->exprp()};
+    स्थिर SimpleRanged asSimpleRanged(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr);
+        यदि (!sexprp) प्रत्यागम {};
+        AstDelay* ध्रुव delayp = VN_CAST(sexprp->delayp(), Delay);
+        यदि (!delayp || !delayp->is_आवृत्तिः_Delay() || !delayp->isRangeDelay() || delayp->isUnbounded())
+            प्रत्यागम {};
+        यदि (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) प्रत्यागम {};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव prep = sexprp->preExprp();
+        यदि (prep && fixed_दीर्घता(prep) != 0) प्रत्यागम {};
+        यदि (fixed_दीर्घता(sexprp->exprp()) != 0) प्रत्यागम {};
+        प्रत्यागम {सत्य, prep, sexprp->exprp()};
     }
 
     // Build the NFA for a synthesized intersect lowering tree, then free it.
     // buildExpr returns the terminal condition (finalCondp) by reference into the
     // tree; detach a clone so the tree can be freed here. The graph already holds
     // clones/hoists of every edge condition, so nothing else dangles.
-    BuildResult buildFromLoweringTree(AstNodeExpr* treep, SvaStateVertex* entryVtxp,
-                                      bool isTopLevelStep) {
-        BuildResult result = buildExpr(treep, entryVtxp, isTopLevelStep);
-        if (result.valid() && result.finalCondp) {
-            result.finalCondp = result.finalCondp->cloneTreePure(false);
+    Build_परिणाम build_From_Lowering_वृक्षः(Ast_ग्रन्थिः_व्यञ्जकम्* treep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                                      तार्किक is_शिखरम्_Level_चरणः) {
+        Build_परिणाम परिणाम = build_व्यञ्जकम्(treep, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
+        यदि (परिणाम.valid() && परिणाम.finalCondp) {
+            परिणाम.finalCondp = परिणाम.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य);
         }
-        VL_DO_DANGLING(treep->deleteTree(), treep);
-        return result;
+        VL_DO_DANGLING(treep->delete_वृक्षः(), treep);
+        प्रत्यागम परिणाम;
     }
 
     // Empty common-length intersection -- unequal fixed lengths, or disjoint
@@ -1283,11 +1283,11 @@ class SvaNfaBuilder final {
     // over a window of the same length, so with no common length the intersect
     // simply never matches. This is legal (matching nothing), not an error, so
     // lower to a constant false rather than rejecting legal code.
-    BuildResult buildNeverMatchIntersect(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                                         bool isTopLevelStep, const char* reason) {
+    Build_परिणाम build_Never_मेलनम्_Intersect(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                                         तार्किक is_शिखरम्_Level_चरणः, ध्रुव वर्ण* reason) {
         nodep->v3warn(NEVERMATCH, "Sequence can never match because " << reason << ".");
-        AstNodeExpr* const falsep = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-        return buildFromLoweringTree(falsep, entryVtxp, isTopLevelStep);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव falsep = नूतन AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        प्रत्यागम build_From_Lowering_वृक्षः(falsep, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
     }
 
     // Lower `seq1 intersect seq2` when an operand's match length varies
@@ -1303,70 +1303,70 @@ class SvaNfaBuilder final {
     //    per-length branches cannot reject correctly -- a single missed length
     //    would fail the whole intersect, cf. Lesson 48.)
     //  - otherwise unsupported (clean error, not the legacy fall-through crash).
-    BuildResult buildVarLenIntersect(AstSIntersect* nodep, SvaStateVertex* entryVtxp,
-                                     bool isTopLevelStep) {
-        const std::pair<int, int> lhsRange = lengthRange(nodep->lhsp());
-        const std::pair<int, int> rhsRange = lengthRange(nodep->rhsp());
-        if (lhsRange.first < 0 || rhsRange.first < 0) {
+    Build_परिणाम buildVarLenIntersect(AstSIntersect* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                                     तार्किक is_शिखरम्_Level_चरणः) {
+        ध्रुव std::pair<पूर्णाङ्क, पूर्णाङ्क> lhsRange = दीर्घता_Range(nodep->lhsp());
+        ध्रुव std::pair<पूर्णाङ्क, पूर्णाङ्क> rhsRange = दीर्घता_Range(nodep->rhsp());
+        यदि (lhsRange.first < 0 || rhsRange.first < 0) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect with this variable-length operand");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        const int lo = std::max(lhsRange.first, rhsRange.first);
-        const int hi = std::min(lhsRange.second, rhsRange.second);
-        if (lo > hi) {
+        ध्रुव पूर्णाङ्क lo = std::max(lhsRange.first, rhsRange.first);
+        ध्रुव पूर्णाङ्क hi = std::min(lhsRange.second, rhsRange.second);
+        यदि (lo > hi) {
             // Disjoint length ranges share no common length -> never matches.
-            return buildNeverMatchIntersect(nodep, entryVtxp, isTopLevelStep,
+            प्रत्यागम build_Never_मेलनम्_Intersect(nodep, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः,
                                             "intersect operands have no common length");
         }
-        FileLine* const flp = nodep->fileline();
-        if (lo == hi) {
-            AstNodeExpr* const lp = realizeAtLength(nodep->lhsp(), lo, lhsRange.first);
-            AstNodeExpr* const rp = realizeAtLength(nodep->rhsp(), lo, rhsRange.first);
-            AstNodeExpr* const conjp = conjoinFixedSeqs(lp, rp, flp);
-            VL_DO_DANGLING(lp->deleteTree(), lp);
-            VL_DO_DANGLING(rp->deleteTree(), rp);
-            if (!conjp) {
+        File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
+        यदि (lo == hi) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lp = realize_At_दीर्घता(nodep->lhsp(), lo, lhsRange.first);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rp = realize_At_दीर्घता(nodep->rhsp(), lo, rhsRange.first);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव conjp = conjoinFixedSeqs(lp, rp, flp);
+            VL_DO_DANGLING(lp->delete_वृक्षः(), lp);
+            VL_DO_DANGLING(rp->delete_वृक्षः(), rp);
+            यदि (!conjp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: intersect operand is not a plain boolean sequence");
-                return BuildResult::failWithError();
+                प्रत्यागम Build_परिणाम::failWithError();
             }
-            return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+            प्रत्यागम build_From_Lowering_वृक्षः(conjp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        const SimpleRanged sl = asSimpleRanged(nodep->lhsp());
-        const SimpleRanged sr = asSimpleRanged(nodep->rhsp());
-        if (!sl.ok || !sr.ok) {
+        ध्रुव SimpleRanged sl = asSimpleRanged(nodep->lhsp());
+        ध्रुव SimpleRanged sr = asSimpleRanged(nodep->rhsp());
+        यदि (!sl.ok || !sr.ok) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect of two sequences that each vary in length over a"
                           " range with internal structure");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        const auto andBool = [&](AstNodeExpr* ap, AstNodeExpr* bp) -> AstNodeExpr* {
-            AstNodeExpr* const aClonep
-                = ap ? ap->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstNodeExpr* const bClonep
-                = bp ? bp->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstLogAnd* const andp = new AstLogAnd{flp, aClonep, bClonep};
-            andp->dtypeSetBit();
-            return andp;
+        ध्रुव स्वचालित andBool = [&](Ast_ग्रन्थिः_व्यञ्जकम्* ap, Ast_ग्रन्थिः_व्यञ्जकम्* bp) -> Ast_ग्रन्थिः_व्यञ्जकम्* {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव aClonep
+                = ap ? ap->clone_वृक्षः_विशुद्धम्(असत्य) : नूतन AstConst{flp, AstConst::BitTrue{}};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bClonep
+                = bp ? bp->clone_वृक्षः_विशुद्धम्(असत्य) : नूतन AstConst{flp, AstConst::BitTrue{}};
+            AstLogAnd* ध्रुव andp = नूतन AstLogAnd{flp, aClonep, bClonep};
+            andp->dtype_समुच्चयः_Bit();
+            प्रत्यागम andp;
         };
-        AstDelay* const delayp = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(lo)},
-                                              /*isCycle=*/true};
-        delayp->rhsp(new AstConst{flp, static_cast<uint32_t>(hi)});
-        AstSExpr* const reducedp
-            = new AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
-        reducedp->dtypeSetBit();
-        return buildFromLoweringTree(reducedp, entryVtxp, isTopLevelStep);
+        AstDelay* ध्रुव delayp = नूतन AstDelay{flp, नूतन AstConst{flp, static_cast<uint32_t>(lo)},
+                                              /*isCycle=*/सत्य};
+        delayp->rhsp(नूतन AstConst{flp, static_cast<uint32_t>(hi)});
+        AstSExpr* ध्रुव reducedp
+            = नूतन AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
+        reducedp->dtype_समुच्चयः_Bit();
+        प्रत्यागम build_From_Lowering_वृक्षः(reducedp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
     }
 
-    BuildResult buildThroughout(AstSThroughout* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
+    Build_परिणाम buildThroughout(AstSThroughout* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                                तार्किक is_शिखरम्_Level_चरणः = असत्य) {
         // Mark entryVtxp so "cond false at tick 0" is detected as throughout-drop.
-        entryVtxp->m_throughoutConds.push_back(nodep->lhsp()->cloneTreePure(false));
-        m_temporalGuardStack.push_back(nodep->lhsp());
-        const BuildResult result = buildExpr(nodep->rhsp(), entryVtxp, isTopLevelStep);
-        m_temporalGuardStack.pop_back();
-        return result;
+        प्रविष्टिः_Vtxp->m_throughoutConds.प्रक्षिप_पृष्ठभागः(nodep->lhsp()->clone_वृक्षः_विशुद्धम्(असत्य));
+        m_temporal_Guard_राशिः.प्रक्षिप_पृष्ठभागः(nodep->lhsp());
+        ध्रुव Build_परिणाम परिणाम = build_व्यञ्जकम्(nodep->rhsp(), प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
+        m_temporal_Guard_राशिः.निष्कासय_पृष्ठभागः();
+        प्रत्यागम परिणाम;
     }
 
     // until / until_with per IEEE 1800-2023 16.12.12.
@@ -1388,69 +1388,69 @@ class SvaNfaBuilder final {
     //   REQUIRE = sampled(p)                 accept = sampled(p) && sampled(q)
     // Strong forms use the same checks and mark the registered wait state as
     // an end-of-simulation liveness obligation.
-    BuildResult buildUntil(AstUntil* nodep, SvaStateVertex* entryVtxp, bool isTopLevelStep) {
-        FileLine* const flp = nodep->fileline();
-        if (!isTopLevelStep) {
+    Build_परिणाम buildUntil(AstUntil* nodep, SvaStateVertex* प्रविष्टिः_Vtxp, तार्किक is_शिखरम्_Level_चरणः) {
+        File_पङ्क्तिः* ध्रुव flp = nodep->fileline();
+        यदि (!is_शिखरम्_Level_चरणः) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsp = nodep->lhsp();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsp = nodep->rhsp();
+        ध्रुव स्वचालित hasSeq = [](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ep) {
+            प्रत्यागम ep->exists([](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* np) { प्रत्यागम np->is_Multi_आवृत्तिः_Sva(); });
         };
-        if (hasSeq(lhsp) || hasSeq(rhsp)) {
+        यदि (hasSeq(lhsp) || hasSeq(rhsp)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
 
-        const bool ov = nodep->isOverlapping();
-        AstNodeExpr* const lhsBitp = nodep->lhsp();
-        AstNodeExpr* const rhsBitp = nodep->rhsp();
+        ध्रुव तार्किक ov = nodep->isOverlapping();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव lhsBitp = nodep->lhsp();
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rhsBitp = nodep->rhsp();
         // p hoist count: continue, require (ov: 1 use; nov: 1 use). At least 2 uses.
-        AstVar* const pHoistp = tryHoistSampled(lhsBitp, flp, 2);
+        AstVar* ध्रुव pHoistp = tryHoistSampled(lhsBitp, flp, 2);
         // q hoist count: continue (1) + require nov (1) = 2; ov: continue only (1).
-        AstVar* const qHoistp = ov ? nullptr : tryHoistSampled(rhsBitp, flp, 2);
+        AstVar* ध्रुव qHoistp = ov ? शून्यसूचकः : tryHoistSampled(rhsBitp, flp, 2);
 
-        SvaStateVertex* const waitCp = scopedCreateVertex();
-        SvaStateVertex* const waitRp = scopedCreateVertex();
-        waitCp->m_isUnbounded = true;
+        SvaStateVertex* ध्रुव waitCp = scopedCreateVertex();
+        SvaStateVertex* ध्रुव waitRp = scopedCreateVertex();
+        waitCp->m_isUnbounded = सत्य;
         waitRp->m_strongPending = nodep->isStrong() && !m_isCover;
 
         // Entry and back-loop Links carry no condition; throughout-folding still applies.
-        guardedLink(entryVtxp, waitCp, flp);
+        guardedLink(प्रविष्टिः_Vtxp, waitCp, flp);
         guardedLink(waitRp, waitCp, flp);
 
         // Continue clocked edge: p && !q advances to next-cycle wait.
-        AstNodeExpr* const contCondp
-            = new AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
-                            new AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contCondp
+            = नूतन AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+                            नूतन AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
         guardedEdge(waitCp, waitRp, contCondp, flp);
 
         // Reject sink: fires when require-condition is false.
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-        sinkVtxp->m_isRejectSink = true;
-        AstNodeExpr* requireCondp;
-        if (ov) {
+        SvaStateVertex* ध्रुव sinkVtxp = m_graph.createStateVertex();
+        sinkVtxp->m_isRejectSink = सत्य;
+        Ast_ग्रन्थिः_व्यञ्जकम्* requireCondp;
+        यदि (ov) {
             requireCondp = sampledRefOrClone(pHoistp, lhsBitp, flp);
-        } else {
-            requireCondp = new AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+        } अन्यथा {
+            requireCondp = नूतन AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
                                         sampledRefOrClone(qHoistp, rhsBitp, flp)};
         }
-        SvaTransEdge* const rejEdgep = m_graph.addLink(waitCp, sinkVtxp, requireCondp);
-        rejEdgep->m_rejectOnFail = true;
+        SvaTransEdge* ध्रुव rejEdgep = m_graph.सङ्कलय_Link(waitCp, sinkVtxp, requireCondp);
+        rejEdgep->m_rejectOnFail = सत्य;
 
         // Accept condition rides via finalCondp; assembleResult $sampled-wraps it.
-        AstNodeExpr* acceptCondp;
-        if (ov) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* acceptCondp;
+        यदि (ov) {
             acceptCondp
-                = new AstLogAnd{flp, lhsBitp->cloneTreePure(false), rhsBitp->cloneTreePure(false)};
-        } else {
-            acceptCondp = rhsBitp->cloneTreePure(false);
+                = नूतन AstLogAnd{flp, lhsBitp->clone_वृक्षः_विशुद्धम्(असत्य), rhsBitp->clone_वृक्षः_विशुद्धम्(असत्य)};
+        } अन्यथा {
+            acceptCondp = rhsBitp->clone_वृक्षः_विशुद्धम्(असत्य);
         }
-        return {waitCp, acceptCondp, {}};
+        प्रत्यागम {waitCp, acceptCondp, {}};
     }
 
     // IEEE 1800-2023 16.12.14 property abort operators. Sync and async share
@@ -1460,163 +1460,163 @@ class SvaNfaBuilder final {
     // verdict (sync vs async only changes the user-visible spelling).
 
     // Build `condp && !outer_1 && !outer_2 ...` (unsampled).
-    AstNodeExpr* abortFireExpr(AstNodeExpr* condp, FileLine* flp) {
-        AstNodeExpr* resultp = condp->cloneTreePure(false);
-        for (AstNodeExpr* const op : m_outerAbortStack)
-            resultp = new AstLogAnd{flp, resultp, new AstLogNot{flp, op->cloneTreePure(false)}};
-        return resultp;
+    Ast_ग्रन्थिः_व्यञ्जकम्* abort_Fire_व्यञ्जकम्(Ast_ग्रन्थिः_व्यञ्जकम्* condp, File_पङ्क्तिः* flp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* resultp = condp->clone_वृक्षः_विशुद्धम्(असत्य);
+        प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव op : m_outer_Abort_राशिः)
+            resultp = नूतन AstLogAnd{flp, resultp, नूतन AstLogNot{flp, op->clone_वृक्षः_विशुद्धम्(असत्य)}};
+        प्रत्यागम resultp;
     }
 
     // True when unguarded ring-wide rejection or a same-tick Link chain already accounts the
     // attempt: a required-step Link covers both outcomes; followed-by pairs both edges.
-    static bool chainAccountsSource(const SvaStateVertex* srcp,
-                                    const std::unordered_set<const V3GraphEdge*>& preEdges) {
-        if (srcp->m_delayRingSize && srcp->m_throughoutConds.empty()) return true;
-        for (const V3GraphEdge& edger : srcp->inEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const auto* const fromp = static_cast<const SvaStateVertex*>(tedger.fromVtxp());
-            if (fromp->m_abortRejectp) return true;
+    स्थिर तार्किक chainAccountsSource(ध्रुव SvaStateVertex* srcp,
+                                    ध्रुव std::unordered_समुच्चयः<ध्रुव V3GraphEdge*>& pre_धाराः) {
+        यदि (srcp->m_delay_Ring_आकार && srcp->m_throughoutConds.रिक्तानि()) प्रत्यागम सत्य;
+        प्रति (ध्रुव V3GraphEdge& edger : srcp->अन्तर्_धाराः()) {
+            यदि (pre_धाराः.गणनम्(&edger)) अनुवर्त;
+            ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+            यदि (tedger.m_consumes_आवृत्तिः) अनुवर्त;
+            ध्रुव स्वचालित* ध्रुव fromp = static_cast<ध्रुव SvaStateVertex*>(tedger.fromVtxp());
+            यदि (fromp->m_abortRejectp) प्रत्यागम सत्य;
         }
-        bool plainNonSink = false;
-        bool markedSink = false;
-        for (const V3GraphEdge& edger : srcp->outEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const bool sink = static_cast<const SvaStateVertex*>(tedger.toVtxp())->m_isRejectSink;
-            if (tedger.m_rejectOnFail) {
-                if (!sink) return true;
-                markedSink = true;
-            } else if (!sink) {
-                if (srcp->m_abortRejectp) return true;
-                plainNonSink = true;
+        तार्किक plainNonSink = असत्य;
+        तार्किक markedSink = असत्य;
+        प्रति (ध्रुव V3GraphEdge& edger : srcp->बहिर्गमनम्_धाराः()) {
+            यदि (pre_धाराः.गणनम्(&edger)) अनुवर्त;
+            ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+            यदि (tedger.m_consumes_आवृत्तिः) अनुवर्त;
+            ध्रुव तार्किक sink = static_cast<ध्रुव SvaStateVertex*>(tedger.गन्तव्यम्_Vtxp())->m_isRejectSink;
+            यदि (tedger.m_rejectOnFail) {
+                यदि (!sink) प्रत्यागम सत्य;
+                markedSink = सत्य;
+            } अन्यथा यदि (!sink) {
+                यदि (srcp->m_abortRejectp) प्रत्यागम सत्य;
+                plainNonSink = सत्य;
             }
         }
-        return plainNonSink && markedSink;
+        प्रत्यागम plainNonSink && markedSink;
     }
 
     // Reject edge: fires when the source is live and the abort samples true.
-    void addAbortRejectEdge(SvaStateVertex* srcp, SvaStateVertex* sinkp, AstNodeExpr* condp,
-                            FileLine* flp) {
-        AstNodeExpr* const notFirep = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
-        m_graph.addLink(srcp, sinkp, notFirep)->m_rejectOnFail = true;
-        return;
+    शून्य सङ्कलय_Abort_Reject_Edge(SvaStateVertex* srcp, SvaStateVertex* sinkp, Ast_ग्रन्थिः_व्यञ्जकम्* condp,
+                            File_पङ्क्तिः* flp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notFirep = नूतन AstLogNot{flp, sampled(abort_Fire_व्यञ्जकम्(condp, flp))};
+        m_graph.सङ्कलय_Link(srcp, sinkp, notFirep)->m_rejectOnFail = सत्य;
+        प्रत्यागम;
     }
 
     // On the fire tick: kill body threads; accept kinds also forgive step misses.
-    void gateBodyEdgesOnAbort(const std::unordered_set<const V3GraphEdge*>& preEdges,
-                              AstNodeExpr* condp, VAbortKind kind, FileLine* flp) {
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            for (V3GraphEdge& edger : vtxr.outEdges()) {
-                if (preEdges.count(&edger)) continue;
-                SvaTransEdge* const tedgep = static_cast<SvaTransEdge*>(&edger);
-                if (tedgep->m_rejectOnFail) {
-                    if (!kind.isAccept()) continue;
-                    AstNodeExpr* const firep = sampled(abortFireExpr(condp, flp));
+    शून्य gate_Body_धाराः_On_Abort(ध्रुव std::unordered_समुच्चयः<ध्रुव V3GraphEdge*>& pre_धाराः,
+                              Ast_ग्रन्थिः_व्यञ्जकम्* condp, VAbort_विधा विधा, File_पङ्क्तिः* flp) {
+        प्रति (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            प्रति (V3GraphEdge& edger : vtxr.बहिर्गमनम्_धाराः()) {
+                यदि (pre_धाराः.गणनम्(&edger)) अनुवर्त;
+                SvaTransEdge* ध्रुव tedgep = static_cast<SvaTransEdge*>(&edger);
+                यदि (tedgep->m_rejectOnFail) {
+                    यदि (!विधा.isAccept()) अनुवर्त;
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव firep = sampled(abort_Fire_व्यञ्जकम्(condp, flp));
                     tedgep->m_condp
-                        = tedgep->m_condp ? new AstLogOr{flp, tedgep->m_condp, firep} : firep;
-                } else if (tedgep->m_consumesCycle) {
-                    AstNodeExpr* const notFirep
-                        = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
+                        = tedgep->m_condp ? नूतन AstLogOr{flp, tedgep->m_condp, firep} : firep;
+                } अन्यथा यदि (tedgep->m_consumes_आवृत्तिः) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notFirep
+                        = नूतन AstLogNot{flp, sampled(abort_Fire_व्यञ्जकम्(condp, flp))};
                     tedgep->m_condp = tedgep->m_condp
-                                          ? new AstLogAnd{flp, tedgep->m_condp, notFirep}
+                                          ? नूतन AstLogAnd{flp, tedgep->m_condp, notFirep}
                                           : notFirep;
                 }
             }
         }
     }
 
-    BuildResult buildAbortOn(AstNodeExpr* condp, AstNodeExpr* bodyp, SvaStateVertex* entryVtxp,
-                             VAbortKind kind, FileLine* flp, bool isTopLevelStep) {
+    Build_परिणाम buildAbortOn(Ast_ग्रन्थिः_व्यञ्जकम्* condp, Ast_ग्रन्थिः_व्यञ्जकम्* bodyp, SvaStateVertex* प्रविष्टिः_Vtxp,
+                             VAbort_विधा विधा, File_पङ्क्तिः* flp, तार्किक is_शिखरम्_Level_चरणः) {
         // Snapshot pre-body vertices/edges so post-build diff yields the body's sub-NFA.
-        std::unordered_set<const V3GraphVertex*> preExisting;
-        std::unordered_set<const V3GraphEdge*> preEdges;
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            preExisting.insert(&vtxr);
-            for (V3GraphEdge& edger : vtxr.outEdges()) preEdges.insert(&edger);
+        std::unordered_समुच्चयः<ध्रुव V3GraphVertex*> preExisting;
+        std::unordered_समुच्चयः<ध्रुव V3GraphEdge*> pre_धाराः;
+        प्रति (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            preExisting.निवेशय(&vtxr);
+            प्रति (V3GraphEdge& edger : vtxr.बहिर्गमनम्_धाराः()) pre_धाराः.निवेशय(&edger);
         }
 
-        m_outerAbortStack.push_back(condp);
-        const BuildResult bodyResult = buildExpr(bodyp, entryVtxp, isTopLevelStep);
-        m_outerAbortStack.pop_back();
-        if (!bodyResult.valid()) return bodyResult;
+        m_outer_Abort_राशिः.प्रक्षिप_पृष्ठभागः(condp);
+        ध्रुव Build_परिणाम body_परिणाम = build_व्यञ्जकम्(bodyp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
+        m_outer_Abort_राशिः.निष्कासय_पृष्ठभागः();
+        यदि (!body_परिणाम.valid()) प्रत्यागम body_परिणाम;
 
-        gateBodyEdgesOnAbort(preEdges, condp, kind, flp);
+        gate_Body_धाराः_On_Abort(pre_धाराः, condp, विधा, flp);
 
         // Live-thread sources for the abort edge: entry + new body vertices,
         // minus reject sinks (they carry reject fuel, not live-thread fuel).
-        std::vector<SvaStateVertex*> abortSources;
-        abortSources.push_back(entryVtxp);
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            if (preExisting.count(&vtxr)) continue;
-            auto* const sp = static_cast<SvaStateVertex*>(&vtxr);
-            if (sp->m_delayRingSize || !sp->m_throughoutConds.empty()) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+        std::सदिशम्<SvaStateVertex*> abortSources;
+        abortSources.प्रक्षिप_पृष्ठभागः(प्रविष्टिः_Vtxp);
+        प्रति (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            यदि (preExisting.गणनम्(&vtxr)) अनुवर्त;
+            स्वचालित* ध्रुव sp = static_cast<SvaStateVertex*>(&vtxr);
+            यदि (sp->m_delay_Ring_आकार || !sp->m_throughoutConds.रिक्तानि()) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव firep = abort_Fire_व्यञ्जकम्(condp, flp);
                 sp->m_abortClearp
-                    = sp->m_abortClearp ? new AstLogOr{flp, sp->m_abortClearp, firep} : firep;
+                    = sp->m_abortClearp ? नूतन AstLogOr{flp, sp->m_abortClearp, firep} : firep;
             }
-            if (!kind.isAccept()
-                && ((sp->m_delayRingSize && sp->m_throughoutConds.empty())
+            यदि (!विधा.isAccept()
+                && ((sp->m_delay_Ring_आकार && sp->m_throughoutConds.रिक्तानि())
                     || sp->m_replayAbortReject)) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव firep = abort_Fire_व्यञ्जकम्(condp, flp);
                 sp->m_abortRejectp
-                    = sp->m_abortRejectp ? new AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
+                    = sp->m_abortRejectp ? नूतन AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
             }
-            if (sp->m_isRejectSink) continue;
-            abortSources.push_back(sp);
+            यदि (sp->m_isRejectSink) अनुवर्त;
+            abortSources.प्रक्षिप_पृष्ठभागः(sp);
         }
 
-        auto sampledAbortFire = [&]() -> AstNodeExpr* {
-            AstNodeExpr* const expr = abortFireExpr(condp, flp);
-            return sampled(expr);
+        स्वचालित sampledAbortFire = [&]() -> Ast_ग्रन्थिः_व्यञ्जकम्* {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव व्यञ्जकम् = abort_Fire_व्यञ्जकम्(condp, flp);
+            प्रत्यागम sampled(व्यञ्जकम्);
         };
 
-        if (kind.isAccept()) {
+        यदि (विधा.isAccept()) {
             // Match-only sink fed by $sampled(abort-fire) from every live source;
             // registered as midSource so it never contributes a reject.
-            SvaStateVertex* const acceptSinkp = scopedCreateVertex();
-            for (SvaStateVertex* const srcp : abortSources)
+            SvaStateVertex* ध्रुव acceptSinkp = scopedCreateVertex();
+            प्रति (SvaStateVertex* ध्रुव srcp : abortSources)
                 guardedLink(srcp, acceptSinkp, sampledAbortFire(), flp);
-            std::vector<SvaStateVertex*> midSources = bodyResult.midSources;
-            midSources.push_back(acceptSinkp);
-            AstNodeExpr* finalCondp = bodyResult.finalCondp;
-            if (finalCondp) {
-                if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
-                finalCondp = new AstLogOr{flp, finalCondp, abortFireExpr(condp, flp)};
+            std::सदिशम्<SvaStateVertex*> midSources = body_परिणाम.midSources;
+            midSources.प्रक्षिप_पृष्ठभागः(acceptSinkp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* finalCondp = body_परिणाम.finalCondp;
+            यदि (finalCondp) {
+                यदि (finalCondp->backp()) finalCondp = finalCondp->clone_वृक्षः_विशुद्धम्(असत्य);
+                finalCondp = नूतन AstLogOr{flp, finalCondp, abort_Fire_व्यञ्जकम्(condp, flp)};
             }
-            return {bodyResult.termVertexp, finalCondp, std::move(midSources)};
+            प्रत्यागम {body_परिणाम.पदांशः_Vertexp, finalCondp, std::move(midSources)};
         }
 
         // rejectOnFail treats m_condp as the success condition and fires on
         // !condp, so the edge carries !sampledAbortFire().
-        SvaStateVertex* const rejectSinkp = m_graph.createStateVertex();
-        rejectSinkp->m_isRejectSink = true;
-        for (SvaStateVertex* const srcp : abortSources)
-            if (!chainAccountsSource(srcp, preEdges))
-                addAbortRejectEdge(srcp, rejectSinkp, condp, flp);
-        AstNodeExpr* finalCondp = bodyResult.finalCondp;
-        if (finalCondp) {
-            if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
+        SvaStateVertex* ध्रुव rejectSinkp = m_graph.createStateVertex();
+        rejectSinkp->m_isRejectSink = सत्य;
+        प्रति (SvaStateVertex* ध्रुव srcp : abortSources)
+            यदि (!chainAccountsSource(srcp, pre_धाराः))
+                सङ्कलय_Abort_Reject_Edge(srcp, rejectSinkp, condp, flp);
+        Ast_ग्रन्थिः_व्यञ्जकम्* finalCondp = body_परिणाम.finalCondp;
+        यदि (finalCondp) {
+            यदि (finalCondp->backp()) finalCondp = finalCondp->clone_वृक्षः_विशुद्धम्(असत्य);
             finalCondp
-                = new AstLogAnd{flp, finalCondp, new AstLogNot{flp, abortFireExpr(condp, flp)}};
+                = नूतन AstLogAnd{flp, finalCondp, नूतन AstLogNot{flp, abort_Fire_व्यञ्जकम्(condp, flp)}};
         }
-        return {bodyResult.termVertexp, finalCondp, bodyResult.midSources};
+        प्रत्यागम {body_परिणाम.पदांशः_Vertexp, finalCondp, body_परिणाम.midSources};
     }
 
-public:
+सार्वजनिक:
     // Free a dropped sub-result condition that is not linked into the AST
     // (abort folds synthesize unparented finalCondp trees).
-    static void freeUnlinkedCondp(AstNodeExpr* condp) {
-        if (condp && !condp->backp()) VL_DO_DANGLING(condp->deleteTree(), condp);
+    स्थिर शून्य freeUnlinkedCondp(Ast_ग्रन्थिः_व्यञ्जकम्* condp) {
+        यदि (condp && !condp->backp()) VL_DO_DANGLING(condp->delete_वृक्षः(), condp);
     }
 
-    SvaNfaBuilder(SvaGraph& graph, AstNodeModule* modp, V3UniqueNames& propTempNames,
-                  bool isCoverSeq = false, bool isSeqEvent = false, bool isCover = false)
+    SvaNfaBuilder(SvaGraph& graph, Ast_ग्रन्थिः_Module* modp, V3_Unique_नामानि& prop_अस्थायी_नामानि,
+                  तार्किक isCoverSeq = असत्य, तार्किक isSeqEvent = असत्य, तार्किक isCover = असत्य)
         : m_graph{graph}
         , m_modp{modp}
-        , m_propTempNames{propTempNames}
+        , m_prop_अस्थायी_नामानि{prop_अस्थायी_नामानि}
         , m_isCover{isCover}
         , m_isCoverSeq{isCoverSeq}
         , m_isSeqEvent{isSeqEvent} {}
@@ -1624,83 +1624,83 @@ public:
     // Reset scope between antecedent and consequent: liveness must not leak.
     // m_outerAbortStack survives: an abort wrapping the implication covers the
     // consequent too (IEEE 1800-2023 16.12.14).
-    void resetScope() {
-        m_inUnboundedScope = false;
-        m_temporalGuardStack.clear();
+    शून्य resetScope() {
+        m_अन्तर्_Unbounded_Scope = असत्य;
+        m_temporal_Guard_राशिः.clear();
     }
 
-    BuildResult buildExpr(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                          bool isTopLevelStep = false) {
-        VL_RESTORER(m_wantBoolLeaf);
-        const bool wantBoolLeaf = m_wantBoolLeaf;
-        m_wantBoolLeaf = false;
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            return buildSExpr(sexprp, entryVtxp, isTopLevelStep);
+    Build_परिणाम build_व्यञ्जकम्(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, SvaStateVertex* प्रविष्टिः_Vtxp,
+                          तार्किक is_शिखरम्_Level_चरणः = असत्य) {
+        VL_RESTORER(m_want_Bool_पर्णम्);
+        ध्रुव तार्किक want_Bool_पर्णम् = m_want_Bool_पर्णम्;
+        m_want_Bool_पर्णम् = असत्य;
+        यदि (AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr)) {
+            प्रत्यागम buildSExpr(sexprp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstSConsRep* const repp = VN_CAST(nodep, SConsRep)) {
-            return buildConsRep(repp, entryVtxp, isTopLevelStep);
+        यदि (AstSConsRep* ध्रुव repp = VN_CAST(nodep, SConsRep)) {
+            प्रत्यागम buildConsRep(repp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstPropAlways* const alwaysp = VN_CAST(nodep, PropAlways)) {
-            return buildPropAlways(alwaysp, entryVtxp, isTopLevelStep);
+        यदि (AstPropAlways* ध्रुव alwaysp = VN_CAST(nodep, PropAlways)) {
+            प्रत्यागम buildPropAlways(alwaysp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstSGotoRep* const repp = VN_CAST(nodep, SGotoRep)) {
-            return buildGotoRep(repp, entryVtxp);
+        यदि (AstSGotoRep* ध्रुव repp = VN_CAST(nodep, SGotoRep)) {
+            प्रत्यागम buildGotoRep(repp, प्रविष्टिः_Vtxp);
         }
-        if (AstSThroughout* const throughoutp = VN_CAST(nodep, SThroughout)) {
-            return buildThroughout(throughoutp, entryVtxp, isTopLevelStep);
+        यदि (AstSThroughout* ध्रुव throughoutp = VN_CAST(nodep, SThroughout)) {
+            प्रत्यागम buildThroughout(throughoutp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
-                                wantBoolLeaf);
+        यदि (AstSOr* ध्रुव orp = VN_CAST(nodep, SOr)) {
+            प्रत्यागम buildOrMerge(orp->lhsp(), orp->rhsp(), प्रविष्टिः_Vtxp, orp->fileline(),
+                                want_Bool_पर्णम्);
         }
-        if (AstLogOr* const orp = VN_CAST(nodep, LogOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
-                                wantBoolLeaf);
+        यदि (AstLogOr* ध्रुव orp = VN_CAST(nodep, LogOr)) {
+            प्रत्यागम buildOrMerge(orp->lhsp(), orp->rhsp(), प्रविष्टिः_Vtxp, orp->fileline(),
+                                want_Bool_पर्णम्);
         }
-        if (AstSAnd* const andp = VN_CAST(nodep, SAnd)) {
-            return buildAndCombiner(andp->lhsp(), andp->rhsp(), entryVtxp, andp->fileline());
+        यदि (AstSAnd* ध्रुव andp = VN_CAST(nodep, SAnd)) {
+            प्रत्यागम buildAndCombiner(andp->lhsp(), andp->rhsp(), प्रविष्टिः_Vtxp, andp->fileline());
         }
-        if (AstSIntersect* const intp = VN_CAST(nodep, SIntersect)) {
+        यदि (AstSIntersect* ध्रुव intp = VN_CAST(nodep, SIntersect)) {
             // IEEE 1800-2023 16.9.6: both operands match over one window with
             // equal start and end (equal length). Lower to a single sequence
             // that conjoins both operands' per-cycle checks -- correct under
             // concurrent attempts, where the done-latch combiner conflates the
             // two operands' start times and over-accepts. The combiner remains
             // only as a fallback for operands that do not flatten.
-            const int lhsLen = fixedLength(intp->lhsp());
-            const int rhsLen = fixedLength(intp->rhsp());
-            if (lhsLen >= 0 && rhsLen >= 0) {
-                if (lhsLen != rhsLen) {
+            ध्रुव पूर्णाङ्क lhsLen = fixed_दीर्घता(intp->lhsp());
+            ध्रुव पूर्णाङ्क rhsLen = fixed_दीर्घता(intp->rhsp());
+            यदि (lhsLen >= 0 && rhsLen >= 0) {
+                यदि (lhsLen != rhsLen) {
                     // Unequal fixed lengths share no common length -> never matches.
-                    return buildNeverMatchIntersect(intp, entryVtxp, isTopLevelStep,
+                    प्रत्यागम build_Never_मेलनम्_Intersect(intp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः,
                                                     "intersect operands have no common length");
                 }
-                if (AstNodeExpr* const conjp
+                यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव conjp
                     = conjoinFixedSeqs(intp->lhsp(), intp->rhsp(), intp->fileline())) {
-                    return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+                    प्रत्यागम build_From_Lowering_वृक्षः(conjp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
                 }
-                return buildAndCombiner(intp->lhsp(), intp->rhsp(), entryVtxp, intp->fileline());
+                प्रत्यागम buildAndCombiner(intp->lhsp(), intp->rhsp(), प्रविष्टिः_Vtxp, intp->fileline());
             }
-            return buildVarLenIntersect(intp, entryVtxp, isTopLevelStep);
+            प्रत्यागम buildVarLenIntersect(intp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
-            return buildSWithin(withinp, entryVtxp, isTopLevelStep);
+        यदि (AstSWithin* ध्रुव withinp = VN_CAST(nodep, SWithin)) {
+            प्रत्यागम buildSWithin(withinp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
-        if (AstAbortOn* const ap = VN_CAST(nodep, AbortOn)) {
-            return buildAbortOn(ap->condp(), ap->propp(), entryVtxp, ap->kind(), ap->fileline(),
-                                isTopLevelStep);
+        यदि (AstAbortOn* ध्रुव ap = VN_CAST(nodep, AbortOn)) {
+            प्रत्यागम buildAbortOn(ap->condp(), ap->propp(), प्रविष्टिः_Vtxp, ap->विधा(), ap->fileline(),
+                                is_शिखरम्_Level_चरणः);
         }
-        if (VN_IS(nodep, SNonConsRep)) return BuildResult::fail();
-        if (AstImplication* const implp = VN_CAST(nodep, Implication)) {
-            return buildImplicationEdges(implp->lhsp(), implp->rhsp(), entryVtxp,
+        यदि (VN_IS(nodep, SNonConsRep)) प्रत्यागम Build_परिणाम::fail();
+        यदि (AstImplication* ध्रुव implp = VN_CAST(nodep, Implication)) {
+            प्रत्यागम build_Implication_धाराः(implp->lhsp(), implp->rhsp(), प्रविष्टिः_Vtxp,
                                          implp->isOverlapped(), implp->isFollowedBy(),
                                          implp->lhsp(), implp->fileline());
         }
-        if (AstUntil* const untilp = VN_CAST(nodep, Until)) {
-            return buildUntil(untilp, entryVtxp, isTopLevelStep);
+        यदि (AstUntil* ध्रुव untilp = VN_CAST(nodep, Until)) {
+            प्रत्यागम buildUntil(untilp, प्रविष्टिः_Vtxp, is_शिखरम्_Level_चरणः);
         }
         // Boolean leaf (including LogAnd): return as finalCond
-        return {entryVtxp, nodep, {}};
+        प्रत्यागम {प्रविष्टिः_Vtxp, nodep, {}};
     }
 
     // Wire an implication / followed-by from `entryVtxp`: builds the antecedent,
@@ -1709,89 +1709,89 @@ public:
     // nested AstImplication in pexpr position and for the top-level assertion
     // antecedent -- `errorNodep` anchors the "unsupported sequence antecedent"
     // error, which differs between the two call sites.
-    BuildResult buildImplicationEdges(AstNodeExpr* antExprp, AstNodeExpr* bodyExprp,
-                                      SvaStateVertex* entryVtxp, bool isOverlapped,
-                                      bool isFollowedBy, AstNode* errorNodep, FileLine* flp) {
-        const BuildResult antResult = buildExpr(antExprp, entryVtxp);
-        if (!antResult.valid()) return antResult;
+    Build_परिणाम build_Implication_धाराः(Ast_ग्रन्थिः_व्यञ्जकम्* antExprp, Ast_ग्रन्थिः_व्यञ्जकम्* bodyExprp,
+                                      SvaStateVertex* प्रविष्टिः_Vtxp, तार्किक isOverlapped,
+                                      तार्किक isFollowedBy, Ast_ग्रन्थिः* errorNodep, File_पङ्क्तिः* flp) {
+        ध्रुव Build_परिणाम ant_परिणाम = build_व्यञ्जकम्(antExprp, प्रविष्टिः_Vtxp);
+        यदि (!ant_परिणाम.valid()) प्रत्यागम ant_परिणाम;
 
         // Followed-by requires pure-boolean antecedent for non-vacuous-fail at
         // the attempt-start cycle. IEEE 1800-2023 16.12.9 permits a multi-cycle
         // sequence LHS, so this is an implementation gap rather than illegal SV.
-        if (isFollowedBy && antResult.termVertexp != entryVtxp) {
+        यदि (isFollowedBy && ant_परिणाम.पदांशः_Vertexp != प्रविष्टिः_Vtxp) {
             errorNodep->v3warn(E_UNSUPPORTED,
                                "Unsupported: sequence expression as antecedent of followed-by"
                                " (#-# / #=#) (IEEE 1800-2023 16.12.9)");
-            return BuildResult::failWithError();
+            प्रत्यागम Build_परिणाम::failWithError();
         }
-        UASSERT_OBJ(!isFollowedBy || antResult.finalCondp, errorNodep,
+        UASSERT_OBJ(!isFollowedBy || ant_परिणाम.finalCondp, errorNodep,
                     "followed-by antecedent terminal at entry must carry finalCondp");
 
         // Use raw createStateVertex() so trigVtxp starts without liveness --
         // reaching the antecedent terminal is a definitive event.
-        SvaStateVertex* const trigVtxp = m_graph.createStateVertex();
-        if (antResult.finalCondp) {
-            m_graph.addLink(antResult.termVertexp, trigVtxp,
-                            sampled(antResult.finalCondp->cloneTreePure(false)));
+        SvaStateVertex* ध्रुव trigVtxp = m_graph.createStateVertex();
+        यदि (ant_परिणाम.finalCondp) {
+            m_graph.सङ्कलय_Link(ant_परिणाम.पदांशः_Vertexp, trigVtxp,
+                            sampled(ant_परिणाम.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)));
             // Followed-by non-vacuous fail: rejectOnFail fires when the attempt
             // is live (termVtx reachable) and sampled(antecedent) is false.
-            if (isFollowedBy) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
-                sinkVtxp->m_isRejectSink = true;
-                SvaTransEdge* const ep
-                    = m_graph.addLink(antResult.termVertexp, sinkVtxp,
-                                      sampled(antResult.finalCondp->cloneTreePure(false)));
-                ep->m_rejectOnFail = true;
+            यदि (isFollowedBy) {
+                SvaStateVertex* ध्रुव sinkVtxp = m_graph.createStateVertex();
+                sinkVtxp->m_isRejectSink = सत्य;
+                SvaTransEdge* ध्रुव ep
+                    = m_graph.सङ्कलय_Link(ant_परिणाम.पदांशः_Vertexp, sinkVtxp,
+                                      sampled(ant_परिणाम.finalCondp->clone_वृक्षः_विशुद्धम्(असत्य)));
+                ep->m_rejectOnFail = सत्य;
             }
             // finalCondp is cloned into the Sampled nodes; if the original is
             // not parented anywhere in the AST anymore it must be freed here
             // or ASan flags it as a leak (e.g. t_sequence_bool_ops).
-            if (!antResult.finalCondp->backp()) {
-                VL_DO_DANGLING(antResult.finalCondp->deleteTree(), antResult.finalCondp);
+            यदि (!ant_परिणाम.finalCondp->backp()) {
+                VL_DO_DANGLING(ant_परिणाम.finalCondp->delete_वृक्षः(), ant_परिणाम.finalCondp);
             }
-        } else {
-            m_graph.addLink(antResult.termVertexp, trigVtxp);
+        } अन्यथा {
+            m_graph.सङ्कलय_Link(ant_परिणाम.पदांशः_Vertexp, trigVtxp);
         }
         resetScope();
 
         SvaStateVertex* bodyEntryp = trigVtxp;
-        if (!isOverlapped) {
-            SvaStateVertex* const delayVtxp = m_graph.createStateVertex();
-            m_graph.addClockedEdge(trigVtxp, delayVtxp);
+        यदि (!isOverlapped) {
+            SvaStateVertex* ध्रुव delayVtxp = m_graph.createStateVertex();
+            m_graph.सङ्कलय_Clocked_Edge(trigVtxp, delayVtxp);
             bodyEntryp = delayVtxp;
         }
         // An empty antecedent match must not start the consequent, but a zero-minimum
         // repetition's empty match is not handled here; keep the merge vertex for those
-        VL_RESTORER(m_wantBoolLeaf);
-        m_wantBoolLeaf = !isFollowedBy && !hasZeroMinRep(antExprp);
-        return buildExpr(bodyExprp, bodyEntryp, /*isTopLevelStep=*/true);
+        VL_RESTORER(m_want_Bool_पर्णम्);
+        m_want_Bool_पर्णम् = !isFollowedBy && !hasZeroMinRep(antExprp);
+        प्रत्यागम build_व्यञ्जकम्(bodyExprp, bodyEntryp, /*isTopLevelStep=*/सत्य);
     }
 
-    BuildResult build(AstNodeExpr* exprp) {
+    Build_परिणाम build(Ast_ग्रन्थिः_व्यञ्जकम्* exprp) {
         m_graph.m_startVertexp = scopedCreateVertex();
-        VL_RESTORER(m_wantBoolLeaf);
-        m_wantBoolLeaf = true;
-        return buildExpr(exprp, m_graph.m_startVertexp, /*isTopLevelStep=*/true);
+        VL_RESTORER(m_want_Bool_पर्णम्);
+        m_want_Bool_पर्णम् = सत्य;
+        प्रत्यागम build_व्यञ्जकम्(exprp, m_graph.m_startVertexp, /*isTopLevelStep=*/सत्य);
     }
 };
 
 //######################################################################
 // NFA Lowering (converts NFA graph to synthesizable AstAlways blocks)
 
-class SvaNfaLowering final {
-    AstNodeModule* const m_modp;  // Module to add state vars and always blocks to
-    AstNodeDType* const m_u32DTypep;  // Shared unsigned counter dtype
-    V3UniqueNames m_names{"__Vnfa"};
-    size_t m_statDelayRingEdgeVisits = 0;  // Delay-ring incoming edges visited
+वर्ग SvaNfaLowering final {
+    Ast_ग्रन्थिः_Module* ध्रुव m_modp;  // Module to add state vars and always blocks to
+    Ast_ग्रन्थिः_DType* ध्रुव m_u32DTypep;  // Shared unsigned counter dtype
+    V3_Unique_नामानि m_नामानि{"__Vnfa"};
+    आकार_t m_statDelayRingEdgeVisits = 0;  // Delay-ring incoming edges visited
 
     // Per-lowering shared context (passed to phase sub-functions)
     // Per-vertex lowering state is stored in SvaVertexData and accessed via
     // V3GraphVertex::userp() (see SvaStateVertex::datap()).
-    struct LowerCtx final {
-        FileLine* flp;  // Source location for generated AST
-        AstSenTree* senTreep;  // Clock sensitivity tree
-        AstNodeExpr* disableExprp;  // disable iff expression (may be nullptr)
-        AstNodeExpr* matchCondp;  // Final boolean match condition (may be nullptr)
+    संरचना अधस्तनम्_Ctx final {
+        File_पङ्क्तिः* flp;  // Source location for generated AST
+        Ast_Sen_वृक्षः* senTreep;  // Clock sensitivity tree
+        Ast_ग्रन्थिः_व्यञ्जकम्* disableExprp;  // disable iff expression (may be nullptr)
+        Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_Condp;  // Final boolean match condition (may be nullptr)
         VAssertType assertType;  // Assertion type for control tasks
         VAssertDirectiveType directiveType;  // Directive type for control tasks
         AstVar* killVarp;  // Last observed kill generation
@@ -1799,140 +1799,140 @@ class SvaNfaLowering final {
     };
 
     // Build a match-now expression: stateSig[i] && $sampled(condp)
-    static AstNodeExpr* buildMatchNow(FileLine* flp, AstNodeExpr* stateExprp, AstNodeExpr* condp) {
-        AstNodeExpr* const statep = stateExprp->cloneTreePure(false);
-        if (!condp) return statep;
-        return new AstLogAnd{flp, statep, sampled(condp->cloneTreePure(false))};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* build_मेलनम्_Now(File_पङ्क्तिः* flp, Ast_ग्रन्थिः_व्यञ्जकम्* stateExprp, Ast_ग्रन्थिः_व्यञ्जकम्* condp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव statep = stateExprp->clone_वृक्षः_विशुद्धम्(असत्य);
+        यदि (!condp) प्रत्यागम statep;
+        प्रत्यागम नूतन AstLogAnd{flp, statep, sampled(condp->clone_वृक्षः_विशुद्धम्(असत्य))};
     }
-    static AstNodeExpr* andCond(FileLine* flp, AstNodeExpr* exprp, AstNodeExpr* condp) {
-        if (!condp) return exprp;
-        return new AstLogAnd{flp, exprp, condp->cloneTreePure(false)};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* andCond(File_पङ्क्तिः* flp, Ast_ग्रन्थिः_व्यञ्जकम्* exprp, Ast_ग्रन्थिः_व्यञ्जकम्* condp) {
+        यदि (!condp) प्रत्यागम exprp;
+        प्रत्यागम नूतन AstLogAnd{flp, exprp, condp->clone_वृक्षः_विशुद्धम्(असत्य)};
     }
     // bp is always non-null; only ap can be null (serving as accumulator).
-    static AstNodeExpr* orExprs(FileLine* flp, AstNodeExpr* ap, AstNodeExpr* bp) {
-        if (!ap) return bp;
-        return new AstLogOr{flp, ap, bp};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* orExprs(File_पङ्क्तिः* flp, Ast_ग्रन्थिः_व्यञ्जकम्* ap, Ast_ग्रन्थिः_व्यञ्जकम्* bp) {
+        यदि (!ap) प्रत्यागम bp;
+        प्रत्यागम नूतन AstLogOr{flp, ap, bp};
     }
-    static AstNodeExpr* addCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                  AstNodeExpr* const contributionp,
-                                  AstNodeExpr* const enablep = nullptr) {
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* सङ्कलय_Countp(File_पङ्क्तिः* ध्रुव flp, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव योग_Countp,
+                                  Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contributionp,
+                                  Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enablep = शून्यसूचकः) {
         // contribution = enable ? contribution : 0;
-        AstNodeExpr* const enabledContributionp
-            = enablep ? new AstCond{flp, enablep, contributionp,
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enabledContributionp
+            = enablep ? नूतन AstCond{flp, enablep, contributionp,
                                     newTypedConstp(flp, contributionp->dtypep(), 0)}
                       : contributionp;
-        if (!totalCountp) return enabledContributionp;
-        return new AstAdd{flp, totalCountp, enabledContributionp};
+        यदि (!योग_Countp) प्रत्यागम enabledContributionp;
+        प्रत्यागम नूतन Ast_सङ्कलय{flp, योग_Countp, enabledContributionp};
     }
-    static AstNodeExpr* gateCheckedCountp(FileLine* const flp, AstNodeExpr* const countp,
-                                          AstNodeExpr*& overflowp, AstNodeExpr* const enablep) {
-        if (overflowp) {
-            overflowp = new AstLogAnd{flp, enablep->cloneTreePure(false), overflowp};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* gateCheckedCountp(File_पङ्क्तिः* ध्रुव flp, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव countp,
+                                          Ast_ग्रन्थिः_व्यञ्जकम्*& overflowp, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enablep) {
+        यदि (overflowp) {
+            overflowp = नूतन AstLogAnd{flp, enablep->clone_वृक्षः_विशुद्धम्(असत्य), overflowp};
         }
-        return addCountp(flp, nullptr, countp, enablep);
+        प्रत्यागम सङ्कलय_Countp(flp, शून्यसूचकः, countp, enablep);
     }
-    static AstNodeExpr* addCheckedCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                         AstNodeExpr* const contributionp, AstNodeExpr*& overflowp,
-                                         AstNodeExpr* const contributionOverflowp = nullptr) {
-        if (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
-        if (!totalCountp) return contributionp;
-        AstNodeExpr* const oldTotalp = totalCountp->cloneTreePure(false);
-        AstNodeExpr* const resultp = new AstAdd{flp, totalCountp, contributionp};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* सङ्कलय_Checked_Countp(File_पङ्क्तिः* ध्रुव flp, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव योग_Countp,
+                                         Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contributionp, Ast_ग्रन्थिः_व्यञ्जकम्*& overflowp,
+                                         Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contributionOverflowp = शून्यसूचकः) {
+        यदि (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
+        यदि (!योग_Countp) प्रत्यागम contributionp;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव oldTotalp = योग_Countp->clone_वृक्षः_विशुद्धम्(असत्य);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव resultp = नूतन Ast_सङ्कलय{flp, योग_Countp, contributionp};
         overflowp
-            = orExprs(flp, overflowp, new AstLt{flp, resultp->cloneTreePure(false), oldTotalp});
-        return resultp;
+            = orExprs(flp, overflowp, नूतन AstLt{flp, resultp->clone_वृक्षः_विशुद्धम्(असत्य), oldTotalp});
+        प्रत्यागम resultp;
     }
-    AstIf* newCountOverflowWarning(FileLine* const flp, AstNodeExpr* const condp) const {
-        AstDisplay* const dispp = new AstDisplay{
+    AstIf* new_गणनम्_अतिप्रवाहः_Warning(File_पङ्क्तिः* ध्रुव flp, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp) ध्रुव {
+        AstDisplay* ध्रुव dispp = नूतन AstDisplay{
             flp, VDisplayType::DT_WARNING,
             "Cover sequence match count overflowed 32-bit storage; results may be incorrect.",
-            nullptr, nullptr};
+            शून्यसूचकः, शून्यसूचकः};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstIf* const ifp = new AstIf{flp, condp, dispp};
+        AstIf* ध्रुव ifp = नूतन AstIf{flp, condp, dispp};
         ifp->branchPred(VBranchPred::BP_UNLIKELY);
-        return ifp;
+        प्रत्यागम ifp;
     }
-    static AstNodeExpr* killActive(LowerCtx& c) {
-        return new AstNeq{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::READ},
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* kill_सक्रिय(अधस्तनम्_Ctx& c) {
+        प्रत्यागम नूतन AstNeq{c.flp, नूतन AstVarRef{c.flp, c.killVarp, VAccess::READ},
                           assertKillGet(c.flp, c.assertType, c.directiveType)};
     }
-    static AstNodeExpr* notKillActive(LowerCtx& c) { return new AstLogNot{c.flp, killActive(c)}; }
-    static AstNodeExpr* gateNotKill(LowerCtx& c, AstNodeExpr* exprp) {
-        if (!exprp) return nullptr;
-        return new AstLogAnd{c.flp, exprp, notKillActive(c)};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* not_Kill_सक्रिय(अधस्तनम्_Ctx& c) { प्रत्यागम नूतन AstLogNot{c.flp, kill_सक्रिय(c)}; }
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* gateNotKill(अधस्तनम्_Ctx& c, Ast_ग्रन्थिः_व्यञ्जकम्* exprp) {
+        यदि (!exprp) प्रत्यागम शून्यसूचकः;
+        प्रत्यागम नूतन AstLogAnd{c.flp, exprp, not_Kill_सक्रिय(c)};
     }
-    static AstNodeExpr* nextRingIndex(FileLine* flp, AstNodeExpr* idxExprp, uint32_t size) {
-        const auto u32Const = [flp](uint32_t value) {
-            return new AstConst{flp, AstConst::WidthedValue{}, 32, value};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_Ring_सूचकांक(File_पङ्क्तिः* flp, Ast_ग्रन्थिः_व्यञ्जकम्* idxExprp, uint32_t आकार) {
+        ध्रुव स्वचालित u32Const = [flp](uint32_t मानम्) {
+            प्रत्यागम नूतन AstConst{flp, AstConst::Widthed_मानम्{}, 32, मानम्};
         };
-        UASSERT_OBJ(size > 0, idxExprp, "Ring size must be positive");
-        if (size == 1) {
-            VL_DO_DANGLING(idxExprp->deleteTree(), idxExprp);
-            return u32Const(0);
+        UASSERT_OBJ(आकार > 0, idxExprp, "Ring size must be positive");
+        यदि (आकार == 1) {
+            VL_DO_DANGLING(idxExprp->delete_वृक्षः(), idxExprp);
+            प्रत्यागम u32Const(0);
         }
         // idx == size - 1 ? 0 : idx + 1
-        AstAdd* const addp = new AstAdd{flp, idxExprp->cloneTreePure(false), u32Const(1)};
+        Ast_सङ्कलय* ध्रुव addp = नूतन Ast_सङ्कलय{flp, idxExprp->clone_वृक्षः_विशुद्धम्(असत्य), u32Const(1)};
         addp->dtypeFrom(idxExprp);
-        AstCond* const condp
-            = new AstCond{flp, new AstEq{flp, idxExprp, u32Const(size - 1)}, u32Const(0), addp};
+        AstCond* ध्रुव condp
+            = नूतन AstCond{flp, नूतन AstEq{flp, idxExprp, u32Const(आकार - 1)}, u32Const(0), addp};
         condp->dtypeFrom(idxExprp);
-        return condp;
+        प्रत्यागम condp;
     }
-    static AstNodeExpr* delayRingSlot(FileLine* flp, SvaStateVertex* vtxp, AstNodeExpr* idxExprp,
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* delayRingSlot(File_पङ्क्तिः* flp, SvaStateVertex* vtxp, Ast_ग्रन्थिः_व्यञ्जकम्* idxExprp,
                                       VAccess access = VAccess::READ) {
         // ring[idx]
-        AstVar* const ringp = vtxp->datap()->delayRingVarp;
-        AstVarRef* const refp = new AstVarRef{flp, ringp, access};
-        if (vtxp->datap()->delayRingCounts) return new AstArraySel{flp, refp, idxExprp};
-        return new AstSel{flp, refp, idxExprp, 1};
+        AstVar* ध्रुव ringp = vtxp->datap()->delayRingVarp;
+        AstVarRef* ध्रुव refp = नूतन AstVarRef{flp, ringp, access};
+        यदि (vtxp->datap()->delayRingCounts) प्रत्यागम नूतन AstArraySel{flp, refp, idxExprp};
+        प्रत्यागम नूतन AstSel{flp, refp, idxExprp, 1};
     }
-    static AstNodeExpr* delayRingHeadCount(FileLine* flp, SvaStateVertex* vtxp) {
-        AstNodeExpr* const headp
-            = new AstVarRef{flp, vtxp->datap()->delayRingHeadVarp, VAccess::READ};
-        if (vtxp->datap()->delayRingCounts) return headp;
-        return new AstExtend{flp, headp, vtxp->datap()->delayRingLiveCountVarp->dtypep()->width()};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* delay_Ring_शीर्ष_गणनम्(File_पङ्क्तिः* flp, SvaStateVertex* vtxp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव headp
+            = नूतन AstVarRef{flp, vtxp->datap()->delay_Ring_शीर्ष_Varp, VAccess::READ};
+        यदि (vtxp->datap()->delayRingCounts) प्रत्यागम headp;
+        प्रत्यागम नूतन AstExtend{flp, headp, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp->dtypep()->विस्तारः()};
     }
-    static AstNodeExpr* delayRingAtLastIndex(FileLine* const flp, AstVar* const idxp,
-                                             const uint32_t size) {
-        return new AstEq{flp, new AstVarRef{flp, idxp, VAccess::READ},
-                         new AstConst{flp, AstConst::WidthedValue{}, 32, size - 1}};
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* delay_Ring_At_चरमः_सूचकांक(File_पङ्क्तिः* ध्रुव flp, AstVar* ध्रुव idxp,
+                                             ध्रुव uint32_t आकार) {
+        प्रत्यागम नूतन AstEq{flp, नूतन AstVarRef{flp, idxp, VAccess::READ},
+                         नूतन AstConst{flp, AstConst::Widthed_मानम्{}, 32, आकार - 1}};
     }
-    static AstNodeExpr* delayRingOutputCount(FileLine* const flp, SvaStateVertex* const vtxp) {
-        AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-        const uint32_t size = vtxp->m_delayRingSize;
-        AstNodeExpr* outgoingValidp
-            = new AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
-        if (!vtxp->m_isFixedDelayRing) {
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* delay_Ring_Output_गणनम्(File_पङ्क्तिः* ध्रुव flp, SvaStateVertex* ध्रुव vtxp) {
+        AstVar* ध्रुव idxp = vtxp->datap()->delayRingIdxVarp;
+        ध्रुव uint32_t आकार = vtxp->m_delay_Ring_आकार;
+        Ast_ग्रन्थिः_व्यञ्जकम्* outgoingValidp
+            = नूतन AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
+        यदि (!vtxp->m_isFixedDelayRing) {
             outgoingValidp
-                = new AstLogOr{flp, outgoingValidp, delayRingAtLastIndex(flp, idxp, size)};
+                = नूतन AstLogOr{flp, outgoingValidp, delay_Ring_At_चरमः_सूचकांक(flp, idxp, आकार)};
         }
-        AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-        return new AstCond{flp, outgoingValidp, delayRingHeadCount(flp, vtxp),
-                           newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        AstVar* ध्रुव जीवितम्_गणनम्_Varp = vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp;
+        प्रत्यागम नूतन AstCond{flp, outgoingValidp, delay_Ring_शीर्ष_गणनम्(flp, vtxp),
+                           newTypedConstp(flp, जीवितम्_गणनम्_Varp->dtypep(), 0)};
     }
-    static AstNodeExpr* delayRingHasLiveThreadsp(FileLine* const flp,
-                                                 AstVar* const liveCountVarp) {
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* delay_Ring_Has_जीवितम्_Threadsp(File_पङ्क्तिः* ध्रुव flp,
+                                                 AstVar* ध्रुव जीवितम्_गणनम्_Varp) {
         // active = live_count != 0;
-        return new AstNeq{flp, new AstVarRef{flp, liveCountVarp, VAccess::READ},
-                          newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        प्रत्यागम नूतन AstNeq{flp, नूतन AstVarRef{flp, जीवितम्_गणनम्_Varp, VAccess::READ},
+                          newTypedConstp(flp, जीवितम्_गणनम्_Varp->dtypep(), 0)};
     }
 
     // Phase 3 output signals
-    struct SignalSet final {
-        AstNodeExpr* terminalActivep = nullptr;  // OR of all successful terminal matches
-        AstNodeExpr* matchCountp = nullptr;  // NFA paths completing the sequence this tick
-        AstNodeExpr* matchCountOverflowp = nullptr;  // Match count overflow this tick
-        AstNodeExpr* rejectBasep = nullptr;  // Reject when a terminal match fails
-        AstNodeExpr* requiredStepRejectp = nullptr;  // Per-source reject from rejectOnFail Links
-        AstNodeExpr* throughoutRejectp = nullptr;  // Reject when a throughout guard drops
-        AstNodeExpr* threadFailCountp = nullptr;  // Number of threads rejected on this tick
+    संरचना Signal_समुच्चयः final {
+        Ast_ग्रन्थिः_व्यञ्जकम्* terminalActivep = शून्यसूचकः;  // OR of all successful terminal matches
+        Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_Countp = शून्यसूचकः;  // NFA paths completing the sequence this tick
+        Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_गणनम्_Overflowp = शून्यसूचकः;  // Match count overflow this tick
+        Ast_ग्रन्थिः_व्यञ्जकम्* rejectBasep = शून्यसूचकः;  // Reject when a terminal match fails
+        Ast_ग्रन्थिः_व्यञ्जकम्* required_चरणः_Rejectp = शून्यसूचकः;  // Per-source reject from rejectOnFail Links
+        Ast_ग्रन्थिः_व्यञ्जकम्* throughoutRejectp = शून्यसूचकः;  // Reject when a throughout guard drops
+        Ast_ग्रन्थिः_व्यञ्जकम्* threadFailCountp = शून्यसूचकः;  // Number of threads rejected on this tick
     };
 
     // Disable condition also aborts attempts between clock events. A constant disable
     // never rises, and $sampled is unsupported in a sensitivity list.
-    static bool isAsyncDisable(const AstNodeExpr* const disableExprp) {
-        return disableExprp && !VN_IS(disableExprp, Const)
-               && !disableExprp->exists([](const AstSampled*) { return true; });
+    स्थिर तार्किक isAsyncDisable(ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव disableExprp) {
+        प्रत्यागम disableExprp && !VN_IS(disableExprp, Const)
+               && !disableExprp->exists([](ध्रुव AstSampled*) { प्रत्यागम सत्य; });
     }
 
     // Emit the clocked update block of registers that hold pending attempts. The clearp
@@ -1943,282 +1943,282 @@ class SvaNfaLowering final {
     // would advance the attempts as if the clock had ticked. Blocks that hold no attempt
     // state, such as the $assertkill acknowledge in emitKillAckNba, do not go through here.
     // Callers pass a null clearp when the disable cannot rise between clock events.
-    void addStateAlways(LowerCtx& c, AstNode* bodyp, AstNode* clearp) {
-        m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), bodyp});
-        if (!clearp) return;
-        m_modp->addStmtsp(new AstAlways{
+    शून्य सङ्कलय_State_Always(अधस्तनम्_Ctx& c, Ast_ग्रन्थिः* bodyp, Ast_ग्रन्थिः* clearp) {
+        m_modp->सङ्कलय_Stmtsp(
+            नूतन AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_वृक्षः(असत्य), bodyp});
+        यदि (!clearp) प्रत्यागम;
+        m_modp->सङ्कलय_Stmtsp(नूतन AstAlways{
             c.flp, VAlwaysKwd::ALWAYS,
-            new AstSenTree{c.flp, new AstSenItem{c.flp, VEdgeType::ET_POSEDGE,
-                                                 c.disableExprp->cloneTreePure(false)}},
+            नूतन Ast_Sen_वृक्षः{c.flp, नूतन AstSenItem{c.flp, VEdgeType::ET_POSEDGE,
+                                                 c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)}},
             clearp});
     }
 
     // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
     // Phase 2: State register NBA always block. Each clocked-edge target
     // latches the OR of its incoming contributions.
-    void emitStateRegisterNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        AstNode* bodyp = nullptr;
-        AstNode* clearp = nullptr;
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->stateVarp) continue;
+    शून्य emit_State_पञ्जिकाकोशः_Nba(अधस्तनम्_Ctx& c) {
+        ध्रुव तार्किक asyncDisable = isAsyncDisable(c.disableExprp);
+        Ast_ग्रन्थिः* bodyp = शून्यसूचकः;
+        Ast_ग्रन्थिः* clearp = शून्यसूचकः;
+        प्रति (ध्रुव V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ध्रुव SvaStateVertex* ध्रुव vtxp = static_cast<ध्रुव SvaStateVertex*>(&vtxr);
+            यदि (!vtxp->datap()->stateVarp) अनुवर्त;
 
-            AstNodeExpr* nextStatep = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                if (!tedger.m_consumesCycle) continue;
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+            Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_Statep = शून्यसूचकः;
+            प्रति (ध्रुव V3GraphEdge& edger : vtxp->अन्तर्_धाराः()) {
+                ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+                यदि (!tedger.m_consumes_आवृत्तिः) अनुवर्त;
+                ध्रुव SvaStateVertex* ध्रुव fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Clocked-edge source missing stateSig");
 
-                AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+                Ast_ग्रन्थिः_व्यञ्जकम्* srcSigp = fromVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य);
                 srcSigp = andCond(c.flp, srcSigp, tedger.m_condp);
 
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    srcSigp = new AstLogAnd{c.flp, srcSigp, notDisp};
+                यदि (c.disableExprp) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisp
+                        = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                    srcSigp = नूतन AstLogAnd{c.flp, srcSigp, notDisp};
                 }
-                nextStatep = orExprs(c.flp, nextStatep, srcSigp);
+                अग्र_Statep = orExprs(c.flp, अग्र_Statep, srcSigp);
             }
 
-            UASSERT_OBJ(nextStatep, vtxp,
+            UASSERT_OBJ(अग्र_Statep, vtxp,
                         "Registered vertex has no clocked incoming contribution");
-            nextStatep = gateNotKill(c, nextStatep);
+            अग्र_Statep = gateNotKill(c, अग्र_Statep);
 
-            AstAssignDly* const assignp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, nextStatep};
-            bodyp = AstNode::addNextNull(bodyp, assignp);
-            if (asyncDisable) {
-                clearp = AstNode::addNextNull(
+            Ast_नियोजय_Dly* ध्रुव assignp = नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, अग्र_Statep};
+            bodyp = Ast_ग्रन्थिः::सङ्कलय_अग्र_Null(bodyp, assignp);
+            यदि (asyncDisable) {
+                clearp = Ast_ग्रन्थिः::सङ्कलय_अग्र_Null(
                     clearp,
-                    new AstAssignDly{
-                        c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
-                        new AstConst{c.flp, AstConst::BitFalse{}}});
+                    नूतन Ast_नियोजय_Dly{
+                        c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
+                        नूतन AstConst{c.flp, AstConst::BitFalse{}}});
             }
         }
-        if (bodyp) addStateAlways(c, bodyp, clearp);
+        यदि (bodyp) सङ्कलय_State_Always(c, bodyp, clearp);
     }
 
     // Phase 2b: In-place ring storage and registered ring metadata.
-    void emitDelayRingUpdates(LowerCtx& c, const bool countMatches) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->delayRingVarp) continue;
-            AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-            AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-            AstVar* const wrappedp = vtxp->datap()->delayRingWrappedVarp;
-            const uint32_t size = static_cast<uint32_t>(vtxp->m_delayRingSize);
+    शून्य emitDelayRingUpdates(अधस्तनम्_Ctx& c, ध्रुव तार्किक गणनम्_Matches) {
+        ध्रुव तार्किक asyncDisable = isAsyncDisable(c.disableExprp);
+        प्रति (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ध्रुव vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            यदि (!vtxp->datap()->delayRingVarp) अनुवर्त;
+            AstVar* ध्रुव idxp = vtxp->datap()->delayRingIdxVarp;
+            AstVar* ध्रुव जीवितम्_गणनम्_Varp = vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp;
+            AstVar* ध्रुव wrappedp = vtxp->datap()->delayRingWrappedVarp;
+            ध्रुव uint32_t आकार = static_cast<uint32_t>(vtxp->m_delay_Ring_आकार);
 
-            AstNodeExpr* incomingp = nullptr;
-            AstNodeExpr* incomingOverflowp = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* incomingp = शून्यसूचकः;
+            Ast_ग्रन्थिः_व्यञ्जकम्* incomingOverflowp = शून्यसूचकः;
+            प्रति (ध्रुव V3GraphEdge& edger : vtxp->अन्तर्_धाराः()) {
                 ++m_statDelayRingEdgeVisits;
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                UASSERT_OBJ(tedger.m_consumesCycle == vtxp->m_isFixedDelayRing, vtxp,
+                ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+                UASSERT_OBJ(tedger.m_consumes_आवृत्तिः == vtxp->m_isFixedDelayRing, vtxp,
                             "Delay-ring incoming edge kind mismatch");
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+                ध्रुव SvaStateVertex* ध्रुव fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Delay-ring incoming source missing stateSig");
-                UASSERT_OBJ(!countMatches || fromVtxp->datap()->stateCountSigp, fromVtxp,
+                UASSERT_OBJ(!गणनम्_Matches || fromVtxp->datap()->state_गणनम्_Sigp, fromVtxp,
                             "Delay-ring incoming source missing stateCountSig");
                 // IEEE 1800-2023 16.14.1/16.14.3: assertion alternatives belong to one
                 // evaluation; only cover sequence counts each end-of-match.
-                AstNodeExpr* contribp
-                    = countMatches
-                          ? fromVtxp->datap()->stateCountSigp->cloneTreePure(false)
-                          : new AstExtend{c.flp,
-                                          fromVtxp->datap()->stateSigp->cloneTreePure(false),
-                                          m_u32DTypep->width()};
-                AstNodeExpr* contribOverflowp
-                    = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                          : nullptr;
-                if (tedger.m_condp) {
-                    AstNodeExpr* const enablep = tedger.m_condp->cloneTreePure(false);
-                    contribp = countMatches
+                Ast_ग्रन्थिः_व्यञ्जकम्* contribp
+                    = गणनम्_Matches
+                          ? fromVtxp->datap()->state_गणनम्_Sigp->clone_वृक्षः_विशुद्धम्(असत्य)
+                          : नूतन AstExtend{c.flp,
+                                          fromVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य),
+                                          m_u32DTypep->विस्तारः()};
+                Ast_ग्रन्थिः_व्यञ्जकम्* contribOverflowp
+                    = गणनम्_Matches && fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp
+                          ? fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp->clone_वृक्षः_विशुद्धम्(असत्य)
+                          : शून्यसूचकः;
+                यदि (tedger.m_condp) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enablep = tedger.m_condp->clone_वृक्षः_विशुद्धम्(असत्य);
+                    contribp = गणनम्_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, enablep)
-                                   : addCountp(c.flp, nullptr, contribp, enablep);
+                                   : सङ्कलय_Countp(c.flp, शून्यसूचकः, contribp, enablep);
                 }
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    contribp = countMatches
+                यदि (c.disableExprp) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisp
+                        = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                    contribp = गणनम्_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, notDisp)
-                                   : addCountp(c.flp, nullptr, contribp, notDisp);
+                                   : सङ्कलय_Countp(c.flp, शून्यसूचकः, contribp, notDisp);
                 }
-                incomingp = countMatches ? addCheckedCountp(c.flp, incomingp, contribp,
+                incomingp = गणनम्_Matches ? सङ्कलय_Checked_Countp(c.flp, incomingp, contribp,
                                                             incomingOverflowp, contribOverflowp)
-                                         : addCountp(c.flp, incomingp, contribp);
+                                         : सङ्कलय_Countp(c.flp, incomingp, contribp);
             }
             UASSERT_OBJ(incomingp, vtxp, "Delay ring has no incoming edge");
-            const bool storesCounts = vtxp->datap()->delayRingCounts;
-            AstNodeExpr* const incomingCountp
+            ध्रुव तार्किक storesCounts = vtxp->datap()->delayRingCounts;
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव incomingCountp
                 = storesCounts
-                      ? incomingp->cloneTreePure(false)
-                      : new AstExtend{c.flp,
-                                      new AstNeq{c.flp, incomingp->cloneTreePure(false),
+                      ? incomingp->clone_वृक्षः_विशुद्धम्(असत्य)
+                      : नूतन AstExtend{c.flp,
+                                      नूतन AstNeq{c.flp, incomingp->clone_वृक्षः_विशुद्धम्(असत्य),
                                                  newTypedConstp(c.flp, incomingp->dtypep(), 0)},
-                                      m_u32DTypep->width()};
-            AstNodeExpr* const storedIncomingp
+                                      m_u32DTypep->विस्तारः()};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव storedIncomingp
                 = storesCounts ? incomingp
-                               : new AstNeq{c.flp, incomingp,
+                               : नूतन AstNeq{c.flp, incomingp,
                                             newTypedConstp(c.flp, incomingp->dtypep(), 0)};
             // Only this block accesses the storage. Other processes read the cached head, so
             // the ring can be updated in place without an NBA shadow copy.
-            AstAssign* const writeIncomingp = new AstAssign{
+            Ast_नियोजय* ध्रुव writeIncomingp = नूतन Ast_नियोजय{
                 c.flp,
-                delayRingSlot(c.flp, vtxp, new AstVarRef{c.flp, idxp, VAccess::READ},
+                delayRingSlot(c.flp, vtxp, नूतन AstVarRef{c.flp, idxp, VAccess::READ},
                               VAccess::WRITE),
                 storedIncomingp};
-            AstNode* updateBodyp = writeIncomingp;
+            Ast_ग्रन्थिः* updateBodyp = writeIncomingp;
             // live_count <= live_count - outgoing_count + incoming_count;
-            AstNodeExpr* const outgoingp = delayRingOutputCount(c.flp, vtxp);
-            AstNodeExpr* const afterOutgoingp
-                = new AstSub{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::READ}, outgoingp};
-            AstNodeExpr* const oldAfterOutgoingp = afterOutgoingp->cloneTreePure(false);
-            AstAdd* const nextLiveCountp = new AstAdd{c.flp, afterOutgoingp, incomingCountp};
-            if (storesCounts) {
-                AstNodeExpr* const liveOverflowp
-                    = new AstLt{c.flp, nextLiveCountp->cloneTreePure(false), oldAfterOutgoingp};
-                AstNodeExpr* const overflowp = orExprs(c.flp, incomingOverflowp, liveOverflowp);
-                updateBodyp = newCountOverflowWarning(c.flp, overflowp);
-                updateBodyp->addNext(writeIncomingp);
-            } else {
-                VL_DO_DANGLING(oldAfterOutgoingp->deleteTree(), oldAfterOutgoingp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव outgoingp = delay_Ring_Output_गणनम्(c.flp, vtxp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव afterOutgoingp
+                = नूतन AstSub{c.flp, नूतन AstVarRef{c.flp, जीवितम्_गणनम्_Varp, VAccess::READ}, outgoingp};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव oldAfterOutgoingp = afterOutgoingp->clone_वृक्षः_विशुद्धम्(असत्य);
+            Ast_सङ्कलय* ध्रुव अग्र_जीवितम्_Countp = नूतन Ast_सङ्कलय{c.flp, afterOutgoingp, incomingCountp};
+            यदि (storesCounts) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव जीवितम्_Overflowp
+                    = नूतन AstLt{c.flp, अग्र_जीवितम्_Countp->clone_वृक्षः_विशुद्धम्(असत्य), oldAfterOutgoingp};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव overflowp = orExprs(c.flp, incomingOverflowp, जीवितम्_Overflowp);
+                updateBodyp = new_गणनम्_अतिप्रवाहः_Warning(c.flp, overflowp);
+                updateBodyp->सङ्कलय_अग्र(writeIncomingp);
+            } अन्यथा {
+                VL_DO_DANGLING(oldAfterOutgoingp->delete_वृक्षः(), oldAfterOutgoingp);
             }
             // Cache the outgoing slot for the next index after the write. Reading after
             // writing also handles one-slot rings and two-slot range rings without alias cases.
-            AstNodeExpr* nextHeadIdxp
-                = nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size);
-            if (!vtxp->m_isFixedDelayRing) {
-                nextHeadIdxp = nextRingIndex(c.flp, nextHeadIdxp, size);
+            Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_शीर्ष_Idxp
+                = अग्र_Ring_सूचकांक(c.flp, नूतन AstVarRef{c.flp, idxp, VAccess::READ}, आकार);
+            यदि (!vtxp->m_isFixedDelayRing) {
+                अग्र_शीर्ष_Idxp = अग्र_Ring_सूचकांक(c.flp, अग्र_शीर्ष_Idxp, आकार);
             }
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->delayRingHeadVarp, VAccess::WRITE},
-                delayRingSlot(c.flp, vtxp, nextHeadIdxp)});
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE}, nextLiveCountp});
+            updateBodyp->सङ्कलय_अग्र(नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->delay_Ring_शीर्ष_Varp, VAccess::WRITE},
+                delayRingSlot(c.flp, vtxp, अग्र_शीर्ष_Idxp)});
+            updateBodyp->सङ्कलय_अग्र(नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, जीवितम्_गणनम्_Varp, VAccess::WRITE}, अग्र_जीवितम्_Countp});
             // wrapped <= wrapped || idx == size - 1;
-            updateBodyp->addNext(
-                new AstAssignDly{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                 new AstLogOr{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::READ},
-                                              delayRingAtLastIndex(c.flp, idxp, size)}});
+            updateBodyp->सङ्कलय_अग्र(
+                नूतन Ast_नियोजय_Dly{c.flp, नूतन AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                 नूतन AstLogOr{c.flp, नूतन AstVarRef{c.flp, wrappedp, VAccess::READ},
+                                              delay_Ring_At_चरमः_सूचकांक(c.flp, idxp, आकार)}});
             // idx <= next_idx;
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, idxp, VAccess::WRITE},
-                nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size)});
-            if (vtxp->m_delayRingAdvanceCondp) {
-                updateBodyp = new AstIf{
-                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false)),
+            updateBodyp->सङ्कलय_अग्र(नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, idxp, VAccess::WRITE},
+                अग्र_Ring_सूचकांक(c.flp, नूतन AstVarRef{c.flp, idxp, VAccess::READ}, आकार)});
+            यदि (vtxp->m_delayRingAdvanceCondp) {
+                updateBodyp = नूतन AstIf{
+                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->clone_वृक्षः_विशुद्धम्(असत्य)),
                     updateBodyp};
             }
 
-            AstNodeExpr* clearCondp = killActive(c);
-            if (vtxp->m_delayRingClearCondp) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* clearCondp = kill_सक्रिय(c);
+            यदि (vtxp->m_delayRingClearCondp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_delayRingClearCondp->cloneTreePure(false)));
+                                     sampled(vtxp->m_delayRingClearCondp->clone_वृक्षः_विशुद्धम्(असत्य)));
             }
-            if (vtxp->m_abortClearp) {
+            यदि (vtxp->m_abortClearp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_abortClearp->cloneTreePure(false)));
+                                     sampled(vtxp->m_abortClearp->clone_वृक्षः_विशुद्धम्(असत्य)));
             }
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            यदि (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य));
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : vtxp->m_throughoutConds) {
-                AstNodeExpr* const sampledp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sampledp})
+            Ast_ग्रन्थिः_व्यञ्जकम्* guardp = शून्यसूचकः;
+            प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव cp : vtxp->m_throughoutConds) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledp = sampled(cp->clone_वृक्षः_विशुद्धम्(असत्य));
+                guardp = guardp ? static_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(नूतन AstLogAnd{c.flp, guardp, sampledp})
                                 : sampledp;
             }
-            if (guardp) clearCondp = orExprs(c.flp, clearCondp, new AstLogNot{c.flp, guardp});
+            यदि (guardp) clearCondp = orExprs(c.flp, clearCondp, नूतन AstLogNot{c.flp, guardp});
             // Logically clear the ring without touching its wide storage.
-            AstAssignDly* const clearCountp
-                = new AstAssignDly{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE},
-                                   newTypedConstp(c.flp, liveCountVarp->dtypep(), 0)};
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                                  new AstConst{c.flp, AstConst::BitFalse{}}});
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, idxp, VAccess::WRITE},
+            Ast_नियोजय_Dly* ध्रुव clearCountp
+                = नूतन Ast_नियोजय_Dly{c.flp, नूतन AstVarRef{c.flp, जीवितम्_गणनम्_Varp, VAccess::WRITE},
+                                   newTypedConstp(c.flp, जीवितम्_गणनम्_Varp->dtypep(), 0)};
+            clearCountp->सङ्कलय_अग्र(नूतन Ast_नियोजय_Dly{c.flp,
+                                                  नूतन AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                                  नूतन AstConst{c.flp, AstConst::BitFalse{}}});
+            clearCountp->सङ्कलय_अग्र(नूतन Ast_नियोजय_Dly{c.flp,
+                                                  नूतन AstVarRef{c.flp, idxp, VAccess::WRITE},
                                                   newTypedConstp(c.flp, idxp->dtypep(), 0)});
-            updateBodyp = new AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
+            updateBodyp = नूतन AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
 
-            addStateAlways(c, updateBodyp, asyncDisable ? clearCountp->cloneTree(true) : nullptr);
+            सङ्कलय_State_Always(c, updateBodyp, asyncDisable ? clearCountp->clone_वृक्षः(सत्य) : शून्यसूचकः);
         }
     }
 
     // Phase 2c: SAnd combiner done-latch always block.
     // NBA semantics ensure doneL/doneR read pre-update values (IEEE 16.9.5).
-    void emitAndCombinerDoneLatchNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const avp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!avp->datap()->doneLVarp) continue;
+    शून्य emit_And_Combiner_समाप्तम्_Latch_Nba(अधस्तनम्_Ctx& c) {
+        ध्रुव तार्किक asyncDisable = isAsyncDisable(c.disableExprp);
+        प्रति (ध्रुव V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ध्रुव SvaStateVertex* ध्रुव avp = static_cast<ध्रुव SvaStateVertex*>(&vtxr);
+            यदि (!avp->datap()->समाप्तम्_LVarp) अनुवर्त;
             // doneLVars is non-null only for AndCombiner vertices, which always
             // have both m_andLhsTermp and m_andRhsTermp set at build time.
             UASSERT_OBJ(avp->m_andLhsTermp && avp->m_andRhsTermp, avp,
                         "AndCombiner vertex missing LHS/RHS terminal");
-            const SvaStateVertex* const lhsTermp = avp->m_andLhsTermp;
-            const SvaStateVertex* const rhsTermp = avp->m_andRhsTermp;
+            ध्रुव SvaStateVertex* ध्रुव lhsTermp = avp->m_andLhsTermp;
+            ध्रुव SvaStateVertex* ध्रुव rhsTermp = avp->m_andRhsTermp;
             // resolveLinks' 2*N+2 fixed-point pass is guaranteed to populate
             // stateSigp on every AndCombiner and its LHS/RHS terminals.
             UASSERT_OBJ(lhsTermp->datap()->stateSigp && rhsTermp->datap()->stateSigp
                             && avp->datap()->stateSigp,
                         avp, "AndCombiner stateSigp chain unresolved after resolveLinks");
 
-            AstAssignDly* const clearLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
-            AstAssignDly* const clearRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
-            clearLp->addNext(clearRp);
+            Ast_नियोजय_Dly* ध्रुव clearLp = नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, avp->datap()->समाप्तम्_LVarp, VAccess::WRITE},
+                नूतन AstConst{c.flp, AstConst::BitFalse{}}};
+            Ast_नियोजय_Dly* ध्रुव clearRp = नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, avp->datap()->समाप्तम्_RVarp, VAccess::WRITE},
+                नूतन AstConst{c.flp, AstConst::BitFalse{}}};
+            clearLp->सङ्कलय_अग्र(clearRp);
 
-            AstNodeExpr* const matchLNowp
-                = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, avp->m_andLhsCondp);
-            AstNodeExpr* const matchRNowp
-                = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, avp->m_andRhsCondp);
-            AstNodeExpr* gateLp = matchLNowp;
-            AstNodeExpr* gateRp = matchRNowp;
-            if (c.disableExprp) {
-                AstNodeExpr* const notDisLp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateLp = new AstLogAnd{c.flp, gateLp, notDisLp};
-                AstNodeExpr* const notDisRp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateRp = new AstLogAnd{c.flp, gateRp, notDisRp};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_LNowp
+                = build_मेलनम्_Now(c.flp, lhsTermp->datap()->stateSigp, avp->m_andLhsCondp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_RNowp
+                = build_मेलनम्_Now(c.flp, rhsTermp->datap()->stateSigp, avp->m_andRhsCondp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* gateLp = मेलनम्_LNowp;
+            Ast_ग्रन्थिः_व्यञ्जकम्* gateRp = मेलनम्_RNowp;
+            यदि (c.disableExprp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisLp
+                    = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                gateLp = नूतन AstLogAnd{c.flp, gateLp, notDisLp};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisRp
+                    = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                gateRp = नूतन AstLogAnd{c.flp, gateRp, notDisRp};
             }
-            AstAssignDly* const setLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setLIfp = new AstIf{c.flp, gateLp, setLp, nullptr};
-            AstAssignDly* const setRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setRIfp = new AstIf{c.flp, gateRp, setRp, nullptr};
-            setLIfp->addNext(setRIfp);
+            Ast_नियोजय_Dly* ध्रुव समुच्चयः_Lp = नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, avp->datap()->समाप्तम्_LVarp, VAccess::WRITE},
+                नूतन AstConst{c.flp, AstConst::BitTrue{}}};
+            AstIf* ध्रुव समुच्चयः_LIfp = नूतन AstIf{c.flp, gateLp, समुच्चयः_Lp, शून्यसूचकः};
+            Ast_नियोजय_Dly* ध्रुव समुच्चयः_Rp = नूतन Ast_नियोजय_Dly{
+                c.flp, नूतन AstVarRef{c.flp, avp->datap()->समाप्तम्_RVarp, VAccess::WRITE},
+                नूतन AstConst{c.flp, AstConst::BitTrue{}}};
+            AstIf* ध्रुव समुच्चयः_RIfp = नूतन AstIf{c.flp, gateRp, समुच्चयः_Rp, शून्यसूचकः};
+            समुच्चयः_LIfp->सङ्कलय_अग्र(समुच्चयः_RIfp);
 
-            AstNodeExpr* clearCondp = new AstLogOr{c.flp, killActive(c),
-                                                   avp->datap()->stateSigp->cloneTreePure(false)};
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            Ast_ग्रन्थिः_व्यञ्जकम्* clearCondp = नूतन AstLogOr{c.flp, kill_सक्रिय(c),
+                                                   avp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य)};
+            यदि (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य));
             }
-            AstIf* const topp = new AstIf{c.flp, clearCondp, clearLp, setLIfp};
-            addStateAlways(c, topp, asyncDisable ? clearLp->cloneTree(true) : nullptr);
+            AstIf* ध्रुव topp = नूतन AstIf{c.flp, clearCondp, clearLp, समुच्चयः_LIfp};
+            सङ्कलय_State_Always(c, topp, asyncDisable ? clearLp->clone_वृक्षः(सत्य) : शून्यसूचकः);
         }
     }
 
-    void emitKillAckNba(LowerCtx& c) {
-        AstAssignDly* const ackp
-            = new AstAssignDly{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
+    शून्य emitKillAckNba(अधस्तनम्_Ctx& c) {
+        Ast_नियोजय_Dly* ध्रुव ackp
+            = नूतन Ast_नियोजय_Dly{c.flp, नूतन AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
                                assertKillGet(c.flp, c.assertType, c.directiveType)};
-        m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), ackp});
+        m_modp->सङ्कलय_Stmtsp(
+            नूतन AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_वृक्षः(असत्य), ackp});
     }
 
     // Phase 3/3a/3b: Compute terminal match/reject signals, required-step reject,
@@ -2227,182 +2227,182 @@ class SvaNfaLowering final {
     // Builder only adds Links (non-clocked) to matchVertex via addLink in
     // wireMatchAndMidSources. For cover sequence, also count each end-of-match
     // so the action can be replayed without unrolling endpoints.
-    void computeTerminalMatchAndReject(LowerCtx& c, SignalSet& sigs, const bool needMatchCount) {
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (tedgep->toVtxp() != c.graph.m_matchVertexp) continue;
-            SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+    शून्य compute_Terminal_मेलनम्_And_Reject(अधस्तनम्_Ctx& c, Signal_समुच्चयः& sigs, ध्रुव तार्किक need_मेलनम्_गणनम्) {
+        प्रति (ध्रुव SvaTransEdge* ध्रुव tedgep : c.graph.all_धाराः()) {
+            यदि (tedgep->गन्तव्यम्_Vtxp() != c.graph.m_मेलनम्_Vertexp) अनुवर्त;
+            SvaStateVertex* ध्रुव fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                         "Terminal-link source missing stateSig");
 
-            AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+            Ast_ग्रन्थिः_व्यञ्जकम्* srcSigp = fromVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य);
             srcSigp = andCond(c.flp, srcSigp, tedgep->m_condp);
-            if (needMatchCount) {
-                UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+            यदि (need_मेलनम्_गणनम्) {
+                UASSERT_OBJ(fromVtxp->datap()->state_गणनम्_Sigp, fromVtxp,
                             "Terminal-link source missing stateCountSig");
-                AstNodeExpr* contributionp
-                    = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                AstNodeExpr* contributionOverflowp
-                    = fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                          : nullptr;
-                if (tedgep->m_condp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* contributionp
+                    = fromVtxp->datap()->state_गणनम्_Sigp->clone_वृक्षः_विशुद्धम्(असत्य);
+                Ast_ग्रन्थिः_व्यञ्जकम्* contributionOverflowp
+                    = fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp
+                          ? fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp->clone_वृक्षः_विशुद्धम्(असत्य)
+                          : शून्यसूचकः;
+                यदि (tedgep->m_condp) {
                     contributionp = gateCheckedCountp(c.flp, contributionp, contributionOverflowp,
-                                                      tedgep->m_condp->cloneTreePure(false));
+                                                      tedgep->m_condp->clone_वृक्षः_विशुद्धम्(असत्य));
                 }
-                sigs.matchCountp
-                    = addCheckedCountp(c.flp, sigs.matchCountp, contributionp,
-                                       sigs.matchCountOverflowp, contributionOverflowp);
+                sigs.मेलनम्_Countp
+                    = सङ्कलय_Checked_Countp(c.flp, sigs.मेलनम्_Countp, contributionp,
+                                       sigs.मेलनम्_गणनम्_Overflowp, contributionOverflowp);
             }
 
-            if (fromVtxp->m_delayRingSize && !fromVtxp->m_isFixedDelayRing) {
+            यदि (fromVtxp->m_delay_Ring_आकार && !fromVtxp->m_isFixedDelayRing) {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_वृक्षः_विशुद्धम्(असत्य));
                 // reject |= (wrapped || idx == size - 1) && head && final_condition;
-                AstNodeExpr* expireContribp = delayRingOutputCount(c.flp, fromVtxp);
+                Ast_ग्रन्थिः_व्यञ्जकम्* expireContribp = delay_Ring_Output_गणनम्(c.flp, fromVtxp);
                 expireContribp = andCond(c.flp, expireContribp, tedgep->m_condp);
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, expireContribp);
-                VL_DO_DANGLING(srcSigp->deleteTree(), srcSigp);
-            } else if (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
+                VL_DO_DANGLING(srcSigp->delete_वृक्षः(), srcSigp);
+            } अन्यथा यदि (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
                 sigs.terminalActivep = orExprs(c.flp, sigs.terminalActivep, srcSigp);
-            } else {
+            } अन्यथा {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_वृक्षः_विशुद्धम्(असत्य));
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, srcSigp);
             }
         }
         // wireMatchAndMidSources always adds a Link from result.termVertexp
         // to m_matchVertexp, so the loop above always sets terminalActivep.
-        UASSERT_OBJ(sigs.terminalActivep, c.graph.m_matchVertexp,
+        UASSERT_OBJ(sigs.terminalActivep, c.graph.m_मेलनम्_Vertexp,
                     "No terminal edge to match vertex");
     }
 
-    AstNodeExpr* newThroughoutThreadFailCountp(LowerCtx& c, AstVar* const delayRingLiveCountVarp,
-                                               AstNodeExpr* const stateExprp,
-                                               AstNodeExpr* const enablep) {
-        AstNodeExpr* const activeThreadCountp
-            = delayRingLiveCountVarp
-                  ? static_cast<AstNodeExpr*>(
-                        new AstVarRef{c.flp, delayRingLiveCountVarp, VAccess::READ})
-                  : new AstExtend{c.flp, stateExprp->cloneTreePure(false), m_u32DTypep->width()};
-        return addCountp(c.flp, nullptr, activeThreadCountp, enablep);
+    Ast_ग्रन्थिः_व्यञ्जकम्* newThroughoutThreadFailCountp(अधस्तनम्_Ctx& c, AstVar* ध्रुव delay_Ring_जीवितम्_गणनम्_Varp,
+                                               Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव stateExprp,
+                                               Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enablep) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव सक्रिय_Thread_Countp
+            = delay_Ring_जीवितम्_गणनम्_Varp
+                  ? static_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(
+                        नूतन AstVarRef{c.flp, delay_Ring_जीवितम्_गणनम्_Varp, VAccess::READ})
+                  : नूतन AstExtend{c.flp, stateExprp->clone_वृक्षः_विशुद्धम्(असत्य), m_u32DTypep->विस्तारः()};
+        प्रत्यागम सङ्कलय_Countp(c.flp, शून्यसूचकः, सक्रिय_Thread_Countp, enablep);
     }
 
     // Phase 3b: Throughout-drop and ring-wide abort rejection.
-    void computeThroughoutReject(LowerCtx& c, SignalSet& sigs, const bool needThreadFailCount) {
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            const auto& conds = vtxp->m_throughoutConds;
-            if (conds.empty() && !vtxp->m_abortRejectp) continue;
-            if (vtxp->m_isAndCombiner) continue;
-            AstNodeExpr* stateExprp = nullptr;
-            if (vtxp->datap()->stateVarp) {
-                stateExprp = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-            } else if (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
+    शून्य computeThroughoutReject(अधस्तनम्_Ctx& c, Signal_समुच्चयः& sigs, ध्रुव तार्किक need_Thread_Fail_गणनम्) {
+        प्रति (ध्रुव V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ध्रुव SvaStateVertex* ध्रुव vtxp = static_cast<ध्रुव SvaStateVertex*>(&vtxr);
+            ध्रुव स्वचालित& conds = vtxp->m_throughoutConds;
+            यदि (conds.रिक्तानि() && !vtxp->m_abortRejectp) अनुवर्त;
+            यदि (vtxp->m_isAndCombiner) अनुवर्त;
+            Ast_ग्रन्थिः_व्यञ्जकम्* stateExprp = शून्यसूचकः;
+            यदि (vtxp->datap()->stateVarp) {
+                stateExprp = नूतन AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+            } अन्यथा यदि (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
                 stateExprp
-                    = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-            } else {
+                    = delay_Ring_Has_जीवितम्_Threadsp(c.flp, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp);
+            } अन्यथा {
                 UASSERT_OBJ(vtxp->datap()->stateSigp, vtxp,
                             "Throughout-conds vertex missing state representation");
-                stateExprp = vtxp->datap()->stateSigp->cloneTreePure(false);
+                stateExprp = vtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य);
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : conds) {
-                AstNodeExpr* const sp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sp}) : sp;
+            Ast_ग्रन्थिः_व्यञ्जकम्* guardp = शून्यसूचकः;
+            प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव cp : conds) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sp = sampled(cp->clone_वृक्षः_विशुद्धम्(असत्य));
+                guardp = guardp ? static_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(नूतन AstLogAnd{c.flp, guardp, sp}) : sp;
             }
-            if (vtxp->m_abortRejectp) {
-                AstNodeExpr* const notAbortp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+            यदि (vtxp->m_abortRejectp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notAbortp
+                    = नूतन AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->clone_वृक्षः_विशुद्धम्(असत्य))};
                 guardp = guardp
-                             ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, notAbortp})
+                             ? static_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(नूतन AstLogAnd{c.flp, guardp, notAbortp})
                              : notAbortp;
             }
-            AstNodeExpr* rejectCondp = new AstLogNot{c.flp, guardp};
-            if (vtxp->m_abortClearp) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* rejectCondp = नूतन AstLogNot{c.flp, guardp};
+            यदि (vtxp->m_abortClearp) {
                 // Any abort clears the ring. Accept aborts suppress a simultaneous guard failure;
                 // reject aborts are restored below so they still force rejection.
-                AstNodeExpr* const notAbortClearp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortClearp->cloneTreePure(false))};
-                rejectCondp = new AstLogAnd{c.flp, rejectCondp, notAbortClearp};
-                if (vtxp->m_abortRejectp) {
-                    rejectCondp = new AstLogOr{
-                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notAbortClearp
+                    = नूतन AstLogNot{c.flp, sampled(vtxp->m_abortClearp->clone_वृक्षः_विशुद्धम्(असत्य))};
+                rejectCondp = नूतन AstLogAnd{c.flp, rejectCondp, notAbortClearp};
+                यदि (vtxp->m_abortRejectp) {
+                    rejectCondp = नूतन AstLogOr{
+                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->clone_वृक्षः_विशुद्धम्(असत्य))};
                 }
             }
-            if (needThreadFailCount) {
-                AstNodeExpr* const contributionp
-                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delayRingLiveCountVarp,
-                                                    stateExprp, rejectCondp->cloneTreePure(false));
-                sigs.threadFailCountp = addCountp(c.flp, sigs.threadFailCountp, contributionp);
-                if (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
+            यदि (need_Thread_Fail_गणनम्) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contributionp
+                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp,
+                                                    stateExprp, rejectCondp->clone_वृक्षः_विशुद्धम्(असत्य));
+                sigs.threadFailCountp = सङ्कलय_Countp(c.flp, sigs.threadFailCountp, contributionp);
+                यदि (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
                     // An advancing ring thread also occupies its same-tick match vertex in the
                     // unrolled NFA, so abort rejection must replay both fail actions.
-                    AstNodeExpr* const abortAndAdvancep = new AstLogAnd{
-                        c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false)),
-                        sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false))};
-                    AstNodeExpr* const matchContributionp = newThroughoutThreadFailCountp(
-                        c, vtxp->datap()->delayRingLiveCountVarp, stateExprp, abortAndAdvancep);
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव abortAndAdvancep = नूतन AstLogAnd{
+                        c.flp, sampled(vtxp->m_abortRejectp->clone_वृक्षः_विशुद्धम्(असत्य)),
+                        sampled(vtxp->m_delayRingAdvanceCondp->clone_वृक्षः_विशुद्धम्(असत्य))};
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_Contributionp = newThroughoutThreadFailCountp(
+                        c, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp, stateExprp, abortAndAdvancep);
                     sigs.threadFailCountp
-                        = addCountp(c.flp, sigs.threadFailCountp, matchContributionp);
+                        = सङ्कलय_Countp(c.flp, sigs.threadFailCountp, मेलनम्_Contributionp);
                 }
             }
             sigs.throughoutRejectp = orExprs(c.flp, sigs.throughoutRejectp,
-                                             new AstLogAnd{c.flp, stateExprp, rejectCondp});
+                                             नूतन AstLogAnd{c.flp, stateExprp, rejectCondp});
         }
     }
 
-    SignalSet computeSignals(LowerCtx& c, const bool needThreadFailCount,
-                             const bool needThroughoutThreadFailCount, const bool needMatchCount) {
-        SignalSet sigs;
+    Signal_समुच्चयः compute_सङ्केताः(अधस्तनम्_Ctx& c, ध्रुव तार्किक need_Thread_Fail_गणनम्,
+                             ध्रुव तार्किक need_Throughout_Thread_Fail_गणनम्, ध्रुव तार्किक need_मेलनम्_गणनम्) {
+        Signal_समुच्चयः sigs;
 
-        computeTerminalMatchAndReject(c, sigs, needMatchCount);
+        compute_Terminal_मेलनम्_And_Reject(c, sigs, need_मेलनम्_गणनम्);
 
         // Phase 3a: required-step rejection.
         // Builder only sets m_rejectOnFail on non-clocked Links with m_condp
         // or m_condVtxp, and the source always has a resolved stateSig.
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (!tedgep->m_rejectOnFail) continue;
-            const SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+        प्रति (ध्रुव SvaTransEdge* ध्रुव tedgep : c.graph.all_धाराः()) {
+            यदि (!tedgep->m_rejectOnFail) अनुवर्त;
+            ध्रुव SvaStateVertex* ध्रुव fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp && (tedgep->m_condp || tedgep->m_condVtxp),
                         fromVtxp,
                         "rejectOnFail Link must have condp/condVtxp and source stateSig");
-            AstNodeExpr* const srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
-            AstNodeExpr* condp = nullptr;
-            if (tedgep->m_condVtxp) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव srcSigp = fromVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य);
+            Ast_ग्रन्थिः_व्यञ्जकम्* condp = शून्यसूचकः;
+            यदि (tedgep->m_condVtxp) {
                 UASSERT_OBJ(tedgep->m_condVtxp->datap()->stateSigp, tedgep->m_condVtxp,
                             "rejectOnFail condVtxp missing stateSig");
-                condp = tedgep->m_condVtxp->datap()->stateSigp->cloneTreePure(false);
-                if (tedgep->m_condp) {
-                    condp = new AstLogOr{c.flp, condp, tedgep->m_condp->cloneTreePure(false)};
+                condp = tedgep->m_condVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य);
+                यदि (tedgep->m_condp) {
+                    condp = नूतन AstLogOr{c.flp, condp, tedgep->m_condp->clone_वृक्षः_विशुद्धम्(असत्य)};
                 }
-            } else {
-                condp = tedgep->m_condp->cloneTreePure(false);
+            } अन्यथा {
+                condp = tedgep->m_condp->clone_वृक्षः_विशुद्धम्(असत्य);
             }
-            AstNodeExpr* const notCondp = new AstLogNot{c.flp, condp};
-            AstNodeExpr* const rawFailp = new AstLogAnd{c.flp, srcSigp, notCondp};
-            if (needThreadFailCount) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notCondp = नूतन AstLogNot{c.flp, condp};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rawFailp = नूतन AstLogAnd{c.flp, srcSigp, notCondp};
+            यदि (need_Thread_Fail_गणनम्) {
                 // thread_fail_count += fail;
-                sigs.threadFailCountp = addCountp(
+                sigs.threadFailCountp = सङ्कलय_Countp(
                     c.flp, sigs.threadFailCountp,
-                    new AstExtend{c.flp, rawFailp->cloneTreePure(false), m_u32DTypep->width()});
+                    नूतन AstExtend{c.flp, rawFailp->clone_वृक्षः_विशुद्धम्(असत्य), m_u32DTypep->विस्तारः()});
             }
-            AstNodeExpr* const failp = gateNotKill(c, rawFailp);
-            sigs.requiredStepRejectp = orExprs(c.flp, sigs.requiredStepRejectp, failp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव failp = gateNotKill(c, rawFailp);
+            sigs.required_चरणः_Rejectp = orExprs(c.flp, sigs.required_चरणः_Rejectp, failp);
         }
 
-        computeThroughoutReject(c, sigs, needThroughoutThreadFailCount);
-        if (sigs.threadFailCountp) {
+        computeThroughoutReject(c, sigs, need_Throughout_Thread_Fail_गणनम्);
+        यदि (sigs.threadFailCountp) {
             sigs.threadFailCountp
-                = addCountp(c.flp, nullptr, sigs.threadFailCountp, notKillActive(c));
+                = सङ्कलय_Countp(c.flp, शून्यसूचकः, sigs.threadFailCountp, not_Kill_सक्रिय(c));
         }
-        if (sigs.matchCountp) {
-            if (c.matchCondp) {
-                sigs.matchCountp
-                    = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                                        sampled(c.matchCondp->cloneTreePure(false)));
+        यदि (sigs.मेलनम्_Countp) {
+            यदि (c.मेलनम्_Condp) {
+                sigs.मेलनम्_Countp
+                    = gateCheckedCountp(c.flp, sigs.मेलनम्_Countp, sigs.मेलनम्_गणनम्_Overflowp,
+                                        sampled(c.मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य)));
             }
-            sigs.matchCountp = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                                                 notKillActive(c));
+            sigs.मेलनम्_Countp = gateCheckedCountp(c.flp, sigs.मेलनम्_Countp, sigs.मेलनम्_गणनम्_Overflowp,
+                                                 not_Kill_सक्रिय(c));
         }
         sigs.terminalActivep = gateNotKill(c, sigs.terminalActivep);
         sigs.rejectBasep = gateNotKill(c, sigs.rejectBasep);
@@ -2411,456 +2411,456 @@ class SvaNfaLowering final {
         // Clean up intermediate state signals. These are orphan subtrees
         // (never linked into the enclosing AST); deleteTree() is immediate
         // which is what we want since stateSigp lifetime ends with this scope.
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            AstNodeExpr*& sigp = vtxp->datap()->stateSigp;
-            if (sigp) VL_DO_DANGLING(sigp->deleteTree(), sigp);
-            AstNodeExpr*& countp = vtxp->datap()->stateCountSigp;
-            if (countp) VL_DO_DANGLING(countp->deleteTree(), countp);
-            AstNodeExpr*& overflowp = vtxp->datap()->stateCountOverflowSigp;
-            if (overflowp) VL_DO_DANGLING(overflowp->deleteTree(), overflowp);
+        प्रति (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ध्रुव vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            Ast_ग्रन्थिः_व्यञ्जकम्*& sigp = vtxp->datap()->stateSigp;
+            यदि (sigp) VL_DO_DANGLING(sigp->delete_वृक्षः(), sigp);
+            Ast_ग्रन्थिः_व्यञ्जकम्*& countp = vtxp->datap()->state_गणनम्_Sigp;
+            यदि (countp) VL_DO_DANGLING(countp->delete_वृक्षः(), countp);
+            Ast_ग्रन्थिः_व्यञ्जकम्*& overflowp = vtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp;
+            यदि (overflowp) VL_DO_DANGLING(overflowp->delete_वृक्षः(), overflowp);
         }
         // Disable iff gating (IEEE 1800-2023 16.12) on the current level value.
-        if (c.disableExprp) {
+        यदि (c.disableExprp) {
             // terminalActivep is always set, so gate it unconditionally.
-            AstNodeExpr* const notTermp
-                = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-            sigs.terminalActivep = new AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
-            if (sigs.rejectBasep) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.rejectBasep = new AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notTermp
+                = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+            sigs.terminalActivep = नूतन AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
+            यदि (sigs.rejectBasep) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisp
+                    = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                sigs.rejectBasep = नूतन AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
             }
-            if (sigs.throughoutRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.throughoutRejectp = new AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
+            यदि (sigs.throughoutRejectp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisp
+                    = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                sigs.throughoutRejectp = नूतन AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
             }
-            if (sigs.requiredStepRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.requiredStepRejectp = new AstLogAnd{c.flp, sigs.requiredStepRejectp, notDisp};
+            यदि (sigs.required_चरणः_Rejectp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notDisp
+                    = नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                sigs.required_चरणः_Rejectp = नूतन AstLogAnd{c.flp, sigs.required_चरणः_Rejectp, notDisp};
             }
-            if (sigs.matchCountp) {
-                sigs.matchCountp = gateCheckedCountp(
-                    c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                    new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)});
+            यदि (sigs.मेलनम्_Countp) {
+                sigs.मेलनम्_Countp = gateCheckedCountp(
+                    c.flp, sigs.मेलनम्_Countp, sigs.मेलनम्_गणनम्_Overflowp,
+                    नूतन AstLogNot{c.flp, c.disableExprp->clone_वृक्षः_विशुद्धम्(असत्य)});
             }
         }
 
-        if (sigs.matchCountOverflowp) {
-            m_modp->addStmtsp(
-                new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false),
-                              newCountOverflowWarning(c.flp, sigs.matchCountOverflowp)});
-            sigs.matchCountOverflowp = nullptr;
+        यदि (sigs.मेलनम्_गणनम्_Overflowp) {
+            m_modp->सङ्कलय_Stmtsp(
+                नूतन AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_वृक्षः(असत्य),
+                              new_गणनम्_अतिप्रवाहः_Warning(c.flp, sigs.मेलनम्_गणनम्_Overflowp)});
+            sigs.मेलनम्_गणनम्_Overflowp = शून्यसूचकः;
         }
 
-        return sigs;
+        प्रत्यागम sigs;
     }
 
     // Phase 1: Resolve combinational Links via fixed-point propagation.
-    void resolveLinks(LowerCtx& c, AstNodeExpr* triggerExprp, const bool countMatches) {
+    शून्य resolveLinks(अधस्तनम्_Ctx& c, Ast_ग्रन्थिः_व्यञ्जकम्* triggerExprp, ध्रुव तार्किक गणनम्_Matches) {
         // datap() was freshly allocated in lower() -- all state signals start null.
-        c.graph.m_startVertexp->datap()->stateSigp = triggerExprp->cloneTreePure(false);
-        c.graph.m_startVertexp->datap()->stateCountSigp
-            = new AstExtend{c.flp, triggerExprp->cloneTreePure(false), m_u32DTypep->width()};
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (vtxp->datap()->stateVarp) {
+        c.graph.m_startVertexp->datap()->stateSigp = triggerExprp->clone_वृक्षः_विशुद्धम्(असत्य);
+        c.graph.m_startVertexp->datap()->state_गणनम्_Sigp
+            = नूतन AstExtend{c.flp, triggerExprp->clone_वृक्षः_विशुद्धम्(असत्य), m_u32DTypep->विस्तारः()};
+        प्रति (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ध्रुव vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            यदि (vtxp->datap()->stateVarp) {
                 vtxp->datap()->stateSigp
-                    = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
-                    m_u32DTypep->width()};
-            } else if (vtxp->datap()->delayRingVarp) {
-                if (vtxp->m_isFixedDelayRing) {
+                    = नूतन AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+                vtxp->datap()->state_गणनम्_Sigp = नूतन AstExtend{
+                    c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
+                    m_u32DTypep->विस्तारः()};
+            } अन्यथा यदि (vtxp->datap()->delayRingVarp) {
+                यदि (vtxp->m_isFixedDelayRing) {
                     // state_count = wrapped ? head : 0; state = state_count != 0;
-                    AstNodeExpr* const countp = delayRingOutputCount(c.flp, vtxp);
-                    vtxp->datap()->stateSigp = new AstNeq{c.flp, countp->cloneTreePure(false),
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव countp = delay_Ring_Output_गणनम्(c.flp, vtxp);
+                    vtxp->datap()->stateSigp = नूतन AstNeq{c.flp, countp->clone_वृक्षः_विशुद्धम्(असत्य),
                                                           newTypedConstp(c.flp, m_u32DTypep, 0)};
-                    vtxp->datap()->stateCountSigp = countp;
-                } else {
+                    vtxp->datap()->state_गणनम्_Sigp = countp;
+                } अन्यथा {
                     vtxp->datap()->stateSigp
-                        = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-                    vtxp->datap()->stateCountSigp = new AstVarRef{
-                        c.flp, vtxp->datap()->delayRingLiveCountVarp, VAccess::READ};
+                        = delay_Ring_Has_जीवितम्_Threadsp(c.flp, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp);
+                    vtxp->datap()->state_गणनम्_Sigp = नूतन AstVarRef{
+                        c.flp, vtxp->datap()->delay_Ring_जीवितम्_गणनम्_Varp, VAccess::READ};
                 }
             }
         }
         // Fixed-point propagation along zero-delay (Link) edges. Rebuild each
         // derived signal from its incoming edges on every pass; appending the same
         // contributions repeatedly makes merge expressions grow exponentially.
-        const size_t passes = 2 * c.graph.m_graph.vertices().size() + 2;
-        for (size_t pass = 0; pass < passes; ++pass) {
+        ध्रुव आकार_t passes = 2 * c.graph.m_graph.vertices().आकार() + 2;
+        प्रति (आकार_t pass = 0; pass < passes; ++pass) {
             // Rebuild SAnd combiners once both sub-NFA terminals are available.
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (!vtxp->m_isAndCombiner) continue;
+            प्रति (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+                SvaStateVertex* ध्रुव vtxp = static_cast<SvaStateVertex*>(&vtxr);
+                यदि (!vtxp->m_isAndCombiner) अनुवर्त;
                 // AndCombiner vertices always have both terminal pointers set.
                 UASSERT_OBJ(vtxp->m_andLhsTermp && vtxp->m_andRhsTermp, vtxp,
                             "AndCombiner vertex missing LHS/RHS terminal");
-                const SvaStateVertex* const lhsTermp = vtxp->m_andLhsTermp;
-                const SvaStateVertex* const rhsTermp = vtxp->m_andRhsTermp;
-                if (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) continue;
-                AstNodeExpr* const matchLp
-                    = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, vtxp->m_andLhsCondp);
-                AstNodeExpr* const matchRp
-                    = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, vtxp->m_andRhsCondp);
-                AstNodeExpr* const doneLOrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneLVarp, VAccess::READ}, matchLp};
-                AstNodeExpr* const doneROrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneRVarp, VAccess::READ}, matchRp};
-                AstNodeExpr* const bothp = new AstLogAnd{c.flp, doneLOrp, doneROrp};
-                AstNodeExpr* const oneNowp = new AstLogOr{c.flp, matchLp->cloneTreePure(false),
-                                                          matchRp->cloneTreePure(false)};
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                ध्रुव SvaStateVertex* ध्रुव lhsTermp = vtxp->m_andLhsTermp;
+                ध्रुव SvaStateVertex* ध्रुव rhsTermp = vtxp->m_andRhsTermp;
+                यदि (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) अनुवर्त;
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_Lp
+                    = build_मेलनम्_Now(c.flp, lhsTermp->datap()->stateSigp, vtxp->m_andLhsCondp);
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_Rp
+                    = build_मेलनम्_Now(c.flp, rhsTermp->datap()->stateSigp, vtxp->m_andRhsCondp);
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव समाप्तम्_LOrp = नूतन AstLogOr{
+                    c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->समाप्तम्_LVarp, VAccess::READ}, मेलनम्_Lp};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव समाप्तम्_ROrp = नूतन AstLogOr{
+                    c.flp, नूतन AstVarRef{c.flp, vtxp->datap()->समाप्तम्_RVarp, VAccess::READ}, मेलनम्_Rp};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bothp = नूतन AstLogAnd{c.flp, समाप्तम्_LOrp, समाप्तम्_ROrp};
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव oneNowp = नूतन AstLogOr{c.flp, मेलनम्_Lp->clone_वृक्षः_विशुद्धम्(असत्य),
+                                                          मेलनम्_Rp->clone_वृक्षः_विशुद्धम्(असत्य)};
+                यदि (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_वृक्षः(),
                                    vtxp->datap()->stateSigp);
                 }
-                vtxp->datap()->stateSigp = new AstLogAnd{c.flp, bothp, oneNowp};
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                vtxp->datap()->stateSigp = नूतन AstLogAnd{c.flp, bothp, oneNowp};
+                यदि (vtxp->datap()->state_गणनम्_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_गणनम्_Sigp->delete_वृक्षः(),
+                                   vtxp->datap()->state_गणनम्_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, vtxp->datap()->stateSigp->cloneTreePure(false), m_u32DTypep->width()};
+                vtxp->datap()->state_गणनम्_Sigp = नूतन AstExtend{
+                    c.flp, vtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य), m_u32DTypep->विस्तारः()};
             }
 
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (vtxp == c.graph.m_startVertexp || vtxp->datap()->stateVarp
-                    || vtxp->datap()->delayRingVarp || vtxp->m_isAndCombiner || vtxp->m_isMatch
+            प्रति (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+                SvaStateVertex* ध्रुव vtxp = static_cast<SvaStateVertex*>(&vtxr);
+                यदि (vtxp == c.graph.m_startVertexp || vtxp->datap()->stateVarp
+                    || vtxp->datap()->delayRingVarp || vtxp->m_isAndCombiner || vtxp->m_is_मेलनम्
                     || vtxp->m_isRejectSink) {
-                    continue;
+                    अनुवर्त;
                 }
-                AstNodeExpr* nextStatep = nullptr;
-                AstNodeExpr* nextStateCountp = nullptr;
-                AstNodeExpr* nextStateCountOverflowp = nullptr;
-                for (const V3GraphEdge& er : vtxp->inEdges()) {
-                    const SvaTransEdge& te = static_cast<const SvaTransEdge&>(er);
-                    const SvaStateVertex* const fromVtxp = te.fromVtxp();
-                    if (!fromVtxp->datap()->stateSigp) continue;
-                    UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+                Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_Statep = शून्यसूचकः;
+                Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_State_Countp = शून्यसूचकः;
+                Ast_ग्रन्थिः_व्यञ्जकम्* अग्र_State_गणनम्_Overflowp = शून्यसूचकः;
+                प्रति (ध्रुव V3GraphEdge& er : vtxp->अन्तर्_धाराः()) {
+                    ध्रुव SvaTransEdge& te = static_cast<ध्रुव SvaTransEdge&>(er);
+                    ध्रुव SvaStateVertex* ध्रुव fromVtxp = te.fromVtxp();
+                    यदि (!fromVtxp->datap()->stateSigp) अनुवर्त;
+                    UASSERT_OBJ(fromVtxp->datap()->state_गणनम्_Sigp, fromVtxp,
                                 "Link source missing stateCountSig");
-                    AstNodeExpr* const contributionp = andCond(
-                        c.flp, fromVtxp->datap()->stateSigp->cloneTreePure(false), te.m_condp);
-                    nextStatep = orExprs(c.flp, nextStatep, contributionp);
-                    AstNodeExpr* countContributionp
-                        = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                    AstNodeExpr* countContributionOverflowp
-                        = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                              ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
-                              : nullptr;
-                    if (te.m_condp) {
-                        AstNodeExpr* const enablep = te.m_condp->cloneTreePure(false);
-                        countContributionp
-                            = countMatches
-                                  ? gateCheckedCountp(c.flp, countContributionp,
-                                                      countContributionOverflowp, enablep)
-                                  : addCountp(c.flp, nullptr, countContributionp, enablep);
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव contributionp = andCond(
+                        c.flp, fromVtxp->datap()->stateSigp->clone_वृक्षः_विशुद्धम्(असत्य), te.m_condp);
+                    अग्र_Statep = orExprs(c.flp, अग्र_Statep, contributionp);
+                    Ast_ग्रन्थिः_व्यञ्जकम्* गणनम्_Contributionp
+                        = fromVtxp->datap()->state_गणनम्_Sigp->clone_वृक्षः_विशुद्धम्(असत्य);
+                    Ast_ग्रन्थिः_व्यञ्जकम्* गणनम्_Contribution_Overflowp
+                        = गणनम्_Matches && fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp
+                              ? fromVtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp->clone_वृक्षः_विशुद्धम्(असत्य)
+                              : शून्यसूचकः;
+                    यदि (te.m_condp) {
+                        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव enablep = te.m_condp->clone_वृक्षः_विशुद्धम्(असत्य);
+                        गणनम्_Contributionp
+                            = गणनम्_Matches
+                                  ? gateCheckedCountp(c.flp, गणनम्_Contributionp,
+                                                      गणनम्_Contribution_Overflowp, enablep)
+                                  : सङ्कलय_Countp(c.flp, शून्यसूचकः, गणनम्_Contributionp, enablep);
                     }
-                    nextStateCountp
-                        = countMatches
-                              ? addCheckedCountp(c.flp, nextStateCountp, countContributionp,
-                                                 nextStateCountOverflowp,
-                                                 countContributionOverflowp)
-                              : addCountp(c.flp, nextStateCountp, countContributionp);
+                    अग्र_State_Countp
+                        = गणनम्_Matches
+                              ? सङ्कलय_Checked_Countp(c.flp, अग्र_State_Countp, गणनम्_Contributionp,
+                                                 अग्र_State_गणनम्_Overflowp,
+                                                 गणनम्_Contribution_Overflowp)
+                              : सङ्कलय_Countp(c.flp, अग्र_State_Countp, गणनम्_Contributionp);
                 }
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                यदि (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_वृक्षः(),
                                    vtxp->datap()->stateSigp);
                 }
-                vtxp->datap()->stateSigp = nextStatep;
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                vtxp->datap()->stateSigp = अग्र_Statep;
+                यदि (vtxp->datap()->state_गणनम्_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_गणनम्_Sigp->delete_वृक्षः(),
+                                   vtxp->datap()->state_गणनम्_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = nextStateCountp;
-                if (vtxp->datap()->stateCountOverflowSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountOverflowSigp->deleteTree(),
-                                   vtxp->datap()->stateCountOverflowSigp);
+                vtxp->datap()->state_गणनम्_Sigp = अग्र_State_Countp;
+                यदि (vtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp->delete_वृक्षः(),
+                                   vtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp);
                 }
-                vtxp->datap()->stateCountOverflowSigp = nextStateCountOverflowp;
+                vtxp->datap()->state_गणनम्_अतिप्रवाहः_Sigp = अग्र_State_गणनम्_Overflowp;
             }
         }
     }
 
-public:
+सार्वजनिक:
     // Combine terminal/reject signals into final output expression.
-    static AstNodeExpr* assembleResult(AstNodeCoverOrAssert* const assertp, const bool negated,
-                                       AstNodeExpr* const matchCondp, const SignalSet& sigs,
-                                       AstNodeExpr** const outMatchpp) {
-        FileLine* const flp = assertp->fileline();
-        const bool isCover = VN_IS(assertp, Cover);
-        AstNodeExpr* const terminalActivep = sigs.terminalActivep;
-        AstNodeExpr* const rejectBasep = sigs.rejectBasep;
-        AstNodeExpr* const throughoutRejectp = sigs.throughoutRejectp;
-        AstNodeExpr* const requiredStepRejectp = sigs.requiredStepRejectp;
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* assemble_परिणाम(Ast_ग्रन्थिः_Cover_Or_Assert* ध्रुव assertp, ध्रुव तार्किक negated,
+                                       Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_Condp, ध्रुव Signal_समुच्चयः& sigs,
+                                       Ast_ग्रन्थिः_व्यञ्जकम्** ध्रुव बहिर्गमनम्_Matchpp) {
+        File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
+        ध्रुव तार्किक isCover = VN_IS(assertp, Cover);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव terminalActivep = sigs.terminalActivep;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव rejectBasep = sigs.rejectBasep;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव throughoutRejectp = sigs.throughoutRejectp;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव required_चरणः_Rejectp = sigs.required_चरणः_Rejectp;
         // Property negation (IEEE 1800-2023 16.12.1 `not`): invert match/reject.
-        if (negated) {
-            if (isCover) {
-                if (terminalActivep)
-                    VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-                AstNodeExpr* negRejectp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    AstNodeExpr* const notCondp = new AstLogNot{flp, sampledCondp};
-                    negRejectp = new AstLogAnd{flp, rejectBasep, notCondp};
-                } else if (rejectBasep) {
-                    VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        यदि (negated) {
+            यदि (isCover) {
+                यदि (terminalActivep)
+                    VL_DO_DANGLING(terminalActivep->delete_वृक्षः(), terminalActivep);
+                Ast_ग्रन्थिः_व्यञ्जकम्* negRejectp = शून्यसूचकः;
+                यदि (मेलनम्_Condp && rejectBasep) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledCondp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव notCondp = नूतन AstLogNot{flp, sampledCondp};
+                    negRejectp = नूतन AstLogAnd{flp, rejectBasep, notCondp};
+                } अन्यथा यदि (rejectBasep) {
+                    VL_DO_DANGLING(rejectBasep->delete_वृक्षः(), rejectBasep);
                 }
-                if (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
-                if (requiredStepRejectp)
-                    negRejectp = orExprs(flp, negRejectp, requiredStepRejectp);
-                return negRejectp ? negRejectp : new AstConst{flp, AstConst::BitFalse{}};
+                यदि (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
+                यदि (required_चरणः_Rejectp)
+                    negRejectp = orExprs(flp, negRejectp, required_चरणः_Rejectp);
+                प्रत्यागम negRejectp ? negRejectp : नूतन AstConst{flp, AstConst::BitFalse{}};
             }
             // Negated assert/assume: output = !match.
-            AstNodeExpr* matchp = terminalActivep;
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                matchp = new AstLogAnd{flp, matchp, sampledCondp};
+            Ast_ग्रन्थिः_व्यञ्जकम्* matchp = terminalActivep;
+            यदि (मेलनम्_Condp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledCondp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+                matchp = नूतन AstLogAnd{flp, matchp, sampledCondp};
             }
-            if (outMatchpp) {
-                AstNodeExpr* notPMatchp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    notPMatchp = new AstLogAnd{flp, rejectBasep->cloneTreePure(false),
-                                               new AstLogNot{flp, sampledCondp}};
-                } else if (rejectBasep) {
-                    notPMatchp = rejectBasep->cloneTreePure(false);
+            यदि (बहिर्गमनम्_Matchpp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* notPMatchp = शून्यसूचकः;
+                यदि (मेलनम्_Condp && rejectBasep) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledCondp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+                    notPMatchp = नूतन AstLogAnd{flp, rejectBasep->clone_वृक्षः_विशुद्धम्(असत्य),
+                                               नूतन AstLogNot{flp, sampledCondp}};
+                } अन्यथा यदि (rejectBasep) {
+                    notPMatchp = rejectBasep->clone_वृक्षः_विशुद्धम्(असत्य);
                 }
-                if (throughoutRejectp)
-                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->cloneTreePure(false));
-                if (requiredStepRejectp)
+                यदि (throughoutRejectp)
+                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->clone_वृक्षः_विशुद्धम्(असत्य));
+                यदि (required_चरणः_Rejectp)
                     notPMatchp
-                        = orExprs(flp, notPMatchp, requiredStepRejectp->cloneTreePure(false));
-                *outMatchpp = notPMatchp;
+                        = orExprs(flp, notPMatchp, required_चरणः_Rejectp->clone_वृक्षः_विशुद्धम्(असत्य));
+                *बहिर्गमनम्_Matchpp = notPMatchp;
             }
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            AstNodeExpr* const resultExprp = new AstLogNot{flp, matchp};
-            return resultExprp;
+            यदि (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_वृक्षः(), throughoutRejectp);
+            यदि (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_वृक्षः(), rejectBasep);
+            यदि (required_चरणः_Rejectp)
+                VL_DO_DANGLING(required_चरणः_Rejectp->delete_वृक्षः(), required_चरणः_Rejectp);
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव परिणाम_Exprp = नूतन AstLogNot{flp, matchp};
+            प्रत्यागम परिणाम_Exprp;
         }
-        if (isCover) {
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                return new AstLogAnd{flp, terminalActivep, sampledCondp};
+        यदि (isCover) {
+            यदि (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_वृक्षः(), throughoutRejectp);
+            यदि (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_वृक्षः(), rejectBasep);
+            यदि (required_चरणः_Rejectp)
+                VL_DO_DANGLING(required_चरणः_Rejectp->delete_वृक्षः(), required_चरणः_Rejectp);
+            यदि (मेलनम्_Condp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledCondp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+                प्रत्यागम नूतन AstLogAnd{flp, terminalActivep, sampledCondp};
             }
-            return terminalActivep;
+            प्रत्यागम terminalActivep;
         }
         // Assert/assume: output = !reject
-        AstNodeExpr* rejectp = nullptr;
-        if (matchCondp && rejectBasep) {
-            AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-            rejectp = new AstLogAnd{flp, rejectBasep, new AstLogNot{flp, sampledCondp}};
-        } else if (rejectBasep) {
-            VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        Ast_ग्रन्थिः_व्यञ्जकम्* rejectp = शून्यसूचकः;
+        यदि (मेलनम्_Condp && rejectBasep) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sampledCondp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+            rejectp = नूतन AstLogAnd{flp, rejectBasep, नूतन AstLogNot{flp, sampledCondp}};
+        } अन्यथा यदि (rejectBasep) {
+            VL_DO_DANGLING(rejectBasep->delete_वृक्षः(), rejectBasep);
         }
-        if (outMatchpp) {
-            AstNodeExpr* matchExprp = terminalActivep->cloneTreePure(false);
-            if (matchCondp) {
-                AstNodeExpr* const sp = sampled(matchCondp->cloneTreePure(false));
-                matchExprp = new AstLogAnd{flp, matchExprp, sp};
+        यदि (बहिर्गमनम्_Matchpp) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_Exprp = terminalActivep->clone_वृक्षः_विशुद्धम्(असत्य);
+            यदि (मेलनम्_Condp) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव sp = sampled(मेलनम्_Condp->clone_वृक्षः_विशुद्धम्(असत्य));
+                मेलनम्_Exprp = नूतन AstLogAnd{flp, मेलनम्_Exprp, sp};
             }
-            *outMatchpp = matchExprp;
+            *बहिर्गमनम्_Matchpp = मेलनम्_Exprp;
         }
-        if (terminalActivep) VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-        if (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
-        if (requiredStepRejectp) rejectp = orExprs(flp, rejectp, requiredStepRejectp);
-        if (!rejectp) return new AstConst{flp, AstConst::BitTrue{}};
-        AstNodeExpr* const resultExprp = new AstLogNot{flp, rejectp};
-        return resultExprp;
+        यदि (terminalActivep) VL_DO_DANGLING(terminalActivep->delete_वृक्षः(), terminalActivep);
+        यदि (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
+        यदि (required_चरणः_Rejectp) rejectp = orExprs(flp, rejectp, required_चरणः_Rejectp);
+        यदि (!rejectp) प्रत्यागम नूतन AstConst{flp, AstConst::BitTrue{}};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव परिणाम_Exprp = नूतन AstLogNot{flp, rejectp};
+        प्रत्यागम परिणाम_Exprp;
     }
 
-    explicit SvaNfaLowering(AstNodeModule* modp)
+    स्पष्ट SvaNfaLowering(Ast_ग्रन्थिः_Module* modp)
         : m_modp{modp}
         , m_u32DTypep{modp->findBasicDType(VBasicDTypeKwd::UINT32)} {}
     ~SvaNfaLowering() {
-        V3Stats::addStatSum("Assertions, NFA delay ring edge visits", m_statDelayRingEdgeVisits);
+        V3Stats::सङ्कलय_Stat_योग("Assertions, NFA delay ring edge visits", m_statDelayRingEdgeVisits);
     }
 
     // Lower NFA graph to synthesizable AstAlways blocks and raw result signals.
     // Links are combinational; Edges are registered (NBA).
-    SignalSet lower(AstNodeCoverOrAssert* const assertp, SvaGraph& graph,
-                    AstSenTree* const senTreep, AstNodeExpr* const matchCondp,
-                    AstNodeExpr* const disableExprp, const bool needThreadFailCount,
-                    const bool needThroughoutThreadFailCount) {
-        FileLine* const flp = assertp->fileline();
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const VAssertType assertType
-            = isSeqEvent ? VAssertType{VAssertType::INTERNAL} : assertp->userType();
-        const VAssertDirectiveType directiveType
-            = isSeqEvent ? VAssertDirectiveType{VAssertDirectiveType::INTERNAL}
+    Signal_समुच्चयः अधस्तनम्(Ast_ग्रन्थिः_Cover_Or_Assert* ध्रुव assertp, SvaGraph& graph,
+                    Ast_Sen_वृक्षः* ध्रुव senTreep, Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव मेलनम्_Condp,
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव disableExprp, ध्रुव तार्किक need_Thread_Fail_गणनम्,
+                    ध्रुव तार्किक need_Throughout_Thread_Fail_गणनम्) {
+        File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
+        AstCover* ध्रुव coverp = VN_CAST(assertp, Cover);
+        ध्रुव तार्किक isSeqEvent = coverp && coverp->isSeqEvent();
+        ध्रुव VAssertType assertType
+            = isSeqEvent ? VAssertType{VAssertType::आन्तरिकम्} : assertp->userType();
+        ध्रुव VAssertDirectiveType directiveType
+            = isSeqEvent ? VAssertDirectiveType{VAssertDirectiveType::आन्तरिकम्}
                          : assertp->directive();
-        const std::string baseName = m_names.get("");
+        ध्रुव std::string आधारः_Name = m_नामानि.get("");
 
         // Number vertices with sequential colors for array indexing.
-        int N = 0;
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) { vtxr.color(N++); }
-        std::vector<SvaStateVertex*> vtx(N, nullptr);
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) {
+        पूर्णाङ्क N = 0;
+        प्रति (V3GraphVertex& vtxr : graph.m_graph.vertices()) { vtxr.color(N++); }
+        std::सदिशम्<SvaStateVertex*> vtx(N, शून्यसूचकः);
+        प्रति (V3GraphVertex& vtxr : graph.m_graph.vertices()) {
             vtx[vtxr.color()] = static_cast<SvaStateVertex*>(&vtxr);
         }
 
         // Allocate per-vertex lowering data (stored via V3GraphVertex::userp()).
-        std::vector<SvaVertexData> vertexData(N);
-        for (int i = 0; i < N; ++i) vtx[i]->userp(&vertexData[i]);
+        std::सदिशम्<Sva_Vertex_दत्त> vertex_दत्त(N);
+        प्रति (पूर्णाङ्क i = 0; i < N; ++i) vtx[i]->userp(&vertex_दत्त[i]);
 
         // Identify registered vertices (targets of clocked edges).
-        for (int i = 0; i < N; ++i) {
-            for (const V3GraphEdge& edger : vtx[i]->outEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                const int toIdx = tedger.toVtxp()->color();
-                if (tedger.m_consumesCycle && tedger.toVtxp() != graph.m_matchVertexp
-                    && !tedger.toVtxp()->m_isRejectSink) {
-                    vtx[toIdx]->datap()->needsReg = true;
+        प्रति (पूर्णाङ्क i = 0; i < N; ++i) {
+            प्रति (ध्रुव V3GraphEdge& edger : vtx[i]->बहिर्गमनम्_धाराः()) {
+                ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+                ध्रुव पूर्णाङ्क गन्तव्यम्_Idx = tedger.गन्तव्यम्_Vtxp()->color();
+                यदि (tedger.m_consumes_आवृत्तिः && tedger.गन्तव्यम्_Vtxp() != graph.m_मेलनम्_Vertexp
+                    && !tedger.गन्तव्यम्_Vtxp()->m_isRejectSink) {
+                    vtx[गन्तव्यम्_Idx]->datap()->needsReg = सत्य;
                 }
             }
         }
 
         // A packed range ring can emit several live endpoints without needing per-slot counts.
         // Widen only a ring whose input can already carry multiplicity.
-        std::vector<bool> stateMayHaveMultiplicity(N);
-        std::vector<bool> ringNeedsMultiplicity(N);
-        std::vector<int> multiplicityWork;
-        const bool countMatches = coverp && coverp->isCoverSeq() && !isSeqEvent;
-        if (countMatches) {
-            for (int i = 0; i < N; ++i) {
-                const bool multipleInputs = vtx[i]->inEdges().size() > 1;
-                const bool isRing = vtx[i]->m_delayRingSize;
-                ringNeedsMultiplicity[i] = isRing && multipleInputs;
-                const bool startsMultiplicity = isRing
+        std::सदिशम्<तार्किक> stateMayHaveMultiplicity(N);
+        std::सदिशम्<तार्किक> ringNeedsMultiplicity(N);
+        std::सदिशम्<पूर्णाङ्क> multiplicityWork;
+        ध्रुव तार्किक गणनम्_Matches = coverp && coverp->isCoverSeq() && !isSeqEvent;
+        यदि (गणनम्_Matches) {
+            प्रति (पूर्णाङ्क i = 0; i < N; ++i) {
+                ध्रुव तार्किक गुणजः_Inputs = vtx[i]->अन्तर्_धाराः().आकार() > 1;
+                ध्रुव तार्किक isRing = vtx[i]->m_delay_Ring_आकार;
+                ringNeedsMultiplicity[i] = isRing && गुणजः_Inputs;
+                ध्रुव तार्किक startsMultiplicity = isRing
                                                     ? !vtx[i]->m_isFixedDelayRing
-                                                    : multipleInputs && !vtx[i]->datap()->needsReg;
-                if (startsMultiplicity) {
-                    stateMayHaveMultiplicity[i] = true;
-                    multiplicityWork.push_back(i);
+                                                    : गुणजः_Inputs && !vtx[i]->datap()->needsReg;
+                यदि (startsMultiplicity) {
+                    stateMayHaveMultiplicity[i] = सत्य;
+                    multiplicityWork.प्रक्षिप_पृष्ठभागः(i);
                 }
             }
-            for (size_t wi = 0; wi < multiplicityWork.size(); ++wi) {
-                for (const V3GraphEdge& edger : vtx[multiplicityWork[wi]]->outEdges()) {
-                    const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                    const int ti = tedger.toVtxp()->color();
-                    const bool isRing = vtx[ti]->m_delayRingSize;
-                    if (isRing) ringNeedsMultiplicity[ti] = true;
+            प्रति (आकार_t wi = 0; wi < multiplicityWork.आकार(); ++wi) {
+                प्रति (ध्रुव V3GraphEdge& edger : vtx[multiplicityWork[wi]]->बहिर्गमनम्_धाराः()) {
+                    ध्रुव SvaTransEdge& tedger = static_cast<ध्रुव SvaTransEdge&>(edger);
+                    ध्रुव पूर्णाङ्क ti = tedger.गन्तव्यम्_Vtxp()->color();
+                    ध्रुव तार्किक isRing = vtx[ti]->m_delay_Ring_आकार;
+                    यदि (isRing) ringNeedsMultiplicity[ti] = सत्य;
                     // Match and reject sinks have no outgoing edges, so they stop naturally.
-                    const bool stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
-                    if (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { continue; }
-                    stateMayHaveMultiplicity[ti] = true;
-                    multiplicityWork.push_back(ti);
+                    ध्रुव तार्किक stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
+                    यदि (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { अनुवर्त; }
+                    stateMayHaveMultiplicity[ti] = सत्य;
+                    multiplicityWork.प्रक्षिप_पृष्ठभागः(ti);
                 }
             }
         }
 
-        const bool asyncDisable = isAsyncDisable(disableExprp);
+        ध्रुव तार्किक asyncDisable = isAsyncDisable(disableExprp);
         // Registers cleared on a rising disable are also written by their clocked block.
-        FileLine* const regFlp = asyncDisable ? new FileLine{flp} : flp;
-        if (asyncDisable) regFlp->warnOff(V3ErrorCode::MULTIDRIVEN, true);
+        File_पङ्क्तिः* ध्रुव regFlp = asyncDisable ? नूतन File_पङ्क्तिः{flp} : flp;
+        यदि (asyncDisable) regFlp->warnOff(V3_Error_संहिता::MULTIDRIVEN, सत्य);
 
-        AstVar* const killVarp
-            = new AstVar{flp, VVarType::MODULETEMP, baseName + "__kill", m_u32DTypep};
+        AstVar* ध्रुव killVarp
+            = नूतन AstVar{flp, VVarType::MODULETEMP, आधारः_Name + "__kill", m_u32DTypep};
         killVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-        m_modp->addStmtsp(killVarp);
-        for (int i = 0; i < N; ++i) {
-            if (vtx[i]->m_isAndCombiner) {
-                const std::string base = baseName + "__a" + std::to_string(i);
-                AstVar* const lp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneL",
+        m_modp->सङ्कलय_Stmtsp(killVarp);
+        प्रति (पूर्णाङ्क i = 0; i < N; ++i) {
+            यदि (vtx[i]->m_isAndCombiner) {
+                ध्रुव std::string आधारः = आधारः_Name + "__a" + std::गन्तव्यम्_string(i);
+                AstVar* ध्रुव lp = नूतन AstVar{regFlp, VVarType::MODULETEMP, आधारः + "_doneL",
                                               m_modp->findBitDType()};
                 lp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(lp);
-                vtx[i]->datap()->doneLVarp = lp;
-                AstVar* const rp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneR",
+                m_modp->सङ्कलय_Stmtsp(lp);
+                vtx[i]->datap()->समाप्तम्_LVarp = lp;
+                AstVar* ध्रुव rp = नूतन AstVar{regFlp, VVarType::MODULETEMP, आधारः + "_doneR",
                                               m_modp->findBitDType()};
                 rp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(rp);
-                vtx[i]->datap()->doneRVarp = rp;
-                continue;
+                m_modp->सङ्कलय_Stmtsp(rp);
+                vtx[i]->datap()->समाप्तम्_RVarp = rp;
+                अनुवर्त;
             }
-            if (vtx[i]->m_delayRingSize) {
-                const std::string base = baseName + "__d" + std::to_string(i);
-                const bool storesCounts = countMatches && ringNeedsMultiplicity[i];
-                AstNodeDType* ringDTypep = nullptr;
-                if (storesCounts) {
+            यदि (vtx[i]->m_delay_Ring_आकार) {
+                ध्रुव std::string आधारः = आधारः_Name + "__d" + std::गन्तव्यम्_string(i);
+                ध्रुव तार्किक storesCounts = गणनम्_Matches && ringNeedsMultiplicity[i];
+                Ast_ग्रन्थिः_DType* ringDTypep = शून्यसूचकः;
+                यदि (storesCounts) {
                     // int unsigned ring [size];
-                    ringDTypep = new AstUnpackArrayDType{
+                    ringDTypep = नूतन AstUnpackArrayDType{
                         flp, m_u32DTypep,
-                        new AstRange{flp, static_cast<int>(vtx[i]->m_delayRingSize - 1), 0}};
-                    v3Global.rootp()->typeTablep()->addTypesp(ringDTypep);
-                } else {
+                        नूतन AstRange{flp, static_cast<पूर्णाङ्क>(vtx[i]->m_delay_Ring_आकार - 1), 0}};
+                    v3Global.rootp()->typeTablep()->सङ्कलय_Typesp(ringDTypep);
+                } अन्यथा {
                     // bit [size-1:0] ring;
-                    ringDTypep = m_modp->findBitDType(vtx[i]->m_delayRingSize,
-                                                      vtx[i]->m_delayRingSize, VSigning::UNSIGNED);
+                    ringDTypep = m_modp->findBitDType(vtx[i]->m_delay_Ring_आकार,
+                                                      vtx[i]->m_delay_Ring_आकार, VSigning::UNSIGNED);
                 }
-                AstVar* const ringp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_ring", ringDTypep};
+                AstVar* ध्रुव ringp
+                    = नूतन AstVar{flp, VVarType::MODULETEMP, आधारः + "_ring", ringDTypep};
                 ringp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(ringp);
+                m_modp->सङ्कलय_Stmtsp(ringp);
                 vtx[i]->datap()->delayRingVarp = ringp;
                 vtx[i]->datap()->delayRingCounts = storesCounts;
-                AstVar* const headp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_head",
+                AstVar* ध्रुव headp
+                    = नूतन AstVar{flp, VVarType::MODULETEMP, आधारः + "_head",
                                  storesCounts ? m_u32DTypep : m_modp->findBitDType()};
                 headp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(headp);
-                vtx[i]->datap()->delayRingHeadVarp = headp;
+                m_modp->सङ्कलय_Stmtsp(headp);
+                vtx[i]->datap()->delay_Ring_शीर्ष_Varp = headp;
                 // int unsigned idx;
-                AstVar* const idxp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_idx", m_u32DTypep};
+                AstVar* ध्रुव idxp
+                    = नूतन AstVar{regFlp, VVarType::MODULETEMP, आधारः + "_idx", m_u32DTypep};
                 idxp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(idxp);
+                m_modp->सङ्कलय_Stmtsp(idxp);
                 vtx[i]->datap()->delayRingIdxVarp = idxp;
                 // int unsigned live_count;
-                AstVar* const liveCountVarp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_liveCount", m_u32DTypep};
-                liveCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(liveCountVarp);
-                vtx[i]->datap()->delayRingLiveCountVarp = liveCountVarp;
-                AstVar* const wrappedp = new AstVar{regFlp, VVarType::MODULETEMP,
-                                                    base + "_wrapped", m_modp->findBitDType()};
+                AstVar* ध्रुव जीवितम्_गणनम्_Varp
+                    = नूतन AstVar{regFlp, VVarType::MODULETEMP, आधारः + "_liveCount", m_u32DTypep};
+                जीवितम्_गणनम्_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+                m_modp->सङ्कलय_Stmtsp(जीवितम्_गणनम्_Varp);
+                vtx[i]->datap()->delay_Ring_जीवितम्_गणनम्_Varp = जीवितम्_गणनम्_Varp;
+                AstVar* ध्रुव wrappedp = नूतन AstVar{regFlp, VVarType::MODULETEMP,
+                                                    आधारः + "_wrapped", m_modp->findBitDType()};
                 wrappedp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(wrappedp);
+                m_modp->सङ्कलय_Stmtsp(wrappedp);
                 vtx[i]->datap()->delayRingWrappedVarp = wrappedp;
-                continue;
+                अनुवर्त;
             }
-            if (!vtx[i]->datap()->needsReg) continue;
-            if (vtx[i] == graph.m_startVertexp || vtx[i]->m_isMatch) continue;
-            const std::string varName = baseName + "__s" + std::to_string(i);
-            AstVar* const varp
-                = new AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->findBitDType()};
+            यदि (!vtx[i]->datap()->needsReg) अनुवर्त;
+            यदि (vtx[i] == graph.m_startVertexp || vtx[i]->m_is_मेलनम्) अनुवर्त;
+            ध्रुव std::string varName = आधारः_Name + "__s" + std::गन्तव्यम्_string(i);
+            AstVar* ध्रुव varp
+                = नूतन AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->findBitDType()};
             varp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(varp);
+            m_modp->सङ्कलय_Stmtsp(varp);
             vtx[i]->datap()->stateVarp = varp;
         }
 
         // Build lowering context for phase sub-functions.
-        LowerCtx c{flp,        senTreep,      disableExprp, matchCondp,
+        अधस्तनम्_Ctx c{flp,        senTreep,      disableExprp, मेलनम्_Condp,
                    assertType, directiveType, killVarp,     graph};
 
         // Phase 1: Resolve combinational Links via fixed-point propagation.
-        AstNodeExpr* const triggerExprp
-            = isSeqEvent ? new AstConst{flp, AstConst::BitTrue{}}
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव triggerExprp
+            = isSeqEvent ? नूतन AstConst{flp, AstConst::BitTrue{}}
                          : assertOnCond(flp, assertp->userType(), assertp->directive());
-        resolveLinks(c, triggerExprp, countMatches);
-        VL_DO_DANGLING(triggerExprp->deleteTree(), triggerExprp);
+        resolveLinks(c, triggerExprp, गणनम्_Matches);
+        VL_DO_DANGLING(triggerExprp->delete_वृक्षः(), triggerExprp);
 
         // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
-        emitStateRegisterNba(c);
-        emitDelayRingUpdates(c, countMatches);
-        emitAndCombinerDoneLatchNba(c);
+        emit_State_पञ्जिकाकोशः_Nba(c);
+        emitDelayRingUpdates(c, गणनम्_Matches);
+        emit_And_Combiner_समाप्तम्_Latch_Nba(c);
         emitKillAckNba(c);
 
         // Phase 3/3a/3b: Compute terminal match/reject signals (cleans up stateSig).
-        const SignalSet sigs
-            = computeSignals(c, needThreadFailCount, needThroughoutThreadFailCount, countMatches);
+        ध्रुव Signal_समुच्चयः sigs
+            = compute_सङ्केताः(c, need_Thread_Fail_गणनम्, need_Throughout_Thread_Fail_गणनम्, गणनम्_Matches);
 
         // Strong s_always[m:n] end-of-simulation liveness: if any in-window state
         // is still set at $finish, the universal-quantifier window never completed
@@ -2868,39 +2868,39 @@ public:
         // from a final block; V3Assert turns the DT_ERROR display into the standard
         // "Assertion failed in %m" message.
         // pending = |{strong state registers, strong delay live counts != 0};
-        AstNodeExpr* pendingp = nullptr;
-        for (int i = 0; i < N; ++i) {
-            if (!vtx[i]->m_strongPending) continue;
-            AstNodeExpr* pendingExprp = nullptr;
-            if (vtx[i]->datap()->stateVarp) {
-                pendingExprp = new AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
-            } else if (vtx[i]->m_strongAlwaysRing) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* pendingp = शून्यसूचकः;
+        प्रति (पूर्णाङ्क i = 0; i < N; ++i) {
+            यदि (!vtx[i]->m_strongPending) अनुवर्त;
+            Ast_ग्रन्थिः_व्यञ्जकम्* pendingExprp = शून्यसूचकः;
+            यदि (vtx[i]->datap()->stateVarp) {
+                pendingExprp = नूतन AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
+            } अन्यथा यदि (vtx[i]->m_strongAlwaysRing) {
                 pendingExprp
-                    = delayRingHasLiveThreadsp(flp, vtx[i]->datap()->delayRingLiveCountVarp);
-            } else {
-                continue;
+                    = delay_Ring_Has_जीवितम्_Threadsp(flp, vtx[i]->datap()->delay_Ring_जीवितम्_गणनम्_Varp);
+            } अन्यथा {
+                अनुवर्त;
             }
-            if (!pendingp) {
+            यदि (!pendingp) {
                 pendingp = pendingExprp;
-            } else {
-                pendingp = new AstLogOr{flp, pendingp, pendingExprp};
+            } अन्यथा {
+                pendingp = नूतन AstLogOr{flp, pendingp, pendingExprp};
             }
         }
-        if (pendingp) {
-            AstCExpr* const assertOnp
-                = new AstCExpr{flp, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
-            AstNodeExpr* const condp = new AstLogAnd{flp, assertOnp, pendingp};
-            AstDisplay* const dispp
-                = new AstDisplay{flp, VDisplayType::DT_ERROR, "", nullptr, nullptr};
+        यदि (pendingp) {
+            AstCExpr* ध्रुव assertOnp
+                = नूतन AstCExpr{flp, AstCExpr::विशुद्धम्{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव condp = नूतन AstLogAnd{flp, assertOnp, pendingp};
+            AstDisplay* ध्रुव dispp
+                = नूतन AstDisplay{flp, VDisplayType::DT_ERROR, "", शून्यसूचकः, शून्यसूचकः};
             dispp->fmtp()->timeunit(m_modp->timeunit());
-            AstNodeStmt* const firep = dispp;
-            if (v3Global.opt.stopFail()) firep->addNext(new AstStop{flp, false});
-            m_modp->addStmtsp(new AstFinal{flp, new AstIf{flp, condp, firep}});
+            Ast_ग्रन्थिः_Stmt* ध्रुव firep = dispp;
+            यदि (v3Global.opt.stopFail()) firep->सङ्कलय_अग्र(नूतन AstStop{flp, असत्य});
+            m_modp->सङ्कलय_Stmtsp(नूतन AstFinal{flp, नूतन AstIf{flp, condp, firep}});
         }
 
         // Clear userp on every vertex before vertexData is destroyed.
-        for (int i = 0; i < N; ++i) vtx[i]->userp(nullptr);
-        return sigs;
+        प्रति (पूर्णाङ्क i = 0; i < N; ++i) vtx[i]->userp(शून्यसूचकः);
+        प्रत्यागम sigs;
     }
 };
 
@@ -2909,196 +2909,196 @@ public:
 //######################################################################
 // Top-level visitor
 
-class AssertNfaVisitor final : public VNVisitor {
+वर्ग AssertNfaVisitor final : सार्वजनिक VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module being processed
-    AstClocking* m_defaultClockingp = nullptr;  // Default clocking
-    AstDefaultDisable* m_defaultDisablep = nullptr;  // Default disable iff
-    SvaNfaLowering* m_loweringp = nullptr;  // NFA-to-hardware lowering engine
-    AstSenTree* m_sampledValueClockp = nullptr;  // Inherited clock during scoped attachment
-    V3UniqueNames m_propVarNames{"__Vpropvar"};  // Property-local variable names
-    V3UniqueNames m_propTempNames{"__VnfaSampled"};  // Hoisted $sampled(propp) temps
-    V3UniqueNames m_failCountNames{"__VnfaRemainingFailCount"};  // Fail replay counter names
-    std::set<const AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
+    Ast_ग्रन्थिः_Module* m_modp = शून्यसूचकः;  // Current module being processed
+    AstClocking* m_defaultClockingp = शून्यसूचकः;  // Default clocking
+    AstDefaultDisable* m_defaultDisablep = शून्यसूचकः;  // Default disable iff
+    SvaNfaLowering* m_loweringp = शून्यसूचकः;  // NFA-to-hardware lowering engine
+    Ast_Sen_वृक्षः* m_sampled_मानम्_Clockp = शून्यसूचकः;  // Inherited clock during scoped attachment
+    V3_Unique_नामानि m_prop_Var_नामानि{"__Vpropvar"};  // Property-local variable names
+    V3_Unique_नामानि m_prop_अस्थायी_नामानि{"__VnfaSampled"};  // Hoisted $sampled(propp) temps
+    V3_Unique_नामानि m_fail_गणनम्_नामानि{"__VnfaRemainingFailCount"};  // Fail replay counter names
+    std::समुच्चयः<ध्रुव AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
 
-    template <typename T_Node>
-    void visitSampledValue(T_Node* const nodep) {
-        if (m_sampledValueClockp && !nodep->sentreep()) {
-            nodep->sentreep(m_sampledValueClockp->cloneTree(true));
+    प्रतिरूपम् <प्रकारनाम T_ग्रन्थिः>
+    शून्य दर्शय_Sampled_मानम्(T_ग्रन्थिः* ध्रुव nodep) {
+        यदि (m_sampled_मानम्_Clockp && !nodep->sentreep()) {
+            nodep->sentreep(m_sampled_मानम्_Clockp->clone_वृक्षः(सत्य));
         }
         iterateChildren(nodep);
     }
 
     // Wire match vertex and mid-window sources for a successful NFA build.
-    static void wireMatchAndMidSources(SvaGraph& graph, const BuildResult& result, FileLine* flp) {
-        graph.createMatchVertex();
+    स्थिर शून्य wire_मेलनम्_And_Mid_Sources(SvaGraph& graph, ध्रुव Build_परिणाम& परिणाम, File_पङ्क्तिः* flp) {
+        graph.create_मेलनम्_Vertex();
         // Skip the main term Link when midSources already cover every
         // end-of-match (cover_sequence path); otherwise the per-mid extraction
         // double-counts via the merge vertex.
-        if (!result.termIsMidMerge) { graph.addLink(result.termVertexp, graph.m_matchVertexp); }
-        for (SvaStateVertex* srcVtxp : result.midSources) {
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const tc : srcVtxp->m_throughoutConds) {
-                AstNodeExpr* const tcClone = tc->cloneTreePure(false);
-                condp = condp ? new AstLogAnd{flp, condp, tcClone} : tcClone;
+        यदि (!परिणाम.पदांशः_Is_Mid_Merge) { graph.सङ्कलय_Link(परिणाम.पदांशः_Vertexp, graph.m_मेलनम्_Vertexp); }
+        प्रति (SvaStateVertex* srcVtxp : परिणाम.midSources) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* condp = शून्यसूचकः;
+            प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव tc : srcVtxp->m_throughoutConds) {
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव tcClone = tc->clone_वृक्षः_विशुद्धम्(असत्य);
+                condp = condp ? नूतन AstLogAnd{flp, condp, tcClone} : tcClone;
             }
-            graph.addLink(srcVtxp, graph.m_matchVertexp, condp);
-            srcVtxp->m_isUnbounded = true;
+            graph.सङ्कलय_Link(srcVtxp, graph.m_मेलनम्_Vertexp, condp);
+            srcVtxp->m_isUnbounded = सत्य;
         }
     }
 
-    static AstNodeExpr* getSequenceBodyExprp(const AstSequence* seqp) {
-        AstNode* bodyp = seqp->stmtsp();
-        while (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
-        return VN_CAST(bodyp, NodeExpr);
+    स्थिर Ast_ग्रन्थिः_व्यञ्जकम्* getSequenceBodyExprp(ध्रुव AstSequence* seqp) {
+        Ast_ग्रन्थिः* bodyp = seqp->stmtsp();
+        यावत् (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
+        प्रत्यागम VN_CAST(bodyp, ग्रन्थिः_व्यञ्जकम्);
     }
 
-    static AstPropSpec* getPropertySpecp(const AstProperty* propp) {
-        AstNode* stmtp = propp->stmtsp();
+    स्थिर AstPropSpec* getPropertySpecp(ध्रुव AstProperty* propp) {
+        Ast_ग्रन्थिः* stmtp = propp->stmtsp();
         // V3LinkParse emits InitialStaticStmt for property-local variable
         // initialisers; the InitialAutomaticStmt variant only appears for
         // task/function-scope automatic lifetime, not properties.
-        while (stmtp
+        यावत् (stmtp
                && (VN_IS(stmtp, Var) || VN_IS(stmtp, InitialStaticStmt)
                    || VN_IS(stmtp, InitialAutomaticStmt))) {  // LCOV_EXCL_LINE
             stmtp = stmtp->nextp();
         }
-        return VN_CAST(stmtp, PropSpec);
+        प्रत्यागम VN_CAST(stmtp, PropSpec);
     }
 
-    void inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
-                             const AstProperty* propyp) {
+    शून्य inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
+                             ध्रुव AstProperty* propyp) {
         // Recursion guard: IEEE 1800-2023 16.12.1 forbids recursive properties.
         // V3Width emits "Recursive property call" for direct recursion before this
         // pass runs; this catches any nested-inlining cycle that slips past.
-        if (!m_inliningProps.emplace(propyp).second) {
+        यदि (!m_inliningProps.emplace(propyp).second) {
             funcrefp->v3error("Illegal recursive property reference");  // LCOV_EXCL_LINE
-            return;  // LCOV_EXCL_LINE
+            प्रत्यागम;  // LCOV_EXCL_LINE
         }
-        struct Guard final {
-            std::set<const AstProperty*>& setr;
-            const AstProperty* keyp;
+        संरचना Guard final {
+            std::समुच्चयः<ध्रुव AstProperty*>& setr;
+            ध्रुव AstProperty* keyp;
             ~Guard() { setr.erase(keyp); }
         } guard{m_inliningProps, propyp};
         AstPropSpec* propSpecp = getPropertySpecp(propyp);
         UASSERT_OBJ(propSpecp, funcrefp, "Property has no body PropSpec");
-        propSpecp = propSpecp->cloneTree(false);
+        propSpecp = propSpecp->clone_वृक्षः(असत्य);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
-            portMap[tconnect.first] = tconnect.second->exprp();
+        ध्रुव V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
+        std::unordered_map<ध्रुव AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*> पत्तनम्_Map;
+        प्रति (ध्रुव स्वचालित& tconnect : tconnects) {
+            पत्तनम्_Map[tconnect.first] = tconnect.second->exprp();
         }
 
         // Promote property-local variables to module-level temps (IEEE 16.10).
-        std::unordered_map<const AstVar*, AstVar*> localVarMap;
-        for (AstNode* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) {
-                    const string newName = m_propVarNames.get(varp);
-                    AstVar* const newVarp = new AstVar{varp->fileline(), VVarType::MODULETEMP,
+        std::unordered_map<ध्रुव AstVar*, AstVar*> localVarMap;
+        प्रति (Ast_ग्रन्थिः* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            यदि (AstVar* ध्रुव varp = VN_CAST(stmtp, Var)) {
+                यदि (!varp->isIO()) {
+                    ध्रुव string newName = m_prop_Var_नामानि.get(varp);
+                    AstVar* ध्रुव newVarp = नूतन AstVar{varp->fileline(), VVarType::MODULETEMP,
                                                        newName, varp->dtypep()};
                     newVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-                    m_modp->addStmtsp(newVarp);
+                    m_modp->सङ्कलय_Stmtsp(newVarp);
                     localVarMap[varp] = newVarp;
                 }
             }
         }
 
         propSpecp->foreach([&](AstVarRef* refp) {
-            const auto portIt = portMap.find(refp->varp());
-            if (portIt != portMap.end()) {
-                refp->replaceWith(portIt->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
-                return;
+            ध्रुव स्वचालित पत्तनम्_It = पत्तनम्_Map.find(refp->varp());
+            यदि (पत्तनम्_It != पत्तनम्_Map.अन्तः_2()) {
+                refp->replaceWith(पत्तनम्_It->second->clone_वृक्षः(असत्य));
+                VL_DO_DANGLING(प्रक्षिप_Deletep(refp), refp);
+                प्रत्यागम;
             }
-            const auto localIt = localVarMap.find(refp->varp());
-            if (localIt != localVarMap.end()) refp->varp(localIt->second);
+            ध्रुव स्वचालित localIt = localVarMap.find(refp->varp());
+            यदि (localIt != localVarMap.अन्तः_2()) refp->varp(localIt->second);
         });  // LCOV_EXCL_LINE -- gcov attributes lambda's implicit return to `})`
 
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        प्रति (ध्रुव स्वचालित& tconnect : tconnects) {
+            प्रक्षिप_Deletep(tconnect.second->exprp()->unlink_Fr_पृष्ठभागः());
         }
         V3AssertCommon::checkSvaInstanceDelays(propSpecp, funcrefp);
 
         // Merge disable iff (IEEE 1800-2023 16.12.1)
-        if (outerSpecp->disablep() && propSpecp->disablep()) {
+        यदि (outerSpecp->disablep() && propSpecp->disablep()) {
             outerSpecp->v3error("disable iff expression before property call "
                                 "and in its body is not legal");
-            pushDeletep(propSpecp->disablep()->unlinkFrBack());
+            प्रक्षिप_Deletep(propSpecp->disablep()->unlink_Fr_पृष्ठभागः());
         }
-        if (outerSpecp->disablep()) {
-            propSpecp->disablep(outerSpecp->disablep()->unlinkFrBack());
+        यदि (outerSpecp->disablep()) {
+            propSpecp->disablep(outerSpecp->disablep()->unlink_Fr_पृष्ठभागः());
         }
 
-        if (outerSpecp->sensesp() && propSpecp->sensesp()) {
+        यदि (outerSpecp->sensesp() && propSpecp->sensesp()) {
             outerSpecp->v3warn(E_UNSUPPORTED,
                                "Unsupported: Clock event before property call and in its body");
-            pushDeletep(propSpecp->sensesp()->unlinkFrBack());
+            प्रक्षिप_Deletep(propSpecp->sensesp()->unlink_Fr_पृष्ठभागः());
         }
-        if (outerSpecp->sensesp()) {
-            AstSenItem* const sensesp = outerSpecp->sensesp();
-            sensesp->unlinkFrBack();
+        यदि (outerSpecp->sensesp()) {
+            AstSenItem* ध्रुव sensesp = outerSpecp->sensesp();
+            sensesp->unlink_Fr_पृष्ठभागः();
             propSpecp->sensesp(sensesp);
         }
 
         outerSpecp->replaceWith(propSpecp);
-        VL_DO_DANGLING(pushDeletep(outerSpecp), outerSpecp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(outerSpecp), outerSpecp);
     }
 
-    void inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
-        AstNodeExpr* const bodyExprp = getSequenceBodyExprp(seqp);
+    शून्य inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bodyExprp = getSequenceBodyExprp(seqp);
         UASSERT_OBJ(bodyExprp, funcrefp, "Sequence has no body expression");
-        AstNodeExpr* const clonedp = bodyExprp->cloneTree(false);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव clonedp = bodyExprp->clone_वृक्षः(असत्य);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
-            portMap[tconnect.first] = tconnect.second->exprp();
+        ध्रुव V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
+        std::unordered_map<ध्रुव AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*> पत्तनम्_Map;
+        प्रति (ध्रुव स्वचालित& tconnect : tconnects) {
+            पत्तनम्_Map[tconnect.first] = tconnect.second->exprp();
         }
         clonedp->foreach([&](AstVarRef* refp) {
-            const auto it = portMap.find(refp->varp());
-            if (it != portMap.end()) {
-                refp->replaceWith(it->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+            ध्रुव स्वचालित it = पत्तनम्_Map.find(refp->varp());
+            यदि (it != पत्तनम्_Map.अन्तः_2()) {
+                refp->replaceWith(it->second->clone_वृक्षः(असत्य));
+                VL_DO_DANGLING(प्रक्षिप_Deletep(refp), refp);
             }
         });
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        प्रति (ध्रुव स्वचालित& tconnect : tconnects) {
+            प्रक्षिप_Deletep(tconnect.second->exprp()->unlink_Fr_पृष्ठभागः());
         }
         V3AssertCommon::checkSvaInstanceDelays(clonedp, funcrefp);
         funcrefp->replaceWith(clonedp);
-        VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(funcrefp), funcrefp);
         // Clear referenced flag so V3AssertPre cleanup does not emit
         // spurious UNSUPPORTED for sequences that were already inlined here.
-        seqp->isReferenced(false);
+        seqp->isReferenced(असत्य);
     }
 
     // Must run before hasMultiCycleExpr() so NFA sees sequence bodies.
-    void inlineAllSequenceRefs(AstNode* rootp) {
-        bool changed = true;
-        while (changed) {
-            changed = false;
+    शून्य inlineAllSequenceRefs(Ast_ग्रन्थिः* rootp) {
+        तार्किक परिवर्तितम् = सत्य;
+        यावत् (परिवर्तितम्) {
+            परिवर्तितम् = असत्य;
             rootp->foreach([&](AstFuncRef* funcrefp) {
-                if (changed) return;
-                if (AstSequence* const seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
+                यदि (परिवर्तितम्) प्रत्यागम;
+                यदि (AstSequence* ध्रुव seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
                     inlineSequenceRef(funcrefp, seqp);
-                    changed = true;
+                    परिवर्तितम् = सत्य;
                 }
             });
         }
     }
 
-    static bool hasMultiCycleExpr(const AstNode* nodep) {
-        return nodep->exists([](const AstNode* np) {
-            if (const auto* const ep = VN_CAST(np, NodeExpr)) return ep->isMultiCycleSva();
-            return false;
+    स्थिर तार्किक has_Multi_आवृत्तिः_व्यञ्जकम्(ध्रुव Ast_ग्रन्थिः* nodep) {
+        प्रत्यागम nodep->exists([](ध्रुव Ast_ग्रन्थिः* np) {
+            यदि (ध्रुव स्वचालित* ध्रुव ep = VN_CAST(np, ग्रन्थिः_व्यञ्जकम्)) प्रत्यागम ep->is_Multi_आवृत्तिः_Sva();
+            प्रत्यागम असत्य;
         });
     }
 
-    static VPropStrength effectiveAssertPropStrength(const AstPropSpec* const propSpecp) {
-        if (propSpecp->propStrength() != VPropStrength::DEFAULT) return propSpecp->propStrength();
-        return propSpecp->fileline()->language() <= V3LangCode::L1800_2005 ? VPropStrength::STRONG
+    स्थिर VPropStrength effectiveAssertPropStrength(ध्रुव AstPropSpec* ध्रुव propSpecp) {
+        यदि (propSpecp->propStrength() != VPropStrength::DEFAULT) प्रत्यागम propSpecp->propStrength();
+        प्रत्यागम propSpecp->fileline()->language() <= V3_Lang_संहिता::L1800_2005 ? VPropStrength::STRONG
                                                                            : VPropStrength::WEAK;
     }
 
@@ -3108,250 +3108,250 @@ class AssertNfaVisitor final : public VNVisitor {
     // forms are also lowered there. NFA still owns sequence operands and any
     // embedding inside a multi-cycle context (implication consequent, or/and
     // operands, etc.).
-    static bool isBareTopLevelUntil(AstNode* propp) {
-        AstNode* p = propp;
-        if (AstPropSpec* const specp = VN_CAST(p, PropSpec)) p = specp->propp();
-        while (AstLogNot* const notp = VN_CAST(p, LogNot)) p = notp->lhsp();
-        AstUntil* const untilp = VN_CAST(p, Until);
-        if (!untilp) return false;
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+    स्थिर तार्किक is_Bare_शिखरम्_Level_Until(Ast_ग्रन्थिः* propp) {
+        Ast_ग्रन्थिः* p = propp;
+        यदि (AstPropSpec* ध्रुव specp = VN_CAST(p, PropSpec)) p = specp->propp();
+        यावत् (AstLogNot* ध्रुव notp = VN_CAST(p, LogNot)) p = notp->lhsp();
+        AstUntil* ध्रुव untilp = VN_CAST(p, Until);
+        यदि (!untilp) प्रत्यागम असत्य;
+        ध्रुव स्वचालित hasSeq = [](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ep) {
+            प्रत्यागम ep->exists([](ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* np) { प्रत्यागम np->is_Multi_आवृत्तिः_Sva(); });
         };
-        if (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) return false;
-        return true;
+        यदि (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) प्रत्यागम असत्य;
+        प्रत्यागम सत्य;
     }
 
-    struct PropertyParts final {
-        AstNodeExpr* triggerExprp = nullptr;
-        AstNodeExpr* seqExprp = nullptr;
-        bool isOverlapped = true;
-        bool hasImplication = false;
-        bool isFollowedBy = false;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
+    संरचना PropertyParts final {
+        Ast_ग्रन्थिः_व्यञ्जकम्* triggerExprp = शून्यसूचकः;
+        Ast_ग्रन्थिः_व्यञ्जकम्* seqExprp = शून्यसूचकः;
+        तार्किक isOverlapped = सत्य;
+        तार्किक hasImplication = असत्य;
+        तार्किक isFollowedBy = असत्य;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
     };
 
-    static PropertyParts decomposeProperty(AstNode* propp) {
+    स्थिर PropertyParts decomposeProperty(Ast_ग्रन्थिः* propp) {
         PropertyParts parts;
-        if (AstPropSpec* const specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
-        if (AstImplication* const implp = VN_CAST(propp, Implication)) {
-            parts.hasImplication = true;
+        यदि (AstPropSpec* ध्रुव specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
+        यदि (AstImplication* ध्रुव implp = VN_CAST(propp, Implication)) {
+            parts.hasImplication = सत्य;
             parts.isOverlapped = implp->isOverlapped();
             parts.isFollowedBy = implp->isFollowedBy();
             parts.triggerExprp = implp->lhsp();
             parts.seqExprp = implp->rhsp();
-        } else if (AstNodeExpr* const exprp = VN_CAST(propp, NodeExpr)) {
-            parts.triggerExprp = nullptr;
+        } अन्यथा यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव exprp = VN_CAST(propp, ग्रन्थिः_व्यञ्जकम्)) {
+            parts.triggerExprp = शून्यसूचकः;
             parts.seqExprp = exprp;
         }
-        return parts;
+        प्रत्यागम parts;
     }
 
-    static bool canSplitImplicationPassActions(const PropertyParts& parts) {
+    स्थिर तार्किक can_विभज_Implication_Pass_Actions(ध्रुव PropertyParts& parts) {
         UASSERT(parts.hasImplication,
                 "Implication pass action split requested without implication");
         UASSERT(parts.triggerExprp, "Implication pass action split requested without trigger");
         // Direct vacuous/nonvacuous classification uses the antecedent value in the current
         // assertion attempt. Leave delayed antecedents on the existing NFA pass path.
-        return !hasMultiCycleExpr(parts.triggerExprp);
+        प्रत्यागम !has_Multi_आवृत्तिः_व्यञ्जकम्(parts.triggerExprp);
     }
 
-    static void splitImplicationPassActions(AstAssert* assertp, const PropertyParts& parts,
-                                            AstNodeExpr* nonvacuousMatchp) {
-        FileLine* const flp = assertp->fileline();
+    स्थिर शून्य विभज_Implication_Pass_Actions(AstAssert* assertp, ध्रुव PropertyParts& parts,
+                                            Ast_ग्रन्थिः_व्यञ्जकम्* nonvacuousMatchp) {
+        File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
 
-        AstNode* const passsp = assertp->passsp()->unlinkFrBackWithNext();
-        AstNode* splitsp = nullptr;
+        Ast_ग्रन्थिः* ध्रुव passsp = assertp->passsp()->unlink_Fr_पृष्ठभागः_With_अग्र();
+        Ast_ग्रन्थिः* splitsp = शून्यसूचकः;
 
-        if (!parts.isFollowedBy) {
-            AstNodeExpr* const vacuousp
-                = new AstLogNot{flp, sampled(parts.triggerExprp->cloneTreePure(false))};
-            AstNode* const vacuousBodyp = passsp->cloneTree(false);
+        यदि (!parts.isFollowedBy) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव vacuousp
+                = नूतन AstLogNot{flp, sampled(parts.triggerExprp->clone_वृक्षः_विशुद्धम्(असत्य))};
+            Ast_ग्रन्थिः* ध्रुव vacuousBodyp = passsp->clone_वृक्षः(असत्य);
             splitsp = newPassOnIf(flp, vacuousp, vacuousBodyp, assertp->userType(),
-                                  assertp->directive(), /*vacuous=*/true);
+                                  assertp->directive(), /*vacuous=*/सत्य);
         }
 
-        AstIf* const nonvacuousp
+        AstIf* ध्रुव nonvacuousp
             = newPassOnIf(flp, nonvacuousMatchp, passsp, assertp->userType(), assertp->directive(),
-                          /*vacuous=*/false);
-        splitsp = splitsp ? AstNode::addNext<AstNode, AstNode>(splitsp, nonvacuousp)
-                          : static_cast<AstNode*>(nonvacuousp);
-        assertp->addPasssp(splitsp);
+                          /*vacuous=*/असत्य);
+        splitsp = splitsp ? Ast_ग्रन्थिः::सङ्कलय_अग्र<Ast_ग्रन्थिः, Ast_ग्रन्थिः>(splitsp, nonvacuousp)
+                          : static_cast<Ast_ग्रन्थिः*>(nonvacuousp);
+        assertp->सङ्कलय_Passsp(splitsp);
     }
 
     // On a PropSpec-wrapped assertion whose NFA build failed with a semantic
     // error (errorEmitted), replace the body with a BitFalse const so later
     // passes see a well-formed AST. Returns true if replaced.
-    void replaceBodyOnBuildError(FileLine* flp, AstPropSpec* propSpecp, bool errorEmitted) {
-        if (!errorEmitted) return;
-        AstNode* const innerPropp = propSpecp->propp();
-        innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+    शून्य replaceBodyOnBuildError(File_पङ्क्तिः* flp, AstPropSpec* propSpecp, तार्किक errorEmitted) {
+        यदि (!errorEmitted) प्रत्यागम;
+        Ast_ग्रन्थिः* ध्रुव innerPropp = propSpecp->propp();
+        innerPropp->replaceWith(नूतन AstConst{flp, AstConst::BitFalse{}});
+        VL_DO_DANGLING(प्रक्षिप_Deletep(innerPropp), innerPropp);
     }
 
     // Hoist a leading clocking event (IEEE 1800-2023 16.7):
-    bool hoistClockedSeq(AstPropSpec* specp) {
-        while (AstSClocked* const clockedp = VN_CAST(specp->propp(), SClocked)) {
-            if (specp->sensesp()) {
+    तार्किक hoistClockedSeq(AstPropSpec* specp) {
+        यावत् (AstSClocked* ध्रुव clockedp = VN_CAST(specp->propp(), SClocked)) {
+            यदि (specp->sensesp()) {
                 clockedp->v3warn(E_UNSUPPORTED, "Unsupported: multiclocked sequence or property");
-                replaceBodyOnBuildError(specp->fileline(), specp, true);
-                return true;
+                replaceBodyOnBuildError(specp->fileline(), specp, सत्य);
+                प्रत्यागम सत्य;
             }
-            for (const AstSenItem* sp = clockedp->sensesp(); sp;
+            प्रति (ध्रुव AstSenItem* sp = clockedp->sensesp(); sp;
                  sp = VN_CAST(sp->nextp(), SenItem)) {
-                if (!sp->edgeType().anEdge()) {
+                यदि (!sp->edgeType().anEdge()) {
                     clockedp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: non-edge clocking event on a sequence; "
                                      "use an edge such as @(posedge clk)");
-                    replaceBodyOnBuildError(specp->fileline(), specp, true);
-                    return true;
+                    replaceBodyOnBuildError(specp->fileline(), specp, सत्य);
+                    प्रत्यागम सत्य;
                 }
             }
-            specp->sensesp(clockedp->sensesp()->unlinkFrBackWithNext());
-            AstNodeExpr* const bodyp = clockedp->exprp()->unlinkFrBack();
+            specp->sensesp(clockedp->sensesp()->unlink_Fr_पृष्ठभागः_With_अग्र());
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव bodyp = clockedp->exprp()->unlink_Fr_पृष्ठभागः();
             clockedp->replaceWith(bodyp);
-            VL_DO_DANGLING(pushDeletep(clockedp), clockedp);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(clockedp), clockedp);
         }
         // A clocking event anywhere else in the sequence is not supported.
-        const AstSClocked* nestedp = nullptr;
-        specp->propp()->foreach([&](const AstSClocked* p) {
-            if (!nestedp) nestedp = p;
+        ध्रुव AstSClocked* nestedp = शून्यसूचकः;
+        specp->propp()->foreach([&](ध्रुव AstSClocked* p) {
+            यदि (!nestedp) nestedp = p;
         });
-        if (nestedp) {
+        यदि (nestedp) {
             nestedp->v3warn(E_UNSUPPORTED,
                             "Unsupported: clocking event inside sequence expression");
-            replaceBodyOnBuildError(specp->fileline(), specp, true);
-            return true;
+            replaceBodyOnBuildError(specp->fileline(), specp, सत्य);
+            प्रत्यागम सत्य;
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Build the NFA graph for a property body, handling both the antecedent
     // |-> consequent and simple sequence cases. Returns the consequent/body
     // BuildResult (invalid on parse/build failure).
-    BuildResult buildAssertionGraph(SvaNfaBuilder& builder, SvaGraph& graph, AstNodeExpr* seqBodyp,
-                                    const PropertyParts& parts, FileLine* flp) {
-        if (!parts.hasImplication) return builder.build(seqBodyp);
+    Build_परिणाम buildAssertionGraph(SvaNfaBuilder& builder, SvaGraph& graph, Ast_ग्रन्थिः_व्यञ्जकम्* seqBodyp,
+                                    ध्रुव PropertyParts& parts, File_पङ्क्तिः* flp) {
+        यदि (!parts.hasImplication) प्रत्यागम builder.build(seqBodyp);
 
         graph.m_startVertexp = graph.createStateVertex();
-        return builder.buildImplicationEdges(parts.triggerExprp, seqBodyp, graph.m_startVertexp,
+        प्रत्यागम builder.build_Implication_धाराः(parts.triggerExprp, seqBodyp, graph.m_startVertexp,
                                              parts.isOverlapped, parts.isFollowedBy,
                                              parts.triggerExprp, flp);
     }
 
     // Install pass-action gating and replay simultaneous per-thread failures.
-    void attachActionHandlers(AstAssert* const assertp, AstNodeExpr* matchExprp,
-                              AstSenTree* const threadFailReplaySenTreep,
-                              AstNodeExpr* const threadFailCountp) {
+    शून्य attachActionHandlers(AstAssert* ध्रुव assertp, Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_Exprp,
+                              Ast_Sen_वृक्षः* ध्रुव threadFailReplaySenTreep,
+                              Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव threadFailCountp) {
         // Gate pass handler on match to prevent vacuous-pass firings.
-        if (matchExprp) {
+        यदि (मेलनम्_Exprp) {
             // needMatch implies passsp() was non-null when evaluated above;
             // lowering does not mutate the assert's pass-action between the
             // two reads, so passsp() is still non-null here.
-            AstNode* passsp = assertp->passsp();
+            Ast_ग्रन्थिः* passsp = assertp->passsp();
             UASSERT_OBJ(passsp, assertp, "needMatch set but passsp is null");
-            passsp->unlinkFrBackWithNext();
-            FileLine* const flp = assertp->fileline();
-            AstIf* const ifp = new AstIf{flp, matchExprp, passsp, nullptr};
-            assertp->addPasssp(ifp);
+            passsp->unlink_Fr_पृष्ठभागः_With_अग्र();
+            File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
+            AstIf* ध्रुव ifp = नूतन AstIf{flp, मेलनम्_Exprp, passsp, शून्यसूचकः};
+            assertp->सङ्कलय_Passsp(ifp);
             // Fail-handler prefix for overlapping instances (IEEE 16.12):
             // fires when reject=1 && match=1 in the same cycle.
-            if (assertp->failsp()) assertp->prependFailsp(ifp->cloneTree(false));
+            यदि (assertp->failsp()) assertp->prependFailsp(ifp->clone_वृक्षः(असत्य));
         }
 
-        if (threadFailCountp) {
+        यदि (threadFailCountp) {
             UASSERT_OBJ(threadFailReplaySenTreep, assertp,
                         "Thread fail count missing sensitivity tree");
-            AstNode* const failsp = assertp->failsp();
-            FileLine* const flp = assertp->fileline();
+            Ast_ग्रन्थिः* ध्रुव failsp = assertp->failsp();
+            File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
             // IEEE 1800-2023 16.12 requires one action-block evaluation per failed
             // thread. AstAssert handles the first, so replay the rest here.
-            AstVar* const remainingFailCountVarp
-                = new AstVar{flp, VVarType::MODULETEMP, m_failCountNames.get(""),
+            AstVar* ध्रुव remaining_Fail_गणनम्_Varp
+                = नूतन AstVar{flp, VVarType::MODULETEMP, m_fail_गणनम्_नामानि.get(""),
                              m_modp->findBasicDType(VBasicDTypeKwd::UINT32)};
-            remainingFailCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(remainingFailCountVarp);
-            AstNode* const replayStmtsp = new AstAssign{
-                flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE}, threadFailCountp};
-            AstLoop* const replayLoopp = new AstLoop{flp};
-            replayLoopp->addStmtsp(new AstLoopTest{
+            remaining_Fail_गणनम्_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+            m_modp->सङ्कलय_Stmtsp(remaining_Fail_गणनम्_Varp);
+            Ast_ग्रन्थिः* ध्रुव replayStmtsp = नूतन Ast_नियोजय{
+                flp, नूतन AstVarRef{flp, remaining_Fail_गणनम्_Varp, VAccess::WRITE}, threadFailCountp};
+            AstLoop* ध्रुव replayLoopp = नूतन AstLoop{flp};
+            replayLoopp->सङ्कलय_Stmtsp(नूतन AstLoopTest{
                 flp, replayLoopp,
-                new AstGt{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                          newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)}});
-            replayLoopp->addStmtsp(newIfAssertFailOn(failsp->cloneTree(true), assertp->directive(),
+                नूतन AstGt{flp, नूतन AstVarRef{flp, remaining_Fail_गणनम्_Varp, VAccess::READ},
+                          newTypedConstp(flp, remaining_Fail_गणनम्_Varp->dtypep(), 1)}});
+            replayLoopp->सङ्कलय_Stmtsp(newIfAssertFailOn(failsp->clone_वृक्षः(सत्य), assertp->directive(),
                                                      assertp->userType()));
-            AstSub* const decrementedFailCountp
-                = new AstSub{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                             newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)};
-            replayLoopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE},
+            AstSub* ध्रुव decrementedFailCountp
+                = नूतन AstSub{flp, नूतन AstVarRef{flp, remaining_Fail_गणनम्_Varp, VAccess::READ},
+                             newTypedConstp(flp, remaining_Fail_गणनम्_Varp->dtypep(), 1)};
+            replayLoopp->सङ्कलय_Stmtsp(
+                नूतन Ast_नियोजय{flp, नूतन AstVarRef{flp, remaining_Fail_गणनम्_Varp, VAccess::WRITE},
                               decrementedFailCountp});
-            replayStmtsp->addNext(replayLoopp);
-            m_modp->addStmtsp(
-                new AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
+            replayStmtsp->सङ्कलय_अग्र(replayLoopp);
+            m_modp->सङ्कलय_Stmtsp(
+                नूतन AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
         }
     }
 
     // Replace one VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). No-op if refp is not in matchMap.
-    void substituteMatchItemRef(AstVarRef* refp, unsigned K,
-                                const std::unordered_map<const AstVar*, AstNodeExpr*>& matchMap) {
-        const auto it = matchMap.find(refp->varp());
-        if (it == matchMap.end()) return;
-        AstNodeExpr* newp = it->second->cloneTreePure(false);
-        if (K > 0) {
-            AstConst* const ticksp = new AstConst{refp->fileline(), AstConst::WidthedValue{}, 32,
+    शून्य substitute_मेलनम्_Item_Ref(AstVarRef* refp, अचिह्नित K,
+                                ध्रुव std::unordered_map<ध्रुव AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*>& मेलनम्_Map) {
+        ध्रुव स्वचालित it = मेलनम्_Map.find(refp->varp());
+        यदि (it == मेलनम्_Map.अन्तः_2()) प्रत्यागम;
+        Ast_ग्रन्थिः_व्यञ्जकम्* newp = it->second->clone_वृक्षः_विशुद्धम्(असत्य);
+        यदि (K > 0) {
+            AstConst* ध्रुव ticksp = नूतन AstConst{refp->fileline(), AstConst::Widthed_मानम्{}, 32,
                                                   static_cast<uint32_t>(K)};
-            AstPast* const pastp = new AstPast{refp->fileline(), newp, ticksp, nullptr,
-                                               /* propertyTiming */ true};
+            AstPast* ध्रुव pastp = नूतन AstPast{refp->fileline(), newp, ticksp, शून्यसूचकः,
+                                               /* propertyTiming */ सत्य};
             pastp->dtypeFrom(newp);
             newp = pastp;
         }
         refp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
-        return;
+        VL_DO_DANGLING(प्रक्षिप_Deletep(refp), refp);
+        प्रत्यागम;
     }
 
     // Recursively walk a consequent. Returns cycle length consumed and
     // substitutes each VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). Reports E_UNSUPPORTED on non-constant
     // delays or composite sequence operators and returns -1 on failure.
-    int
-    walkSubstituteMatchItems(AstNodeExpr* nodep, unsigned K,
-                             const std::unordered_map<const AstVar*, AstNodeExpr*>& matchItems) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
+    पूर्णाङ्क
+    walk_Substitute_मेलनम्_वस्तूनि(Ast_ग्रन्थिः_व्यञ्जकम्* nodep, अचिह्नित K,
+                             ध्रुव std::unordered_map<ध्रुव AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*>& मेलनम्_वस्तूनि) {
+        यदि (AstSExpr* ध्रुव sexprp = VN_CAST(nodep, SExpr)) {
             // IEEE 1800-2023 16.9.2: cycle_delay's lhsp is a constant_expression
             // and the delay form in a sequence is always `##N`, folded by
             // V3Const + V3Param before V3AssertNfa. Range form `##[m:n]` is the
             // only user-visible reject here.
-            AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
-            UASSERT_OBJ(delayp->isCycleDelay() && VN_IS(delayp->lhsp(), Const), sexprp,
+            AstDelay* ध्रुव delayp = VN_AS(sexprp->delayp(), Delay);
+            UASSERT_OBJ(delayp->is_आवृत्तिः_Delay() && VN_IS(delayp->lhsp(), Const), sexprp,
                         "SVA cycle delay must have a constant lhsp");
-            if (delayp->isRangeDelay()) {
+            यदि (delayp->isRangeDelay()) {
                 sexprp->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                               "non-constant cycle delay in consequent"
                                               " (IEEE 1800-2023 16.10)");
-                return -1;
+                प्रत्यागम -1;
             }
-            const unsigned delayCycles = VN_AS(delayp->lhsp(), Const)->toUInt();
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preLen = walkSubstituteMatchItems(prep, K, matchItems);
-                if (preLen < 0) return -1;
+            ध्रुव अचिह्नित delay_आवृत्तयः = VN_AS(delayp->lhsp(), Const)->गन्तव्यम्_UInt();
+            पूर्णाङ्क preLen = 0;
+            यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव prep = sexprp->preExprp()) {
+                preLen = walk_Substitute_मेलनम्_वस्तूनि(prep, K, मेलनम्_वस्तूनि);
+                यदि (preLen < 0) प्रत्यागम -1;
             }
-            const int bodyLen
-                = walkSubstituteMatchItems(sexprp->exprp(), K + preLen + delayCycles, matchItems);
-            if (bodyLen < 0) return -1;
-            return preLen + delayCycles + bodyLen;
+            ध्रुव पूर्णाङ्क bodyLen
+                = walk_Substitute_मेलनम्_वस्तूनि(sexprp->exprp(), K + preLen + delay_आवृत्तयः, मेलनम्_वस्तूनि);
+            यदि (bodyLen < 0) प्रत्यागम -1;
+            प्रत्यागम preLen + delay_आवृत्तयः + bodyLen;
         }
-        if (nodep->isMultiCycleSva()) {
+        यदि (nodep->is_Multi_आवृत्तिः_Sva()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                          "composite sequence operator in consequent"
                                          " (IEEE 1800-2023 16.10)");
-            return -1;
+            प्रत्यागम -1;
         }
-        std::vector<AstVarRef*> refs;
-        nodep->foreach([&refs](AstVarRef* p) { refs.push_back(p); });
-        for (AstVarRef* const refp : refs) substituteMatchItemRef(refp, K, matchItems);
-        return 0;
+        std::सदिशम्<AstVarRef*> refs;
+        nodep->foreach([&refs](AstVarRef* p) { refs.प्रक्षिप_पृष्ठभागः(p); });
+        प्रति (AstVarRef* ध्रुव refp : refs) substitute_मेलनम्_Item_Ref(refp, K, मेलनम्_वस्तूनि);
+        प्रत्यागम 0;
     }
 
     // Lower property-local match-item assignments before NFA construction.
@@ -3363,49 +3363,49 @@ class AssertNfaVisitor final : public VNVisitor {
     // is replaced with `$past(rhs_expr, K)` where K = (overlapped ? 0 : 1)
     // plus any accumulated `##N` delay. Returns true if E_UNSUPPORTED was
     // emitted; caller must replace the body with BitFalse and bail.
-    bool liftMatchItemSubstitutions(PropertyParts& parts, AstNodeExpr* seqBodyp) {
-        if (!parts.hasImplication) return false;
-        AstExprStmt* const exprStmtp = VN_CAST(parts.triggerExprp, ExprStmt);
-        if (!exprStmtp) return false;
+    तार्किक lift_मेलनम्_Item_Substitutions(PropertyParts& parts, Ast_ग्रन्थिः_व्यञ्जकम्* seqBodyp) {
+        यदि (!parts.hasImplication) प्रत्यागम असत्य;
+        Ast_व्यञ्जकम्_Stmt* ध्रुव व्यञ्जकम्_Stmtp = VN_CAST(parts.triggerExprp, व्यञ्जकम्_Stmt);
+        यदि (!व्यञ्जकम्_Stmtp) प्रत्यागम असत्य;
         // IEEE 1800-2023 16.10 BNF requires `(expr, match_item {, match_item})`
         // with at least one match item; V3LinkParse only emits ExprStmt for
         // this form and only emits AstAssign with VarRef LHS for each item.
-        std::unordered_map<const AstVar*, AstNodeExpr*> matchItems;
-        for (AstNode* stmtp = exprStmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstAssign* const assignp = VN_AS(stmtp, Assign);
-            AstVarRef* const lhsRefp = VN_AS(assignp->lhsp(), VarRef);
-            matchItems[lhsRefp->varp()] = assignp->rhsp();
+        std::unordered_map<ध्रुव AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*> मेलनम्_वस्तूनि;
+        प्रति (Ast_ग्रन्थिः* stmtp = व्यञ्जकम्_Stmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            Ast_नियोजय* ध्रुव assignp = VN_AS(stmtp, नियोजय);
+            AstVarRef* ध्रुव lhsRefp = VN_AS(assignp->lhsp(), VarRef);
+            मेलनम्_वस्तूनि[lhsRefp->varp()] = assignp->rhsp();
         }
-        const unsigned startK = parts.isOverlapped ? 0 : 1;
-        const int length = walkSubstituteMatchItems(seqBodyp, startK, matchItems);
+        ध्रुव अचिह्नित startK = parts.isOverlapped ? 0 : 1;
+        ध्रुव पूर्णाङ्क दीर्घता_2 = walk_Substitute_मेलनम्_वस्तूनि(seqBodyp, startK, मेलनम्_वस्तूनि);
         // Match-item substitution / strip mutates ancestor purity. Release
         // builds don't auto-clear caches on edits, so refresh here.
-        VIsCached::clearCacheTree();
-        if (length < 0) return true;
-        AstNodeExpr* const antBoolp = exprStmtp->resultp()->unlinkFrBack();
-        exprStmtp->replaceWith(antBoolp);
-        VL_DO_DANGLING(pushDeletep(exprStmtp), exprStmtp);
+        VIsCached::clear_Cache_वृक्षः();
+        यदि (दीर्घता_2 < 0) प्रत्यागम सत्य;
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव antBoolp = व्यञ्जकम्_Stmtp->resultp()->unlink_Fr_पृष्ठभागः();
+        व्यञ्जकम्_Stmtp->replaceWith(antBoolp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(व्यञ्जकम्_Stmtp), व्यञ्जकम्_Stmtp);
         parts.triggerExprp = antBoolp;
-        return false;
+        प्रत्यागम असत्य;
     }
 
     // Outcome counts for a property if/case are wrong in an outcome-multiplying
     // context. Returns that context, or nullptr when the shape is supported.
-    static const char* unsupportedPropertyControl(const AstNodeCoverOrAssert* assertp,
-                                                  const AstNodeExpr* seqBodyp, bool negated) {
-        if (!hasPropertyControlConjunction(seqBodyp)) return nullptr;
-        if (negated) return "negation";
-        if (VN_IS(assertp, Cover)) return "cover";
-        if (VN_AS(assertp, Assert)->passsp()) return "a pass action";
-        return nullptr;
+    स्थिर ध्रुव वर्ण* unsupportedPropertyControl(ध्रुव Ast_ग्रन्थिः_Cover_Or_Assert* assertp,
+                                                  ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* seqBodyp, तार्किक negated) {
+        यदि (!hasPropertyControlConjunction(seqBodyp)) प्रत्यागम शून्यसूचकः;
+        यदि (negated) प्रत्यागम "negation";
+        यदि (VN_IS(assertp, Cover)) प्रत्यागम "cover";
+        यदि (VN_AS(assertp, Assert)->passsp()) प्रत्यागम "a pass action";
+        प्रत्यागम शून्यसूचकः;
     }
 
     // Inline property/sequence refs and reject unsupported shapes.
     // Returns the PropSpec to lower, or nullptr when fully handled here.
-    AstPropSpec* prepareAssertionProp(AstNodeCoverOrAssert* assertp) {
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (AstFuncRef* const funcrefp = VN_CAST(specp->propp(), FuncRef)) {
-                if (const AstProperty* const propyp = VN_CAST(funcrefp->taskp(), Property)) {
+    AstPropSpec* prepareAssertionProp(Ast_ग्रन्थिः_Cover_Or_Assert* assertp) {
+        यदि (AstPropSpec* ध्रुव specp = VN_CAST(assertp->propp(), PropSpec)) {
+            यदि (AstFuncRef* ध्रुव funcrefp = VN_CAST(specp->propp(), FuncRef)) {
+                यदि (ध्रुव AstProperty* ध्रुव propyp = VN_CAST(funcrefp->taskp(), Property)) {
                     inlineNamedProperty(specp, funcrefp, propyp);
                 }
             }
@@ -3413,214 +3413,214 @@ class AssertNfaVisitor final : public VNVisitor {
 
         inlineAllSequenceRefs(assertp->propp());
 
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (hoistClockedSeq(specp)) return nullptr;
+        यदि (AstPropSpec* ध्रुव specp = VN_CAST(assertp->propp(), PropSpec)) {
+            यदि (hoistClockedSeq(specp)) प्रत्यागम शून्यसूचकः;
         }
 
-        AstPropSpec* const propp = VN_AS(assertp->propp(), PropSpec);
-        if (!VN_IS(assertp, Cover)
+        AstPropSpec* ध्रुव propp = VN_AS(assertp->propp(), PropSpec);
+        यदि (!VN_IS(assertp, Cover)
             && effectiveAssertPropStrength(propp) == VPropStrength::STRONG) {
             propp->v3warn(E_UNSUPPORTED,
                           "Unsupported: strong property in " + assertp->verilogKwd() + ".");
-            replaceBodyOnBuildError(assertp->fileline(), propp, /*errorEmitted=*/true);
-            return nullptr;
+            replaceBodyOnBuildError(assertp->fileline(), propp, /*errorEmitted=*/सत्य);
+            प्रत्यागम शून्यसूचकः;
         }
 
-        if (!hasMultiCycleExpr(propp)) return nullptr;
+        यदि (!has_Multi_आवृत्तिः_व्यञ्जकम्(propp)) प्रत्यागम शून्यसूचकः;
         // A nested property instance keeps its body behind the call; lowering would drop it.
-        if (propp->exists([](const AstFuncRef* refp) { return VN_IS(refp->taskp(), Property); })) {
+        यदि (propp->exists([](ध्रुव AstFuncRef* refp) { प्रत्यागम VN_IS(refp->taskp(), Property); })) {
             assertp->v3warn(E_UNSUPPORTED,
                             "Unsupported: property instance inside a multi-cycle property "
                             "expression");
-            VL_DO_DANGLING(pushDeletep(assertp->unlinkFrBack()), assertp);
-            return nullptr;
+            VL_DO_DANGLING(प्रक्षिप_Deletep(assertp->unlink_Fr_पृष्ठभागः()), assertp);
+            प्रत्यागम शून्यसूचकः;
         }
-        if (isBareTopLevelUntil(propp)) return nullptr;
-        return propp;
+        यदि (is_Bare_शिखरम्_Level_Until(propp)) प्रत्यागम शून्यसूचकः;
+        प्रत्यागम propp;
     }
 
-    void processAssertion(AstNodeCoverOrAssert* assertp) {
-        if (assertp->immediate()) return;
+    शून्य processAssertion(Ast_ग्रन्थिः_Cover_Or_Assert* assertp) {
+        यदि (assertp->तात्कालिकम्()) प्रत्यागम;
 
-        AstPropSpec* const propp = prepareAssertionProp(assertp);
-        if (!propp) return;
+        AstPropSpec* ध्रुव propp = prepareAssertionProp(assertp);
+        यदि (!propp) प्रत्यागम;
 
         PropertyParts parts = decomposeProperty(propp);
         UASSERT_OBJ(parts.seqExprp, propp, "Property body must be an expression");
 
         // Unwrap `not` (IEEE 1800-2023 16.12.1); odd count -> negated semantics.
-        AstNodeExpr* seqBodyp = parts.seqExprp;
-        bool negated = false;
-        while (AstLogNot* const notp = VN_CAST(seqBodyp, LogNot)) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* seqBodyp = parts.seqExprp;
+        तार्किक negated = असत्य;
+        यावत् (AstLogNot* ध्रुव notp = VN_CAST(seqBodyp, LogNot)) {
             negated = !negated;
             seqBodyp = notp->lhsp();
         }
 
-        const char* const propertyControlp
+        ध्रुव वर्ण* ध्रुव propertyControlp
             = unsupportedPropertyControl(assertp, seqBodyp, negated);
 
         // Substitute property-local match-item refs in consequent with
         // $past(rhs, K) before NFA build (IEEE 1800-2023 16.10).
-        if (liftMatchItemSubstitutions(parts, seqBodyp)) {
-            AstPropSpec* const psp = VN_CAST(assertp->propp(), PropSpec);
+        यदि (lift_मेलनम्_Item_Substitutions(parts, seqBodyp)) {
+            AstPropSpec* ध्रुव psp = VN_CAST(assertp->propp(), PropSpec);
             UASSERT_OBJ(psp, assertp, "Concurrent assertion must have PropSpec");
-            replaceBodyOnBuildError(assertp->fileline(), psp, /*errorEmitted=*/true);
-            return;
+            replaceBodyOnBuildError(assertp->fileline(), psp, /*errorEmitted=*/सत्य);
+            प्रत्यागम;
         }
 
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isCoverSeq = coverp && coverp->isCoverSeq();
+        AstCover* ध्रुव coverp = VN_CAST(assertp, Cover);
+        ध्रुव तार्किक isCoverSeq = coverp && coverp->isCoverSeq();
         // A sequence event control is not an assertion directive; no default
         // disable iff, no assertion control
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const bool countMatches = isCoverSeq && !isSeqEvent;
+        ध्रुव तार्किक isSeqEvent = coverp && coverp->isSeqEvent();
+        ध्रुव तार्किक गणनम्_Matches = isCoverSeq && !isSeqEvent;
         // Inherit module defaults (IEEE 14.12, 16.15) when assertion has none.
-        if (!propp->sensesp() && m_defaultClockingp) {
-            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->cloneTree(true));
+        यदि (!propp->sensesp() && m_defaultClockingp) {
+            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->clone_वृक्षः(सत्य));
         }
-        if (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
-            propp->disablep(m_defaultDisablep->condp()->cloneTreePure(true));
+        यदि (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
+            propp->disablep(m_defaultDisablep->condp()->clone_वृक्षः_विशुद्धम्(सत्य));
         }
-        if (!propp->sensesp()) return;
-        AstSenTree* senTreep
-            = new AstSenTree{propp->fileline(), propp->sensesp()->cloneTree(true)};
-        AstNodeExpr* const disableExprp = propp->disablep();
+        यदि (!propp->sensesp()) प्रत्यागम;
+        Ast_Sen_वृक्षः* senTreep
+            = नूतन Ast_Sen_वृक्षः{propp->fileline(), propp->sensesp()->clone_वृक्षः(सत्य)};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव disableExprp = propp->disablep();
 
         // NFA lowering clones repeated operands and may hoist them into an
         // always_comb block. Resolve implicit sampled-value clocks first, while
         // the enclosing assertion clock is still available.
         {
-            VL_RESTORER(m_sampledValueClockp);
-            m_sampledValueClockp = senTreep;
+            VL_RESTORER(m_sampled_मानम्_Clockp);
+            m_sampled_मानम्_Clockp = senTreep;
             iterate(propp->propp());
         }
 
-        FileLine* const flp = assertp->fileline();
+        File_पङ्क्तिः* ध्रुव flp = assertp->fileline();
 
         SvaGraph graph;
-        SvaNfaBuilder builder{graph,      m_modp,     m_propTempNames,
-                              isCoverSeq, isSeqEvent, coverp != nullptr};
+        SvaNfaBuilder builder{graph,      m_modp,     m_prop_अस्थायी_नामानि,
+                              isCoverSeq, isSeqEvent, coverp != शून्यसूचकः};
 
-        const BuildResult result = buildAssertionGraph(builder, graph, seqBodyp, parts, flp);
-        if (result.valid()) wireMatchAndMidSources(graph, result, flp);
-        if (!result.valid()) {
+        ध्रुव Build_परिणाम परिणाम = buildAssertionGraph(builder, graph, seqBodyp, parts, flp);
+        यदि (परिणाम.valid()) wire_मेलनम्_And_Mid_Sources(graph, परिणाम, flp);
+        यदि (!परिणाम.valid()) {
             // Fall through to V3AssertPre for unsupported constructs; only
             // replace the body on real semantic errors. Any hoisted temps
             // from this attempt become orphan MODULETEMPs; V3Dead removes
             // them along with the dead always_comb driver.
-            replaceBodyOnBuildError(flp, propp, result.errorEmitted);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            replaceBodyOnBuildError(flp, propp, परिणाम.errorEmitted);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(senTreep), senTreep);
+            प्रत्यागम;
         }
         // After the build, so a construct the builder rejects reports itself.
-        if (propertyControlp) {
+        यदि (propertyControlp) {
             seqBodyp->v3warn(E_UNSUPPORTED,
                              "Unsupported: temporal property if/case with " << propertyControlp);
-            replaceBodyOnBuildError(flp, propp, /*errorEmitted=*/true);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            replaceBodyOnBuildError(flp, propp, /*errorEmitted=*/सत्य);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(senTreep), senTreep);
+            प्रत्यागम;
         }
-        if (countMatches && !v3Global.opt.coverageUser()) {
-            SvaNfaBuilder::freeUnlinkedCondp(result.finalCondp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            AstNode* const innerPropp = propp->propp();
-            innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
-            return;
+        यदि (गणनम्_Matches && !v3Global.opt.coverageUser()) {
+            SvaNfaBuilder::freeUnlinkedCondp(परिणाम.finalCondp);
+            VL_DO_DANGLING(प्रक्षिप_Deletep(senTreep), senTreep);
+            Ast_ग्रन्थिः* ध्रुव innerPropp = propp->propp();
+            innerPropp->replaceWith(नूतन AstConst{flp, AstConst::BitFalse{}});
+            VL_DO_DANGLING(प्रक्षिप_Deletep(innerPropp), innerPropp);
+            प्रत्यागम;
         }
 
-        AstAssert* const assertAssertp = VN_CAST(assertp, Assert);
-        const bool splitImplicationPasssp = assertAssertp && assertAssertp->passsp()
+        AstAssert* ध्रुव assertAssertp = VN_CAST(assertp, Assert);
+        ध्रुव तार्किक विभज_Implication_Passsp = assertAssertp && assertAssertp->passsp()
                                             && parts.hasImplication
-                                            && canSplitImplicationPassActions(parts);
-        const bool needMatch = assertAssertp && assertAssertp->passsp()
-                               && (!parts.hasImplication || splitImplicationPasssp);
+                                            && can_विभज_Implication_Pass_Actions(parts);
+        ध्रुव तार्किक need_मेलनम् = assertAssertp && assertAssertp->passsp()
+                               && (!parts.hasImplication || विभज_Implication_Passsp);
 
-        const bool needsThreadFailReplay
+        ध्रुव तार्किक needsThreadFailReplay
             = assertAssertp && assertAssertp->failsp() && !parts.hasImplication;
-        const auto signals
-            = m_loweringp->lower(assertp, graph, senTreep, result.finalCondp, disableExprp,
+        ध्रुव स्वचालित सङ्केताः
+            = m_loweringp->अधस्तनम्(assertp, graph, senTreep, परिणाम.finalCondp, disableExprp,
                                  needsThreadFailReplay, needsThreadFailReplay && !negated);
-        AstNodeExpr* matchExprp = nullptr;
-        AstNodeExpr* outputExprp = m_loweringp->assembleResult(
-            assertp, negated, result.finalCondp, signals, needMatch ? &matchExprp : nullptr);
-        if (countMatches) {
-            UASSERT_OBJ(signals.matchCountp, coverp, "Cover sequence missing match count");
-            VL_DO_DANGLING(outputExprp->deleteTree(), outputExprp);
-            propp->matchCountp(signals.matchCountp);
-            outputExprp = new AstNeq{flp, signals.matchCountp->cloneTreePure(false),
-                                     newTypedConstp(flp, signals.matchCountp->dtypep(), 0)};
+        Ast_ग्रन्थिः_व्यञ्जकम्* मेलनम्_Exprp = शून्यसूचकः;
+        Ast_ग्रन्थिः_व्यञ्जकम्* outputExprp = m_loweringp->assemble_परिणाम(
+            assertp, negated, परिणाम.finalCondp, सङ्केताः, need_मेलनम् ? &मेलनम्_Exprp : शून्यसूचकः);
+        यदि (गणनम्_Matches) {
+            UASSERT_OBJ(सङ्केताः.मेलनम्_Countp, coverp, "Cover sequence missing match count");
+            VL_DO_DANGLING(outputExprp->delete_वृक्षः(), outputExprp);
+            propp->मेलनम्_Countp(सङ्केताः.मेलनम्_Countp);
+            outputExprp = नूतन AstNeq{flp, सङ्केताः.मेलनम्_Countp->clone_वृक्षः_विशुद्धम्(असत्य),
+                                     newTypedConstp(flp, सङ्केताः.मेलनम्_Countp->dtypep(), 0)};
         }
 
-        AstSenTree* const threadFailReplaySenTreep
-            = signals.threadFailCountp ? senTreep->cloneTree(false) : nullptr;
+        Ast_Sen_वृक्षः* ध्रुव threadFailReplaySenTreep
+            = सङ्केताः.threadFailCountp ? senTreep->clone_वृक्षः(असत्य) : शून्यसूचकः;
 
-        VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-        if (result.finalCondp && !result.finalCondp->backp()) pushDeletep(result.finalCondp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(senTreep), senTreep);
+        यदि (परिणाम.finalCondp && !परिणाम.finalCondp->backp()) प्रक्षिप_Deletep(परिणाम.finalCondp);
 
-        if (splitImplicationPasssp) {
-            splitImplicationPassActions(assertAssertp, parts, matchExprp);
-        } else {
-            attachActionHandlers(assertAssertp, matchExprp, threadFailReplaySenTreep,
-                                 signals.threadFailCountp);
+        यदि (विभज_Implication_Passsp) {
+            विभज_Implication_Pass_Actions(assertAssertp, parts, मेलनम्_Exprp);
+        } अन्यथा {
+            attachActionHandlers(assertAssertp, मेलनम्_Exprp, threadFailReplaySenTreep,
+                                 सङ्केताः.threadFailCountp);
         }
 
-        AstNode* const innerPropp = propp->propp();
+        Ast_ग्रन्थिः* ध्रुव innerPropp = propp->propp();
         innerPropp->replaceWith(outputExprp);
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(innerPropp), innerPropp);
 
-        UINFO(4, "NFA converted assertion at " << flp << endl);
+        UINFO(4, "NFA converted assertion at " << flp << पङ्क्त्यन्तः);
 
-        if (dumpGraphLevel() >= 6) graph.m_graph.dumpDotFilePrefixed("assert-nfa");
+        यदि (dumpGraphLevel() >= 6) graph.m_graph.dumpDotFilePrefixed("assert-nfa");
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    शून्य दर्शय(Ast_ग्रन्थिः_Module* nodep) override {
         VL_RESTORER(m_modp);
         VL_RESTORER(m_loweringp);
         VL_RESTORER(m_defaultClockingp);
         VL_RESTORER(m_defaultDisablep);
         m_modp = nodep;
         // A class nested in a module is in the scope of the module's default clocking
-        if (!VN_IS(nodep, Class)) m_defaultClockingp = nullptr;
+        यदि (!VN_IS(nodep, Class)) m_defaultClockingp = शून्यसूचकः;
         m_defaultDisablep = nodep->defaultDisablep();
         SvaNfaLowering lowering{nodep};
         m_loweringp = &lowering;
         iterateChildren(nodep);
     }
-    void visit(AstClocking* nodep) override {
-        if (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
+    शून्य दर्शय(AstClocking* nodep) override {
+        यदि (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    शून्य दर्शय(Ast_Gen_खण्डम्* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {}
-    void visit(AstFell* nodep) override { visitSampledValue(nodep); }
-    void visit(AstPast* nodep) override { visitSampledValue(nodep); }
-    void visit(AstRose* nodep) override { visitSampledValue(nodep); }
-    void visit(AstStable* nodep) override { visitSampledValue(nodep); }
-    void visit(AstAssert* nodep) override { processAssertion(nodep); }
-    void visit(AstCover* nodep) override { processAssertion(nodep); }
-    void visit(AstRestrict* nodep) override {
+    शून्य दर्शय(AstDefaultDisable* nodep) override {}
+    शून्य दर्शय(AstFell* nodep) override { दर्शय_Sampled_मानम्(nodep); }
+    शून्य दर्शय(AstPast* nodep) override { दर्शय_Sampled_मानम्(nodep); }
+    शून्य दर्शय(AstRose* nodep) override { दर्शय_Sampled_मानम्(nodep); }
+    शून्य दर्शय(AstStable* nodep) override { दर्शय_Sampled_मानम्(nodep); }
+    शून्य दर्शय(AstAssert* nodep) override { processAssertion(nodep); }
+    शून्य दर्शय(AstCover* nodep) override { processAssertion(nodep); }
+    शून्य दर्शय(AstRestrict* nodep) override {
         // Restrict property is ignored by simulators (IEEE 1800-2023 16.12.2).
         // Remove here so temporal SExpr don't leak to V3AssertPre.
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(nodep->unlink_Fr_पृष्ठभागः()), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य दर्शय(AstAssertIntrinsic* nodep) override {}
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit AssertNfaVisitor(AstNetlist* nodep) { iterate(nodep); }
+सार्वजनिक:
+    स्पष्ट AssertNfaVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // Top entry point
 
-void V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
-    UINFO(2, __FUNCTION__ << ":" << endl);
+शून्य V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
+    UINFO(2, __FUNCTION__ << ":" << पङ्क्त्यन्तः);
     { AssertNfaVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertnfa", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्षः("assertnfa", 0, dump_वृक्षः_Either_Level() >= 3);
 }

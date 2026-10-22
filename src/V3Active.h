@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ACTIVE_H_
-#define VERILATOR_V3ACTIVE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3_सक्रिय_H
+#परिभाषय VERILATOR_V3_सक्रिय_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Active final {
-public:
-    static void activeAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_सक्रिय final {
+सार्वजनिक:
+    स्थिर शून्य सक्रिय_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

@@ -14,60 +14,60 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TASK_H_
-#define VERILATOR_V3TASK_H_
+#यदि_अपरिभाषितम् VERILATOR_V3TASK_H_
+#परिभाषय VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Container.h"
+#अन्तर्भाव "V3Error.h"
 
-#include <utility>
-#include <vector>
+#अन्तर्भाव <utility>
+#अन्तर्भाव <vector>
 
 //============================================================================
 
 using V3TaskConnect = std::pair<AstVar*, AstArg*>;  // [port, pin-connects-to]
-using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
+using V3TaskConnects = std::सदिशम्<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
 
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_ग्रन्थिः_FTask*, std::string>, Ast_ग्रन्थिः_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+सार्वजनिक:
+    V3TaskConnectState() = स्वभाव;
+    ~V3TaskConnectState() = स्वभाव;
+    शून्य प्रक्षिप_Deletep(Ast_ग्रन्थिः* nodep) { m_deleter.प्रक्षिप_Deletep(nodep); }
+    bool didWrap() ध्रुव { प्रत्यागम m_didWrap; }
+    शून्य समुच्चयः_Did_Wrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { प्रत्यागम m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    स्थिर ध्रुव वर्ण* ध्रुव s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+सार्वजनिक:
+    स्थिर शून्य taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    स्थिर V3TaskConnects taskConnects(Ast_ग्रन्थिः_FTask_Ref* nodep, Ast_ग्रन्थिः* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    स्थिर शून्य taskConnectWrap(Ast_ग्रन्थिः_FTask_Ref* nodep, ध्रुव V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                ध्रुव VInsertion_समुच्चयः<ध्रुव AstVar*>& argWrap) VL_MT_DISABLED;
+    स्थिर Ast_ग्रन्थिः_FTask*
+    taskConnectWrapNew(Ast_ग्रन्थिः_FTask* taskp, ध्रुव string& newname, ध्रुव V3TaskConnects& tconnects,
+                       ध्रुव VInsertion_समुच्चयः<ध्रुव AstVar*>& argWrap) VL_MT_DISABLED;
+    स्थिर string नियोजय_आन्तरिकम्_गन्तव्यम्_Dpi(AstVar* portp, bool isPtr, ध्रुव string& frSuffix,
+                                      ध्रुव string& गन्तव्यम्_Suffix,
+                                      ध्रुव string& fr_उपसर्गः = "") VL_MT_DISABLED;
+    स्थिर string नियोजय_Dpi_गन्तव्यम्_आन्तरिकम्(ध्रुव string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    स्थिर ध्रुव वर्ण* dpiTemporaryVarSuffix() VL_MT_SAFE { प्रत्यागम s_dpiTemporaryVarSuffix; }
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

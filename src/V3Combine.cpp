@@ -19,88 +19,88 @@
 //      Also drop empty CFuncs
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Combine.h"
+#अन्तर्भाव "V3Combine.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3DupFinder.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3AstUserAllocator.h"
+#अन्तर्भाव "V3DupFinder.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <list>
-#include <vector>
+#अन्तर्भाव <list>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class CombineVisitor final : VNVisitor {
+वर्ग CombineVisitor final : VNVisitor {
     // NODE STATE
     // AstNodeModule::user1()   List of AstCFuncs in this module (via m_cfuncs)
     // AstCFunc::user1()        List of AstCCalls to this function (via m_callSites)
     // AstCFunc::user2()        bool: Already replaced (in 'process')
     // AstCFunc::user3()        bool: Marks functions earlier in iteration order (in 'combinePass')
     // *::user4()               Used by V3Hasher
-    const VNUser1InUse m_user1InUse;
+    ध्रुव VNUser1_अन्तर्_Use m_user1_अन्तर्_Use;
 
     // TYPES
-    using funcit_t = std::list<AstCFunc*>::iterator;
-    struct CFuncs final {
+    उपयुज्य funcit_t = std::list<AstCFunc*>::iterator;
+    संरचना CFuncs final {
         std::list<AstCFunc*> m_fast;  // Functions that are not slow
         std::list<AstCFunc*> m_slow;  // Functions marked for slow files
     };
 
     // STATE
-    AstUser1Allocator<AstNodeModule, CFuncs> m_cfuncs;  // AstCFuncs under module
-    AstUser1Allocator<AstCFunc, std::vector<AstCCall*>> m_callSites;  // Call sites of the AstCFunc
-    AstNodeModule* m_modp = nullptr;  // Current module
-    const V3Hasher m_hasher;  // For hashing
+    AstUser1Allocator<Ast_ग्रन्थिः_Module, CFuncs> m_cfuncs;  // AstCFuncs under module
+    AstUser1Allocator<AstCFunc, std::सदिशम्<AstCCall*>> m_callSites;  // Call sites of the AstCFunc
+    Ast_ग्रन्थिः_Module* m_modp = शून्यसूचकः;  // Current module
+    ध्रुव V3Hasher m_hasher;  // For hashing
     VDouble0 m_cfuncsCombined;  // Statistic tracking
 
     // METHODS
 
-    void removeEmptyFunctions(std::list<AstCFunc*>& funcps) {
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
-            AstCFunc* const funcp = *it;
+    शून्य remove_रिक्तानि_Functions(std::list<AstCFunc*>& funcps) {
+        प्रति (funcit_t it = funcps.begin(), nit; it != funcps.अन्तः_2(); it = nit) {
+            AstCFunc* ध्रुव funcp = *it;
             nit = it;
             ++nit;
 
-            if (funcp->emptyBody()) {
+            यदि (funcp->रिक्तानि_Body()) {
                 // Delete call sites
-                for (AstCCall* const callp : m_callSites(funcp)) {
-                    UASSERT_OBJ(VN_IS(callp->backp(), StmtExpr), callp,
+                प्रति (AstCCall* ध्रुव callp : m_callSites(funcp)) {
+                    UASSERT_OBJ(VN_IS(callp->backp(), Stmt_व्यञ्जकम्), callp,
                                 "Deleting non-statement call");
-                    VL_DO_DANGLING(callp->backp()->unlinkFrBack()->deleteTree(), callp);
+                    VL_DO_DANGLING(callp->backp()->unlink_Fr_पृष्ठभागः()->delete_वृक्षः(), callp);
                 }
                 m_callSites(funcp).clear();
                 // Remove from list
                 funcps.erase(it);
                 // Delete function
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
+                VL_DO_DANGLING(funcp->unlink_Fr_पृष्ठभागः()->delete_वृक्षः(), funcp);
             }
         }
     }
 
     // One pass of combining. Returns true if did replacement.
-    bool combinePass(std::list<AstCFunc*>& funcps, V3DupFinder& dupFinder) {
-        const VNUser3InUse user3InUse;
+    तार्किक combinePass(std::list<AstCFunc*>& funcps, V3DupFinder& dupFinder) {
+        ध्रुव VNUser3_अन्तर्_Use user3_अन्तर्_Use;
 
-        bool replaced = false;
+        तार्किक replaced = असत्य;
 
         // Replace all identical functions with the first function in the list
-        for (funcit_t it = funcps.begin(), nit; it != funcps.end(); it = nit) {
-            AstCFunc* const funcp = *it;
+        प्रति (funcit_t it = funcps.begin(), nit; it != funcps.अन्तः_2(); it = nit) {
+            AstCFunc* ध्रुव funcp = *it;
             nit = it;
             ++nit;
 
             // Remove functions already replaced in the previous iteration
-            if (funcp->user2()) {
+            यदि (funcp->user2()) {
                 funcps.erase(it);
-                VL_DO_DANGLING(funcp->unlinkFrBack()->deleteTree(), funcp);
-                continue;
+                VL_DO_DANGLING(funcp->unlink_Fr_पृष्ठभागः()->delete_वृक्षः(), funcp);
+                अनुवर्त;
             }
 
-            while (true) {
-                auto dit = dupFinder.findDuplicate(funcp);
-                if (dit == dupFinder.end()) break;
+            यावत् (सत्य) {
+                स्वचालित dit = dupFinder.findDuplicate(funcp);
+                यदि (dit == dupFinder.अन्तः_2()) भङ्ग;
 
                 AstCFunc* oldp = VN_AS(dit->second, CFunc);
                 AstCFunc* newp = funcp;
@@ -110,21 +110,21 @@ class CombineVisitor final : VNVisitor {
                 // necessary because replacing a call site in a later function might have made that
                 // function equivalent to an earlier function, but we want the first equivalent
                 // function in the list to be the canonical one.
-                if (oldp->user3()) std::swap(oldp, newp);
+                यदि (oldp->user3()) std::swap(oldp, newp);
 
                 // Something is being replaced
                 UINFO(9, "Replacing " << oldp);
                 UINFO(9, "     with " << newp);
                 ++m_cfuncsCombined;
-                replaced = true;
+                replaced = सत्य;
 
                 // Mark as replaced
-                oldp->user2(true);
+                oldp->user2(सत्य);
 
                 // Redirect the calls
-                for (AstCCall* const callp : m_callSites(oldp)) {
+                प्रति (AstCCall* ध्रुव callp : m_callSites(oldp)) {
                     // For sanity check only
-                    const V3Hash oldHash = m_hasher(callp);
+                    ध्रुव V3Hash oldHash = m_hasher(callp);
 
                     // Redirect the call
                     callp->funcp(newp);
@@ -140,75 +140,75 @@ class CombineVisitor final : VNVisitor {
 
                 // If we just replaced the function we are iterating (because there was an
                 // equivalent earlier in the list), then move on, as this is on longer a candidate
-                if (oldp == funcp) break;
+                यदि (oldp == funcp) भङ्ग;
             }
 
             // Mark as function earlier in list of functions.
-            funcp->user3(true);
+            funcp->user3(सत्य);
         }
 
-        return replaced;
+        प्रत्यागम replaced;
     }
 
     // cppcheck-suppress constParameterPointer
-    void process(AstNetlist* netlistp) {
+    शून्य process(AstNetlist* netlistp) {
         // First, remove empty functions. We need to do this separately, because removing
         // calls can change the hashes of the callers.
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
-            removeEmptyFunctions(m_cfuncs(modulep).m_fast);
-            removeEmptyFunctions(m_cfuncs(modulep).m_slow);
+        प्रति (Ast_ग्रन्थिः_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), ग्रन्थिः_Module)) {
+            remove_रिक्तानि_Functions(m_cfuncs(modulep).m_fast);
+            remove_रिक्तानि_Functions(m_cfuncs(modulep).m_slow);
         }
 
         // Combine functions within each module
-        for (AstNodeModule* modulep = netlistp->modulesp(); modulep;
-             modulep = VN_AS(modulep->nextp(), NodeModule)) {
+        प्रति (Ast_ग्रन्थिः_Module* modulep = netlistp->modulesp(); modulep;
+             modulep = VN_AS(modulep->nextp(), ग्रन्थिः_Module)) {
             // Put fast functions first, so they are preferred over slow functions
-            auto funcps = std::move(m_cfuncs(modulep).m_fast);
-            funcps.splice(funcps.end(), m_cfuncs(modulep).m_slow);
+            स्वचालित funcps = std::move(m_cfuncs(modulep).m_fast);
+            funcps.splice(funcps.अन्तः_2(), m_cfuncs(modulep).m_slow);
 
             V3DupFinder dupFinder{m_hasher};
 
             // First, hash all functions
-            for (AstCFunc* const funcp : funcps) dupFinder.insert(funcp);
+            प्रति (AstCFunc* ध्रुव funcp : funcps) dupFinder.निवेशय(funcp);
 
             // Iterate to fixed point
             {
-                const VNUser2InUse user2InUse;
-                while (combinePass(funcps, dupFinder)) {}
+                ध्रुव VNUser2_अन्तर्_Use user2_अन्तर्_Use;
+                यावत् (combinePass(funcps, dupFinder)) {}
             }
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    शून्य दर्शय(AstNetlist* nodep) override {
         // Gather functions and references
         iterateChildrenConst(nodep);
         // Combine functions
         process(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    शून्य दर्शय(Ast_ग्रन्थिः_Module* nodep) override {
         UASSERT_OBJ(!m_modp, nodep, "Should not nest");
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    शून्य दर्शय(AstCFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->dontCombine()) return;
-        auto& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
-        coll.emplace_back(nodep);
+        यदि (nodep->dontCombine()) प्रत्यागम;
+        स्वचालित& coll = nodep->slow() ? m_cfuncs(m_modp).m_slow : m_cfuncs(m_modp).m_fast;
+        coll.emplace_पृष्ठभागः(nodep);
     }
-    void visit(AstCCall* nodep) override {
+    शून्य दर्शय(AstCCall* nodep) override {
         iterateChildrenConst(nodep);
-        AstCFunc* const funcp = nodep->funcp();
-        if (funcp->dontCombine()) return;
-        m_callSites(funcp).emplace_back(nodep);
+        AstCFunc* ध्रुव funcp = nodep->funcp();
+        यदि (funcp->dontCombine()) प्रत्यागम;
+        m_callSites(funcp).emplace_पृष्ठभागः(nodep);
     }
 
-    void visit(AstAddrOfCFunc* nodep) override {
+    शून्य दर्शय(Ast_Addr_सम्बन्धि_CFunc* nodep) override {
         iterateChildrenConst(nodep);
-        if (nodep->funcp()->dontCombine()) return;
+        यदि (nodep->funcp()->dontCombine()) प्रत्यागम;
         // LCOV_EXCL_START
         // We cannot yet handle references via AstAddrOfCFunc, but currently those are
         // only used in tracing functions, which are not combined. Blow up in case this changes.
@@ -218,23 +218,23 @@ class CombineVisitor final : VNVisitor {
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { iterateChildrenConst(nodep); }
 
     // CONSTRUCTORS
-    explicit CombineVisitor(AstNetlist* nodep) { iterate(nodep); }
+    स्पष्ट CombineVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~CombineVisitor() override {
-        V3Stats::addStat("Optimizations, Combined CFuncs", m_cfuncsCombined);
+        V3Stats::सङ्कलय_Stat("Optimizations, Combined CFuncs", m_cfuncsCombined);
     }
 
-public:
-    static void apply(AstNetlist* netlistp) { CombineVisitor{netlistp}; }
+सार्वजनिक:
+    स्थिर शून्य apply(AstNetlist* netlistp) { CombineVisitor{netlistp}; }
 };
 
 //######################################################################
 // Combine class functions
 
-void V3Combine::combineAll(AstNetlist* nodep) {
+शून्य V3Combine::combineAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     CombineVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("combine", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्षः("combine", 0, dump_वृक्षः_Either_Level() >= 3);
 }

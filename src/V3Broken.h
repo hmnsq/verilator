@@ -14,28 +14,28 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3BROKEN_H_
-#define VERILATOR_V3BROKEN_H_
+#यदि_अपरिभाषितम् VERILATOR_V3BROKEN_H_
+#परिभाषय VERILATOR_V3BROKEN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 //============================================================================
 
 // Forward declare so we can include this in V3Ast.h
 class AstNetlist;
-class AstNode;
+class Ast_ग्रन्थिः;
 
 class V3Broken final {
-public:
-    static void brokenAll(AstNetlist* nodep);
-    static bool isLinkable(const AstNode* nodep);
-    static void addNewed(const AstNode* nodep);
-    static void deleted(const AstNode* nodep);
+सार्वजनिक:
+    स्थिर शून्य brokenAll(AstNetlist* nodep);
+    स्थिर bool isLinkable(ध्रुव Ast_ग्रन्थिः* nodep);
+    स्थिर शून्य सङ्कलय_Newed(ध्रुव Ast_ग्रन्थिः* nodep);
+    स्थिर शून्य deleted(ध्रुव Ast_ग्रन्थिः* nodep);
     // Called on error to say may be inside visitor,
     // Disables checks that may misfire if not called at stable point between visitors
-    static void allowMidvisitorCheck(bool flag);
-    static void selfTest();
+    स्थिर शून्य allowMidvisitorCheck(bool flag);
+    स्थिर शून्य selfTest();
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

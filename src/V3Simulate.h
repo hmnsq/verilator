@@ -29,45 +29,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SIMULATE_H_
-#define VERILATOR_V3SIMULATE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3SIMULATE_H_
+#परिभाषय VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3AstUserAllocator.h"
+#अन्तर्भाव "V3Const.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Task.h"
+#अन्तर्भाव "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#अन्तर्भाव <deque>
+#अन्तर्भाव <set>
+#अन्तर्भाव <sstream>
+#अन्तर्भाव <stack>
+#अन्तर्भाव <string>
+#अन्तर्भाव <unordered_map>
+#अन्तर्भाव <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_राशिः_ग्रन्थिः final {
+सार्वजनिक:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* ध्रुव m_funcp;
+    V3TaskConnects* ध्रुव m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_राशिः_ग्रन्थिः(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_राशिः_ग्रन्थिः() = स्वभाव;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : सार्वजनिक VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+गुप्त:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    स्थिर constexpr पूर्णाङ्क CALL_राशिः_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    ध्रुव VNUser1_अन्तर्_Use m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    गणना VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    संरचना AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_ग्रन्थिः_व्यञ्जकम्* बहिर्गमनम्_Valuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_ग्रन्थिः_व्यञ्जकम्* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_ग्रन्थिः, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
-        size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
-        size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
+    संरचना ConstAllocator final {
+        आकार_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
+        आकार_t m_अग्र_Free = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(आकार_t currentGeneration, Ast_ग्रन्थिः* nodep) {
+            यदि (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
-                m_nextFree = 0;
+                m_अग्र_Free = 0;
             }
-            UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            UASSERT_OBJ(m_अग्र_Free <= m_constps.आकार(), nodep, "Should only allocate at end");
+            यदि (m_अग्र_Free == m_constps.आकार()) {
+                m_constps.प्रक्षिप_पृष्ठभागः(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* ध्रुव constp = m_constps[m_अग्र_Free++];
+            constp->अङ्कः().nodep(nodep);
+            प्रत्यागम constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            प्रति (AstConst* ध्रुव constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,1192 +133,1192 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
-    bool m_anyAssignDly;  ///< True if found a delayed assignment
-    bool m_anyAssignComb;  ///< True if found a non-delayed assignment
-    bool m_inDlyAssign;  ///< Under delayed assignment
+    Ast_ग्रन्थिः* m_whyNotNodep;  ///< First node not optimizable
+    bool m_any_नियोजय_Dly;  ///< True if found a delayed assignment
+    bool m_any_नियोजय_Comb;  ///< True if found a non-delayed assignment
+    bool m_अन्तर्_Dly_नियोजय;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    पूर्णाङ्क m_instr_गणनम्;  ///< Number of nodes
+    पूर्णाङ्क m_दत्त_गणनम्;  ///< Bytes of data
+    पूर्णाङ्क m_recurse_गणनम् = 0;  // Now deep in current recursion
+    Ast_ग्रन्थिः* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
-    size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::unordered_map<ध्रुव Ast_ग्रन्थिः_DType*, ConstAllocator> m_constps;
+    आकार_t m_constGeneration = 0;
+    std::सदिशम्<Sim_राशिः_ग्रन्थिः*> m_call_राशिः;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::सदिशम्<Ast_ग्रन्थिः*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_सङ्ख्या(ध्रुव V3_सङ्ख्या* nump, ध्रुव Ast_ग्रन्थिः_DType* dtypep) {
+        यदि (ध्रुव AstRefDType* ध्रुव refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
-                std::ostringstream out;
-                out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+        यदि (ध्रुव Ast_ग्रन्थिः_UOr_Struct_DType* ध्रुव stp = VN_CAST(dtypep, ग्रन्थिः_UOr_Struct_DType)) {
+            यदि (stp->packed()) {
+                std::ostringstream बहिर्गमनम्;
+                बहिर्गमनम् << "'{";
+                प्रति (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    ध्रुव पूर्णाङ्क विस्तारः = itemp->विस्तारः();
+                    ध्रुव पूर्णाङ्क lsb = itemp->lsb();
+                    ध्रुव पूर्णाङ्क msb = lsb + विस्तारः - 1;
+                    V3_सङ्ख्या क्षेत्रम्_अङ्कः{nump, विस्तारः};
+                    क्षेत्रम्_अङ्कः.opSel(*nump, msb, lsb);
+                    बहिर्गमनम् << itemp->name() << ": ";
+                    यदि (ध्रुव Ast_ग्रन्थिः_DType* ध्रुव childTypep = itemp->subDTypep()) {
+                        बहिर्गमनम् << pretty_सङ्ख्या(&क्षेत्रम्_अङ्कः, childTypep);
+                    } अन्यथा {
+                        बहिर्गमनम् << क्षेत्रम्_अङ्कः;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    यदि (itemp->nextp()) बहिर्गमनम् << ", ";
                 }
-                out << "}";
-                return out.str();
+                बहिर्गमनम् << "}";
+                प्रत्यागम बहिर्गमनम्.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
-                std::ostringstream out;
-                out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+        } अन्यथा यदि (ध्रुव AstPackArrayDType* ध्रुव arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            यदि (ध्रुव Ast_ग्रन्थिः_DType* ध्रुव childTypep = arrayp->subDTypep()) {
+                std::ostringstream बहिर्गमनम्;
+                बहिर्गमनम् << "[";
+                ध्रुव पूर्णाङ्क arrayElements = arrayp->elementsConst();
+                प्रति (पूर्णाङ्क element = 0; element < arrayElements; ++element) {
+                    ध्रुव पूर्णाङ्क विस्तारः = childTypep->विस्तारः();
+                    ध्रुव पूर्णाङ्क lsb = विस्तारः * element;
+                    ध्रुव पूर्णाङ्क msb = lsb + विस्तारः - 1;
+                    V3_सङ्ख्या क्षेत्रम्_अङ्कः{nump, विस्तारः};
+                    क्षेत्रम्_अङ्कः.opSel(*nump, msb, lsb);
+                    ध्रुव पूर्णाङ्क arrayElem = arrayp->lo() + element;
+                    बहिर्गमनम् << arrayElem << " = " << pretty_सङ्ख्या(&क्षेत्रम्_अङ्कः, childTypep);
+                    यदि (element < arrayElements - 1) बहिर्गमनम् << ", ";
                 }
-                out << "]";
-                return out.str();
+                बहिर्गमनम् << "]";
+                प्रत्यागम बहिर्गमनम्.str();
             }
         }
-        return nump->ascii();
+        प्रत्यागम nump->ascii();
     }
 
     // Checking METHODS
-public:
+सार्वजनिक:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    आभास शून्य varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    शून्य clearOptimizable(Ast_ग्रन्थिः* nodep /*null ok*/, ध्रुव string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        यदि (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
-                UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+            यदि (debug() >= 5) {  // LCOV_EXCL_START
+                UINFO_उपसर्गः("Clear optimizable: " << why);
+                यदि (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream राशिः;
+            पूर्णाङ्क n = 0;
+            प्रति (ध्रुव स्वचालित& callstack : vlstd::reverse_view(m_call_राशिः)) {
+                ध्रुव AstFuncRef* ध्रुव funcp = callstack->m_funcp;
+                राशिः << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
-                     conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << toStringRecurse(valuep);
+                प्रति (V3TaskConnects::iterator conIt = tconnects->begin();
+                     conIt != tconnects->अन्तः_2(); ++conIt) {
+                    ध्रुव AstVar* ध्रुव portp = conIt->first;
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव pinp = conIt->second->exprp();
+                    ध्रुव Ast_ग्रन्थिः_DType* ध्रुव dtypep = pinp->dtypep();
+                    यदि (AstConst* ध्रुव valp = fetchConstNull(pinp)) {
+                        राशिः << "\n           " << portp->prettyName() << " = "
+                              << pretty_सङ्ख्या(&valp->अङ्कः(), dtypep);
+                    } अन्यथा यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = fetch_मानम्_Null(pinp)) {
+                        राशिः << "\n           " << portp->prettyName() << " = "
+                              << गन्तव्यम्_String_Recurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                यदि (++n > CALL_राशिः_MAX) {
+                    राशिः << "\n           ... stack truncated";
+                    भङ्ग;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += राशिः.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() ध्रुव { प्रत्यागम m_whyNotNodep == nullptr; }
+    string why_Not_सन्देशः() ध्रुव { प्रत्यागम m_whyNotOptimizable; }
+    Ast_ग्रन्थिः* whyNotNodep() ध्रुव { प्रत्यागम m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool is_नियोजय_Dly() ध्रुव { प्रत्यागम m_any_नियोजय_Dly; }
+    bool isImpure() ध्रुव { प्रत्यागम m_isImpure; }
+    bool isCoverage() ध्रुव { प्रत्यागम m_isCoverage; }
+    पूर्णाङ्क instr_गणनम्() ध्रुव { प्रत्यागम m_instr_गणनम्; }
+    पूर्णाङ्क दत्त_गणनम्() ध्रुव { प्रत्यागम m_दत्त_गणनम्; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+गुप्त:
+    AstConst* allocConst(Ast_ग्रन्थिः* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        प्रत्यागम m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+सार्वजनिक:
+    शून्य new_मानम्(Ast_ग्रन्थिः* nodep, ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
+        यदि (ध्रुव AstConst* ध्रुव constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->अङ्कः().op_नियोजय(constp->अङ्कः());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } अन्यथा यदि (fetch_मानम्_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            समुच्चयः_मानम्(nodep, newTrackedClone(const_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    शून्य new_बहिर्गमनम्_मानम्(Ast_ग्रन्थिः* nodep, ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
+        यदि (ध्रुव AstConst* ध्रुव constp = VN_CAST(valuep, Const)) {
+            new_बहिर्गमनम्_Const(nodep)->अङ्कः().op_नियोजय(constp->अङ्कः());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } अन्यथा यदि (fetch_बहिर्गमनम्_मानम्_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            समुच्चयः_बहिर्गमनम्_मानम्(nodep, newTrackedClone(const_cast<Ast_ग्रन्थिः_व्यञ्जकम्*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+गुप्त:
+    Ast_ग्रन्थिः_व्यञ्जकम्* newTrackedClone(Ast_ग्रन्थिः_व्यञ्जकम्* nodep) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव newp = nodep->clone_वृक्षः(false);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(newp);
+        प्रत्यागम newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_ग्रन्थिः* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        यदि (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* ध्रुव constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            प्रत्यागम constp;
         }
-        return fetchConst(nodep);
+        प्रत्यागम fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* new_बहिर्गमनम्_Const(Ast_ग्रन्थिः* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
-            m_varAux(nodep).outValuep = constp;
-            return constp;
+        यदि (!VN_IS(m_varAux(nodep).बहिर्गमनम्_Valuep, Const)) {
+            AstConst* ध्रुव constp = allocConst(nodep);
+            m_varAux(nodep).बहिर्गमनम्_Valuep = constp;
+            प्रत्यागम constp;
         }
-        return fetchOutConst(nodep);
+        प्रत्यागम fetch_बहिर्गमनम्_Const(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+सार्वजनिक:
+    Ast_ग्रन्थिः_व्यञ्जकम्* fetch_मानम्_Null(Ast_ग्रन्थिः* nodep) { प्रत्यागम m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+गुप्त:
+    Ast_ग्रन्थिः_व्यञ्जकम्* fetch_बहिर्गमनम्_मानम्_Null(Ast_ग्रन्थिः* nodep) { प्रत्यागम m_varAux(nodep).बहिर्गमनम्_Valuep; }
+    AstConst* fetchConstNull(Ast_ग्रन्थिः* nodep) { प्रत्यागम VN_CAST(fetch_मानम्_Null(nodep), Const); }
+    AstConst* fetch_बहिर्गमनम्_Const_Null(Ast_ग्रन्थिः* nodep) {
+        प्रत्यागम VN_CAST(fetch_बहिर्गमनम्_मानम्_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_ग्रन्थिः_व्यञ्जकम्* fetch_मानम्(Ast_ग्रन्थिः* nodep) {
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = fetch_मानम्_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        प्रत्यागम valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_ग्रन्थिः* nodep) {
+        AstConst* ध्रुव constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        प्रत्यागम constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetch_बहिर्गमनम्_Const(Ast_ग्रन्थिः* nodep) {
+        AstConst* ध्रुव constp = fetch_बहिर्गमनम्_Const_Null(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        प्रत्यागम constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+सार्वजनिक:
+    V3_सङ्ख्या* fetch_सङ्ख्या_Null(Ast_ग्रन्थिः* nodep) {
+        AstConst* ध्रुव constp = fetchConstNull(nodep);
+        यदि (constp) प्रत्यागम &constp->अङ्कः();
+        प्रत्यागम nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_सङ्ख्या* fetch_बहिर्गमनम्_सङ्ख्या_Null(Ast_ग्रन्थिः* nodep) {
+        AstConst* ध्रुव constp = fetch_बहिर्गमनम्_Const_Null(nodep);
+        यदि (constp) प्रत्यागम &constp->अङ्कः();
+        प्रत्यागम nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+गुप्त:
+    शून्य समुच्चयः_मानम्(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    शून्य समुच्चयः_बहिर्गमनम्_मानम्(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
-        m_varAux(nodep).outValuep = valuep;
+        m_varAux(nodep).बहिर्गमनम्_Valuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    शून्य check_ग्रन्थिः_Info(Ast_ग्रन्थिः* nodep, bool ignorePredict = false) {
+        यदि (m_checkOnly) {
+            m_instr_गणनम् += nodep->instr_गणनम्();
+            m_दत्त_गणनम् += nodep->विस्तारः();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        यदि (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        यदि (!nodep->is_विशुद्धम्()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    शून्य ज्ञातम्_Bad_ग्रन्थिः_Type(Ast_ग्रन्थिः* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
+        यदि (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    शून्य bad_ग्रन्थिः_Type(Ast_ग्रन्थिः* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_ग्रन्थिः_Info(nodep);
+        यदि (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
-#ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+#यदि_परिभाषितम् VL_DEBUG
+            स्थिर std::समुच्चयः<VNType> s_typePrinted;
+            ध्रुव स्वचालित pair = s_typePrinted.emplace(nodep->type());
+            यदि (pair.second)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
-#endif
+#यदि_अन्तः
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_ग्रन्थिः* varOrScope(AstVarRef* nodep) ध्रुव {
+        Ast_ग्रन्थिः* vscp;
+        यदि (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } अन्यथा {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        प्रत्यागम vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() ध्रुव { प्रत्यागम m_jumptargetp; }
+    शून्य नियोजय_बहिर्गमनम्_मानम्(ध्रुव Ast_ग्रन्थिः_नियोजय* nodep, Ast_ग्रन्थिः* vscp, ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
+        यदि (VN_IS(nodep, नियोजय_Dly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_बहिर्गमनम्_मानम्(vscp, valuep);
+        } अन्यथा {
+            new_मानम्(vscp, valuep);
+            समुच्चयः_बहिर्गमनम्_मानम्(vscp, fetch_मानम्(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string गन्तव्यम्_String_Recurse(Ast_ग्रन्थिः_व्यञ्जकम्* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        यदि (ध्रुव AstConst* ध्रुव avaluep = VN_CAST(valuep, Const)) {
+            प्रत्यागम "'h"s + avaluep->अङ्कः().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
-            string result = "'{";
+        यदि (ध्रुव AstConsArray* ध्रुव avaluep = VN_CAST(valuep, ConsArray)) {
+            string परिणाम = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            ध्रुव AstUnpackArrayDType* ध्रुव dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
-                result += comma + toStringRecurse(avaluep->valuep(n));
+            प्रति (पूर्णाङ्क n = 0; n < dtypep->elementsConst(); ++n) {
+                परिणाम += comma + गन्तव्यम्_String_Recurse(avaluep->valuep(n));
                 comma = ", ";
             }
-            result += "}";
-            return result;
+            परिणाम += "}";
+            प्रत्यागम परिणाम;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
-            string result = "'{";
+        यदि (ध्रुव AstConsStruct* ध्रुव avaluep = VN_CAST(valuep, ConsStruct)) {
+            string परिणाम = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
+            प्रति (ध्रुव AstConsStructItem* itemp = avaluep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-                result
-                    += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
+                परिणाम
+                    += comma + itemp->memberp()->name() + ":" + गन्तव्यम्_String_Recurse(itemp->valuep());
                 comma = ", ";
             }
-            result += "}";
-            return result;
+            परिणाम += "}";
+            प्रत्यागम परिणाम;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        प्रत्यागम "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_ग्रन्थिः_व्यञ्जकम्* newInitValuep(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        यदि (AstUnpackArrayDType* ध्रुव arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव elementp = newInitValuep(nodep, arrayp->subDTypep());
+            प्रत्यागम elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* ध्रुव structp = VN_CAST(dtypep, StructDType);
+        यदि (structp && !structp->packed()) {
+            AstConsStruct* ध्रुव newp = new AstConsStruct{nodep->fileline(), structp};
+            प्रति (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                यदि (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_वृक्षः(), newp);
+                    प्रत्यागम nullptr;
                 }
-                newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
+                newp->सङ्कलय_Itemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            प्रत्यागम newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        यदि (ध्रुव AstBasicDType* ध्रुव basicp = dtypep->basicp()) {
+            AstConst* ध्रुव constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_मानम्{}, basicp->विस्तारः_Min(), 0};
+            यदि (basicp->isZeroInit()) {
+                constp->अङ्कः() = V3_सङ्ख्या{nodep, basicp};
+            } अन्यथा {
+                constp->अङ्कः().समुच्चयः_All_द्वयङ्काः_X();
             }
-            return constp;
+            प्रत्यागम constp;
         }
-        return nullptr;
+        प्रत्यागम nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    शून्य initVar(AstVar* nodep) {
+        यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_मानम्(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_वृक्षः(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstAlways* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    शून्य दर्शय(Ast_Sen_वृक्षः* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    शून्य दर्शय(AstVarRef* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_ग्रन्थिः* ध्रुव vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        यदि (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), ग्रन्थिः_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        यदि (nodep->access().isWriteOrRW()) {
+            यदि (m_अन्तर्_Dly_नियोजय) {
+                यदि (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    यदि (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } अन्यथा {  // nondly asn
+                यदि (!(m_varAux(vscp).usage & VU_LV)) {
+                    यदि (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    यदि (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        यदि (nodep->access().isReadOrRW()) {
+            यदि (!(m_varAux(vscp).usage & VU_RV)) {
+                यदि (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                ध्रुव bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep
+                    = varIsConst ? fetch_मानम्_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                यदि (varIsConst && valuep) {
+                    यदि (!m_checkOnly && optimizable()) new_मानम्(vscp, valuep);
+                } अन्यथा {
+                    यदि (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_ग्रन्थिः_व्यञ्जकम्* valuep = fetch_मानम्_Null(vscp);
+            यदि (!valuep) {
+                यदि (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } अन्यथा {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            समुच्चयः_मानम्(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    शून्य दर्शय(AstVarXRef* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (m_scoped) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    शून्य दर्शय(Ast_ग्रन्थिः_FTask* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        यदि (nodep->dpiImport()) {
+            यदि (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        यदि (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstInitialAutomaticStmt* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstInitialStaticStmt* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    शून्य दर्शय(AstInitialStatic* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        checkNodeInfo(nodep);
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    शून्य दर्शय(Ast_ग्रन्थिः_If* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
-            iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
-                    iterateAndNextConstNull(nodep->thensp());
-                } else {
-                    iterateAndNextConstNull(nodep->elsesp());
+        } अन्यथा {
+            iterate_And_अग्र_Const_Null(nodep->condp());
+            यदि (optimizable()) {
+                यदि (fetchConst(nodep->condp())->अङ्कः().isNeqZero()) {
+                    iterate_And_अग्र_Const_Null(nodep->thensp());
+                } अन्यथा {
+                    iterate_And_अग्र_Const_Null(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    शून्य दर्शय(AstConst* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        new_मानम्(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstConsArray* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        AstConsArray* ध्रुव valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+            nodep->defaultp() ? fetch_मानम्(nodep->defaultp())->clone_वृक्षः(false) : nullptr};
+        प्रति (ध्रुव AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            valuep->valuep(itemp->सूचकांक(), fetch_मानम्(itemp->valuep())->clone_वृक्षः(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(valuep);
+        समुच्चयः_मानम्(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    शून्य दर्शय(AstConsStruct* nodep) override {
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        check_ग्रन्थिः_Info(nodep);
+        प्रति (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        AstConsStruct* ध्रुव valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        प्रति (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
-            valuep->addItemsp(
+            valuep->सङ्कलय_Itemsp(
                 new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+                                      fetch_मानम्(itemp->valuep())->clone_वृक्षः(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(valuep);
+        समुच्चयः_मानम्(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_Cvt_Unpack_गन्तव्यम्_Unpack* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव cvtp = new Ast_Cvt_Unpack_गन्तव्यम्_Unpack{
+            nodep->fileline(), fetch_मानम्(nodep->fromp())->clone_वृक्षः(false), nodep->dtypep()};
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(valuep);
+        समुच्चयः_मानम्(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstConsArrayItem* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstEnumItemRef* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
-            iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        Ast_ग्रन्थिः* ध्रुव valuep = nodep->itemp()->valuep();
+        यदि (valuep) {
+            iterate_And_अग्र_Const_Null(valuep);
+            यदि (!optimizable()) प्रत्यागम;
+            new_मानम्(nodep, fetch_मानम्(valuep));
+        } अन्यथा {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः_Uniop* nodep) override {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        nodep->सङ्ख्या_सञ्चालय(newConst(nodep)->अङ्कः(), fetchConst(nodep->lhsp())->अङ्कः());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    शून्य aggregateEqRecurse(V3_सङ्ख्या& resultr, Ast_ग्रन्थिः* nodep, bool caseEq, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp,
+                            Ast_ग्रन्थिः_व्यञ्जकम्* rhsp) {
+        यदि (ध्रुव AstConst* ध्रुव lconstp = VN_CAST(lhsp, Const)) {
+            ध्रुव V3_सङ्ख्या& lnum = lconstp->अङ्कः();
+            ध्रुव V3_सङ्ख्या& rnum = VN_AS(rhsp, Const)->अङ्कः();
+            V3_सङ्ख्या eq{nodep, 1};
+            यदि (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } अन्यथा यदि (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } अन्यथा यदि (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } अन्यथा {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
-            resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+            ध्रुव V3_सङ्ख्या पूर्व_2 = resultr;
+            resultr.opLogAnd(पूर्व_2, eq);
+        } अन्यथा यदि (ध्रुव AstConsArray* ध्रुव lconsp = VN_CAST(lhsp, ConsArray)) {
+            ध्रुव AstUnpackArrayDType* ध्रुव dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            प्रति (पूर्णाङ्क n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+        } अन्यथा {
+            ध्रुव AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            प्रति (ध्रुव AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
                  litemp = VN_AS(litemp->nextp(), ConsStructItem),
                                           ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    शून्य handleAggregateCompare(Ast_ग्रन्थिः_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        ध्रुव bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        ध्रुव bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
-        resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        V3_सङ्ख्या& resultr = newConst(nodep)->अङ्कः();
+        resultr.समुच्चयः_All_Bits1();
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_मानम्(nodep->lhsp()),
+                           fetch_मानम्(nodep->rhsp()));
+        यदि (neq) {
+            ध्रुव V3_सङ्ख्या eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः_Biop* nodep) override {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        यदि (!VN_IS(fetch_मानम्(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            प्रत्यागम;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* ध्रुव valuep = newConst(nodep);
+        nodep->सङ्ख्या_सञ्चालय(newConst(nodep)->अङ्कः(), fetchConst(nodep->lhsp())->अङ्कः(),
+                             fetchConst(nodep->rhsp())->अङ्कः());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        यदि (!m_params && VN_IS(nodep, Sel) && valuep->अङ्कः().isAnyX()) {
+            ध्रुव V3_सङ्ख्या अङ्कः{valuep, valuep->विस्तारः(), valuep->अङ्कः()};
+            valuep->अङ्कः().op_द्वयङ्काः_One(अङ्कः);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः_Triop* nodep) override {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        nodep->सङ्ख्या_सञ्चालय(newConst(nodep)->अङ्कः(), fetchConst(nodep->lhsp())->अङ्कः(),
+                             fetchConst(nodep->rhsp())->अङ्कः(), fetchConst(nodep->thsp())->अङ्कः());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः_Quadop* nodep) override {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        nodep->सङ्ख्या_सञ्चालय(newConst(nodep)->अङ्कः(), fetchConst(nodep->lhsp())->अङ्कः(),
+                             fetchConst(nodep->rhsp())->अङ्कः(), fetchConst(nodep->thsp())->अङ्कः(),
+                             fetchConst(nodep->fhsp())->अङ्कः());
     }
-    void visit(AstLogAnd* nodep) override {
+    शून्य दर्शय(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } अन्यथा {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            यदि (!optimizable()) प्रत्यागम;
+            यदि (fetchConst(nodep->lhsp())->अङ्कः().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                यदि (!optimizable()) प्रत्यागम;
+                new_मानम्(nodep, fetch_मानम्(nodep->rhsp()));
+            } अन्यथा {
+                new_मानम्(nodep, fetch_मानम्(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    शून्य दर्शय(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } अन्यथा {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            यदि (!optimizable()) प्रत्यागम;
+            यदि (fetchConst(nodep->lhsp())->अङ्कः().isNeqZero()) {
+                new_मानम्(nodep, fetch_मानम्(nodep->lhsp()));  // a one
+            } अन्यथा {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                यदि (!optimizable()) प्रत्यागम;
+                new_मानम्(nodep, fetch_मानम्(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    शून्य दर्शय(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } अन्यथा {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            यदि (!optimizable()) प्रत्यागम;
+            यदि (fetchConst(nodep->lhsp())->अङ्कः().isEqZero()) {
+                ध्रुव AstConst cnst{nodep->fileline(), AstConst::Widthed_मानम्{}, 1, 1};  // a one
+                new_मानम्(nodep, &cnst);  // a one
+            } अन्यथा {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                यदि (!optimizable()) प्रत्यागम;
+                new_मानम्(nodep, fetch_मानम्(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    शून्य दर्शय(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } अन्यथा {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            यदि (!optimizable()) प्रत्यागम;
+            यदि (fetchConst(nodep->condp())->अङ्कः().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                यदि (!optimizable()) प्रत्यागम;
+                new_मानम्(nodep, fetch_मानम्(nodep->thenp()));
+            } अन्यथा {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                यदि (!optimizable()) प्रत्यागम;
+                new_मानम्(nodep, fetch_मानम्(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    शून्य handle_नियोजय_Element(Ast_ग्रन्थिः_नियोजय* nodep, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Ast_ग्रन्थिः_व्यञ्जकम्* मानम्_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
-                iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+        std::सदिशम्<Ast_ग्रन्थिः_व्यञ्जकम्*> selps;
+        Ast_ग्रन्थिः_व्यञ्जकम्* fromp = lhsp;
+        यावत् (true) {
+            यदि (AstArraySel* ध्रुव selp = VN_CAST(fromp, ArraySel)) {
+                check_ग्रन्थिः_Info(selp);
+                iterate_And_अग्र_Const_Null(selp->bitp());  // Bit index
+                selps.प्रक्षिप_पृष्ठभागः(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } अन्यथा यदि (AstStructSel* ध्रुव selp = VN_CAST(fromp, StructSel)) {
+                check_ग्रन्थिः_Info(selp);
+                selps.प्रक्षिप_पृष्ठभागः(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } अन्यथा {
+                भङ्ग;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* ध्रुव varrefp = VN_CAST(fromp, VarRef);
+        यदि (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            प्रत्यागम;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        Ast_ग्रन्थिः* ध्रुव vscp = varOrScope(varrefp);
+        Ast_ग्रन्थिः_व्यञ्जकम्* rootp = fetch_बहिर्गमनम्_मानम्_Null(vscp);
+        यदि (!rootp) rootp = fetch_मानम्_Null(vscp);
+        यदि (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            प्रत्यागम;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_ग्रन्थिः_व्यञ्जकम्* itemp = rootp;
+        प्रति (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव selp : vlstd::reverse_view(selps)) {
+            यदि (ध्रुव AstArraySel* ध्रुव aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* ध्रुव consp = VN_AS(itemp, ConsArray);
+                ध्रुव uint32_t सूचकांक = fetchConst(aselp->bitp())->गन्तव्यम्_UInt();
+                ध्रुव पूर्णाङ्क elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                यदि (सूचकांक >= static_cast<uint32_t>(elements)) {
+                    प्रत्यागम;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
-                itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
-                    consp->valuep(index, itemp);
+                itemp = consp->valuep(सूचकांक);
+                यदि (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_वृक्षः(false);
+                    consp->valuep(सूचकांक, itemp);
                 }
-            } else {
+            } अन्यथा {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = newTrackedClone(fetch_मानम्(मानम्_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        नियोजय_बहिर्गमनम्_मानम्(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    शून्य handle_नियोजय_Sel(Ast_ग्रन्थिः_नियोजय* nodep, AstSel* selp, Ast_ग्रन्थिः_व्यञ्जकम्* मानम्_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
-        handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        V3_सङ्ख्या lsb{nodep};
+        handle_नियोजय_Sel_Recurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_ग्रन्थिः* ध्रुव vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        यदि (AstConst* ध्रुव vscpnump = fetch_बहिर्गमनम्_Const_Null(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } अन्यथा यदि (AstConst* ध्रुव vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
-                                     varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+        } अन्यथा {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_मानम्{},
+                                     varrefp->varp()->विस्तारः_Min(), 0};
+            यदि (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->अङ्कः().समुच्चयः_All_Bits0();
+            } अन्यथा {
+                outconstp->अङ्कः().समुच्चयः_All_द्वयङ्काः_X();
             }
-            m_reclaimValuesp.emplace_back(outconstp);
+            m_reclaimValuesp.emplace_पृष्ठभागः(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->अङ्कः().opSelInto(fetchConst(मानम्_Fromp)->अङ्कः(), lsb, selp->विस्तारः_Const());
+        नियोजय_बहिर्गमनम्_मानम्(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    शून्य handle_नियोजय_Sel_Recurse(Ast_ग्रन्थिः_नियोजय* nodep, AstSel* selp, AstVarRef*& बहिर्गमनम्_Varrefp_Ref,
+                                V3_सङ्ख्या& lsbRef, पूर्णाङ्क गभीरता) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
-        iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
-            outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+        check_ग्रन्थिः_Info(selp);
+        iterate_And_अग्र_Const_Null(selp->lsbp());  // Bit index
+        यदि (AstVarRef* ध्रुव varrefp = VN_CAST(selp->fromp(), VarRef)) {
+            बहिर्गमनम्_Varrefp_Ref = varrefp;
+            lsbRef = fetchConst(selp->lsbp())->अङ्कः();
+            प्रत्यागम;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
-            handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+        यदि (AstSel* ध्रुव subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_सङ्ख्या sublsb{nodep};
+            handle_नियोजय_Sel_Recurse(nodep, subselp, बहिर्गमनम्_Varrefp_Ref, sublsb /*ref*/, गभीरता + 1);
+            यदि (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.op_सङ्कलय(sublsb, fetchConst(selp->lsbp())->अङ्कः());
             }
-        } else {
+        } अन्यथा {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    शून्य handle_नियोजय_Recurse(Ast_ग्रन्थिः_नियोजय* nodep, Ast_ग्रन्थिः_व्यञ्जकम्* lhsp, Ast_ग्रन्थिः_व्यञ्जकम्* मानम्_Fromp) {
+        यदि (!optimizable()) प्रत्यागम;
+        यदि (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            यदि (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                प्रत्यागम;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handle_नियोजय_Element(nodep, lhsp, मानम्_Fromp);
+        } अन्यथा यदि (AstConcat* ध्रुव selp = VN_CAST(lhsp, Concat)) {
+            check_ग्रन्थिः_Info(selp);
+            यदि (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                प्रत्यागम;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            यदि (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
-                                       selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
-                                           selp->lhsp()->width() + selp->rhsp()->width() + 1,
-                                           selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    AstConst* ध्रुव outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_मानम्{},
+                                       selp->lhsp()->विस्तारः(), 0};
+                    outconstp->अङ्कः().opSel(fetchConst(मानम्_Fromp)->अङ्कः(),
+                                           selp->lhsp()->विस्तारः() + selp->rhsp()->विस्तारः() + 1,
+                                           selp->rhsp()->विस्तारः());
+                    new_मानम्(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_वृक्षः(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
-                                       selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
-                                           selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    AstConst* ध्रुव outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_मानम्{},
+                                       selp->rhsp()->विस्तारः_Min(), 0};
+                    outconstp->अङ्कः().opSel(fetchConst(मानम्_Fromp)->अङ्कः(),
+                                           selp->rhsp()->विस्तारः() - 1, 0);
+                    new_मानम्(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_वृक्षः(), outconstp);
                 }
             }
-            handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
-            handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
-            iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            handle_नियोजय_Recurse(nodep, selp->lhsp(), selp->lhsp());
+            handle_नियोजय_Recurse(nodep, selp->rhsp(), selp->rhsp());
+        } अन्यथा यदि (AstReplicate* ध्रुव selp = VN_CAST(lhsp, Replicate)) {
+            check_ग्रन्थिः_Info(selp);
+            iterate_And_अग्र_Const_Null(selp->countp());
+            AstConst* ध्रुव countp = VN_CAST(selp->countp(), Const);
+            यदि (!countp || !countp->अङ्कः().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                प्रत्यागम;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handle_नियोजय_Recurse(nodep, selp->srcp(), मानम्_Fromp);
+        } अन्यथा यदि (AstSel* ध्रुव selp = VN_CAST(lhsp, Sel)) {
+            यदि (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                प्रत्यागम;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
-                iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            handle_नियोजय_Sel(nodep, selp, मानम्_Fromp);
+        } अन्यथा यदि (VN_IS(lhsp, VarRef)) {
+            यदि (m_checkOnly) {
+                iterate_And_अग्र_Const_Null(lhsp);
+            } अन्यथा {
+                Ast_ग्रन्थिः* ध्रुव vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                नियोजय_बहिर्गमनम्_मानम्(nodep, vscp, fetch_मानम्(मानम्_Fromp));
             }
-        } else {
+        } अन्यथा {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः_नियोजय* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
 
-        VL_RESTORER(m_inDlyAssign);
+        VL_RESTORER(m_अन्तर्_Dly_नियोजय);
 
-        if (VN_IS(nodep, AssignForce)) {
+        यदि (VN_IS(nodep, नियोजय_Force)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
-            m_anyAssignDly = true;
-            m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
-            m_anyAssignComb = true;
+        } अन्यथा यदि (VN_IS(nodep, नियोजय_Dly)) {
+            यदि (m_any_नियोजय_Comb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+            m_any_नियोजय_Dly = true;
+            m_अन्तर्_Dly_नियोजय = true;
+        } अन्यथा {
+            यदि (m_any_नियोजय_Dly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+            m_any_नियोजय_Comb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        यदि (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            प्रत्यागम;
         }
 
-        iterateAndNextConstNull(nodep->rhsp());  // Value to assign
-        handleAssignRecurse(nodep, nodep->lhsp(), nodep->rhsp());
+        iterate_And_अग्र_Const_Null(nodep->rhsp());  // Value to assign
+        handle_नियोजय_Recurse(nodep, nodep->lhsp(), nodep->rhsp());
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstArraySel* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
-                clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+        यदि (ध्रुव AstConsArray* ध्रुव consp = VN_CAST(fetch_मानम्_Null(nodep->fromp()), ConsArray)) {
+            ध्रुव AstConst* ध्रुव indexp = fetchConst(nodep->bitp());
+            ध्रुव uint32_t विस्थापनम् = indexp->अङ्कः().गन्तव्यम्_UInt();
+            Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव itemp = consp->valuep(विस्थापनम्);
+            यदि (!itemp) {
+                clearOptimizable(nodep, "Array select out of range: " + std::गन्तव्यम्_string(विस्थापनम्));
+            } अन्यथा {
+                समुच्चयः_मानम्(nodep, itemp);
             }
-        } else {
+        } अन्यथा {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    शून्य दर्शय(AstStructSel* nodep) override {
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        checkNodeInfo(nodep);
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        AstConsStruct* ध्रुव consp = VN_AS(fetch_मानम्(nodep->fromp()), ConsStruct);
+        समुच्चयः_मानम्(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_खण्डिका_Sel* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        यदि (ध्रुव AstConsArray* ध्रुव consp = VN_CAST(fetch_मानम्_Null(nodep->fromp()), ConsArray)) {
+            ध्रुव VNumRange& खण्डिका_Range = nodep->declRange();
+            ध्रुव uint32_t खण्डिका_Elements = खण्डिका_Range.elements();
+            ध्रुव पूर्णाङ्क खण्डिका_Lo = खण्डिका_Range.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_ग्रन्थिः_DType* ध्रुव dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* ध्रुव newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            प्रति (uint32_t idx = 0; idx < खण्डिका_Elements; ++idx) {
+                ध्रुव uint32_t आधारः_Idx = खण्डिका_Lo + idx;
+                newConsp->valuep(idx, consp->valuep(आधारः_Idx)->clone_वृक्षः(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            समुच्चयः_मानम्(nodep, newConsp);
+            m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(newConsp);
+        } अन्यथा {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstBegin* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    शून्य दर्शय(AstCase* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
-            iterateAndNextConstNull(nodep->exprp());
-            bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+        } अन्यथा यदि (optimizable()) {
+            iterate_And_अग्र_Const_Null(nodep->exprp());
+            bool लब्धम् = false;
+            प्रति (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
-                        iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
-                                iterateAndNextConstNull(itemp->stmtsp());
-                                hit = true;
+                यदि (!itemp->isDefault()) {
+                    प्रति (Ast_ग्रन्थिः* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        यदि (लब्धम्) भङ्ग;
+                        iterate_And_अग्र_Const_Null(ep);
+                        यदि (optimizable()) {
+                            V3_सङ्ख्या मेलनम्{nodep, 1};
+                            मेलनम्.opEq(fetchConst(nodep->exprp())->अङ्कः(), fetchConst(ep)->अङ्कः());
+                            यदि (मेलनम्.isNeqZero()) {
+                                iterate_And_अग्र_Const_Null(itemp->stmtsp());
+                                लब्धम् = true;
                             }
                         }
                     }
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            प्रति (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
-                    iterateAndNextConstNull(itemp->stmtsp());
-                    hit = true;
+                यदि (लब्धम्) भङ्ग;
+                यदि (itemp->isDefault()) {
+                    iterate_And_अग्र_Const_Null(itemp->stmtsp());
+                    लब्धम् = true;
                 }
             }
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    शून्य दर्शय(AstCaseItem* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    शून्य दर्शय(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_Stmt_व्यञ्जकम्* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
-        iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+    शून्य दर्शय(Ast_व्यञ्जकम्_Stmt* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
+        iterate_And_अग्र_Const_Null(nodep->stmtsp());
+        यदि (!optimizable()) प्रत्यागम;
+        iterate_And_अग्र_Const_Null(nodep->resultp());
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        new_मानम्(nodep, fetch_मानम्(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    शून्य दर्शय(Ast_Jump_खण्डम्* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        यदि (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    शून्य दर्शय(AstJumpGo* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
+        यदि (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    शून्य दर्शय(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        यदि (jumpingOver()) प्रत्यागम;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_ग्रन्थिः_Info(nodep);
+        यदि (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            प्रत्यागम;
         }
-        if (!optimizable()) return;
+        यदि (!optimizable()) प्रत्यागम;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        आकार_t iter_गणनम् = 0;
+        ध्रुव आकार_t iter_सीमा = v3Global.opt.unroll_सीमा();
+        यावत् (true) {
+            यदि (iter_गणनम् > iter_सीमा) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
-                                            + std::to_string(iterLimit));
-                break;
+                                            + std::गन्तव्यम्_string(iter_सीमा));
+                भङ्ग;
             }
-            ++iterCount;
+            ++iter_गणनम्;
 
             UINFO(5, "    LOOP-ITER " << nodep);
-            iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            iterate_And_अग्र_Const_Null(nodep->stmtsp());
+            यदि (jumpingOver()) भङ्ग;
         }
 
-        if (m_jumptargetp == nodep) {
+        यदि (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstLoopTest* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        check_ग्रन्थिः_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        यदि (fetchConst(nodep->condp())->अङ्कः().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    शून्य दर्शय(AstStop* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_ग्रन्थिः_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    शून्य दर्शय(AstFuncRef* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_ग्रन्थिः_Info(nodep);
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_ग्रन्थिः_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        यदि (m_params) V3_विस्तारः::विस्तारः_Params_Edit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        यदि (funcp->recursive()) {
+            यदि (m_recurse_गणनम् >= v3Global.opt.func_Recursion_गभीरता()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
-                                            + std::to_string(v3Global.opt.funcRecursionDepth())
+                                            + std::गन्तव्यम्_string(v3Global.opt.func_Recursion_गभीरता())
                                             + " times");
-                return;
+                प्रत्यागम;
             }
-            ++m_recurseCount;
+            ++m_recurse_गणनम्;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_ग्रन्थिः*, Ast_ग्रन्थिः_व्यञ्जकम्*> old_मानानि;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        यदि (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_मानानि](AstVar* varp) {
+                यदि (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = fetch_मानम्_Null(varp)) {
+                        Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव nvaluep = newTrackedClone(valuep);
+                        old_मानानि.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_मानानि](Ast_ग्रन्थिः_व्यञ्जकम्* exprp) {
+                यदि (VN_IS(exprp, Const)) प्रत्यागम;  // Speed up as won't change
+                यदि (Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव valuep = fetch_मानम्_Null(exprp)) {
+                    Ast_ग्रन्थिः_व्यञ्जकम्* ध्रुव nvaluep = newTrackedClone(valuep);
+                    old_मानानि.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,256 +1340,256 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::सदिशम्<std::pair<AstVar*, Ast_ग्रन्थिः_व्यञ्जकम्*>> पत्तनम्_मानानि;
+        प्रति (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.अन्तः_2(); ++it) {
+            AstVar* ध्रुव portp = it->first;
+            Ast_ग्रन्थिः* ध्रुव pinp = it->second->exprp();
+            यदि (pinp) {  // Else too few arguments in function call - ignore it
+                यदि (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    प्रत्यागम;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                पत्तनम्_मानानि.emplace_पृष्ठभागः(std::make_pair(portp, newTrackedClone(fetch_मानम्(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        यदि (!m_checkOnly && optimizable())
+            प्रति (ध्रुव स्वचालित& it : पत्तनम्_मानानि) {
+                यदि (!m_checkOnly && optimizable()) new_मानम्(it.first, it.second);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_राशिः_ग्रन्थिः राशिः_ग्रन्थिः{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_राशिः.प्रक्षिप_पृष्ठभागः(&राशिः_ग्रन्थिः);
+        यदि (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                यदि (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_राशिः.निष्कासय_पृष्ठभागः();
+        ध्रुव Ast_ग्रन्थिः_व्यञ्जकम्* returnp = nullptr;
+        यदि (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_मानम्(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        प्रति (ध्रुव स्वचालित& it : old_मानानि) {
+            यदि (it.second) new_मानम्(it.first, it.second);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        यदि (returnp) new_मानम्(nodep, returnp);
+        यदि (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_गणनम् > 0, nodep, "recurse underflow");
+            --m_recurse_गणनम्;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    शून्य दर्शय(AstVar* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!m_params) {
+            bad_ग्रन्थिः_Type(nodep);
+            प्रत्यागम;
+        }
+    }
+
+    शून्य दर्शय(AstScopeName* /*nodep*/) override {
+        यदि (jumpingOver()) प्रत्यागम;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstSFormatArg* nodep) override {
+        check_ग्रन्थिः_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
-        iterateAndNextConstNull(nodep->exprp());
+        iterate_And_अग्र_Const_Null(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(AstSFormatF* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
 
-        AstNode* nextArgp = nodep->exprsp();
-        string result;
-        const string format = nodep->text();
-        auto pos = format.cbegin();
-        bool inPct = false;
-        string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
-                inPct = true;
-                width = "";
-            } else if (!inPct) {  // Normal text
-                result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
-                    width += pos[0];
-                    continue;
+        Ast_ग्रन्थिः* अग्र_Argp = nodep->exprsp();
+        string परिणाम;
+        ध्रुव string format = nodep->text();
+        स्वचालित pos = format.cbegin();
+        bool अन्तर्_Pct = false;
+        string विस्तारः;
+        प्रति (; pos != format.cend(); ++pos) {
+            यदि (!अन्तर्_Pct && pos[0] == '%') {
+                अन्तर्_Pct = true;
+                विस्तारः = "";
+            } अन्यथा यदि (!अन्तर्_Pct) {  // Normal text
+                परिणाम += *pos;
+            } अन्यथा {  // Format character
+                यदि (std::अङ्कः_वा(pos[0])) {
+                    विस्तारः += pos[0];
+                    अनुवर्त;
                 }
 
-                inPct = false;
+                अन्तर्_Pct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
-                    nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                यदि (V3_सङ्ख्या::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_ग्रन्थिः* ध्रुव argp = अग्र_Argp;
+                    अग्र_Argp = अग्र_Argp->nextp();
+                    AstSFormatArg* ध्रुव fargp = VN_CAST(argp, SFormatArg);
+                    Ast_ग्रन्थिः* ध्रुव subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* ध्रुव constp = fetchConstNull(subargp);
+                    ध्रुव VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    यदि (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        भङ्ग;
                     }
-                    const string pformat = "%"s + width + pos[0];
-                    result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                    ध्रुव string pformat = "%"s + विस्तारः + pos[0];
+                    परिणाम += formatAttr.isEnum()
+                                  ? constp->अङ्कः().displayedEnum(fargp, pformat)
+                                  : constp->अङ्कः().displayed(nodep, pformat, formatAttr);
+                } अन्यथा {
+                    विकल्प (std::tolower(pos[0])) {
+                    पक्ष '%': परिणाम += "%"; भङ्ग;
+                    पक्ष 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
-                        result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        परिणाम += "%m";
+                        भङ्ग;
+                    स्वभाव: clearOptimizable(nodep, "Unknown $display-like format code."); भङ्ग;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* ध्रुव परिणाम_Constp = new AstConst{nodep->fileline(), AstConst::String{}, परिणाम};
+        समुच्चयः_मानम्(nodep, परिणाम_Constp);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(परिणाम_Constp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    शून्य दर्शय(AstDisplay* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_ग्रन्थिः_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        यदि (m_params) {
+            ध्रुव AstConst* ध्रुव textp = fetchConst(nodep->fmtp());
+            विकल्प (nodep->displayType()) {
+            पक्ष VDisplayType::DT_DISPLAY:  // FALLTHRU
+            पक्ष VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); भङ्ग;
+            पक्ष VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); भङ्ग;
+            पक्ष VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); भङ्ग;
+            पक्ष VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); भङ्ग;
+            पक्ष VDisplayType::DT_WRITE:  // FALLTHRU
+            स्वभाव: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    शून्य दर्शय(Ast_गन्तव्यम्_String_N* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        यदि (!optimizable()) प्रत्यागम;  // Accelerate
+        check_ग्रन्थिः_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        यदि (m_checkOnly || !optimizable()) प्रत्यागम;
+        ध्रुव std::string परिणाम = गन्तव्यम्_String_Recurse(fetch_मानम्(nodep->lhsp()));
+        यदि (!optimizable()) प्रत्यागम;
+        AstConst* ध्रुव परिणाम_Constp = new AstConst{nodep->fileline(), AstConst::String{}, परिणाम};
+        समुच्चयः_मानम्(nodep, परिणाम_Constp);
+        m_reclaimValuesp.प्रक्षिप_पृष्ठभागः(परिणाम_Constp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    शून्य दर्शय(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    शून्य दर्शय(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        ज्ञातम्_Bad_ग्रन्थिः_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    शून्य दर्शय(Ast_Get_Initial_Random_बीजम्* nodep) override { ज्ञातम्_Bad_ग्रन्थिः_Type(nodep); }
+    शून्य दर्शय(AstMemberSel* nodep) override { ज्ञातम्_Bad_ग्रन्थिः_Type(nodep); }
+    शून्य दर्शय(AstSampled* nodep) override { ज्ञातम्_Bad_ग्रन्थिः_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override {
+        यदि (jumpingOver()) प्रत्यागम;
+        bad_ग्रन्थिः_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    शून्य समुच्चयः_बहुलकम्(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    शून्य mainGuts(Ast_ग्रन्थिः* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
-        setMode(false, false, false);
+        समुच्चयः_बहुलकम्(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    शून्य clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
-        m_anyAssignComb = false;
-        m_anyAssignDly = false;
-        m_inDlyAssign = false;
+        m_any_नियोजय_Comb = false;
+        m_any_नियोजय_Dly = false;
+        m_अन्तर्_Dly_नियोजय = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_गणनम् = 0;
+        m_दत्त_गणनम् = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_ग्रन्थिः::user1_Clear_वृक्षः();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
-        setMode(true /*scoped*/, true /*checking*/, false /*params*/);
+    शून्य main_सारणी_Check(Ast_ग्रन्थिः* nodep) {
+        समुच्चयः_बहुलकम्(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
-        setMode(true /*scoped*/, false /*checking*/, false /*params*/);
+    शून्य main_सारणी_Emulate(Ast_ग्रन्थिः* nodep) {
+        समुच्चयः_बहुलकम्(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
-        setMode(false /*scoped*/, false /*checking*/, true /*params*/);
+    शून्य mainParamEmulate(Ast_ग्रन्थिः* nodep) {
+        समुच्चयः_बहुलकम्(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::समुच्चयः<Ast_ग्रन्थिः*> अप्रयुक्तम्_Rootps;
+        प्रति (Ast_ग्रन्थिः* ध्रुव nodep : m_reclaimValuesp) {
+            यदि (!nodep->backp()) अप्रयुक्तम्_Rootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        प्रति (Ast_ग्रन्थिः* ध्रुव nodep : अप्रयुक्तम्_Rootps) VL_DO_DANGLING(nodep->delete_वृक्षः(), nodep);
     }
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

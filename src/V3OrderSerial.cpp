@@ -18,40 +18,40 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderCFuncEmitter.h"
-#include "V3OrderInternal.h"
+#अन्तर्भाव "V3OrderCFuncEmitter.h"
+#अन्तर्भाव "V3OrderInternal.h"
 
-#include <memory>
+#अन्तर्भाव <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // OrderSerial class
 
-AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
+Ast_ग्रन्थिः_Stmt* V3_क्रमः::createSerial(क्रमः_Move_Graph& moveGraph, ध्रुव std::string& चिह्नकम्, तार्किक slow) {
 
-    UINFO(2, "  Constructing serial code for '" + tag + "'");
+    UINFO(2, "  Constructing serial code for '" + चिह्नकम् + "'");
 
     // Serializer
-    OrderMoveGraphSerializer serializer{moveGraph};
+    क्रमः_Move_Graph_Serializer serializer{moveGraph};
 
     // Add initially ready vertices (those with no dependencies) to the serializer as seeds
-    for (V3GraphVertex& vtx : moveGraph.vertices()) {
-        if (vtx.inEmpty()) serializer.addSeed(vtx.as<OrderMoveVertex>());
+    प्रति (V3GraphVertex& vtx : moveGraph.vertices()) {
+        यदि (vtx.अन्तर्_रिक्तानि()) serializer.सङ्कलय_बीजम्(vtx.as<क्रमः_Move_Vertex>());
     }
 
     // Emit all logic as they become ready
-    V3OrderCFuncEmitter emitter{moveGraph.orderGraph().trigVscp(), tag, slow};
-    OrderMoveDomScope* prevDomScopep = nullptr;
-    while (OrderMoveVertex* const mVtxp = serializer.getNext()) {
+    V3_क्रमः_CFunc_Emitter emitter{moveGraph.क्रमः_Graph_2().trigVscp(), चिह्नकम्, slow};
+    क्रमः_Move_Dom_Scope* पूर्व_Dom_Scopep = शून्यसूचकः;
+    यावत् (क्रमः_Move_Vertex* ध्रुव mVtxp = serializer.get_अग्र()) {
         // We only really care about logic vertices
-        if (OrderLogicVertex* const logicp = mVtxp->logicp()) {
+        यदि (क्रमः_Logic_Vertex* ध्रुव logicp = mVtxp->logicp()) {
             // Force a new function if the domain or scope changed, for better combining.
-            OrderMoveDomScope* const domScopep = &mVtxp->domScope();
-            if (domScopep != prevDomScopep) emitter.forceNewFunction();
-            prevDomScopep = domScopep;
+            क्रमः_Move_Dom_Scope* ध्रुव domScopep = &mVtxp->domScope();
+            यदि (domScopep != पूर्व_Dom_Scopep) emitter.forceNewFunction();
+            पूर्व_Dom_Scopep = domScopep;
             // Emit the logic under this vertex
             emitter.emitLogic(logicp);
         }
@@ -60,11 +60,11 @@ AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string&
     }
 
     // Delete the remaining variable vertices
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
-        if (!vtxp->as<OrderMoveVertex>()->logicp()) {
+    प्रति (V3GraphVertex* ध्रुव vtxp : moveGraph.vertices().unlinkable()) {
+        यदि (!vtxp->as<क्रमः_Move_Vertex>()->logicp()) {
             VL_DO_DANGLING(vtxp->unlinkDelete(&moveGraph), vtxp);
         }
     }
 
-    return emitter.getStmts();
+    प्रत्यागम emitter.getStmts();
 }

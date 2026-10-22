@@ -12,67 +12,67 @@
 // DESCRIPTION: Verilator: Emit C++ for precompiled header include
 //
 
-#include "V3PchAstMT.h"
+#अन्तर्भाव "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
+#अन्तर्भाव "V3EmitC.h"
+#अन्तर्भाव "V3EmitCBase.h"
+#अन्तर्भाव "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Precompiled header emitter
 
-class EmitCPch final : public EmitCBaseVisitorConst {
+वर्ग EmitCPch final : सार्वजनिक EmitCBaseVisitorConst {
     // METHODS
 
-    void emitPch() {
-        openNewOutputHeaderFile(EmitCUtil::pchClassName(), "Precompiled header");
-        puts("//\n");
-        puts("// Internal details; most user sources do not need this header,\n");
-        puts("// unless using verilator public meta comments.\n");
-        puts("// Suggest use " + EmitCUtil::topClassName() + ".h instead.\n");
+    शून्य emitPch() {
+        open_New_Output_शीर्षकम्_File(EmitCUtil::pchClassName(), "Precompiled header");
+        पङ्क्तिं_लिख("//\n");
+        पङ्क्तिं_लिख("// Internal details; most user sources do not need this header,\n");
+        पङ्क्तिं_लिख("// unless using verilator public meta comments.\n");
+        पङ्क्तिं_लिख("// Suggest use " + EmitCUtil::शिखरम्_Class_Name() + ".h instead.\n");
 
         ofp()->putsGuard();
 
-        puts("\n");
-        puts("// GCC and Clang only will precompile headers (PCH) for the first header.\n");
-        puts("// So, make sure this is the one and only PCH.\n");
-        puts("// If multiple module's includes are needed, use individual includes.\n");
-        puts("#ifdef VL_PCH_INCLUDED\n");
-        puts("# error \"Including multiple precompiled header files\"\n");
-        puts("#endif\n");
-        puts("#define VL_PCH_INCLUDED\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("// GCC and Clang only will precompile headers (PCH) for the first header.\n");
+        पङ्क्तिं_लिख("// So, make sure this is the one and only PCH.\n");
+        पङ्क्तिं_लिख("// If multiple module's includes are needed, use individual includes.\n");
+        पङ्क्तिं_लिख("#ifdef VL_PCH_INCLUDED\n");
+        पङ्क्तिं_लिख("# error \"Including multiple precompiled header files\"\n");
+        पङ्क्तिं_लिख("#endif\n");
+        पङ्क्तिं_लिख("#define VL_PCH_INCLUDED\n");
 
-        puts("\n");
-        puts("\n#include \"verilated.h\"\n");
-        if (v3Global.dpi()) puts("#include \"verilated_dpi.h\"\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("\n#include \"verilated.h\"\n");
+        यदि (v3Global.dpi()) पङ्क्तिं_लिख("#include \"verilated_dpi.h\"\n");
 
-        puts("\n");
-        puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
+        पङ्क्तिं_लिख("#include \"" + EmitCUtil::शिखरम्_Class_Name() + ".h\"\n");
 
-        puts("\n// Additional include files added using '--compiler-include'\n");
-        for (const string& filename : v3Global.opt.compilerIncludes()) {
-            puts("#include \"" + filename + "\"\n");
+        पङ्क्तिं_लिख("\n// Additional include files added using '--compiler-include'\n");
+        प्रति (ध्रुव string& filename : v3Global.opt.compilerIncludes()) {
+            पङ्क्तिं_लिख("#include \"" + filename + "\"\n");
         }
 
-        ofp()->putsEndGuard();
+        ofp()->puts_अन्तः_Guard();
 
         closeOutputFile();
     }
 
     // VISITOR
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { nodep->v3fatalSrc("Unused"); }
 
-public:
-    explicit EmitCPch() { emitPch(); }
+सार्वजनिक:
+    स्पष्ट EmitCPch() { emitPch(); }
 };
 
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcPch() {
+शून्य V3EmitC::emitcPch() {
     UINFO(2, __FUNCTION__ << ":");
     EmitCPch{};
 }

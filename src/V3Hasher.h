@@ -18,37 +18,37 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HASHER_H_
-#define VERILATOR_V3HASHER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#यदि_अपरिभाषितम् VERILATOR_V3HASHER_H_
+#परिभाषय VERILATOR_V3HASHER_H_
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hash.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Error.h"
+#अन्तर्भाव "V3Hash.h"
 
 //============================================================================
 
 class V3Hasher final {
     // NODE STATE
     //  AstNode::user4()    -> V3Hash.  Hash value of this node (hash of 0 is illegal)
-    const VNUser4InUse m_inuser4;
+    ध्रुव VNUser4_अन्तर्_Use m_inuser4;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    V3Hasher() = default;
-    ~V3Hasher() = default;
+    V3Hasher() = स्वभाव;
+    ~V3Hasher() = स्वभाव;
 
     // METHODS
 
     // Compute hash of node. This method caches the hash in the node's user4().
-    V3Hash operator()(AstNode* nodep) const;
+    V3Hash संक्रियकः()(Ast_ग्रन्थिः* nodep) ध्रुव;
 
     // Re-compute hash of this node, discarding cached value, but used cached hash of children.
-    V3Hash rehash(AstNode* nodep) const;
+    V3Hash rehash(Ast_ग्रन्थिः* nodep) ध्रुव;
 
     // Compute hash of node, without caching in user4.
-    static V3Hash uncachedHash(const AstNode* nodep);
+    स्थिर V3Hash uncachedHash(ध्रुव Ast_ग्रन्थिः* nodep);
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

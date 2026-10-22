@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCOPTIONS_H_
-#define VERILATOR_VLCOPTIONS_H_
+#यदि_अपरिभाषितम् VERILATOR_VLCOPTIONS_H_
+#परिभाषय VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#अन्तर्भाव "VlcPoint.h"
+#अन्तर्भाव "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#अन्तर्भाव <map>
+#अन्तर्भाव <set>
+#अन्तर्भाव <vector>
 
 //######################################################################
 // V3Options - Command line options
 
-using VlStringSet = std::set<std::string>;
+using Vl_String_समुच्चयः = std::समुच्चयः<std::string>;
 
 class VlcOptions final {
     // MEMBERS (general options)
     // clang-format off
-    string m_annotateOut;       // main switch: --annotate I<output_directory>
+    string m_annotate_बहिर्गमनम्;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    पूर्णाङ्क m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
-    VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    Vl_String_समुच्चयः m_readFiles;    // main switch: --read
+    पूर्णाङ्क m_report_स्तराः = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,44 +52,44 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+गुप्त:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    शून्य parseReportOption() VL_MT_DISABLED;
+    स्थिर शून्य show_संस्करणम्(bool verbose) VL_MT_DISABLED;
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = स्वभाव;
+    ~VlcOptions() = स्वभाव;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    शून्य parseOptsList(पूर्णाङ्क argc, वर्ण** argv) VL_MT_DISABLED;
+    शून्य सङ्कलय_Read_File(ध्रुव string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    ध्रुव Vl_String_समुच्चयः& readFiles() ध्रुव { प्रत्यागम m_readFiles; }
+    string annotate_बहिर्गमनम्() ध्रुव { प्रत्यागम m_annotate_बहिर्गमनम्; }
+    bool annotateAll() ध्रुव { प्रत्यागम m_annotateAll; }
+    पूर्णाङ्क annotateMin() ध्रुव { प्रत्यागम m_annotateMin; }
+    bool गणनम्_Ok(uint64_t गणनम्) ध्रुव { प्रत्यागम गणनम् >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() ध्रुव { प्रत्यागम m_annotatePoints; }
+    bool includeResetArcs() ध्रुव { प्रत्यागम m_includeResetArcs; }
+    पूर्णाङ्क report_स्तराः() ध्रुव { प्रत्यागम m_report_स्तराः; }
+    bool reportSpecified() ध्रुव { प्रत्यागम !m_report.रिक्तानि(); }
+    bool reportSummary() ध्रुव { प्रत्यागम m_reportSummary; }
+    bool reportHierarchy() ध्रुव { प्रत्यागम m_reportHierarchy; }
+    bool rank() ध्रुव { प्रत्यागम m_rank; }
+    bool unlink() ध्रुव { प्रत्यागम m_unlink; }
+    string writeFile() ध्रुव { प्रत्यागम m_writeFile; }
+    string writeInfoFile() ध्रुव { प्रत्यागम m_writeInfoFile; }
+    bool is_Type_मेलनम्(ध्रुव वर्ण* name) ध्रुव {
+        प्रत्यागम VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    स्थिर string संस्करणम्() VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // guard
+#यदि_अन्तः  // guard

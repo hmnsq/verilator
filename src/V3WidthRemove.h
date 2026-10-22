@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHREMOVE_H_
-#define VERILATOR_V3WIDTHREMOVE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3WIDTHREMOVE_H_
+#परिभाषय VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Error.h"
 
 // clang-format off
-#ifndef VERILATOR_V3WIDTH_CPP_
+#यदि_अपरिभाषितम् VERILATOR_V3_विस्तारः_CPP
 # error "V3WidthRemove for V3Width internal use only"
-#endif
+#यदि_अन्तः
 // clang-format on
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class विस्तारः_Remove_Visitor final : सार्वजनिक VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    शून्य replace_With_Signed_संस्करणम्(Ast_ग्रन्थिः* nodep, Ast_ग्रन्थिः* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(प्रक्षिप_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    शून्य दर्शय(AstSigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_संस्करणम्(nodep, nodep->lhsp()->unlink_Fr_पृष्ठभागः()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    शून्य दर्शय(AstUnsigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_संस्करणम्(nodep, nodep->lhsp()->unlink_Fr_पृष्ठभागः()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { iterateChildren(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    विस्तारः_Remove_Visitor() = स्वभाव;
+    ~विस्तारः_Remove_Visitor() override = स्वभाव;
+    Ast_ग्रन्थिः* mainAcceptEdit(Ast_ग्रन्थिः* nodep) { प्रत्यागम iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

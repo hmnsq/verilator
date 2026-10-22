@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SLICE_H_
-#define VERILATOR_V3SLICE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3_खण्डिका_H
+#परिभाषय VERILATOR_V3_खण्डिका_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
-class V3Slice final {
-public:
-    static void sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_खण्डिका final {
+सार्वजनिक:
+    स्थिर शून्य खण्डिका_All(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

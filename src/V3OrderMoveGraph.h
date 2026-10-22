@@ -18,62 +18,62 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERMOVEGRAPH_H_
-#define VERILATOR_V3ORDERMOVEGRAPH_H_
+#यदि_अपरिभाषितम् VERILATOR_V3ORDERMOVEGRAPH_H_
+#परिभाषय VERILATOR_V3ORDERMOVEGRAPH_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#अन्तर्भाव "config_build.h"
+#अन्तर्भाव "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
-#include "V3Order.h"
-#include "V3OrderGraph.h"
+#अन्तर्भाव "V3Ast.h"
+#अन्तर्भाव "V3Graph.h"
+#अन्तर्भाव "V3Order.h"
+#अन्तर्भाव "V3OrderGraph.h"
 
-class OrderMoveDomScope;
-class OrderMoveGraph;
+class क्रमः_Move_Dom_Scope;
+class क्रमः_Move_Graph;
 
 //======================================================================
 // Vertex types
 
-class OrderMoveVertex final : public V3GraphVertex {
-    VL_RTTI_IMPL(OrderMoveVertex, V3GraphVertex)
+class क्रमः_Move_Vertex final : सार्वजनिक V3GraphVertex {
+    VL_RTTI_IMPL(क्रमः_Move_Vertex, V3GraphVertex)
 
     // The corresponding logic vertex, or nullptr if this MoveVertex stands for a variable vertex.
-    OrderLogicVertex* const m_logicp;
-    OrderMoveDomScope& m_domScope;  // DomScope this vertex is under
-    V3ListLinks<OrderMoveVertex> m_links;  // List links to store instances of this class
+    क्रमः_Logic_Vertex* ध्रुव m_logicp;
+    क्रमः_Move_Dom_Scope& m_domScope;  // DomScope this vertex is under
+    V3ListLinks<क्रमः_Move_Vertex> m_links;  // List links to store instances of this class
 
     // METHODS
-    std::string dotColor() const override { return logicp() ? logicp()->dotColor() : "yellow"; }
+    std::string dotColor() ध्रुव override { प्रत्यागम logicp() ? logicp()->dotColor() : "yellow"; }
 
-    std::string name() const override VL_MT_STABLE {
+    std::string name() ध्रुव override VL_MT_STABLE {
         std::string nm;
-        if (!logicp()) {
+        यदि (!logicp()) {
             nm = "var";
-        } else {
+        } अन्यथा {
             nm = logicp()->name() + "\\n";
             nm += "MV:";
-            nm += +" d=" + cvtToHex(logicp()->domainp());
-            nm += +" s=" + cvtToHex(logicp()->scopep());
+            nm += +" d=" + cvt_गन्तव्यम्_Hex(logicp()->domainp());
+            nm += +" s=" + cvt_गन्तव्यम्_Hex(logicp()->scopep());
         }
-        if (userp()) nm += "\nu=" + cvtToHex(userp());
-        return nm;
+        यदि (userp()) nm += "\nu=" + cvt_गन्तव्यम्_Hex(userp());
+        प्रत्यागम nm;
     }
 
-    V3ListLinks<OrderMoveVertex>& links() { return m_links; }
+    V3ListLinks<क्रमः_Move_Vertex>& links() { प्रत्यागम m_links; }
 
-public:
+सार्वजनिक:
     // List type to store instances of this class
-    using List = V3List<OrderMoveVertex, &OrderMoveVertex::links>;
+    using List = V3List<क्रमः_Move_Vertex, &क्रमः_Move_Vertex::links>;
 
     // CONSTRUCTORS
-    OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                    const OrderDomain* domainp) VL_MT_DISABLED;
-    ~OrderMoveVertex() override = default;
-    VL_UNCOPYABLE(OrderMoveVertex);
+    क्रमः_Move_Vertex(क्रमः_Move_Graph& graph, क्रमः_Logic_Vertex* lVtxp,
+                    ध्रुव क्रमः_Domain* domainp) VL_MT_DISABLED;
+    ~क्रमः_Move_Vertex() override = स्वभाव;
+    VL_UNCOPYABLE(क्रमः_Move_Vertex);
 
-    OrderLogicVertex* logicp() const VL_MT_STABLE { return m_logicp; }
-    OrderMoveDomScope& domScope() const { return m_domScope; }
+    क्रमः_Logic_Vertex* logicp() ध्रुव VL_MT_STABLE { प्रत्यागम m_logicp; }
+    क्रमः_Move_Dom_Scope& domScope() ध्रुव { प्रत्यागम m_domScope; }
 };
 
 //======================================================================
@@ -81,17 +81,17 @@ public:
 
 // OrderMoveGraph is constructed from the fine-grained OrderGraph.
 // It is a slightly coarsened representation of dependencies used to drive serialization.
-class OrderMoveGraph final : public V3Graph {
-    OrderGraph& m_orderGraph;  // The OrderGraph this move graph was built from
+class क्रमः_Move_Graph final : सार्वजनिक V3Graph {
+    क्रमः_Graph& m_क्रमः_Graph;  // The OrderGraph this move graph was built from
 
-public:
-    explicit OrderMoveGraph(OrderGraph& orderGraph)
-        : m_orderGraph{orderGraph} {}
+सार्वजनिक:
+    explicit क्रमः_Move_Graph(क्रमः_Graph& क्रमः_Graph_2)
+        : m_क्रमः_Graph{क्रमः_Graph_2} {}
 
-    OrderGraph& orderGraph() const { return m_orderGraph; }
+    क्रमः_Graph& क्रमः_Graph_2() ध्रुव { प्रत्यागम m_क्रमः_Graph; }
 
     // Build an OrderMoveGraph from an OrderGraph
-    static std::unique_ptr<OrderMoveGraph> build(OrderGraph&);
+    स्थिर std::unique_ptr<क्रमः_Move_Graph> build(क्रमः_Graph&);
 };
 
 //======================================================================
@@ -100,173 +100,173 @@ public:
 // Information stored for each unique (domain, scope) pair. Mainly a list of ready vertices under
 // that (domain, scope). OrderMoveDomScope instances are themselves organized into a global ready
 // list if they have ready vertices.
-class OrderMoveDomScope final {
+class क्रमः_Move_Dom_Scope final {
     // STATE
-    OrderMoveVertex::List m_readyVertices;  // Ready vertices in this domain/scope
-    V3ListLinks<OrderMoveDomScope> m_links;  // List links to store instances of this class
+    क्रमः_Move_Vertex::List m_readyVertices;  // Ready vertices in this domain/scope
+    V3ListLinks<क्रमः_Move_Dom_Scope> m_links;  // List links to store instances of this class
     bool m_isOnList = false;  // True if DomScope is already on a list through m_listEnt
-    const OrderDomain* const m_domainp;  // Domain the vertices belong to
-    const AstScope* const m_scopep;  // Scope the vertices belong to
+    ध्रुव क्रमः_Domain* ध्रुव m_domainp;  // Domain the vertices belong to
+    ध्रुव AstScope* ध्रुव m_scopep;  // Scope the vertices belong to
 
     // Key type for map below
-    class DomScopeMapKey final {
-        const OrderDomain* const m_domainp;  // Domain the vertices belong to
-        const AstScope* const m_scopep;  // Scope the vertices belong to
+    class Dom_Scope_Map_कुञ्चिका final {
+        ध्रुव क्रमः_Domain* ध्रुव m_domainp;  // Domain the vertices belong to
+        ध्रुव AstScope* ध्रुव m_scopep;  // Scope the vertices belong to
 
-    public:
-        DomScopeMapKey(const OrderDomain* domainp, const AstScope* scopep)
+    सार्वजनिक:
+        Dom_Scope_Map_कुञ्चिका(ध्रुव क्रमः_Domain* domainp, ध्रुव AstScope* scopep)
             : m_domainp{domainp}
             , m_scopep{scopep} {}
 
-        struct Hash final {
-            size_t operator()(const DomScopeMapKey& key) const {
+        संरचना Hash final {
+            आकार_t संक्रियकः()(ध्रुव Dom_Scope_Map_कुञ्चिका& कुञ्चिका) ध्रुव {
                 // cppcheck-suppress unreadVariable  // cppcheck bug
-                V3Hash hash{key.m_domainp};
-                hash += key.m_scopep;
-                return hash.value();
+                V3Hash hash{कुञ्चिका.m_domainp};
+                hash += कुञ्चिका.m_scopep;
+                प्रत्यागम hash.मानम्();
             }
         };
 
-        struct Equal final {
-            bool operator()(const DomScopeMapKey& a, const DomScopeMapKey& b) const {
-                return a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
+        संरचना Equal final {
+            bool संक्रियकः()(ध्रुव Dom_Scope_Map_कुञ्चिका& a, ध्रुव Dom_Scope_Map_कुञ्चिका& b) ध्रुव {
+                प्रत्यागम a.m_domainp == b.m_domainp && a.m_scopep == b.m_scopep;
             }
         };
     };
 
-    using DomScopeMap = std::unordered_map<DomScopeMapKey, OrderMoveDomScope, DomScopeMapKey::Hash,
-                                           DomScopeMapKey::Equal>;
+    using DomScopeMap = std::unordered_map<Dom_Scope_Map_कुञ्चिका, क्रमः_Move_Dom_Scope, Dom_Scope_Map_कुञ्चिका::Hash,
+                                           Dom_Scope_Map_कुञ्चिका::Equal>;
     // Map from Domain/Scope to the corresponding DomScope instance
-    static DomScopeMap s_dsMap;
+    स्थिर DomScopeMap s_dsMap;
 
-    V3ListLinks<OrderMoveDomScope>& links() { return m_links; }
+    V3ListLinks<क्रमः_Move_Dom_Scope>& links() { प्रत्यागम m_links; }
 
-public:
+सार्वजनिक:
     // List type to store instances of this class
-    using List = V3List<OrderMoveDomScope, &OrderMoveDomScope::links>;
+    using List = V3List<क्रमः_Move_Dom_Scope, &क्रमः_Move_Dom_Scope::links>;
 
     // STATIC MEMBERS
-    static OrderMoveDomScope& getOrCreate(const OrderDomain* domainp, const AstScope* scopep) {
-        return s_dsMap
+    स्थिर क्रमः_Move_Dom_Scope& getOrCreate(ध्रुव क्रमः_Domain* domainp, ध्रुव AstScope* scopep) {
+        प्रत्यागम s_dsMap
             .emplace(std::piecewise_construct,  //
                      std::forward_as_tuple(domainp, scopep),  //
                      std::forward_as_tuple(domainp, scopep))
             .first->second;
     }
-    static void clear() { s_dsMap.clear(); }
+    स्थिर शून्य clear() { s_dsMap.clear(); }
 
     // CONSTRUCTOR
-    OrderMoveDomScope(const OrderDomain* domainp, const AstScope* scopep)
+    क्रमः_Move_Dom_Scope(ध्रुव क्रमः_Domain* domainp, ध्रुव AstScope* scopep)
         : m_domainp{domainp}
         , m_scopep{scopep} {}
-    ~OrderMoveDomScope() = default;
-    VL_UNCOPYABLE(OrderMoveDomScope);
-    VL_UNMOVABLE(OrderMoveDomScope);
+    ~क्रमः_Move_Dom_Scope() = स्वभाव;
+    VL_UNCOPYABLE(क्रमः_Move_Dom_Scope);
+    VL_UNMOVABLE(क्रमः_Move_Dom_Scope);
 
     // MEMBERS
-    OrderMoveVertex::List& readyVertices() { return m_readyVertices; }
-    const OrderDomain* domainp() const { return m_domainp; }
-    const AstScope* scopep() const { return m_scopep; }
+    क्रमः_Move_Vertex::List& readyVertices() { प्रत्यागम m_readyVertices; }
+    ध्रुव क्रमः_Domain* domainp() ध्रुव { प्रत्यागम m_domainp; }
+    ध्रुव AstScope* scopep() ध्रुव { प्रत्यागम m_scopep; }
 
-    bool isOnList() const { return m_isOnList; }
-    void isOnList(bool value) { m_isOnList = value; }
+    bool isOnList() ध्रुव { प्रत्यागम m_isOnList; }
+    शून्य isOnList(bool मानम्) { m_isOnList = मानम्; }
 };
 
 //======================================================================
 // Serializer for OrderMoveGraph
 
-class OrderMoveGraphSerializer final {
+class क्रमः_Move_Graph_Serializer final {
     // STATE
-    OrderMoveDomScope::List m_readyDomScopeps;  // List of DomScopes which have ready vertices
-    OrderMoveDomScope* m_nextDomScopep = nullptr;  // Next DomScope to yield from
+    क्रमः_Move_Dom_Scope::List m_readyDomScopeps;  // List of DomScopes which have ready vertices
+    क्रमः_Move_Dom_Scope* m_अग्र_Dom_Scopep = nullptr;  // Next DomScope to yield from
 
     // METHODS
 
-    void ready(OrderMoveVertex* vtxp) {
+    शून्य ready(क्रमः_Move_Vertex* vtxp) {
         UASSERT_OBJ(!vtxp->user(), vtxp, "'ready' called on vertex with pending dependencies");
-        if (vtxp->logicp()) {
+        यदि (vtxp->logicp()) {
             // Add this vertex to the ready list of its DomScope
-            OrderMoveDomScope& domScope = vtxp->domScope();
-            domScope.readyVertices().linkBack(vtxp);
+            क्रमः_Move_Dom_Scope& domScope = vtxp->domScope();
+            domScope.readyVertices().link_पृष्ठभागः(vtxp);
             // Add the DomScope to the global ready list if not there yet
-            if (!domScope.isOnList()) {
+            यदि (!domScope.isOnList()) {
                 domScope.isOnList(true);
-                m_readyDomScopeps.linkBack(&domScope);
+                m_readyDomScopeps.link_पृष्ठभागः(&domScope);
             }
-        } else {  // This is a bit nonsense at this point, but equivalent to the old version
+        } अन्यथा {  // This is a bit nonsense at this point, but equivalent to the old version
             // Remove dependency on vertex we are returning. This might add vertices to
             // currReadyList.
-            for (V3GraphEdge& edge : vtxp->outEdges()) {
+            प्रति (V3GraphEdge& edge : vtxp->बहिर्गमनम्_धाराः()) {
                 // The dependent variable
-                OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+                क्रमः_Move_Vertex* ध्रुव dVtxp = edge.शिखरम्()->as<क्रमः_Move_Vertex>();
                 // Update number of dependencies
-                const uint32_t nDeps = dVtxp->user() - 1;
+                ध्रुव uint32_t nDeps = dVtxp->user() - 1;
                 dVtxp->user(nDeps);
                 // If no more dependencies, mark it ready
-                if (!nDeps) ready(dVtxp);
+                यदि (!nDeps) ready(dVtxp);
             }
         }
     }
 
-public:
+सार्वजनिक:
     // CONSTRUCTOR
-    explicit OrderMoveGraphSerializer(OrderMoveGraph& moveGraph) {
+    explicit क्रमः_Move_Graph_Serializer(क्रमः_Move_Graph& moveGraph) {
         // Set V3GraphVertex::user() to the number of incoming edges (upstream dependencies)
-        for (V3GraphVertex& vtx : moveGraph.vertices()) {
-            const uint32_t nDeps = vtx.inEdges().size();
+        प्रति (V3GraphVertex& vtx : moveGraph.vertices()) {
+            ध्रुव uint32_t nDeps = vtx.अन्तर्_धाराः().आकार();
             vtx.user(nDeps);
         }
     }
-    ~OrderMoveGraphSerializer() = default;
-    VL_UNCOPYABLE(OrderMoveGraphSerializer);
+    ~क्रमः_Move_Graph_Serializer() = स्वभाव;
+    VL_UNCOPYABLE(क्रमः_Move_Graph_Serializer);
 
     // Add a seed vertex to the ready lists
-    void addSeed(OrderMoveVertex* vtxp) { ready(vtxp); }
+    शून्य सङ्कलय_बीजम्(क्रमः_Move_Vertex* vtxp) { ready(vtxp); }
 
-    OrderMoveVertex* getNext() {
-        if (!m_nextDomScopep) m_nextDomScopep = m_readyDomScopeps.frontp();
+    क्रमः_Move_Vertex* get_अग्र() {
+        यदि (!m_अग्र_Dom_Scopep) m_अग्र_Dom_Scopep = m_readyDomScopeps.frontp();
         // If nothing is ready, we are done
-        if (!m_nextDomScopep) return nullptr;
-        OrderMoveDomScope& currDomScope = *m_nextDomScopep;
+        यदि (!m_अग्र_Dom_Scopep) प्रत्यागम nullptr;
+        क्रमः_Move_Dom_Scope& currDomScope = *m_अग्र_Dom_Scopep;
 
-        OrderMoveVertex::List& currReadyList = currDomScope.readyVertices();
-        UASSERT(!currReadyList.empty(), "DomScope on ready list, but has no ready vertices");
+        क्रमः_Move_Vertex::List& currReadyList = currDomScope.readyVertices();
+        UASSERT(!currReadyList.रिक्तानि(), "DomScope on ready list, but has no ready vertices");
 
         // Remove vertex from ready list under the DomScope. This is the vertex we are returning.
-        OrderMoveVertex* mVtxp = currReadyList.unlinkFront();
+        क्रमः_Move_Vertex* mVtxp = currReadyList.unlinkFront();
 
         // Nonsesne, but what we used to do
-        if (currReadyList.empty()) {
+        यदि (currReadyList.रिक्तानि()) {
             currDomScope.isOnList(false);
             m_readyDomScopeps.unlink(&currDomScope);
         }
 
         // Remove dependency on vertex we are returning. This might add vertices to currReadyList.
-        for (V3GraphEdge& edge : mVtxp->outEdges()) {
+        प्रति (V3GraphEdge& edge : mVtxp->बहिर्गमनम्_धाराः()) {
             // The dependent variable
-            OrderMoveVertex* const dVtxp = edge.top()->as<OrderMoveVertex>();
+            क्रमः_Move_Vertex* ध्रुव dVtxp = edge.शिखरम्()->as<क्रमः_Move_Vertex>();
             // Update number of dependencies
-            const uint32_t nDeps = dVtxp->user() - 1;
+            ध्रुव uint32_t nDeps = dVtxp->user() - 1;
             dVtxp->user(nDeps);
             // If no more dependencies, mark it ready
-            if (!nDeps) ready(dVtxp);
+            यदि (!nDeps) ready(dVtxp);
         }
 
         // If no more ready vertices in the current DomScope, prefer to continue with a new scope
         // under the same domain.
-        if (currReadyList.empty()) {
-            m_nextDomScopep = nullptr;
-            for (OrderMoveDomScope& domScope : m_readyDomScopeps) {
-                if (domScope.domainp() == currDomScope.domainp()) {
-                    m_nextDomScopep = &domScope;
-                    break;
+        यदि (currReadyList.रिक्तानि()) {
+            m_अग्र_Dom_Scopep = nullptr;
+            प्रति (क्रमः_Move_Dom_Scope& domScope : m_readyDomScopeps) {
+                यदि (domScope.domainp() == currDomScope.domainp()) {
+                    m_अग्र_Dom_Scopep = &domScope;
+                    भङ्ग;
                 }
             }
         }
 
         // Finally yield the selected vertex
-        return mVtxp;
+        प्रत्यागम mVtxp;
     }
 };
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

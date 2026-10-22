@@ -14,772 +14,772 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3EmitC.h"
-#include "V3EmitCFunc.h"
-#include "V3UniqueNames.h"
+#अन्तर्भाव "V3EmitC.h"
+#अन्तर्भाव "V3EmitCFunc.h"
+#अन्तर्भाव "V3UniqueNames.h"
 
-#include <algorithm>
-#include <functional>
-#include <vector>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <functional>
+#अन्तर्भाव <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class EmitCModel final : public EmitCFunc {
+वर्ग EmitCModel final : सार्वजनिक EmitCFunc {
     // TYPES
-    using CFuncVector = std::vector<const AstCFunc*>;
+    उपयुज्य CFunc_सदिशम् = std::सदिशम्<ध्रुव AstCFunc*>;
 
     // MEMBERS
-    V3UniqueNames m_uniqueNames;  // For generating unique file names
+    V3_Unique_नामानि m_unique_नामानि;  // For generating unique file names
 
     // METHODS
 
-    CFuncVector findFuncps(std::function<bool(const AstCFunc*)> cb) {
-        CFuncVector funcps;
-        for (AstNode* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
-                if (cb(funcp)) funcps.push_back(funcp);
+    CFunc_सदिशम् findFuncps(std::function<तार्किक(ध्रुव AstCFunc*)> cb) {
+        CFunc_सदिशम् funcps;
+        प्रति (Ast_ग्रन्थिः* nodep = m_modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (ध्रुव AstCFunc* ध्रुव funcp = VN_CAST(nodep, CFunc)) {
+                यदि (cb(funcp)) funcps.प्रक्षिप_पृष्ठभागः(funcp);
             }
         }
-        stable_sort(funcps.begin(), funcps.end(),
-                    [](const AstNode* ap, const AstNode* bp) { return ap->name() < bp->name(); });
-        return funcps;
+        stable_क्रमय(funcps.begin(), funcps.अन्तः_2(),
+                    [](ध्रुव Ast_ग्रन्थिः* ap, ध्रुव Ast_ग्रन्थिः* bp) { प्रत्यागम ap->name() < bp->name(); });
+        प्रत्यागम funcps;
     }
 
     // Whether 'funcp' is a DPI function with arguments of unpacked structures
-    static bool isDpiPassingStructs(const AstCFunc* funcp) {
-        if (!funcp->dpiImportPrototype() && !funcp->dpiExportDispatcher()) return false;
-        for (const AstNode* argp = funcp->argsp(); argp; argp = argp->nextp()) {
-            const AstVar* const varp = VN_CAST(argp, Var);
-            if (varp && varp->dtypep()->containsUnpackedStruct()) return true;
+    स्थिर तार्किक isDpiPassingStructs(ध्रुव AstCFunc* funcp) {
+        यदि (!funcp->dpiImportPrototype() && !funcp->dpiExportDispatcher()) प्रत्यागम असत्य;
+        प्रति (ध्रुव Ast_ग्रन्थिः* argp = funcp->argsp(); argp; argp = argp->nextp()) {
+            ध्रुव AstVar* ध्रुव varp = VN_CAST(argp, Var);
+            यदि (varp && varp->dtypep()->अन्तर्भवति_Unpacked_Struct()) प्रत्यागम सत्य;
         }
-        return false;
+        प्रत्यागम असत्य;
     }
 
-    void putSectionDelimiter(const string& name) {
-        puts("\n");
-        puts("//============================================================\n");
-        puts("// " + name + "\n");
+    शून्य putSectionDelimiter(ध्रुव string& name) {
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("//============================================================\n");
+        पङ्क्तिं_लिख("// " + name + "\n");
     }
 
-    void emitHeader(AstNodeModule* modp) {
-        openNewOutputHeaderFile(EmitCUtil::topClassName(), "Primary model header");
-        puts("//\n");
-        puts("// This header should be included by all source files instantiating the design.\n");
-        puts("// The class here is then constructed to instantiate the design.\n");
-        puts("// See the Verilator manual for examples.\n");
+    शून्य emit_शीर्षकम्(Ast_ग्रन्थिः_Module* modp) {
+        open_New_Output_शीर्षकम्_File(EmitCUtil::शिखरम्_Class_Name(), "Primary model header");
+        पङ्क्तिं_लिख("//\n");
+        पङ्क्तिं_लिख("// This header should be included by all source files instantiating the design.\n");
+        पङ्क्तिं_लिख("// The class here is then constructed to instantiate the design.\n");
+        पङ्क्तिं_लिख("// See the Verilator manual for examples.\n");
 
         ofp()->putsGuard();
 
         // Include files
-        puts("\n");
-        ofp()->putsIntTopInclude();
+        पङ्क्तिं_लिख("\n");
+        ofp()->puts_Int_शिखरम्_Include();
 
-        puts("#include \"verilated.h\"\n");
-        if (v3Global.opt.systemC()) puts("#include \"verilated_sc.h\"\n");
-        if (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
-        if (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
-        if (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
-        if (v3Global.opt.coverage() || v3Global.useCovergroup())
-            puts("#include \"verilated_covergroup.h\"\n");
-        if (v3Global.dpi()) puts("#include \"svdpi.h\"\n");
+        पङ्क्तिं_लिख("#include \"verilated.h\"\n");
+        यदि (v3Global.opt.systemC()) पङ्क्तिं_लिख("#include \"verilated_sc.h\"\n");
+        यदि (v3Global.opt.mtasks()) पङ्क्तिं_लिख("#include \"verilated_threads.h\"\n");
+        यदि (v3Global.opt.savable()) पङ्क्तिं_लिख("#include \"verilated_save.h\"\n");
+        यदि (v3Global.opt.coverage()) पङ्क्तिं_लिख("#include \"verilated_cov.h\"\n");
+        यदि (v3Global.opt.coverage() || v3Global.useCovergroup())
+            पङ्क्तिं_लिख("#include \"verilated_covergroup.h\"\n");
+        यदि (v3Global.dpi()) पङ्क्तिं_लिख("#include \"svdpi.h\"\n");
         // The model needs the C structures DPI functions pass, which the DPI header declares
-        if (!findFuncps(isDpiPassingStructs).empty()) {
-            puts("#include \"" + EmitCUtil::topClassName() + "__Dpi.h\"\n");
+        यदि (!findFuncps(isDpiPassingStructs).रिक्तानि()) {
+            पङ्क्तिं_लिख("#include \"" + EmitCUtil::शिखरम्_Class_Name() + "__Dpi.h\"\n");
         }
 
         // Declare foreign instances up front to make C++ happy
-        puts("\n");
-        puts("class " + EmitCUtil::symClassName() + ";\n");
-        puts("class " + EmitCUtil::prefixNameProtect(modp) + ";\n");  // For rootp pointer only
-        for (const string& base : v3Global.opt.traceClassLangs()) puts("class " + base + ";\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("class " + EmitCUtil::symClassName() + ";\n");
+        पङ्क्तिं_लिख("class " + EmitCUtil::उपसर्गः_Name_Protect(modp) + ";\n");  // For rootp pointer only
+        प्रति (ध्रुव string& आधारः : v3Global.opt.traceClassLangs()) पङ्क्तिं_लिख("class " + आधारः + ";\n");
         emitModCUse(modp, VUseType::INT_FWD_CLASS);  // Note: This is needed for cell forwarding
 
-        puts("\n");
+        पङ्क्तिं_लिख("\n");
 
-        puts("// This class is the main interface to the Verilated model\n");
-        putns(modp, "class alignas(VL_CACHE_LINE_BYTES) " + EmitCUtil::topClassName()
+        पङ्क्तिं_लिख("// This class is the main interface to the Verilated model\n");
+        putns(modp, "class alignas(VL_CACHE_LINE_BYTES) " + EmitCUtil::शिखरम्_Class_Name()
                         + " VL_NOT_FINAL : ");
-        if (optSystemC()) {
+        यदि (optSystemC()) {
             // SC_MODULE, but with multiple-inheritance of VerilatedModel
-            puts("public ::sc_core::sc_module, ");
+            पङ्क्तिं_लिख("public ::sc_core::sc_module, ");
         }
-        puts("public VerilatedModel {\n");
+        पङ्क्तिं_लिख("public VerilatedModel {\n");
         // The symbol table references the model's evaluation state
-        puts("friend class " + EmitCUtil::symClassName() + ";\n");
+        पङ्क्तिं_लिख("friend class " + EmitCUtil::symClassName() + ";\n");
 
-        ofp()->resetPrivate();
-        ofp()->putsPrivate(true);  // private:
+        ofp()->reset_वैयक्तिकम्();
+        ofp()->puts_वैयक्तिकम्(सत्य);  // private:
 
-        puts("// Symbol table holding complete model state (owned by this class)\n");
-        puts(EmitCUtil::symClassName() + "* const vlSymsp;\n");
-        puts("// Evaluation loop\n");
-        puts("VerilatedEvalLoop m_evalLoop;\n");
+        पङ्क्तिं_लिख("// Symbol table holding complete model state (owned by this class)\n");
+        पङ्क्तिं_लिख(EmitCUtil::symClassName() + "* const vlSymsp;\n");
+        पङ्क्तिं_लिख("// Evaluation loop\n");
+        पङ्क्तिं_लिख("VerilatedEvalLoop m_evalLoop;\n");
 
-        puts("\n");
-        ofp()->putsPrivate(false);  // public:
+        पङ्क्तिं_लिख("\n");
+        ofp()->puts_वैयक्तिकम्(असत्य);  // public:
 
-        puts("\n// CONSTEXPR CAPABILITIES\n");
-        puts("// Verilated with --trace?\n");
-        puts("static constexpr bool traceCapable = "s
+        पङ्क्तिं_लिख("\n// CONSTEXPR CAPABILITIES\n");
+        पङ्क्तिं_लिख("// Verilated with --trace?\n");
+        पङ्क्तिं_लिख("static constexpr bool traceCapable = "s
              + (v3Global.opt.trace() ? "true;\n"s : "false;\n"s));
 
         // User accessible IO
-        puts("\n// PORTS\n"
+        पङ्क्तिं_लिख("\n// PORTS\n"
              "// The application code writes and reads these signals to\n"
              "// propagate new values into/out from the Verilated model.\n");
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isPrimaryIO()) {  //
-                    emitVarDecl(varp, /* asRef: */ true);
+        प्रति (ध्रुव Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) {
+                यदि (varp->isPrimaryIO()) {  //
+                    emitVarDecl(varp, /* asRef: */ सत्य);
                 }
             }
         }
-        if (v3Global.opt.emitAccessors()) {
-            puts("\n// ACCESSORS\n"
+        यदि (v3Global.opt.emitAccessors()) {
+            पङ्क्तिं_लिख("\n// ACCESSORS\n"
                  "// The application code should use these methods to\n"
                  "// propagate new values into/out from the Verilated model\n"
                  "// instead of using signal variables directly.\n");
-            for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                    if (varp->isPrimaryIO()) emitVarAccessors(varp);
+            प्रति (ध्रुव Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                यदि (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) {
+                    यदि (varp->isPrimaryIO()) emitVarAccessors(varp);
                 }
             }
         }
 
         // Cells instantiated by the top level (for access to /* verilator public */)
-        puts("\n// CELLS\n"
+        पङ्क्तिं_लिख("\n// CELLS\n"
              "// Public to allow access to /* verilator public */ items.\n"
              "// Otherwise the application code can consider these internals.\n");
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
-                if (cellp->modp()->isConstPool()) continue;  // Special emit rules
-                putns(cellp, EmitCUtil::prefixNameProtect(cellp->modp()) + "* const "
+        प्रति (Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (ध्रुव AstCell* ध्रुव cellp = VN_CAST(nodep, Cell)) {
+                यदि (cellp->modp()->isConstPool()) अनुवर्त;  // Special emit rules
+                putns(cellp, EmitCUtil::उपसर्गः_Name_Protect(cellp->modp()) + "* const "
                                  + cellp->nameProtect() + ";\n");
             }
         }
 
         // root instance pointer (for access to internals, including public_flat items).
-        puts("\n// Root instance pointer to allow access to model internals,\n"
+        पङ्क्तिं_लिख("\n// Root instance pointer to allow access to model internals,\n"
              "// including inlined /* verilator public_flat_* */ items.\n");
-        puts(EmitCUtil::prefixNameProtect(modp) + "* const rootp;\n");
+        पङ्क्तिं_लिख(EmitCUtil::उपसर्गः_Name_Protect(modp) + "* const rootp;\n");
 
-        puts("\n");
-        ofp()->putsPrivate(false);  // public:
-        puts("// CONSTRUCTORS\n");
-        if (optSystemC()) {
-            puts("SC_CTOR(" + EmitCUtil::topClassName() + ");\n");
-            puts("virtual ~" + EmitCUtil::topClassName() + "();\n");
-        } else {
-            puts("/// Construct the model; called by application code\n");
-            puts("/// If contextp is null, then the model will use the default global "
+        पङ्क्तिं_लिख("\n");
+        ofp()->puts_वैयक्तिकम्(असत्य);  // public:
+        पङ्क्तिं_लिख("// CONSTRUCTORS\n");
+        यदि (optSystemC()) {
+            पङ्क्तिं_लिख("SC_CTOR(" + EmitCUtil::शिखरम्_Class_Name() + ");\n");
+            पङ्क्तिं_लिख("virtual ~" + EmitCUtil::शिखरम्_Class_Name() + "();\n");
+        } अन्यथा {
+            पङ्क्तिं_लिख("/// Construct the model; called by application code\n");
+            पङ्क्तिं_लिख("/// If contextp is null, then the model will use the default global "
                  "context\n");
-            puts("/// If name is \"\", then makes a wrapper with a\n");
-            puts("/// single model invisible with respect to DPI scope names.\n");
-            puts("explicit " + EmitCUtil::topClassName() + "(VerilatedContext* contextp,"
+            पङ्क्तिं_लिख("/// If name is \"\", then makes a wrapper with a\n");
+            पङ्क्तिं_लिख("/// single model invisible with respect to DPI scope names.\n");
+            पङ्क्तिं_लिख("explicit " + EmitCUtil::शिखरम्_Class_Name() + "(VerilatedContext* contextp,"
                  + " const char* name = \"TOP\");\n");
-            puts("explicit " + EmitCUtil::topClassName() + "(const char* name = \"TOP\");\n");
-            puts("/// Destroy the model; called (often implicitly) by application code\n");
-            puts("virtual ~" + EmitCUtil::topClassName() + "();\n");
+            पङ्क्तिं_लिख("explicit " + EmitCUtil::शिखरम्_Class_Name() + "(const char* name = \"TOP\");\n");
+            पङ्क्तिं_लिख("/// Destroy the model; called (often implicitly) by application code\n");
+            पङ्क्तिं_लिख("virtual ~" + EmitCUtil::शिखरम्_Class_Name() + "();\n");
         }
-        ofp()->putsPrivate(true);
-        puts("VL_UNCOPYABLE(" + EmitCUtil::topClassName() + ");  ///< Copying not allowed\n");
+        ofp()->puts_वैयक्तिकम्(सत्य);
+        पङ्क्तिं_लिख("VL_UNCOPYABLE(" + EmitCUtil::शिखरम्_Class_Name() + ");  ///< Copying not allowed\n");
 
-        puts("\n");
-        ofp()->putsPrivate(false);  // public:
-        puts("// API METHODS\n");
-        const string callEvalEndStep
+        पङ्क्तिं_लिख("\n");
+        ofp()->puts_वैयक्तिकम्(असत्य);  // public:
+        पङ्क्तिं_लिख("// API METHODS\n");
+        ध्रुव string call_Eval_अन्तः_चरणः
             = (v3Global.needTraceDumper() && !optSystemC()) ? "eval_end_step(); " : "";
-        if (optSystemC()) {
-            ofp()->putsPrivate(true);  ///< eval() is invoked by our sensitive() calls.
+        यदि (optSystemC()) {
+            ofp()->puts_वैयक्तिकम्(सत्य);  ///< eval() is invoked by our sensitive() calls.
         }
-        if (!optSystemC()) {
-            puts("/// Evaluate the model.  Application must call when inputs change.\n");
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("/// Evaluate the model.  Application must call when inputs change.\n");
         }
-        if (optSystemC() && v3Global.usesTiming()) {
-            puts("void eval();\n");
-        } else {
-            puts("void eval() { eval_step(); " + callEvalEndStep + "}\n");
+        यदि (optSystemC() && v3Global.उपयुङ्क्ते_Timing()) {
+            पङ्क्तिं_लिख("void eval();\n");
+        } अन्यथा {
+            पङ्क्तिं_लिख("void eval() { eval_step(); " + call_Eval_अन्तः_चरणः + "}\n");
         }
-        if (!optSystemC()) {
-            puts("/// Evaluate when calling multiple units/models per time step.\n");
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("/// Evaluate when calling multiple units/models per time step.\n");
         }
-        puts("void eval_step();\n");
-        if (!optSystemC()) {
-            puts("/// Evaluate at end of a timestep for tracing, when using eval_step().\n");
-            puts("/// Application must call after all eval() and before time changes.\n");
-            puts("void eval_end_step()");
-            if (callEvalEndStep == "") {
-                puts(" {}\n");
-            } else {
-                puts(";\n");
+        पङ्क्तिं_लिख("void eval_step();\n");
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("/// Evaluate at end of a timestep for tracing, when using eval_step().\n");
+            पङ्क्तिं_लिख("/// Application must call after all eval() and before time changes.\n");
+            पङ्क्तिं_लिख("void eval_end_step()");
+            यदि (call_Eval_अन्तः_चरणः == "") {
+                पङ्क्तिं_लिख(" {}\n");
+            } अन्यथा {
+                पङ्क्तिं_लिख(";\n");
             }
         }
-        if (!optSystemC()) {
-            puts("/// Simulation complete, run final blocks.  Application "
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("/// Simulation complete, run final blocks.  Application "
                  "must call on completion.\n");
         }
-        ofp()->putsPrivate(false);  // public:
-        puts("void final();\n");
+        ofp()->puts_वैयक्तिकम्(असत्य);  // public:
+        पङ्क्तिं_लिख("void final();\n");
 
-        puts("/// Are there scheduled events to handle?\n");
-        puts("bool eventsPending();\n");
-        puts("/// Returns time at next time slot. Aborts if !eventsPending()\n");
-        puts("uint64_t nextTimeSlot();\n");
+        पङ्क्तिं_लिख("/// Are there scheduled events to handle?\n");
+        पङ्क्तिं_लिख("bool eventsPending();\n");
+        पङ्क्तिं_लिख("/// Returns time at next time slot. Aborts if !eventsPending()\n");
+        पङ्क्तिं_लिख("uint64_t nextTimeSlot();\n");
 
-        if (v3Global.opt.trace() || !optSystemC()) {
-            puts("/// Trace signals in the model; called by application code\n");
+        यदि (v3Global.opt.trace() || !optSystemC()) {
+            पङ्क्तिं_लिख("/// Trace signals in the model; called by application code\n");
             // Backward-compatible usage of calling trace() on the model - now part of context
-            puts("void trace(VerilatedTraceBaseC* tfp, int levels, int options = 0) {"
+            पङ्क्तिं_लिख("void trace(VerilatedTraceBaseC* tfp, int levels, int options = 0) {"
                  " contextp()->trace(tfp, levels, options); }\n");
         }
-        if (v3Global.opt.trace() && optSystemC()) {
-            puts("/// SC tracing; avoid overloaded virtual function lint warning\n");
-            puts("void trace(sc_core::sc_trace_file* tfp) const override { "
+        यदि (v3Global.opt.trace() && optSystemC()) {
+            पङ्क्तिं_लिख("/// SC tracing; avoid overloaded virtual function lint warning\n");
+            पङ्क्तिं_लिख("void trace(sc_core::sc_trace_file* tfp) const override { "
                  "::sc_core::sc_module::trace(tfp); }\n");
         }
 
-        if (!optSystemC()) {
-            puts("/// Retrieve name of this model instance (as passed to constructor).\n");
-            puts("const char* name() const;\n");
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("/// Retrieve name of this model instance (as passed to constructor).\n");
+            पङ्क्तिं_लिख("const char* name() const;\n");
         }
 
         // Emit DPI export dispatcher declarations
         {
-            const CFuncVector funcps
-                = findFuncps([](const AstCFunc* nodep) { return nodep->dpiExportDispatcher(); });
-            if (!funcps.empty()) {
-                puts("\n/// DPI Export functions\n");
-                for (const AstCFunc* funcp : funcps) emitCFuncDecl(funcp, modp);
+            ध्रुव CFunc_सदिशम् funcps
+                = findFuncps([](ध्रुव AstCFunc* nodep) { प्रत्यागम nodep->dpiExportDispatcher(); });
+            यदि (!funcps.रिक्तानि()) {
+                पङ्क्तिं_लिख("\n/// DPI Export functions\n");
+                प्रति (ध्रुव AstCFunc* funcp : funcps) emitCFuncDecl(funcp, modp);
             }
         }
 
-        if (v3Global.opt.savable()) {
-            puts("\n");
-            puts("// Serialization functions\n");
-            puts("friend VerilatedSerialize& operator<<(VerilatedSerialize& os, "  //
-                 + EmitCUtil::topClassName() + "& rhs);\n");
-            puts("friend VerilatedDeserialize& operator>>(VerilatedDeserialize& os, "
-                 + EmitCUtil::topClassName() + "& rhs);\n");
+        यदि (v3Global.opt.savable()) {
+            पङ्क्तिं_लिख("\n");
+            पङ्क्तिं_लिख("// Serialization functions\n");
+            पङ्क्तिं_लिख("friend VerilatedSerialize& operator<<(VerilatedSerialize& os, "  //
+                 + EmitCUtil::शिखरम्_Class_Name() + "& rhs);\n");
+            पङ्क्तिं_लिख("friend VerilatedDeserialize& operator>>(VerilatedDeserialize& os, "
+                 + EmitCUtil::शिखरम्_Class_Name() + "& rhs);\n");
         }
 
-        puts("\n// Abstract methods from VerilatedModel\n");
-        puts("const char* hierName() const override final;\n");
-        puts("const char* modelName() const override final;\n");
-        puts("unsigned threads() const override final;\n");
-        puts("/// Prepare for cloning the model at the process level (e.g. fork in Linux)\n");
-        puts("/// Release necessary resources. Called before cloning.\n");
-        puts("void prepareClone() const;\n");
-        puts("/// Re-init after cloning the model at the process level (e.g. fork in Linux)\n");
-        puts("/// Re-allocate necessary resources. Called after cloning.\n");
-        puts("void atClone() const;\n");
-        if (v3Global.opt.trace()) {
-            puts("std::unique_ptr<VerilatedTraceConfig> traceConfig() const override final;\n");
+        पङ्क्तिं_लिख("\n// Abstract methods from VerilatedModel\n");
+        पङ्क्तिं_लिख("const char* hierName() const override final;\n");
+        पङ्क्तिं_लिख("const char* modelName() const override final;\n");
+        पङ्क्तिं_लिख("unsigned threads() const override final;\n");
+        पङ्क्तिं_लिख("/// Prepare for cloning the model at the process level (e.g. fork in Linux)\n");
+        पङ्क्तिं_लिख("/// Release necessary resources. Called before cloning.\n");
+        पङ्क्तिं_लिख("void prepareClone() const;\n");
+        पङ्क्तिं_लिख("/// Re-init after cloning the model at the process level (e.g. fork in Linux)\n");
+        पङ्क्तिं_लिख("/// Re-allocate necessary resources. Called after cloning.\n");
+        पङ्क्तिं_लिख("void atClone() const;\n");
+        यदि (v3Global.opt.trace()) {
+            पङ्क्तिं_लिख("std::unique_ptr<VerilatedTraceConfig> traceConfig() const override final;\n");
         }
 
-        ofp()->putsPrivate(true);  // private:
-        puts("\n// Internal functions - the model's evaluation entry points\n");
-        puts("void evalBegin() override final;\n");
-        puts("void evalEnd() override final;\n");
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
+        ofp()->puts_वैयक्तिकम्(सत्य);  // private:
+        पङ्क्तिं_लिख("\n// Internal functions - the model's evaluation entry points\n");
+        पङ्क्तिं_लिख("void evalBegin() override final;\n");
+        पङ्क्तिं_लिख("void evalEnd() override final;\n");
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
+            ध्रुव VEval eval{i};
             // Only the iterated regions report whether they did any work
-            puts(eval.isIterated() ? "bool "s : "void "s);
-            puts(eval.evalMethod() + (eval.firstIteration() ? "(bool firstIteration)"s : "()"s));
-            puts(" override final;\n");
+            पङ्क्तिं_लिख(eval.isIterated() ? "bool "s : "void "s);
+            पङ्क्तिं_लिख(eval.eval_विधानम्() + (eval.firstIteration() ? "(bool firstIteration)"s : "()"s));
+            पङ्क्तिं_लिख(" override final;\n");
         }
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            if (!eval.hasTriggers()) continue;
-            puts("void " + eval.dumpTriggersMethod() + "() override final;\n");
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
+            ध्रुव VEval eval{i};
+            यदि (!eval.hasTriggers()) अनुवर्त;
+            पङ्क्तिं_लिख("void " + eval.dump_Triggers_विधानम्() + "() override final;\n");
         }
 
-        puts("\n// Internal functions - trace registration\n");
-        puts("void traceBaseModel(VerilatedTraceBaseC* tfp, int levels, int options);\n");
+        पङ्क्तिं_लिख("\n// Internal functions - trace registration\n");
+        पङ्क्तिं_लिख("void traceBaseModel(VerilatedTraceBaseC* tfp, int levels, int options);\n");
 
-        puts("};\n");
+        पङ्क्तिं_लिख("};\n");
 
-        ofp()->putsEndGuard();
+        ofp()->puts_अन्तः_Guard();
 
         closeOutputFile();
     }
 
-    void emitConstructorImplementation(AstNodeModule* modp) {
+    शून्य emitConstructorImplementation(Ast_ग्रन्थिः_Module* modp) {
         putSectionDelimiter("Constructors");
 
-        puts("\n");
-        putns(modp, EmitCUtil::topClassName() + "::" + EmitCUtil::topClassName());
-        if (optSystemC()) {
-            puts("(sc_core::sc_module_name /* unused */)\n");
-            puts("    : VerilatedModel{*Verilated::threadContextp()}\n");
-            puts("    , vlSymsp{new " + EmitCUtil::symClassName()
+        पङ्क्तिं_लिख("\n");
+        putns(modp, EmitCUtil::शिखरम्_Class_Name() + "::" + EmitCUtil::शिखरम्_Class_Name());
+        यदि (optSystemC()) {
+            पङ्क्तिं_लिख("(sc_core::sc_module_name /* unused */)\n");
+            पङ्क्तिं_लिख("    : VerilatedModel{*Verilated::threadContextp()}\n");
+            पङ्क्तिं_लिख("    , vlSymsp{new " + EmitCUtil::symClassName()
                  + "(contextp(), name(), this)}\n");
-        } else {
-            puts("(VerilatedContext* _vcontextp__, const char* _vcname__)\n");
-            puts("    : VerilatedModel{*_vcontextp__}\n");
-            puts("    , vlSymsp{new " + EmitCUtil::symClassName()
+        } अन्यथा {
+            पङ्क्तिं_लिख("(VerilatedContext* _vcontextp__, const char* _vcname__)\n");
+            पङ्क्तिं_लिख("    : VerilatedModel{*_vcontextp__}\n");
+            पङ्क्तिं_लिख("    , vlSymsp{new " + EmitCUtil::symClassName()
                  + "(contextp(), _vcname__, this)}\n");
         }
-        puts("    , m_evalLoop{*this, /*convergeLimit:*/ "s
-             + cvtToStr(v3Global.opt.convergeLimit()) + "}\n");
+        पङ्क्तिं_लिख("    , m_evalLoop{*this, /*convergeLimit:*/ "s
+             + cvt_गन्तव्यम्_Str(v3Global.opt.converge_सीमा()) + "}\n");
 
         // Set up IO references
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isPrimaryIO()) {
-                    const string protName = varp->nameProtect();
-                    puts("    , ");
+        प्रति (ध्रुव Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) {
+                यदि (varp->isPrimaryIO()) {
+                    ध्रुव string protName = varp->nameProtect();
+                    पङ्क्तिं_लिख("    , ");
                     putns(varp, protName + "{vlSymsp->vlInst.TOP." + varName(varp) + "}\n");
                 }
             }
         }
 
         // Setup cell pointers
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
-                if (cellp->modp()->isConstPool()) continue;  // Special emit rules
-                const string protName = cellp->nameProtect();
-                puts("    , ");
+        प्रति (Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            यदि (ध्रुव AstCell* ध्रुव cellp = VN_CAST(nodep, Cell)) {
+                यदि (cellp->modp()->isConstPool()) अनुवर्त;  // Special emit rules
+                ध्रुव string protName = cellp->nameProtect();
+                पङ्क्तिं_लिख("    , ");
                 putns(cellp, protName + "{vlSymsp->vlInst.TOP." + protName + "}\n");
             }
         }
 
         // Setup rootp root instance pointer,
-        puts("    , rootp{&(vlSymsp->vlInst.TOP)}\n");
+        पङ्क्तिं_लिख("    , rootp{&(vlSymsp->vlInst.TOP)}\n");
 
-        puts("{\n");
-        puts("// Register model with the context\n");
-        puts("contextp()->addModel(this);\n");
-        if (v3Global.opt.profExec()) {
-            putsDecoration(nullptr, "// Profile the evaluation loop's region loops\n");
-            const bool topLevel = !v3Global.opt.hierChild() && v3Global.opt.libCreate().empty();
-            puts("m_evalLoop.profiler(vlSymsp->__Vm_executionProfilerp, /*topLevel:*/ "s
-                 + (topLevel ? "true" : "false") + ");\n");
+        पङ्क्तिं_लिख("{\n");
+        पङ्क्तिं_लिख("// Register model with the context\n");
+        पङ्क्तिं_लिख("contextp()->addModel(this);\n");
+        यदि (v3Global.opt.profExec()) {
+            putsDecoration(शून्यसूचकः, "// Profile the evaluation loop's region loops\n");
+            ध्रुव तार्किक शिखरम्_Level = !v3Global.opt.hierChild() && v3Global.opt.libCreate().रिक्तानि();
+            पङ्क्तिं_लिख("m_evalLoop.profiler(vlSymsp->__Vm_executionProfilerp, /*topLevel:*/ "s
+                 + (शिखरम्_Level ? "true" : "false") + ");\n");
         }
-        if (v3Global.opt.trace())
-            puts("contextp()->traceBaseModelCbAdd(\n"
+        यदि (v3Global.opt.trace())
+            पङ्क्तिं_लिख("contextp()->traceBaseModelCbAdd(\n"
                  "[this](VerilatedTraceBaseC* tfp, int levels, int options) {"
                  " traceBaseModel(tfp, levels, options); });\n");
 
-        if (optSystemC()) {
+        यदि (optSystemC()) {
             // Create sensitivity list for when to evaluate the model.
-            putsDecoration(nullptr, "// Sensitivities on all clocks and combinational inputs\n");
-            puts("SC_METHOD(eval);\n");
-            if (v3Global.usesTiming()) {
-                putsDecoration(nullptr, "// Notified by pending time delays/DPI exports\n");
-                puts("sensitive << vlSymsp->__Vm_wakeEvent;\n");
+            putsDecoration(शून्यसूचकः, "// Sensitivities on all clocks and combinational inputs\n");
+            पङ्क्तिं_लिख("SC_METHOD(eval);\n");
+            यदि (v3Global.उपयुङ्क्ते_Timing()) {
+                putsDecoration(शून्यसूचकः, "// Notified by pending time delays/DPI exports\n");
+                पङ्क्तिं_लिख("sensitive << vlSymsp->__Vm_wakeEvent;\n");
             }
-            for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-                if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                    if (varp->isNonOutput() && (varp->isScSensitive() || varp->isPrimaryClock())) {
-                        int vects = 0;
+            प्रति (Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+                यदि (ध्रुव AstVar* ध्रुव varp = VN_CAST(nodep, Var)) {
+                    यदि (varp->isNonOutput() && (varp->isScSensitive() || varp->isPrimaryClock())) {
+                        पूर्णाङ्क vects = 0;
                         // This isn't very robust and may need cleanup for other data types
-                        for (AstUnpackArrayDType* arrayp
+                        प्रति (AstUnpackArrayDType* arrayp
                              = VN_CAST(varp->dtypeSkipRefp(), UnpackArrayDType);
                              arrayp;
                              arrayp = VN_CAST(arrayp->subDTypep()->skipRefp(), UnpackArrayDType)) {
-                            const int vecnum = vects++;
+                            ध्रुव पूर्णाङ्क vecnum = vects++;
                             UASSERT_OBJ(arrayp->hi() >= arrayp->lo(), varp,
                                         "Should have swapped msb & lsb earlier.");
-                            const string ivar = "__Vi"s + cvtToStr(vecnum);
-                            putns(varp, "for (int __Vi" + cvtToStr(vecnum) + " = "
-                                            + cvtToStr(arrayp->lo()));
-                            puts("; " + ivar + " <= " + cvtToStr(arrayp->hi()));
-                            puts("; ++" + ivar + ") {\n");
+                            ध्रुव string ivar = "__Vi"s + cvt_गन्तव्यम्_Str(vecnum);
+                            putns(varp, "for (int __Vi" + cvt_गन्तव्यम्_Str(vecnum) + " = "
+                                            + cvt_गन्तव्यम्_Str(arrayp->lo()));
+                            पङ्क्तिं_लिख("; " + ivar + " <= " + cvt_गन्तव्यम्_Str(arrayp->hi()));
+                            पङ्क्तिं_लिख("; ++" + ivar + ") {\n");
                         }
                         putns(varp, "sensitive << " + varp->nameProtect());
-                        for (int v = 0; v < vects; ++v) puts("[__Vi" + cvtToStr(v) + "]");
-                        puts(";\n");
-                        for (int v = 0; v < vects; ++v) puts("}\n");
+                        प्रति (पूर्णाङ्क v = 0; v < vects; ++v) पङ्क्तिं_लिख("[__Vi" + cvt_गन्तव्यम्_Str(v) + "]");
+                        पङ्क्तिं_लिख(";\n");
+                        प्रति (पूर्णाङ्क v = 0; v < vects; ++v) पङ्क्तिं_लिख("}\n");
                     }
                 }
             }
-            puts("\n");
+            पङ्क्तिं_लिख("\n");
         }
 
-        puts("}\n");
+        पङ्क्तिं_लिख("}\n");
 
-        if (!optSystemC()) {
-            puts("\n");
-            puts(EmitCUtil::topClassName() + "::" + EmitCUtil::topClassName()
+        यदि (!optSystemC()) {
+            पङ्क्तिं_लिख("\n");
+            पङ्क्तिं_लिख(EmitCUtil::शिखरम्_Class_Name() + "::" + EmitCUtil::शिखरम्_Class_Name()
                  + "(const char* _vcname__)\n");
-            puts("    : " + EmitCUtil::topClassName()
+            पङ्क्तिं_लिख("    : " + EmitCUtil::शिखरम्_Class_Name()
                  + "(Verilated::threadContextp(), _vcname__)\n{\n}\n");
         }
     }
 
-    void emitDestructorImplementation() {
+    शून्य emitDestructorImplementation() {
         putSectionDelimiter("Destructor");
 
-        puts("\n");
-        puts(EmitCUtil::topClassName() + "::~" + EmitCUtil::topClassName() + "() {\n");
-        puts("delete vlSymsp;\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख(EmitCUtil::शिखरम्_Class_Name() + "::~" + EmitCUtil::शिखरम्_Class_Name() + "() {\n");
+        पङ्क्तिं_लिख("delete vlSymsp;\n");
+        पङ्क्तिं_लिख("}\n");
     }
 
-    void emitStandardMethods1(AstNodeModule* modp) {
-        UASSERT_OBJ(modp->isTop(), modp, "Attempting to emitWrapEval for non-top class");
+    शून्य emitStandardMethods1(Ast_ग्रन्थिः_Module* modp) {
+        UASSERT_OBJ(modp->is_शिखरम्(), modp, "Attempting to emitWrapEval for non-top class");
 
-        const string topModNameProtected = EmitCUtil::prefixNameProtect(modp);
-        const string selfDecl = "(" + topModNameProtected + "* vlSelf)";
+        ध्रुव string शिखरम्_Mod_Name_Protected = EmitCUtil::उपसर्गः_Name_Protect(modp);
+        ध्रुव string selfDecl = "(" + शिखरम्_Mod_Name_Protected + "* vlSelf)";
 
         putSectionDelimiter("Evaluation function");
 
         // Forward declarations
-        puts("\n");
-        puts("#ifdef VL_DEBUG\n");
-        puts("void " + topModNameProtected + "__" + protect("_eval_debug_assertions") + selfDecl
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("#ifdef VL_DEBUG\n");
+        पङ्क्तिं_लिख("void " + शिखरम्_Mod_Name_Protected + "__" + protect("_eval_debug_assertions") + selfDecl
              + ";\n");
-        puts("#endif  // VL_DEBUG\n");
-        AstNetlist* const netlistp = v3Global.rootp();
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
+        पङ्क्तिं_लिख("#endif  // VL_DEBUG\n");
+        AstNetlist* ध्रुव netlistp = v3Global.rootp();
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
             emitCFuncDecl(netlistp->evalFuncp(VEval{i}), modp);
         }
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            if (eval.hasTriggers()) emitCFuncDecl(netlistp->dumpTriggersFuncp(eval), modp);
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
+            ध्रुव VEval eval{i};
+            यदि (eval.hasTriggers()) emitCFuncDecl(netlistp->dumpTriggersFuncp(eval), modp);
         }
 
-        if (optSystemC() && v3Global.usesTiming()) {
+        यदि (optSystemC() && v3Global.उपयुङ्क्ते_Timing()) {
             // ::eval
-            puts("\nvoid " + EmitCUtil::topClassName() + "::eval() {\n");
-            puts("eval_step();\n");
-            puts("if (eventsPending()) {\n");
-            puts("sc_core::sc_time dt = sc_core::sc_time::from_value(nextTimeSlot() - "
+            पङ्क्तिं_लिख("\nvoid " + EmitCUtil::शिखरम्_Class_Name() + "::eval() {\n");
+            पङ्क्तिं_लिख("eval_step();\n");
+            पङ्क्तिं_लिख("if (eventsPending()) {\n");
+            पङ्क्तिं_लिख("sc_core::sc_time dt = sc_core::sc_time::from_value(nextTimeSlot() - "
                  "contextp()->time());\n");
-            puts("vlSymsp->__Vm_wakeEvent.notify(dt);\n");
-            puts("}\n");
-            puts("}\n");
+            पङ्क्तिं_लिख("vlSymsp->__Vm_wakeEvent.notify(dt);\n");
+            पङ्क्तिं_लिख("}\n");
+            पङ्क्तिं_लिख("}\n");
         }
 
         // ::eval_step - the run-time library drives the whole time step
-        puts("\nvoid " + EmitCUtil::topClassName() + "::eval_step() {\n");
-        puts("VL_DEBUG_IF(VL_DBG_MSGF(\"+++++TOP Evaluate " + EmitCUtil::topClassName()
+        पङ्क्तिं_लिख("\nvoid " + EmitCUtil::शिखरम्_Class_Name() + "::eval_step() {\n");
+        पङ्क्तिं_लिख("VL_DEBUG_IF(VL_DBG_MSGF(\"+++++TOP Evaluate " + EmitCUtil::शिखरम्_Class_Name()
              + "::eval_step\\n\"); );\n");
-        puts("m_evalLoop.eval();\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("m_evalLoop.eval();\n");
+        पङ्क्तिं_लिख("}\n");
 
         // ::evalBegin - prepare the model for a time step
-        puts("\nvoid " + EmitCUtil::topClassName() + "::evalBegin() {\n");
-        puts("#ifdef VL_DEBUG\n");
-        putsDecoration(nullptr, "// Debug assertions\n");
-        puts(topModNameProtected + "__" + protect("_eval_debug_assertions")
+        पङ्क्तिं_लिख("\nvoid " + EmitCUtil::शिखरम्_Class_Name() + "::evalBegin() {\n");
+        पङ्क्तिं_लिख("#ifdef VL_DEBUG\n");
+        putsDecoration(शून्यसूचकः, "// Debug assertions\n");
+        पङ्क्तिं_लिख(शिखरम्_Mod_Name_Protected + "__" + protect("_eval_debug_assertions")
              + "(&(vlSymsp->vlInst.TOP));\n");
-        puts("#endif  // VL_DEBUG\n");
+        पङ्क्तिं_लिख("#endif  // VL_DEBUG\n");
 
-        if (v3Global.opt.trace()) puts("vlSymsp->__Vm_activity = true;\n");
+        यदि (v3Global.opt.trace()) पङ्क्तिं_लिख("vlSymsp->__Vm_activity = true;\n");
 
-        if (v3Global.hasEvents()) puts("vlSymsp->clearTriggeredEvents();\n");
-        if (v3Global.hasClasses()) puts("vlSymsp->__Vm_deleter.deleteAll();\n");
+        यदि (v3Global.hasEvents()) पङ्क्तिं_लिख("vlSymsp->clearTriggeredEvents();\n");
+        यदि (v3Global.hasClasses()) पङ्क्तिं_लिख("vlSymsp->__Vm_deleter.deleteAll();\n");
 
-        puts("}\n");
+        पङ्क्तिं_लिख("}\n");
 
         // ::evalEnd - the time step is complete
-        puts("\nvoid " + EmitCUtil::topClassName() + "::evalEnd() {\n");
-        putsDecoration(nullptr, "// Evaluate cleanup\n");
-        puts("Verilated::endOfEval(vlSymsp->__Vm_evalMsgQp);\n");
-        if (AstVar* const delaySchedp = v3Global.rootp()->delaySchedulerp()) {
-            puts("vlSymsp->vlInst.TOP.");
-            puts(varName(delaySchedp));
-            puts(".cleanupForevered();\n");
+        पङ्क्तिं_लिख("\nvoid " + EmitCUtil::शिखरम्_Class_Name() + "::evalEnd() {\n");
+        putsDecoration(शून्यसूचकः, "// Evaluate cleanup\n");
+        पङ्क्तिं_लिख("Verilated::endOfEval(vlSymsp->__Vm_evalMsgQp);\n");
+        यदि (AstVar* ध्रुव delaySchedp = v3Global.rootp()->delaySchedulerp()) {
+            पङ्क्तिं_लिख("vlSymsp->vlInst.TOP.");
+            पङ्क्तिं_लिख(varName(delaySchedp));
+            पङ्क्तिं_लिख(".cleanupForevered();\n");
         }
 
-        puts("}\n");
+        पङ्क्तिं_लिख("}\n");
 
         // Evaluation entry points
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            AstCFunc* const funcp = v3Global.rootp()->evalFuncp(eval);
-            puts(eval.isIterated() ? "\nbool " : "\nvoid ");
-            puts(EmitCUtil::topClassName() + "::" + eval.evalMethod() + "(");
-            if (eval.firstIteration()) puts("bool firstIteration");
-            puts(") {\n");
-            if (eval.isIterated()) puts("return ");
-            puts(funcNameProtect(funcp, m_modp) + "(&(vlSymsp->vlInst.TOP)");
-            if (eval.firstIteration()) puts(", firstIteration");
-            puts(");\n");
-            puts("}\n");
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
+            ध्रुव VEval eval{i};
+            AstCFunc* ध्रुव funcp = v3Global.rootp()->evalFuncp(eval);
+            पङ्क्तिं_लिख(eval.isIterated() ? "\nbool " : "\nvoid ");
+            पङ्क्तिं_लिख(EmitCUtil::शिखरम्_Class_Name() + "::" + eval.eval_विधानम्() + "(");
+            यदि (eval.firstIteration()) पङ्क्तिं_लिख("bool firstIteration");
+            पङ्क्तिं_लिख(") {\n");
+            यदि (eval.isIterated()) पङ्क्तिं_लिख("return ");
+            पङ्क्तिं_लिख(funcNameProtect(funcp, m_modp) + "(&(vlSymsp->vlInst.TOP)");
+            यदि (eval.firstIteration()) पङ्क्तिं_लिख(", firstIteration");
+            पङ्क्तिं_लिख(");\n");
+            पङ्क्तिं_लिख("}\n");
         }
 
         // The trigger dump of each region
-        for (int i = 0; i < VEval::_ENUM_END; ++i) {
-            const VEval eval{i};
-            if (!eval.hasTriggers()) continue;
-            puts("\nVL_ATTR_COLD void " + EmitCUtil::topClassName()
-                 + "::" + eval.dumpTriggersMethod() + "() {\n");
-            puts(funcNameProtect(v3Global.rootp()->dumpTriggersFuncp(eval), m_modp)
+        प्रति (पूर्णाङ्क i = 0; i < VEval::ENUM_अन्तः; ++i) {
+            ध्रुव VEval eval{i};
+            यदि (!eval.hasTriggers()) अनुवर्त;
+            पङ्क्तिं_लिख("\nVL_ATTR_COLD void " + EmitCUtil::शिखरम्_Class_Name()
+                 + "::" + eval.dump_Triggers_विधानम्() + "() {\n");
+            पङ्क्तिं_लिख(funcNameProtect(v3Global.rootp()->dumpTriggersFuncp(eval), m_modp)
                  + "(&(vlSymsp->vlInst.TOP));\n");
-            puts("}\n");
+            पङ्क्तिं_लिख("}\n");
         }
     }
 
-    void emitStandardMethods2(AstNodeModule* modp) {
+    शून्य emitStandardMethods2(Ast_ग्रन्थिः_Module* modp) {
         // ::eval_end_step
-        if (v3Global.needTraceDumper() && !optSystemC()) {
-            puts("\n");
-            putns(modp, "void " + EmitCUtil::topClassName() + "::eval_end_step() {\n");
-            puts("VL_DEBUG_IF(VL_DBG_MSGF(\"+eval_end_step " + EmitCUtil::topClassName()
+        यदि (v3Global.needTraceDumper() && !optSystemC()) {
+            पङ्क्तिं_लिख("\n");
+            putns(modp, "void " + EmitCUtil::शिखरम्_Class_Name() + "::eval_end_step() {\n");
+            पङ्क्तिं_लिख("VL_DEBUG_IF(VL_DBG_MSGF(\"+eval_end_step " + EmitCUtil::शिखरम्_Class_Name()
                  + "::eval_end_step\\n\"); );\n");
-            puts("#ifdef VM_TRACE\n");
-            putsDecoration(nullptr, "// Tracing\n");
+            पङ्क्तिं_लिख("#ifdef VM_TRACE\n");
+            putsDecoration(शून्यसूचकः, "// Tracing\n");
             // SystemC's eval loop deals with calling trace, not us
-            puts("if (VL_UNLIKELY(vlSymsp->__Vm_dumping)) vlSymsp->_traceDump();\n");
-            puts("#endif  // VM_TRACE\n");
-            puts("}\n");
+            पङ्क्तिं_लिख("if (VL_UNLIKELY(vlSymsp->__Vm_dumping)) vlSymsp->_traceDump();\n");
+            पङ्क्तिं_लिख("#endif  // VM_TRACE\n");
+            पङ्क्तिं_लिख("}\n");
         }
 
         putSectionDelimiter("Events and timing");
-        if (auto* const delaySchedp = v3Global.rootp()->delaySchedulerp()) {
-            putns(modp, "bool " + EmitCUtil::topClassName()
+        यदि (स्वचालित* ध्रुव delaySchedp = v3Global.rootp()->delaySchedulerp()) {
+            putns(modp, "bool " + EmitCUtil::शिखरम्_Class_Name()
                             + "::eventsPending() { return !vlSymsp->vlInst.TOP.");
-            puts(varName(delaySchedp));
-            puts(".empty() && !contextp()->gotFinish(); }\n\n");
+            पङ्क्तिं_लिख(varName(delaySchedp));
+            पङ्क्तिं_लिख(".empty() && !contextp()->gotFinish(); }\n\n");
 
-            putns(modp, "uint64_t " + EmitCUtil::topClassName()
+            putns(modp, "uint64_t " + EmitCUtil::शिखरम्_Class_Name()
                             + "::nextTimeSlot() { return vlSymsp->vlInst.TOP.");
-            puts(varName(delaySchedp));
-            puts(".nextTimeSlot(); }\n");
-        } else {
+            पङ्क्तिं_लिख(varName(delaySchedp));
+            पङ्क्तिं_लिख(".nextTimeSlot(); }\n");
+        } अन्यथा {
             putns(modp,
-                  "bool " + EmitCUtil::topClassName() + "::eventsPending() { return false; }\n\n");
-            puts("uint64_t " + EmitCUtil::topClassName() + "::nextTimeSlot() {\n");
-            puts("VL_FATAL_MT(__FILE__, __LINE__, \"\", \"No delays in the design\");\n");
-            puts("return 0;\n}\n");
+                  "bool " + EmitCUtil::शिखरम्_Class_Name() + "::eventsPending() { return false; }\n\n");
+            पङ्क्तिं_लिख("uint64_t " + EmitCUtil::शिखरम्_Class_Name() + "::nextTimeSlot() {\n");
+            पङ्क्तिं_लिख("VL_FATAL_MT(__FILE__, __LINE__, \"\", \"No delays in the design\");\n");
+            पङ्क्तिं_लिख("return 0;\n}\n");
         }
 
         putSectionDelimiter("Utilities");
 
-        if (!optSystemC()) {
+        यदि (!optSystemC()) {
             // ::name
-            puts("\n");
-            putns(modp, "const char* " + EmitCUtil::topClassName() + "::name() const {\n");
-            puts(/**/ "return vlSymsp->name();\n");
-            puts("}\n");
+            पङ्क्तिं_लिख("\n");
+            putns(modp, "const char* " + EmitCUtil::शिखरम्_Class_Name() + "::name() const {\n");
+            पङ्क्तिं_लिख(/**/ "return vlSymsp->name();\n");
+            पङ्क्तिं_लिख("}\n");
         }
 
         putSectionDelimiter("Invoke final blocks");
         // ::final
-        puts("\nVL_ATTR_COLD void " + EmitCUtil::topClassName() + "::final() {\n");
-        puts("contextp()->executingFinal(true);\n");
-        puts("evalFinal();\n");
-        puts("contextp()->executingFinal(false);\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("\nVL_ATTR_COLD void " + EmitCUtil::शिखरम्_Class_Name() + "::final() {\n");
+        पङ्क्तिं_लिख("contextp()->executingFinal(true);\n");
+        पङ्क्तिं_लिख("evalFinal();\n");
+        पङ्क्तिं_लिख("contextp()->executingFinal(false);\n");
+        पङ्क्तिं_लिख("}\n");
 
         putSectionDelimiter("Implementations of abstract methods from VerilatedModel\n");
-        putns(modp, "const char* " + EmitCUtil::topClassName()
+        putns(modp, "const char* " + EmitCUtil::शिखरम्_Class_Name()
                         + "::hierName() const { return vlSymsp->name(); }\n");
-        putns(modp, "const char* " + EmitCUtil::topClassName() + "::modelName() const { return \""
-                        + EmitCUtil::topClassName() + "\"; }\n");
-        const int threads = v3Global.opt.hierChild()
-                                ? v3Global.opt.threads()
-                                : std::max(v3Global.opt.threads(), v3Global.opt.hierThreads());
-        putns(modp, "unsigned " + EmitCUtil::topClassName() + "::threads() const { return "
-                        + cvtToStr(threads) + "; }\n");
-        putns(modp, "void " + EmitCUtil::topClassName()
+        putns(modp, "const char* " + EmitCUtil::शिखरम्_Class_Name() + "::modelName() const { return \""
+                        + EmitCUtil::शिखरम्_Class_Name() + "\"; }\n");
+        ध्रुव पूर्णाङ्क तन्तवः = v3Global.opt.hierChild()
+                                ? v3Global.opt.तन्तवः()
+                                : std::max(v3Global.opt.तन्तवः(), v3Global.opt.hier_तन्तवः());
+        putns(modp, "unsigned " + EmitCUtil::शिखरम्_Class_Name() + "::threads() const { return "
+                        + cvt_गन्तव्यम्_Str(तन्तवः) + "; }\n");
+        putns(modp, "void " + EmitCUtil::शिखरम्_Class_Name()
                         + "::prepareClone() const { contextp()->prepareClone(); }\n");
-        putns(modp, "void " + EmitCUtil::topClassName() + "::atClone() const {\n");
-        if (v3Global.opt.threads() > 1) {
-            puts("vlSymsp->__Vm_threadPoolp = static_cast<VlThreadPool*>(");
+        putns(modp, "void " + EmitCUtil::शिखरम्_Class_Name() + "::atClone() const {\n");
+        यदि (v3Global.opt.तन्तवः() > 1) {
+            पङ्क्तिं_लिख("vlSymsp->__Vm_threadPoolp = static_cast<VlThreadPool*>(");
         }
-        puts("contextp()->threadPoolpOnClone()");
-        if (v3Global.opt.threads() > 1) puts(")");
-        puts(";\n}\n");
+        पङ्क्तिं_लिख("contextp()->threadPoolpOnClone()");
+        यदि (v3Global.opt.तन्तवः() > 1) पङ्क्तिं_लिख(")");
+        पङ्क्तिं_लिख(";\n}\n");
 
-        if (v3Global.opt.trace()) {
-            putns(modp, "std::unique_ptr<VerilatedTraceConfig> " + EmitCUtil::topClassName()
+        यदि (v3Global.opt.trace()) {
+            putns(modp, "std::unique_ptr<VerilatedTraceConfig> " + EmitCUtil::शिखरम्_Class_Name()
                             + "::traceConfig() const {\n");
-            puts("return std::unique_ptr<VerilatedTraceConfig>{new VerilatedTraceConfig{");
-            puts(v3Global.opt.useTraceParallel() ? "true" : "false");
-            puts("}};\n");
-            puts("};\n");
+            पङ्क्तिं_लिख("return std::unique_ptr<VerilatedTraceConfig>{new VerilatedTraceConfig{");
+            पङ्क्तिं_लिख(v3Global.opt.useTraceParallel() ? "true" : "false");
+            पङ्क्तिं_लिख("}};\n");
+            पङ्क्तिं_लिख("};\n");
         }
     }
 
-    void emitTraceMethods(AstNodeModule* modp) {
-        const string topModNameProtected = EmitCUtil::prefixNameProtect(modp);
-        const string topTraceName
-            = V3OutFormatter::quoteNameControls(v3Global.rootp()->traceLibTopName());
+    शून्य emitTraceMethods(Ast_ग्रन्थिः_Module* modp) {
+        ध्रुव string शिखरम्_Mod_Name_Protected = EmitCUtil::उपसर्गः_Name_Protect(modp);
+        ध्रुव string शिखरम्_Trace_Name
+            = V3_बहिर्गमनम्_Formatter::quoteNameControls(v3Global.rootp()->trace_Lib_शिखरम्_Name());
 
         putSectionDelimiter("Trace configuration");
 
         // Forward declaration
-        if (!v3Global.opt.libCreate().empty()) {
-            putns(modp, "\nvoid " + topModNameProtected + "__" + protect("trace_init_root") + "("
-                            + topModNameProtected + "* vlSelf, " + v3Global.opt.traceClassBase()
+        यदि (!v3Global.opt.libCreate().रिक्तानि()) {
+            putns(modp, "\nvoid " + शिखरम्_Mod_Name_Protected + "__" + protect("trace_init_root") + "("
+                            + शिखरम्_Mod_Name_Protected + "* vlSelf, " + v3Global.opt.trace_Class_आधारः()
                             + "* tracep);\n");
         }
-        putns(modp, "\nvoid " + topModNameProtected + "__" + protect("trace_decl_types") + "("
-                        + v3Global.opt.traceClassBase() + "* tracep);\n");
-        putns(modp, "\nvoid " + topModNameProtected + "__" + protect("trace_init_top") + "("
-                        + topModNameProtected + "* vlSelf, " + v3Global.opt.traceClassBase()
+        putns(modp, "\nvoid " + शिखरम्_Mod_Name_Protected + "__" + protect("trace_decl_types") + "("
+                        + v3Global.opt.trace_Class_आधारः() + "* tracep);\n");
+        putns(modp, "\nvoid " + शिखरम्_Mod_Name_Protected + "__" + protect("trace_init_top") + "("
+                        + शिखरम्_Mod_Name_Protected + "* vlSelf, " + v3Global.opt.trace_Class_आधारः()
                         + "* tracep);\n");
 
         // Static helper function
-        puts("\n");
+        पङ्क्तिं_लिख("\n");
         putns(modp, "VL_ATTR_COLD static void " + protect("trace_init") + "(void* voidSelf, "
-                        + v3Global.opt.traceClassBase() + "* tracep, uint32_t code) {\n");
+                        + v3Global.opt.trace_Class_आधारः() + "* tracep, uint32_t code) {\n");
         putsDecoration(modp, "// Callback from tracep->open()\n");
-        puts(EmitCUtil::voidSelfAssign(modp));
-        puts(EmitCUtil::symClassAssign());
-        puts("if (!vlSymsp->_vm_contextp__->calcUnusedSigs()) {\n");
-        puts("VL_FATAL_MT(__FILE__, __LINE__, __FILE__,\n");  // LCOV_EXCL_LINE
-        puts("\"Turning on wave traces requires Verilated::traceEverOn(true) call before time "
+        पङ्क्तिं_लिख(EmitCUtil::void_Self_नियोजय(modp));
+        पङ्क्तिं_लिख(EmitCUtil::sym_Class_नियोजय());
+        पङ्क्तिं_लिख("if (!vlSymsp->_vm_contextp__->calcUnusedSigs()) {\n");
+        पङ्क्तिं_लिख("VL_FATAL_MT(__FILE__, __LINE__, __FILE__,\n");  // LCOV_EXCL_LINE
+        पङ्क्तिं_लिख("\"Turning on wave traces requires Verilated::traceEverOn(true) call before time "
              "0.\");\n");
-        puts("}\n");
-        puts("vlSymsp->__Vm_baseCode = code;\n");
-        if (v3Global.opt.libCreate().empty()) {
-            puts("tracep->pushPrefix(vlSymsp->name(), VerilatedTracePrefixType::SCOPE_MODULE);\n");
-        } else {
-            puts("if (tracep->rootInit()) {\n");
-            puts("tracep->pushPrefix(vlSymsp->name(), VerilatedTracePrefixType::SCOPE_MODULE);\n");
-            puts(topModNameProtected + "__" + protect("trace_init_root") + "(vlSelf, tracep);\n");
-            puts("tracep->pushPrefix(\"" + topTraceName
+        पङ्क्तिं_लिख("}\n");
+        पङ्क्तिं_लिख("vlSymsp->__Vm_baseCode = code;\n");
+        यदि (v3Global.opt.libCreate().रिक्तानि()) {
+            पङ्क्तिं_लिख("tracep->pushPrefix(vlSymsp->name(), VerilatedTracePrefixType::SCOPE_MODULE);\n");
+        } अन्यथा {
+            पङ्क्तिं_लिख("if (tracep->rootInit()) {\n");
+            पङ्क्तिं_लिख("tracep->pushPrefix(vlSymsp->name(), VerilatedTracePrefixType::SCOPE_MODULE);\n");
+            पङ्क्तिं_लिख(शिखरम्_Mod_Name_Protected + "__" + protect("trace_init_root") + "(vlSelf, tracep);\n");
+            पङ्क्तिं_लिख("tracep->pushPrefix(\"" + शिखरम्_Trace_Name
                  + "\", VerilatedTracePrefixType::SCOPE_MODULE);\n");
-            puts("}\n");
+            पङ्क्तिं_लिख("}\n");
         }
-        puts(topModNameProtected + "__" + protect("trace_decl_types") + "(tracep);\n");
-        puts(topModNameProtected + "__" + protect("trace_init_top") + "(vlSelf, tracep);\n");
-        if (v3Global.opt.libCreate().empty()) {  //
-            puts("tracep->popPrefix();\n");
-        } else {
-            puts("if (tracep->rootInit()) {\n");
-            puts("tracep->popPrefix();\n");
-            puts("tracep->popPrefix();\n");
-            puts("}\n");
+        पङ्क्तिं_लिख(शिखरम्_Mod_Name_Protected + "__" + protect("trace_decl_types") + "(tracep);\n");
+        पङ्क्तिं_लिख(शिखरम्_Mod_Name_Protected + "__" + protect("trace_init_top") + "(vlSelf, tracep);\n");
+        यदि (v3Global.opt.libCreate().रिक्तानि()) {  //
+            पङ्क्तिं_लिख("tracep->popPrefix();\n");
+        } अन्यथा {
+            पङ्क्तिं_लिख("if (tracep->rootInit()) {\n");
+            पङ्क्तिं_लिख("tracep->popPrefix();\n");
+            पङ्क्तिं_लिख("tracep->popPrefix();\n");
+            पङ्क्तिं_लिख("}\n");
         }
-        puts("}\n");
+        पङ्क्तिं_लिख("}\n");
 
         // Forward declaration
-        puts("\n");
-        putns(modp, "VL_ATTR_COLD void " + topModNameProtected + "__" + protect("trace_register")
-                        + "(" + topModNameProtected + "* vlSelf, " + v3Global.opt.traceClassBase()
+        पङ्क्तिं_लिख("\n");
+        putns(modp, "VL_ATTR_COLD void " + शिखरम्_Mod_Name_Protected + "__" + protect("trace_register")
+                        + "(" + शिखरम्_Mod_Name_Protected + "* vlSelf, " + v3Global.opt.trace_Class_आधारः()
                         + "* tracep);\n");
 
         // ::traceRegisterModel
-        puts("\n");
-        putns(modp, "VL_ATTR_COLD void " + EmitCUtil::topClassName() + "::traceBaseModel(");
-        puts("VerilatedTraceBaseC* tfp, int levels, int options) {\n");
-        if (optSystemC()) {
-            puts(/**/ "if (!sc_core::sc_get_curr_simcontext()->elaboration_done()) {\n");
-            puts(/****/ "vl_fatal(__FILE__, __LINE__, name(), \"" + EmitCUtil::topClassName()
+        पङ्क्तिं_लिख("\n");
+        putns(modp, "VL_ATTR_COLD void " + EmitCUtil::शिखरम्_Class_Name() + "::traceBaseModel(");
+        पङ्क्तिं_लिख("VerilatedTraceBaseC* tfp, int levels, int options) {\n");
+        यदि (optSystemC()) {
+            पङ्क्तिं_लिख(/**/ "if (!sc_core::sc_get_curr_simcontext()->elaboration_done()) {\n");
+            पङ्क्तिं_लिख(/****/ "vl_fatal(__FILE__, __LINE__, name(), \"" + EmitCUtil::शिखरम्_Class_Name()
                  + +"::trace() is called before sc_core::sc_start(). "
                     "Run sc_core::sc_start(sc_core::SC_ZERO_TIME) before trace() to complete "
                     "elaboration.\");\n");
-            puts(/**/ "}");
+            पङ्क्तिं_लिख(/**/ "}");
         }
-        puts(/**/ "(void)levels; (void)options;\n");  // Prevent unused variable warning
-        puts(/**/ v3Global.opt.traceClassBase() + "C* const stfp = dynamic_cast<"
-             + v3Global.opt.traceClassBase() + "C*>(tfp);\n");
-        puts(/**/ "if (VL_UNLIKELY(!stfp)) {\n");
-        puts(/****/ "vl_fatal(__FILE__, __LINE__, __FILE__,\"'" + EmitCUtil::topClassName()
-             + "::trace()' called on non-" + v3Global.opt.traceClassBase() + "C object;\"\n"
+        पङ्क्तिं_लिख(/**/ "(void)levels; (void)options;\n");  // Prevent unused variable warning
+        पङ्क्तिं_लिख(/**/ v3Global.opt.trace_Class_आधारः() + "C* const stfp = dynamic_cast<"
+             + v3Global.opt.trace_Class_आधारः() + "C*>(tfp);\n");
+        पङ्क्तिं_लिख(/**/ "if (VL_UNLIKELY(!stfp)) {\n");
+        पङ्क्तिं_लिख(/****/ "vl_fatal(__FILE__, __LINE__, __FILE__,\"'" + EmitCUtil::शिखरम्_Class_Name()
+             + "::trace()' called on non-" + v3Global.opt.trace_Class_आधारः() + "C object;\"\n"
              + "\" use --trace-fst with VerilatedFst object,"
              + " and --trace-vcd with VerilatedVcd object\");\n");
-        puts(/**/ "}\n");
-        puts(/**/ "stfp->spTrace()->addModel(this);\n");
-        puts(/**/ "stfp->spTrace()->addInitCb("s  //
+        पङ्क्तिं_लिख(/**/ "}\n");
+        पङ्क्तिं_लिख(/**/ "stfp->spTrace()->addModel(this);\n");
+        पङ्क्तिं_लिख(/**/ "stfp->spTrace()->addInitCb("s  //
              + "&" + protect("trace_init")  //
              + ", &(vlSymsp->vlInst.TOP)"  //
              + ", name()"  //
-             + ", " + (v3Global.opt.libCreate().empty() ? "false" : "true")  //
-             + ", " + std::to_string(v3Global.rootp()->nTraceCodes())  //
+             + ", " + (v3Global.opt.libCreate().रिक्तानि() ? "false" : "true")  //
+             + ", " + std::गन्तव्यम्_string(v3Global.rootp()->nTraceCodes())  //
              + ");\n");
-        puts(/**/ topModNameProtected + "__" + protect("trace_register")
+        पङ्क्तिं_लिख(/**/ शिखरम्_Mod_Name_Protected + "__" + protect("trace_register")
              + "(&(vlSymsp->vlInst.TOP), stfp->spTrace());\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("}\n");
     }
 
-    void emitSerializationFunctions() {
+    शून्य emitSerializationFunctions() {
         putSectionDelimiter("Model serialization");
 
-        puts("\nVerilatedSerialize& operator<<(VerilatedSerialize& os, "
-             + EmitCUtil::topClassName() + "& rhs) {\n");
-        puts(/**/ "Verilated::quiesce();\n");
-        puts(/**/ "rhs.vlSymsp->" + protect("__Vserialize") + "(os);\n");
-        puts(/**/ "return os;\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("\nVerilatedSerialize& operator<<(VerilatedSerialize& os, "
+             + EmitCUtil::शिखरम्_Class_Name() + "& rhs) {\n");
+        पङ्क्तिं_लिख(/**/ "Verilated::quiesce();\n");
+        पङ्क्तिं_लिख(/**/ "rhs.vlSymsp->" + protect("__Vserialize") + "(os);\n");
+        पङ्क्तिं_लिख(/**/ "return os;\n");
+        पङ्क्तिं_लिख("}\n");
 
-        puts("\nVerilatedDeserialize& operator>>(VerilatedDeserialize& os, "
-             + EmitCUtil::topClassName() + "& rhs) {\n");
-        puts(/**/ "Verilated::quiesce();\n");
-        puts(/**/ "rhs.vlSymsp->" + protect("__Vdeserialize") + "(os);\n");
-        puts(/**/ "return os;\n");
-        puts("}\n");
+        पङ्क्तिं_लिख("\nVerilatedDeserialize& operator>>(VerilatedDeserialize& os, "
+             + EmitCUtil::शिखरम्_Class_Name() + "& rhs) {\n");
+        पङ्क्तिं_लिख(/**/ "Verilated::quiesce();\n");
+        पङ्क्तिं_लिख(/**/ "rhs.vlSymsp->" + protect("__Vdeserialize") + "(os);\n");
+        पङ्क्तिं_लिख(/**/ "return os;\n");
+        पङ्क्तिं_लिख("}\n");
     }
 
-    void emitImplementation(AstNodeModule* modp) {
-        openNewOutputSourceFile(EmitCUtil::topClassName(), false, false,
+    शून्य emitImplementation(Ast_ग्रन्थिः_Module* modp) {
+        openNewOutputSourceFile(EmitCUtil::शिखरम्_Class_Name(), असत्य, असत्य,
                                 "Model implementation (design independent parts)");
-        puts("\n");
-        puts("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
-        for (const string& base : v3Global.opt.traceSourceLangs())
-            puts("#include \"" + base + ".h\"\n");
+        पङ्क्तिं_लिख("\n");
+        पङ्क्तिं_लिख("#include \"" + EmitCUtil::pchClassName() + ".h\"\n");
+        प्रति (ध्रुव string& आधारः : v3Global.opt.traceSourceLangs())
+            पङ्क्तिं_लिख("#include \"" + आधारः + ".h\"\n");
 
         emitConstructorImplementation(modp);
         emitDestructorImplementation();
         emitStandardMethods1(modp);
         emitStandardMethods2(modp);
-        if (v3Global.opt.trace()) emitTraceMethods(modp);
-        if (v3Global.opt.savable()) emitSerializationFunctions();
+        यदि (v3Global.opt.trace()) emitTraceMethods(modp);
+        यदि (v3Global.opt.savable()) emitSerializationFunctions();
 
         closeOutputFile();
     }
 
-    void emitDpiExportDispatchers(AstNodeModule* modp) {
+    शून्य emitDpiExportDispatchers(Ast_ग्रन्थिः_Module* modp) {
         UASSERT(!ofp(), "Output file should not be open");
 
         // File name utils
-        V3UniqueNames uniqueNames;
-        const std::string fileBaseName = EmitCUtil::topClassName() + "__Dpi_Export";
+        V3_Unique_नामानि unique_नामानि;
+        ध्रुव std::string file_आधारः_Name = EmitCUtil::शिखरम्_Class_Name() + "__Dpi_Export";
 
         // Emit DPI Export dispatchers
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            AstCFunc* const funcp = VN_CAST(nodep, CFunc);
-            if (!funcp || !funcp->dpiExportDispatcher()) continue;
+        प्रति (Ast_ग्रन्थिः* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            AstCFunc* ध्रुव funcp = VN_CAST(nodep, CFunc);
+            यदि (!funcp || !funcp->dpiExportDispatcher()) अनुवर्त;
 
-            if (splitNeeded()) {
+            यदि (विभज_Needed()) {
                 // Splitting file, so using parallel build.
-                v3Global.useParallelBuild(true);
+                v3Global.useParallelBuild(सत्य);
                 // Close old file
                 closeOutputFile();
             }
 
-            if (!ofp()) {
-                openNewOutputSourceFile(uniqueNames.get(fileBaseName), false, false,
+            यदि (!ofp()) {
+                openNewOutputSourceFile(unique_नामानि.get(file_आधारः_Name), असत्य, असत्य,
                                         "Implementation of DPI export functions.");
-                puts("\n");
-                puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
-                puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
-                puts("#include \"verilated_dpi.h\"\n");
-                puts("\n");
+                पङ्क्तिं_लिख("\n");
+                पङ्क्तिं_लिख("#include \"" + EmitCUtil::शिखरम्_Class_Name() + ".h\"\n");
+                पङ्क्तिं_लिख("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
+                पङ्क्तिं_लिख("#include \"verilated_dpi.h\"\n");
+                पङ्क्तिं_लिख("\n");
                 m_lazyDecls.reset();
             }
 
             iterateConst(funcp);
         }
 
-        if (ofp()) closeOutputFile();
+        यदि (ofp()) closeOutputFile();
     }
 
-    void main(AstNodeModule* modp) {
+    शून्य मुख्यम्(Ast_ग्रन्थिः_Module* modp) {
         m_modp = modp;
-        emitHeader(modp);
+        emit_शीर्षकम्(modp);
         emitImplementation(modp);
-        if (v3Global.dpi()) emitDpiExportDispatchers(modp);
+        यदि (v3Global.dpi()) emitDpiExportDispatchers(modp);
     }
 
     // VISITORS
 
-public:
-    explicit EmitCModel(AstNodeModule* topModulep) { main(topModulep); }
+सार्वजनिक:
+    स्पष्ट EmitCModel(Ast_ग्रन्थिः_Module* शिखरम्_Modulep) { मुख्यम्(शिखरम्_Modulep); }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcModel() {
+शून्य V3EmitC::emitcModel() {
     UINFO(2, __FUNCTION__ << ":");
-    v3Global.rootp()->addEvalStats("emitc");
-    { EmitCModel{v3Global.rootp()->topModulep()}; }
+    v3Global.rootp()->सङ्कलय_Eval_Stats("emitc");
+    { EmitCModel{v3Global.rootp()->शिखरम्_Modulep()}; }
 }

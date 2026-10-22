@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STDFUTURE_H_
-#define VERILATOR_V3STDFUTURE_H_
+#यदि_अपरिभाषितम् VERILATOR_V3STDFUTURE_H_
+#परिभाषय VERILATOR_V3STDFUTURE_H_
 
-#include <functional>
+#अन्तर्भाव <functional>
 
 namespace vlstd {
 
 // C++17 is_invocable
-template <typename F, typename... Args>
-struct is_invocable
-    : std::is_constructible<std::function<void(Args...)>,
+प्रतिरूपम् <typename F, typename... तर्काः_2>
+संरचना is_invocable
+    : std::is_constructible<std::function<शून्य(तर्काः_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 
 // C++17 is_invocable_r
-template <typename R, typename F, typename... Args>
-struct is_invocable_r
-    : std::is_constructible<std::function<R(Args...)>,
+प्रतिरूपम् <typename R, typename F, typename... तर्काः_2>
+संरचना is_invocable_r
+    : std::is_constructible<std::function<R(तर्काः_2...)>,
                             std::reference_wrapper<typename std::remove_reference<F>::type>> {};
 };  // namespace vlstd
 
-#endif  // Guard
+#यदि_अन्तः  // Guard

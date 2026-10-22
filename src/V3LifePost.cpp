@@ -62,57 +62,57 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#अन्तर्भाव "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LifePost.h"
+#अन्तर्भाव "V3LifePost.h"
 
-#include "V3ExecGraph.h"
-#include "V3GraphPathChecker.h"
-#include "V3Stats.h"
+#अन्तर्भाव "V3ExecGraph.h"
+#अन्तर्भाव "V3GraphPathChecker.h"
+#अन्तर्भाव "V3Stats.h"
 
-#include <algorithm>
-#include <memory>
-#include <unordered_map>
+#अन्तर्भाव <algorithm>
+#अन्तर्भाव <memory>
+#अन्तर्भाव <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // LifePost delay elimination
 
-class LifePostDlyVisitor final : public VNVisitorConst {
+वर्ग LifePostDlyVisitor final : सार्वजनिक VNVisitorConst {
     // TYPES
 
     // Location of AstNode within the program
-    template <typename T_Node>
-    class Location final {
-        template <typename U_Node>
-        friend class Location;
+    प्रतिरूपम् <प्रकारनाम T_ग्रन्थिः>
+    वर्ग Location final {
+        प्रतिरूपम् <प्रकारनाम U_ग्रन्थिः>
+        मित्रम् वर्ग Location;
 
-        T_Node* m_nodep;  // The AstNode being recorded
-        const AstExecGraph* m_egraphp;  // AstExecTraph location is under, if any
-        const ExecMTask* m_mtaskp;  // The ExecMTask location is under, if any
-        uint32_t m_seqNum;  // Location counter
+        T_ग्रन्थिः* m_nodep;  // The AstNode being recorded
+        ध्रुव AstExecGraph* m_egraphp;  // AstExecTraph location is under, if any
+        ध्रुव ExecMTask* m_mtaskp;  // The ExecMTask location is under, if any
+        uint32_t m_seq_अङ्कः;  // Location counter
 
-    public:
-        Location(T_Node* nodep, const AstExecGraph* egp, const ExecMTask* mtaskp, uint32_t seqNum)
+    सार्वजनिक:
+        Location(T_ग्रन्थिः* nodep, ध्रुव AstExecGraph* egp, ध्रुव ExecMTask* mtaskp, uint32_t seq_अङ्कः)
             : m_nodep{nodep}
             , m_egraphp{egp}
             , m_mtaskp{mtaskp}
-            , m_seqNum{seqNum} {}
-        Location() = delete;
+            , m_seq_अङ्कः{seq_अङ्कः} {}
+        Location() = विलोपय;
 
-        T_Node* const& nodep() const { return m_nodep; }
+        T_ग्रन्थिः* ध्रुव& nodep() ध्रुव { प्रत्यागम m_nodep; }
 
         // "is before" - Note: Equality (concurrency) is possible iff they are independent mtasks!
-        template <typename U_Node>
-        bool operator<(const Location<U_Node>& that) const {
+        प्रतिरूपम् <प्रकारनाम U_ग्रन्थिः>
+        तार्किक संक्रियकः<(ध्रुव Location<U_ग्रन्थिः>& that) ध्रुव {
             // If they are in different mtasks under the same graph, check for a path in the graph
-            if (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
-                GraphPathChecker* const checkerp = m_egraphp->user1u().to<GraphPathChecker*>();
-                return checkerp->pathExistsFrom(m_mtaskp, that.m_mtaskp);
+            यदि (m_egraphp && m_egraphp == that.m_egraphp && m_mtaskp != that.m_mtaskp) {
+                Graph_मार्गः_Checker* ध्रुव checkerp = m_egraphp->user1u().गन्तव्यम्<Graph_मार्गः_Checker*>();
+                प्रत्यागम checkerp->मार्गः_Exists_From(m_mtaskp, that.m_mtaskp);
             }
             // Otherwise the sequence numbers work (one/both outside graph, or both in same mtask)
-            return m_seqNum < that.m_seqNum;
+            प्रत्यागम m_seq_अङ्कः < that.m_seq_अङ्कः;
         }
     };
 
@@ -120,121 +120,121 @@ class LifePostDlyVisitor final : public VNVisitorConst {
     // AstVarScope::user1()    -> bool: referenced outside _eval__nba
     // AstVarScope::user4p()   -> AstVarScope*: Replacement variable
     // AstExecGraph::user1p()  -> GraphPathChecker*: path checker for this AstExecGraph
-    const VNUser1InUse m_inuser1;
-    const VNUser4InUse m_inuser4;
+    ध्रुव VNUser1_अन्तर्_Use m_inuser1;
+    ध्रुव VNUser4_अन्तर्_Use m_inuser4;
 
     // STATE
     uint32_t m_sequence = 0;  // Sequence number of assigns/varrefs,
-    const AstExecGraph* m_execGraphp = nullptr;  // Current AstExecGraph being processed (or null)
-    const ExecMTask* m_execMTaskp = nullptr;  // Current ExecMTask being processed (or null)
+    ध्रुव AstExecGraph* m_execGraphp = शून्यसूचकः;  // Current AstExecGraph being processed (or null)
+    ध्रुव ExecMTask* m_execMTaskp = शून्यसूचकः;  // Current ExecMTask being processed (or null)
     VDouble0 m_statAssnDel;  // Statistic tracking
-    VDouble0 m_statWordsSaved;  // Words removed from NBA shadow copies
+    VDouble0 m_stat_शब्दाः_Saved;  // Words removed from NBA shadow copies
     // Maps from Varscope to all their reads and writes
-    using LocMap = std::unordered_map<const AstVarScope*, std::vector<Location<AstVarRef>>>;
+    उपयुज्य LocMap = std::unordered_map<ध्रुव AstVarScope*, std::सदिशम्<Location<AstVarRef>>>;
     LocMap m_reads;  // VarScope read locations
     LocMap m_writes;  // VarScope write locations
-    std::vector<Location<AstNodeAssign>> m_assigns;  // Assignments considered for removal
-    std::vector<std::unique_ptr<GraphPathChecker>> m_checkers;  // Storage for exec graph checkers
-    const AstCFunc* const m_nbaFuncp;  // The 'nba' region entry point
-    bool m_inEvalNba = false;  // Traversing under the 'nba' region entry point
+    std::सदिशम्<Location<Ast_ग्रन्थिः_नियोजय>> m_assigns;  // Assignments considered for removal
+    std::सदिशम्<std::unique_ptr<Graph_मार्गः_Checker>> m_checkers;  // Storage for exec graph checkers
+    ध्रुव AstCFunc* ध्रुव m_nbaFuncp;  // The 'nba' region entry point
+    तार्किक m_अन्तर्_Eval_Nba = असत्य;  // Traversing under the 'nba' region entry point
 
     // METHODS
-    void narrowCopies(AstNodeAssign* postp, AstVarScope* dVscp,
-                      const std::vector<Location<AstVarRef>>& writes) {
-        if (!dVscp->isWide()) return;
-        AstNodeAssign* const prep = VN_AS(writes[0].nodep()->backp(), NodeAssign);
+    शून्य narrowCopies(Ast_ग्रन्थिः_नियोजय* postp, AstVarScope* dVscp,
+                      ध्रुव std::सदिशम्<Location<AstVarRef>>& writes) {
+        यदि (!dVscp->isWide()) प्रत्यागम;
+        Ast_ग्रन्थिः_नियोजय* ध्रुव prep = VN_AS(writes[0].nodep()->backp(), ग्रन्थिः_नियोजय);
         UASSERT_OBJ(VN_AS(prep->lhsp(), VarRef)->varScopep()
                             == VN_AS(postp->rhsp(), VarRef)->varScopep()
                         && VN_AS(prep->rhsp(), VarRef)->varScopep()
                                == VN_AS(postp->lhsp(), VarRef)->varScopep(),
                     prep, "NBA shadow pre/post assignments are not reverse copies");
 
-        int lsb = dVscp->width();
-        int end = 0;
-        for (size_t i = 1; i < writes.size(); ++i) {
-            const AstSel* const selp = VN_CAST(writes[i].nodep()->backp(), Sel);
-            if (!selp || !VN_IS(selp->lsbp(), Const)) return;
-            const int start = selp->lsbConst();
-            if (start > dVscp->width() - selp->width()) return;
+        पूर्णाङ्क lsb = dVscp->विस्तारः();
+        पूर्णाङ्क अन्तः_2 = 0;
+        प्रति (आकार_t i = 1; i < writes.आकार(); ++i) {
+            ध्रुव AstSel* ध्रुव selp = VN_CAST(writes[i].nodep()->backp(), Sel);
+            यदि (!selp || !VN_IS(selp->lsbp(), Const)) प्रत्यागम;
+            ध्रुव पूर्णाङ्क start = selp->lsbConst();
+            यदि (start > dVscp->विस्तारः() - selp->विस्तारः()) प्रत्यागम;
             lsb = std::min(lsb, start);
-            end = std::max(end, start + selp->width());
+            अन्तः_2 = std::max(अन्तः_2, start + selp->विस्तारः());
         }
         // Copy one word-aligned range enclosing all writes, including any gaps.
         lsb = VL_BITWORD_E(lsb) * VL_EDATASIZE;
-        end = std::min(VL_WORDS_I(end) * VL_EDATASIZE, dVscp->width());
-        const int width = end - lsb;
-        if (width == dVscp->width()) return;
-        for (AstNodeAssign* const assignp : {prep, postp}) {
-            FileLine* const flp = assignp->fileline();
-            assignp->lhsp(new AstSel{flp, assignp->lhsp()->unlinkFrBack(), lsb, width});
-            assignp->rhsp(new AstSel{flp, assignp->rhsp()->unlinkFrBack(), lsb, width});
+        अन्तः_2 = std::min(VL_शब्दाः_I(अन्तः_2) * VL_EDATASIZE, dVscp->विस्तारः());
+        ध्रुव पूर्णाङ्क विस्तारः = अन्तः_2 - lsb;
+        यदि (विस्तारः == dVscp->विस्तारः()) प्रत्यागम;
+        प्रति (Ast_ग्रन्थिः_नियोजय* ध्रुव assignp : {prep, postp}) {
+            File_पङ्क्तिः* ध्रुव flp = assignp->fileline();
+            assignp->lhsp(नूतन AstSel{flp, assignp->lhsp()->unlink_Fr_पृष्ठभागः(), lsb, विस्तारः});
+            assignp->rhsp(नूतन AstSel{flp, assignp->rhsp()->unlink_Fr_पृष्ठभागः(), lsb, विस्तारः});
             assignp->dtypeFrom(assignp->lhsp());
         }
-        m_statWordsSaved += 2 * (dVscp->widthWords() - VL_WORDS_I(width));
+        m_stat_शब्दाः_Saved += 2 * (dVscp->विस्तारः_शब्दाः() - VL_शब्दाः_I(विस्तारः));
     }
 
-    void squashAssignposts() {
-        for (const Location<AstNodeAssign>& assign : m_assigns) {
-            AstVarScope* const dVscp = VN_AS(assign.nodep()->rhsp(), VarRef)->varScopep();
-            AstVarScope* const qVscp = VN_AS(assign.nodep()->lhsp(), VarRef)->varScopep();
+    शून्य squashAssignposts() {
+        प्रति (ध्रुव Location<Ast_ग्रन्थिः_नियोजय>& नियोजय_2 : m_assigns) {
+            AstVarScope* ध्रुव dVscp = VN_AS(नियोजय_2.nodep()->rhsp(), VarRef)->varScopep();
+            AstVarScope* ध्रुव qVscp = VN_AS(नियोजय_2.nodep()->lhsp(), VarRef)->varScopep();
 
             // We are considering deleting 'y', don't do it if referenced external to _eval__nba
-            if (dVscp->user1()) continue;
+            यदि (dVscp->user1()) अनुवर्त;
 
-            const std::vector<Location<AstVarRef>>& dWrites = m_writes[dVscp];
-            UASSERT_OBJ(!dWrites.empty(), dVscp, "NBA shadow variable read but never written");
+            ध्रुव std::सदिशम्<Location<AstVarRef>>& dWrites = m_writes[dVscp];
+            UASSERT_OBJ(!dWrites.रिक्तानि(), dVscp, "NBA shadow variable read but never written");
 
             // *** See file header for requirements ***
 
             // Proof (1) - Only read is on the RHS of this assignment
-            if (m_reads[dVscp].size() > 1) continue;
+            यदि (m_reads[dVscp].आकार() > 1) अनुवर्त;
 
             // Proof (2) - Only write is on the LHS of this assignment
-            if (m_writes[qVscp].size() > 1) continue;
+            यदि (m_writes[qVscp].आकार() > 1) अनुवर्त;
 
             // Proof (3) - Should always hold
-            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), NodeAssign), dVscp,
+            UASSERT_OBJ(VN_IS(dWrites.at(0).nodep()->backp(), ग्रन्थिः_नियोजय), dVscp,
                         "Partial first write to NBA shadow variable");
 
             // Proof (4)
-            if (dWrites.size() > 1) {
+            यदि (dWrites.आकार() > 1) {
                 // V3Order always serializes writes so they cannot be concurrent
                 UASSERT_OBJ(dWrites[0] < dWrites[1], dVscp, "Concurrent writes");
-                const bool qRdOK = [&]() {
-                    for (const Location<AstVarRef>& qRead : m_reads[qVscp]) {
-                        if (assign < qRead) continue;
+                ध्रुव तार्किक qRdOK = [&]() {
+                    प्रति (ध्रुव Location<AstVarRef>& qRead : m_reads[qVscp]) {
+                        यदि (नियोजय_2 < qRead) अनुवर्त;
                         // Check from 2nd write of 'd'
-                        for (size_t i = 1; i < dWrites.size(); ++i) {
-                            if (qRead < dWrites[i]) continue;
-                            return false;
+                        प्रति (आकार_t i = 1; i < dWrites.आकार(); ++i) {
+                            यदि (qRead < dWrites[i]) अनुवर्त;
+                            प्रत्यागम असत्य;
                         }
                     }
-                    return true;
+                    प्रत्यागम सत्य;
                 }();
-                if (!qRdOK) {
-                    narrowCopies(assign.nodep(), dVscp, dWrites);
-                    continue;
+                यदि (!qRdOK) {
+                    narrowCopies(नियोजय_2.nodep(), dVscp, dWrites);
+                    अनुवर्त;
                 }
             }
 
             // Mark variable for replacement
             dVscp->user4p(qVscp);
             // Delete assignment
-            UINFO(4, "    DELETE " << assign.nodep());
-            VL_DO_DANGLING(assign.nodep()->unlinkFrBack()->deleteTree(), assign.nodep());
+            UINFO(4, "    DELETE " << नियोजय_2.nodep());
+            VL_DO_DANGLING(नियोजय_2.nodep()->unlink_Fr_पृष्ठभागः()->delete_वृक्षः(), नियोजय_2.nodep());
             ++m_statAssnDel;
         }
     }
 
     // Trace code in the given function
-    void trace(AstCFunc* nodep) {
-        VL_RESTORER(m_inEvalNba);
-        if (nodep == m_nbaFuncp) m_inEvalNba = true;
+    शून्य trace(AstCFunc* nodep) {
+        VL_RESTORER(m_अन्तर्_Eval_Nba);
+        यदि (nodep == m_nbaFuncp) m_अन्तर्_Eval_Nba = सत्य;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    शून्य दर्शय(AstNetlist* nodep) override {
         // First, build maps of every location (mtask and sequence
         // within the mtask) where each varscope is read, and written.
         iterateChildrenConst(nodep);
@@ -243,11 +243,11 @@ class LifePostDlyVisitor final : public VNVisitorConst {
         // V3Order serializes all writes, and we trace AstExecGraph in
         // dependency order, so the first one we encounter during tracing should
         // always be the one. It's somewhat expensive to assert so only with debugCheck().
-        if (v3Global.opt.debugCheck()) {
-            for (auto& pair : m_writes) {
-                const std::vector<Location<AstVarRef>>& writes = pair.second;
-                const Location<AstVarRef>& first = writes[0];
-                for (size_t i = 1; i < writes.size(); ++i) {
+        यदि (v3Global.opt.debugCheck()) {
+            प्रति (स्वचालित& pair : m_writes) {
+                ध्रुव std::सदिशम्<Location<AstVarRef>>& writes = pair.second;
+                ध्रुव Location<AstVarRef>& first = writes[0];
+                प्रति (आकार_t i = 1; i < writes.आकार(); ++i) {
                     UASSERT_OBJ(first < writes[i], pair.first, "First write is not the first");
                 }
             }
@@ -261,104 +261,104 @@ class LifePostDlyVisitor final : public VNVisitorConst {
 
         // Apply replacements
         nodep->foreach([](AstVarRef* nodep) {
-            const AstVarScope* const vscp = nodep->varScopep();
-            AstVarScope* const replacementp = VN_AS(vscp->user4p(), VarScope);
-            if (!replacementp) return;
+            ध्रुव AstVarScope* ध्रुव vscp = nodep->varScopep();
+            AstVarScope* ध्रुव replacementp = VN_AS(vscp->user4p(), VarScope);
+            यदि (!replacementp) प्रत्यागम;
             UINFO(9, "  Replace " << nodep << " target " << vscp << " with " << replacementp);
             nodep->varScopep(replacementp);
             nodep->varp(replacementp->varp());
         });
     }
 
-    void visit(AstVarRef* nodep) override {
+    शून्य दर्शय(AstVarRef* nodep) override {
         // We only try to optimize NBA shadow variables
-        if (!nodep->varScopep()->optimizeLifePost()) return;
+        यदि (!nodep->varScopep()->optimizeLifePost()) प्रत्यागम;
 
         // Mark variables referenced outside the 'nba' region
-        if (!m_inEvalNba) {
-            nodep->varScopep()->user1(true);
-            return;
+        यदि (!m_अन्तर्_Eval_Nba) {
+            nodep->varScopep()->user1(सत्य);
+            प्रत्यागम;
         }
 
         // Consumption/generation of a variable,
-        const AstVarScope* const vscp = nodep->varScopep();
+        ध्रुव AstVarScope* ध्रुव vscp = nodep->varScopep();
         UASSERT_OBJ(vscp, nodep, "Scope not assigned");
 
         ++m_sequence;
-        if (nodep->access().isWriteOrRW()) {
-            m_writes[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
+        यदि (nodep->access().isWriteOrRW()) {
+            m_writes[vscp].emplace_पृष्ठभागः(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
-        if (nodep->access().isReadOrRW()) {
-            m_reads[vscp].emplace_back(nodep, m_execGraphp, m_execMTaskp, m_sequence);
+        यदि (nodep->access().isReadOrRW()) {
+            m_reads[vscp].emplace_पृष्ठभागः(nodep, m_execGraphp, m_execMTaskp, m_sequence);
         }
     }
-    void visit(AstNodeAssign* nodep) override {
+    शून्य दर्शय(Ast_ग्रन्थिः_नियोजय* nodep) override {
         // Record RHS before assignment
         iterateConst(nodep->rhsp());
         // If a straight assignment between NBA variables, consider for removal
-        if (const AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (const AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (lhsp->varScopep()->optimizeLifePost()  //
+        यदि (ध्रुव AstVarRef* ध्रुव lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            यदि (ध्रुव AstVarRef* ध्रुव rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                यदि (lhsp->varScopep()->optimizeLifePost()  //
                     && rhsp->varScopep()->optimizeLifePost()) {
-                    m_assigns.emplace_back(nodep, m_execGraphp, m_execMTaskp, ++m_sequence);
+                    m_assigns.emplace_पृष्ठभागः(nodep, m_execGraphp, m_execMTaskp, ++m_sequence);
                 }
             }
         }
         // Record LHS after assignment
         iterateConst(nodep->lhsp());
     }
-    void visit(AstNodeCCall* nodep) override {
+    शून्य दर्शय(Ast_ग्रन्थिः_CCall* nodep) override {
         iterateChildrenConst(nodep);
         // Entry points are roots of the trace, no need to do it here
-        if (nodep->funcp()->entryPoint()) return;
+        यदि (nodep->funcp()->प्रविष्टिः_Point()) प्रत्यागम;
         // Trace cellee
         trace(nodep->funcp());
     }
-    void visit(AstExecGraph* nodep) override {
+    शून्य दर्शय(AstExecGraph* nodep) override {
         UASSERT_OBJ(!m_execGraphp, nodep, "Nested AstExecGraph");
         VL_RESTORER(m_execGraphp);
         m_execGraphp = nodep;
 
         // Set up the path checker for this graph
         UASSERT_OBJ(!nodep->user1p(), nodep, "AstExecGraph visited twice");
-        m_checkers.emplace_back(new GraphPathChecker{nodep->depGraphp()});
-        nodep->user1p(m_checkers.back().get());
+        m_checkers.emplace_पृष्ठभागः(नूतन Graph_मार्गः_Checker{nodep->depGraphp()});
+        nodep->user1p(m_checkers.पृष्ठभागः().get());
 
         // Trace each mtask body. Note: the vertices are in topological order,
         // and we do not reset m_sequence, so a lower sequence number does
         // guarantee a node is not earlier than a higher sequence number, but
         // might still be concurrent.
-        for (V3GraphVertex& mtaskVtx : nodep->depGraphp()->vertices()) {
-            const ExecMTask* const mtaskp = mtaskVtx.as<ExecMTask>();
+        प्रति (V3GraphVertex& mtaskVtx : nodep->depGraphp()->vertices()) {
+            ध्रुव ExecMTask* ध्रुव mtaskp = mtaskVtx.as<ExecMTask>();
             VL_RESTORER(m_execMTaskp);
             m_execMTaskp = mtaskp;
             trace(mtaskp->funcp());
         }
     }
-    void visit(AstCFunc* nodep) override {
+    शून्य दर्शय(AstCFunc* nodep) override {
         // Start a trace from each entry point
-        if (nodep->entryPoint()) trace(nodep);
+        यदि (nodep->प्रविष्टिः_Point()) trace(nodep);
     }
     //-----
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    शून्य दर्शय(Ast_ग्रन्थिः* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+सार्वजनिक:
     // CONSTRUCTORS
-    explicit LifePostDlyVisitor(AstNetlist* netlistp)
+    स्पष्ट LifePostDlyVisitor(AstNetlist* netlistp)
         : m_nbaFuncp{netlistp->evalFuncp(VEval::NBA)} {
         iterateConst(netlistp);
     }
     ~LifePostDlyVisitor() override {
-        V3Stats::addStat("Optimizations, Lifetime postassign deletions", m_statAssnDel);
-        V3Stats::addStat("Optimizations, Lifetime NBA copy words removed", m_statWordsSaved);
+        V3Stats::सङ्कलय_Stat("Optimizations, Lifetime postassign deletions", m_statAssnDel);
+        V3Stats::सङ्कलय_Stat("Optimizations, Lifetime NBA copy words removed", m_stat_शब्दाः_Saved);
     }
 };
 
 //######################################################################
 // LifePost class functions
 
-void V3LifePost::lifepostAll(AstNetlist* nodep) {
+शून्य V3LifePost::lifepostAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LifePostDlyVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("life_post", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_वृक्षः("life_post", 0, dump_वृक्षः_Either_Level() >= 3);
 }
