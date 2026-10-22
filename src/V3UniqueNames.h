@@ -39,7 +39,7 @@ public:
     explicit V3UniqueNames(const std::string& prefix, bool addSuffix = true)
         : m_prefix{prefix}
         , m_addSuffix{addSuffix} {
-        if (!m_prefix.empty()) {
+        නම් (!m_prefix.empty()) {
             UASSERT(VString::startsWith(m_prefix, "__V"), "Prefix must start with '__V'");
             UASSERT(!VString::endsWith(m_prefix, "_"), "Prefix must not end with '_'");
         }
@@ -48,31 +48,31 @@ public:
     // Return argument, prepended with the prefix if any, then appended with a unique suffix each
     // time we are called with the same argument.
     std::string get(const std::string& name) {
-        if (!m_addSuffix) {
-            if (m_multiplicity.count(name) == 0) {
+        නම් (!m_addSuffix) {
+            නම් (m_multiplicity.count(name) == 0) {
                 m_multiplicity[name] = 0;
-                return name;
+                ආපසු name;
             }
-            return get(name + "__" + cvtToStr(m_multiplicity[name]++));
+            ආපසු get(name + "__" + cvtToStr(m_multiplicity[name]++));
         }
         // NORMAL mode
         const unsigned num = m_multiplicity[name]++;
         std::string result;
-        if (!m_prefix.empty()) {
+        නම් (!m_prefix.empty()) {
             result += m_prefix;
             result += "_";
         }
         result += name;
         result += "__";
         result += cvtToStr(num);
-        return result;
+        ආපසු result;
     }
 
     // Return hash of node as string, prepended with the prefix if any, appended with a unique
     // suffix each time we are called with a node that hashes to the same value.
     std::string get(const AstNode* nodep) {
-        if (nodep == nullptr) { return get(""); }
-        return get(V3Hasher::uncachedHash(nodep).toString());
+        නම් (nodep == nullptr) { ආපසු get(""); }
+        ආපසු get(V3Hasher::uncachedHash(nodep).toString());
     }
 
     // Reset to initial state (as if just constructed)

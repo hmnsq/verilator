@@ -40,7 +40,7 @@ class LibMapVisitor final : public VNVisitor {
 
     // VISITORS
     void visit(AstParseRef* nodep) override {
-        if (!m_lib.empty()) {
+        නම් (!m_lib.empty()) {
             const string& pattern = nodep->name();
             v3Global.libMapp()->addPattern(pattern, m_lib, m_rel);
         }
@@ -67,22 +67,22 @@ public:
 
 string V3LibMap::matchMapping(const string& filename) {
     // Check explicit mappings first
-    for (const auto& mapping : m_explicitMappings) {
+    සඳහා (const auto& mapping : m_explicitMappings) {
         const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
-        if (VString::wildmatch(filepath, mapping.pattern())) { return mapping.libname(); }
+        නම් (VString::wildmatch(filepath, mapping.pattern())) { ආපසු mapping.libname(); }
     }
     // Then check wildcard mappings
-    for (const auto& mapping : m_wildcardMappings) {
+    සඳහා (const auto& mapping : m_wildcardMappings) {
         const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
-        if (VString::wildmatch(filepath, mapping.pattern())) { return mapping.libname(); }
+        නම් (VString::wildmatch(filepath, mapping.pattern())) { ආපසු mapping.libname(); }
     }
     // Then check directory mappings
-    for (const auto& mapping : m_directoryMappings) {
+    සඳහා (const auto& mapping : m_directoryMappings) {
         const string& filepath = V3Os::filenameRelativePath(filename, mapping.base());
         const string& dirpart = V3Os::filenameDir(filepath);
-        if (VString::wildmatch(dirpart, mapping.pattern())) { return mapping.libname(); }
+        නම් (VString::wildmatch(dirpart, mapping.pattern())) { ආපසු mapping.libname(); }
     }
-    return "work";
+    ආපසු "work";
 }
 
 void V3LibMap::addPattern(const string& pattern, const string& libname, const string& base) {
@@ -92,11 +92,11 @@ void V3LibMap::addPattern(const string& pattern, const string& libname, const st
     const string& nondir = V3Os::filenameNonDir(pattern);
     const string& cleanPattern = V3Os::filenameCleanup(pattern);
 
-    if (isIncDir) {
+    නම් (isIncDir) {
         m_directoryMappings.push_back({cleanPattern, libname, base});
-    } else if (nondir.find('*') != string::npos || nondir.find('?') != string::npos) {
+    } නැතහොත් නම් (nondir.find('*') != string::npos || nondir.find('?') != string::npos) {
         m_wildcardMappings.push_back({cleanPattern, libname, base});
-    } else {
+    } නැතහොත් {
         m_explicitMappings.push_back({cleanPattern, libname, base});
     }
 }

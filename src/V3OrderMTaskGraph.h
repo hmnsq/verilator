@@ -49,7 +49,7 @@ class OrderMTaskGraph;
 // MTaskEdge graph edges are stored in a PairingHeap in each LogicMTask they
 // connect to, sorted by critical path through that edge (and id for stability).
 
-struct EdgeKey final {
+sa_nracanaa EdgeKey final {
     uint64_t m_cp;  // The inclusive critical path of the further MTask of the edge
     uint32_t m_id;  // The ID of the further MTask, for stable comparison
     void increase(uint64_t cp) {
@@ -58,8 +58,8 @@ struct EdgeKey final {
     }
     // Sort first by critical path, then by ID
     bool operator<(const EdgeKey& other) const {
-        if (m_cp != other.m_cp) return m_cp < other.m_cp;
-        return m_id < other.m_id;
+        නම් (m_cp != other.m_cp) ආපසු m_cp < other.m_cp;
+        ආපසු m_id < other.m_id;
     }
 };
 
@@ -68,7 +68,7 @@ using EdgeHeap = PairingHeap<EdgeKey>;
 //=============================================================================
 // LogicMTasks are stored in a PairingHeap during critical path update propagation.
 
-struct PropagatePendingKey final {
+sa_nracanaa PropagatePendingKey final {
     uint64_t m_increment;  // The amount the critical path of the MTask will grow by
     uint32_t m_id;  // The ID of the MTask, for stable comparison
     LogicMTask* m_mtaskp;  // The MTask the heap entry corresponds to
@@ -78,8 +78,8 @@ struct PropagatePendingKey final {
     }
     // Sort first by increment, then by ID
     bool operator<(const PropagatePendingKey& other) const {
-        if (m_increment != other.m_increment) return m_increment < other.m_increment;
-        return m_id < other.m_id;
+        නම් (m_increment != other.m_increment) ආපසු m_increment < other.m_increment;
+        ආපසු m_id < other.m_id;
     }
 };
 
@@ -102,7 +102,7 @@ class MTaskEdge final : public V3GraphEdge {
     // CONSTRUCTORS
     // Private, so edges can only be created via OrderMTaskGraph, which also updates the critical
     // paths on graph mutation.
-    inline MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top);
+    anta_hstha MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top);
 
 public:
     VL_UNCOPYABLE(MTaskEdge);
@@ -110,16 +110,16 @@ public:
 
     // METHODS
     template <GraphWay::en N_Way>
-    inline LogicMTask* furtherMTaskp() const;
-    inline LogicMTask* fromMTaskp() const;
-    inline LogicMTask* toMTaskp() const;
+    anta_hstha LogicMTask* furtherMTaskp() const;
+    anta_hstha LogicMTask* fromMTaskp() const;
+    anta_hstha LogicMTask* toMTaskp() const;
 
-    uint64_t cachedCp(GraphWay way) const { return m_edgeHeapNode[way].key().m_cp; }
-    uint32_t cachedId(GraphWay way) const { return m_edgeHeapNode[way].key().m_id; }
+    uint64_t cachedCp(GraphWay way) const { ආපසු m_edgeHeapNode[way].key().m_cp; }
+    uint32_t cachedId(GraphWay way) const { ආපසු m_edgeHeapNode[way].key().m_id; }
     // Convert from the address of the m_edgeHeapNode[way] in an MTaskEdge back to the MTaskEdge
     static const MTaskEdge* toMTaskEdge(GraphWay way, const EdgeHeap::Node* nodep) {
         const size_t offset = VL_OFFSETOF(MTaskEdge, m_edgeHeapNode[way]);
-        return reinterpret_cast<const MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - offset);
+        ආපසු reinterpret_cast<const MTaskEdge*>(reinterpret_cast<uintptr_t>(nodep) - offset);
     }
 };
 
@@ -173,18 +173,18 @@ public:
     VL_UNMOVABLE(LogicMTask);
 
     // METHODS
-    OrderMoveVertex::List& vertexList() { return m_mVertices; }
-    uint32_t id() const { return m_id; }
-    bool operator<(const LogicMTask& rhs) const { return id() < rhs.id(); }
+    OrderMoveVertex::List& vertexList() { ආපසු m_mVertices; }
+    uint32_t id() const { ආපසු m_id; }
+    bool operator<(const LogicMTask& rhs) const { ආපසු id() < rhs.id(); }
 
-    uint64_t cost() const VL_MT_SAFE { return m_cost; }
+    uint64_t cost() const VL_MT_SAFE { ආපසු m_cost; }
     template <GraphWay::en N_Way>
     uint64_t cpExclusive() const {
-        return m_cpExclusive[N_Way];
+        ආපසු m_cpExclusive[N_Way];
     }
     template <GraphWay::en N_Way>
     uint64_t cpInclusive() const {
-        return m_cpExclusive[N_Way] + m_cost;
+        ආපසු m_cpExclusive[N_Way] + m_cost;
     }
     // The critical path of this MTask without considering the given edge.
     template <GraphWay::en N_Way>
@@ -200,14 +200,14 @@ public:
         const EdgeHeap::Node* const maxp = edgeHeap.max();
         UDEBUGONLY(UASSERT(maxp, "Edge not in heap"););
         // If 'edgep' is not the critical path edge, return its critical path
-        if (MTaskEdge::toMTaskEdge(inv, maxp) != edgep) return maxp->key().m_cp;
+        නම් (MTaskEdge::toMTaskEdge(inv, maxp) != edgep) ආපසු maxp->key().m_cp;
         // Otherwise return the second-worst path, if there is one
         const EdgeHeap::Node* const secp = edgeHeap.secondMax();
-        if (!secp) return 0;
-        return secp->key().m_cp;
+        නම් (!secp) ආපසු 0;
+        ආපසු secp->key().m_cp;
     }
 
-    bool hasEdgeTo(LogicMTask* dependentp) const { return m_dependents.count(dependentp); }
+    bool hasEdgeTo(LogicMTask* dependentp) const { ආපසු m_dependents.count(dependentp); }
 
     // For Graphviz dumps only
     std::string name() const override VL_MT_STABLE {
@@ -216,7 +216,7 @@ public:
             << " | cpFwd " << m_cpExclusive[GraphWay::FORWARD]  //
             << " | cost " << cost()  //
             << " | cpRev " << m_cpExclusive[GraphWay::REVERSE];
-        return out.str();
+        ආපසු out.str();
     }
 
 private:
@@ -226,7 +226,7 @@ private:
     uint64_t cpExclusiveFromEdges() const {
         constexpr GraphWay inv = GraphWay{N_Way}.invert();
         const EdgeHeap::Node* const maxp = m_edgeHeap[inv].max();
-        return maxp ? maxp->key().m_cp : 0;
+        ආපසු maxp ? maxp->key().m_cp : 0;
     }
     template <GraphWay::en N_Way>
     void cpExclusive(uint64_t cp) {
@@ -323,10 +323,10 @@ class OrderMTaskGraph final : public V3Graph {
 
 public:
     // ACCESSORS
-    OrderMoveGraph& moveGraph() const { return m_moveGraph; }
-    LogicMTask* entryp() const { return m_entryp; }
-    LogicMTask* exitp() const { return m_exitp; }
-    bool slowAsserts() const { return m_slowAsserts; }
+    OrderMoveGraph& moveGraph() const { ආපසු m_moveGraph; }
+    LogicMTask* entryp() const { ආපසු m_entryp; }
+    LogicMTask* exitp() const { ආපසු m_exitp; }
+    bool slowAsserts() const { ආපසු m_slowAsserts; }
 
     // METHODS
     uint64_t totalCost() const;  // O(V), called once
@@ -336,7 +336,7 @@ public:
     // non-nullptr it must connect fromp and top.
     bool pathExists(LogicMTask* fromp, LogicMTask* top, const MTaskEdge* excludedEdgep) {
         ++m_currentGeneration;
-        return pathExistsImpl(fromp, top, excludedEdgep);
+        ආපසු pathExistsImpl(fromp, top, excludedEdgep);
     }
 
     // Add an edge to the graph, update impacted critical paths
@@ -384,9 +384,9 @@ MTaskEdge::MTaskEdge(OrderMTaskGraph* graphp, LogicMTask* fromp, LogicMTask* top
 
 template <GraphWay::en N_Way>
 LogicMTask* MTaskEdge::furtherMTaskp() const {
-    return static_cast<LogicMTask*>(this->furtherp<N_Way>());
+    ආපසු static_cast<LogicMTask*>(this->furtherp<N_Way>());
 }
-LogicMTask* MTaskEdge::fromMTaskp() const { return static_cast<LogicMTask*>(fromp()); }
-LogicMTask* MTaskEdge::toMTaskp() const { return static_cast<LogicMTask*>(top()); }
+LogicMTask* MTaskEdge::fromMTaskp() const { ආපසු static_cast<LogicMTask*>(fromp()); }
+LogicMTask* MTaskEdge::toMTaskp() const { ආපසු static_cast<LogicMTask*>(top()); }
 
 #endif  // Guard

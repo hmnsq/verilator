@@ -44,12 +44,12 @@ class EmitCExecGraph final : public EmitCFunc {
 
         // MTask of each function, and the index of each function in the topological order
         std::unordered_map<const AstCFunc*, const ExecMTask*> mtaskps;
-        for (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
+        සඳහා (const V3GraphVertex& vtx : nodep->depGraphp()->vertices()) {
             const ExecMTask* const mtaskp = vtx.as<ExecMTask>();
             mtaskps.emplace(mtaskp->funcp(), mtaskp);
         }
         std::unordered_map<const AstCFunc*, uint32_t> indices;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        සඳහා (const AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
             indices.emplace(callp->funcp(), indices.size());
         }
@@ -64,7 +64,7 @@ class EmitCExecGraph final : public EmitCFunc {
         putns(nodep, "static VL_CONSTINIT_CXX20 const VlExecGraph::Vertex " + name
                          + "__vertices[] = {\n");
         AstVarRef* maskp = nodep->maskps();
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        සඳහා (const AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
             UASSERT_OBJ(maskp, callp, "MTask call without trigger mask");
             putns(callp, "{&" + funcNameProtect(callp->funcp()) + ", ");
@@ -77,10 +77,10 @@ class EmitCExecGraph final : public EmitCFunc {
 
         // The dependencies between MTasks
         uint32_t nEdges = 0;
-        for (const AstCCall* callp = nodep->callsp(); callp;
+        සඳහා (const AstCCall* callp = nodep->callsp(); callp;
              callp = VN_AS(callp->nextp(), CCall)) {
-            for (const V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
-                if (!nEdges) {
+            සඳහා (const V3GraphEdge& edge : mtaskps.at(callp->funcp())->outEdges()) {
+                නම් (!nEdges) {
                     puts("\nstatic VL_CONSTINIT_CXX20 const VlExecGraph::Edge " + name
                          + "__edges[] = {\n");
                 }
@@ -89,7 +89,7 @@ class EmitCExecGraph final : public EmitCFunc {
                 ++nEdges;
             }
         }
-        if (nEdges) puts("};\n");
+        නම් (nEdges) puts("};\n");
 
         // The graph
         const std::string edgesName = nEdges ? name + "__edges" : "nullptr";
@@ -111,14 +111,14 @@ public:
         std::vector<AstExecGraph*> execGraphps;
         netlistp->topModulep()->foreach(
             [&](AstExecGraph* nodep) { execGraphps.push_back(nodep); });
-        if (execGraphps.empty()) return;
+        නම් (execGraphps.empty()) ආපසු;
 
         openNewOutputSourceFile(EmitCUtil::topClassName() + "__ExecGraph", true, false,
                                 "Exec graphs");
         puts("\n");
         puts("#include \"verilated.h\"\n");
         puts("#include \"verilated_threads.h\"\n");
-        for (AstExecGraph* const nodep : execGraphps) emitGraph(nodep);
+        සඳහා (AstExecGraph* const nodep : execGraphps) emitGraph(nodep);
         closeOutputFile();
     }
 };

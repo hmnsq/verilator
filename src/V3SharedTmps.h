@@ -55,34 +55,34 @@
 class V3SharedTmps final {
     // TYPES
     // Temporaries are identified by their module, name and data type
-    struct Key final {
+    sa_nracanaa Key final {
         const AstNodeModule* m_modp;  // The module of the scopes
         std::string m_name;  // Name of the temporary
         const AstNodeDType* m_dtypep;  // Data type of the temporary
     };
     // Hash and equality of Keys, which can be looked up by their parts, without making one
-    struct KeyHash final {
+    sa_nracanaa KeyHash final {
         size_t operator()(const AstNodeModule* modp, const std::string& name,
                           const AstNodeDType* dtypep) const {
             V3Hash hash{modp};
             hash += name;
             hash += dtypep;
-            return hash.value();
+            ආපසු hash.value();
         }
         size_t operator()(const Key& key) const {
-            return (*this)(key.m_modp, key.m_name, key.m_dtypep);
+            ආපසු (*this)(key.m_modp, key.m_name, key.m_dtypep);
         }
     };
-    struct KeyEqual final {
+    sa_nracanaa KeyEqual final {
         bool operator()(const Key& key, const AstNodeModule* modp, const std::string& name,
                         const AstNodeDType* dtypep) const {
-            return key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
+            ආපසු key.m_modp == modp && key.m_dtypep == dtypep && key.m_name == name;
         }
         bool operator()(const Key& a, const Key& b) const {
-            return (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
+            ආපසු (*this)(a, b.m_modp, b.m_name, b.m_dtypep);
         }
     };
-    struct Tmps final {
+    sa_nracanaa Tmps final {
         std::vector<AstVar*> m_varps;  // Variables created so far
         // Number of variables used by each scope
         std::unordered_map<const AstScope*, size_t> m_nUsed;
@@ -114,15 +114,15 @@ public:
                       const std::string& name = "") {
         const AstNodeModule* const modp = scopep->modp();
         const auto pair = m_tmps.insertLazy(modp, name, dtypep, [&]() {  //
-            return std::make_pair(Key{modp, name, dtypep}, Tmps{});
+            ආපසු std::make_pair(Key{modp, name, dtypep}, Tmps{});
         });
         Tmps& tmps = pair.first.value();
         const size_t n = tmps.m_nUsed[scopep]++;
-        if (n < tmps.m_varps.size()) {
+        නම් (n < tmps.m_varps.size()) {
             ++m_nReused;
-        } else {
+        } නැතහොත් {
             std::string uniqueName = m_prefix + "_";
-            if (!name.empty()) uniqueName += name + "_";
+            නම් (!name.empty()) uniqueName += name + "_";
             uniqueName += std::to_string(m_nVars++);
             AstVar* const varp = new AstVar{flp, m_varType, uniqueName, dtypep};
             scopep->modp()->addStmtsp(varp);
@@ -130,16 +130,16 @@ public:
         }
         AstVarScope* const vscp = new AstVarScope{flp, scopep, tmps.m_varps[n]};
         scopep->addVarsp(vscp);
-        return vscp;
+        ආපසු vscp;
     }
     // Same as above, but with a 2-state unsigned packed type of the given 'width'
     AstVarScope* make(FileLine* flp, AstScope* scopep, unsigned width,
                       const std::string& name = "") {
-        return make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
+        ආපසු make(flp, scopep, scopep->findBitDType(width, width, VSigning::UNSIGNED), name);
     }
 
     // Number of temporaries using an existing variable
-    size_t nReused() const { return m_nReused; }
+    size_t nReused() const { ආපසු m_nReused; }
 };
 
 #endif  // Guard

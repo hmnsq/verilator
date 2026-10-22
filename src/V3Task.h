@@ -41,15 +41,15 @@ public:
     V3TaskConnectState() = default;
     ~V3TaskConnectState() = default;
     void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
+    bool didWrap() const { ආපසු m_didWrap; }
     void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+    WrapMap& wrapMap() { ආපසු m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    static const var_na* const s_dpiTemporaryVarSuffix;
 
 public:
     static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
@@ -67,7 +67,7 @@ public:
                                       const string& toSuffix,
                                       const string& frPrefix = "") VL_MT_DISABLED;
     static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+    static const var_na* dpiTemporaryVarSuffix() VL_MT_SAFE { ආපසු s_dpiTemporaryVarSuffix; }
 };
 
 #endif  // Guard
