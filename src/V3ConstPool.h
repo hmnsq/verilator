@@ -36,24 +36,24 @@ class V3ConstPool final {
 
     // TYPES
     // Scoping stage of the design, which determines how entries are referenced
-    enum class Stage : uint8_t {
+    ga_nanaa class Stage : uint8_t {
         UNSCOPED,  // Before V3Scope: reference via the package
         SCOPED,  // Between V3Scope and V3Descope: reference via the VarScope
         DESCOPED  // After V3Descope: plain reference
     };
     // Hash and equality of entries in 'm_entries', by value
-    struct EntryHash final {
+    sa_nracanaa EntryHash final {
         size_t operator()(const AstVar* varp) const {
-            return (*this)(VN_AS(varp->valuep(), NodeExpr));
+            ལོག (*this)(VN_AS(varp->valuep(), NodeExpr));
         }
-        size_t operator()(const AstNodeExpr* initp) const { return hashValue(initp).value(); }
+        size_t operator()(const AstNodeExpr* initp) const { ལོག hashValue(initp).value(); }
     };
-    struct EntryEqual final {
+    sa_nracanaa EntryEqual final {
         bool operator()(const AstVar* ap, const AstVar* bp) const {  // LCOV_EXCL_START
-            return (*this)(ap, VN_AS(bp->valuep(), NodeExpr));  // Only on collision while rebuild
+            ལོག (*this)(ap, VN_AS(bp->valuep(), NodeExpr));  // Only on collision while rebuild
         }  // LCOV_EXCL_STOP
         bool operator()(const AstVar* varp, const AstNodeExpr* initp) const {
-            return equalValue(VN_AS(varp->valuep(), NodeExpr), initp);
+            ལོག equalValue(VN_AS(varp->valuep(), NodeExpr), initp);
         }
     };
 
@@ -66,7 +66,7 @@ class V3ConstPool final {
     std::array<uint32_t, VNType::NUM_TYPES()> m_nextNumber{};  // Sequence number for naming
 
     // METHODS
-    static V3ConstPool& instance() { return *v3Global.constPoolp(); }
+    static V3ConstPool& instance() { ལོག *v3Global.constPoolp(); }
     // Hash of a value, consistent with 'equalValue'
     static V3Hash hashValue(const AstNode* nodep);
     // True if the two values are the same, so can use the same entry
@@ -103,7 +103,7 @@ public:
         invalidateCache();
     }
     // Check the lookup cache refers only to existing nodes, for V3Broken
-    static const char* broken();
+    static const var_na* broken();
 };
 
 #endif  // Guard

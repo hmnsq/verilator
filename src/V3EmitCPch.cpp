@@ -46,14 +46,14 @@ class EmitCPch final : public EmitCBaseVisitorConst {
 
         puts("\n");
         puts("\n#include \"verilated.h\"\n");
-        if (v3Global.dpi()) puts("#include \"verilated_dpi.h\"\n");
+        གལ་སྲིད (v3Global.dpi()) puts("#include \"verilated_dpi.h\"\n");
 
         puts("\n");
         puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
         puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
 
         puts("\n// Additional include files added using '--compiler-include'\n");
-        for (const string& filename : v3Global.opt.compilerIncludes()) {
+        དོན་ལུ (const string& filename : v3Global.opt.compilerIncludes()) {
             puts("#include \"" + filename + "\"\n");
         }
 

@@ -86,7 +86,7 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { ལོག m_saved; }
 };
 
 // Implementation of VL_RESTORER_COPY
@@ -107,7 +107,7 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { ལོག m_saved; }
 };
 
 // Implementation of VL_RESTORER_CLEAR.
@@ -129,33 +129,33 @@ public:
     void* operator new(size_t) = delete;
     void operator delete(void*) = delete;
 
-    const T& saved() const { return m_saved; }
+    const T& saved() const { ལོག m_saved; }
 };
 
 //######################################################################
 
 class VWidthMinUsage final {
 public:
-    enum en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
-    enum en m_e;
+    ga_nanaa en : uint8_t { LINT_WIDTH, MATCHES_WIDTH, VERILOG_WIDTH };
+    ga_nanaa en m_e;
     VWidthMinUsage()
         : m_e{LINT_WIDTH} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr VWidthMinUsage(en _e) VL_PURE : m_e{_e} {}
     constexpr VWidthMinUsage(const VWidthMinUsage& _e) VL_PURE = default;
-    explicit VWidthMinUsage(int _e)
+    explicit VWidthMinUsage(ཧྲིལ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
+    constexpr operator en() const { ལོག m_e; }
     constexpr VWidthMinUsage& operator=(const VWidthMinUsage& _e) VL_PURE = default;
 };
 constexpr bool operator==(const VWidthMinUsage& lhs, const VWidthMinUsage& rhs) {
-    return lhs.m_e == rhs.m_e;
+    ལོག lhs.m_e == rhs.m_e;
 }
 constexpr bool operator==(const VWidthMinUsage& lhs, VWidthMinUsage::en rhs) VL_PURE {
-    return lhs.m_e == rhs;
+    ལོག lhs.m_e == rhs;
 }
 constexpr bool operator==(VWidthMinUsage::en lhs, const VWidthMinUsage& rhs) {
-    return lhs == rhs.m_e;
+    ལོག lhs == rhs.m_e;
 }
 
 //######################################################################
@@ -223,86 +223,86 @@ public:
     void boot();
     void shutdown();  // Release allocated resources
 
-    void vlExit(int status);
+    void vlExit(ཧྲིལ status);
 
     // ACCESSORS (general)
-    AstNetlist* rootp() const VL_MT_SAFE { return m_rootp; }
+    AstNetlist* rootp() const VL_MT_SAFE { ལོག m_rootp; }
     // Use V3ConstPool:: static methods instead
-    V3ConstPool* constPoolp() const VL_PURE { return m_constPoolp; }
-    V3LibMap* libMapp() const VL_PURE { return m_libMapp; }
-    V3ThreadPool* threadPoolp() const VL_PURE { return m_threadPoolp; }
+    V3ConstPool* constPoolp() const VL_PURE { ལོག m_constPoolp; }
+    V3LibMap* libMapp() const VL_PURE { ལོག m_libMapp; }
+    V3ThreadPool* threadPoolp() const VL_PURE { ལོག m_threadPoolp; }
     void threadPoolp(V3ThreadPool* threadPoolp) {
         UASSERT(!m_threadPoolp, "attempted to create multiple threadPool singletons");
         m_threadPoolp = threadPoolp;
     }
-    VWidthMinUsage widthMinUsage() const VL_PURE { return m_widthMinUsage; }
-    bool assertDTypesResolved() const { return m_assertDTypesResolved; }
-    bool assertScoped() const { return m_assertScoped; }
-    bool staticsLifted() const { return m_staticsLifted; }
+    VWidthMinUsage widthMinUsage() const VL_PURE { ལོག m_widthMinUsage; }
+    bool assertDTypesResolved() const { ལོག m_assertDTypesResolved; }
+    bool assertScoped() const { ལོག m_assertScoped; }
+    bool staticsLifted() const { ལོག m_staticsLifted; }
 
     // METHODS
     void readFiles() VL_MT_DISABLED;
     void removeStd() VL_MT_DISABLED;
     void checkTree() const;
-    static void dumpCheckGlobalTree(const string& stagename, int newNumber = 0, bool doDump = true,
+    static void dumpCheckGlobalTree(const string& stagename, ཧྲིལ newNumber = 0, bool doDump = true,
                                     bool doCheck = true);
     void assertDTypesResolved(bool flag) { m_assertDTypesResolved = flag; }
     void assertScoped(bool flag) { m_assertScoped = flag; }
     void staticsLifted(bool flag) { m_staticsLifted = flag; }
     void widthMinUsage(const VWidthMinUsage& flag) { m_widthMinUsage = flag; }
-    bool constRemoveXs() const { return m_constRemoveXs; }
+    bool constRemoveXs() const { ལོག m_constRemoveXs; }
     void constRemoveXs(bool flag) { m_constRemoveXs = flag; }
-    string debugFilename(const string& nameComment, int newNumber = 0);
-    static string digitsFilename(int number);
-    bool needTraceDumper() const { return m_needTraceDumper; }
+    string debugFilename(const string& nameComment, ཧྲིལ newNumber = 0);
+    static string digitsFilename(ཧྲིལ number);
+    bool needTraceDumper() const { ལོག m_needTraceDumper; }
     void needTraceDumper(bool flag) { m_needTraceDumper = flag; }
-    bool dpi() const VL_MT_SAFE { return m_dpi; }
+    bool dpi() const VL_MT_SAFE { ལོག m_dpi; }
     void dpi(bool flag) { m_dpi = flag; }
-    bool assignsEvents() const { return m_assignsEvents; }
+    bool assignsEvents() const { ལོག m_assignsEvents; }
     void setAssignsEvents() { m_assignsEvents = true; }
-    bool hasEvents() const { return m_hasEvents; }
+    bool hasEvents() const { ལོག m_hasEvents; }
     void setHasEvents() { m_hasEvents = true; }
-    bool hasClasses() const { return m_hasClasses; }
+    bool hasClasses() const { ལོག m_hasClasses; }
     void setHasClasses() { m_hasClasses = true; }
-    bool hasSampled() const { return m_hasSampled; }
+    bool hasSampled() const { ལོག m_hasSampled; }
     void setHasSampled() { m_hasSampled = true; }
-    bool hasTable() const { return m_hasTable; }
+    bool hasTable() const { ལོག m_hasTable; }
     void setHasTable() { m_hasTable = true; }
-    bool hasVirtIfaces() const { return m_hasVirtIfaces; }
+    bool hasVirtIfaces() const { ལོག m_hasVirtIfaces; }
     void setHasVirtIfaces() { m_hasVirtIfaces = true; }
-    bool usesProbDist() const { return m_usesProbDist; }
+    bool usesProbDist() const { ལོག m_usesProbDist; }
     void setUsesProbDist() { m_usesProbDist = true; }
-    bool usesStdPackage() const { return m_usesStdPackage; }
+    bool usesStdPackage() const { ལོག m_usesStdPackage; }
     void setUsesStdPackage() { m_usesStdPackage = true; }
-    bool usesTiming() const { return m_usesTiming; }
+    bool usesTiming() const { ལོག m_usesTiming; }
     void setUsesTiming() { m_usesTiming = true; }
-    bool usesZeroDelay() const { return m_usesZeroDelay; }
+    bool usesZeroDelay() const { ལོག m_usesZeroDelay; }
     void setUsesZeroDelay() { m_usesZeroDelay = true; }
-    bool hasForceableSignals() const { return m_hasForceableSignals; }
+    bool hasForceableSignals() const { ལོག m_hasForceableSignals; }
     void setHasForceableSignals() { m_hasForceableSignals = true; }
-    bool hasAssignDeassign() const { return m_hasAssignDeassign; }
+    bool hasAssignDeassign() const { ལོག m_hasAssignDeassign; }
     void setHasAssignDeassign() { m_hasAssignDeassign = true; }
-    bool usesForce() const { return m_usesForce; }
+    bool usesForce() const { ལོག m_usesForce; }
     void setUsesForce() { m_usesForce = true; }
-    V3HierGraph* hierGraphp() const { return m_hierGraphp; }
+    V3HierGraph* hierGraphp() const { ལོག m_hierGraphp; }
     void hierGraphp(V3HierGraph* graphp) { m_hierGraphp = graphp; }
-    bool useParallelBuild() const { return m_useParallelBuild; }
+    bool useParallelBuild() const { ལོག m_useParallelBuild; }
     void useParallelBuild(bool flag) { m_useParallelBuild = flag; }
-    bool useRandSequence() const { return m_useRandSequence; }
+    bool useRandSequence() const { ལོག m_useRandSequence; }
     void useRandSequence(bool flag) { m_useRandSequence = flag; }
-    bool useCovergroup() const { return m_useCovergroup; }
+    bool useCovergroup() const { ལོག m_useCovergroup; }
     void useCovergroup(bool flag) { m_useCovergroup = flag; }
-    bool useRandomizeMethods() const { return m_useRandomizeMethods; }
+    bool useRandomizeMethods() const { ལོག m_useRandomizeMethods; }
     void useRandomizeMethods(bool flag) { m_useRandomizeMethods = flag; }
-    bool hasPrintedObjects() const { return m_hasPrintedObjects; }
+    bool hasPrintedObjects() const { ལོག m_hasPrintedObjects; }
     void hasPrintedObjects(bool flag) { m_hasPrintedObjects = flag; }
     void saveJsonPtrFieldName(const std::string& fieldName);
     void ptrNamesDumpJson(std::ostream& os);
     void idPtrMapDumpJson(std::ostream& os);
     const std::string& ptrToId(const void* p);
-    std::thread::id mainThreadId() const { return m_mainThreadId; }
+    std::thread::id mainThreadId() const { ལོག m_mainThreadId; }
     static std::vector<std::string> verilatedCppFiles();
-    uint64_t currentHierBlockCost() const { return m_currentHierBlockCost; }
+    uint64_t currentHierBlockCost() const { ལོག m_currentHierBlockCost; }
     void currentHierBlockCost(uint64_t cost) { m_currentHierBlockCost = cost; }
 };
 
