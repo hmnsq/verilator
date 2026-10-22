@@ -26,256 +26,256 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ضمن "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AssertNfa.h"
+#ضمن "V3AssertNfa.h"
 
-#include "V3Assert.h"
-#include "V3Const.h"
-#include "V3Graph.h"
-#include "V3Stats.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
+#ضمن "V3Assert.h"
+#ضمن "V3Const.h"
+#ضمن "V3Graph.h"
+#ضمن "V3Stats.h"
+#ضمن "V3Task.h"
+#ضمن "V3UniqueNames.h"
 
-#include <set>
-#include <unordered_set>
-#include <vector>
+#ضمن <set>
+#ضمن <unordered_set>
+#ضمن <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // NFA Graph Data Structures (V3Graph-derived per upstream convention)
 
-namespace {
+نطاق {
 
-class SvaStateVertex;
+صنف SvaStateVertex;
 
 // Per-vertex algorithm data, stored via V3GraphVertex::userp() during lowering
-struct SvaVertexData final {
+بنية SvaVertexData final {
     AstVar* stateVarp = nullptr;  // NBA state register for this vertex
     AstVar* delayRingVarp = nullptr;  // Packed occupancy bits or per-slot match counts
     AstVar* delayRingHeadVarp
         = nullptr;  // Cached outgoing slot; isolates readers from in-place writes
     AstVar* delayRingIdxVarp = nullptr;  // Next slot written in delayRingVarp
-    AstVar* delayRingLiveCountVarp = nullptr;  // Number of threads in delayRingVarp
+    AstVar* delay_Ring_Live_سانى_Varp = nullptr;  // Number of threads in delayRingVarp
     AstVar* delayRingWrappedVarp = nullptr;  // All slots written since the last clear
     AstVar* doneLVarp = nullptr;  // SAnd LHS done-latch
     AstVar* doneRVarp = nullptr;  // SAnd RHS done-latch
-    AstNodeExpr* stateSigp = nullptr;  // Combinational state signal; OWNED during lowering
-    AstNodeExpr* stateCountSigp = nullptr;  // Cover-sequence match count; OWNED during lowering
-    AstNodeExpr* stateCountOverflowSigp = nullptr;  // Count overflow; OWNED during lowering
-    bool delayRingCounts = false;  // Ring slots hold cover-sequence match counts
-    bool needsReg = false;  // True if vertex has incoming clocked edge
+    Ast_تۈگۈن_ئىپادە* stateSigp = nullptr;  // Combinational state signal; OWNED during lowering
+    Ast_تۈگۈن_ئىپادە* state_سانى_Sigp = nullptr;  // Cover-sequence match count; OWNED during lowering
+    Ast_تۈگۈن_ئىپادە* state_سانى_Overflow_Sigp = nullptr;  // Count overflow; OWNED during lowering
+    منطقي delayRingCounts = خطأ;  // Ring slots hold cover-sequence match counts
+    منطقي needsReg = خطأ;  // True if vertex has incoming clocked edge
 };
 
 // NFA state vertex -- one per NFA position in the sequence evaluation
-class SvaStateVertex final : public V3GraphVertex {
+صنف SvaStateVertex final : عام V3GraphVertex {
     VL_RTTI_IMPL(SvaStateVertex, V3GraphVertex)
-public:
+عام:
     // True if this is the sequence-match terminal vertex
-    bool m_isMatch = false;
+    منطقي m_isMatch = خطأ;
     // OWNED throughout-guard condition clones; IEEE 1800-2023 16.9.9
-    std::vector<AstNodeExpr*> m_throughoutConds;
+    std::vector<Ast_تۈگۈن_ئىپادە*> m_throughoutConds;
     // Nonzero for a ring-buffer vertex for ## delays.
-    bool m_isFixedDelayRing = false;
+    منطقي m_isFixedDelayRing = خطأ;
     unsigned m_delayRingSize = 0;  // Number of ring slots. Range: max-min+1.
-    AstNodeExpr* m_delayRingClearCondp = nullptr;  // local RHS for pure-boolean range
-    AstNodeExpr* m_delayRingAdvanceCondp = nullptr;  // Advance only when this condition holds
-    bool m_replayAbortReject = false;  // Compressed repetition needs per-thread abort replay
+    Ast_تۈگۈن_ئىپادە* m_delayRingClearCondp = nullptr;  // local RHS for pure-boolean range
+    Ast_تۈگۈن_ئىپادە* m_delayRingAdvanceCondp = nullptr;  // Advance only when this condition holds
+    منطقي m_replayAbortReject = خطأ;  // Compressed repetition needs per-thread abort replay
     // OWNED; enclosing-abort fire condition clearing state or suppressing guard rejection
-    AstNodeExpr* m_abortClearp = nullptr;
+    Ast_تۈگۈن_ئىپادە* m_abortClearp = nullptr;
     // OWNED; reject-abort fire condition rejecting all represented live threads
-    AstNodeExpr* m_abortRejectp = nullptr;
+    Ast_تۈگۈن_ئىپادە* m_abortRejectp = nullptr;
     // Liveness terminal (IEEE weak semantics): reject must not fire from this source
-    bool m_isUnbounded = false;
+    منطقي m_isUnbounded = خطأ;
     // Temporal sequence AND combiner; IEEE 1800-2023 16.9.5
-    bool m_isAndCombiner = false;
+    منطقي m_isAndCombiner = خطأ;
     SvaStateVertex* m_andLhsTermp = nullptr;  // LHS sub-NFA terminal vertex
     SvaStateVertex* m_andRhsTermp = nullptr;  // RHS sub-NFA terminal vertex
-    AstNodeExpr* m_andLhsCondp = nullptr;  // OWNED; LHS final condition (may be nullptr)
-    AstNodeExpr* m_andRhsCondp = nullptr;  // OWNED; RHS final condition (may be nullptr)
+    Ast_تۈگۈن_ئىپادە* m_andLhsCondp = nullptr;  // OWNED; LHS final condition (may be nullptr)
+    Ast_تۈگۈن_ئىپادە* m_andRhsCondp = nullptr;  // OWNED; RHS final condition (may be nullptr)
     // Reject sink for SAnd rejectOnFail wiring; not a state-signal source
-    bool m_isRejectSink = false;
+    منطقي m_isRejectSink = خطأ;
     // In-window vertex of a strong s_always[m:n]: if its state is still set at
     // end-of-simulation the universal-quantifier window never completed, which is
     // a liveness failure (IEEE 1800-2023 16.12.11 strong semantics).
-    bool m_strongPending = false;
+    منطقي m_strongPending = خطأ;
     // Ring introduced for the checked portion of a bounded strong s_always window.
-    bool m_strongAlwaysRing = false;
+    منطقي m_strongAlwaysRing = خطأ;
 
     // CONSTRUCTORS
     explicit SvaStateVertex(V3Graph* graphp)
         : V3GraphVertex{graphp} {}
     ~SvaStateVertex() override {
-        for (AstNodeExpr* cp : m_throughoutConds) VL_DO_DANGLING(cp->deleteTree(), cp);
-        if (m_delayRingClearCondp)
-            VL_DO_DANGLING(m_delayRingClearCondp->deleteTree(), m_delayRingClearCondp);
-        if (m_delayRingAdvanceCondp)
-            VL_DO_DANGLING(m_delayRingAdvanceCondp->deleteTree(), m_delayRingAdvanceCondp);
-        if (m_abortClearp) VL_DO_DANGLING(m_abortClearp->deleteTree(), m_abortClearp);
-        if (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->deleteTree(), m_abortRejectp);
-        if (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->deleteTree(), m_andLhsCondp);
-        if (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->deleteTree(), m_andRhsCondp);
+        لكل (Ast_تۈگۈن_ئىپادە* cp : m_throughoutConds) VL_DO_DANGLING(cp->delete_دەرەخ(), cp);
+        إذا (m_delayRingClearCondp)
+            VL_DO_DANGLING(m_delayRingClearCondp->delete_دەرەخ(), m_delayRingClearCondp);
+        إذا (m_delayRingAdvanceCondp)
+            VL_DO_DANGLING(m_delayRingAdvanceCondp->delete_دەرەخ(), m_delayRingAdvanceCondp);
+        إذا (m_abortClearp) VL_DO_DANGLING(m_abortClearp->delete_دەرەخ(), m_abortClearp);
+        إذا (m_abortRejectp) VL_DO_DANGLING(m_abortRejectp->delete_دەرەخ(), m_abortRejectp);
+        إذا (m_andLhsCondp) VL_DO_DANGLING(m_andLhsCondp->delete_دەرەخ(), m_andLhsCondp);
+        إذا (m_andRhsCondp) VL_DO_DANGLING(m_andRhsCondp->delete_دەرەخ(), m_andRhsCondp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string name() const override {
+    string name() ثابت override {
         string name = "s" + cvtToStr(color());
-        if (m_delayRingSize) {
+        إذا (m_delayRingSize) {
             name += "\\n";
             name += m_isFixedDelayRing ? "fixed chain " : "range chain ";
             name += cvtToStr(m_delayRingSize) + " slots";
         }
-        return name;
+        أرجع name;
     }
-    string dotColor() const override {
-        if (m_isMatch) return "red";
-        if (m_delayRingSize) return "blue";
-        if (m_isAndCombiner) return "purple";
-        return "black";
+    string dotColor() ثابت override {
+        إذا (m_isMatch) أرجع "red";
+        إذا (m_delayRingSize) أرجع "blue";
+        إذا (m_isAndCombiner) أرجع "purple";
+        أرجع "black";
     }
     // LCOV_EXCL_STOP
     // Access per-vertex algorithm data (valid only during lowering phase)
-    SvaVertexData* datap() const { return static_cast<SvaVertexData*>(userp()); }
+    SvaVertexData* datap() ثابت { أرجع static_cast<SvaVertexData*>(userp()); }
 };
 
 // NFA transition edge -- clocked (##1) or combinational link (##0)
-class SvaTransEdge final : public V3GraphEdge {
+صنف SvaTransEdge final : عام V3GraphEdge {
     VL_RTTI_IMPL(SvaTransEdge, V3GraphEdge)
-public:
-    AstNodeExpr* m_condp;  // Transition condition; nullptr = unconditional; OWNED
-    bool m_consumesCycle;  // true = clocked edge (##1), false = link (##0/boolean)
+عام:
+    Ast_تۈگۈن_ئىپادە* m_condp;  // Transition condition; nullptr = unconditional; OWNED
+    منطقي m_consumesCycle;  // true = clocked edge (##1), false = link (##0/boolean)
     // Reject when source is active and condp is false; set only on
     // outermost required-step Link
-    bool m_rejectOnFail = false;
+    منطقي m_rejectOnFail = خطأ;
     // Optional dynamic condition vertex for m_rejectOnFail. Used when the
     // success condition is another NFA state rather than a static expression.
     SvaStateVertex* m_condVtxp = nullptr;
 
     // CONSTRUCTORS
-    SvaTransEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, AstNodeExpr* condp,
-                 bool consumesCycle)
-        : V3GraphEdge{graphp, fromp, top, /*weight=*/1}
+    SvaTransEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* چوققا, Ast_تۈگۈن_ئىپادە* condp,
+                 منطقي consumesCycle)
+        : V3GraphEdge{graphp, fromp, چوققا, /*weight=*/1}
         , m_condp{condp}
         , m_consumesCycle{consumesCycle} {}
     ~SvaTransEdge() override {
-        if (m_condp) VL_DO_DANGLING(m_condp->deleteTree(), m_condp);
+        إذا (m_condp) VL_DO_DANGLING(m_condp->delete_دەرەخ(), m_condp);
     }
     // METHODS
     // LCOV_EXCL_START -- Graphviz dump only
-    string dotLabel() const override { return m_consumesCycle ? "##1" : "link"; }
-    string dotStyle() const override { return m_consumesCycle ? "" : "dashed"; }
+    string dotLabel() ثابت override { أرجع m_consumesCycle ? "##1" : "link"; }
+    string dotStyle() ثابت override { أرجع m_consumesCycle ? "" : "dashed"; }
     // LCOV_EXCL_STOP
     // Typed accessors for NFA vertices
-    SvaStateVertex* fromVtxp() const { return static_cast<SvaStateVertex*>(fromp()); }
-    SvaStateVertex* toVtxp() const { return static_cast<SvaStateVertex*>(top()); }
+    SvaStateVertex* fromVtxp() ثابت { أرجع static_cast<SvaStateVertex*>(fromp()); }
+    SvaStateVertex* toVtxp() ثابت { أرجع static_cast<SvaStateVertex*>(چوققا()); }
 };
 
 // NFA graph container
-class SvaGraph final {
-public:
+صنف SvaGraph final {
+عام:
     V3Graph m_graph;  // Owns all vertices and edges
     SvaStateVertex* m_startVertexp = nullptr;  // Trigger/start vertex
     SvaStateVertex* m_matchVertexp = nullptr;  // Sequence-match terminal vertex
 
     // Create a new state vertex
-    SvaStateVertex* createStateVertex() { return new SvaStateVertex{&m_graph}; }
+    SvaStateVertex* createStateVertex() { أرجع جديد SvaStateVertex{&m_graph}; }
     // Create the match terminal vertex
     SvaStateVertex* createMatchVertex() {
-        SvaStateVertex* const vtxp = createStateVertex();
+        SvaStateVertex* ثابت vtxp = createStateVertex();
         vtxp->m_isMatch = true;
         m_matchVertexp = vtxp;
-        return vtxp;
+        أرجع vtxp;
     }
     // Add a clocked transition edge (##1)
-    SvaTransEdge* addClockedEdge(SvaStateVertex* fromp, SvaStateVertex* top,
-                                 AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/true};
+    SvaTransEdge* addClockedEdge(SvaStateVertex* fromp, SvaStateVertex* چوققا,
+                                 Ast_تۈگۈن_ئىپادە* condp = nullptr) {
+        أرجع جديد SvaTransEdge{&m_graph, fromp, چوققا, condp, /*consumesCycle=*/true};
     }
     // Add a combinational link (##0 / boolean condition)
-    SvaTransEdge* addLink(SvaStateVertex* fromp, SvaStateVertex* top,
-                          AstNodeExpr* condp = nullptr) {
-        return new SvaTransEdge{&m_graph, fromp, top, condp, /*consumesCycle=*/false};
+    SvaTransEdge* addLink(SvaStateVertex* fromp, SvaStateVertex* چوققا,
+                          Ast_تۈگۈن_ئىپادە* condp = nullptr) {
+        أرجع جديد SvaTransEdge{&m_graph, fromp, چوققا, condp, /*consumesCycle=*/خطأ};
     }
     // Collect all edges into a flat vector for iteration.
     // Used by the lowering phase which needs global edge scans.
-    std::vector<const SvaTransEdge*> allEdges() const {
-        std::vector<const SvaTransEdge*> result;
-        for (const V3GraphVertex& vtxr : m_graph.vertices()) {
-            for (const V3GraphEdge& edger : vtxr.outEdges()) {
-                result.push_back(static_cast<const SvaTransEdge*>(&edger));
+    std::vector<ثابت SvaTransEdge*> allEdges() ثابت {
+        std::vector<ثابت SvaTransEdge*> result;
+        لكل (ثابت V3GraphVertex& vtxr : m_graph.vertices()) {
+            لكل (ثابت V3GraphEdge& edger : vtxr.outEdges()) {
+                result.ئىتتىرىش_back(static_cast<ثابت SvaTransEdge*>(&edger));
             }
         }
-        return result;
+        أرجع result;
     }
 };
 
 //######################################################################
 // Builder result: terminal vertex + optional final condition (match Link condition).
-struct BuildResult final {
+بنية BuildResult final {
     SvaStateVertex* termVertexp;  // Primary terminal; contributes to both match and reject
-    AstNodeExpr* finalCondp;  // nullptr = unconditional
+    Ast_تۈگۈن_ئىپادە* finalCondp;  // nullptr = unconditional
     // Mid-window sources for range delays (pure boolean RHS): match-only (isUnbounded)
     std::vector<SvaStateVertex*> midSources;
-    bool errorEmitted = false;  // Builder already emitted specific error; skip generic
+    منطقي errorEmitted = خطأ;  // Builder already emitted specific error; skip generic
     // For cover_sequence: when true, midSources already enumerate every
     // end-of-match, so wireMatchAndMidSources must NOT add the main
     // termVtxp -> matchVertex Link (would double-count via the merge vertex).
-    bool termIsMidMerge = false;
-    bool valid() const { return termVertexp != nullptr; }
-    static BuildResult fail(bool errored = false) { return {nullptr, nullptr, {}, errored}; }
-    static BuildResult failWithError() { return {nullptr, nullptr, {}, true}; }
+    منطقي termIsMidMerge = خطأ;
+    منطقي valid() ثابت { أرجع termVertexp != nullptr; }
+    ساكن BuildResult fail(منطقي errored = خطأ) { أرجع {nullptr, nullptr, {}, errored}; }
+    ساكن BuildResult failWithError() { أرجع {nullptr, nullptr, {}, true}; }
 };
 
 // Parser-marked SAnd of overlapped implications: a property if/else/case.
-static bool hasPropertyControlConjunction(const AstNodeExpr* nodep) {
-    return nodep->exists([](const AstSAnd* andp) { return andp->propertyControl(); });
+ساكن منطقي hasPropertyControlConjunction(ثابت Ast_تۈگۈن_ئىپادە* nodep) {
+    أرجع nodep->exists([](ثابت AstSAnd* andp) { أرجع andp->propertyControl(); });
 }
 
-static AstConst* newTypedConstp(FileLine* const flp, const AstNodeDType* const dtypep,
-                                const uint32_t value) {
-    AstConst* const constp = new AstConst{flp, AstConst::DTyped{}, dtypep};
-    constp->num().setLong(value);
-    return constp;
+ساكن AstConst* newTypedConstp(File_قۇر* ثابت flp, ثابت Ast_تۈگۈن_DType* ثابت dtypep,
+                                ثابت uint32_t قىممەت) {
+    AstConst* ثابت constp = جديد AstConst{flp, AstConst::DTyped{}, dtypep};
+    constp->رەقەم().setLong(قىممەت);
+    أرجع constp;
 }
 
-static AstNodeExpr* sampled(AstNodeExpr* exprp) {
-    return new AstSampled{exprp->fileline(), exprp, exprp->dtypep(), true};
+ساكن Ast_تۈگۈن_ئىپادە* sampled(Ast_تۈگۈن_ئىپادە* exprp) {
+    أرجع جديد AstSampled{exprp->fileline(), exprp, exprp->dtypep(), true};
 }
 
-static const char* assertPassOnQuery(bool vacuous) {
-    static constexpr const char* queries[2]
+ساكن ثابت حرف* assertPassOnQuery(منطقي vacuous) {
+    ساكن constexpr ثابت حرف* queries[2]
         = {"ASSERT_CTL_PASS_ON_NONVACUOUS", "ASSERT_CTL_PASS_ON_VACUOUS"};
-    return queries[vacuous];
+    أرجع queries[vacuous];
 }
 
-static AstNodeExpr* assertOnCond(FileLine* flp, VAssertType type,
+ساكن Ast_تۈگۈن_ئىپادە* assertOnCond(File_قۇر* flp, VAssertType type,
                                  VAssertDirectiveType directiveType) {
-    if (!v3Global.opt.assertOn()) { return new AstConst{flp, AstConst::BitFalse{}}; }
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    إذا (!v3Global.opt.assertOn()) { أرجع جديد AstConst{flp, AstConst::BitFalse{}}; }
+    أرجع جديد AstCExpr{flp, AstCExpr::Pure{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_ON", type, directiveType), 1};
 }
 
-static AstNodeExpr* assertKillGet(FileLine* flp, VAssertType type,
+ساكن Ast_تۈگۈن_ئىپادە* assertKillGet(File_قۇر* flp, VAssertType type,
                                   VAssertDirectiveType directiveType) {
-    return new AstCExpr{flp, AstCExpr::Pure{},
+    أرجع جديد AstCExpr{flp, AstCExpr::Pure{},
                         V3AssertCommon::assertCtlGetCall("ASSERT_CTL_KILL", type, directiveType),
                         32};
 }
 
-static string assertActionControlPrefix(VAssertDirectiveType directiveType) {
-    const int controlled = !!(static_cast<int>(directiveType)
-                              & (static_cast<int>(VAssertDirectiveType::ASSERT)
-                                 | static_cast<int>(VAssertDirectiveType::COVER)
-                                 | static_cast<int>(VAssertDirectiveType::ASSUME)));
-    const int checkRuntime = controlled & static_cast<int>(v3Global.opt.assertOn());
-    return "("s + std::to_string(controlled ^ 1) + " || ("s + std::to_string(checkRuntime)
+ساكن string assertActionControlPrefix(VAssertDirectiveType directiveType) {
+    ثابت صحيح controlled = !!(static_cast<صحيح>(directiveType)
+                              & (static_cast<صحيح>(VAssertDirectiveType::ASSERT)
+                                 | static_cast<صحيح>(VAssertDirectiveType::COVER)
+                                 | static_cast<صحيح>(VAssertDirectiveType::ASSUME)));
+    ثابت صحيح checkRuntime = controlled & static_cast<صحيح>(v3Global.opt.assertOn());
+    أرجع "("s + std::to_string(controlled ^ 1) + " || ("s + std::to_string(checkRuntime)
            + " && "s;
 }
 
-static AstNodeExpr* assertPassOnCond(FileLine* flp, VAssertType type,
-                                     VAssertDirectiveType directiveType, bool vacuous) {
-    return new AstCExpr{
+ساكن Ast_تۈگۈن_ئىپادە* assertPassOnCond(File_قۇر* flp, VAssertType type,
+                                     VAssertDirectiveType directiveType, منطقي vacuous) {
+    أرجع جديد AstCExpr{
         flp, AstCExpr::Pure{},
         assertActionControlPrefix(directiveType)
             + V3AssertCommon::assertCtlGetCall(assertPassOnQuery(vacuous), type, directiveType)
@@ -283,96 +283,96 @@ static AstNodeExpr* assertPassOnCond(FileLine* flp, VAssertType type,
         1};
 }
 
-static AstNodeExpr* assertFailOnCond(FileLine* flp, VAssertType type,
+ساكن Ast_تۈگۈن_ئىپادە* assertFailOnCond(File_قۇر* flp, VAssertType type,
                                      VAssertDirectiveType directiveType) {
-    return new AstCExpr{
+    أرجع جديد AstCExpr{
         flp, AstCExpr::Pure{},
         assertActionControlPrefix(directiveType)
             + V3AssertCommon::assertCtlGetCall("ASSERT_CTL_FAIL_ON", type, directiveType) + "))"s,
         1};
 }
 
-static AstIf* newPassOnIf(FileLine* flp, AstNodeExpr* firep, AstNode* bodyp, VAssertType type,
-                          VAssertDirectiveType directiveType, bool vacuous) {
-    AstNodeExpr* const condp
-        = new AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
+ساكن AstIf* newPassOnIf(File_قۇر* flp, Ast_تۈگۈن_ئىپادە* firep, Ast_تۈگۈن* bodyp, VAssertType type,
+                          VAssertDirectiveType directiveType, منطقي vacuous) {
+    Ast_تۈگۈن_ئىپادە* ثابت condp
+        = جديد AstLogAnd{flp, firep, assertPassOnCond(flp, type, directiveType, vacuous)};
+    AstIf* ثابت ifp = جديد AstIf{flp, condp, bodyp};
     ifp->isBoundsCheck(true);
     ifp->user1(true);
-    return ifp;
+    أرجع ifp;
 }
 
-static AstNodeStmt* newIfAssertFailOn(AstNode* bodyp, VAssertDirectiveType directiveType,
+ساكن Ast_تۈگۈن_Stmt* newIfAssertFailOn(Ast_تۈگۈن* bodyp, VAssertDirectiveType directiveType,
                                       VAssertType type) {
-    FileLine* const flp = bodyp->fileline();
-    AstNodeExpr* const condp = assertFailOnCond(flp, type, directiveType);
-    AstIf* const ifp = new AstIf{flp, condp, bodyp};
+    File_قۇر* ثابت flp = bodyp->fileline();
+    Ast_تۈگۈن_ئىپادە* ثابت condp = assertFailOnCond(flp, type, directiveType);
+    AstIf* ثابت ifp = جديد AstIf{flp, condp, bodyp};
     ifp->isBoundsCheck(true);
     ifp->user1(true);
-    return ifp;
+    أرجع ifp;
 }
 
 //######################################################################
 // NFA Builder
 
-class SvaNfaBuilder final {
+صنف SvaNfaBuilder final {
     SvaGraph& m_graph;  // NFA graph being built
-    AstNodeModule* const m_modp;  // Module to receive hoisted sampled-prop temps
+    Ast_تۈگۈن_Module* ثابت m_modp;  // Module to receive hoisted sampled-prop temps
     V3UniqueNames& m_propTempNames;  // Module-shared temp-var name source
-    std::vector<AstNodeExpr*> m_temporalGuardStack;  // Guards active across nested temporal states
+    std::vector<Ast_تۈگۈن_ئىپادە*> m_temporal_Guard_دۆۋە;  // Guards active across nested temporal states
     // Outer abort conditions, AND-ed as !cond into inner abort edges
     // (IEEE 1800-2023 16.12.14 outer-wraps-inner).
-    std::vector<AstNodeExpr*> m_outerAbortStack;
-    bool m_inUnboundedScope = false;  // Sticky: nodes created after inherit liveness
-    bool m_markStrongPending = false;  // Mark new vertices as strong s_always in-window
-    bool m_isCover = false;  // Cover directives do not fail at end-of-simulation
+    std::vector<Ast_تۈگۈن_ئىپادە*> m_outer_Abort_دۆۋە;
+    منطقي m_inUnboundedScope = خطأ;  // Sticky: nodes created after inherit liveness
+    منطقي m_markStrongPending = خطأ;  // Mark new vertices as strong s_always in-window
+    منطقي m_isCover = خطأ;  // Cover directives do not fail at end-of-simulation
     // IEEE 1800-2023 16.14.3 cover sequence: each end-of-match fires the action,
     // not just the first. Builder builds parallel-branch (no first-match-wins)
     // topology when true. Default false preserves cover_property semantics.
-    bool m_isCoverSeq = false;
+    منطقي m_isCoverSeq = خطأ;
     // Unsupported endpoint topology must reject, not ignore, or the wait hangs
-    bool m_isSeqEvent = false;
-    bool m_inSequencePrefix = false;  // Prefix composition does not preserve every endpoint
-    bool m_wantBoolLeaf = false;  // Building a |-> / |=> or top-level body (see buildOrMerge)
+    منطقي m_isSeqEvent = خطأ;
+    منطقي m_inSequencePrefix = خطأ;  // Prefix composition does not preserve every endpoint
+    منطقي m_wantBoolLeaf = خطأ;  // Building a |-> / |=> or top-level body (see buildOrMerge)
 
-    struct RangeDelayRejectInfo final {
+    بنية RangeDelayRejectInfo final {
         SvaStateVertex* startp = nullptr;
         unsigned range = 0;
-        int rhsLen = 0;
+        صحيح rhsLen = 0;
     };
 
-    void warnEndpointUnsupported(FileLine* flp, const string& what) const {
-        if (m_isSeqEvent) {
+    فراغ warnEndpointUnsupported(File_قۇر* flp, ثابت string& what) ثابت {
+        إذا (m_isSeqEvent) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: sequence used as an event control with " << what);
-        } else {
+        } وإلا {
             flp->v3warn(COVERIGN, "Ignoring unsupported: cover sequence with " << what);
         }
     }
 
-    AstNodeExpr* throughoutCond(AstNodeExpr* baseCondp, FileLine* flp) {
-        if (m_temporalGuardStack.empty()) return baseCondp;
+    Ast_تۈگۈن_ئىپادە* throughoutCond(Ast_تۈگۈن_ئىپادە* baseCondp, File_قۇر* flp) {
+        إذا (m_temporal_Guard_دۆۋە.empty()) أرجع baseCondp;
         // AND all active temporal guards (supports nesting)
         // Each must use $sampled values.
-        AstNodeExpr* guardp = nullptr;
-        for (AstNodeExpr* const condp : m_temporalGuardStack) {
-            AstNodeExpr* const clonep = sampled(condp->cloneTreePure(false));
-            if (!guardp) {
+        Ast_تۈگۈن_ئىپادە* guardp = nullptr;
+        لكل (Ast_تۈگۈن_ئىپادە* ثابت condp : m_temporal_Guard_دۆۋە) {
+            Ast_تۈگۈن_ئىپادە* ثابت clonep = sampled(condp->clone_دەرەخ_Pure(خطأ));
+            إذا (!guardp) {
                 guardp = clonep;
-            } else {
-                guardp = new AstLogAnd{flp, guardp, clonep};
+            } وإلا {
+                guardp = جديد AstLogAnd{flp, guardp, clonep};
             }
         }
-        if (baseCondp) { guardp = new AstLogAnd{flp, baseCondp, guardp}; }
-        return guardp;
+        إذا (baseCondp) { guardp = جديد AstLogAnd{flp, baseCondp, guardp}; }
+        أرجع guardp;
     }
 
-    static unsigned getConstUInt(AstNodeExpr* exprp) {
-        AstNodeExpr* const constp = V3Const::constifyEdit(exprp->cloneTreePure(false));
-        const AstConst* const cp = VN_CAST(constp, Const);
-        const unsigned val = cp ? cp->toUInt() : 0;
-        VL_DO_DANGLING(constp->deleteTree(), constp);
-        return val;
+    ساكن unsigned getConstUInt(Ast_تۈگۈن_ئىپادە* exprp) {
+        Ast_تۈگۈن_ئىپادە* ثابت constp = V3Const::constifyEdit(exprp->clone_دەرەخ_Pure(خطأ));
+        ثابت AstConst* ثابت cp = VN_CAST(constp, Const);
+        ثابت unsigned val = cp ? cp->toUInt() : 0;
+        VL_DO_DANGLING(constp->delete_دەرەخ(), constp);
+        أرجع val;
     }
 
     // Static fixed-length analysis: clock ticks from entry to terminal, or -1.
@@ -388,55 +388,55 @@ class SvaNfaBuilder final {
     //  - Unbounded waits ##[M:$]             -> infinite/variable
     //  - ConsRep / SGotoRep / SAnd / SOr     -> defer (rare in intersect)
     //  - SIntersect nested in SIntersect     -> defer
-    static int fixedLength(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return -1;
+    ساكن صحيح fixedLength(Ast_تۈگۈن_ئىپادە* nodep) {
+        إذا (AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ثابت delayp = VN_CAST(sexprp->delayp(), Delay);
+            إذا (!delayp || !delayp->isCycleDelay()) أرجع -1;
             unsigned delayCycles;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return -1;  // LCOV_EXCL_LINE
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
-                if (minD != maxD) return -1;
+            إذا (delayp->isRangeDelay()) {
+                إذا (delayp->isUnbounded()) أرجع -1;  // LCOV_EXCL_LINE
+                ثابت unsigned minD = getConstUInt(delayp->lhsp());
+                ثابت unsigned maxD = getConstUInt(delayp->rhsp());
+                إذا (minD != maxD) أرجع -1;
                 delayCycles = minD;
-            } else {
+            } وإلا {
                 delayCycles = getConstUInt(delayp->lhsp());
             }
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
+            صحيح preLen = 0;
+            إذا (Ast_تۈگۈن_ئىپادە* ثابت prep = sexprp->preExprp()) {
                 preLen = fixedLength(prep);
-                if (preLen < 0) return -1;  // LCOV_EXCL_LINE
+                إذا (preLen < 0) أرجع -1;  // LCOV_EXCL_LINE
             }
-            const int bodyLen = fixedLength(sexprp->exprp());
-            if (bodyLen < 0) return -1;  // LCOV_EXCL_LINE
-            return preLen + delayCycles + bodyLen;
+            ثابت صحيح bodyLen = fixedLength(sexprp->exprp());
+            إذا (bodyLen < 0) أرجع -1;  // LCOV_EXCL_LINE
+            أرجع preLen + delayCycles + bodyLen;
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return fixedLength(throughp->rhsp());
+        إذا (AstSThroughout* ثابت throughp = VN_CAST(nodep, SThroughout)) {
+            أرجع fixedLength(throughp->rhsp());
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
+        إذا (AstSOr* ثابت orp = VN_CAST(nodep, SOr)) {
             // Alternatives must share one end cycle; buildSWithin relies on
             // this to pair the OR with an SIntersect.
-            const int lhsLen = fixedLength(orp->lhsp());
-            const int rhsLen = fixedLength(orp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) return -1;
-            return lhsLen;
+            ثابت صحيح lhsLen = fixedLength(orp->lhsp());
+            ثابت صحيح rhsLen = fixedLength(orp->rhsp());
+            إذا (lhsLen < 0 || rhsLen < 0 || lhsLen != rhsLen) أرجع -1;
+            أرجع lhsLen;
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
+        إذا (AstSWithin* ثابت withinp = VN_CAST(nodep, SWithin)) {
             // `seq1 within seq2` ends at seq2's end cycle (IEEE 16.9.10).
-            const int lhsLen = fixedLength(withinp->lhsp());
-            const int rhsLen = fixedLength(withinp->rhsp());
-            if (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) return -1;
-            return rhsLen;
+            ثابت صحيح lhsLen = fixedLength(withinp->lhsp());
+            ثابت صحيح rhsLen = fixedLength(withinp->rhsp());
+            إذا (lhsLen < 0 || rhsLen < 0 || lhsLen > rhsLen) أرجع -1;
+            أرجع rhsLen;
         }
         // LCOV_EXCL_START -- defensive: V3AssertPre rejects composite SVA ops
         // nested in an intersect arm before fixedLength runs (clock-context
         // resolution fails). Kept as a guard in case future parser relaxations
         // permit it.
-        if (nodep->isMultiCycleSva()) return -1;
+        إذا (nodep->isMultiCycleSva()) أرجع -1;
         // LCOV_EXCL_STOP
         // Plain boolean expression (no SVA constructs) -- 0 cycles.
-        return 0;
+        أرجع 0;
     }
 
     // Contiguous match-length range [lo,hi] for an operand whose length varies
@@ -444,65 +444,65 @@ class SvaNfaBuilder final {
     // variable-length `intersect` lowering (IEEE 1800-2023 16.9.6): more than
     // one ranged delay would make the per-length realization ambiguous, so it
     // is reported unsupported rather than mis-paired.
-    static std::pair<int, int> lengthRange(AstNodeExpr* nodep) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay()) return {-1, -1};
-            std::pair<int, int> delayRange;
-            if (delayp->isRangeDelay()) {
-                if (delayp->isUnbounded()) return {-1, -1};
-                const unsigned minD = getConstUInt(delayp->lhsp());
-                const unsigned maxD = getConstUInt(delayp->rhsp());
+    ساكن std::pair<صحيح, صحيح> lengthRange(Ast_تۈگۈن_ئىپادە* nodep) {
+        إذا (AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ثابت delayp = VN_CAST(sexprp->delayp(), Delay);
+            إذا (!delayp || !delayp->isCycleDelay()) أرجع {-1, -1};
+            std::pair<صحيح, صحيح> delayRange;
+            إذا (delayp->isRangeDelay()) {
+                إذا (delayp->isUnbounded()) أرجع {-1, -1};
+                ثابت unsigned minD = getConstUInt(delayp->lhsp());
+                ثابت unsigned maxD = getConstUInt(delayp->rhsp());
                 delayRange = {minD, maxD};
-            } else {
-                const unsigned d = getConstUInt(delayp->lhsp());
+            } وإلا {
+                ثابت unsigned d = getConstUInt(delayp->lhsp());
                 delayRange = {d, d};
             }
-            std::pair<int, int> preRange{0, 0};
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
+            std::pair<صحيح, صحيح> preRange{0, 0};
+            إذا (Ast_تۈگۈن_ئىپادە* ثابت prep = sexprp->preExprp()) {
                 preRange = lengthRange(prep);
-                if (preRange.first < 0) return {-1, -1};
+                إذا (preRange.first < 0) أرجع {-1, -1};
             }
-            const std::pair<int, int> bodyRange = lengthRange(sexprp->exprp());
-            if (bodyRange.first < 0) return {-1, -1};
-            const int variableParts = (preRange.first != preRange.second)
+            ثابت std::pair<صحيح, صحيح> bodyRange = lengthRange(sexprp->exprp());
+            إذا (bodyRange.first < 0) أرجع {-1, -1};
+            ثابت صحيح variableParts = (preRange.first != preRange.second)
                                       + (delayRange.first != delayRange.second)
                                       + (bodyRange.first != bodyRange.second);
-            if (variableParts > 1) return {-1, -1};
-            return {preRange.first + delayRange.first + bodyRange.first,
+            إذا (variableParts > 1) أرجع {-1, -1};
+            أرجع {preRange.first + delayRange.first + bodyRange.first,
                     preRange.second + delayRange.second + bodyRange.second};
         }
-        if (AstSThroughout* const throughp = VN_CAST(nodep, SThroughout)) {
-            return lengthRange(throughp->rhsp());
+        إذا (AstSThroughout* ثابت throughp = VN_CAST(nodep, SThroughout)) {
+            أرجع lengthRange(throughp->rhsp());
         }
-        if (nodep->isMultiCycleSva()) return {-1, -1};
-        return {0, 0};  // plain boolean -- 0 cycles
+        إذا (nodep->isMultiCycleSva()) أرجع {-1, -1};
+        أرجع {0, 0};  // plain boolean -- 0 cycles
     }
 
     // Clone `operand` with its sole variable ranged cycle delay pinned so the
     // total match length is exactly `len`. `lo` is the operand's minimum length
     // (lengthRange().first). A fixed operand has no such delay and is returned
     // as a plain clone (callers only request its single achievable length).
-    static AstNodeExpr* realizeAtLength(AstNodeExpr* operand, int len, int lo) {
-        AstNodeExpr* const clonep = operand->cloneTreePure(false);
+    ساكن Ast_تۈگۈن_ئىپادە* realizeAtLength(Ast_تۈگۈن_ئىپادە* operand, صحيح len, صحيح lo) {
+        Ast_تۈگۈن_ئىپادە* ثابت clonep = operand->clone_دەرەخ_Pure(خطأ);
         AstDelay* rangeDelayp = nullptr;
         clonep->foreach([&](AstDelay* dp) {
-            if (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
+            إذا (!rangeDelayp && dp->isRangeDelay() && !dp->isUnbounded()
                 && getConstUInt(dp->lhsp()) != getConstUInt(dp->rhsp())) {
                 rangeDelayp = dp;
             }
         });
-        if (rangeDelayp) {
-            FileLine* const flp = rangeDelayp->fileline();
-            const unsigned pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
-            AstNodeExpr* const oldMinp = rangeDelayp->lhsp();
-            oldMinp->replaceWith(new AstConst{flp, pinned});
-            VL_DO_DANGLING(oldMinp->deleteTree(), oldMinp);
+        إذا (rangeDelayp) {
+            File_قۇر* ثابت flp = rangeDelayp->fileline();
+            ثابت unsigned pinned = getConstUInt(rangeDelayp->lhsp()) + (len - lo);
+            Ast_تۈگۈن_ئىپادە* ثابت oldMinp = rangeDelayp->lhsp();
+            oldMinp->replaceWith(جديد AstConst{flp, pinned});
+            VL_DO_DANGLING(oldMinp->delete_دەرەخ(), oldMinp);
             // Drop the max bound so it lowers as a fixed `##d`, not `##[d:d]`.
-            AstNode* const oldMaxp = rangeDelayp->rhsp()->unlinkFrBack();
-            VL_DO_DANGLING(oldMaxp->deleteTree(), oldMaxp);
+            Ast_تۈگۈن* ثابت oldMaxp = rangeDelayp->rhsp()->unlinkFrBack();
+            VL_DO_DANGLING(oldMaxp->delete_دەرەخ(), oldMaxp);
         }
-        return clonep;
+        أرجع clonep;
     }
 
     // Cuts AST size from O(N * sizeof(exprp)) to O(N) + O(sizeof(exprp)) by
@@ -511,204 +511,204 @@ class SvaNfaBuilder final {
     // any exprp -- even an impure one would now evaluate exactly once per
     // clock instead of N times. Orphan temps from failed builds are unused
     // MODULETEMPs and are removed by V3Dead.
-    AstVar* tryHoistSampled(AstNodeExpr* exprp, FileLine* flp, unsigned cloneCount) {
+    AstVar* tryHoistSampled(Ast_تۈگۈن_ئىپادە* exprp, File_قۇر* flp, unsigned clone_سانى) {
         constexpr unsigned kHoistThreshold = 2;
-        if (cloneCount < kHoistThreshold) return nullptr;
-        AstVar* const tempVarp
-            = new AstVar{flp, VVarType::MODULETEMP, m_propTempNames.get(exprp), exprp->dtypep()};
+        إذا (clone_سانى < kHoistThreshold) أرجع nullptr;
+        AstVar* ثابت tempVarp
+            = جديد AstVar{flp, VVarType::MODULETEMP, m_propTempNames.get(exprp), exprp->dtypep()};
         m_modp->addStmtsp(tempVarp);
-        AstAssign* const assignp = new AstAssign{flp, new AstVarRef{flp, tempVarp, VAccess::WRITE},
-                                                 sampled(exprp->cloneTreePure(false))};
-        m_modp->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, assignp});
-        return tempVarp;
+        AstAssign* ثابت assignp = جديد AstAssign{flp, جديد AstVarRef{flp, tempVarp, VAccess::WRITE},
+                                                 sampled(exprp->clone_دەرەخ_Pure(خطأ))};
+        m_modp->addStmtsp(جديد AstAlways{flp, VAlwaysKwd::ALWAYS_COMB, nullptr, assignp});
+        أرجع tempVarp;
     }
 
-    static AstNodeExpr* sampledRefOrClone(AstVar* hoistVarp, AstNodeExpr* exprp, FileLine* flp) {
-        if (hoistVarp) return new AstVarRef{flp, hoistVarp, VAccess::READ};
-        return sampled(exprp->cloneTreePure(false));
+    ساكن Ast_تۈگۈن_ئىپادە* sampledRefOrClone(AstVar* hoistVarp, Ast_تۈگۈن_ئىپادە* exprp, File_قۇر* flp) {
+        إذا (hoistVarp) أرجع جديد AstVarRef{flp, hoistVarp, VAccess::READ};
+        أرجع sampled(exprp->clone_دەرەخ_Pure(خطأ));
     }
 
     // Create vertex and inherit temporal guards from the current scope.
     SvaStateVertex* scopedCreateVertex() {
-        SvaStateVertex* const vtxp = m_graph.createStateVertex();
-        for (AstNodeExpr* const cp : m_temporalGuardStack) {
-            vtxp->m_throughoutConds.push_back(cp->cloneTreePure(false));
+        SvaStateVertex* ثابت vtxp = m_graph.createStateVertex();
+        لكل (Ast_تۈگۈن_ئىپادە* ثابت cp : m_temporal_Guard_دۆۋە) {
+            vtxp->m_throughoutConds.ئىتتىرىش_back(cp->clone_دەرەخ_Pure(خطأ));
         }
-        if (m_inUnboundedScope) vtxp->m_isUnbounded = true;
-        if (m_markStrongPending) vtxp->m_strongPending = true;
-        return vtxp;
+        إذا (m_inUnboundedScope) vtxp->m_isUnbounded = true;
+        إذا (m_markStrongPending) vtxp->m_strongPending = true;
+        أرجع vtxp;
     }
 
     // AND current temporal guards into every edge/link.
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(condp, flp));
+    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* چوققا, Ast_تۈگۈن_ئىپادە* condp,
+                              File_قۇر* flp) {
+        أرجع m_graph.addLink(fromp, چوققا, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addLink(fromp, top, throughoutCond(nullptr, flp));
+    SvaTransEdge* guardedLink(SvaStateVertex* fromp, SvaStateVertex* چوققا, File_قۇر* flp) {
+        أرجع m_graph.addLink(fromp, چوققا, throughoutCond(nullptr, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, AstNodeExpr* condp,
-                              FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(condp, flp));
+    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* چوققا, Ast_تۈگۈن_ئىپادە* condp,
+                              File_قۇر* flp) {
+        أرجع m_graph.addClockedEdge(fromp, چوققا, throughoutCond(condp, flp));
     }
-    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* top, FileLine* flp) {
-        return m_graph.addClockedEdge(fromp, top, throughoutCond(nullptr, flp));
+    SvaTransEdge* guardedEdge(SvaStateVertex* fromp, SvaStateVertex* چوققا, File_قۇر* flp) {
+        أرجع m_graph.addClockedEdge(fromp, چوققا, throughoutCond(nullptr, flp));
     }
 
-    SvaStateVertex* addDelayChain(SvaStateVertex* startp, unsigned size, FileLine* flp,
-                                  bool isFixed = true, AstNodeExpr* clearCondp = nullptr,
-                                  AstNodeExpr* advanceCondp = nullptr) {
-        if (isFixed && size == 0) return startp;
+    SvaStateVertex* addDelayChain(SvaStateVertex* startp, unsigned size, File_قۇر* flp,
+                                  منطقي isFixed = true, Ast_تۈگۈن_ئىپادە* clearCondp = nullptr,
+                                  Ast_تۈگۈن_ئىپادە* advanceCondp = nullptr) {
+        إذا (isFixed && size == 0) أرجع startp;
         UASSERT_OBJ(size > 0, startp, "Delay chain needs at least one slot");
-        if (isFixed && size == 1 && !advanceCondp) {
-            SvaStateVertex* const nextp = scopedCreateVertex();
+        إذا (isFixed && size == 1 && !advanceCondp) {
+            SvaStateVertex* ثابت nextp = scopedCreateVertex();
             guardedEdge(startp, nextp, flp);
-            return nextp;
+            أرجع nextp;
         }
-        SvaStateVertex* const ringVtxp = scopedCreateVertex();
+        SvaStateVertex* ثابت ringVtxp = scopedCreateVertex();
         ringVtxp->m_isFixedDelayRing = isFixed;
         ringVtxp->m_delayRingSize = size;
-        if (clearCondp) {
+        إذا (clearCondp) {
             UASSERT_OBJ(!isFixed, startp, "Fixed delay cannot have a clear condition");
-            ringVtxp->m_delayRingClearCondp = clearCondp->cloneTreePure(false);
+            ringVtxp->m_delayRingClearCondp = clearCondp->clone_دەرەخ_Pure(خطأ);
         }
         ringVtxp->m_delayRingAdvanceCondp = advanceCondp;
-        if (isFixed) {
+        إذا (isFixed) {
             guardedEdge(startp, ringVtxp, flp);
-        } else {
+        } وإلا {
             guardedLink(startp, ringVtxp, flp);
         }
-        return ringVtxp;
+        أرجع ringVtxp;
     }
 
     // Build NFA for an SExpr. finalCond = RHS (not yet added as a vertex).
     // isTopLevelStep: marks outermost required boolean check as rejectOnFail.
     // Apply a range delay `##[M:N]` to currentp. Returns true on success. On
     // failure, emits a diagnostic and returns false.
-    bool applyRangeDelay(AstSExpr* sexprp, SvaStateVertex*& currentp,
+    منطقي applyRangeDelay(AstSExpr* sexprp, SvaStateVertex*& currentp,
                          std::vector<SvaStateVertex*>& midSources,
                          RangeDelayRejectInfo* rangeRejectInfop = nullptr) {
-        FileLine* const flp = sexprp->fileline();
-        AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
-        AstNodeExpr* const rhsExprp = sexprp->exprp();
-        const unsigned minDelay = getConstUInt(delayp->lhsp());
-        if (delayp->isUnbounded()) {
+        File_قۇر* ثابت flp = sexprp->fileline();
+        AstDelay* ثابت delayp = VN_AS(sexprp->delayp(), Delay);
+        Ast_تۈگۈن_ئىپادە* ثابت rhsExprp = sexprp->exprp();
+        ثابت unsigned minDelay = getConstUInt(delayp->lhsp());
+        إذا (delayp->isUnbounded()) {
             // `##[M:$]`: wait M cycles, then retain every matured attempt in a
             // one-slot ring while also exposing the first eligible tick.
             currentp = addDelayChain(currentp, minDelay, flp);
-            SvaStateVertex* const waitRingp = addDelayChain(currentp, 1, flp, false);
+            SvaStateVertex* ثابت waitRingp = addDelayChain(currentp, 1, flp, خطأ);
             // The ring's live count is updated in NBA, so this link retains the previous
             // tick's live attempts alongside new arrivals for the next tick.
             guardedLink(waitRingp, waitRingp, flp);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+            SvaStateVertex* ثابت mergeVtxp = scopedCreateVertex();
             guardedLink(currentp, mergeVtxp, flp);
             guardedLink(waitRingp, mergeVtxp, flp);
             currentp = mergeVtxp;
             currentp->m_isUnbounded = true;  // Liveness, so no reject.
             m_inUnboundedScope = true;
-            return true;
+            أرجع true;
         }
-        const unsigned maxDelay = getConstUInt(delayp->rhsp());
-        if (minDelay == maxDelay) {
+        ثابت unsigned maxDelay = getConstUInt(delayp->rhsp());
+        إذا (minDelay == maxDelay) {
             currentp = addDelayChain(currentp, minDelay, flp);
-            return true;
+            أرجع true;
         }
-        const unsigned range = maxDelay - minDelay;
+        ثابت unsigned range = maxDelay - minDelay;
         currentp = addDelayChain(currentp, minDelay, flp);
-        const bool multiCycleRhs = rhsExprp->isMultiCycleSva();
-        const AstNodeExpr* const preExprp = sexprp->preExprp();
+        ثابت منطقي multiCycleRhs = rhsExprp->isMultiCycleSva();
+        ثابت Ast_تۈگۈن_ئىپادە* ثابت preExprp = sexprp->preExprp();
         // Prefix and nested-sequence composition can lose endpoints or their multiplicity
         // required by cover sequence (IEEE 1800-2023 16.14.3), regardless of the range width.
-        if (m_isCoverSeq
+        إذا (m_isCoverSeq
             && (multiCycleRhs || m_inSequencePrefix
                 || (preExprp && preExprp->isMultiCycleSva()))) {
             warnEndpointUnsupported(flp, "this ranged cycle delay");
-            return false;
+            أرجع خطأ;
         }
-        if (m_inSequencePrefix) {
+        إذا (m_inSequencePrefix) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: Bounded ranged cycle delay in a sequence prefix");
-            return false;
+            أرجع خطأ;
         }
-        if (multiCycleRhs) {
+        إذا (multiCycleRhs) {
             // Launch a candidate at every eligible tick. Candidate-local misses are not
             // assertion rejects while a later position can still match.
-            if (rangeRejectInfop) {
-                const int rhsLen = fixedLength(rhsExprp);
-                if (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
+            إذا (rangeRejectInfop) {
+                ثابت صحيح rhsLen = fixedLength(rhsExprp);
+                إذا (rhsLen >= 0) *rangeRejectInfop = {currentp, range, rhsLen};
             }
-            SvaStateVertex* const tailp = addDelayChain(currentp, range + 1U, flp, false);
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+            SvaStateVertex* ثابت tailp = addDelayChain(currentp, range + 1U, flp, خطأ);
+            SvaStateVertex* ثابت mergeVtxp = scopedCreateVertex();
             mergeVtxp->m_isUnbounded = true;
             guardedLink(currentp, mergeVtxp, flp);
             guardedLink(tailp, mergeVtxp, flp);
             currentp = mergeVtxp;
             m_inUnboundedScope = true;
-        } else {
+        } وإلا {
             // The first eligible tick is explicit. The ring retains attempts for the
             // remaining ticks and exposes the final tick for rejection. Only properties
             // clear on success, since cover sequence counts every endpoint.
-            midSources.push_back(currentp);
-            currentp = addDelayChain(currentp, range + 1U, flp, false,
+            midSources.ئىتتىرىش_back(currentp);
+            currentp = addDelayChain(currentp, range + 1U, flp, خطأ,
                                      m_isCoverSeq ? nullptr : rhsExprp);
         }
-        return true;
+        أرجع true;
     }
 
-    void addFiniteRangeReject(const RangeDelayRejectInfo& info, const BuildResult& result,
-                              FileLine* flp) {
-        if (!info.startp) return;
+    فراغ addFiniteRangeReject(ثابت RangeDelayRejectInfo& info, ثابت BuildResult& result,
+                              File_قۇر* flp) {
+        إذا (!info.startp) أرجع;
 
-        SvaStateVertex* const expiryVtxp
+        SvaStateVertex* ثابت expiryVtxp
             = addDelayChain(info.startp, info.range + info.rhsLen, flp);
-        SvaStateVertex* const expiryMatchp = scopedCreateVertex();
+        SvaStateVertex* ثابت expiryMatchp = scopedCreateVertex();
         std::vector<SvaStateVertex*> sources = result.midSources;
-        sources.push_back(result.termVertexp);
-        for (SvaStateVertex* const srcp : sources) {
-            AstNodeExpr* const condp
-                = result.finalCondp ? sampled(result.finalCondp->cloneTreePure(false)) : nullptr;
-            SvaStateVertex* const successNowp = scopedCreateVertex();
+        sources.ئىتتىرىش_back(result.termVertexp);
+        لكل (SvaStateVertex* ثابت srcp : sources) {
+            Ast_تۈگۈن_ئىپادە* ثابت condp
+                = result.finalCondp ? sampled(result.finalCondp->clone_دەرەخ_Pure(خطأ)) : nullptr;
+            SvaStateVertex* ثابت successNowp = scopedCreateVertex();
             guardedLink(srcp, successNowp, condp, flp);
             // Retain a success through the latest deadline it can satisfy.
-            SvaStateVertex* const historyp
-                = addDelayChain(successNowp, info.range + 1U, flp, false);
+            SvaStateVertex* ثابت historyp
+                = addDelayChain(successNowp, info.range + 1U, flp, خطأ);
             guardedLink(successNowp, expiryMatchp, flp);
             guardedLink(historyp, expiryMatchp, flp);
         }
 
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
+        SvaStateVertex* ثابت sinkVtxp = m_graph.createStateVertex();
         sinkVtxp->m_isRejectSink = true;
-        SvaTransEdge* const rejectp = m_graph.addLink(expiryVtxp, sinkVtxp);
+        SvaTransEdge* ثابت rejectp = m_graph.addLink(expiryVtxp, sinkVtxp);
         rejectp->m_rejectOnFail = true;
         rejectp->m_condVtxp = expiryMatchp;
     }
 
     BuildResult buildSExpr(AstSExpr* sexprp, SvaStateVertex* entryVtxp,
-                           bool isTopLevelStep = false) {
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay()) return BuildResult::fail();
+                           منطقي is_چوققا_Level_Step = خطأ) {
+        AstDelay* ثابت delayp = VN_CAST(sexprp->delayp(), Delay);
+        إذا (!delayp || !delayp->isCycleDelay()) أرجع BuildResult::fail();
 
-        FileLine* const flp = sexprp->fileline();
-        AstNodeExpr* const exprp = sexprp->exprp();
+        File_قۇر* ثابت flp = sexprp->fileline();
+        Ast_تۈگۈن_ئىپادە* ثابت exprp = sexprp->exprp();
 
         // Handle LHS (preExpr)
         SvaStateVertex* currentp = entryVtxp;
-        if (AstNodeExpr* const preExprp = sexprp->preExprp()) {
+        إذا (Ast_تۈگۈن_ئىپادە* ثابت preExprp = sexprp->preExprp()) {
             VL_RESTORER(m_inSequencePrefix);
             m_inSequencePrefix = true;
-            const BuildResult pre = buildExpr(preExprp, currentp, isTopLevelStep);
-            if (!pre.valid()) return BuildResult::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
-            if (pre.finalCondp) {
-                SvaStateVertex* const condVtxp = scopedCreateVertex();
-                SvaTransEdge* const edgep = guardedLink(
-                    pre.termVertexp, condVtxp, sampled(pre.finalCondp->cloneTreePure(false)), flp);
-                if (isTopLevelStep && !pre.termVertexp->m_isUnbounded && !m_inUnboundedScope) {
+            ثابت BuildResult pre = build_ئىپادە(preExprp, currentp, is_چوققا_Level_Step);
+            إذا (!pre.valid()) أرجع BuildResult::fail(pre.errorEmitted);  // LCOV_EXCL_LINE
+            إذا (pre.finalCondp) {
+                SvaStateVertex* ثابت condVtxp = scopedCreateVertex();
+                SvaTransEdge* ثابت edgep = guardedLink(
+                    pre.termVertexp, condVtxp, sampled(pre.finalCondp->clone_دەرەخ_Pure(خطأ)), flp);
+                إذا (is_چوققا_Level_Step && !pre.termVertexp->m_isUnbounded && !m_inUnboundedScope) {
                     // Do not mark liveness sources: first boolean check is deferred.
                     edgep->m_rejectOnFail = true;
                 }
                 freeUnlinkedCondp(pre.finalCondp);
                 currentp = condVtxp;
-            } else {
+            } وإلا {
                 currentp = pre.termVertexp;
             }
         }
@@ -716,93 +716,93 @@ class SvaNfaBuilder final {
         // Handle delay
         std::vector<SvaStateVertex*> rangeMidSources;
         RangeDelayRejectInfo rangeRejectInfo;
-        const bool addRangeReject = isTopLevelStep && !m_inUnboundedScope;
-        if (delayp->isRangeDelay()) {
-            if (!applyRangeDelay(sexprp, currentp, rangeMidSources,
+        ثابت منطقي addRangeReject = is_چوققا_Level_Step && !m_inUnboundedScope;
+        إذا (delayp->isRangeDelay()) {
+            إذا (!applyRangeDelay(sexprp, currentp, rangeMidSources,
                                  addRangeReject ? &rangeRejectInfo : nullptr)) {
-                return BuildResult::failWithError();
+                أرجع BuildResult::failWithError();
             }
-        } else {
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
+        } وإلا {
+            ثابت unsigned delayCycles = getConstUInt(delayp->lhsp());
             currentp = addDelayChain(currentp, delayCycles, flp);
         }
 
         // Multi-cycle RHS: recurse (only plain boolean is returned as finalCondp).
-        if (exprp->isMultiCycleSva()) {
-            const BuildResult result = buildExpr(exprp, currentp, isTopLevelStep);
-            if (result.valid()) addFiniteRangeReject(rangeRejectInfo, result, flp);
-            return result;
+        إذا (exprp->isMultiCycleSva()) {
+            ثابت BuildResult result = build_ئىپادە(exprp, currentp, is_چوققا_Level_Step);
+            إذا (result.valid()) addFiniteRangeReject(rangeRejectInfo, result, flp);
+            أرجع result;
         }
-        return {currentp, exprp, std::move(rangeMidSources)};
+        أرجع {currentp, exprp, std::move(rangeMidSources)};
     }
 
     BuildResult buildConsRep(AstSConsRep* repp, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
+                             منطقي is_چوققا_Level_Step = خطأ) {
+        File_قۇر* ثابت flp = repp->fileline();
+        Ast_تۈگۈن_ئىپادە* ثابت exprp = repp->exprp();
         // Multi-cycle expr in ConsRep not yet supported; bail to avoid invalid AST.
-        if (exprp->isMultiCycleSva()) {
+        إذا (exprp->isMultiCycleSva()) {
             repp->v3warn(E_UNSUPPORTED, "Unsupported: multi-cycle sequence expression inside"
                                         " consecutive repetition (IEEE 1800-2023 16.9.2)");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        const unsigned minN = getConstUInt(repp->countp());
+        ثابت unsigned minN = getConstUInt(repp->countp());
 
         // Sum sites across prefix + unbounded/range tail so one hoist covers
         // every check edge of this repetition.
         unsigned totalSites = minN;
-        if (repp->unbounded()) {
+        إذا (repp->unbounded()) {
             totalSites += 1;
-        } else if (repp->maxCountp()) {
+        } وإلا إذا (repp->maxCountp()) {
             totalSites += getConstUInt(repp->maxCountp()) - minN;
         }
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, totalSites);
+        AstVar* ثابت hoistVarp = tryHoistSampled(exprp, flp, totalSites);
 
         // Cover-sequence (IEEE 1800-2023 16.14.3): collect each end-of-match
         // position so they all fire the action, not just the merged terminal.
         std::vector<SvaStateVertex*> consMidSources;
 
         SvaStateVertex* currentp = entryVtxp;
-        for (unsigned i = 0; i < minN; ++i) {
+        لكل (unsigned i = 0; i < minN; ++i) {
             // Keep the first repetition explicit, collapse all remaining checks into the ring.
-            if (i == 1) {
+            إذا (i == 1) {
                 currentp = addDelayChain(currentp, minN - 1, flp);
                 currentp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                    = جديد AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
                 currentp->m_replayAbortReject = true;
-                if (isTopLevelStep) {
-                    currentp->m_throughoutConds.push_back(
+                إذا (is_چوققا_Level_Step) {
+                    currentp->m_throughoutConds.ئىتتىرىش_back(
                         sampledRefOrClone(hoistVarp, exprp, flp));
                 }
                 i = minN - 1;
             }
             // Every repetition in the minimum prefix is required.
-            SvaStateVertex* const condVtxp = scopedCreateVertex();
-            SvaTransEdge* const linkp
+            SvaStateVertex* ثابت condVtxp = scopedCreateVertex();
+            SvaTransEdge* ثابت linkp
                 = guardedLink(currentp, condVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             // Only an outermost required step rejects the property. Its first check is explicit,
             // later required checks reject through the ring's throughout guard.
-            if (isTopLevelStep && i == 0) linkp->m_rejectOnFail = true;
+            إذا (is_چوققا_Level_Step && i == 0) linkp->m_rejectOnFail = true;
             currentp = condVtxp;
         }
         // After minN: currentp is the first valid end-of-match position for [*m:n].
-        if (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
-            consMidSources.push_back(currentp);
+        إذا (m_isCoverSeq && (repp->unbounded() || repp->maxCountp())) {
+            consMidSources.ئىتتىرىش_back(currentp);
         }
 
-        if (repp->unbounded()) {
-            if (minN == 0) {
-                SvaStateVertex* const waitVtxp = scopedCreateVertex();
+        إذا (repp->unbounded()) {
+            إذا (minN == 0) {
+                SvaStateVertex* ثابت waitVtxp = scopedCreateVertex();
                 guardedEdge(currentp, waitVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
+                SvaStateVertex* ثابت checkVtxp = scopedCreateVertex();
                 guardedLink(waitVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedEdge(checkVtxp, waitVtxp, flp);
                 guardedLink(currentp, checkVtxp, flp);
                 currentp = checkVtxp;
-            } else {
-                SvaStateVertex* const loopBackVtxp = scopedCreateVertex();
+            } وإلا {
+                SvaStateVertex* ثابت loopBackVtxp = scopedCreateVertex();
                 guardedEdge(currentp, loopBackVtxp, flp);
-                SvaStateVertex* const reCheckVtxp = scopedCreateVertex();
+                SvaStateVertex* ثابت reCheckVtxp = scopedCreateVertex();
                 guardedLink(loopBackVtxp, reCheckVtxp, sampledRefOrClone(hoistVarp, exprp, flp),
                             flp);
                 guardedEdge(reCheckVtxp, loopBackVtxp, flp);
@@ -810,35 +810,35 @@ class SvaNfaBuilder final {
             }
             currentp->m_isUnbounded = true;
             m_inUnboundedScope = true;
-        } else if (repp->maxCountp()) {
-            const unsigned maxN = getConstUInt(repp->maxCountp());
-            SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+        } وإلا إذا (repp->maxCountp()) {
+            ثابت unsigned maxN = getConstUInt(repp->maxCountp());
+            SvaStateVertex* ثابت mergeVtxp = scopedCreateVertex();
             guardedLink(currentp, mergeVtxp, flp);
             unsigned tailMinN = minN;
             SvaStateVertex* tailStartp = currentp;
-            if (minN == 0) {
+            إذا (minN == 0) {
                 // Build the first optional iteration explicitly. Feeding the empty endpoint
                 // directly into a range ring would incorrectly keep that match alive.
-                SvaStateVertex* const nextVtxp = scopedCreateVertex();
+                SvaStateVertex* ثابت nextVtxp = scopedCreateVertex();
                 guardedEdge(currentp, nextVtxp, flp);
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
+                SvaStateVertex* ثابت checkVtxp = scopedCreateVertex();
                 guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
+                إذا (m_isCoverSeq) consMidSources.ئىتتىرىش_back(checkVtxp);
                 tailStartp = checkVtxp;
                 tailMinN = 1;
             }
-            if (maxN > tailMinN) {
+            إذا (maxN > tailMinN) {
                 // Add tail-ring only if the tail is non-empty.
-                SvaStateVertex* const nextVtxp
-                    = addDelayChain(tailStartp, maxN - tailMinN + 1, flp, false);
+                SvaStateVertex* ثابت nextVtxp
+                    = addDelayChain(tailStartp, maxN - tailMinN + 1, flp, خطأ);
                 nextVtxp->m_delayRingClearCondp
-                    = new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
+                    = جديد AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)};
                 nextVtxp->m_replayAbortReject = true;
-                SvaStateVertex* const checkVtxp = scopedCreateVertex();
+                SvaStateVertex* ثابت checkVtxp = scopedCreateVertex();
                 guardedLink(nextVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
                 guardedLink(checkVtxp, mergeVtxp, flp);
-                if (m_isCoverSeq) consMidSources.push_back(checkVtxp);
+                إذا (m_isCoverSeq) consMidSources.ئىتتىرىش_back(checkVtxp);
             }
             currentp = mergeVtxp;
         }
@@ -850,16 +850,16 @@ class SvaNfaBuilder final {
         // mergeVtxp is the OR of all the end-positions we already pushed to
         // midSources, so the main termVtxp -> matchVertex Link would duplicate.
         res.termIsMidMerge = m_isCoverSeq && !res.midSources.empty();
-        return res;
+        أرجع res;
     }
 
     // always[lo:hi] / s_always[lo:hi] (IEEE 1800-2023 16.12.11).
     BuildResult buildPropAlways(AstPropAlways* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
-        FileLine* const flp = nodep->fileline();
-        AstNodeExpr* const propp = nodep->propp();
-        const unsigned lo = getConstUInt(nodep->loBoundp());
-        if (VN_IS(nodep->hiBoundp(), Unbounded)) {
+                                منطقي is_چوققا_Level_Step = خطأ) {
+        File_قۇر* ثابت flp = nodep->fileline();
+        Ast_تۈگۈن_ئىپادە* ثابت propp = nodep->propp();
+        ثابت unsigned lo = getConstUInt(nodep->loBoundp());
+        إذا (VN_IS(nodep->hiBoundp(), Unbounded)) {
             // Weak always [lo:$]: unbounded upper bound (IEEE 1800-2023 16.12.11).
             // p must hold at every clock tick at least lo cycles after the attempt
             // start; those ticks are not required to exist, so there is no
@@ -867,17 +867,17 @@ class SvaNfaBuilder final {
             // every cycle; each observed cycle is a safety obligation, so a false p
             // rejects immediately.
             UASSERT_OBJ(!nodep->isStrong(), nodep, "Unbounded always must be weak (V3Width)");
-            SvaStateVertex* const livep = addDelayChain(entryVtxp, lo, flp);
+            SvaStateVertex* ثابت livep = addDelayChain(entryVtxp, lo, flp);
             livep->m_isUnbounded = true;
             guardedEdge(livep, livep, flp);  // stay active every subsequent cycle
-            SvaStateVertex* const sinkp = m_graph.createStateVertex();
+            SvaStateVertex* ثابت sinkp = m_graph.createStateVertex();
             sinkp->m_isRejectSink = true;
-            SvaTransEdge* const rejEdgep
-                = guardedLink(livep, sinkp, sampled(propp->cloneTreePure(false)), flp);
-            if (isTopLevelStep) rejEdgep->m_rejectOnFail = true;
-            return {livep, nullptr, {}};
+            SvaTransEdge* ثابت rejEdgep
+                = guardedLink(livep, sinkp, sampled(propp->clone_دەرەخ_Pure(خطأ)), flp);
+            إذا (is_چوققا_Level_Step) rejEdgep->m_rejectOnFail = true;
+            أرجع {livep, nullptr, {}};
         }
-        const unsigned hi = getConstUInt(nodep->hiBoundp());
+        ثابت unsigned hi = getConstUInt(nodep->hiBoundp());
         // Strong s_always[m:n]: mark every in-window registered vertex so an
         // attempt still mid-window at end-of-simulation is reported as a liveness
         // failure (IEEE strong: the n+1 ticks must exist). An attempt that has
@@ -889,230 +889,230 @@ class SvaNfaBuilder final {
         // Check the first in-window tick, then reuse a guarded fixed-delay ring
         // for the remaining ticks instead of creating one state per cycle.
         SvaStateVertex* currentp = addDelayChain(entryVtxp, lo, flp);
-        SvaStateVertex* const checkp = scopedCreateVertex();
-        SvaTransEdge* const linkp
-            = guardedLink(currentp, checkp, sampled(propp->cloneTreePure(false)), flp);
-        if (isTopLevelStep) linkp->m_rejectOnFail = true;
+        SvaStateVertex* ثابت checkp = scopedCreateVertex();
+        SvaTransEdge* ثابت linkp
+            = guardedLink(currentp, checkp, sampled(propp->clone_دەرەخ_Pure(خطأ)), flp);
+        إذا (is_چوققا_Level_Step) linkp->m_rejectOnFail = true;
         currentp = checkp;
-        m_temporalGuardStack.push_back(propp);
+        m_temporal_Guard_دۆۋە.ئىتتىرىش_back(propp);
         currentp = addDelayChain(currentp, hi - lo, flp);
-        if (nodep->isStrong() && currentp->m_delayRingSize) currentp->m_strongAlwaysRing = true;
-        m_temporalGuardStack.pop_back();
-        return {currentp, propp, {}};
+        إذا (nodep->isStrong() && currentp->m_delayRingSize) currentp->m_strongAlwaysRing = true;
+        m_temporal_Guard_دۆۋە.چىقىرىش_back();
+        أرجع {currentp, propp, {}};
     }
 
     BuildResult buildGotoRep(AstSGotoRep* repp, SvaStateVertex* entryVtxp) {
-        FileLine* const flp = repp->fileline();
-        AstNodeExpr* const exprp = repp->exprp();
-        const unsigned minN = getConstUInt(repp->countp());
-        if (minN == 0) return BuildResult::fail();
-        const bool hasMax = repp->maxCountp() != nullptr;
-        const unsigned maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
-        if (m_isCoverSeq) {
+        File_قۇر* ثابت flp = repp->fileline();
+        Ast_تۈگۈن_ئىپادە* ثابت exprp = repp->exprp();
+        ثابت unsigned minN = getConstUInt(repp->countp());
+        إذا (minN == 0) أرجع BuildResult::fail();
+        ثابت منطقي hasMax = repp->maxCountp() != nullptr;
+        ثابت unsigned maxN = hasMax ? getConstUInt(repp->maxCountp()) : minN;
+        إذا (m_isCoverSeq) {
             // Several attempts may coalesce in the one-bit wait vertex before reaching the ring,
             // so a cover sequence action block could run too few times.
             warnEndpointUnsupported(flp, "a goto repetition");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
 
-        AstVar* const hoistVarp = tryHoistSampled(exprp, flp, 2);
+        AstVar* ثابت hoistVarp = tryHoistSampled(exprp, flp, 2);
 
         // The first guardedEdge is the ##1 before waiting for a match. In the wait state, false
         // takes the clocked self-loop, while true takes the zero-delay guardedLink on that tick.
-        SvaStateVertex* const waitVtxp = scopedCreateVertex();
+        SvaStateVertex* ثابت waitVtxp = scopedCreateVertex();
         guardedEdge(entryVtxp, waitVtxp, flp);
         guardedEdge(waitVtxp, waitVtxp,
-                    new AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
+                    جديد AstLogNot{flp, sampledRefOrClone(hoistVarp, exprp, flp)}, flp);
         SvaStateVertex* currentp = scopedCreateVertex();
         guardedLink(waitVtxp, currentp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
 
-        if (minN > 1) {
-            SvaStateVertex* const ringVtxp = addDelayChain(
+        إذا (minN > 1) {
+            SvaStateVertex* ثابت ringVtxp = addDelayChain(
                 currentp, minN - 1, flp, true, nullptr, sampledRefOrClone(hoistVarp, exprp, flp));
             ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+            SvaStateVertex* ثابت checkVtxp = scopedCreateVertex();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             currentp = checkVtxp;
         }
-        if (!hasMax) {
+        إذا (!hasMax) {
             currentp->m_isUnbounded = true;  // [->N] waits unboundedly
             m_inUnboundedScope = true;
-            return {currentp, nullptr, {}};
+            أرجع {currentp, nullptr, {}};
         }
 
         // [->M:N]: the range ring holds matches from M through N and advances
         // only on expr, preserving arbitrarily long gaps between occurrences.
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
+        SvaStateVertex* ثابت mergeVtxp = scopedCreateVertex();
         guardedLink(currentp, mergeVtxp, flp);  // accept at match_M
-        if (maxN > minN) {
-            SvaStateVertex* const ringVtxp
-                = addDelayChain(currentp, maxN - minN + 1, flp, false, nullptr,
+        إذا (maxN > minN) {
+            SvaStateVertex* ثابت ringVtxp
+                = addDelayChain(currentp, maxN - minN + 1, flp, خطأ, nullptr,
                                 sampledRefOrClone(hoistVarp, exprp, flp));
             ringVtxp->m_replayAbortReject = true;
-            SvaStateVertex* const checkVtxp = scopedCreateVertex();
+            SvaStateVertex* ثابت checkVtxp = scopedCreateVertex();
             guardedLink(ringVtxp, checkVtxp, sampledRefOrClone(hoistVarp, exprp, flp), flp);
             guardedLink(checkVtxp, mergeVtxp, flp);
         }
         mergeVtxp->m_isUnbounded = true;  // [->M:N] still has unbounded waits between matches
         m_inUnboundedScope = true;
-        return {mergeVtxp, nullptr, {}};
+        أرجع {mergeVtxp, nullptr, {}};
     }
 
     // True if the sequence has a zero-minimum consecutive repetition, which may match empty
-    static bool hasZeroMinRep(const AstNodeExpr* seqp) {
-        return seqp->exists(
-            [](const AstSConsRep* repp) { return getConstUInt(repp->countp()) == 0; });
+    ساكن منطقي hasZeroMinRep(ثابت Ast_تۈگۈن_ئىپادە* seqp) {
+        أرجع seqp->exists(
+            [](ثابت AstSConsRep* repp) { أرجع getConstUInt(repp->countp()) == 0; });
     }
 
     // True if a leaf's condition has no implication or multi-cycle sequence in it
     // (a leaf can be e.g. 'not (x |-> y)')
-    static bool isPlainBoolean(const AstNodeExpr* condp) {
-        return !condp->exists(
-            [](const AstNodeExpr* np) { return np->isMultiCycleSva() || VN_IS(np, Implication); });
+    ساكن منطقي isPlainBoolean(ثابت Ast_تۈگۈن_ئىپادە* condp) {
+        أرجع !condp->exists(
+            [](ثابت Ast_تۈگۈن_ئىپادە* np) { أرجع np->isMultiCycleSva() || VN_IS(np, Implication); });
     }
 
     // Build merge vertex for SOr / LogOr: both branches feed into one vertex.
-    BuildResult buildOrMerge(AstNodeExpr* lhsp, AstNodeExpr* rhsp, SvaStateVertex* entryVtxp,
-                             FileLine* flp, bool wantBoolLeaf) {
-        const BuildResult lhs = buildExpr(lhsp, entryVtxp);
-        const BuildResult rhs = buildExpr(rhsp, entryVtxp);
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+    BuildResult buildOrMerge(Ast_تۈگۈن_ئىپادە* lhsp, Ast_تۈگۈن_ئىپادە* rhsp, SvaStateVertex* entryVtxp,
+                             File_قۇر* flp, منطقي wantBoolLeaf) {
+        ثابت BuildResult lhs = build_ئىپادە(lhsp, entryVtxp);
+        ثابت BuildResult rhs = build_ئىپادە(rhsp, entryVtxp);
+        إذا (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            أرجع BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
         // IEEE 1800-2023 16.14.3: a cover sequence counts every end-of-match. A
         // sequence operand of 'or' can end more than once, but only its final
         // end reaches the merge vertex below, so reject sequence operands rather
         // than under-count. Plain boolean disjunction has one end per cycle and
         // is handled by the OR-fold.
-        const bool booleanOnly = lhs.termVertexp == entryVtxp && lhs.finalCondp
+        ثابت منطقي booleanOnly = lhs.termVertexp == entryVtxp && lhs.finalCondp
                                  && rhs.termVertexp == entryVtxp && rhs.finalCondp;
-        if (m_isCoverSeq && !booleanOnly) {
+        إذا (m_isCoverSeq && !booleanOnly) {
             warnEndpointUnsupported(flp, "a sequence operand of 'or'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        if (booleanOnly && wantBoolLeaf) {
-            if (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
+        إذا (booleanOnly && wantBoolLeaf) {
+            إذا (isPlainBoolean(lhs.finalCondp) && isPlainBoolean(rhs.finalCondp)) {
                 // As a |-> / |=> or top-level body, a disjunction of two plain booleans must
                 // be able to reject: return it as a boolean finalCondp. The merge vertex
                 // below drops the attempt silently when both operands are false.
-                AstNodeExpr* const orCondp
-                    = new AstLogOr{flp, lhs.finalCondp->cloneTreePure(false),
-                                   rhs.finalCondp->cloneTreePure(false)};
+                Ast_تۈگۈن_ئىپادە* ثابت orCondp
+                    = جديد AstLogOr{flp, lhs.finalCondp->clone_دەرەخ_Pure(خطأ),
+                                   rhs.finalCondp->clone_دەرەخ_Pure(خطأ)};
                 freeUnlinkedCondp(lhs.finalCondp);
                 freeUnlinkedCondp(rhs.finalCondp);
-                return {entryVtxp, orCondp, {}};
+                أرجع {entryVtxp, orCondp, {}};
             }
         }
-        SvaStateVertex* const mergeVtxp = scopedCreateVertex();
-        if (booleanOnly) {
+        SvaStateVertex* ثابت mergeVtxp = scopedCreateVertex();
+        إذا (booleanOnly) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsp,
                         "Single-cycle SOr operands must have finalCondp");
             guardedLink(entryVtxp, mergeVtxp,
-                        new AstLogOr{flp, sampled(lhs.finalCondp->cloneTreePure(false)),
-                                     sampled(rhs.finalCondp->cloneTreePure(false))},
+                        جديد AstLogOr{flp, sampled(lhs.finalCondp->clone_دەرەخ_Pure(خطأ)),
+                                     sampled(rhs.finalCondp->clone_دەرەخ_Pure(خطأ))},
                         flp);
-        } else {
-            if (lhs.finalCondp) {
+        } وإلا {
+            إذا (lhs.finalCondp) {
                 guardedLink(lhs.termVertexp, mergeVtxp,
-                            sampled(lhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
+                            sampled(lhs.finalCondp->clone_دەرەخ_Pure(خطأ)), flp);
+            } وإلا {
                 guardedLink(lhs.termVertexp, mergeVtxp, flp);
             }
-            if (rhs.finalCondp) {
+            إذا (rhs.finalCondp) {
                 guardedLink(rhs.termVertexp, mergeVtxp,
-                            sampled(rhs.finalCondp->cloneTreePure(false)), flp);
-            } else {
+                            sampled(rhs.finalCondp->clone_دەرەخ_Pure(خطأ)), flp);
+            } وإلا {
                 guardedLink(rhs.termVertexp, mergeVtxp, flp);
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {mergeVtxp, nullptr, {}};
+        أرجع {mergeVtxp, nullptr, {}};
     }
 
     // Build done-latch combiner for SAnd/SIntersect (IEEE 1800-2023 16.9.5).
-    BuildResult buildAndCombiner(AstNodeExpr* lhsExprp, AstNodeExpr* rhsExprp,
-                                 SvaStateVertex* entryVtxp, FileLine* flp) {
+    BuildResult buildAndCombiner(Ast_تۈگۈن_ئىپادە* lhsExprp, Ast_تۈگۈن_ئىپادە* rhsExprp,
+                                 SvaStateVertex* entryVtxp, File_قۇر* flp) {
         // Snapshot-restore scope so LHS liveness does not leak into RHS.
-        const bool savedScope = m_inUnboundedScope;
-        const BuildResult lhs = buildExpr(lhsExprp, entryVtxp);
-        const bool lhsScope = m_inUnboundedScope;
+        ثابت منطقي savedScope = m_inUnboundedScope;
+        ثابت BuildResult lhs = build_ئىپادە(lhsExprp, entryVtxp);
+        ثابت منطقي lhsScope = m_inUnboundedScope;
         m_inUnboundedScope = savedScope;
-        const BuildResult rhs = buildExpr(rhsExprp, entryVtxp);
-        const bool rhsScope = m_inUnboundedScope;
+        ثابت BuildResult rhs = build_ئىپادە(rhsExprp, entryVtxp);
+        ثابت منطقي rhsScope = m_inUnboundedScope;
         m_inUnboundedScope = savedScope || lhsScope || rhsScope;
-        if (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
+        إذا (!lhs.valid() || !rhs.valid()) {  // LCOV_EXCL_START -- sub-build fail bail
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
+            أرجع BuildResult::fail(lhs.errorEmitted || rhs.errorEmitted);
         }  // LCOV_EXCL_STOP
 
         // Single-cycle operands: use boolean AND (done-latch would fire across cycles).
         // If both operands stayed at entry, they must be boolean leaves which
         // buildExpr returns with finalCondp=nodep (non-null).
-        if (lhs.termVertexp == entryVtxp && rhs.termVertexp == entryVtxp) {
+        إذا (lhs.termVertexp == entryVtxp && rhs.termVertexp == entryVtxp) {
             UASSERT_OBJ(lhs.finalCondp && rhs.finalCondp, lhsExprp,
                         "Single-cycle SAnd operands must have finalCondp");
-            AstNodeExpr* const condp = new AstLogAnd{flp, lhs.finalCondp->cloneTreePure(false),
-                                                     rhs.finalCondp->cloneTreePure(false)};
+            Ast_تۈگۈن_ئىپادە* ثابت condp = جديد AstLogAnd{flp, lhs.finalCondp->clone_دەرەخ_Pure(خطأ),
+                                                     rhs.finalCondp->clone_دەرەخ_Pure(خطأ)};
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return {entryVtxp, condp, {}};
+            أرجع {entryVtxp, condp, {}};
         }
         // Range-delay mid-window sources in either sub-branch would need
         // to be folded into the latch's match-now signal, which the
         // current combiner does not support.
-        if (!lhs.midSources.empty() || !rhs.midSources.empty()) {
+        إذا (!lhs.midSources.empty() || !rhs.midSources.empty()) {
             flp->v3warn(E_UNSUPPORTED,
                         "Unsupported: ranged cycle delay in an operand of property 'and'");
             freeUnlinkedCondp(lhs.finalCondp);
             freeUnlinkedCondp(rhs.finalCondp);
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        SvaStateVertex* const combVtxp = scopedCreateVertex();
+        SvaStateVertex* ثابت combVtxp = scopedCreateVertex();
         combVtxp->m_isAndCombiner = true;
         combVtxp->m_andLhsTermp = lhs.termVertexp;
         combVtxp->m_andRhsTermp = rhs.termVertexp;
-        if (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->cloneTreePure(false);
-        if (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->cloneTreePure(false);
-        if (lhs.termVertexp->m_isUnbounded || rhs.termVertexp->m_isUnbounded) {
+        إذا (lhs.finalCondp) combVtxp->m_andLhsCondp = lhs.finalCondp->clone_دەرەخ_Pure(خطأ);
+        إذا (rhs.finalCondp) combVtxp->m_andRhsCondp = rhs.finalCondp->clone_دەرەخ_Pure(خطأ);
+        إذا (lhs.termVertexp->m_isUnbounded || rhs.termVertexp->m_isUnbounded) {
             combVtxp->m_isUnbounded = true;
         }
         // Wire terminal-boolean rejects to a dedicated sink so each side can fail
         // the AND independently. Skip for liveness or single-cycle operands
         // (single-cycle termVertexp == entryVtxp would fire every cycle).
-        if (!combVtxp->m_isUnbounded) {
-            bool needSink = false;
-            const bool lhsMultiCycle = (lhs.termVertexp != entryVtxp);
-            const bool rhsMultiCycle = (rhs.termVertexp != entryVtxp);
-            if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
+        إذا (!combVtxp->m_isUnbounded) {
+            منطقي needSink = خطأ;
+            ثابت منطقي lhsMultiCycle = (lhs.termVertexp != entryVtxp);
+            ثابت منطقي rhsMultiCycle = (rhs.termVertexp != entryVtxp);
+            إذا (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
                 needSink = true;
             }
-            if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
+            إذا (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
                 needSink = true;
             }
-            if (needSink) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
+            إذا (needSink) {
+                SvaStateVertex* ثابت sinkVtxp = m_graph.createStateVertex();
                 sinkVtxp->m_isRejectSink = true;
-                if (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        lhs.termVertexp, sinkVtxp, sampled(lhs.finalCondp->cloneTreePure(false)));
+                إذا (lhs.finalCondp && lhsMultiCycle && !lhs.termVertexp->m_isUnbounded) {
+                    SvaTransEdge* ثابت ep = m_graph.addLink(
+                        lhs.termVertexp, sinkVtxp, sampled(lhs.finalCondp->clone_دەرەخ_Pure(خطأ)));
                     ep->m_rejectOnFail = true;
                 }
-                if (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
-                    SvaTransEdge* const ep = m_graph.addLink(
-                        rhs.termVertexp, sinkVtxp, sampled(rhs.finalCondp->cloneTreePure(false)));
+                إذا (rhs.finalCondp && rhsMultiCycle && !rhs.termVertexp->m_isUnbounded) {
+                    SvaTransEdge* ثابت ep = m_graph.addLink(
+                        rhs.termVertexp, sinkVtxp, sampled(rhs.finalCondp->clone_دەرەخ_Pure(خطأ)));
                     ep->m_rejectOnFail = true;
                 }
             }
         }
         freeUnlinkedCondp(lhs.finalCondp);
         freeUnlinkedCondp(rhs.finalCondp);
-        return {combVtxp, nullptr, {}};
+        أرجع {combVtxp, nullptr, {}};
     }
 
     // Lower `seq1 within seq2` (IEEE 1800-2023 16.9.10) as:
@@ -1122,160 +1122,160 @@ class SvaNfaBuilder final {
     // serves all offsets; lifting it out would double-count matches where
     // multiple offsets accept on the same seq2 end cycle.
     BuildResult buildSWithin(AstSWithin* nodep, SvaStateVertex* entryVtxp,
-                             bool isTopLevelStep = false) {
-        const int innerLen = fixedLength(nodep->lhsp());
-        const int outerLen = fixedLength(nodep->rhsp());
-        if (innerLen < 0 || outerLen < 0) {
+                             منطقي is_چوققا_Level_Step = خطأ) {
+        ثابت صحيح innerLen = fixedLength(nodep->lhsp());
+        ثابت صحيح outerLen = fixedLength(nodep->rhsp());
+        إذا (innerLen < 0 || outerLen < 0) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: within with ranged cycle-delay operand");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        if (innerLen > outerLen) {
-            return buildNeverMatchIntersect(
-                nodep, entryVtxp, isTopLevelStep,
+        إذا (innerLen > outerLen) {
+            أرجع buildNeverMatchIntersect(
+                nodep, entryVtxp, is_چوققا_Level_Step,
                 "the inner sequence is longer than the outer sequence");
         }
-        FileLine* const flp = nodep->fileline();
-        const int slack = outerLen - innerLen;
-        AstNodeExpr* innerOrp = nullptr;
-        for (int i = 0; i <= slack; ++i) {
-            const int postPad = slack - i;
-            AstNodeExpr* branchp = nodep->lhsp()->cloneTreePure(false);
-            if (i > 0) {
-                AstConst* const prePadp = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(i)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, prePadp, delayp, branchp};
+        File_قۇر* ثابت flp = nodep->fileline();
+        ثابت صحيح slack = outerLen - innerLen;
+        Ast_تۈگۈن_ئىپادە* innerOrp = nullptr;
+        لكل (صحيح i = 0; i <= slack; ++i) {
+            ثابت صحيح postPad = slack - i;
+            Ast_تۈگۈن_ئىپادە* branchp = nodep->lhsp()->clone_دەرەخ_Pure(خطأ);
+            إذا (i > 0) {
+                AstConst* ثابت prePadp = جديد AstConst{flp, AstConst::BitTrue{}};
+                AstDelay* ثابت delayp
+                    = جديد AstDelay{flp, جديد AstConst{flp, static_cast<uint32_t>(i)}, true};
+                AstSExpr* ثابت wrapped = جديد AstSExpr{flp, prePadp, delayp, branchp};
                 wrapped->dtypeSetBit();
                 branchp = wrapped;
             }
-            if (postPad > 0) {
-                AstConst* const postTruep = new AstConst{flp, AstConst::BitTrue{}};
-                AstDelay* const delayp
-                    = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(postPad)}, true};
-                AstSExpr* const wrapped = new AstSExpr{flp, branchp, delayp, postTruep};
+            إذا (postPad > 0) {
+                AstConst* ثابت postTruep = جديد AstConst{flp, AstConst::BitTrue{}};
+                AstDelay* ثابت delayp
+                    = جديد AstDelay{flp, جديد AstConst{flp, static_cast<uint32_t>(postPad)}, true};
+                AstSExpr* ثابت wrapped = جديد AstSExpr{flp, branchp, delayp, postTruep};
                 wrapped->dtypeSetBit();
                 branchp = wrapped;
             }
-            innerOrp = innerOrp ? static_cast<AstNodeExpr*>(new AstSOr{flp, innerOrp, branchp})
+            innerOrp = innerOrp ? static_cast<Ast_تۈگۈن_ئىپادە*>(جديد AstSOr{flp, innerOrp, branchp})
                                 : branchp;
         }
-        AstNodeExpr* const outerClonep = nodep->rhsp()->cloneTreePure(false);
-        AstNodeExpr* const combinedp = new AstSIntersect{flp, innerOrp, outerClonep};
-        BuildResult result = buildExpr(combinedp, entryVtxp, isTopLevelStep);
-        VL_DO_DANGLING(combinedp->deleteTree(), combinedp);
+        Ast_تۈگۈن_ئىپادە* ثابت outerClonep = nodep->rhsp()->clone_دەرەخ_Pure(خطأ);
+        Ast_تۈگۈن_ئىپادە* ثابت combinedp = جديد AstSIntersect{flp, innerOrp, outerClonep};
+        BuildResult result = build_ئىپادە(combinedp, entryVtxp, is_چوققا_Level_Step);
+        VL_DO_DANGLING(combinedp->delete_دەرەخ(), combinedp);
         // When both operands are plain booleans, buildAndCombiner returns a
         // freshly-allocated AstAnd as finalCondp with no parent. Callers up
         // the chain clone-and-discard finalCondp, so leave it parent-less and
         // it leaks; anchor it in the graph now via an edge.
-        if (result.valid() && result.finalCondp && !result.finalCondp->backp()) {
-            SvaStateVertex* const wrapVtxp = scopedCreateVertex();
+        إذا (result.valid() && result.finalCondp && !result.finalCondp->backp()) {
+            SvaStateVertex* ثابت wrapVtxp = scopedCreateVertex();
             guardedLink(result.termVertexp, wrapVtxp, sampled(result.finalCondp), flp);
             result = {wrapVtxp, nullptr, result.midSources};
         }
-        return result;
+        أرجع result;
     }
 
     // Collect the boolean leaf checks of a fixed-length sequence keyed by their
     // clock offset from the start. Returns false for anything other than nested
     // AstSExpr with fixed cycle delays over boolean leaves (e.g. throughout).
-    static bool flattenFixedSeq(AstNodeExpr* nodep, int baseOffset,
-                                std::map<int, std::vector<AstNodeExpr*>>& out) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-            if (!delayp || !delayp->isCycleDelay() || delayp->isUnbounded()) return false;
-            const unsigned delayCycles = getConstUInt(delayp->lhsp());
-            if (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delayCycles)
-                return false;
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                if (!flattenFixedSeq(prep, baseOffset, out)) return false;
+    ساكن منطقي flattenFixedSeq(Ast_تۈگۈن_ئىپادە* nodep, صحيح baseOffset,
+                                std::map<صحيح, std::vector<Ast_تۈگۈن_ئىپادە*>>& out) {
+        إذا (AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr)) {
+            AstDelay* ثابت delayp = VN_CAST(sexprp->delayp(), Delay);
+            إذا (!delayp || !delayp->isCycleDelay() || delayp->isUnbounded()) أرجع خطأ;
+            ثابت unsigned delayCycles = getConstUInt(delayp->lhsp());
+            إذا (delayp->isRangeDelay() && getConstUInt(delayp->rhsp()) != delayCycles)
+                أرجع خطأ;
+            صحيح preLen = 0;
+            إذا (Ast_تۈگۈن_ئىپادە* ثابت prep = sexprp->preExprp()) {
+                إذا (!flattenFixedSeq(prep, baseOffset, out)) أرجع خطأ;
                 preLen = fixedLength(prep);
-                if (preLen < 0) return false;
+                إذا (preLen < 0) أرجع خطأ;
             }
-            return flattenFixedSeq(sexprp->exprp(), baseOffset + preLen + delayCycles, out);
+            أرجع flattenFixedSeq(sexprp->exprp(), baseOffset + preLen + delayCycles, out);
         }
-        if (nodep->isMultiCycleSva()) return false;
-        out[baseOffset].push_back(nodep);
-        return true;
+        إذا (nodep->isMultiCycleSva()) أرجع خطأ;
+        out[baseOffset].ئىتتىرىش_back(nodep);
+        أرجع true;
     }
 
     // Conjoin two equal-length fixed sequences into one: at each clock offset
     // AND the boolean checks of both operands (IEEE 1800-2023 16.9.6 -- both
     // operands match the same window). Returns null if either operand is not a
     // plain fixed sequence of boolean leaves.
-    static AstNodeExpr* conjoinFixedSeqs(AstNodeExpr* lhsp, AstNodeExpr* rhsp, FileLine* flp) {
-        std::map<int, std::vector<AstNodeExpr*>> checks;
-        if (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) return nullptr;
-        if (checks.empty()) return nullptr;
-        AstNodeExpr* resultp = nullptr;
-        int prevOffset = 0;
-        for (const auto& offsetChecks : checks) {
-            const int offset = offsetChecks.first;
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const leafp : offsetChecks.second) {
-                AstNodeExpr* const clonep = leafp->cloneTreePure(false);
-                if (!condp) {
+    ساكن Ast_تۈگۈن_ئىپادە* conjoinFixedSeqs(Ast_تۈگۈن_ئىپادە* lhsp, Ast_تۈگۈن_ئىپادە* rhsp, File_قۇر* flp) {
+        std::map<صحيح, std::vector<Ast_تۈگۈن_ئىپادە*>> checks;
+        إذا (!flattenFixedSeq(lhsp, 0, checks) || !flattenFixedSeq(rhsp, 0, checks)) أرجع nullptr;
+        إذا (checks.empty()) أرجع nullptr;
+        Ast_تۈگۈن_ئىپادە* resultp = nullptr;
+        صحيح prevOffset = 0;
+        لكل (ثابت auto& offsetChecks : checks) {
+            ثابت صحيح offset = offsetChecks.first;
+            Ast_تۈگۈن_ئىپادە* condp = nullptr;
+            لكل (Ast_تۈگۈن_ئىپادە* ثابت leafp : offsetChecks.second) {
+                Ast_تۈگۈن_ئىپادە* ثابت clonep = leafp->clone_دەرەخ_Pure(خطأ);
+                إذا (!condp) {
                     condp = clonep;
-                } else {
-                    condp = new AstLogAnd{flp, condp, clonep};
+                } وإلا {
+                    condp = جديد AstLogAnd{flp, condp, clonep};
                     condp->dtypeSetBit();
                 }
             }
-            if (!resultp) {
-                if (offset > 0) {
-                    AstDelay* const delayp = new AstDelay{
-                        flp, new AstConst{flp, static_cast<uint32_t>(offset)}, /*isCycle=*/true};
+            إذا (!resultp) {
+                إذا (offset > 0) {
+                    AstDelay* ثابت delayp = جديد AstDelay{
+                        flp, جديد AstConst{flp, static_cast<uint32_t>(offset)}, /*isCycle=*/true};
                     resultp
-                        = new AstSExpr{flp, new AstConst{flp, AstConst::BitTrue{}}, delayp, condp};
+                        = جديد AstSExpr{flp, جديد AstConst{flp, AstConst::BitTrue{}}, delayp, condp};
                     resultp->dtypeSetBit();
-                } else {
+                } وإلا {
                     resultp = condp;
                 }
-            } else {
-                AstDelay* const delayp = new AstDelay{
-                    flp, new AstConst{flp, static_cast<uint32_t>(offset - prevOffset)},
+            } وإلا {
+                AstDelay* ثابت delayp = جديد AstDelay{
+                    flp, جديد AstConst{flp, static_cast<uint32_t>(offset - prevOffset)},
                     /*isCycle=*/true};
-                resultp = new AstSExpr{flp, resultp, delayp, condp};
+                resultp = جديد AstSExpr{flp, resultp, delayp, condp};
                 resultp->dtypeSetBit();
             }
             prevOffset = offset;
         }
-        return resultp;
+        أرجع resultp;
     }
 
     // `seq` is a simple ranged sequence `start ##[m:n] end` (start/end boolean,
     // start may be absent). Used to collapse a both-variable intersect to one
     // ranged delay.
-    struct SimpleRanged final {
-        bool ok = false;
-        AstNodeExpr* startp = nullptr;  // may be null (absent start)
-        AstNodeExpr* endp = nullptr;
+    بنية SimpleRanged final {
+        منطقي ok = خطأ;
+        Ast_تۈگۈن_ئىپادە* startp = nullptr;  // may be null (absent start)
+        Ast_تۈگۈن_ئىپادە* endp = nullptr;
     };
-    static SimpleRanged asSimpleRanged(AstNodeExpr* nodep) {
-        AstSExpr* const sexprp = VN_CAST(nodep, SExpr);
-        if (!sexprp) return {};
-        AstDelay* const delayp = VN_CAST(sexprp->delayp(), Delay);
-        if (!delayp || !delayp->isCycleDelay() || !delayp->isRangeDelay() || delayp->isUnbounded())
-            return {};
-        if (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) return {};
-        AstNodeExpr* const prep = sexprp->preExprp();
-        if (prep && fixedLength(prep) != 0) return {};
-        if (fixedLength(sexprp->exprp()) != 0) return {};
-        return {true, prep, sexprp->exprp()};
+    ساكن SimpleRanged asSimpleRanged(Ast_تۈگۈن_ئىپادە* nodep) {
+        AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr);
+        إذا (!sexprp) أرجع {};
+        AstDelay* ثابت delayp = VN_CAST(sexprp->delayp(), Delay);
+        إذا (!delayp || !delayp->isCycleDelay() || !delayp->isRangeDelay() || delayp->isUnbounded())
+            أرجع {};
+        إذا (getConstUInt(delayp->lhsp()) == getConstUInt(delayp->rhsp())) أرجع {};
+        Ast_تۈگۈن_ئىپادە* ثابت prep = sexprp->preExprp();
+        إذا (prep && fixedLength(prep) != 0) أرجع {};
+        إذا (fixedLength(sexprp->exprp()) != 0) أرجع {};
+        أرجع {true, prep, sexprp->exprp()};
     }
 
     // Build the NFA for a synthesized intersect lowering tree, then free it.
     // buildExpr returns the terminal condition (finalCondp) by reference into the
     // tree; detach a clone so the tree can be freed here. The graph already holds
     // clones/hoists of every edge condition, so nothing else dangles.
-    BuildResult buildFromLoweringTree(AstNodeExpr* treep, SvaStateVertex* entryVtxp,
-                                      bool isTopLevelStep) {
-        BuildResult result = buildExpr(treep, entryVtxp, isTopLevelStep);
-        if (result.valid() && result.finalCondp) {
-            result.finalCondp = result.finalCondp->cloneTreePure(false);
+    BuildResult build_From_Lowering_دەرەخ(Ast_تۈگۈن_ئىپادە* treep, SvaStateVertex* entryVtxp,
+                                      منطقي is_چوققا_Level_Step) {
+        BuildResult result = build_ئىپادە(treep, entryVtxp, is_چوققا_Level_Step);
+        إذا (result.valid() && result.finalCondp) {
+            result.finalCondp = result.finalCondp->clone_دەرەخ_Pure(خطأ);
         }
-        VL_DO_DANGLING(treep->deleteTree(), treep);
-        return result;
+        VL_DO_DANGLING(treep->delete_دەرەخ(), treep);
+        أرجع result;
     }
 
     // Empty common-length intersection -- unequal fixed lengths, or disjoint
@@ -1283,11 +1283,11 @@ class SvaNfaBuilder final {
     // over a window of the same length, so with no common length the intersect
     // simply never matches. This is legal (matching nothing), not an error, so
     // lower to a constant false rather than rejecting legal code.
-    BuildResult buildNeverMatchIntersect(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                                         bool isTopLevelStep, const char* reason) {
+    BuildResult buildNeverMatchIntersect(Ast_تۈگۈن_ئىپادە* nodep, SvaStateVertex* entryVtxp,
+                                         منطقي is_چوققا_Level_Step, ثابت حرف* reason) {
         nodep->v3warn(NEVERMATCH, "Sequence can never match because " << reason << ".");
-        AstNodeExpr* const falsep = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-        return buildFromLoweringTree(falsep, entryVtxp, isTopLevelStep);
+        Ast_تۈگۈن_ئىپادە* ثابت falsep = جديد AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        أرجع build_From_Lowering_دەرەخ(falsep, entryVtxp, is_چوققا_Level_Step);
     }
 
     // Lower `seq1 intersect seq2` when an operand's match length varies
@@ -1304,69 +1304,69 @@ class SvaNfaBuilder final {
     //    would fail the whole intersect, cf. Lesson 48.)
     //  - otherwise unsupported (clean error, not the legacy fall-through crash).
     BuildResult buildVarLenIntersect(AstSIntersect* nodep, SvaStateVertex* entryVtxp,
-                                     bool isTopLevelStep) {
-        const std::pair<int, int> lhsRange = lengthRange(nodep->lhsp());
-        const std::pair<int, int> rhsRange = lengthRange(nodep->rhsp());
-        if (lhsRange.first < 0 || rhsRange.first < 0) {
+                                     منطقي is_چوققا_Level_Step) {
+        ثابت std::pair<صحيح, صحيح> lhsRange = lengthRange(nodep->lhsp());
+        ثابت std::pair<صحيح, صحيح> rhsRange = lengthRange(nodep->rhsp());
+        إذا (lhsRange.first < 0 || rhsRange.first < 0) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect with this variable-length operand");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        const int lo = std::max(lhsRange.first, rhsRange.first);
-        const int hi = std::min(lhsRange.second, rhsRange.second);
-        if (lo > hi) {
+        ثابت صحيح lo = std::max(lhsRange.first, rhsRange.first);
+        ثابت صحيح hi = std::min(lhsRange.second, rhsRange.second);
+        إذا (lo > hi) {
             // Disjoint length ranges share no common length -> never matches.
-            return buildNeverMatchIntersect(nodep, entryVtxp, isTopLevelStep,
+            أرجع buildNeverMatchIntersect(nodep, entryVtxp, is_چوققا_Level_Step,
                                             "intersect operands have no common length");
         }
-        FileLine* const flp = nodep->fileline();
-        if (lo == hi) {
-            AstNodeExpr* const lp = realizeAtLength(nodep->lhsp(), lo, lhsRange.first);
-            AstNodeExpr* const rp = realizeAtLength(nodep->rhsp(), lo, rhsRange.first);
-            AstNodeExpr* const conjp = conjoinFixedSeqs(lp, rp, flp);
-            VL_DO_DANGLING(lp->deleteTree(), lp);
-            VL_DO_DANGLING(rp->deleteTree(), rp);
-            if (!conjp) {
+        File_قۇر* ثابت flp = nodep->fileline();
+        إذا (lo == hi) {
+            Ast_تۈگۈن_ئىپادە* ثابت lp = realizeAtLength(nodep->lhsp(), lo, lhsRange.first);
+            Ast_تۈگۈن_ئىپادە* ثابت rp = realizeAtLength(nodep->rhsp(), lo, rhsRange.first);
+            Ast_تۈگۈن_ئىپادە* ثابت conjp = conjoinFixedSeqs(lp, rp, flp);
+            VL_DO_DANGLING(lp->delete_دەرەخ(), lp);
+            VL_DO_DANGLING(rp->delete_دەرەخ(), rp);
+            إذا (!conjp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: intersect operand is not a plain boolean sequence");
-                return BuildResult::failWithError();
+                أرجع BuildResult::failWithError();
             }
-            return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+            أرجع build_From_Lowering_دەرەخ(conjp, entryVtxp, is_چوققا_Level_Step);
         }
-        const SimpleRanged sl = asSimpleRanged(nodep->lhsp());
-        const SimpleRanged sr = asSimpleRanged(nodep->rhsp());
-        if (!sl.ok || !sr.ok) {
+        ثابت SimpleRanged sl = asSimpleRanged(nodep->lhsp());
+        ثابت SimpleRanged sr = asSimpleRanged(nodep->rhsp());
+        إذا (!sl.ok || !sr.ok) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: intersect of two sequences that each vary in length over a"
                           " range with internal structure");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        const auto andBool = [&](AstNodeExpr* ap, AstNodeExpr* bp) -> AstNodeExpr* {
-            AstNodeExpr* const aClonep
-                = ap ? ap->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstNodeExpr* const bClonep
-                = bp ? bp->cloneTreePure(false) : new AstConst{flp, AstConst::BitTrue{}};
-            AstLogAnd* const andp = new AstLogAnd{flp, aClonep, bClonep};
+        ثابت auto andBool = [&](Ast_تۈگۈن_ئىپادە* ap, Ast_تۈگۈن_ئىپادە* bp) -> Ast_تۈگۈن_ئىپادە* {
+            Ast_تۈگۈن_ئىپادە* ثابت aClonep
+                = ap ? ap->clone_دەرەخ_Pure(خطأ) : جديد AstConst{flp, AstConst::BitTrue{}};
+            Ast_تۈگۈن_ئىپادە* ثابت bClonep
+                = bp ? bp->clone_دەرەخ_Pure(خطأ) : جديد AstConst{flp, AstConst::BitTrue{}};
+            AstLogAnd* ثابت andp = جديد AstLogAnd{flp, aClonep, bClonep};
             andp->dtypeSetBit();
-            return andp;
+            أرجع andp;
         };
-        AstDelay* const delayp = new AstDelay{flp, new AstConst{flp, static_cast<uint32_t>(lo)},
+        AstDelay* ثابت delayp = جديد AstDelay{flp, جديد AstConst{flp, static_cast<uint32_t>(lo)},
                                               /*isCycle=*/true};
-        delayp->rhsp(new AstConst{flp, static_cast<uint32_t>(hi)});
-        AstSExpr* const reducedp
-            = new AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
+        delayp->rhsp(جديد AstConst{flp, static_cast<uint32_t>(hi)});
+        AstSExpr* ثابت reducedp
+            = جديد AstSExpr{flp, andBool(sl.startp, sr.startp), delayp, andBool(sl.endp, sr.endp)};
         reducedp->dtypeSetBit();
-        return buildFromLoweringTree(reducedp, entryVtxp, isTopLevelStep);
+        أرجع build_From_Lowering_دەرەخ(reducedp, entryVtxp, is_چوققا_Level_Step);
     }
 
     BuildResult buildThroughout(AstSThroughout* nodep, SvaStateVertex* entryVtxp,
-                                bool isTopLevelStep = false) {
+                                منطقي is_چوققا_Level_Step = خطأ) {
         // Mark entryVtxp so "cond false at tick 0" is detected as throughout-drop.
-        entryVtxp->m_throughoutConds.push_back(nodep->lhsp()->cloneTreePure(false));
-        m_temporalGuardStack.push_back(nodep->lhsp());
-        const BuildResult result = buildExpr(nodep->rhsp(), entryVtxp, isTopLevelStep);
-        m_temporalGuardStack.pop_back();
-        return result;
+        entryVtxp->m_throughoutConds.ئىتتىرىش_back(nodep->lhsp()->clone_دەرەخ_Pure(خطأ));
+        m_temporal_Guard_دۆۋە.ئىتتىرىش_back(nodep->lhsp());
+        ثابت BuildResult result = build_ئىپادە(nodep->rhsp(), entryVtxp, is_چوققا_Level_Step);
+        m_temporal_Guard_دۆۋە.چىقىرىش_back();
+        أرجع result;
     }
 
     // until / until_with per IEEE 1800-2023 16.12.12.
@@ -1388,34 +1388,34 @@ class SvaNfaBuilder final {
     //   REQUIRE = sampled(p)                 accept = sampled(p) && sampled(q)
     // Strong forms use the same checks and mark the registered wait state as
     // an end-of-simulation liveness obligation.
-    BuildResult buildUntil(AstUntil* nodep, SvaStateVertex* entryVtxp, bool isTopLevelStep) {
-        FileLine* const flp = nodep->fileline();
-        if (!isTopLevelStep) {
+    BuildResult buildUntil(AstUntil* nodep, SvaStateVertex* entryVtxp, منطقي is_چوققا_Level_Step) {
+        File_قۇر* ثابت flp = nodep->fileline();
+        إذا (!is_چوققا_Level_Step) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstNodeExpr* const rhsp = nodep->rhsp();
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+        Ast_تۈگۈن_ئىپادە* ثابت lhsp = nodep->lhsp();
+        Ast_تۈگۈن_ئىپادە* ثابت rhsp = nodep->rhsp();
+        ثابت auto hasSeq = [](ثابت Ast_تۈگۈن_ئىپادە* ep) {
+            أرجع ep->exists([](ثابت Ast_تۈگۈن_ئىپادە* np) { أرجع np->isMultiCycleSva(); });
         };
-        if (hasSeq(lhsp) || hasSeq(rhsp)) {
+        إذا (hasSeq(lhsp) || hasSeq(rhsp)) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: '" << nodep->verilogKwd()
                                                           << "' in complex property expression");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
 
-        const bool ov = nodep->isOverlapping();
-        AstNodeExpr* const lhsBitp = nodep->lhsp();
-        AstNodeExpr* const rhsBitp = nodep->rhsp();
+        ثابت منطقي ov = nodep->isOverlapping();
+        Ast_تۈگۈن_ئىپادە* ثابت lhsBitp = nodep->lhsp();
+        Ast_تۈگۈن_ئىپادە* ثابت rhsBitp = nodep->rhsp();
         // p hoist count: continue, require (ov: 1 use; nov: 1 use). At least 2 uses.
-        AstVar* const pHoistp = tryHoistSampled(lhsBitp, flp, 2);
+        AstVar* ثابت pHoistp = tryHoistSampled(lhsBitp, flp, 2);
         // q hoist count: continue (1) + require nov (1) = 2; ov: continue only (1).
-        AstVar* const qHoistp = ov ? nullptr : tryHoistSampled(rhsBitp, flp, 2);
+        AstVar* ثابت qHoistp = ov ? nullptr : tryHoistSampled(rhsBitp, flp, 2);
 
-        SvaStateVertex* const waitCp = scopedCreateVertex();
-        SvaStateVertex* const waitRp = scopedCreateVertex();
+        SvaStateVertex* ثابت waitCp = scopedCreateVertex();
+        SvaStateVertex* ثابت waitRp = scopedCreateVertex();
         waitCp->m_isUnbounded = true;
         waitRp->m_strongPending = nodep->isStrong() && !m_isCover;
 
@@ -1424,33 +1424,33 @@ class SvaNfaBuilder final {
         guardedLink(waitRp, waitCp, flp);
 
         // Continue clocked edge: p && !q advances to next-cycle wait.
-        AstNodeExpr* const contCondp
-            = new AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
-                            new AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
+        Ast_تۈگۈن_ئىپادە* ثابت contCondp
+            = جديد AstLogAnd{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+                            جديد AstLogNot{flp, sampledRefOrClone(qHoistp, rhsBitp, flp)}};
         guardedEdge(waitCp, waitRp, contCondp, flp);
 
         // Reject sink: fires when require-condition is false.
-        SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
+        SvaStateVertex* ثابت sinkVtxp = m_graph.createStateVertex();
         sinkVtxp->m_isRejectSink = true;
-        AstNodeExpr* requireCondp;
-        if (ov) {
+        Ast_تۈگۈن_ئىپادە* requireCondp;
+        إذا (ov) {
             requireCondp = sampledRefOrClone(pHoistp, lhsBitp, flp);
-        } else {
-            requireCondp = new AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
+        } وإلا {
+            requireCondp = جديد AstLogOr{flp, sampledRefOrClone(pHoistp, lhsBitp, flp),
                                         sampledRefOrClone(qHoistp, rhsBitp, flp)};
         }
-        SvaTransEdge* const rejEdgep = m_graph.addLink(waitCp, sinkVtxp, requireCondp);
+        SvaTransEdge* ثابت rejEdgep = m_graph.addLink(waitCp, sinkVtxp, requireCondp);
         rejEdgep->m_rejectOnFail = true;
 
         // Accept condition rides via finalCondp; assembleResult $sampled-wraps it.
-        AstNodeExpr* acceptCondp;
-        if (ov) {
+        Ast_تۈگۈن_ئىپادە* acceptCondp;
+        إذا (ov) {
             acceptCondp
-                = new AstLogAnd{flp, lhsBitp->cloneTreePure(false), rhsBitp->cloneTreePure(false)};
-        } else {
-            acceptCondp = rhsBitp->cloneTreePure(false);
+                = جديد AstLogAnd{flp, lhsBitp->clone_دەرەخ_Pure(خطأ), rhsBitp->clone_دەرەخ_Pure(خطأ)};
+        } وإلا {
+            acceptCondp = rhsBitp->clone_دەرەخ_Pure(خطأ);
         }
-        return {waitCp, acceptCondp, {}};
+        أرجع {waitCp, acceptCondp, {}};
     }
 
     // IEEE 1800-2023 16.12.14 property abort operators. Sync and async share
@@ -1460,160 +1460,160 @@ class SvaNfaBuilder final {
     // verdict (sync vs async only changes the user-visible spelling).
 
     // Build `condp && !outer_1 && !outer_2 ...` (unsampled).
-    AstNodeExpr* abortFireExpr(AstNodeExpr* condp, FileLine* flp) {
-        AstNodeExpr* resultp = condp->cloneTreePure(false);
-        for (AstNodeExpr* const op : m_outerAbortStack)
-            resultp = new AstLogAnd{flp, resultp, new AstLogNot{flp, op->cloneTreePure(false)}};
-        return resultp;
+    Ast_تۈگۈن_ئىپادە* abort_Fire_ئىپادە(Ast_تۈگۈن_ئىپادە* condp, File_قۇر* flp) {
+        Ast_تۈگۈن_ئىپادە* resultp = condp->clone_دەرەخ_Pure(خطأ);
+        لكل (Ast_تۈگۈن_ئىپادە* ثابت op : m_outer_Abort_دۆۋە)
+            resultp = جديد AstLogAnd{flp, resultp, جديد AstLogNot{flp, op->clone_دەرەخ_Pure(خطأ)}};
+        أرجع resultp;
     }
 
     // True when unguarded ring-wide rejection or a same-tick Link chain already accounts the
     // attempt: a required-step Link covers both outcomes; followed-by pairs both edges.
-    static bool chainAccountsSource(const SvaStateVertex* srcp,
-                                    const std::unordered_set<const V3GraphEdge*>& preEdges) {
-        if (srcp->m_delayRingSize && srcp->m_throughoutConds.empty()) return true;
-        for (const V3GraphEdge& edger : srcp->inEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const auto* const fromp = static_cast<const SvaStateVertex*>(tedger.fromVtxp());
-            if (fromp->m_abortRejectp) return true;
+    ساكن منطقي chainAccountsSource(ثابت SvaStateVertex* srcp,
+                                    ثابت std::unordered_set<ثابت V3GraphEdge*>& preEdges) {
+        إذا (srcp->m_delayRingSize && srcp->m_throughoutConds.empty()) أرجع true;
+        لكل (ثابت V3GraphEdge& edger : srcp->inEdges()) {
+            إذا (preEdges.سانى(&edger)) استمر;
+            ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
+            إذا (tedger.m_consumesCycle) استمر;
+            ثابت auto* ثابت fromp = static_cast<ثابت SvaStateVertex*>(tedger.fromVtxp());
+            إذا (fromp->m_abortRejectp) أرجع true;
         }
-        bool plainNonSink = false;
-        bool markedSink = false;
-        for (const V3GraphEdge& edger : srcp->outEdges()) {
-            if (preEdges.count(&edger)) continue;
-            const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-            if (tedger.m_consumesCycle) continue;
-            const bool sink = static_cast<const SvaStateVertex*>(tedger.toVtxp())->m_isRejectSink;
-            if (tedger.m_rejectOnFail) {
-                if (!sink) return true;
+        منطقي plainNonSink = خطأ;
+        منطقي markedSink = خطأ;
+        لكل (ثابت V3GraphEdge& edger : srcp->outEdges()) {
+            إذا (preEdges.سانى(&edger)) استمر;
+            ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
+            إذا (tedger.m_consumesCycle) استمر;
+            ثابت منطقي sink = static_cast<ثابت SvaStateVertex*>(tedger.toVtxp())->m_isRejectSink;
+            إذا (tedger.m_rejectOnFail) {
+                إذا (!sink) أرجع true;
                 markedSink = true;
-            } else if (!sink) {
-                if (srcp->m_abortRejectp) return true;
+            } وإلا إذا (!sink) {
+                إذا (srcp->m_abortRejectp) أرجع true;
                 plainNonSink = true;
             }
         }
-        return plainNonSink && markedSink;
+        أرجع plainNonSink && markedSink;
     }
 
     // Reject edge: fires when the source is live and the abort samples true.
-    void addAbortRejectEdge(SvaStateVertex* srcp, SvaStateVertex* sinkp, AstNodeExpr* condp,
-                            FileLine* flp) {
-        AstNodeExpr* const notFirep = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
+    فراغ addAbortRejectEdge(SvaStateVertex* srcp, SvaStateVertex* sinkp, Ast_تۈگۈن_ئىپادە* condp,
+                            File_قۇر* flp) {
+        Ast_تۈگۈن_ئىپادە* ثابت notFirep = جديد AstLogNot{flp, sampled(abort_Fire_ئىپادە(condp, flp))};
         m_graph.addLink(srcp, sinkp, notFirep)->m_rejectOnFail = true;
-        return;
+        أرجع;
     }
 
     // On the fire tick: kill body threads; accept kinds also forgive step misses.
-    void gateBodyEdgesOnAbort(const std::unordered_set<const V3GraphEdge*>& preEdges,
-                              AstNodeExpr* condp, VAbortKind kind, FileLine* flp) {
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            for (V3GraphEdge& edger : vtxr.outEdges()) {
-                if (preEdges.count(&edger)) continue;
-                SvaTransEdge* const tedgep = static_cast<SvaTransEdge*>(&edger);
-                if (tedgep->m_rejectOnFail) {
-                    if (!kind.isAccept()) continue;
-                    AstNodeExpr* const firep = sampled(abortFireExpr(condp, flp));
+    فراغ gateBodyEdgesOnAbort(ثابت std::unordered_set<ثابت V3GraphEdge*>& preEdges,
+                              Ast_تۈگۈن_ئىپادە* condp, VAbortKind kind, File_قۇر* flp) {
+        لكل (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            لكل (V3GraphEdge& edger : vtxr.outEdges()) {
+                إذا (preEdges.سانى(&edger)) استمر;
+                SvaTransEdge* ثابت tedgep = static_cast<SvaTransEdge*>(&edger);
+                إذا (tedgep->m_rejectOnFail) {
+                    إذا (!kind.isAccept()) استمر;
+                    Ast_تۈگۈن_ئىپادە* ثابت firep = sampled(abort_Fire_ئىپادە(condp, flp));
                     tedgep->m_condp
-                        = tedgep->m_condp ? new AstLogOr{flp, tedgep->m_condp, firep} : firep;
-                } else if (tedgep->m_consumesCycle) {
-                    AstNodeExpr* const notFirep
-                        = new AstLogNot{flp, sampled(abortFireExpr(condp, flp))};
+                        = tedgep->m_condp ? جديد AstLogOr{flp, tedgep->m_condp, firep} : firep;
+                } وإلا إذا (tedgep->m_consumesCycle) {
+                    Ast_تۈگۈن_ئىپادە* ثابت notFirep
+                        = جديد AstLogNot{flp, sampled(abort_Fire_ئىپادە(condp, flp))};
                     tedgep->m_condp = tedgep->m_condp
-                                          ? new AstLogAnd{flp, tedgep->m_condp, notFirep}
+                                          ? جديد AstLogAnd{flp, tedgep->m_condp, notFirep}
                                           : notFirep;
                 }
             }
         }
     }
 
-    BuildResult buildAbortOn(AstNodeExpr* condp, AstNodeExpr* bodyp, SvaStateVertex* entryVtxp,
-                             VAbortKind kind, FileLine* flp, bool isTopLevelStep) {
+    BuildResult buildAbortOn(Ast_تۈگۈن_ئىپادە* condp, Ast_تۈگۈن_ئىپادە* bodyp, SvaStateVertex* entryVtxp,
+                             VAbortKind kind, File_قۇر* flp, منطقي is_چوققا_Level_Step) {
         // Snapshot pre-body vertices/edges so post-build diff yields the body's sub-NFA.
-        std::unordered_set<const V3GraphVertex*> preExisting;
-        std::unordered_set<const V3GraphEdge*> preEdges;
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            preExisting.insert(&vtxr);
-            for (V3GraphEdge& edger : vtxr.outEdges()) preEdges.insert(&edger);
+        std::unordered_set<ثابت V3GraphVertex*> preExisting;
+        std::unordered_set<ثابت V3GraphEdge*> preEdges;
+        لكل (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            preExisting.قىستۇرۇش(&vtxr);
+            لكل (V3GraphEdge& edger : vtxr.outEdges()) preEdges.قىستۇرۇش(&edger);
         }
 
-        m_outerAbortStack.push_back(condp);
-        const BuildResult bodyResult = buildExpr(bodyp, entryVtxp, isTopLevelStep);
-        m_outerAbortStack.pop_back();
-        if (!bodyResult.valid()) return bodyResult;
+        m_outer_Abort_دۆۋە.ئىتتىرىش_back(condp);
+        ثابت BuildResult bodyResult = build_ئىپادە(bodyp, entryVtxp, is_چوققا_Level_Step);
+        m_outer_Abort_دۆۋە.چىقىرىش_back();
+        إذا (!bodyResult.valid()) أرجع bodyResult;
 
         gateBodyEdgesOnAbort(preEdges, condp, kind, flp);
 
         // Live-thread sources for the abort edge: entry + new body vertices,
         // minus reject sinks (they carry reject fuel, not live-thread fuel).
         std::vector<SvaStateVertex*> abortSources;
-        abortSources.push_back(entryVtxp);
-        for (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
-            if (preExisting.count(&vtxr)) continue;
-            auto* const sp = static_cast<SvaStateVertex*>(&vtxr);
-            if (sp->m_delayRingSize || !sp->m_throughoutConds.empty()) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+        abortSources.ئىتتىرىش_back(entryVtxp);
+        لكل (V3GraphVertex& vtxr : m_graph.m_graph.vertices()) {
+            إذا (preExisting.سانى(&vtxr)) استمر;
+            auto* ثابت sp = static_cast<SvaStateVertex*>(&vtxr);
+            إذا (sp->m_delayRingSize || !sp->m_throughoutConds.empty()) {
+                Ast_تۈگۈن_ئىپادە* ثابت firep = abort_Fire_ئىپادە(condp, flp);
                 sp->m_abortClearp
-                    = sp->m_abortClearp ? new AstLogOr{flp, sp->m_abortClearp, firep} : firep;
+                    = sp->m_abortClearp ? جديد AstLogOr{flp, sp->m_abortClearp, firep} : firep;
             }
-            if (!kind.isAccept()
+            إذا (!kind.isAccept()
                 && ((sp->m_delayRingSize && sp->m_throughoutConds.empty())
                     || sp->m_replayAbortReject)) {
-                AstNodeExpr* const firep = abortFireExpr(condp, flp);
+                Ast_تۈگۈن_ئىپادە* ثابت firep = abort_Fire_ئىپادە(condp, flp);
                 sp->m_abortRejectp
-                    = sp->m_abortRejectp ? new AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
+                    = sp->m_abortRejectp ? جديد AstLogOr{flp, sp->m_abortRejectp, firep} : firep;
             }
-            if (sp->m_isRejectSink) continue;
-            abortSources.push_back(sp);
+            إذا (sp->m_isRejectSink) استمر;
+            abortSources.ئىتتىرىش_back(sp);
         }
 
-        auto sampledAbortFire = [&]() -> AstNodeExpr* {
-            AstNodeExpr* const expr = abortFireExpr(condp, flp);
-            return sampled(expr);
+        auto sampledAbortFire = [&]() -> Ast_تۈگۈن_ئىپادە* {
+            Ast_تۈگۈن_ئىپادە* ثابت ئىپادە = abort_Fire_ئىپادە(condp, flp);
+            أرجع sampled(ئىپادە);
         };
 
-        if (kind.isAccept()) {
+        إذا (kind.isAccept()) {
             // Match-only sink fed by $sampled(abort-fire) from every live source;
             // registered as midSource so it never contributes a reject.
-            SvaStateVertex* const acceptSinkp = scopedCreateVertex();
-            for (SvaStateVertex* const srcp : abortSources)
+            SvaStateVertex* ثابت acceptSinkp = scopedCreateVertex();
+            لكل (SvaStateVertex* ثابت srcp : abortSources)
                 guardedLink(srcp, acceptSinkp, sampledAbortFire(), flp);
             std::vector<SvaStateVertex*> midSources = bodyResult.midSources;
-            midSources.push_back(acceptSinkp);
-            AstNodeExpr* finalCondp = bodyResult.finalCondp;
-            if (finalCondp) {
-                if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
-                finalCondp = new AstLogOr{flp, finalCondp, abortFireExpr(condp, flp)};
+            midSources.ئىتتىرىش_back(acceptSinkp);
+            Ast_تۈگۈن_ئىپادە* finalCondp = bodyResult.finalCondp;
+            إذا (finalCondp) {
+                إذا (finalCondp->backp()) finalCondp = finalCondp->clone_دەرەخ_Pure(خطأ);
+                finalCondp = جديد AstLogOr{flp, finalCondp, abort_Fire_ئىپادە(condp, flp)};
             }
-            return {bodyResult.termVertexp, finalCondp, std::move(midSources)};
+            أرجع {bodyResult.termVertexp, finalCondp, std::move(midSources)};
         }
 
         // rejectOnFail treats m_condp as the success condition and fires on
         // !condp, so the edge carries !sampledAbortFire().
-        SvaStateVertex* const rejectSinkp = m_graph.createStateVertex();
+        SvaStateVertex* ثابت rejectSinkp = m_graph.createStateVertex();
         rejectSinkp->m_isRejectSink = true;
-        for (SvaStateVertex* const srcp : abortSources)
-            if (!chainAccountsSource(srcp, preEdges))
+        لكل (SvaStateVertex* ثابت srcp : abortSources)
+            إذا (!chainAccountsSource(srcp, preEdges))
                 addAbortRejectEdge(srcp, rejectSinkp, condp, flp);
-        AstNodeExpr* finalCondp = bodyResult.finalCondp;
-        if (finalCondp) {
-            if (finalCondp->backp()) finalCondp = finalCondp->cloneTreePure(false);
+        Ast_تۈگۈن_ئىپادە* finalCondp = bodyResult.finalCondp;
+        إذا (finalCondp) {
+            إذا (finalCondp->backp()) finalCondp = finalCondp->clone_دەرەخ_Pure(خطأ);
             finalCondp
-                = new AstLogAnd{flp, finalCondp, new AstLogNot{flp, abortFireExpr(condp, flp)}};
+                = جديد AstLogAnd{flp, finalCondp, جديد AstLogNot{flp, abort_Fire_ئىپادە(condp, flp)}};
         }
-        return {bodyResult.termVertexp, finalCondp, bodyResult.midSources};
+        أرجع {bodyResult.termVertexp, finalCondp, bodyResult.midSources};
     }
 
-public:
+عام:
     // Free a dropped sub-result condition that is not linked into the AST
     // (abort folds synthesize unparented finalCondp trees).
-    static void freeUnlinkedCondp(AstNodeExpr* condp) {
-        if (condp && !condp->backp()) VL_DO_DANGLING(condp->deleteTree(), condp);
+    ساكن فراغ freeUnlinkedCondp(Ast_تۈگۈن_ئىپادە* condp) {
+        إذا (condp && !condp->backp()) VL_DO_DANGLING(condp->delete_دەرەخ(), condp);
     }
 
-    SvaNfaBuilder(SvaGraph& graph, AstNodeModule* modp, V3UniqueNames& propTempNames,
-                  bool isCoverSeq = false, bool isSeqEvent = false, bool isCover = false)
+    SvaNfaBuilder(SvaGraph& graph, Ast_تۈگۈن_Module* modp, V3UniqueNames& propTempNames,
+                  منطقي isCoverSeq = خطأ, منطقي isSeqEvent = خطأ, منطقي isCover = خطأ)
         : m_graph{graph}
         , m_modp{modp}
         , m_propTempNames{propTempNames}
@@ -1624,83 +1624,83 @@ public:
     // Reset scope between antecedent and consequent: liveness must not leak.
     // m_outerAbortStack survives: an abort wrapping the implication covers the
     // consequent too (IEEE 1800-2023 16.12.14).
-    void resetScope() {
-        m_inUnboundedScope = false;
-        m_temporalGuardStack.clear();
+    فراغ resetScope() {
+        m_inUnboundedScope = خطأ;
+        m_temporal_Guard_دۆۋە.clear();
     }
 
-    BuildResult buildExpr(AstNodeExpr* nodep, SvaStateVertex* entryVtxp,
-                          bool isTopLevelStep = false) {
+    BuildResult build_ئىپادە(Ast_تۈگۈن_ئىپادە* nodep, SvaStateVertex* entryVtxp,
+                          منطقي is_چوققا_Level_Step = خطأ) {
         VL_RESTORER(m_wantBoolLeaf);
-        const bool wantBoolLeaf = m_wantBoolLeaf;
-        m_wantBoolLeaf = false;
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
-            return buildSExpr(sexprp, entryVtxp, isTopLevelStep);
+        ثابت منطقي wantBoolLeaf = m_wantBoolLeaf;
+        m_wantBoolLeaf = خطأ;
+        إذا (AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr)) {
+            أرجع buildSExpr(sexprp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstSConsRep* const repp = VN_CAST(nodep, SConsRep)) {
-            return buildConsRep(repp, entryVtxp, isTopLevelStep);
+        إذا (AstSConsRep* ثابت repp = VN_CAST(nodep, SConsRep)) {
+            أرجع buildConsRep(repp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstPropAlways* const alwaysp = VN_CAST(nodep, PropAlways)) {
-            return buildPropAlways(alwaysp, entryVtxp, isTopLevelStep);
+        إذا (AstPropAlways* ثابت alwaysp = VN_CAST(nodep, PropAlways)) {
+            أرجع buildPropAlways(alwaysp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstSGotoRep* const repp = VN_CAST(nodep, SGotoRep)) {
-            return buildGotoRep(repp, entryVtxp);
+        إذا (AstSGotoRep* ثابت repp = VN_CAST(nodep, SGotoRep)) {
+            أرجع buildGotoRep(repp, entryVtxp);
         }
-        if (AstSThroughout* const throughoutp = VN_CAST(nodep, SThroughout)) {
-            return buildThroughout(throughoutp, entryVtxp, isTopLevelStep);
+        إذا (AstSThroughout* ثابت throughoutp = VN_CAST(nodep, SThroughout)) {
+            أرجع buildThroughout(throughoutp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstSOr* const orp = VN_CAST(nodep, SOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
+        إذا (AstSOr* ثابت orp = VN_CAST(nodep, SOr)) {
+            أرجع buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
                                 wantBoolLeaf);
         }
-        if (AstLogOr* const orp = VN_CAST(nodep, LogOr)) {
-            return buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
+        إذا (AstLogOr* ثابت orp = VN_CAST(nodep, LogOr)) {
+            أرجع buildOrMerge(orp->lhsp(), orp->rhsp(), entryVtxp, orp->fileline(),
                                 wantBoolLeaf);
         }
-        if (AstSAnd* const andp = VN_CAST(nodep, SAnd)) {
-            return buildAndCombiner(andp->lhsp(), andp->rhsp(), entryVtxp, andp->fileline());
+        إذا (AstSAnd* ثابت andp = VN_CAST(nodep, SAnd)) {
+            أرجع buildAndCombiner(andp->lhsp(), andp->rhsp(), entryVtxp, andp->fileline());
         }
-        if (AstSIntersect* const intp = VN_CAST(nodep, SIntersect)) {
+        إذا (AstSIntersect* ثابت intp = VN_CAST(nodep, SIntersect)) {
             // IEEE 1800-2023 16.9.6: both operands match over one window with
             // equal start and end (equal length). Lower to a single sequence
             // that conjoins both operands' per-cycle checks -- correct under
             // concurrent attempts, where the done-latch combiner conflates the
             // two operands' start times and over-accepts. The combiner remains
             // only as a fallback for operands that do not flatten.
-            const int lhsLen = fixedLength(intp->lhsp());
-            const int rhsLen = fixedLength(intp->rhsp());
-            if (lhsLen >= 0 && rhsLen >= 0) {
-                if (lhsLen != rhsLen) {
+            ثابت صحيح lhsLen = fixedLength(intp->lhsp());
+            ثابت صحيح rhsLen = fixedLength(intp->rhsp());
+            إذا (lhsLen >= 0 && rhsLen >= 0) {
+                إذا (lhsLen != rhsLen) {
                     // Unequal fixed lengths share no common length -> never matches.
-                    return buildNeverMatchIntersect(intp, entryVtxp, isTopLevelStep,
+                    أرجع buildNeverMatchIntersect(intp, entryVtxp, is_چوققا_Level_Step,
                                                     "intersect operands have no common length");
                 }
-                if (AstNodeExpr* const conjp
+                إذا (Ast_تۈگۈن_ئىپادە* ثابت conjp
                     = conjoinFixedSeqs(intp->lhsp(), intp->rhsp(), intp->fileline())) {
-                    return buildFromLoweringTree(conjp, entryVtxp, isTopLevelStep);
+                    أرجع build_From_Lowering_دەرەخ(conjp, entryVtxp, is_چوققا_Level_Step);
                 }
-                return buildAndCombiner(intp->lhsp(), intp->rhsp(), entryVtxp, intp->fileline());
+                أرجع buildAndCombiner(intp->lhsp(), intp->rhsp(), entryVtxp, intp->fileline());
             }
-            return buildVarLenIntersect(intp, entryVtxp, isTopLevelStep);
+            أرجع buildVarLenIntersect(intp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstSWithin* const withinp = VN_CAST(nodep, SWithin)) {
-            return buildSWithin(withinp, entryVtxp, isTopLevelStep);
+        إذا (AstSWithin* ثابت withinp = VN_CAST(nodep, SWithin)) {
+            أرجع buildSWithin(withinp, entryVtxp, is_چوققا_Level_Step);
         }
-        if (AstAbortOn* const ap = VN_CAST(nodep, AbortOn)) {
-            return buildAbortOn(ap->condp(), ap->propp(), entryVtxp, ap->kind(), ap->fileline(),
-                                isTopLevelStep);
+        إذا (AstAbortOn* ثابت ap = VN_CAST(nodep, AbortOn)) {
+            أرجع buildAbortOn(ap->condp(), ap->propp(), entryVtxp, ap->kind(), ap->fileline(),
+                                is_چوققا_Level_Step);
         }
-        if (VN_IS(nodep, SNonConsRep)) return BuildResult::fail();
-        if (AstImplication* const implp = VN_CAST(nodep, Implication)) {
-            return buildImplicationEdges(implp->lhsp(), implp->rhsp(), entryVtxp,
+        إذا (VN_IS(nodep, SNonConsRep)) أرجع BuildResult::fail();
+        إذا (AstImplication* ثابت implp = VN_CAST(nodep, Implication)) {
+            أرجع buildImplicationEdges(implp->lhsp(), implp->rhsp(), entryVtxp,
                                          implp->isOverlapped(), implp->isFollowedBy(),
                                          implp->lhsp(), implp->fileline());
         }
-        if (AstUntil* const untilp = VN_CAST(nodep, Until)) {
-            return buildUntil(untilp, entryVtxp, isTopLevelStep);
+        إذا (AstUntil* ثابت untilp = VN_CAST(nodep, Until)) {
+            أرجع buildUntil(untilp, entryVtxp, is_چوققا_Level_Step);
         }
         // Boolean leaf (including LogAnd): return as finalCond
-        return {entryVtxp, nodep, {}};
+        أرجع {entryVtxp, nodep, {}};
     }
 
     // Wire an implication / followed-by from `entryVtxp`: builds the antecedent,
@@ -1709,54 +1709,54 @@ public:
     // nested AstImplication in pexpr position and for the top-level assertion
     // antecedent -- `errorNodep` anchors the "unsupported sequence antecedent"
     // error, which differs between the two call sites.
-    BuildResult buildImplicationEdges(AstNodeExpr* antExprp, AstNodeExpr* bodyExprp,
-                                      SvaStateVertex* entryVtxp, bool isOverlapped,
-                                      bool isFollowedBy, AstNode* errorNodep, FileLine* flp) {
-        const BuildResult antResult = buildExpr(antExprp, entryVtxp);
-        if (!antResult.valid()) return antResult;
+    BuildResult buildImplicationEdges(Ast_تۈگۈن_ئىپادە* antExprp, Ast_تۈگۈن_ئىپادە* bodyExprp,
+                                      SvaStateVertex* entryVtxp, منطقي isOverlapped,
+                                      منطقي isFollowedBy, Ast_تۈگۈن* errorNodep, File_قۇر* flp) {
+        ثابت BuildResult antResult = build_ئىپادە(antExprp, entryVtxp);
+        إذا (!antResult.valid()) أرجع antResult;
 
         // Followed-by requires pure-boolean antecedent for non-vacuous-fail at
         // the attempt-start cycle. IEEE 1800-2023 16.12.9 permits a multi-cycle
         // sequence LHS, so this is an implementation gap rather than illegal SV.
-        if (isFollowedBy && antResult.termVertexp != entryVtxp) {
+        إذا (isFollowedBy && antResult.termVertexp != entryVtxp) {
             errorNodep->v3warn(E_UNSUPPORTED,
                                "Unsupported: sequence expression as antecedent of followed-by"
                                " (#-# / #=#) (IEEE 1800-2023 16.12.9)");
-            return BuildResult::failWithError();
+            أرجع BuildResult::failWithError();
         }
         UASSERT_OBJ(!isFollowedBy || antResult.finalCondp, errorNodep,
                     "followed-by antecedent terminal at entry must carry finalCondp");
 
         // Use raw createStateVertex() so trigVtxp starts without liveness --
         // reaching the antecedent terminal is a definitive event.
-        SvaStateVertex* const trigVtxp = m_graph.createStateVertex();
-        if (antResult.finalCondp) {
+        SvaStateVertex* ثابت trigVtxp = m_graph.createStateVertex();
+        إذا (antResult.finalCondp) {
             m_graph.addLink(antResult.termVertexp, trigVtxp,
-                            sampled(antResult.finalCondp->cloneTreePure(false)));
+                            sampled(antResult.finalCondp->clone_دەرەخ_Pure(خطأ)));
             // Followed-by non-vacuous fail: rejectOnFail fires when the attempt
             // is live (termVtx reachable) and sampled(antecedent) is false.
-            if (isFollowedBy) {
-                SvaStateVertex* const sinkVtxp = m_graph.createStateVertex();
+            إذا (isFollowedBy) {
+                SvaStateVertex* ثابت sinkVtxp = m_graph.createStateVertex();
                 sinkVtxp->m_isRejectSink = true;
-                SvaTransEdge* const ep
+                SvaTransEdge* ثابت ep
                     = m_graph.addLink(antResult.termVertexp, sinkVtxp,
-                                      sampled(antResult.finalCondp->cloneTreePure(false)));
+                                      sampled(antResult.finalCondp->clone_دەرەخ_Pure(خطأ)));
                 ep->m_rejectOnFail = true;
             }
             // finalCondp is cloned into the Sampled nodes; if the original is
             // not parented anywhere in the AST anymore it must be freed here
             // or ASan flags it as a leak (e.g. t_sequence_bool_ops).
-            if (!antResult.finalCondp->backp()) {
-                VL_DO_DANGLING(antResult.finalCondp->deleteTree(), antResult.finalCondp);
+            إذا (!antResult.finalCondp->backp()) {
+                VL_DO_DANGLING(antResult.finalCondp->delete_دەرەخ(), antResult.finalCondp);
             }
-        } else {
+        } وإلا {
             m_graph.addLink(antResult.termVertexp, trigVtxp);
         }
         resetScope();
 
         SvaStateVertex* bodyEntryp = trigVtxp;
-        if (!isOverlapped) {
-            SvaStateVertex* const delayVtxp = m_graph.createStateVertex();
+        إذا (!isOverlapped) {
+            SvaStateVertex* ثابت delayVtxp = m_graph.createStateVertex();
             m_graph.addClockedEdge(trigVtxp, delayVtxp);
             bodyEntryp = delayVtxp;
         }
@@ -1764,34 +1764,34 @@ public:
         // repetition's empty match is not handled here; keep the merge vertex for those
         VL_RESTORER(m_wantBoolLeaf);
         m_wantBoolLeaf = !isFollowedBy && !hasZeroMinRep(antExprp);
-        return buildExpr(bodyExprp, bodyEntryp, /*isTopLevelStep=*/true);
+        أرجع build_ئىپادە(bodyExprp, bodyEntryp, /*isTopLevelStep=*/true);
     }
 
-    BuildResult build(AstNodeExpr* exprp) {
+    BuildResult build(Ast_تۈگۈن_ئىپادە* exprp) {
         m_graph.m_startVertexp = scopedCreateVertex();
         VL_RESTORER(m_wantBoolLeaf);
         m_wantBoolLeaf = true;
-        return buildExpr(exprp, m_graph.m_startVertexp, /*isTopLevelStep=*/true);
+        أرجع build_ئىپادە(exprp, m_graph.m_startVertexp, /*isTopLevelStep=*/true);
     }
 };
 
 //######################################################################
 // NFA Lowering (converts NFA graph to synthesizable AstAlways blocks)
 
-class SvaNfaLowering final {
-    AstNodeModule* const m_modp;  // Module to add state vars and always blocks to
-    AstNodeDType* const m_u32DTypep;  // Shared unsigned counter dtype
+صنف SvaNfaLowering final {
+    Ast_تۈگۈن_Module* ثابت m_modp;  // Module to add state vars and always blocks to
+    Ast_تۈگۈن_DType* ثابت m_u32DTypep;  // Shared unsigned counter dtype
     V3UniqueNames m_names{"__Vnfa"};
     size_t m_statDelayRingEdgeVisits = 0;  // Delay-ring incoming edges visited
 
     // Per-lowering shared context (passed to phase sub-functions)
     // Per-vertex lowering state is stored in SvaVertexData and accessed via
     // V3GraphVertex::userp() (see SvaStateVertex::datap()).
-    struct LowerCtx final {
-        FileLine* flp;  // Source location for generated AST
-        AstSenTree* senTreep;  // Clock sensitivity tree
-        AstNodeExpr* disableExprp;  // disable iff expression (may be nullptr)
-        AstNodeExpr* matchCondp;  // Final boolean match condition (may be nullptr)
+    بنية LowerCtx final {
+        File_قۇر* flp;  // Source location for generated AST
+        Ast_Sen_دەرەخ* senTreep;  // Clock sensitivity tree
+        Ast_تۈگۈن_ئىپادە* disableExprp;  // disable iff expression (may be nullptr)
+        Ast_تۈگۈن_ئىپادە* matchCondp;  // Final boolean match condition (may be nullptr)
         VAssertType assertType;  // Assertion type for control tasks
         VAssertDirectiveType directiveType;  // Directive type for control tasks
         AstVar* killVarp;  // Last observed kill generation
@@ -1799,140 +1799,140 @@ class SvaNfaLowering final {
     };
 
     // Build a match-now expression: stateSig[i] && $sampled(condp)
-    static AstNodeExpr* buildMatchNow(FileLine* flp, AstNodeExpr* stateExprp, AstNodeExpr* condp) {
-        AstNodeExpr* const statep = stateExprp->cloneTreePure(false);
-        if (!condp) return statep;
-        return new AstLogAnd{flp, statep, sampled(condp->cloneTreePure(false))};
+    ساكن Ast_تۈگۈن_ئىپادە* buildMatchNow(File_قۇر* flp, Ast_تۈگۈن_ئىپادە* stateExprp, Ast_تۈگۈن_ئىپادە* condp) {
+        Ast_تۈگۈن_ئىپادە* ثابت statep = stateExprp->clone_دەرەخ_Pure(خطأ);
+        إذا (!condp) أرجع statep;
+        أرجع جديد AstLogAnd{flp, statep, sampled(condp->clone_دەرەخ_Pure(خطأ))};
     }
-    static AstNodeExpr* andCond(FileLine* flp, AstNodeExpr* exprp, AstNodeExpr* condp) {
-        if (!condp) return exprp;
-        return new AstLogAnd{flp, exprp, condp->cloneTreePure(false)};
+    ساكن Ast_تۈگۈن_ئىپادە* andCond(File_قۇر* flp, Ast_تۈگۈن_ئىپادە* exprp, Ast_تۈگۈن_ئىپادە* condp) {
+        إذا (!condp) أرجع exprp;
+        أرجع جديد AstLogAnd{flp, exprp, condp->clone_دەرەخ_Pure(خطأ)};
     }
     // bp is always non-null; only ap can be null (serving as accumulator).
-    static AstNodeExpr* orExprs(FileLine* flp, AstNodeExpr* ap, AstNodeExpr* bp) {
-        if (!ap) return bp;
-        return new AstLogOr{flp, ap, bp};
+    ساكن Ast_تۈگۈن_ئىپادە* orExprs(File_قۇر* flp, Ast_تۈگۈن_ئىپادە* ap, Ast_تۈگۈن_ئىپادە* bp) {
+        إذا (!ap) أرجع bp;
+        أرجع جديد AstLogOr{flp, ap, bp};
     }
-    static AstNodeExpr* addCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                  AstNodeExpr* const contributionp,
-                                  AstNodeExpr* const enablep = nullptr) {
+    ساكن Ast_تۈگۈن_ئىپادە* addCountp(File_قۇر* ثابت flp, Ast_تۈگۈن_ئىپادە* ثابت totalCountp,
+                                  Ast_تۈگۈن_ئىپادە* ثابت contributionp,
+                                  Ast_تۈگۈن_ئىپادە* ثابت enablep = nullptr) {
         // contribution = enable ? contribution : 0;
-        AstNodeExpr* const enabledContributionp
-            = enablep ? new AstCond{flp, enablep, contributionp,
+        Ast_تۈگۈن_ئىپادە* ثابت enabledContributionp
+            = enablep ? جديد AstCond{flp, enablep, contributionp,
                                     newTypedConstp(flp, contributionp->dtypep(), 0)}
                       : contributionp;
-        if (!totalCountp) return enabledContributionp;
-        return new AstAdd{flp, totalCountp, enabledContributionp};
+        إذا (!totalCountp) أرجع enabledContributionp;
+        أرجع جديد AstAdd{flp, totalCountp, enabledContributionp};
     }
-    static AstNodeExpr* gateCheckedCountp(FileLine* const flp, AstNodeExpr* const countp,
-                                          AstNodeExpr*& overflowp, AstNodeExpr* const enablep) {
-        if (overflowp) {
-            overflowp = new AstLogAnd{flp, enablep->cloneTreePure(false), overflowp};
+    ساكن Ast_تۈگۈن_ئىپادە* gateCheckedCountp(File_قۇر* ثابت flp, Ast_تۈگۈن_ئىپادە* ثابت countp,
+                                          Ast_تۈگۈن_ئىپادە*& overflowp, Ast_تۈگۈن_ئىپادە* ثابت enablep) {
+        إذا (overflowp) {
+            overflowp = جديد AstLogAnd{flp, enablep->clone_دەرەخ_Pure(خطأ), overflowp};
         }
-        return addCountp(flp, nullptr, countp, enablep);
+        أرجع addCountp(flp, nullptr, countp, enablep);
     }
-    static AstNodeExpr* addCheckedCountp(FileLine* const flp, AstNodeExpr* const totalCountp,
-                                         AstNodeExpr* const contributionp, AstNodeExpr*& overflowp,
-                                         AstNodeExpr* const contributionOverflowp = nullptr) {
-        if (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
-        if (!totalCountp) return contributionp;
-        AstNodeExpr* const oldTotalp = totalCountp->cloneTreePure(false);
-        AstNodeExpr* const resultp = new AstAdd{flp, totalCountp, contributionp};
+    ساكن Ast_تۈگۈن_ئىپادە* addCheckedCountp(File_قۇر* ثابت flp, Ast_تۈگۈن_ئىپادە* ثابت totalCountp,
+                                         Ast_تۈگۈن_ئىپادە* ثابت contributionp, Ast_تۈگۈن_ئىپادە*& overflowp,
+                                         Ast_تۈگۈن_ئىپادە* ثابت contributionOverflowp = nullptr) {
+        إذا (contributionOverflowp) { overflowp = orExprs(flp, overflowp, contributionOverflowp); }
+        إذا (!totalCountp) أرجع contributionp;
+        Ast_تۈگۈن_ئىپادە* ثابت oldTotalp = totalCountp->clone_دەرەخ_Pure(خطأ);
+        Ast_تۈگۈن_ئىپادە* ثابت resultp = جديد AstAdd{flp, totalCountp, contributionp};
         overflowp
-            = orExprs(flp, overflowp, new AstLt{flp, resultp->cloneTreePure(false), oldTotalp});
-        return resultp;
+            = orExprs(flp, overflowp, جديد AstLt{flp, resultp->clone_دەرەخ_Pure(خطأ), oldTotalp});
+        أرجع resultp;
     }
-    AstIf* newCountOverflowWarning(FileLine* const flp, AstNodeExpr* const condp) const {
-        AstDisplay* const dispp = new AstDisplay{
+    AstIf* new_سانى_Overflow_Warning(File_قۇر* ثابت flp, Ast_تۈگۈن_ئىپادە* ثابت condp) ثابت {
+        AstDisplay* ثابت dispp = جديد AstDisplay{
             flp, VDisplayType::DT_WARNING,
             "Cover sequence match count overflowed 32-bit storage; results may be incorrect.",
             nullptr, nullptr};
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        AstIf* const ifp = new AstIf{flp, condp, dispp};
+        AstIf* ثابت ifp = جديد AstIf{flp, condp, dispp};
         ifp->branchPred(VBranchPred::BP_UNLIKELY);
-        return ifp;
+        أرجع ifp;
     }
-    static AstNodeExpr* killActive(LowerCtx& c) {
-        return new AstNeq{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::READ},
+    ساكن Ast_تۈگۈن_ئىپادە* killActive(LowerCtx& c) {
+        أرجع جديد AstNeq{c.flp, جديد AstVarRef{c.flp, c.killVarp, VAccess::READ},
                           assertKillGet(c.flp, c.assertType, c.directiveType)};
     }
-    static AstNodeExpr* notKillActive(LowerCtx& c) { return new AstLogNot{c.flp, killActive(c)}; }
-    static AstNodeExpr* gateNotKill(LowerCtx& c, AstNodeExpr* exprp) {
-        if (!exprp) return nullptr;
-        return new AstLogAnd{c.flp, exprp, notKillActive(c)};
+    ساكن Ast_تۈگۈن_ئىپادە* notKillActive(LowerCtx& c) { أرجع جديد AstLogNot{c.flp, killActive(c)}; }
+    ساكن Ast_تۈگۈن_ئىپادە* gateNotKill(LowerCtx& c, Ast_تۈگۈن_ئىپادە* exprp) {
+        إذا (!exprp) أرجع nullptr;
+        أرجع جديد AstLogAnd{c.flp, exprp, notKillActive(c)};
     }
-    static AstNodeExpr* nextRingIndex(FileLine* flp, AstNodeExpr* idxExprp, uint32_t size) {
-        const auto u32Const = [flp](uint32_t value) {
-            return new AstConst{flp, AstConst::WidthedValue{}, 32, value};
+    ساكن Ast_تۈگۈن_ئىپادە* nextRingIndex(File_قۇر* flp, Ast_تۈگۈن_ئىپادە* idxExprp, uint32_t size) {
+        ثابت auto u32Const = [flp](uint32_t قىممەت) {
+            أرجع جديد AstConst{flp, AstConst::Widthed_قىممەت{}, 32, قىممەت};
         };
         UASSERT_OBJ(size > 0, idxExprp, "Ring size must be positive");
-        if (size == 1) {
-            VL_DO_DANGLING(idxExprp->deleteTree(), idxExprp);
-            return u32Const(0);
+        إذا (size == 1) {
+            VL_DO_DANGLING(idxExprp->delete_دەرەخ(), idxExprp);
+            أرجع u32Const(0);
         }
         // idx == size - 1 ? 0 : idx + 1
-        AstAdd* const addp = new AstAdd{flp, idxExprp->cloneTreePure(false), u32Const(1)};
+        AstAdd* ثابت addp = جديد AstAdd{flp, idxExprp->clone_دەرەخ_Pure(خطأ), u32Const(1)};
         addp->dtypeFrom(idxExprp);
-        AstCond* const condp
-            = new AstCond{flp, new AstEq{flp, idxExprp, u32Const(size - 1)}, u32Const(0), addp};
+        AstCond* ثابت condp
+            = جديد AstCond{flp, جديد AstEq{flp, idxExprp, u32Const(size - 1)}, u32Const(0), addp};
         condp->dtypeFrom(idxExprp);
-        return condp;
+        أرجع condp;
     }
-    static AstNodeExpr* delayRingSlot(FileLine* flp, SvaStateVertex* vtxp, AstNodeExpr* idxExprp,
+    ساكن Ast_تۈگۈن_ئىپادە* delayRingSlot(File_قۇر* flp, SvaStateVertex* vtxp, Ast_تۈگۈن_ئىپادە* idxExprp,
                                       VAccess access = VAccess::READ) {
         // ring[idx]
-        AstVar* const ringp = vtxp->datap()->delayRingVarp;
-        AstVarRef* const refp = new AstVarRef{flp, ringp, access};
-        if (vtxp->datap()->delayRingCounts) return new AstArraySel{flp, refp, idxExprp};
-        return new AstSel{flp, refp, idxExprp, 1};
+        AstVar* ثابت ringp = vtxp->datap()->delayRingVarp;
+        AstVarRef* ثابت refp = جديد AstVarRef{flp, ringp, access};
+        إذا (vtxp->datap()->delayRingCounts) أرجع جديد AstArraySel{flp, refp, idxExprp};
+        أرجع جديد AstSel{flp, refp, idxExprp, 1};
     }
-    static AstNodeExpr* delayRingHeadCount(FileLine* flp, SvaStateVertex* vtxp) {
-        AstNodeExpr* const headp
-            = new AstVarRef{flp, vtxp->datap()->delayRingHeadVarp, VAccess::READ};
-        if (vtxp->datap()->delayRingCounts) return headp;
-        return new AstExtend{flp, headp, vtxp->datap()->delayRingLiveCountVarp->dtypep()->width()};
+    ساكن Ast_تۈگۈن_ئىپادە* delay_Ring_Head_سانى(File_قۇر* flp, SvaStateVertex* vtxp) {
+        Ast_تۈگۈن_ئىپادە* ثابت headp
+            = جديد AstVarRef{flp, vtxp->datap()->delayRingHeadVarp, VAccess::READ};
+        إذا (vtxp->datap()->delayRingCounts) أرجع headp;
+        أرجع جديد AstExtend{flp, headp, vtxp->datap()->delay_Ring_Live_سانى_Varp->dtypep()->width()};
     }
-    static AstNodeExpr* delayRingAtLastIndex(FileLine* const flp, AstVar* const idxp,
-                                             const uint32_t size) {
-        return new AstEq{flp, new AstVarRef{flp, idxp, VAccess::READ},
-                         new AstConst{flp, AstConst::WidthedValue{}, 32, size - 1}};
+    ساكن Ast_تۈگۈن_ئىپادە* delayRingAtLastIndex(File_قۇر* ثابت flp, AstVar* ثابت idxp,
+                                             ثابت uint32_t size) {
+        أرجع جديد AstEq{flp, جديد AstVarRef{flp, idxp, VAccess::READ},
+                         جديد AstConst{flp, AstConst::Widthed_قىممەت{}, 32, size - 1}};
     }
-    static AstNodeExpr* delayRingOutputCount(FileLine* const flp, SvaStateVertex* const vtxp) {
-        AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-        const uint32_t size = vtxp->m_delayRingSize;
-        AstNodeExpr* outgoingValidp
-            = new AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
-        if (!vtxp->m_isFixedDelayRing) {
+    ساكن Ast_تۈگۈن_ئىپادە* delay_Ring_Output_سانى(File_قۇر* ثابت flp, SvaStateVertex* ثابت vtxp) {
+        AstVar* ثابت idxp = vtxp->datap()->delayRingIdxVarp;
+        ثابت uint32_t size = vtxp->m_delayRingSize;
+        Ast_تۈگۈن_ئىپادە* outgoingValidp
+            = جديد AstVarRef{flp, vtxp->datap()->delayRingWrappedVarp, VAccess::READ};
+        إذا (!vtxp->m_isFixedDelayRing) {
             outgoingValidp
-                = new AstLogOr{flp, outgoingValidp, delayRingAtLastIndex(flp, idxp, size)};
+                = جديد AstLogOr{flp, outgoingValidp, delayRingAtLastIndex(flp, idxp, size)};
         }
-        AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-        return new AstCond{flp, outgoingValidp, delayRingHeadCount(flp, vtxp),
-                           newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        AstVar* ثابت live_سانى_Varp = vtxp->datap()->delay_Ring_Live_سانى_Varp;
+        أرجع جديد AstCond{flp, outgoingValidp, delay_Ring_Head_سانى(flp, vtxp),
+                           newTypedConstp(flp, live_سانى_Varp->dtypep(), 0)};
     }
-    static AstNodeExpr* delayRingHasLiveThreadsp(FileLine* const flp,
-                                                 AstVar* const liveCountVarp) {
+    ساكن Ast_تۈگۈن_ئىپادە* delayRingHasLiveThreadsp(File_قۇر* ثابت flp,
+                                                 AstVar* ثابت live_سانى_Varp) {
         // active = live_count != 0;
-        return new AstNeq{flp, new AstVarRef{flp, liveCountVarp, VAccess::READ},
-                          newTypedConstp(flp, liveCountVarp->dtypep(), 0)};
+        أرجع جديد AstNeq{flp, جديد AstVarRef{flp, live_سانى_Varp, VAccess::READ},
+                          newTypedConstp(flp, live_سانى_Varp->dtypep(), 0)};
     }
 
     // Phase 3 output signals
-    struct SignalSet final {
-        AstNodeExpr* terminalActivep = nullptr;  // OR of all successful terminal matches
-        AstNodeExpr* matchCountp = nullptr;  // NFA paths completing the sequence this tick
-        AstNodeExpr* matchCountOverflowp = nullptr;  // Match count overflow this tick
-        AstNodeExpr* rejectBasep = nullptr;  // Reject when a terminal match fails
-        AstNodeExpr* requiredStepRejectp = nullptr;  // Per-source reject from rejectOnFail Links
-        AstNodeExpr* throughoutRejectp = nullptr;  // Reject when a throughout guard drops
-        AstNodeExpr* threadFailCountp = nullptr;  // Number of threads rejected on this tick
+    بنية SignalSet final {
+        Ast_تۈگۈن_ئىپادە* terminalActivep = nullptr;  // OR of all successful terminal matches
+        Ast_تۈگۈن_ئىپادە* matchCountp = nullptr;  // NFA paths completing the sequence this tick
+        Ast_تۈگۈن_ئىپادە* match_سانى_Overflowp = nullptr;  // Match count overflow this tick
+        Ast_تۈگۈن_ئىپادە* rejectBasep = nullptr;  // Reject when a terminal match fails
+        Ast_تۈگۈن_ئىپادە* requiredStepRejectp = nullptr;  // Per-source reject from rejectOnFail Links
+        Ast_تۈگۈن_ئىپادە* throughoutRejectp = nullptr;  // Reject when a throughout guard drops
+        Ast_تۈگۈن_ئىپادە* threadFailCountp = nullptr;  // Number of threads rejected on this tick
     };
 
     // Disable condition also aborts attempts between clock events. A constant disable
     // never rises, and $sampled is unsupported in a sensitivity list.
-    static bool isAsyncDisable(const AstNodeExpr* const disableExprp) {
-        return disableExprp && !VN_IS(disableExprp, Const)
-               && !disableExprp->exists([](const AstSampled*) { return true; });
+    ساكن منطقي isAsyncDisable(ثابت Ast_تۈگۈن_ئىپادە* ثابت disableExprp) {
+        أرجع disableExprp && !VN_IS(disableExprp, Const)
+               && !disableExprp->exists([](ثابت AstSampled*) { أرجع true; });
     }
 
     // Emit the clocked update block of registers that hold pending attempts. The clearp
@@ -1943,43 +1943,43 @@ class SvaNfaLowering final {
     // would advance the attempts as if the clock had ticked. Blocks that hold no attempt
     // state, such as the $assertkill acknowledge in emitKillAckNba, do not go through here.
     // Callers pass a null clearp when the disable cannot rise between clock events.
-    void addStateAlways(LowerCtx& c, AstNode* bodyp, AstNode* clearp) {
+    فراغ addStateAlways(LowerCtx& c, Ast_تۈگۈن* bodyp, Ast_تۈگۈن* clearp) {
         m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), bodyp});
-        if (!clearp) return;
-        m_modp->addStmtsp(new AstAlways{
+            جديد AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_دەرەخ(خطأ), bodyp});
+        إذا (!clearp) أرجع;
+        m_modp->addStmtsp(جديد AstAlways{
             c.flp, VAlwaysKwd::ALWAYS,
-            new AstSenTree{c.flp, new AstSenItem{c.flp, VEdgeType::ET_POSEDGE,
-                                                 c.disableExprp->cloneTreePure(false)}},
+            جديد Ast_Sen_دەرەخ{c.flp, جديد AstSenItem{c.flp, VEdgeType::ET_POSEDGE,
+                                                 c.disableExprp->clone_دەرەخ_Pure(خطأ)}},
             clearp});
     }
 
     // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
     // Phase 2: State register NBA always block. Each clocked-edge target
     // latches the OR of its incoming contributions.
-    void emitStateRegisterNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        AstNode* bodyp = nullptr;
-        AstNode* clearp = nullptr;
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->stateVarp) continue;
+    فراغ emitStateRegisterNba(LowerCtx& c) {
+        ثابت منطقي asyncDisable = isAsyncDisable(c.disableExprp);
+        Ast_تۈگۈن* bodyp = nullptr;
+        Ast_تۈگۈن* clearp = nullptr;
+        لكل (ثابت V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ثابت SvaStateVertex* ثابت vtxp = static_cast<ثابت SvaStateVertex*>(&vtxr);
+            إذا (!vtxp->datap()->stateVarp) استمر;
 
-            AstNodeExpr* nextStatep = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                if (!tedger.m_consumesCycle) continue;
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+            Ast_تۈگۈن_ئىپادە* nextStatep = nullptr;
+            لكل (ثابت V3GraphEdge& edger : vtxp->inEdges()) {
+                ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
+                إذا (!tedger.m_consumesCycle) استمر;
+                ثابت SvaStateVertex* ثابت fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Clocked-edge source missing stateSig");
 
-                AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+                Ast_تۈگۈن_ئىپادە* srcSigp = fromVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ);
                 srcSigp = andCond(c.flp, srcSigp, tedger.m_condp);
 
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    srcSigp = new AstLogAnd{c.flp, srcSigp, notDisp};
+                إذا (c.disableExprp) {
+                    Ast_تۈگۈن_ئىپادە* ثابت notDisp
+                        = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                    srcSigp = جديد AstLogAnd{c.flp, srcSigp, notDisp};
                 }
                 nextStatep = orExprs(c.flp, nextStatep, srcSigp);
             }
@@ -1988,237 +1988,237 @@ class SvaNfaLowering final {
                         "Registered vertex has no clocked incoming contribution");
             nextStatep = gateNotKill(c, nextStatep);
 
-            AstAssignDly* const assignp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, nextStatep};
-            bodyp = AstNode::addNextNull(bodyp, assignp);
-            if (asyncDisable) {
-                clearp = AstNode::addNextNull(
+            AstAssignDly* ثابت assignp = جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE}, nextStatep};
+            bodyp = Ast_تۈگۈن::addNextNull(bodyp, assignp);
+            إذا (asyncDisable) {
+                clearp = Ast_تۈگۈن::addNextNull(
                     clearp,
-                    new AstAssignDly{
-                        c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
-                        new AstConst{c.flp, AstConst::BitFalse{}}});
+                    جديد AstAssignDly{
+                        c.flp, جديد AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::WRITE},
+                        جديد AstConst{c.flp, AstConst::BitFalse{}}});
             }
         }
-        if (bodyp) addStateAlways(c, bodyp, clearp);
+        إذا (bodyp) addStateAlways(c, bodyp, clearp);
     }
 
     // Phase 2b: In-place ring storage and registered ring metadata.
-    void emitDelayRingUpdates(LowerCtx& c, const bool countMatches) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (!vtxp->datap()->delayRingVarp) continue;
-            AstVar* const idxp = vtxp->datap()->delayRingIdxVarp;
-            AstVar* const liveCountVarp = vtxp->datap()->delayRingLiveCountVarp;
-            AstVar* const wrappedp = vtxp->datap()->delayRingWrappedVarp;
-            const uint32_t size = static_cast<uint32_t>(vtxp->m_delayRingSize);
+    فراغ emitDelayRingUpdates(LowerCtx& c, ثابت منطقي سانى_Matches) {
+        ثابت منطقي asyncDisable = isAsyncDisable(c.disableExprp);
+        لكل (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ثابت vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            إذا (!vtxp->datap()->delayRingVarp) استمر;
+            AstVar* ثابت idxp = vtxp->datap()->delayRingIdxVarp;
+            AstVar* ثابت live_سانى_Varp = vtxp->datap()->delay_Ring_Live_سانى_Varp;
+            AstVar* ثابت wrappedp = vtxp->datap()->delayRingWrappedVarp;
+            ثابت uint32_t size = static_cast<uint32_t>(vtxp->m_delayRingSize);
 
-            AstNodeExpr* incomingp = nullptr;
-            AstNodeExpr* incomingOverflowp = nullptr;
-            for (const V3GraphEdge& edger : vtxp->inEdges()) {
+            Ast_تۈگۈن_ئىپادە* incomingp = nullptr;
+            Ast_تۈگۈن_ئىپادە* incomingOverflowp = nullptr;
+            لكل (ثابت V3GraphEdge& edger : vtxp->inEdges()) {
                 ++m_statDelayRingEdgeVisits;
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
+                ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
                 UASSERT_OBJ(tedger.m_consumesCycle == vtxp->m_isFixedDelayRing, vtxp,
                             "Delay-ring incoming edge kind mismatch");
-                const SvaStateVertex* const fromVtxp = tedger.fromVtxp();
+                ثابت SvaStateVertex* ثابت fromVtxp = tedger.fromVtxp();
                 UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                             "Delay-ring incoming source missing stateSig");
-                UASSERT_OBJ(!countMatches || fromVtxp->datap()->stateCountSigp, fromVtxp,
+                UASSERT_OBJ(!سانى_Matches || fromVtxp->datap()->state_سانى_Sigp, fromVtxp,
                             "Delay-ring incoming source missing stateCountSig");
                 // IEEE 1800-2023 16.14.1/16.14.3: assertion alternatives belong to one
                 // evaluation; only cover sequence counts each end-of-match.
-                AstNodeExpr* contribp
-                    = countMatches
-                          ? fromVtxp->datap()->stateCountSigp->cloneTreePure(false)
-                          : new AstExtend{c.flp,
-                                          fromVtxp->datap()->stateSigp->cloneTreePure(false),
+                Ast_تۈگۈن_ئىپادە* contribp
+                    = سانى_Matches
+                          ? fromVtxp->datap()->state_سانى_Sigp->clone_دەرەخ_Pure(خطأ)
+                          : جديد AstExtend{c.flp,
+                                          fromVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ),
                                           m_u32DTypep->width()};
-                AstNodeExpr* contribOverflowp
-                    = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
+                Ast_تۈگۈن_ئىپادە* contribOverflowp
+                    = سانى_Matches && fromVtxp->datap()->state_سانى_Overflow_Sigp
+                          ? fromVtxp->datap()->state_سانى_Overflow_Sigp->clone_دەرەخ_Pure(خطأ)
                           : nullptr;
-                if (tedger.m_condp) {
-                    AstNodeExpr* const enablep = tedger.m_condp->cloneTreePure(false);
-                    contribp = countMatches
+                إذا (tedger.m_condp) {
+                    Ast_تۈگۈن_ئىپادە* ثابت enablep = tedger.m_condp->clone_دەرەخ_Pure(خطأ);
+                    contribp = سانى_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, enablep)
                                    : addCountp(c.flp, nullptr, contribp, enablep);
                 }
-                if (c.disableExprp) {
-                    AstNodeExpr* const notDisp
-                        = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                    contribp = countMatches
+                إذا (c.disableExprp) {
+                    Ast_تۈگۈن_ئىپادە* ثابت notDisp
+                        = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                    contribp = سانى_Matches
                                    ? gateCheckedCountp(c.flp, contribp, contribOverflowp, notDisp)
                                    : addCountp(c.flp, nullptr, contribp, notDisp);
                 }
-                incomingp = countMatches ? addCheckedCountp(c.flp, incomingp, contribp,
+                incomingp = سانى_Matches ? addCheckedCountp(c.flp, incomingp, contribp,
                                                             incomingOverflowp, contribOverflowp)
                                          : addCountp(c.flp, incomingp, contribp);
             }
             UASSERT_OBJ(incomingp, vtxp, "Delay ring has no incoming edge");
-            const bool storesCounts = vtxp->datap()->delayRingCounts;
-            AstNodeExpr* const incomingCountp
+            ثابت منطقي storesCounts = vtxp->datap()->delayRingCounts;
+            Ast_تۈگۈن_ئىپادە* ثابت incomingCountp
                 = storesCounts
-                      ? incomingp->cloneTreePure(false)
-                      : new AstExtend{c.flp,
-                                      new AstNeq{c.flp, incomingp->cloneTreePure(false),
+                      ? incomingp->clone_دەرەخ_Pure(خطأ)
+                      : جديد AstExtend{c.flp,
+                                      جديد AstNeq{c.flp, incomingp->clone_دەرەخ_Pure(خطأ),
                                                  newTypedConstp(c.flp, incomingp->dtypep(), 0)},
                                       m_u32DTypep->width()};
-            AstNodeExpr* const storedIncomingp
+            Ast_تۈگۈن_ئىپادە* ثابت storedIncomingp
                 = storesCounts ? incomingp
-                               : new AstNeq{c.flp, incomingp,
+                               : جديد AstNeq{c.flp, incomingp,
                                             newTypedConstp(c.flp, incomingp->dtypep(), 0)};
             // Only this block accesses the storage. Other processes read the cached head, so
             // the ring can be updated in place without an NBA shadow copy.
-            AstAssign* const writeIncomingp = new AstAssign{
+            AstAssign* ثابت writeIncomingp = جديد AstAssign{
                 c.flp,
-                delayRingSlot(c.flp, vtxp, new AstVarRef{c.flp, idxp, VAccess::READ},
+                delayRingSlot(c.flp, vtxp, جديد AstVarRef{c.flp, idxp, VAccess::READ},
                               VAccess::WRITE),
                 storedIncomingp};
-            AstNode* updateBodyp = writeIncomingp;
+            Ast_تۈگۈن* updateBodyp = writeIncomingp;
             // live_count <= live_count - outgoing_count + incoming_count;
-            AstNodeExpr* const outgoingp = delayRingOutputCount(c.flp, vtxp);
-            AstNodeExpr* const afterOutgoingp
-                = new AstSub{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::READ}, outgoingp};
-            AstNodeExpr* const oldAfterOutgoingp = afterOutgoingp->cloneTreePure(false);
-            AstAdd* const nextLiveCountp = new AstAdd{c.flp, afterOutgoingp, incomingCountp};
-            if (storesCounts) {
-                AstNodeExpr* const liveOverflowp
-                    = new AstLt{c.flp, nextLiveCountp->cloneTreePure(false), oldAfterOutgoingp};
-                AstNodeExpr* const overflowp = orExprs(c.flp, incomingOverflowp, liveOverflowp);
-                updateBodyp = newCountOverflowWarning(c.flp, overflowp);
+            Ast_تۈگۈن_ئىپادە* ثابت outgoingp = delay_Ring_Output_سانى(c.flp, vtxp);
+            Ast_تۈگۈن_ئىپادە* ثابت afterOutgoingp
+                = جديد AstSub{c.flp, جديد AstVarRef{c.flp, live_سانى_Varp, VAccess::READ}, outgoingp};
+            Ast_تۈگۈن_ئىپادە* ثابت oldAfterOutgoingp = afterOutgoingp->clone_دەرەخ_Pure(خطأ);
+            AstAdd* ثابت nextLiveCountp = جديد AstAdd{c.flp, afterOutgoingp, incomingCountp};
+            إذا (storesCounts) {
+                Ast_تۈگۈن_ئىپادە* ثابت liveOverflowp
+                    = جديد AstLt{c.flp, nextLiveCountp->clone_دەرەخ_Pure(خطأ), oldAfterOutgoingp};
+                Ast_تۈگۈن_ئىپادە* ثابت overflowp = orExprs(c.flp, incomingOverflowp, liveOverflowp);
+                updateBodyp = new_سانى_Overflow_Warning(c.flp, overflowp);
                 updateBodyp->addNext(writeIncomingp);
-            } else {
-                VL_DO_DANGLING(oldAfterOutgoingp->deleteTree(), oldAfterOutgoingp);
+            } وإلا {
+                VL_DO_DANGLING(oldAfterOutgoingp->delete_دەرەخ(), oldAfterOutgoingp);
             }
             // Cache the outgoing slot for the next index after the write. Reading after
             // writing also handles one-slot rings and two-slot range rings without alias cases.
-            AstNodeExpr* nextHeadIdxp
-                = nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size);
-            if (!vtxp->m_isFixedDelayRing) {
+            Ast_تۈگۈن_ئىپادە* nextHeadIdxp
+                = nextRingIndex(c.flp, جديد AstVarRef{c.flp, idxp, VAccess::READ}, size);
+            إذا (!vtxp->m_isFixedDelayRing) {
                 nextHeadIdxp = nextRingIndex(c.flp, nextHeadIdxp, size);
             }
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, vtxp->datap()->delayRingHeadVarp, VAccess::WRITE},
+            updateBodyp->addNext(جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, vtxp->datap()->delayRingHeadVarp, VAccess::WRITE},
                 delayRingSlot(c.flp, vtxp, nextHeadIdxp)});
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE}, nextLiveCountp});
+            updateBodyp->addNext(جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, live_سانى_Varp, VAccess::WRITE}, nextLiveCountp});
             // wrapped <= wrapped || idx == size - 1;
             updateBodyp->addNext(
-                new AstAssignDly{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                 new AstLogOr{c.flp, new AstVarRef{c.flp, wrappedp, VAccess::READ},
+                جديد AstAssignDly{c.flp, جديد AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                 جديد AstLogOr{c.flp, جديد AstVarRef{c.flp, wrappedp, VAccess::READ},
                                               delayRingAtLastIndex(c.flp, idxp, size)}});
             // idx <= next_idx;
-            updateBodyp->addNext(new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, idxp, VAccess::WRITE},
-                nextRingIndex(c.flp, new AstVarRef{c.flp, idxp, VAccess::READ}, size)});
-            if (vtxp->m_delayRingAdvanceCondp) {
-                updateBodyp = new AstIf{
-                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false)),
+            updateBodyp->addNext(جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, idxp, VAccess::WRITE},
+                nextRingIndex(c.flp, جديد AstVarRef{c.flp, idxp, VAccess::READ}, size)});
+            إذا (vtxp->m_delayRingAdvanceCondp) {
+                updateBodyp = جديد AstIf{
+                    c.flp, sampled(vtxp->m_delayRingAdvanceCondp->clone_دەرەخ_Pure(خطأ)),
                     updateBodyp};
             }
 
-            AstNodeExpr* clearCondp = killActive(c);
-            if (vtxp->m_delayRingClearCondp) {
+            Ast_تۈگۈن_ئىپادە* clearCondp = killActive(c);
+            إذا (vtxp->m_delayRingClearCondp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_delayRingClearCondp->cloneTreePure(false)));
+                                     sampled(vtxp->m_delayRingClearCondp->clone_دەرەخ_Pure(خطأ)));
             }
-            if (vtxp->m_abortClearp) {
+            إذا (vtxp->m_abortClearp) {
                 clearCondp = orExprs(c.flp, clearCondp,
-                                     sampled(vtxp->m_abortClearp->cloneTreePure(false)));
+                                     sampled(vtxp->m_abortClearp->clone_دەرەخ_Pure(خطأ)));
             }
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            إذا (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_دەرەخ_Pure(خطأ));
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : vtxp->m_throughoutConds) {
-                AstNodeExpr* const sampledp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sampledp})
+            Ast_تۈگۈن_ئىپادە* guardp = nullptr;
+            لكل (Ast_تۈگۈن_ئىپادە* ثابت cp : vtxp->m_throughoutConds) {
+                Ast_تۈگۈن_ئىپادە* ثابت sampledp = sampled(cp->clone_دەرەخ_Pure(خطأ));
+                guardp = guardp ? static_cast<Ast_تۈگۈن_ئىپادە*>(جديد AstLogAnd{c.flp, guardp, sampledp})
                                 : sampledp;
             }
-            if (guardp) clearCondp = orExprs(c.flp, clearCondp, new AstLogNot{c.flp, guardp});
+            إذا (guardp) clearCondp = orExprs(c.flp, clearCondp, جديد AstLogNot{c.flp, guardp});
             // Logically clear the ring without touching its wide storage.
-            AstAssignDly* const clearCountp
-                = new AstAssignDly{c.flp, new AstVarRef{c.flp, liveCountVarp, VAccess::WRITE},
-                                   newTypedConstp(c.flp, liveCountVarp->dtypep(), 0)};
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, wrappedp, VAccess::WRITE},
-                                                  new AstConst{c.flp, AstConst::BitFalse{}}});
-            clearCountp->addNext(new AstAssignDly{c.flp,
-                                                  new AstVarRef{c.flp, idxp, VAccess::WRITE},
+            AstAssignDly* ثابت clearCountp
+                = جديد AstAssignDly{c.flp, جديد AstVarRef{c.flp, live_سانى_Varp, VAccess::WRITE},
+                                   newTypedConstp(c.flp, live_سانى_Varp->dtypep(), 0)};
+            clearCountp->addNext(جديد AstAssignDly{c.flp,
+                                                  جديد AstVarRef{c.flp, wrappedp, VAccess::WRITE},
+                                                  جديد AstConst{c.flp, AstConst::BitFalse{}}});
+            clearCountp->addNext(جديد AstAssignDly{c.flp,
+                                                  جديد AstVarRef{c.flp, idxp, VAccess::WRITE},
                                                   newTypedConstp(c.flp, idxp->dtypep(), 0)});
-            updateBodyp = new AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
+            updateBodyp = جديد AstIf{c.flp, clearCondp, clearCountp, updateBodyp};
 
-            addStateAlways(c, updateBodyp, asyncDisable ? clearCountp->cloneTree(true) : nullptr);
+            addStateAlways(c, updateBodyp, asyncDisable ? clearCountp->clone_دەرەخ(true) : nullptr);
         }
     }
 
     // Phase 2c: SAnd combiner done-latch always block.
     // NBA semantics ensure doneL/doneR read pre-update values (IEEE 16.9.5).
-    void emitAndCombinerDoneLatchNba(LowerCtx& c) {
-        const bool asyncDisable = isAsyncDisable(c.disableExprp);
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const avp = static_cast<const SvaStateVertex*>(&vtxr);
-            if (!avp->datap()->doneLVarp) continue;
+    فراغ emitAndCombinerDoneLatchNba(LowerCtx& c) {
+        ثابت منطقي asyncDisable = isAsyncDisable(c.disableExprp);
+        لكل (ثابت V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ثابت SvaStateVertex* ثابت avp = static_cast<ثابت SvaStateVertex*>(&vtxr);
+            إذا (!avp->datap()->doneLVarp) استمر;
             // doneLVars is non-null only for AndCombiner vertices, which always
             // have both m_andLhsTermp and m_andRhsTermp set at build time.
             UASSERT_OBJ(avp->m_andLhsTermp && avp->m_andRhsTermp, avp,
                         "AndCombiner vertex missing LHS/RHS terminal");
-            const SvaStateVertex* const lhsTermp = avp->m_andLhsTermp;
-            const SvaStateVertex* const rhsTermp = avp->m_andRhsTermp;
+            ثابت SvaStateVertex* ثابت lhsTermp = avp->m_andLhsTermp;
+            ثابت SvaStateVertex* ثابت rhsTermp = avp->m_andRhsTermp;
             // resolveLinks' 2*N+2 fixed-point pass is guaranteed to populate
             // stateSigp on every AndCombiner and its LHS/RHS terminals.
             UASSERT_OBJ(lhsTermp->datap()->stateSigp && rhsTermp->datap()->stateSigp
                             && avp->datap()->stateSigp,
                         avp, "AndCombiner stateSigp chain unresolved after resolveLinks");
 
-            AstAssignDly* const clearLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
-            AstAssignDly* const clearRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitFalse{}}};
+            AstAssignDly* ثابت clearLp = جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
+                جديد AstConst{c.flp, AstConst::BitFalse{}}};
+            AstAssignDly* ثابت clearRp = جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
+                جديد AstConst{c.flp, AstConst::BitFalse{}}};
             clearLp->addNext(clearRp);
 
-            AstNodeExpr* const matchLNowp
+            Ast_تۈگۈن_ئىپادە* ثابت matchLNowp
                 = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, avp->m_andLhsCondp);
-            AstNodeExpr* const matchRNowp
+            Ast_تۈگۈن_ئىپادە* ثابت matchRNowp
                 = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, avp->m_andRhsCondp);
-            AstNodeExpr* gateLp = matchLNowp;
-            AstNodeExpr* gateRp = matchRNowp;
-            if (c.disableExprp) {
-                AstNodeExpr* const notDisLp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateLp = new AstLogAnd{c.flp, gateLp, notDisLp};
-                AstNodeExpr* const notDisRp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                gateRp = new AstLogAnd{c.flp, gateRp, notDisRp};
+            Ast_تۈگۈن_ئىپادە* gateLp = matchLNowp;
+            Ast_تۈگۈن_ئىپادە* gateRp = matchRNowp;
+            إذا (c.disableExprp) {
+                Ast_تۈگۈن_ئىپادە* ثابت notDisLp
+                    = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                gateLp = جديد AstLogAnd{c.flp, gateLp, notDisLp};
+                Ast_تۈگۈن_ئىپادە* ثابت notDisRp
+                    = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                gateRp = جديد AstLogAnd{c.flp, gateRp, notDisRp};
             }
-            AstAssignDly* const setLp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setLIfp = new AstIf{c.flp, gateLp, setLp, nullptr};
-            AstAssignDly* const setRp = new AstAssignDly{
-                c.flp, new AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
-                new AstConst{c.flp, AstConst::BitTrue{}}};
-            AstIf* const setRIfp = new AstIf{c.flp, gateRp, setRp, nullptr};
+            AstAssignDly* ثابت setLp = جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, avp->datap()->doneLVarp, VAccess::WRITE},
+                جديد AstConst{c.flp, AstConst::BitTrue{}}};
+            AstIf* ثابت setLIfp = جديد AstIf{c.flp, gateLp, setLp, nullptr};
+            AstAssignDly* ثابت setRp = جديد AstAssignDly{
+                c.flp, جديد AstVarRef{c.flp, avp->datap()->doneRVarp, VAccess::WRITE},
+                جديد AstConst{c.flp, AstConst::BitTrue{}}};
+            AstIf* ثابت setRIfp = جديد AstIf{c.flp, gateRp, setRp, nullptr};
             setLIfp->addNext(setRIfp);
 
-            AstNodeExpr* clearCondp = new AstLogOr{c.flp, killActive(c),
-                                                   avp->datap()->stateSigp->cloneTreePure(false)};
-            if (c.disableExprp) {
-                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->cloneTreePure(false));
+            Ast_تۈگۈن_ئىپادە* clearCondp = جديد AstLogOr{c.flp, killActive(c),
+                                                   avp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ)};
+            إذا (c.disableExprp) {
+                clearCondp = orExprs(c.flp, clearCondp, c.disableExprp->clone_دەرەخ_Pure(خطأ));
             }
-            AstIf* const topp = new AstIf{c.flp, clearCondp, clearLp, setLIfp};
-            addStateAlways(c, topp, asyncDisable ? clearLp->cloneTree(true) : nullptr);
+            AstIf* ثابت topp = جديد AstIf{c.flp, clearCondp, clearLp, setLIfp};
+            addStateAlways(c, topp, asyncDisable ? clearLp->clone_دەرەخ(true) : nullptr);
         }
     }
 
-    void emitKillAckNba(LowerCtx& c) {
-        AstAssignDly* const ackp
-            = new AstAssignDly{c.flp, new AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
+    فراغ emitKillAckNba(LowerCtx& c) {
+        AstAssignDly* ثابت ackp
+            = جديد AstAssignDly{c.flp, جديد AstVarRef{c.flp, c.killVarp, VAccess::WRITE},
                                assertKillGet(c.flp, c.assertType, c.directiveType)};
         m_modp->addStmtsp(
-            new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false), ackp});
+            جديد AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_دەرەخ(خطأ), ackp});
     }
 
     // Phase 3/3a/3b: Compute terminal match/reject signals, required-step reject,
@@ -2227,46 +2227,46 @@ class SvaNfaLowering final {
     // Builder only adds Links (non-clocked) to matchVertex via addLink in
     // wireMatchAndMidSources. For cover sequence, also count each end-of-match
     // so the action can be replayed without unrolling endpoints.
-    void computeTerminalMatchAndReject(LowerCtx& c, SignalSet& sigs, const bool needMatchCount) {
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (tedgep->toVtxp() != c.graph.m_matchVertexp) continue;
-            SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+    فراغ computeTerminalMatchAndReject(LowerCtx& c, SignalSet& sigs, ثابت منطقي need_Match_سانى) {
+        لكل (ثابت SvaTransEdge* ثابت tedgep : c.graph.allEdges()) {
+            إذا (tedgep->toVtxp() != c.graph.m_matchVertexp) استمر;
+            SvaStateVertex* ثابت fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp, fromVtxp,
                         "Terminal-link source missing stateSig");
 
-            AstNodeExpr* srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
+            Ast_تۈگۈن_ئىپادە* srcSigp = fromVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ);
             srcSigp = andCond(c.flp, srcSigp, tedgep->m_condp);
-            if (needMatchCount) {
-                UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+            إذا (need_Match_سانى) {
+                UASSERT_OBJ(fromVtxp->datap()->state_سانى_Sigp, fromVtxp,
                             "Terminal-link source missing stateCountSig");
-                AstNodeExpr* contributionp
-                    = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                AstNodeExpr* contributionOverflowp
-                    = fromVtxp->datap()->stateCountOverflowSigp
-                          ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
+                Ast_تۈگۈن_ئىپادە* contributionp
+                    = fromVtxp->datap()->state_سانى_Sigp->clone_دەرەخ_Pure(خطأ);
+                Ast_تۈگۈن_ئىپادە* contributionOverflowp
+                    = fromVtxp->datap()->state_سانى_Overflow_Sigp
+                          ? fromVtxp->datap()->state_سانى_Overflow_Sigp->clone_دەرەخ_Pure(خطأ)
                           : nullptr;
-                if (tedgep->m_condp) {
+                إذا (tedgep->m_condp) {
                     contributionp = gateCheckedCountp(c.flp, contributionp, contributionOverflowp,
-                                                      tedgep->m_condp->cloneTreePure(false));
+                                                      tedgep->m_condp->clone_دەرەخ_Pure(خطأ));
                 }
                 sigs.matchCountp
                     = addCheckedCountp(c.flp, sigs.matchCountp, contributionp,
-                                       sigs.matchCountOverflowp, contributionOverflowp);
+                                       sigs.match_سانى_Overflowp, contributionOverflowp);
             }
 
-            if (fromVtxp->m_delayRingSize && !fromVtxp->m_isFixedDelayRing) {
+            إذا (fromVtxp->m_delayRingSize && !fromVtxp->m_isFixedDelayRing) {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_دەرەخ_Pure(خطأ));
                 // reject |= (wrapped || idx == size - 1) && head && final_condition;
-                AstNodeExpr* expireContribp = delayRingOutputCount(c.flp, fromVtxp);
+                Ast_تۈگۈن_ئىپادە* expireContribp = delay_Ring_Output_سانى(c.flp, fromVtxp);
                 expireContribp = andCond(c.flp, expireContribp, tedgep->m_condp);
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, expireContribp);
-                VL_DO_DANGLING(srcSigp->deleteTree(), srcSigp);
-            } else if (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
+                VL_DO_DANGLING(srcSigp->delete_دەرەخ(), srcSigp);
+            } وإلا إذا (fromVtxp->m_isUnbounded || fromVtxp->m_isAndCombiner) {
                 sigs.terminalActivep = orExprs(c.flp, sigs.terminalActivep, srcSigp);
-            } else {
+            } وإلا {
                 sigs.terminalActivep
-                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->cloneTreePure(false));
+                    = orExprs(c.flp, sigs.terminalActivep, srcSigp->clone_دەرەخ_Pure(خطأ));
                 sigs.rejectBasep = orExprs(c.flp, sigs.rejectBasep, srcSigp);
             }
         }
@@ -2276,132 +2276,132 @@ class SvaNfaLowering final {
                     "No terminal edge to match vertex");
     }
 
-    AstNodeExpr* newThroughoutThreadFailCountp(LowerCtx& c, AstVar* const delayRingLiveCountVarp,
-                                               AstNodeExpr* const stateExprp,
-                                               AstNodeExpr* const enablep) {
-        AstNodeExpr* const activeThreadCountp
-            = delayRingLiveCountVarp
-                  ? static_cast<AstNodeExpr*>(
-                        new AstVarRef{c.flp, delayRingLiveCountVarp, VAccess::READ})
-                  : new AstExtend{c.flp, stateExprp->cloneTreePure(false), m_u32DTypep->width()};
-        return addCountp(c.flp, nullptr, activeThreadCountp, enablep);
+    Ast_تۈگۈن_ئىپادە* newThroughoutThreadFailCountp(LowerCtx& c, AstVar* ثابت delay_Ring_Live_سانى_Varp,
+                                               Ast_تۈگۈن_ئىپادە* ثابت stateExprp,
+                                               Ast_تۈگۈن_ئىپادە* ثابت enablep) {
+        Ast_تۈگۈن_ئىپادە* ثابت activeThreadCountp
+            = delay_Ring_Live_سانى_Varp
+                  ? static_cast<Ast_تۈگۈن_ئىپادە*>(
+                        جديد AstVarRef{c.flp, delay_Ring_Live_سانى_Varp, VAccess::READ})
+                  : جديد AstExtend{c.flp, stateExprp->clone_دەرەخ_Pure(خطأ), m_u32DTypep->width()};
+        أرجع addCountp(c.flp, nullptr, activeThreadCountp, enablep);
     }
 
     // Phase 3b: Throughout-drop and ring-wide abort rejection.
-    void computeThroughoutReject(LowerCtx& c, SignalSet& sigs, const bool needThreadFailCount) {
-        for (const V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            const SvaStateVertex* const vtxp = static_cast<const SvaStateVertex*>(&vtxr);
-            const auto& conds = vtxp->m_throughoutConds;
-            if (conds.empty() && !vtxp->m_abortRejectp) continue;
-            if (vtxp->m_isAndCombiner) continue;
-            AstNodeExpr* stateExprp = nullptr;
-            if (vtxp->datap()->stateVarp) {
-                stateExprp = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-            } else if (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
+    فراغ computeThroughoutReject(LowerCtx& c, SignalSet& sigs, ثابت منطقي need_Thread_Fail_سانى) {
+        لكل (ثابت V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            ثابت SvaStateVertex* ثابت vtxp = static_cast<ثابت SvaStateVertex*>(&vtxr);
+            ثابت auto& conds = vtxp->m_throughoutConds;
+            إذا (conds.empty() && !vtxp->m_abortRejectp) استمر;
+            إذا (vtxp->m_isAndCombiner) استمر;
+            Ast_تۈگۈن_ئىپادە* stateExprp = nullptr;
+            إذا (vtxp->datap()->stateVarp) {
+                stateExprp = جديد AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+            } وإلا إذا (vtxp->datap()->delayRingVarp && vtxp->m_isFixedDelayRing) {
                 stateExprp
-                    = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-            } else {
+                    = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delay_Ring_Live_سانى_Varp);
+            } وإلا {
                 UASSERT_OBJ(vtxp->datap()->stateSigp, vtxp,
                             "Throughout-conds vertex missing state representation");
-                stateExprp = vtxp->datap()->stateSigp->cloneTreePure(false);
+                stateExprp = vtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ);
             }
-            AstNodeExpr* guardp = nullptr;
-            for (AstNodeExpr* const cp : conds) {
-                AstNodeExpr* const sp = sampled(cp->cloneTreePure(false));
-                guardp = guardp ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, sp}) : sp;
+            Ast_تۈگۈن_ئىپادە* guardp = nullptr;
+            لكل (Ast_تۈگۈن_ئىپادە* ثابت cp : conds) {
+                Ast_تۈگۈن_ئىپادە* ثابت sp = sampled(cp->clone_دەرەخ_Pure(خطأ));
+                guardp = guardp ? static_cast<Ast_تۈگۈن_ئىپادە*>(جديد AstLogAnd{c.flp, guardp, sp}) : sp;
             }
-            if (vtxp->m_abortRejectp) {
-                AstNodeExpr* const notAbortp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+            إذا (vtxp->m_abortRejectp) {
+                Ast_تۈگۈن_ئىپادە* ثابت notAbortp
+                    = جديد AstLogNot{c.flp, sampled(vtxp->m_abortRejectp->clone_دەرەخ_Pure(خطأ))};
                 guardp = guardp
-                             ? static_cast<AstNodeExpr*>(new AstLogAnd{c.flp, guardp, notAbortp})
+                             ? static_cast<Ast_تۈگۈن_ئىپادە*>(جديد AstLogAnd{c.flp, guardp, notAbortp})
                              : notAbortp;
             }
-            AstNodeExpr* rejectCondp = new AstLogNot{c.flp, guardp};
-            if (vtxp->m_abortClearp) {
+            Ast_تۈگۈن_ئىپادە* rejectCondp = جديد AstLogNot{c.flp, guardp};
+            إذا (vtxp->m_abortClearp) {
                 // Any abort clears the ring. Accept aborts suppress a simultaneous guard failure;
                 // reject aborts are restored below so they still force rejection.
-                AstNodeExpr* const notAbortClearp
-                    = new AstLogNot{c.flp, sampled(vtxp->m_abortClearp->cloneTreePure(false))};
-                rejectCondp = new AstLogAnd{c.flp, rejectCondp, notAbortClearp};
-                if (vtxp->m_abortRejectp) {
-                    rejectCondp = new AstLogOr{
-                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->cloneTreePure(false))};
+                Ast_تۈگۈن_ئىپادە* ثابت notAbortClearp
+                    = جديد AstLogNot{c.flp, sampled(vtxp->m_abortClearp->clone_دەرەخ_Pure(خطأ))};
+                rejectCondp = جديد AstLogAnd{c.flp, rejectCondp, notAbortClearp};
+                إذا (vtxp->m_abortRejectp) {
+                    rejectCondp = جديد AstLogOr{
+                        c.flp, rejectCondp, sampled(vtxp->m_abortRejectp->clone_دەرەخ_Pure(خطأ))};
                 }
             }
-            if (needThreadFailCount) {
-                AstNodeExpr* const contributionp
-                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delayRingLiveCountVarp,
-                                                    stateExprp, rejectCondp->cloneTreePure(false));
+            إذا (need_Thread_Fail_سانى) {
+                Ast_تۈگۈن_ئىپادە* ثابت contributionp
+                    = newThroughoutThreadFailCountp(c, vtxp->datap()->delay_Ring_Live_سانى_Varp,
+                                                    stateExprp, rejectCondp->clone_دەرەخ_Pure(خطأ));
                 sigs.threadFailCountp = addCountp(c.flp, sigs.threadFailCountp, contributionp);
-                if (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
+                إذا (vtxp->m_abortRejectp && vtxp->m_delayRingAdvanceCondp) {
                     // An advancing ring thread also occupies its same-tick match vertex in the
                     // unrolled NFA, so abort rejection must replay both fail actions.
-                    AstNodeExpr* const abortAndAdvancep = new AstLogAnd{
-                        c.flp, sampled(vtxp->m_abortRejectp->cloneTreePure(false)),
-                        sampled(vtxp->m_delayRingAdvanceCondp->cloneTreePure(false))};
-                    AstNodeExpr* const matchContributionp = newThroughoutThreadFailCountp(
-                        c, vtxp->datap()->delayRingLiveCountVarp, stateExprp, abortAndAdvancep);
+                    Ast_تۈگۈن_ئىپادە* ثابت abortAndAdvancep = جديد AstLogAnd{
+                        c.flp, sampled(vtxp->m_abortRejectp->clone_دەرەخ_Pure(خطأ)),
+                        sampled(vtxp->m_delayRingAdvanceCondp->clone_دەرەخ_Pure(خطأ))};
+                    Ast_تۈگۈن_ئىپادە* ثابت matchContributionp = newThroughoutThreadFailCountp(
+                        c, vtxp->datap()->delay_Ring_Live_سانى_Varp, stateExprp, abortAndAdvancep);
                     sigs.threadFailCountp
                         = addCountp(c.flp, sigs.threadFailCountp, matchContributionp);
                 }
             }
             sigs.throughoutRejectp = orExprs(c.flp, sigs.throughoutRejectp,
-                                             new AstLogAnd{c.flp, stateExprp, rejectCondp});
+                                             جديد AstLogAnd{c.flp, stateExprp, rejectCondp});
         }
     }
 
-    SignalSet computeSignals(LowerCtx& c, const bool needThreadFailCount,
-                             const bool needThroughoutThreadFailCount, const bool needMatchCount) {
+    SignalSet computeSignals(LowerCtx& c, ثابت منطقي need_Thread_Fail_سانى,
+                             ثابت منطقي need_Throughout_Thread_Fail_سانى, ثابت منطقي need_Match_سانى) {
         SignalSet sigs;
 
-        computeTerminalMatchAndReject(c, sigs, needMatchCount);
+        computeTerminalMatchAndReject(c, sigs, need_Match_سانى);
 
         // Phase 3a: required-step rejection.
         // Builder only sets m_rejectOnFail on non-clocked Links with m_condp
         // or m_condVtxp, and the source always has a resolved stateSig.
-        for (const SvaTransEdge* const tedgep : c.graph.allEdges()) {
-            if (!tedgep->m_rejectOnFail) continue;
-            const SvaStateVertex* const fromVtxp = tedgep->fromVtxp();
+        لكل (ثابت SvaTransEdge* ثابت tedgep : c.graph.allEdges()) {
+            إذا (!tedgep->m_rejectOnFail) استمر;
+            ثابت SvaStateVertex* ثابت fromVtxp = tedgep->fromVtxp();
             UASSERT_OBJ(fromVtxp->datap()->stateSigp && (tedgep->m_condp || tedgep->m_condVtxp),
                         fromVtxp,
                         "rejectOnFail Link must have condp/condVtxp and source stateSig");
-            AstNodeExpr* const srcSigp = fromVtxp->datap()->stateSigp->cloneTreePure(false);
-            AstNodeExpr* condp = nullptr;
-            if (tedgep->m_condVtxp) {
+            Ast_تۈگۈن_ئىپادە* ثابت srcSigp = fromVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ);
+            Ast_تۈگۈن_ئىپادە* condp = nullptr;
+            إذا (tedgep->m_condVtxp) {
                 UASSERT_OBJ(tedgep->m_condVtxp->datap()->stateSigp, tedgep->m_condVtxp,
                             "rejectOnFail condVtxp missing stateSig");
-                condp = tedgep->m_condVtxp->datap()->stateSigp->cloneTreePure(false);
-                if (tedgep->m_condp) {
-                    condp = new AstLogOr{c.flp, condp, tedgep->m_condp->cloneTreePure(false)};
+                condp = tedgep->m_condVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ);
+                إذا (tedgep->m_condp) {
+                    condp = جديد AstLogOr{c.flp, condp, tedgep->m_condp->clone_دەرەخ_Pure(خطأ)};
                 }
-            } else {
-                condp = tedgep->m_condp->cloneTreePure(false);
+            } وإلا {
+                condp = tedgep->m_condp->clone_دەرەخ_Pure(خطأ);
             }
-            AstNodeExpr* const notCondp = new AstLogNot{c.flp, condp};
-            AstNodeExpr* const rawFailp = new AstLogAnd{c.flp, srcSigp, notCondp};
-            if (needThreadFailCount) {
+            Ast_تۈگۈن_ئىپادە* ثابت notCondp = جديد AstLogNot{c.flp, condp};
+            Ast_تۈگۈن_ئىپادە* ثابت rawFailp = جديد AstLogAnd{c.flp, srcSigp, notCondp};
+            إذا (need_Thread_Fail_سانى) {
                 // thread_fail_count += fail;
                 sigs.threadFailCountp = addCountp(
                     c.flp, sigs.threadFailCountp,
-                    new AstExtend{c.flp, rawFailp->cloneTreePure(false), m_u32DTypep->width()});
+                    جديد AstExtend{c.flp, rawFailp->clone_دەرەخ_Pure(خطأ), m_u32DTypep->width()});
             }
-            AstNodeExpr* const failp = gateNotKill(c, rawFailp);
+            Ast_تۈگۈن_ئىپادە* ثابت failp = gateNotKill(c, rawFailp);
             sigs.requiredStepRejectp = orExprs(c.flp, sigs.requiredStepRejectp, failp);
         }
 
-        computeThroughoutReject(c, sigs, needThroughoutThreadFailCount);
-        if (sigs.threadFailCountp) {
+        computeThroughoutReject(c, sigs, need_Throughout_Thread_Fail_سانى);
+        إذا (sigs.threadFailCountp) {
             sigs.threadFailCountp
                 = addCountp(c.flp, nullptr, sigs.threadFailCountp, notKillActive(c));
         }
-        if (sigs.matchCountp) {
-            if (c.matchCondp) {
+        إذا (sigs.matchCountp) {
+            إذا (c.matchCondp) {
                 sigs.matchCountp
-                    = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                                        sampled(c.matchCondp->cloneTreePure(false)));
+                    = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.match_سانى_Overflowp,
+                                        sampled(c.matchCondp->clone_دەرەخ_Pure(خطأ)));
             }
-            sigs.matchCountp = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
+            sigs.matchCountp = gateCheckedCountp(c.flp, sigs.matchCountp, sigs.match_سانى_Overflowp,
                                                  notKillActive(c));
         }
         sigs.terminalActivep = gateNotKill(c, sigs.terminalActivep);
@@ -2411,276 +2411,276 @@ class SvaNfaLowering final {
         // Clean up intermediate state signals. These are orphan subtrees
         // (never linked into the enclosing AST); deleteTree() is immediate
         // which is what we want since stateSigp lifetime ends with this scope.
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            AstNodeExpr*& sigp = vtxp->datap()->stateSigp;
-            if (sigp) VL_DO_DANGLING(sigp->deleteTree(), sigp);
-            AstNodeExpr*& countp = vtxp->datap()->stateCountSigp;
-            if (countp) VL_DO_DANGLING(countp->deleteTree(), countp);
-            AstNodeExpr*& overflowp = vtxp->datap()->stateCountOverflowSigp;
-            if (overflowp) VL_DO_DANGLING(overflowp->deleteTree(), overflowp);
+        لكل (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ثابت vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            Ast_تۈگۈن_ئىپادە*& sigp = vtxp->datap()->stateSigp;
+            إذا (sigp) VL_DO_DANGLING(sigp->delete_دەرەخ(), sigp);
+            Ast_تۈگۈن_ئىپادە*& countp = vtxp->datap()->state_سانى_Sigp;
+            إذا (countp) VL_DO_DANGLING(countp->delete_دەرەخ(), countp);
+            Ast_تۈگۈن_ئىپادە*& overflowp = vtxp->datap()->state_سانى_Overflow_Sigp;
+            إذا (overflowp) VL_DO_DANGLING(overflowp->delete_دەرەخ(), overflowp);
         }
         // Disable iff gating (IEEE 1800-2023 16.12) on the current level value.
-        if (c.disableExprp) {
+        إذا (c.disableExprp) {
             // terminalActivep is always set, so gate it unconditionally.
-            AstNodeExpr* const notTermp
-                = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-            sigs.terminalActivep = new AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
-            if (sigs.rejectBasep) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.rejectBasep = new AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
+            Ast_تۈگۈن_ئىپادە* ثابت notTermp
+                = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+            sigs.terminalActivep = جديد AstLogAnd{c.flp, sigs.terminalActivep, notTermp};
+            إذا (sigs.rejectBasep) {
+                Ast_تۈگۈن_ئىپادە* ثابت notDisp
+                    = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                sigs.rejectBasep = جديد AstLogAnd{c.flp, sigs.rejectBasep, notDisp};
             }
-            if (sigs.throughoutRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.throughoutRejectp = new AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
+            إذا (sigs.throughoutRejectp) {
+                Ast_تۈگۈن_ئىپادە* ثابت notDisp
+                    = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                sigs.throughoutRejectp = جديد AstLogAnd{c.flp, sigs.throughoutRejectp, notDisp};
             }
-            if (sigs.requiredStepRejectp) {
-                AstNodeExpr* const notDisp
-                    = new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)};
-                sigs.requiredStepRejectp = new AstLogAnd{c.flp, sigs.requiredStepRejectp, notDisp};
+            إذا (sigs.requiredStepRejectp) {
+                Ast_تۈگۈن_ئىپادە* ثابت notDisp
+                    = جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)};
+                sigs.requiredStepRejectp = جديد AstLogAnd{c.flp, sigs.requiredStepRejectp, notDisp};
             }
-            if (sigs.matchCountp) {
+            إذا (sigs.matchCountp) {
                 sigs.matchCountp = gateCheckedCountp(
-                    c.flp, sigs.matchCountp, sigs.matchCountOverflowp,
-                    new AstLogNot{c.flp, c.disableExprp->cloneTreePure(false)});
+                    c.flp, sigs.matchCountp, sigs.match_سانى_Overflowp,
+                    جديد AstLogNot{c.flp, c.disableExprp->clone_دەرەخ_Pure(خطأ)});
             }
         }
 
-        if (sigs.matchCountOverflowp) {
+        إذا (sigs.match_سانى_Overflowp) {
             m_modp->addStmtsp(
-                new AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->cloneTree(false),
-                              newCountOverflowWarning(c.flp, sigs.matchCountOverflowp)});
-            sigs.matchCountOverflowp = nullptr;
+                جديد AstAlways{c.flp, VAlwaysKwd::ALWAYS, c.senTreep->clone_دەرەخ(خطأ),
+                              new_سانى_Overflow_Warning(c.flp, sigs.match_سانى_Overflowp)});
+            sigs.match_سانى_Overflowp = nullptr;
         }
 
-        return sigs;
+        أرجع sigs;
     }
 
     // Phase 1: Resolve combinational Links via fixed-point propagation.
-    void resolveLinks(LowerCtx& c, AstNodeExpr* triggerExprp, const bool countMatches) {
+    فراغ resolveLinks(LowerCtx& c, Ast_تۈگۈن_ئىپادە* triggerExprp, ثابت منطقي سانى_Matches) {
         // datap() was freshly allocated in lower() -- all state signals start null.
-        c.graph.m_startVertexp->datap()->stateSigp = triggerExprp->cloneTreePure(false);
-        c.graph.m_startVertexp->datap()->stateCountSigp
-            = new AstExtend{c.flp, triggerExprp->cloneTreePure(false), m_u32DTypep->width()};
-        for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-            SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-            if (vtxp->datap()->stateVarp) {
+        c.graph.m_startVertexp->datap()->stateSigp = triggerExprp->clone_دەرەخ_Pure(خطأ);
+        c.graph.m_startVertexp->datap()->state_سانى_Sigp
+            = جديد AstExtend{c.flp, triggerExprp->clone_دەرەخ_Pure(خطأ), m_u32DTypep->width()};
+        لكل (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+            SvaStateVertex* ثابت vtxp = static_cast<SvaStateVertex*>(&vtxr);
+            إذا (vtxp->datap()->stateVarp) {
                 vtxp->datap()->stateSigp
-                    = new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
+                    = جديد AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ};
+                vtxp->datap()->state_سانى_Sigp = جديد AstExtend{
+                    c.flp, جديد AstVarRef{c.flp, vtxp->datap()->stateVarp, VAccess::READ},
                     m_u32DTypep->width()};
-            } else if (vtxp->datap()->delayRingVarp) {
-                if (vtxp->m_isFixedDelayRing) {
+            } وإلا إذا (vtxp->datap()->delayRingVarp) {
+                إذا (vtxp->m_isFixedDelayRing) {
                     // state_count = wrapped ? head : 0; state = state_count != 0;
-                    AstNodeExpr* const countp = delayRingOutputCount(c.flp, vtxp);
-                    vtxp->datap()->stateSigp = new AstNeq{c.flp, countp->cloneTreePure(false),
+                    Ast_تۈگۈن_ئىپادە* ثابت countp = delay_Ring_Output_سانى(c.flp, vtxp);
+                    vtxp->datap()->stateSigp = جديد AstNeq{c.flp, countp->clone_دەرەخ_Pure(خطأ),
                                                           newTypedConstp(c.flp, m_u32DTypep, 0)};
-                    vtxp->datap()->stateCountSigp = countp;
-                } else {
+                    vtxp->datap()->state_سانى_Sigp = countp;
+                } وإلا {
                     vtxp->datap()->stateSigp
-                        = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delayRingLiveCountVarp);
-                    vtxp->datap()->stateCountSigp = new AstVarRef{
-                        c.flp, vtxp->datap()->delayRingLiveCountVarp, VAccess::READ};
+                        = delayRingHasLiveThreadsp(c.flp, vtxp->datap()->delay_Ring_Live_سانى_Varp);
+                    vtxp->datap()->state_سانى_Sigp = جديد AstVarRef{
+                        c.flp, vtxp->datap()->delay_Ring_Live_سانى_Varp, VAccess::READ};
                 }
             }
         }
         // Fixed-point propagation along zero-delay (Link) edges. Rebuild each
         // derived signal from its incoming edges on every pass; appending the same
         // contributions repeatedly makes merge expressions grow exponentially.
-        const size_t passes = 2 * c.graph.m_graph.vertices().size() + 2;
-        for (size_t pass = 0; pass < passes; ++pass) {
+        ثابت size_t passes = 2 * c.graph.m_graph.vertices().size() + 2;
+        لكل (size_t pass = 0; pass < passes; ++pass) {
             // Rebuild SAnd combiners once both sub-NFA terminals are available.
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (!vtxp->m_isAndCombiner) continue;
+            لكل (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+                SvaStateVertex* ثابت vtxp = static_cast<SvaStateVertex*>(&vtxr);
+                إذا (!vtxp->m_isAndCombiner) استمر;
                 // AndCombiner vertices always have both terminal pointers set.
                 UASSERT_OBJ(vtxp->m_andLhsTermp && vtxp->m_andRhsTermp, vtxp,
                             "AndCombiner vertex missing LHS/RHS terminal");
-                const SvaStateVertex* const lhsTermp = vtxp->m_andLhsTermp;
-                const SvaStateVertex* const rhsTermp = vtxp->m_andRhsTermp;
-                if (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) continue;
-                AstNodeExpr* const matchLp
+                ثابت SvaStateVertex* ثابت lhsTermp = vtxp->m_andLhsTermp;
+                ثابت SvaStateVertex* ثابت rhsTermp = vtxp->m_andRhsTermp;
+                إذا (!lhsTermp->datap()->stateSigp || !rhsTermp->datap()->stateSigp) استمر;
+                Ast_تۈگۈن_ئىپادە* ثابت matchLp
                     = buildMatchNow(c.flp, lhsTermp->datap()->stateSigp, vtxp->m_andLhsCondp);
-                AstNodeExpr* const matchRp
+                Ast_تۈگۈن_ئىپادە* ثابت matchRp
                     = buildMatchNow(c.flp, rhsTermp->datap()->stateSigp, vtxp->m_andRhsCondp);
-                AstNodeExpr* const doneLOrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneLVarp, VAccess::READ}, matchLp};
-                AstNodeExpr* const doneROrp = new AstLogOr{
-                    c.flp, new AstVarRef{c.flp, vtxp->datap()->doneRVarp, VAccess::READ}, matchRp};
-                AstNodeExpr* const bothp = new AstLogAnd{c.flp, doneLOrp, doneROrp};
-                AstNodeExpr* const oneNowp = new AstLogOr{c.flp, matchLp->cloneTreePure(false),
-                                                          matchRp->cloneTreePure(false)};
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                Ast_تۈگۈن_ئىپادە* ثابت doneLOrp = جديد AstLogOr{
+                    c.flp, جديد AstVarRef{c.flp, vtxp->datap()->doneLVarp, VAccess::READ}, matchLp};
+                Ast_تۈگۈن_ئىپادە* ثابت doneROrp = جديد AstLogOr{
+                    c.flp, جديد AstVarRef{c.flp, vtxp->datap()->doneRVarp, VAccess::READ}, matchRp};
+                Ast_تۈگۈن_ئىپادە* ثابت bothp = جديد AstLogAnd{c.flp, doneLOrp, doneROrp};
+                Ast_تۈگۈن_ئىپادە* ثابت oneNowp = جديد AstLogOr{c.flp, matchLp->clone_دەرەخ_Pure(خطأ),
+                                                          matchRp->clone_دەرەخ_Pure(خطأ)};
+                إذا (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_دەرەخ(),
                                    vtxp->datap()->stateSigp);
                 }
-                vtxp->datap()->stateSigp = new AstLogAnd{c.flp, bothp, oneNowp};
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                vtxp->datap()->stateSigp = جديد AstLogAnd{c.flp, bothp, oneNowp};
+                إذا (vtxp->datap()->state_سانى_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_سانى_Sigp->delete_دەرەخ(),
+                                   vtxp->datap()->state_سانى_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = new AstExtend{
-                    c.flp, vtxp->datap()->stateSigp->cloneTreePure(false), m_u32DTypep->width()};
+                vtxp->datap()->state_سانى_Sigp = جديد AstExtend{
+                    c.flp, vtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ), m_u32DTypep->width()};
             }
 
-            for (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
-                SvaStateVertex* const vtxp = static_cast<SvaStateVertex*>(&vtxr);
-                if (vtxp == c.graph.m_startVertexp || vtxp->datap()->stateVarp
+            لكل (V3GraphVertex& vtxr : c.graph.m_graph.vertices()) {
+                SvaStateVertex* ثابت vtxp = static_cast<SvaStateVertex*>(&vtxr);
+                إذا (vtxp == c.graph.m_startVertexp || vtxp->datap()->stateVarp
                     || vtxp->datap()->delayRingVarp || vtxp->m_isAndCombiner || vtxp->m_isMatch
                     || vtxp->m_isRejectSink) {
-                    continue;
+                    استمر;
                 }
-                AstNodeExpr* nextStatep = nullptr;
-                AstNodeExpr* nextStateCountp = nullptr;
-                AstNodeExpr* nextStateCountOverflowp = nullptr;
-                for (const V3GraphEdge& er : vtxp->inEdges()) {
-                    const SvaTransEdge& te = static_cast<const SvaTransEdge&>(er);
-                    const SvaStateVertex* const fromVtxp = te.fromVtxp();
-                    if (!fromVtxp->datap()->stateSigp) continue;
-                    UASSERT_OBJ(fromVtxp->datap()->stateCountSigp, fromVtxp,
+                Ast_تۈگۈن_ئىپادە* nextStatep = nullptr;
+                Ast_تۈگۈن_ئىپادە* nextStateCountp = nullptr;
+                Ast_تۈگۈن_ئىپادە* next_State_سانى_Overflowp = nullptr;
+                لكل (ثابت V3GraphEdge& er : vtxp->inEdges()) {
+                    ثابت SvaTransEdge& te = static_cast<ثابت SvaTransEdge&>(er);
+                    ثابت SvaStateVertex* ثابت fromVtxp = te.fromVtxp();
+                    إذا (!fromVtxp->datap()->stateSigp) استمر;
+                    UASSERT_OBJ(fromVtxp->datap()->state_سانى_Sigp, fromVtxp,
                                 "Link source missing stateCountSig");
-                    AstNodeExpr* const contributionp = andCond(
-                        c.flp, fromVtxp->datap()->stateSigp->cloneTreePure(false), te.m_condp);
+                    Ast_تۈگۈن_ئىپادە* ثابت contributionp = andCond(
+                        c.flp, fromVtxp->datap()->stateSigp->clone_دەرەخ_Pure(خطأ), te.m_condp);
                     nextStatep = orExprs(c.flp, nextStatep, contributionp);
-                    AstNodeExpr* countContributionp
-                        = fromVtxp->datap()->stateCountSigp->cloneTreePure(false);
-                    AstNodeExpr* countContributionOverflowp
-                        = countMatches && fromVtxp->datap()->stateCountOverflowSigp
-                              ? fromVtxp->datap()->stateCountOverflowSigp->cloneTreePure(false)
+                    Ast_تۈگۈن_ئىپادە* سانى_Contributionp
+                        = fromVtxp->datap()->state_سانى_Sigp->clone_دەرەخ_Pure(خطأ);
+                    Ast_تۈگۈن_ئىپادە* سانى_Contribution_Overflowp
+                        = سانى_Matches && fromVtxp->datap()->state_سانى_Overflow_Sigp
+                              ? fromVtxp->datap()->state_سانى_Overflow_Sigp->clone_دەرەخ_Pure(خطأ)
                               : nullptr;
-                    if (te.m_condp) {
-                        AstNodeExpr* const enablep = te.m_condp->cloneTreePure(false);
-                        countContributionp
-                            = countMatches
-                                  ? gateCheckedCountp(c.flp, countContributionp,
-                                                      countContributionOverflowp, enablep)
-                                  : addCountp(c.flp, nullptr, countContributionp, enablep);
+                    إذا (te.m_condp) {
+                        Ast_تۈگۈن_ئىپادە* ثابت enablep = te.m_condp->clone_دەرەخ_Pure(خطأ);
+                        سانى_Contributionp
+                            = سانى_Matches
+                                  ? gateCheckedCountp(c.flp, سانى_Contributionp,
+                                                      سانى_Contribution_Overflowp, enablep)
+                                  : addCountp(c.flp, nullptr, سانى_Contributionp, enablep);
                     }
                     nextStateCountp
-                        = countMatches
-                              ? addCheckedCountp(c.flp, nextStateCountp, countContributionp,
-                                                 nextStateCountOverflowp,
-                                                 countContributionOverflowp)
-                              : addCountp(c.flp, nextStateCountp, countContributionp);
+                        = سانى_Matches
+                              ? addCheckedCountp(c.flp, nextStateCountp, سانى_Contributionp,
+                                                 next_State_سانى_Overflowp,
+                                                 سانى_Contribution_Overflowp)
+                              : addCountp(c.flp, nextStateCountp, سانى_Contributionp);
                 }
-                if (vtxp->datap()->stateSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateSigp->deleteTree(),
+                إذا (vtxp->datap()->stateSigp) {
+                    VL_DO_DANGLING(vtxp->datap()->stateSigp->delete_دەرەخ(),
                                    vtxp->datap()->stateSigp);
                 }
                 vtxp->datap()->stateSigp = nextStatep;
-                if (vtxp->datap()->stateCountSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountSigp->deleteTree(),
-                                   vtxp->datap()->stateCountSigp);
+                إذا (vtxp->datap()->state_سانى_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_سانى_Sigp->delete_دەرەخ(),
+                                   vtxp->datap()->state_سانى_Sigp);
                 }
-                vtxp->datap()->stateCountSigp = nextStateCountp;
-                if (vtxp->datap()->stateCountOverflowSigp) {
-                    VL_DO_DANGLING(vtxp->datap()->stateCountOverflowSigp->deleteTree(),
-                                   vtxp->datap()->stateCountOverflowSigp);
+                vtxp->datap()->state_سانى_Sigp = nextStateCountp;
+                إذا (vtxp->datap()->state_سانى_Overflow_Sigp) {
+                    VL_DO_DANGLING(vtxp->datap()->state_سانى_Overflow_Sigp->delete_دەرەخ(),
+                                   vtxp->datap()->state_سانى_Overflow_Sigp);
                 }
-                vtxp->datap()->stateCountOverflowSigp = nextStateCountOverflowp;
+                vtxp->datap()->state_سانى_Overflow_Sigp = next_State_سانى_Overflowp;
             }
         }
     }
 
-public:
+عام:
     // Combine terminal/reject signals into final output expression.
-    static AstNodeExpr* assembleResult(AstNodeCoverOrAssert* const assertp, const bool negated,
-                                       AstNodeExpr* const matchCondp, const SignalSet& sigs,
-                                       AstNodeExpr** const outMatchpp) {
-        FileLine* const flp = assertp->fileline();
-        const bool isCover = VN_IS(assertp, Cover);
-        AstNodeExpr* const terminalActivep = sigs.terminalActivep;
-        AstNodeExpr* const rejectBasep = sigs.rejectBasep;
-        AstNodeExpr* const throughoutRejectp = sigs.throughoutRejectp;
-        AstNodeExpr* const requiredStepRejectp = sigs.requiredStepRejectp;
+    ساكن Ast_تۈگۈن_ئىپادە* assembleResult(Ast_تۈگۈن_Cover_Or_Assert* ثابت assertp, ثابت منطقي negated,
+                                       Ast_تۈگۈن_ئىپادە* ثابت matchCondp, ثابت SignalSet& sigs,
+                                       Ast_تۈگۈن_ئىپادە** ثابت outMatchpp) {
+        File_قۇر* ثابت flp = assertp->fileline();
+        ثابت منطقي isCover = VN_IS(assertp, Cover);
+        Ast_تۈگۈن_ئىپادە* ثابت terminalActivep = sigs.terminalActivep;
+        Ast_تۈگۈن_ئىپادە* ثابت rejectBasep = sigs.rejectBasep;
+        Ast_تۈگۈن_ئىپادە* ثابت throughoutRejectp = sigs.throughoutRejectp;
+        Ast_تۈگۈن_ئىپادە* ثابت requiredStepRejectp = sigs.requiredStepRejectp;
         // Property negation (IEEE 1800-2023 16.12.1 `not`): invert match/reject.
-        if (negated) {
-            if (isCover) {
-                if (terminalActivep)
-                    VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-                AstNodeExpr* negRejectp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    AstNodeExpr* const notCondp = new AstLogNot{flp, sampledCondp};
-                    negRejectp = new AstLogAnd{flp, rejectBasep, notCondp};
-                } else if (rejectBasep) {
-                    VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        إذا (negated) {
+            إذا (isCover) {
+                إذا (terminalActivep)
+                    VL_DO_DANGLING(terminalActivep->delete_دەرەخ(), terminalActivep);
+                Ast_تۈگۈن_ئىپادە* negRejectp = nullptr;
+                إذا (matchCondp && rejectBasep) {
+                    Ast_تۈگۈن_ئىپادە* ثابت sampledCondp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+                    Ast_تۈگۈن_ئىپادە* ثابت notCondp = جديد AstLogNot{flp, sampledCondp};
+                    negRejectp = جديد AstLogAnd{flp, rejectBasep, notCondp};
+                } وإلا إذا (rejectBasep) {
+                    VL_DO_DANGLING(rejectBasep->delete_دەرەخ(), rejectBasep);
                 }
-                if (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
-                if (requiredStepRejectp)
+                إذا (throughoutRejectp) negRejectp = orExprs(flp, negRejectp, throughoutRejectp);
+                إذا (requiredStepRejectp)
                     negRejectp = orExprs(flp, negRejectp, requiredStepRejectp);
-                return negRejectp ? negRejectp : new AstConst{flp, AstConst::BitFalse{}};
+                أرجع negRejectp ? negRejectp : جديد AstConst{flp, AstConst::BitFalse{}};
             }
             // Negated assert/assume: output = !match.
-            AstNodeExpr* matchp = terminalActivep;
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                matchp = new AstLogAnd{flp, matchp, sampledCondp};
+            Ast_تۈگۈن_ئىپادە* matchp = terminalActivep;
+            إذا (matchCondp) {
+                Ast_تۈگۈن_ئىپادە* ثابت sampledCondp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+                matchp = جديد AstLogAnd{flp, matchp, sampledCondp};
             }
-            if (outMatchpp) {
-                AstNodeExpr* notPMatchp = nullptr;
-                if (matchCondp && rejectBasep) {
-                    AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                    notPMatchp = new AstLogAnd{flp, rejectBasep->cloneTreePure(false),
-                                               new AstLogNot{flp, sampledCondp}};
-                } else if (rejectBasep) {
-                    notPMatchp = rejectBasep->cloneTreePure(false);
+            إذا (outMatchpp) {
+                Ast_تۈگۈن_ئىپادە* notPMatchp = nullptr;
+                إذا (matchCondp && rejectBasep) {
+                    Ast_تۈگۈن_ئىپادە* ثابت sampledCondp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+                    notPMatchp = جديد AstLogAnd{flp, rejectBasep->clone_دەرەخ_Pure(خطأ),
+                                               جديد AstLogNot{flp, sampledCondp}};
+                } وإلا إذا (rejectBasep) {
+                    notPMatchp = rejectBasep->clone_دەرەخ_Pure(خطأ);
                 }
-                if (throughoutRejectp)
-                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->cloneTreePure(false));
-                if (requiredStepRejectp)
+                إذا (throughoutRejectp)
+                    notPMatchp = orExprs(flp, notPMatchp, throughoutRejectp->clone_دەرەخ_Pure(خطأ));
+                إذا (requiredStepRejectp)
                     notPMatchp
-                        = orExprs(flp, notPMatchp, requiredStepRejectp->cloneTreePure(false));
+                        = orExprs(flp, notPMatchp, requiredStepRejectp->clone_دەرەخ_Pure(خطأ));
                 *outMatchpp = notPMatchp;
             }
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            AstNodeExpr* const resultExprp = new AstLogNot{flp, matchp};
-            return resultExprp;
+            إذا (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_دەرەخ(), throughoutRejectp);
+            إذا (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_دەرەخ(), rejectBasep);
+            إذا (requiredStepRejectp)
+                VL_DO_DANGLING(requiredStepRejectp->delete_دەرەخ(), requiredStepRejectp);
+            Ast_تۈگۈن_ئىپادە* ثابت resultExprp = جديد AstLogNot{flp, matchp};
+            أرجع resultExprp;
         }
-        if (isCover) {
-            if (throughoutRejectp)
-                VL_DO_DANGLING(throughoutRejectp->deleteTree(), throughoutRejectp);
-            if (rejectBasep) VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
-            if (requiredStepRejectp)
-                VL_DO_DANGLING(requiredStepRejectp->deleteTree(), requiredStepRejectp);
-            if (matchCondp) {
-                AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-                return new AstLogAnd{flp, terminalActivep, sampledCondp};
+        إذا (isCover) {
+            إذا (throughoutRejectp)
+                VL_DO_DANGLING(throughoutRejectp->delete_دەرەخ(), throughoutRejectp);
+            إذا (rejectBasep) VL_DO_DANGLING(rejectBasep->delete_دەرەخ(), rejectBasep);
+            إذا (requiredStepRejectp)
+                VL_DO_DANGLING(requiredStepRejectp->delete_دەرەخ(), requiredStepRejectp);
+            إذا (matchCondp) {
+                Ast_تۈگۈن_ئىپادە* ثابت sampledCondp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+                أرجع جديد AstLogAnd{flp, terminalActivep, sampledCondp};
             }
-            return terminalActivep;
+            أرجع terminalActivep;
         }
         // Assert/assume: output = !reject
-        AstNodeExpr* rejectp = nullptr;
-        if (matchCondp && rejectBasep) {
-            AstNodeExpr* const sampledCondp = sampled(matchCondp->cloneTreePure(false));
-            rejectp = new AstLogAnd{flp, rejectBasep, new AstLogNot{flp, sampledCondp}};
-        } else if (rejectBasep) {
-            VL_DO_DANGLING(rejectBasep->deleteTree(), rejectBasep);
+        Ast_تۈگۈن_ئىپادە* rejectp = nullptr;
+        إذا (matchCondp && rejectBasep) {
+            Ast_تۈگۈن_ئىپادە* ثابت sampledCondp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+            rejectp = جديد AstLogAnd{flp, rejectBasep, جديد AstLogNot{flp, sampledCondp}};
+        } وإلا إذا (rejectBasep) {
+            VL_DO_DANGLING(rejectBasep->delete_دەرەخ(), rejectBasep);
         }
-        if (outMatchpp) {
-            AstNodeExpr* matchExprp = terminalActivep->cloneTreePure(false);
-            if (matchCondp) {
-                AstNodeExpr* const sp = sampled(matchCondp->cloneTreePure(false));
-                matchExprp = new AstLogAnd{flp, matchExprp, sp};
+        إذا (outMatchpp) {
+            Ast_تۈگۈن_ئىپادە* matchExprp = terminalActivep->clone_دەرەخ_Pure(خطأ);
+            إذا (matchCondp) {
+                Ast_تۈگۈن_ئىپادە* ثابت sp = sampled(matchCondp->clone_دەرەخ_Pure(خطأ));
+                matchExprp = جديد AstLogAnd{flp, matchExprp, sp};
             }
             *outMatchpp = matchExprp;
         }
-        if (terminalActivep) VL_DO_DANGLING(terminalActivep->deleteTree(), terminalActivep);
-        if (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
-        if (requiredStepRejectp) rejectp = orExprs(flp, rejectp, requiredStepRejectp);
-        if (!rejectp) return new AstConst{flp, AstConst::BitTrue{}};
-        AstNodeExpr* const resultExprp = new AstLogNot{flp, rejectp};
-        return resultExprp;
+        إذا (terminalActivep) VL_DO_DANGLING(terminalActivep->delete_دەرەخ(), terminalActivep);
+        إذا (throughoutRejectp) rejectp = orExprs(flp, rejectp, throughoutRejectp);
+        إذا (requiredStepRejectp) rejectp = orExprs(flp, rejectp, requiredStepRejectp);
+        إذا (!rejectp) أرجع جديد AstConst{flp, AstConst::BitTrue{}};
+        Ast_تۈگۈن_ئىپادە* ثابت resultExprp = جديد AstLogNot{flp, rejectp};
+        أرجع resultExprp;
     }
 
-    explicit SvaNfaLowering(AstNodeModule* modp)
+    explicit SvaNfaLowering(Ast_تۈگۈن_Module* modp)
         : m_modp{modp}
         , m_u32DTypep{modp->findBasicDType(VBasicDTypeKwd::UINT32)} {}
     ~SvaNfaLowering() {
@@ -2689,38 +2689,38 @@ public:
 
     // Lower NFA graph to synthesizable AstAlways blocks and raw result signals.
     // Links are combinational; Edges are registered (NBA).
-    SignalSet lower(AstNodeCoverOrAssert* const assertp, SvaGraph& graph,
-                    AstSenTree* const senTreep, AstNodeExpr* const matchCondp,
-                    AstNodeExpr* const disableExprp, const bool needThreadFailCount,
-                    const bool needThroughoutThreadFailCount) {
-        FileLine* const flp = assertp->fileline();
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const VAssertType assertType
+    SignalSet lower(Ast_تۈگۈن_Cover_Or_Assert* ثابت assertp, SvaGraph& graph,
+                    Ast_Sen_دەرەخ* ثابت senTreep, Ast_تۈگۈن_ئىپادە* ثابت matchCondp,
+                    Ast_تۈگۈن_ئىپادە* ثابت disableExprp, ثابت منطقي need_Thread_Fail_سانى,
+                    ثابت منطقي need_Throughout_Thread_Fail_سانى) {
+        File_قۇر* ثابت flp = assertp->fileline();
+        AstCover* ثابت coverp = VN_CAST(assertp, Cover);
+        ثابت منطقي isSeqEvent = coverp && coverp->isSeqEvent();
+        ثابت VAssertType assertType
             = isSeqEvent ? VAssertType{VAssertType::INTERNAL} : assertp->userType();
-        const VAssertDirectiveType directiveType
+        ثابت VAssertDirectiveType directiveType
             = isSeqEvent ? VAssertDirectiveType{VAssertDirectiveType::INTERNAL}
                          : assertp->directive();
-        const std::string baseName = m_names.get("");
+        ثابت std::string baseName = m_names.get("");
 
         // Number vertices with sequential colors for array indexing.
-        int N = 0;
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) { vtxr.color(N++); }
+        صحيح N = 0;
+        لكل (V3GraphVertex& vtxr : graph.m_graph.vertices()) { vtxr.color(N++); }
         std::vector<SvaStateVertex*> vtx(N, nullptr);
-        for (V3GraphVertex& vtxr : graph.m_graph.vertices()) {
+        لكل (V3GraphVertex& vtxr : graph.m_graph.vertices()) {
             vtx[vtxr.color()] = static_cast<SvaStateVertex*>(&vtxr);
         }
 
         // Allocate per-vertex lowering data (stored via V3GraphVertex::userp()).
         std::vector<SvaVertexData> vertexData(N);
-        for (int i = 0; i < N; ++i) vtx[i]->userp(&vertexData[i]);
+        لكل (صحيح i = 0; i < N; ++i) vtx[i]->userp(&vertexData[i]);
 
         // Identify registered vertices (targets of clocked edges).
-        for (int i = 0; i < N; ++i) {
-            for (const V3GraphEdge& edger : vtx[i]->outEdges()) {
-                const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                const int toIdx = tedger.toVtxp()->color();
-                if (tedger.m_consumesCycle && tedger.toVtxp() != graph.m_matchVertexp
+        لكل (صحيح i = 0; i < N; ++i) {
+            لكل (ثابت V3GraphEdge& edger : vtx[i]->outEdges()) {
+                ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
+                ثابت صحيح toIdx = tedger.toVtxp()->color();
+                إذا (tedger.m_consumesCycle && tedger.toVtxp() != graph.m_matchVertexp
                     && !tedger.toVtxp()->m_isRejectSink) {
                     vtx[toIdx]->datap()->needsReg = true;
                 }
@@ -2729,113 +2729,113 @@ public:
 
         // A packed range ring can emit several live endpoints without needing per-slot counts.
         // Widen only a ring whose input can already carry multiplicity.
-        std::vector<bool> stateMayHaveMultiplicity(N);
-        std::vector<bool> ringNeedsMultiplicity(N);
-        std::vector<int> multiplicityWork;
-        const bool countMatches = coverp && coverp->isCoverSeq() && !isSeqEvent;
-        if (countMatches) {
-            for (int i = 0; i < N; ++i) {
-                const bool multipleInputs = vtx[i]->inEdges().size() > 1;
-                const bool isRing = vtx[i]->m_delayRingSize;
+        std::vector<منطقي> stateMayHaveMultiplicity(N);
+        std::vector<منطقي> ringNeedsMultiplicity(N);
+        std::vector<صحيح> multiplicityWork;
+        ثابت منطقي سانى_Matches = coverp && coverp->isCoverSeq() && !isSeqEvent;
+        إذا (سانى_Matches) {
+            لكل (صحيح i = 0; i < N; ++i) {
+                ثابت منطقي multipleInputs = vtx[i]->inEdges().size() > 1;
+                ثابت منطقي isRing = vtx[i]->m_delayRingSize;
                 ringNeedsMultiplicity[i] = isRing && multipleInputs;
-                const bool startsMultiplicity = isRing
+                ثابت منطقي startsMultiplicity = isRing
                                                     ? !vtx[i]->m_isFixedDelayRing
                                                     : multipleInputs && !vtx[i]->datap()->needsReg;
-                if (startsMultiplicity) {
+                إذا (startsMultiplicity) {
                     stateMayHaveMultiplicity[i] = true;
-                    multiplicityWork.push_back(i);
+                    multiplicityWork.ئىتتىرىش_back(i);
                 }
             }
-            for (size_t wi = 0; wi < multiplicityWork.size(); ++wi) {
-                for (const V3GraphEdge& edger : vtx[multiplicityWork[wi]]->outEdges()) {
-                    const SvaTransEdge& tedger = static_cast<const SvaTransEdge&>(edger);
-                    const int ti = tedger.toVtxp()->color();
-                    const bool isRing = vtx[ti]->m_delayRingSize;
-                    if (isRing) ringNeedsMultiplicity[ti] = true;
+            لكل (size_t wi = 0; wi < multiplicityWork.size(); ++wi) {
+                لكل (ثابت V3GraphEdge& edger : vtx[multiplicityWork[wi]]->outEdges()) {
+                    ثابت SvaTransEdge& tedger = static_cast<ثابت SvaTransEdge&>(edger);
+                    ثابت صحيح ti = tedger.toVtxp()->color();
+                    ثابت منطقي isRing = vtx[ti]->m_delayRingSize;
+                    إذا (isRing) ringNeedsMultiplicity[ti] = true;
                     // Match and reject sinks have no outgoing edges, so they stop naturally.
-                    const bool stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
-                    if (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { continue; }
+                    ثابت منطقي stopsMultiplicity = !isRing && vtx[ti]->datap()->needsReg;
+                    إذا (stateMayHaveMultiplicity[ti] || stopsMultiplicity) { استمر; }
                     stateMayHaveMultiplicity[ti] = true;
-                    multiplicityWork.push_back(ti);
+                    multiplicityWork.ئىتتىرىش_back(ti);
                 }
             }
         }
 
-        const bool asyncDisable = isAsyncDisable(disableExprp);
+        ثابت منطقي asyncDisable = isAsyncDisable(disableExprp);
         // Registers cleared on a rising disable are also written by their clocked block.
-        FileLine* const regFlp = asyncDisable ? new FileLine{flp} : flp;
-        if (asyncDisable) regFlp->warnOff(V3ErrorCode::MULTIDRIVEN, true);
+        File_قۇر* ثابت regFlp = asyncDisable ? جديد File_قۇر{flp} : flp;
+        إذا (asyncDisable) regFlp->warnOff(V3ErrorCode::MULTIDRIVEN, true);
 
-        AstVar* const killVarp
-            = new AstVar{flp, VVarType::MODULETEMP, baseName + "__kill", m_u32DTypep};
+        AstVar* ثابت killVarp
+            = جديد AstVar{flp, VVarType::MODULETEMP, baseName + "__kill", m_u32DTypep};
         killVarp->lifetime(VLifetime::STATIC_EXPLICIT);
         m_modp->addStmtsp(killVarp);
-        for (int i = 0; i < N; ++i) {
-            if (vtx[i]->m_isAndCombiner) {
-                const std::string base = baseName + "__a" + std::to_string(i);
-                AstVar* const lp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneL",
+        لكل (صحيح i = 0; i < N; ++i) {
+            إذا (vtx[i]->m_isAndCombiner) {
+                ثابت std::string base = baseName + "__a" + std::to_string(i);
+                AstVar* ثابت lp = جديد AstVar{regFlp, VVarType::MODULETEMP, base + "_doneL",
                                               m_modp->findBitDType()};
                 lp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(lp);
                 vtx[i]->datap()->doneLVarp = lp;
-                AstVar* const rp = new AstVar{regFlp, VVarType::MODULETEMP, base + "_doneR",
+                AstVar* ثابت rp = جديد AstVar{regFlp, VVarType::MODULETEMP, base + "_doneR",
                                               m_modp->findBitDType()};
                 rp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(rp);
                 vtx[i]->datap()->doneRVarp = rp;
-                continue;
+                استمر;
             }
-            if (vtx[i]->m_delayRingSize) {
-                const std::string base = baseName + "__d" + std::to_string(i);
-                const bool storesCounts = countMatches && ringNeedsMultiplicity[i];
-                AstNodeDType* ringDTypep = nullptr;
-                if (storesCounts) {
+            إذا (vtx[i]->m_delayRingSize) {
+                ثابت std::string base = baseName + "__d" + std::to_string(i);
+                ثابت منطقي storesCounts = سانى_Matches && ringNeedsMultiplicity[i];
+                Ast_تۈگۈن_DType* ringDTypep = nullptr;
+                إذا (storesCounts) {
                     // int unsigned ring [size];
-                    ringDTypep = new AstUnpackArrayDType{
+                    ringDTypep = جديد AstUnpackArrayDType{
                         flp, m_u32DTypep,
-                        new AstRange{flp, static_cast<int>(vtx[i]->m_delayRingSize - 1), 0}};
+                        جديد AstRange{flp, static_cast<صحيح>(vtx[i]->m_delayRingSize - 1), 0}};
                     v3Global.rootp()->typeTablep()->addTypesp(ringDTypep);
-                } else {
+                } وإلا {
                     // bit [size-1:0] ring;
                     ringDTypep = m_modp->findBitDType(vtx[i]->m_delayRingSize,
                                                       vtx[i]->m_delayRingSize, VSigning::UNSIGNED);
                 }
-                AstVar* const ringp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_ring", ringDTypep};
+                AstVar* ثابت ringp
+                    = جديد AstVar{flp, VVarType::MODULETEMP, base + "_ring", ringDTypep};
                 ringp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(ringp);
                 vtx[i]->datap()->delayRingVarp = ringp;
                 vtx[i]->datap()->delayRingCounts = storesCounts;
-                AstVar* const headp
-                    = new AstVar{flp, VVarType::MODULETEMP, base + "_head",
+                AstVar* ثابت headp
+                    = جديد AstVar{flp, VVarType::MODULETEMP, base + "_head",
                                  storesCounts ? m_u32DTypep : m_modp->findBitDType()};
                 headp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(headp);
                 vtx[i]->datap()->delayRingHeadVarp = headp;
                 // int unsigned idx;
-                AstVar* const idxp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_idx", m_u32DTypep};
+                AstVar* ثابت idxp
+                    = جديد AstVar{regFlp, VVarType::MODULETEMP, base + "_idx", m_u32DTypep};
                 idxp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(idxp);
                 vtx[i]->datap()->delayRingIdxVarp = idxp;
                 // int unsigned live_count;
-                AstVar* const liveCountVarp
-                    = new AstVar{regFlp, VVarType::MODULETEMP, base + "_liveCount", m_u32DTypep};
-                liveCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-                m_modp->addStmtsp(liveCountVarp);
-                vtx[i]->datap()->delayRingLiveCountVarp = liveCountVarp;
-                AstVar* const wrappedp = new AstVar{regFlp, VVarType::MODULETEMP,
+                AstVar* ثابت live_سانى_Varp
+                    = جديد AstVar{regFlp, VVarType::MODULETEMP, base + "_liveCount", m_u32DTypep};
+                live_سانى_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+                m_modp->addStmtsp(live_سانى_Varp);
+                vtx[i]->datap()->delay_Ring_Live_سانى_Varp = live_سانى_Varp;
+                AstVar* ثابت wrappedp = جديد AstVar{regFlp, VVarType::MODULETEMP,
                                                     base + "_wrapped", m_modp->findBitDType()};
                 wrappedp->lifetime(VLifetime::STATIC_EXPLICIT);
                 m_modp->addStmtsp(wrappedp);
                 vtx[i]->datap()->delayRingWrappedVarp = wrappedp;
-                continue;
+                استمر;
             }
-            if (!vtx[i]->datap()->needsReg) continue;
-            if (vtx[i] == graph.m_startVertexp || vtx[i]->m_isMatch) continue;
-            const std::string varName = baseName + "__s" + std::to_string(i);
-            AstVar* const varp
-                = new AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->findBitDType()};
+            إذا (!vtx[i]->datap()->needsReg) استمر;
+            إذا (vtx[i] == graph.m_startVertexp || vtx[i]->m_isMatch) استمر;
+            ثابت std::string varName = baseName + "__s" + std::to_string(i);
+            AstVar* ثابت varp
+                = جديد AstVar{regFlp, VVarType::MODULETEMP, varName, m_modp->findBitDType()};
             varp->lifetime(VLifetime::STATIC_EXPLICIT);
             m_modp->addStmtsp(varp);
             vtx[i]->datap()->stateVarp = varp;
@@ -2846,21 +2846,21 @@ public:
                    assertType, directiveType, killVarp,     graph};
 
         // Phase 1: Resolve combinational Links via fixed-point propagation.
-        AstNodeExpr* const triggerExprp
-            = isSeqEvent ? new AstConst{flp, AstConst::BitTrue{}}
+        Ast_تۈگۈن_ئىپادە* ثابت triggerExprp
+            = isSeqEvent ? جديد AstConst{flp, AstConst::BitTrue{}}
                          : assertOnCond(flp, assertp->userType(), assertp->directive());
-        resolveLinks(c, triggerExprp, countMatches);
-        VL_DO_DANGLING(triggerExprp->deleteTree(), triggerExprp);
+        resolveLinks(c, triggerExprp, سانى_Matches);
+        VL_DO_DANGLING(triggerExprp->delete_دەرەخ(), triggerExprp);
 
         // Phase 2/2b/2c: Emit NBA register updates and in-place delay-ring writes.
         emitStateRegisterNba(c);
-        emitDelayRingUpdates(c, countMatches);
+        emitDelayRingUpdates(c, سانى_Matches);
         emitAndCombinerDoneLatchNba(c);
         emitKillAckNba(c);
 
         // Phase 3/3a/3b: Compute terminal match/reject signals (cleans up stateSig).
-        const SignalSet sigs
-            = computeSignals(c, needThreadFailCount, needThroughoutThreadFailCount, countMatches);
+        ثابت SignalSet sigs
+            = computeSignals(c, need_Thread_Fail_سانى, need_Throughout_Thread_Fail_سانى, سانى_Matches);
 
         // Strong s_always[m:n] end-of-simulation liveness: if any in-window state
         // is still set at $finish, the universal-quantifier window never completed
@@ -2868,39 +2868,39 @@ public:
         // from a final block; V3Assert turns the DT_ERROR display into the standard
         // "Assertion failed in %m" message.
         // pending = |{strong state registers, strong delay live counts != 0};
-        AstNodeExpr* pendingp = nullptr;
-        for (int i = 0; i < N; ++i) {
-            if (!vtx[i]->m_strongPending) continue;
-            AstNodeExpr* pendingExprp = nullptr;
-            if (vtx[i]->datap()->stateVarp) {
-                pendingExprp = new AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
-            } else if (vtx[i]->m_strongAlwaysRing) {
+        Ast_تۈگۈن_ئىپادە* pendingp = nullptr;
+        لكل (صحيح i = 0; i < N; ++i) {
+            إذا (!vtx[i]->m_strongPending) استمر;
+            Ast_تۈگۈن_ئىپادە* pendingExprp = nullptr;
+            إذا (vtx[i]->datap()->stateVarp) {
+                pendingExprp = جديد AstVarRef{flp, vtx[i]->datap()->stateVarp, VAccess::READ};
+            } وإلا إذا (vtx[i]->m_strongAlwaysRing) {
                 pendingExprp
-                    = delayRingHasLiveThreadsp(flp, vtx[i]->datap()->delayRingLiveCountVarp);
-            } else {
-                continue;
+                    = delayRingHasLiveThreadsp(flp, vtx[i]->datap()->delay_Ring_Live_سانى_Varp);
+            } وإلا {
+                استمر;
             }
-            if (!pendingp) {
+            إذا (!pendingp) {
                 pendingp = pendingExprp;
-            } else {
-                pendingp = new AstLogOr{flp, pendingp, pendingExprp};
+            } وإلا {
+                pendingp = جديد AstLogOr{flp, pendingp, pendingExprp};
             }
         }
-        if (pendingp) {
-            AstCExpr* const assertOnp
-                = new AstCExpr{flp, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
-            AstNodeExpr* const condp = new AstLogAnd{flp, assertOnp, pendingp};
-            AstDisplay* const dispp
-                = new AstDisplay{flp, VDisplayType::DT_ERROR, "", nullptr, nullptr};
+        إذا (pendingp) {
+            AstCExpr* ثابت assertOnp
+                = جديد AstCExpr{flp, AstCExpr::Pure{}, "vlSymsp->_vm_contextp__->assertOn()", 1};
+            Ast_تۈگۈن_ئىپادە* ثابت condp = جديد AstLogAnd{flp, assertOnp, pendingp};
+            AstDisplay* ثابت dispp
+                = جديد AstDisplay{flp, VDisplayType::DT_ERROR, "", nullptr, nullptr};
             dispp->fmtp()->timeunit(m_modp->timeunit());
-            AstNodeStmt* const firep = dispp;
-            if (v3Global.opt.stopFail()) firep->addNext(new AstStop{flp, false});
-            m_modp->addStmtsp(new AstFinal{flp, new AstIf{flp, condp, firep}});
+            Ast_تۈگۈن_Stmt* ثابت firep = dispp;
+            إذا (v3Global.opt.stopFail()) firep->addNext(جديد AstStop{flp, خطأ});
+            m_modp->addStmtsp(جديد AstFinal{flp, جديد AstIf{flp, condp, firep}});
         }
 
         // Clear userp on every vertex before vertexData is destroyed.
-        for (int i = 0; i < N; ++i) vtx[i]->userp(nullptr);
-        return sigs;
+        لكل (صحيح i = 0; i < N; ++i) vtx[i]->userp(nullptr);
+        أرجع sigs;
     }
 };
 
@@ -2909,94 +2909,94 @@ public:
 //######################################################################
 // Top-level visitor
 
-class AssertNfaVisitor final : public VNVisitor {
+صنف AssertNfaVisitor final : عام VNVisitor {
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module being processed
+    Ast_تۈگۈن_Module* m_modp = nullptr;  // Current module being processed
     AstClocking* m_defaultClockingp = nullptr;  // Default clocking
     AstDefaultDisable* m_defaultDisablep = nullptr;  // Default disable iff
     SvaNfaLowering* m_loweringp = nullptr;  // NFA-to-hardware lowering engine
-    AstSenTree* m_sampledValueClockp = nullptr;  // Inherited clock during scoped attachment
+    Ast_Sen_دەرەخ* m_sampled_قىممەت_Clockp = nullptr;  // Inherited clock during scoped attachment
     V3UniqueNames m_propVarNames{"__Vpropvar"};  // Property-local variable names
     V3UniqueNames m_propTempNames{"__VnfaSampled"};  // Hoisted $sampled(propp) temps
-    V3UniqueNames m_failCountNames{"__VnfaRemainingFailCount"};  // Fail replay counter names
-    std::set<const AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
+    V3UniqueNames m_fail_سانى_Names{"__VnfaRemainingFailCount"};  // Fail replay counter names
+    std::set<ثابت AstProperty*> m_inliningProps;  // Recursion guard for inlineNamedProperty
 
-    template <typename T_Node>
-    void visitSampledValue(T_Node* const nodep) {
-        if (m_sampledValueClockp && !nodep->sentreep()) {
-            nodep->sentreep(m_sampledValueClockp->cloneTree(true));
+    template <typename T_تۈگۈن>
+    فراغ visit_Sampled_قىممەت(T_تۈگۈن* ثابت nodep) {
+        إذا (m_sampled_قىممەت_Clockp && !nodep->sentreep()) {
+            nodep->sentreep(m_sampled_قىممەت_Clockp->clone_دەرەخ(true));
         }
         iterateChildren(nodep);
     }
 
     // Wire match vertex and mid-window sources for a successful NFA build.
-    static void wireMatchAndMidSources(SvaGraph& graph, const BuildResult& result, FileLine* flp) {
+    ساكن فراغ wireMatchAndMidSources(SvaGraph& graph, ثابت BuildResult& result, File_قۇر* flp) {
         graph.createMatchVertex();
         // Skip the main term Link when midSources already cover every
         // end-of-match (cover_sequence path); otherwise the per-mid extraction
         // double-counts via the merge vertex.
-        if (!result.termIsMidMerge) { graph.addLink(result.termVertexp, graph.m_matchVertexp); }
-        for (SvaStateVertex* srcVtxp : result.midSources) {
-            AstNodeExpr* condp = nullptr;
-            for (AstNodeExpr* const tc : srcVtxp->m_throughoutConds) {
-                AstNodeExpr* const tcClone = tc->cloneTreePure(false);
-                condp = condp ? new AstLogAnd{flp, condp, tcClone} : tcClone;
+        إذا (!result.termIsMidMerge) { graph.addLink(result.termVertexp, graph.m_matchVertexp); }
+        لكل (SvaStateVertex* srcVtxp : result.midSources) {
+            Ast_تۈگۈن_ئىپادە* condp = nullptr;
+            لكل (Ast_تۈگۈن_ئىپادە* ثابت tc : srcVtxp->m_throughoutConds) {
+                Ast_تۈگۈن_ئىپادە* ثابت tcClone = tc->clone_دەرەخ_Pure(خطأ);
+                condp = condp ? جديد AstLogAnd{flp, condp, tcClone} : tcClone;
             }
             graph.addLink(srcVtxp, graph.m_matchVertexp, condp);
             srcVtxp->m_isUnbounded = true;
         }
     }
 
-    static AstNodeExpr* getSequenceBodyExprp(const AstSequence* seqp) {
-        AstNode* bodyp = seqp->stmtsp();
-        while (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
-        return VN_CAST(bodyp, NodeExpr);
+    ساكن Ast_تۈگۈن_ئىپادە* getSequenceBodyExprp(ثابت AstSequence* seqp) {
+        Ast_تۈگۈن* bodyp = seqp->stmtsp();
+        طالما (bodyp && VN_IS(bodyp, Var)) bodyp = bodyp->nextp();
+        أرجع VN_CAST(bodyp, تۈگۈن_ئىپادە);
     }
 
-    static AstPropSpec* getPropertySpecp(const AstProperty* propp) {
-        AstNode* stmtp = propp->stmtsp();
+    ساكن AstPropSpec* getPropertySpecp(ثابت AstProperty* propp) {
+        Ast_تۈگۈن* stmtp = propp->stmtsp();
         // V3LinkParse emits InitialStaticStmt for property-local variable
         // initialisers; the InitialAutomaticStmt variant only appears for
         // task/function-scope automatic lifetime, not properties.
-        while (stmtp
+        طالما (stmtp
                && (VN_IS(stmtp, Var) || VN_IS(stmtp, InitialStaticStmt)
                    || VN_IS(stmtp, InitialAutomaticStmt))) {  // LCOV_EXCL_LINE
             stmtp = stmtp->nextp();
         }
-        return VN_CAST(stmtp, PropSpec);
+        أرجع VN_CAST(stmtp, PropSpec);
     }
 
-    void inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
-                             const AstProperty* propyp) {
+    فراغ inlineNamedProperty(AstPropSpec* outerSpecp, AstFuncRef* funcrefp,
+                             ثابت AstProperty* propyp) {
         // Recursion guard: IEEE 1800-2023 16.12.1 forbids recursive properties.
         // V3Width emits "Recursive property call" for direct recursion before this
         // pass runs; this catches any nested-inlining cycle that slips past.
-        if (!m_inliningProps.emplace(propyp).second) {
+        إذا (!m_inliningProps.emplace(propyp).second) {
             funcrefp->v3error("Illegal recursive property reference");  // LCOV_EXCL_LINE
-            return;  // LCOV_EXCL_LINE
+            أرجع;  // LCOV_EXCL_LINE
         }
-        struct Guard final {
-            std::set<const AstProperty*>& setr;
-            const AstProperty* keyp;
+        بنية Guard final {
+            std::set<ثابت AstProperty*>& setr;
+            ثابت AstProperty* keyp;
             ~Guard() { setr.erase(keyp); }
         } guard{m_inliningProps, propyp};
         AstPropSpec* propSpecp = getPropertySpecp(propyp);
         UASSERT_OBJ(propSpecp, funcrefp, "Property has no body PropSpec");
-        propSpecp = propSpecp->cloneTree(false);
+        propSpecp = propSpecp->clone_دەرەخ(خطأ);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
+        ثابت V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, propyp->stmtsp());
+        std::unordered_map<ثابت AstVar*, Ast_تۈگۈن_ئىپادە*> portMap;
+        لكل (ثابت auto& tconnect : tconnects) {
             portMap[tconnect.first] = tconnect.second->exprp();
         }
 
         // Promote property-local variables to module-level temps (IEEE 16.10).
-        std::unordered_map<const AstVar*, AstVar*> localVarMap;
-        for (AstNode* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (!varp->isIO()) {
-                    const string newName = m_propVarNames.get(varp);
-                    AstVar* const newVarp = new AstVar{varp->fileline(), VVarType::MODULETEMP,
+        std::unordered_map<ثابت AstVar*, AstVar*> localVarMap;
+        لكل (Ast_تۈگۈن* stmtp = propyp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            إذا (AstVar* ثابت varp = VN_CAST(stmtp, Var)) {
+                إذا (!varp->isIO()) {
+                    ثابت string newName = m_propVarNames.get(varp);
+                    AstVar* ثابت newVarp = جديد AstVar{varp->fileline(), VVarType::MODULETEMP,
                                                        newName, varp->dtypep()};
                     newVarp->lifetime(VLifetime::STATIC_EXPLICIT);
                     m_modp->addStmtsp(newVarp);
@@ -3006,82 +3006,82 @@ class AssertNfaVisitor final : public VNVisitor {
         }
 
         propSpecp->foreach([&](AstVarRef* refp) {
-            const auto portIt = portMap.find(refp->varp());
-            if (portIt != portMap.end()) {
-                refp->replaceWith(portIt->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
-                return;
+            ثابت auto portIt = portMap.find(refp->varp());
+            إذا (portIt != portMap.end()) {
+                refp->replaceWith(portIt->second->clone_دەرەخ(خطأ));
+                VL_DO_DANGLING(ئىتتىرىش_Deletep(refp), refp);
+                أرجع;
             }
-            const auto localIt = localVarMap.find(refp->varp());
-            if (localIt != localVarMap.end()) refp->varp(localIt->second);
+            ثابت auto localIt = localVarMap.find(refp->varp());
+            إذا (localIt != localVarMap.end()) refp->varp(localIt->second);
         });  // LCOV_EXCL_LINE -- gcov attributes lambda's implicit return to `})`
 
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        لكل (ثابت auto& tconnect : tconnects) {
+            ئىتتىرىش_Deletep(tconnect.second->exprp()->unlinkFrBack());
         }
         V3AssertCommon::checkSvaInstanceDelays(propSpecp, funcrefp);
 
         // Merge disable iff (IEEE 1800-2023 16.12.1)
-        if (outerSpecp->disablep() && propSpecp->disablep()) {
+        إذا (outerSpecp->disablep() && propSpecp->disablep()) {
             outerSpecp->v3error("disable iff expression before property call "
                                 "and in its body is not legal");
-            pushDeletep(propSpecp->disablep()->unlinkFrBack());
+            ئىتتىرىش_Deletep(propSpecp->disablep()->unlinkFrBack());
         }
-        if (outerSpecp->disablep()) {
+        إذا (outerSpecp->disablep()) {
             propSpecp->disablep(outerSpecp->disablep()->unlinkFrBack());
         }
 
-        if (outerSpecp->sensesp() && propSpecp->sensesp()) {
+        إذا (outerSpecp->sensesp() && propSpecp->sensesp()) {
             outerSpecp->v3warn(E_UNSUPPORTED,
                                "Unsupported: Clock event before property call and in its body");
-            pushDeletep(propSpecp->sensesp()->unlinkFrBack());
+            ئىتتىرىش_Deletep(propSpecp->sensesp()->unlinkFrBack());
         }
-        if (outerSpecp->sensesp()) {
-            AstSenItem* const sensesp = outerSpecp->sensesp();
+        إذا (outerSpecp->sensesp()) {
+            AstSenItem* ثابت sensesp = outerSpecp->sensesp();
             sensesp->unlinkFrBack();
             propSpecp->sensesp(sensesp);
         }
 
         outerSpecp->replaceWith(propSpecp);
-        VL_DO_DANGLING(pushDeletep(outerSpecp), outerSpecp);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(outerSpecp), outerSpecp);
     }
 
-    void inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
-        AstNodeExpr* const bodyExprp = getSequenceBodyExprp(seqp);
+    فراغ inlineSequenceRef(AstFuncRef* funcrefp, AstSequence* seqp) {
+        Ast_تۈگۈن_ئىپادە* ثابت bodyExprp = getSequenceBodyExprp(seqp);
         UASSERT_OBJ(bodyExprp, funcrefp, "Sequence has no body expression");
-        AstNodeExpr* const clonedp = bodyExprp->cloneTree(false);
+        Ast_تۈگۈن_ئىپادە* ثابت clonedp = bodyExprp->clone_دەرەخ(خطأ);
 
-        const V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
-        std::unordered_map<const AstVar*, AstNodeExpr*> portMap;
-        for (const auto& tconnect : tconnects) {
+        ثابت V3TaskConnects tconnects = V3Task::taskConnects(funcrefp, seqp->stmtsp());
+        std::unordered_map<ثابت AstVar*, Ast_تۈگۈن_ئىپادە*> portMap;
+        لكل (ثابت auto& tconnect : tconnects) {
             portMap[tconnect.first] = tconnect.second->exprp();
         }
         clonedp->foreach([&](AstVarRef* refp) {
-            const auto it = portMap.find(refp->varp());
-            if (it != portMap.end()) {
-                refp->replaceWith(it->second->cloneTree(false));
-                VL_DO_DANGLING(pushDeletep(refp), refp);
+            ثابت auto it = portMap.find(refp->varp());
+            إذا (it != portMap.end()) {
+                refp->replaceWith(it->second->clone_دەرەخ(خطأ));
+                VL_DO_DANGLING(ئىتتىرىش_Deletep(refp), refp);
             }
         });
-        for (const auto& tconnect : tconnects) {
-            pushDeletep(tconnect.second->exprp()->unlinkFrBack());
+        لكل (ثابت auto& tconnect : tconnects) {
+            ئىتتىرىش_Deletep(tconnect.second->exprp()->unlinkFrBack());
         }
         V3AssertCommon::checkSvaInstanceDelays(clonedp, funcrefp);
         funcrefp->replaceWith(clonedp);
-        VL_DO_DANGLING(pushDeletep(funcrefp), funcrefp);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(funcrefp), funcrefp);
         // Clear referenced flag so V3AssertPre cleanup does not emit
         // spurious UNSUPPORTED for sequences that were already inlined here.
-        seqp->isReferenced(false);
+        seqp->isReferenced(خطأ);
     }
 
     // Must run before hasMultiCycleExpr() so NFA sees sequence bodies.
-    void inlineAllSequenceRefs(AstNode* rootp) {
-        bool changed = true;
-        while (changed) {
-            changed = false;
+    فراغ inlineAllSequenceRefs(Ast_تۈگۈن* rootp) {
+        منطقي changed = true;
+        طالما (changed) {
+            changed = خطأ;
             rootp->foreach([&](AstFuncRef* funcrefp) {
-                if (changed) return;
-                if (AstSequence* const seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
+                إذا (changed) أرجع;
+                إذا (AstSequence* ثابت seqp = VN_CAST(funcrefp->taskp(), Sequence)) {
                     inlineSequenceRef(funcrefp, seqp);
                     changed = true;
                 }
@@ -3089,16 +3089,16 @@ class AssertNfaVisitor final : public VNVisitor {
         }
     }
 
-    static bool hasMultiCycleExpr(const AstNode* nodep) {
-        return nodep->exists([](const AstNode* np) {
-            if (const auto* const ep = VN_CAST(np, NodeExpr)) return ep->isMultiCycleSva();
-            return false;
+    ساكن منطقي has_Multi_Cycle_ئىپادە(ثابت Ast_تۈگۈن* nodep) {
+        أرجع nodep->exists([](ثابت Ast_تۈگۈن* np) {
+            إذا (ثابت auto* ثابت ep = VN_CAST(np, تۈگۈن_ئىپادە)) أرجع ep->isMultiCycleSva();
+            أرجع خطأ;
         });
     }
 
-    static VPropStrength effectiveAssertPropStrength(const AstPropSpec* const propSpecp) {
-        if (propSpecp->propStrength() != VPropStrength::DEFAULT) return propSpecp->propStrength();
-        return propSpecp->fileline()->language() <= V3LangCode::L1800_2005 ? VPropStrength::STRONG
+    ساكن VPropStrength effectiveAssertPropStrength(ثابت AstPropSpec* ثابت propSpecp) {
+        إذا (propSpecp->propStrength() != VPropStrength::DEFAULT) أرجع propSpecp->propStrength();
+        أرجع propSpecp->fileline()->language() <= V3LangCode::L1800_2005 ? VPropStrength::STRONG
                                                                            : VPropStrength::WEAK;
     }
 
@@ -3108,250 +3108,250 @@ class AssertNfaVisitor final : public VNVisitor {
     // forms are also lowered there. NFA still owns sequence operands and any
     // embedding inside a multi-cycle context (implication consequent, or/and
     // operands, etc.).
-    static bool isBareTopLevelUntil(AstNode* propp) {
-        AstNode* p = propp;
-        if (AstPropSpec* const specp = VN_CAST(p, PropSpec)) p = specp->propp();
-        while (AstLogNot* const notp = VN_CAST(p, LogNot)) p = notp->lhsp();
-        AstUntil* const untilp = VN_CAST(p, Until);
-        if (!untilp) return false;
-        const auto hasSeq = [](const AstNodeExpr* ep) {
-            return ep->exists([](const AstNodeExpr* np) { return np->isMultiCycleSva(); });
+    ساكن منطقي is_Bare_چوققا_Level_Until(Ast_تۈگۈن* propp) {
+        Ast_تۈگۈن* p = propp;
+        إذا (AstPropSpec* ثابت specp = VN_CAST(p, PropSpec)) p = specp->propp();
+        طالما (AstLogNot* ثابت notp = VN_CAST(p, LogNot)) p = notp->lhsp();
+        AstUntil* ثابت untilp = VN_CAST(p, Until);
+        إذا (!untilp) أرجع خطأ;
+        ثابت auto hasSeq = [](ثابت Ast_تۈگۈن_ئىپادە* ep) {
+            أرجع ep->exists([](ثابت Ast_تۈگۈن_ئىپادە* np) { أرجع np->isMultiCycleSva(); });
         };
-        if (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) return false;
-        return true;
+        إذا (hasSeq(untilp->lhsp()) || hasSeq(untilp->rhsp())) أرجع خطأ;
+        أرجع true;
     }
 
-    struct PropertyParts final {
-        AstNodeExpr* triggerExprp = nullptr;
-        AstNodeExpr* seqExprp = nullptr;
-        bool isOverlapped = true;
-        bool hasImplication = false;
-        bool isFollowedBy = false;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
+    بنية PropertyParts final {
+        Ast_تۈگۈن_ئىپادە* triggerExprp = nullptr;
+        Ast_تۈگۈن_ئىپادە* seqExprp = nullptr;
+        منطقي isOverlapped = true;
+        منطقي hasImplication = خطأ;
+        منطقي isFollowedBy = خطأ;  // True for #-# / #=# (non-vacuous-fail on antecedent miss)
     };
 
-    static PropertyParts decomposeProperty(AstNode* propp) {
+    ساكن PropertyParts decomposeProperty(Ast_تۈگۈن* propp) {
         PropertyParts parts;
-        if (AstPropSpec* const specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
-        if (AstImplication* const implp = VN_CAST(propp, Implication)) {
+        إذا (AstPropSpec* ثابت specp = VN_CAST(propp, PropSpec)) { propp = specp->propp(); }
+        إذا (AstImplication* ثابت implp = VN_CAST(propp, Implication)) {
             parts.hasImplication = true;
             parts.isOverlapped = implp->isOverlapped();
             parts.isFollowedBy = implp->isFollowedBy();
             parts.triggerExprp = implp->lhsp();
             parts.seqExprp = implp->rhsp();
-        } else if (AstNodeExpr* const exprp = VN_CAST(propp, NodeExpr)) {
+        } وإلا إذا (Ast_تۈگۈن_ئىپادە* ثابت exprp = VN_CAST(propp, تۈگۈن_ئىپادە)) {
             parts.triggerExprp = nullptr;
             parts.seqExprp = exprp;
         }
-        return parts;
+        أرجع parts;
     }
 
-    static bool canSplitImplicationPassActions(const PropertyParts& parts) {
+    ساكن منطقي canSplitImplicationPassActions(ثابت PropertyParts& parts) {
         UASSERT(parts.hasImplication,
                 "Implication pass action split requested without implication");
         UASSERT(parts.triggerExprp, "Implication pass action split requested without trigger");
         // Direct vacuous/nonvacuous classification uses the antecedent value in the current
         // assertion attempt. Leave delayed antecedents on the existing NFA pass path.
-        return !hasMultiCycleExpr(parts.triggerExprp);
+        أرجع !has_Multi_Cycle_ئىپادە(parts.triggerExprp);
     }
 
-    static void splitImplicationPassActions(AstAssert* assertp, const PropertyParts& parts,
-                                            AstNodeExpr* nonvacuousMatchp) {
-        FileLine* const flp = assertp->fileline();
+    ساكن فراغ splitImplicationPassActions(AstAssert* assertp, ثابت PropertyParts& parts,
+                                            Ast_تۈگۈن_ئىپادە* nonvacuousMatchp) {
+        File_قۇر* ثابت flp = assertp->fileline();
 
-        AstNode* const passsp = assertp->passsp()->unlinkFrBackWithNext();
-        AstNode* splitsp = nullptr;
+        Ast_تۈگۈن* ثابت passsp = assertp->passsp()->unlinkFrBackWithNext();
+        Ast_تۈگۈن* splitsp = nullptr;
 
-        if (!parts.isFollowedBy) {
-            AstNodeExpr* const vacuousp
-                = new AstLogNot{flp, sampled(parts.triggerExprp->cloneTreePure(false))};
-            AstNode* const vacuousBodyp = passsp->cloneTree(false);
+        إذا (!parts.isFollowedBy) {
+            Ast_تۈگۈن_ئىپادە* ثابت vacuousp
+                = جديد AstLogNot{flp, sampled(parts.triggerExprp->clone_دەرەخ_Pure(خطأ))};
+            Ast_تۈگۈن* ثابت vacuousBodyp = passsp->clone_دەرەخ(خطأ);
             splitsp = newPassOnIf(flp, vacuousp, vacuousBodyp, assertp->userType(),
                                   assertp->directive(), /*vacuous=*/true);
         }
 
-        AstIf* const nonvacuousp
+        AstIf* ثابت nonvacuousp
             = newPassOnIf(flp, nonvacuousMatchp, passsp, assertp->userType(), assertp->directive(),
-                          /*vacuous=*/false);
-        splitsp = splitsp ? AstNode::addNext<AstNode, AstNode>(splitsp, nonvacuousp)
-                          : static_cast<AstNode*>(nonvacuousp);
+                          /*vacuous=*/خطأ);
+        splitsp = splitsp ? Ast_تۈگۈن::addNext<Ast_تۈگۈن, Ast_تۈگۈن>(splitsp, nonvacuousp)
+                          : static_cast<Ast_تۈگۈن*>(nonvacuousp);
         assertp->addPasssp(splitsp);
     }
 
     // On a PropSpec-wrapped assertion whose NFA build failed with a semantic
     // error (errorEmitted), replace the body with a BitFalse const so later
     // passes see a well-formed AST. Returns true if replaced.
-    void replaceBodyOnBuildError(FileLine* flp, AstPropSpec* propSpecp, bool errorEmitted) {
-        if (!errorEmitted) return;
-        AstNode* const innerPropp = propSpecp->propp();
-        innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+    فراغ replaceBodyOnBuildError(File_قۇر* flp, AstPropSpec* propSpecp, منطقي errorEmitted) {
+        إذا (!errorEmitted) أرجع;
+        Ast_تۈگۈن* ثابت innerPropp = propSpecp->propp();
+        innerPropp->replaceWith(جديد AstConst{flp, AstConst::BitFalse{}});
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(innerPropp), innerPropp);
     }
 
     // Hoist a leading clocking event (IEEE 1800-2023 16.7):
-    bool hoistClockedSeq(AstPropSpec* specp) {
-        while (AstSClocked* const clockedp = VN_CAST(specp->propp(), SClocked)) {
-            if (specp->sensesp()) {
+    منطقي hoistClockedSeq(AstPropSpec* specp) {
+        طالما (AstSClocked* ثابت clockedp = VN_CAST(specp->propp(), SClocked)) {
+            إذا (specp->sensesp()) {
                 clockedp->v3warn(E_UNSUPPORTED, "Unsupported: multiclocked sequence or property");
                 replaceBodyOnBuildError(specp->fileline(), specp, true);
-                return true;
+                أرجع true;
             }
-            for (const AstSenItem* sp = clockedp->sensesp(); sp;
+            لكل (ثابت AstSenItem* sp = clockedp->sensesp(); sp;
                  sp = VN_CAST(sp->nextp(), SenItem)) {
-                if (!sp->edgeType().anEdge()) {
+                إذا (!sp->edgeType().anEdge()) {
                     clockedp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: non-edge clocking event on a sequence; "
                                      "use an edge such as @(posedge clk)");
                     replaceBodyOnBuildError(specp->fileline(), specp, true);
-                    return true;
+                    أرجع true;
                 }
             }
             specp->sensesp(clockedp->sensesp()->unlinkFrBackWithNext());
-            AstNodeExpr* const bodyp = clockedp->exprp()->unlinkFrBack();
+            Ast_تۈگۈن_ئىپادە* ثابت bodyp = clockedp->exprp()->unlinkFrBack();
             clockedp->replaceWith(bodyp);
-            VL_DO_DANGLING(pushDeletep(clockedp), clockedp);
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(clockedp), clockedp);
         }
         // A clocking event anywhere else in the sequence is not supported.
-        const AstSClocked* nestedp = nullptr;
-        specp->propp()->foreach([&](const AstSClocked* p) {
-            if (!nestedp) nestedp = p;
+        ثابت AstSClocked* nestedp = nullptr;
+        specp->propp()->foreach([&](ثابت AstSClocked* p) {
+            إذا (!nestedp) nestedp = p;
         });
-        if (nestedp) {
+        إذا (nestedp) {
             nestedp->v3warn(E_UNSUPPORTED,
                             "Unsupported: clocking event inside sequence expression");
             replaceBodyOnBuildError(specp->fileline(), specp, true);
-            return true;
+            أرجع true;
         }
-        return false;
+        أرجع خطأ;
     }
 
     // Build the NFA graph for a property body, handling both the antecedent
     // |-> consequent and simple sequence cases. Returns the consequent/body
     // BuildResult (invalid on parse/build failure).
-    BuildResult buildAssertionGraph(SvaNfaBuilder& builder, SvaGraph& graph, AstNodeExpr* seqBodyp,
-                                    const PropertyParts& parts, FileLine* flp) {
-        if (!parts.hasImplication) return builder.build(seqBodyp);
+    BuildResult buildAssertionGraph(SvaNfaBuilder& builder, SvaGraph& graph, Ast_تۈگۈن_ئىپادە* seqBodyp,
+                                    ثابت PropertyParts& parts, File_قۇر* flp) {
+        إذا (!parts.hasImplication) أرجع builder.build(seqBodyp);
 
         graph.m_startVertexp = graph.createStateVertex();
-        return builder.buildImplicationEdges(parts.triggerExprp, seqBodyp, graph.m_startVertexp,
+        أرجع builder.buildImplicationEdges(parts.triggerExprp, seqBodyp, graph.m_startVertexp,
                                              parts.isOverlapped, parts.isFollowedBy,
                                              parts.triggerExprp, flp);
     }
 
     // Install pass-action gating and replay simultaneous per-thread failures.
-    void attachActionHandlers(AstAssert* const assertp, AstNodeExpr* matchExprp,
-                              AstSenTree* const threadFailReplaySenTreep,
-                              AstNodeExpr* const threadFailCountp) {
+    فراغ attachActionHandlers(AstAssert* ثابت assertp, Ast_تۈگۈن_ئىپادە* matchExprp,
+                              Ast_Sen_دەرەخ* ثابت threadFailReplaySenTreep,
+                              Ast_تۈگۈن_ئىپادە* ثابت threadFailCountp) {
         // Gate pass handler on match to prevent vacuous-pass firings.
-        if (matchExprp) {
+        إذا (matchExprp) {
             // needMatch implies passsp() was non-null when evaluated above;
             // lowering does not mutate the assert's pass-action between the
             // two reads, so passsp() is still non-null here.
-            AstNode* passsp = assertp->passsp();
+            Ast_تۈگۈن* passsp = assertp->passsp();
             UASSERT_OBJ(passsp, assertp, "needMatch set but passsp is null");
             passsp->unlinkFrBackWithNext();
-            FileLine* const flp = assertp->fileline();
-            AstIf* const ifp = new AstIf{flp, matchExprp, passsp, nullptr};
+            File_قۇر* ثابت flp = assertp->fileline();
+            AstIf* ثابت ifp = جديد AstIf{flp, matchExprp, passsp, nullptr};
             assertp->addPasssp(ifp);
             // Fail-handler prefix for overlapping instances (IEEE 16.12):
             // fires when reject=1 && match=1 in the same cycle.
-            if (assertp->failsp()) assertp->prependFailsp(ifp->cloneTree(false));
+            إذا (assertp->failsp()) assertp->prependFailsp(ifp->clone_دەرەخ(خطأ));
         }
 
-        if (threadFailCountp) {
+        إذا (threadFailCountp) {
             UASSERT_OBJ(threadFailReplaySenTreep, assertp,
                         "Thread fail count missing sensitivity tree");
-            AstNode* const failsp = assertp->failsp();
-            FileLine* const flp = assertp->fileline();
+            Ast_تۈگۈن* ثابت failsp = assertp->failsp();
+            File_قۇر* ثابت flp = assertp->fileline();
             // IEEE 1800-2023 16.12 requires one action-block evaluation per failed
             // thread. AstAssert handles the first, so replay the rest here.
-            AstVar* const remainingFailCountVarp
-                = new AstVar{flp, VVarType::MODULETEMP, m_failCountNames.get(""),
+            AstVar* ثابت remaining_Fail_سانى_Varp
+                = جديد AstVar{flp, VVarType::MODULETEMP, m_fail_سانى_Names.get(""),
                              m_modp->findBasicDType(VBasicDTypeKwd::UINT32)};
-            remainingFailCountVarp->lifetime(VLifetime::STATIC_EXPLICIT);
-            m_modp->addStmtsp(remainingFailCountVarp);
-            AstNode* const replayStmtsp = new AstAssign{
-                flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE}, threadFailCountp};
-            AstLoop* const replayLoopp = new AstLoop{flp};
-            replayLoopp->addStmtsp(new AstLoopTest{
+            remaining_Fail_سانى_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
+            m_modp->addStmtsp(remaining_Fail_سانى_Varp);
+            Ast_تۈگۈن* ثابت replayStmtsp = جديد AstAssign{
+                flp, جديد AstVarRef{flp, remaining_Fail_سانى_Varp, VAccess::WRITE}, threadFailCountp};
+            AstLoop* ثابت replayLoopp = جديد AstLoop{flp};
+            replayLoopp->addStmtsp(جديد AstLoopTest{
                 flp, replayLoopp,
-                new AstGt{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                          newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)}});
-            replayLoopp->addStmtsp(newIfAssertFailOn(failsp->cloneTree(true), assertp->directive(),
+                جديد AstGt{flp, جديد AstVarRef{flp, remaining_Fail_سانى_Varp, VAccess::READ},
+                          newTypedConstp(flp, remaining_Fail_سانى_Varp->dtypep(), 1)}});
+            replayLoopp->addStmtsp(newIfAssertFailOn(failsp->clone_دەرەخ(true), assertp->directive(),
                                                      assertp->userType()));
-            AstSub* const decrementedFailCountp
-                = new AstSub{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::READ},
-                             newTypedConstp(flp, remainingFailCountVarp->dtypep(), 1)};
+            AstSub* ثابت decrementedFailCountp
+                = جديد AstSub{flp, جديد AstVarRef{flp, remaining_Fail_سانى_Varp, VAccess::READ},
+                             newTypedConstp(flp, remaining_Fail_سانى_Varp->dtypep(), 1)};
             replayLoopp->addStmtsp(
-                new AstAssign{flp, new AstVarRef{flp, remainingFailCountVarp, VAccess::WRITE},
+                جديد AstAssign{flp, جديد AstVarRef{flp, remaining_Fail_سانى_Varp, VAccess::WRITE},
                               decrementedFailCountp});
             replayStmtsp->addNext(replayLoopp);
             m_modp->addStmtsp(
-                new AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
+                جديد AstAlways{flp, VAlwaysKwd::ALWAYS, threadFailReplaySenTreep, replayStmtsp});
         }
     }
 
     // Replace one VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). No-op if refp is not in matchMap.
-    void substituteMatchItemRef(AstVarRef* refp, unsigned K,
-                                const std::unordered_map<const AstVar*, AstNodeExpr*>& matchMap) {
-        const auto it = matchMap.find(refp->varp());
-        if (it == matchMap.end()) return;
-        AstNodeExpr* newp = it->second->cloneTreePure(false);
-        if (K > 0) {
-            AstConst* const ticksp = new AstConst{refp->fileline(), AstConst::WidthedValue{}, 32,
+    فراغ substituteMatchItemRef(AstVarRef* refp, unsigned K,
+                                ثابت std::unordered_map<ثابت AstVar*, Ast_تۈگۈن_ئىپادە*>& matchMap) {
+        ثابت auto it = matchMap.find(refp->varp());
+        إذا (it == matchMap.end()) أرجع;
+        Ast_تۈگۈن_ئىپادە* newp = it->second->clone_دەرەخ_Pure(خطأ);
+        إذا (K > 0) {
+            AstConst* ثابت ticksp = جديد AstConst{refp->fileline(), AstConst::Widthed_قىممەت{}, 32,
                                                   static_cast<uint32_t>(K)};
-            AstPast* const pastp = new AstPast{refp->fileline(), newp, ticksp, nullptr,
+            AstPast* ثابت pastp = جديد AstPast{refp->fileline(), newp, ticksp, nullptr,
                                                /* propertyTiming */ true};
             pastp->dtypeFrom(newp);
             newp = pastp;
         }
         refp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(refp), refp);
-        return;
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(refp), refp);
+        أرجع;
     }
 
     // Recursively walk a consequent. Returns cycle length consumed and
     // substitutes each VarRef to a captured local var with $past(rhs, K)
     // (or rhs inline when K == 0). Reports E_UNSUPPORTED on non-constant
     // delays or composite sequence operators and returns -1 on failure.
-    int
-    walkSubstituteMatchItems(AstNodeExpr* nodep, unsigned K,
-                             const std::unordered_map<const AstVar*, AstNodeExpr*>& matchItems) {
-        if (AstSExpr* const sexprp = VN_CAST(nodep, SExpr)) {
+    صحيح
+    walk_Substitute_Match_بۇيۇملار(Ast_تۈگۈن_ئىپادە* nodep, unsigned K,
+                             ثابت std::unordered_map<ثابت AstVar*, Ast_تۈگۈن_ئىپادە*>& match_بۇيۇملار) {
+        إذا (AstSExpr* ثابت sexprp = VN_CAST(nodep, SExpr)) {
             // IEEE 1800-2023 16.9.2: cycle_delay's lhsp is a constant_expression
             // and the delay form in a sequence is always `##N`, folded by
             // V3Const + V3Param before V3AssertNfa. Range form `##[m:n]` is the
             // only user-visible reject here.
-            AstDelay* const delayp = VN_AS(sexprp->delayp(), Delay);
+            AstDelay* ثابت delayp = VN_AS(sexprp->delayp(), Delay);
             UASSERT_OBJ(delayp->isCycleDelay() && VN_IS(delayp->lhsp(), Const), sexprp,
                         "SVA cycle delay must have a constant lhsp");
-            if (delayp->isRangeDelay()) {
+            إذا (delayp->isRangeDelay()) {
                 sexprp->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                               "non-constant cycle delay in consequent"
                                               " (IEEE 1800-2023 16.10)");
-                return -1;
+                أرجع -1;
             }
-            const unsigned delayCycles = VN_AS(delayp->lhsp(), Const)->toUInt();
-            int preLen = 0;
-            if (AstNodeExpr* const prep = sexprp->preExprp()) {
-                preLen = walkSubstituteMatchItems(prep, K, matchItems);
-                if (preLen < 0) return -1;
+            ثابت unsigned delayCycles = VN_AS(delayp->lhsp(), Const)->toUInt();
+            صحيح preLen = 0;
+            إذا (Ast_تۈگۈن_ئىپادە* ثابت prep = sexprp->preExprp()) {
+                preLen = walk_Substitute_Match_بۇيۇملار(prep, K, match_بۇيۇملار);
+                إذا (preLen < 0) أرجع -1;
             }
-            const int bodyLen
-                = walkSubstituteMatchItems(sexprp->exprp(), K + preLen + delayCycles, matchItems);
-            if (bodyLen < 0) return -1;
-            return preLen + delayCycles + bodyLen;
+            ثابت صحيح bodyLen
+                = walk_Substitute_Match_بۇيۇملار(sexprp->exprp(), K + preLen + delayCycles, match_بۇيۇملار);
+            إذا (bodyLen < 0) أرجع -1;
+            أرجع preLen + delayCycles + bodyLen;
         }
-        if (nodep->isMultiCycleSva()) {
+        إذا (nodep->isMultiCycleSva()) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: property local variable used across "
                                          "composite sequence operator in consequent"
                                          " (IEEE 1800-2023 16.10)");
-            return -1;
+            أرجع -1;
         }
         std::vector<AstVarRef*> refs;
-        nodep->foreach([&refs](AstVarRef* p) { refs.push_back(p); });
-        for (AstVarRef* const refp : refs) substituteMatchItemRef(refp, K, matchItems);
-        return 0;
+        nodep->foreach([&refs](AstVarRef* p) { refs.ئىتتىرىش_back(p); });
+        لكل (AstVarRef* ثابت refp : refs) substituteMatchItemRef(refp, K, match_بۇيۇملار);
+        أرجع 0;
     }
 
     // Lower property-local match-item assignments before NFA construction.
@@ -3363,49 +3363,49 @@ class AssertNfaVisitor final : public VNVisitor {
     // is replaced with `$past(rhs_expr, K)` where K = (overlapped ? 0 : 1)
     // plus any accumulated `##N` delay. Returns true if E_UNSUPPORTED was
     // emitted; caller must replace the body with BitFalse and bail.
-    bool liftMatchItemSubstitutions(PropertyParts& parts, AstNodeExpr* seqBodyp) {
-        if (!parts.hasImplication) return false;
-        AstExprStmt* const exprStmtp = VN_CAST(parts.triggerExprp, ExprStmt);
-        if (!exprStmtp) return false;
+    منطقي liftMatchItemSubstitutions(PropertyParts& parts, Ast_تۈگۈن_ئىپادە* seqBodyp) {
+        إذا (!parts.hasImplication) أرجع خطأ;
+        Ast_ئىپادە_Stmt* ثابت ئىپادە_Stmtp = VN_CAST(parts.triggerExprp, ئىپادە_Stmt);
+        إذا (!ئىپادە_Stmtp) أرجع خطأ;
         // IEEE 1800-2023 16.10 BNF requires `(expr, match_item {, match_item})`
         // with at least one match item; V3LinkParse only emits ExprStmt for
         // this form and only emits AstAssign with VarRef LHS for each item.
-        std::unordered_map<const AstVar*, AstNodeExpr*> matchItems;
-        for (AstNode* stmtp = exprStmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstAssign* const assignp = VN_AS(stmtp, Assign);
-            AstVarRef* const lhsRefp = VN_AS(assignp->lhsp(), VarRef);
-            matchItems[lhsRefp->varp()] = assignp->rhsp();
+        std::unordered_map<ثابت AstVar*, Ast_تۈگۈن_ئىپادە*> match_بۇيۇملار;
+        لكل (Ast_تۈگۈن* stmtp = ئىپادە_Stmtp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstAssign* ثابت assignp = VN_AS(stmtp, Assign);
+            AstVarRef* ثابت lhsRefp = VN_AS(assignp->lhsp(), VarRef);
+            match_بۇيۇملار[lhsRefp->varp()] = assignp->rhsp();
         }
-        const unsigned startK = parts.isOverlapped ? 0 : 1;
-        const int length = walkSubstituteMatchItems(seqBodyp, startK, matchItems);
+        ثابت unsigned startK = parts.isOverlapped ? 0 : 1;
+        ثابت صحيح length = walk_Substitute_Match_بۇيۇملار(seqBodyp, startK, match_بۇيۇملار);
         // Match-item substitution / strip mutates ancestor purity. Release
         // builds don't auto-clear caches on edits, so refresh here.
-        VIsCached::clearCacheTree();
-        if (length < 0) return true;
-        AstNodeExpr* const antBoolp = exprStmtp->resultp()->unlinkFrBack();
-        exprStmtp->replaceWith(antBoolp);
-        VL_DO_DANGLING(pushDeletep(exprStmtp), exprStmtp);
+        VIsCached::clear_Cache_دەرەخ();
+        إذا (length < 0) أرجع true;
+        Ast_تۈگۈن_ئىپادە* ثابت antBoolp = ئىپادە_Stmtp->resultp()->unlinkFrBack();
+        ئىپادە_Stmtp->replaceWith(antBoolp);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(ئىپادە_Stmtp), ئىپادە_Stmtp);
         parts.triggerExprp = antBoolp;
-        return false;
+        أرجع خطأ;
     }
 
     // Outcome counts for a property if/case are wrong in an outcome-multiplying
     // context. Returns that context, or nullptr when the shape is supported.
-    static const char* unsupportedPropertyControl(const AstNodeCoverOrAssert* assertp,
-                                                  const AstNodeExpr* seqBodyp, bool negated) {
-        if (!hasPropertyControlConjunction(seqBodyp)) return nullptr;
-        if (negated) return "negation";
-        if (VN_IS(assertp, Cover)) return "cover";
-        if (VN_AS(assertp, Assert)->passsp()) return "a pass action";
-        return nullptr;
+    ساكن ثابت حرف* unsupportedPropertyControl(ثابت Ast_تۈگۈن_Cover_Or_Assert* assertp,
+                                                  ثابت Ast_تۈگۈن_ئىپادە* seqBodyp, منطقي negated) {
+        إذا (!hasPropertyControlConjunction(seqBodyp)) أرجع nullptr;
+        إذا (negated) أرجع "negation";
+        إذا (VN_IS(assertp, Cover)) أرجع "cover";
+        إذا (VN_AS(assertp, Assert)->passsp()) أرجع "a pass action";
+        أرجع nullptr;
     }
 
     // Inline property/sequence refs and reject unsupported shapes.
     // Returns the PropSpec to lower, or nullptr when fully handled here.
-    AstPropSpec* prepareAssertionProp(AstNodeCoverOrAssert* assertp) {
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (AstFuncRef* const funcrefp = VN_CAST(specp->propp(), FuncRef)) {
-                if (const AstProperty* const propyp = VN_CAST(funcrefp->taskp(), Property)) {
+    AstPropSpec* prepareAssertionProp(Ast_تۈگۈن_Cover_Or_Assert* assertp) {
+        إذا (AstPropSpec* ثابت specp = VN_CAST(assertp->propp(), PropSpec)) {
+            إذا (AstFuncRef* ثابت funcrefp = VN_CAST(specp->propp(), FuncRef)) {
+                إذا (ثابت AstProperty* ثابت propyp = VN_CAST(funcrefp->taskp(), Property)) {
                     inlineNamedProperty(specp, funcrefp, propyp);
                 }
             }
@@ -3413,214 +3413,214 @@ class AssertNfaVisitor final : public VNVisitor {
 
         inlineAllSequenceRefs(assertp->propp());
 
-        if (AstPropSpec* const specp = VN_CAST(assertp->propp(), PropSpec)) {
-            if (hoistClockedSeq(specp)) return nullptr;
+        إذا (AstPropSpec* ثابت specp = VN_CAST(assertp->propp(), PropSpec)) {
+            إذا (hoistClockedSeq(specp)) أرجع nullptr;
         }
 
-        AstPropSpec* const propp = VN_AS(assertp->propp(), PropSpec);
-        if (!VN_IS(assertp, Cover)
+        AstPropSpec* ثابت propp = VN_AS(assertp->propp(), PropSpec);
+        إذا (!VN_IS(assertp, Cover)
             && effectiveAssertPropStrength(propp) == VPropStrength::STRONG) {
             propp->v3warn(E_UNSUPPORTED,
                           "Unsupported: strong property in " + assertp->verilogKwd() + ".");
             replaceBodyOnBuildError(assertp->fileline(), propp, /*errorEmitted=*/true);
-            return nullptr;
+            أرجع nullptr;
         }
 
-        if (!hasMultiCycleExpr(propp)) return nullptr;
+        إذا (!has_Multi_Cycle_ئىپادە(propp)) أرجع nullptr;
         // A nested property instance keeps its body behind the call; lowering would drop it.
-        if (propp->exists([](const AstFuncRef* refp) { return VN_IS(refp->taskp(), Property); })) {
+        إذا (propp->exists([](ثابت AstFuncRef* refp) { أرجع VN_IS(refp->taskp(), Property); })) {
             assertp->v3warn(E_UNSUPPORTED,
                             "Unsupported: property instance inside a multi-cycle property "
                             "expression");
-            VL_DO_DANGLING(pushDeletep(assertp->unlinkFrBack()), assertp);
-            return nullptr;
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(assertp->unlinkFrBack()), assertp);
+            أرجع nullptr;
         }
-        if (isBareTopLevelUntil(propp)) return nullptr;
-        return propp;
+        إذا (is_Bare_چوققا_Level_Until(propp)) أرجع nullptr;
+        أرجع propp;
     }
 
-    void processAssertion(AstNodeCoverOrAssert* assertp) {
-        if (assertp->immediate()) return;
+    فراغ processAssertion(Ast_تۈگۈن_Cover_Or_Assert* assertp) {
+        إذا (assertp->immediate()) أرجع;
 
-        AstPropSpec* const propp = prepareAssertionProp(assertp);
-        if (!propp) return;
+        AstPropSpec* ثابت propp = prepareAssertionProp(assertp);
+        إذا (!propp) أرجع;
 
         PropertyParts parts = decomposeProperty(propp);
         UASSERT_OBJ(parts.seqExprp, propp, "Property body must be an expression");
 
         // Unwrap `not` (IEEE 1800-2023 16.12.1); odd count -> negated semantics.
-        AstNodeExpr* seqBodyp = parts.seqExprp;
-        bool negated = false;
-        while (AstLogNot* const notp = VN_CAST(seqBodyp, LogNot)) {
+        Ast_تۈگۈن_ئىپادە* seqBodyp = parts.seqExprp;
+        منطقي negated = خطأ;
+        طالما (AstLogNot* ثابت notp = VN_CAST(seqBodyp, LogNot)) {
             negated = !negated;
             seqBodyp = notp->lhsp();
         }
 
-        const char* const propertyControlp
+        ثابت حرف* ثابت propertyControlp
             = unsupportedPropertyControl(assertp, seqBodyp, negated);
 
         // Substitute property-local match-item refs in consequent with
         // $past(rhs, K) before NFA build (IEEE 1800-2023 16.10).
-        if (liftMatchItemSubstitutions(parts, seqBodyp)) {
-            AstPropSpec* const psp = VN_CAST(assertp->propp(), PropSpec);
+        إذا (liftMatchItemSubstitutions(parts, seqBodyp)) {
+            AstPropSpec* ثابت psp = VN_CAST(assertp->propp(), PropSpec);
             UASSERT_OBJ(psp, assertp, "Concurrent assertion must have PropSpec");
             replaceBodyOnBuildError(assertp->fileline(), psp, /*errorEmitted=*/true);
-            return;
+            أرجع;
         }
 
-        AstCover* const coverp = VN_CAST(assertp, Cover);
-        const bool isCoverSeq = coverp && coverp->isCoverSeq();
+        AstCover* ثابت coverp = VN_CAST(assertp, Cover);
+        ثابت منطقي isCoverSeq = coverp && coverp->isCoverSeq();
         // A sequence event control is not an assertion directive; no default
         // disable iff, no assertion control
-        const bool isSeqEvent = coverp && coverp->isSeqEvent();
-        const bool countMatches = isCoverSeq && !isSeqEvent;
+        ثابت منطقي isSeqEvent = coverp && coverp->isSeqEvent();
+        ثابت منطقي سانى_Matches = isCoverSeq && !isSeqEvent;
         // Inherit module defaults (IEEE 14.12, 16.15) when assertion has none.
-        if (!propp->sensesp() && m_defaultClockingp) {
-            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->cloneTree(true));
+        إذا (!propp->sensesp() && m_defaultClockingp) {
+            propp->sensesp(m_defaultClockingp->sentreep()->sensesp()->clone_دەرەخ(true));
         }
-        if (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
-            propp->disablep(m_defaultDisablep->condp()->cloneTreePure(true));
+        إذا (!propp->disablep() && m_defaultDisablep && !isSeqEvent) {
+            propp->disablep(m_defaultDisablep->condp()->clone_دەرەخ_Pure(true));
         }
-        if (!propp->sensesp()) return;
-        AstSenTree* senTreep
-            = new AstSenTree{propp->fileline(), propp->sensesp()->cloneTree(true)};
-        AstNodeExpr* const disableExprp = propp->disablep();
+        إذا (!propp->sensesp()) أرجع;
+        Ast_Sen_دەرەخ* senTreep
+            = جديد Ast_Sen_دەرەخ{propp->fileline(), propp->sensesp()->clone_دەرەخ(true)};
+        Ast_تۈگۈن_ئىپادە* ثابت disableExprp = propp->disablep();
 
         // NFA lowering clones repeated operands and may hoist them into an
         // always_comb block. Resolve implicit sampled-value clocks first, while
         // the enclosing assertion clock is still available.
         {
-            VL_RESTORER(m_sampledValueClockp);
-            m_sampledValueClockp = senTreep;
+            VL_RESTORER(m_sampled_قىممەت_Clockp);
+            m_sampled_قىممەت_Clockp = senTreep;
             iterate(propp->propp());
         }
 
-        FileLine* const flp = assertp->fileline();
+        File_قۇر* ثابت flp = assertp->fileline();
 
         SvaGraph graph;
         SvaNfaBuilder builder{graph,      m_modp,     m_propTempNames,
                               isCoverSeq, isSeqEvent, coverp != nullptr};
 
-        const BuildResult result = buildAssertionGraph(builder, graph, seqBodyp, parts, flp);
-        if (result.valid()) wireMatchAndMidSources(graph, result, flp);
-        if (!result.valid()) {
+        ثابت BuildResult result = buildAssertionGraph(builder, graph, seqBodyp, parts, flp);
+        إذا (result.valid()) wireMatchAndMidSources(graph, result, flp);
+        إذا (!result.valid()) {
             // Fall through to V3AssertPre for unsupported constructs; only
             // replace the body on real semantic errors. Any hoisted temps
             // from this attempt become orphan MODULETEMPs; V3Dead removes
             // them along with the dead always_comb driver.
             replaceBodyOnBuildError(flp, propp, result.errorEmitted);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(senTreep), senTreep);
+            أرجع;
         }
         // After the build, so a construct the builder rejects reports itself.
-        if (propertyControlp) {
+        إذا (propertyControlp) {
             seqBodyp->v3warn(E_UNSUPPORTED,
                              "Unsupported: temporal property if/case with " << propertyControlp);
             replaceBodyOnBuildError(flp, propp, /*errorEmitted=*/true);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            return;
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(senTreep), senTreep);
+            أرجع;
         }
-        if (countMatches && !v3Global.opt.coverageUser()) {
+        إذا (سانى_Matches && !v3Global.opt.coverageUser()) {
             SvaNfaBuilder::freeUnlinkedCondp(result.finalCondp);
-            VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-            AstNode* const innerPropp = propp->propp();
-            innerPropp->replaceWith(new AstConst{flp, AstConst::BitFalse{}});
-            VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
-            return;
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(senTreep), senTreep);
+            Ast_تۈگۈن* ثابت innerPropp = propp->propp();
+            innerPropp->replaceWith(جديد AstConst{flp, AstConst::BitFalse{}});
+            VL_DO_DANGLING(ئىتتىرىش_Deletep(innerPropp), innerPropp);
+            أرجع;
         }
 
-        AstAssert* const assertAssertp = VN_CAST(assertp, Assert);
-        const bool splitImplicationPasssp = assertAssertp && assertAssertp->passsp()
+        AstAssert* ثابت assertAssertp = VN_CAST(assertp, Assert);
+        ثابت منطقي splitImplicationPasssp = assertAssertp && assertAssertp->passsp()
                                             && parts.hasImplication
                                             && canSplitImplicationPassActions(parts);
-        const bool needMatch = assertAssertp && assertAssertp->passsp()
+        ثابت منطقي needMatch = assertAssertp && assertAssertp->passsp()
                                && (!parts.hasImplication || splitImplicationPasssp);
 
-        const bool needsThreadFailReplay
+        ثابت منطقي needsThreadFailReplay
             = assertAssertp && assertAssertp->failsp() && !parts.hasImplication;
-        const auto signals
+        ثابت auto signals
             = m_loweringp->lower(assertp, graph, senTreep, result.finalCondp, disableExprp,
                                  needsThreadFailReplay, needsThreadFailReplay && !negated);
-        AstNodeExpr* matchExprp = nullptr;
-        AstNodeExpr* outputExprp = m_loweringp->assembleResult(
+        Ast_تۈگۈن_ئىپادە* matchExprp = nullptr;
+        Ast_تۈگۈن_ئىپادە* outputExprp = m_loweringp->assembleResult(
             assertp, negated, result.finalCondp, signals, needMatch ? &matchExprp : nullptr);
-        if (countMatches) {
+        إذا (سانى_Matches) {
             UASSERT_OBJ(signals.matchCountp, coverp, "Cover sequence missing match count");
-            VL_DO_DANGLING(outputExprp->deleteTree(), outputExprp);
+            VL_DO_DANGLING(outputExprp->delete_دەرەخ(), outputExprp);
             propp->matchCountp(signals.matchCountp);
-            outputExprp = new AstNeq{flp, signals.matchCountp->cloneTreePure(false),
+            outputExprp = جديد AstNeq{flp, signals.matchCountp->clone_دەرەخ_Pure(خطأ),
                                      newTypedConstp(flp, signals.matchCountp->dtypep(), 0)};
         }
 
-        AstSenTree* const threadFailReplaySenTreep
-            = signals.threadFailCountp ? senTreep->cloneTree(false) : nullptr;
+        Ast_Sen_دەرەخ* ثابت threadFailReplaySenTreep
+            = signals.threadFailCountp ? senTreep->clone_دەرەخ(خطأ) : nullptr;
 
-        VL_DO_DANGLING(pushDeletep(senTreep), senTreep);
-        if (result.finalCondp && !result.finalCondp->backp()) pushDeletep(result.finalCondp);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(senTreep), senTreep);
+        إذا (result.finalCondp && !result.finalCondp->backp()) ئىتتىرىش_Deletep(result.finalCondp);
 
-        if (splitImplicationPasssp) {
+        إذا (splitImplicationPasssp) {
             splitImplicationPassActions(assertAssertp, parts, matchExprp);
-        } else {
+        } وإلا {
             attachActionHandlers(assertAssertp, matchExprp, threadFailReplaySenTreep,
                                  signals.threadFailCountp);
         }
 
-        AstNode* const innerPropp = propp->propp();
+        Ast_تۈگۈن* ثابت innerPropp = propp->propp();
         innerPropp->replaceWith(outputExprp);
-        VL_DO_DANGLING(pushDeletep(innerPropp), innerPropp);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(innerPropp), innerPropp);
 
         UINFO(4, "NFA converted assertion at " << flp << endl);
 
-        if (dumpGraphLevel() >= 6) graph.m_graph.dumpDotFilePrefixed("assert-nfa");
+        إذا (dumpGraphLevel() >= 6) graph.m_graph.dumpDotFilePrefixed("assert-nfa");
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    فراغ visit(Ast_تۈگۈن_Module* nodep) override {
         VL_RESTORER(m_modp);
         VL_RESTORER(m_loweringp);
         VL_RESTORER(m_defaultClockingp);
         VL_RESTORER(m_defaultDisablep);
         m_modp = nodep;
         // A class nested in a module is in the scope of the module's default clocking
-        if (!VN_IS(nodep, Class)) m_defaultClockingp = nullptr;
+        إذا (!VN_IS(nodep, Class)) m_defaultClockingp = nullptr;
         m_defaultDisablep = nodep->defaultDisablep();
         SvaNfaLowering lowering{nodep};
         m_loweringp = &lowering;
         iterateChildren(nodep);
     }
-    void visit(AstClocking* nodep) override {
-        if (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
+    فراغ visit(AstClocking* nodep) override {
+        إذا (nodep->isDefault() && !m_defaultClockingp) m_defaultClockingp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    فراغ visit(AstGenBlock* nodep) override {
         VL_RESTORER(m_defaultDisablep);
         m_defaultDisablep = nodep->defaultDisablep();
         iterateChildren(nodep);
     }
-    void visit(AstDefaultDisable* nodep) override {}
-    void visit(AstFell* nodep) override { visitSampledValue(nodep); }
-    void visit(AstPast* nodep) override { visitSampledValue(nodep); }
-    void visit(AstRose* nodep) override { visitSampledValue(nodep); }
-    void visit(AstStable* nodep) override { visitSampledValue(nodep); }
-    void visit(AstAssert* nodep) override { processAssertion(nodep); }
-    void visit(AstCover* nodep) override { processAssertion(nodep); }
-    void visit(AstRestrict* nodep) override {
+    فراغ visit(AstDefaultDisable* nodep) override {}
+    فراغ visit(AstFell* nodep) override { visit_Sampled_قىممەت(nodep); }
+    فراغ visit(AstPast* nodep) override { visit_Sampled_قىممەت(nodep); }
+    فراغ visit(AstRose* nodep) override { visit_Sampled_قىممەت(nodep); }
+    فراغ visit(AstStable* nodep) override { visit_Sampled_قىممەت(nodep); }
+    فراغ visit(AstAssert* nodep) override { processAssertion(nodep); }
+    فراغ visit(AstCover* nodep) override { processAssertion(nodep); }
+    فراغ visit(AstRestrict* nodep) override {
         // Restrict property is ignored by simulators (IEEE 1800-2023 16.12.2).
         // Remove here so temporal SExpr don't leak to V3AssertPre.
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstAssertIntrinsic* nodep) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ visit(AstAssertIntrinsic* nodep) override {}
+    فراغ visit(Ast_تۈگۈن* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     explicit AssertNfaVisitor(AstNetlist* nodep) { iterate(nodep); }
 };
 
 //######################################################################
 // Top entry point
 
-void V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
+فراغ V3AssertNfa::assertNfaAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":" << endl);
     { AssertNfaVisitor{nodep}; }
-    V3Global::dumpCheckGlobalTree("assertnfa", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_دەرەخ("assertnfa", 0, dump_دەرەخ_Either_Level() >= 3);
 }

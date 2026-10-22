@@ -17,21 +17,21 @@
 #ifndef VERILATOR_V3EMITV_H_
 #define VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_تۈگۈن;
+class Ast_Sen_دەرەخ;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+عام:
+    ساكن فراغ verilog_For_دەرەخ(ثابت Ast_تۈگۈن* nodep, std::ostream& os = std::cout);
+    ساكن فراغ debug_Verilog_For_دەرەخ(ثابت Ast_تۈگۈن* nodep, std::ostream& os);
+    ساكن std::string debug_Verilog_For_دەرەخ(ثابت Ast_تۈگۈن* nodep);
+    ساكن فراغ emitvFiles();
+    ساكن فراغ debugEmitV(ثابت string& filename);
 };
 
 #endif  // Guard

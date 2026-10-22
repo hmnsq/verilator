@@ -17,11 +17,11 @@
 #ifndef VERILATOR_V3WIDTHREMOVE_H_
 #define VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ضمن "config_build.h"
+#ضمن "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ضمن "V3Ast.h"
+#ضمن "V3Error.h"
 
 // clang-format off
 #ifndef VERILATOR_V3WIDTH_CPP_
@@ -31,30 +31,30 @@
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class WidthRemoveVisitor final : عام VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    فراغ replaceWithSignedVersion(Ast_تۈگۈن* nodep, Ast_تۈگۈن* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ئىتتىرىش_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
+    فراغ visit(AstSigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
+    فراغ visit(AstUnsigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    فراغ visit(Ast_تۈگۈن* nodep) override { iterateChildren(nodep); }
 
-public:
+عام:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    WidthRemoveVisitor() = افتراضي;
+    ~WidthRemoveVisitor() override = افتراضي;
+    Ast_تۈگۈن* mainAcceptEdit(Ast_تۈگۈن* nodep) { أرجع iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
