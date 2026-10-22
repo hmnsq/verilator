@@ -29,365 +29,365 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkJump.h"
+#அந்தர்பாவ "V3LinkJump.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Error.h"
-#include "V3UniqueNames.h"
+#அந்தர்பாவ "V3AstUserAllocator.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3UniqueNames.h"
 
-#include <unordered_map>
-#include <vector>
+#அந்தர்பாவ <unordered_map>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class LinkJumpVisitor final : public VNVisitor {
+வகுப்பு LinkJumpVisitor final : பொது VNVisitor {
     // NODE STATE
     //  AstBegin/etc::user1()  -> AstJumpBlock*, for body of this loop
     //  AstFinish::user1()     -> bool, processed
     //  AstNode::user2()       -> AstJumpBlock*, for this block
     //  AstNodeBegin::user3()  -> bool, true if contains a fork
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
-    const VNUser3InUse m_user3InUse;
+    மாறிலி VNUser1InUse m_user1InUse;
+    மாறிலி VNUser2InUse m_user2InUse;
+    மாறிலி VNUser3InUse m_user3InUse;
 
     // STATE
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNode* m_loopp = nullptr;  // Current loop
+    Ast_முனை_Module* m_modp = nullptr;  // Current module
+    Ast_முனை_FTask* m_ftaskp = nullptr;  // Current function/task
+    Ast_முனை* m_loopp = nullptr;  // Current loop
     AstRandSequence* m_randsequencep = nullptr;  // Current randsequence
-    bool m_loopInc = false;  // In loop increment
-    bool m_inFork = false;  // Under fork
-    int m_modRepeatNum = 0;  // Repeat counter
+    தருக்க m_loopInc = பொய்;  // In loop increment
+    தருக்க m_inFork = பொய்;  // Under fork
+    முழு m_mod_Repeat_இலக்கம் = 0;  // Repeat counter
     VOptionBool m_unrollFull;  // Pragma full, disable, or default unrolling
-    std::vector<AstNodeBlock*> m_blockStack;  // All begin blocks above current node
+    std::vector<Ast_முனை_Block*> m_block_அடுக்கு;  // All begin blocks above current node
     V3UniqueNames m_queueNames{
         "__VprocessQueue"};  // Names for queues needed for 'disable' handling
-    std::unordered_map<const AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
-    std::unordered_map<const AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
-    std::unordered_map<const AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
-    std::unordered_map<const AstTask*, AstBegin*>
+    std::unordered_map<மாறிலி AstTask*, AstVar*> m_taskDisableQueues;  // Per-task process queues
+    std::unordered_map<மாறிலி AstBegin*, AstVar*> m_beginDisableQueues;  // Per-begin process queues
+    std::unordered_map<மாறிலி AstFork*, AstVar*> m_forkDisableQueues;  // Per-fork process queues
+    std::unordered_map<மாறிலி AstTask*, AstBegin*>
         m_taskDisableBegins;  // Per-task process wrappers
-    std::unordered_map<const AstBegin*, AstBegin*>
+    std::unordered_map<மாறிலி AstBegin*, AstBegin*>
         m_beginDisableBegins;  // Per-begin process wrappers
 
     // METHODS
     // Get (and create if necessary) the JumpBlock for this statement
-    AstJumpBlock* getJumpBlock(AstNode* nodep, bool endOfIter) {
+    AstJumpBlock* getJumpBlock(Ast_முனை* nodep, தருக்க endOfIter) {
         // Wrap 'nodep' in JumpBlock. If loop, wrap the body instead if endOfIter is true
         UINFO(4, "Create JumpBlock for " << nodep);
 
         // Made it previously?  We always jump to the end, so this works out
-        if (endOfIter) {
-            if (nodep->user1p()) return VN_AS(nodep->user1p(), JumpBlock);
-        } else {
-            if (nodep->user2p()) return VN_AS(nodep->user2p(), JumpBlock);
+        எனில் (endOfIter) {
+            எனில் (nodep->user1p()) திரும்பு VN_AS(nodep->user1p(), JumpBlock);
+        } இல்லையெனில் {
+            எனில் (nodep->user2p()) திரும்பு VN_AS(nodep->user2p(), JumpBlock);
         }
 
-        AstNode* underp = nullptr;
-        bool under_and_next = true;
-        if (AstBegin* const blockp = VN_CAST(nodep, Begin)) {
+        Ast_முனை* underp = nullptr;
+        தருக்க under_and_next = உண்மை;
+        எனில் (AstBegin* மாறிலி blockp = VN_CAST(nodep, Begin)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for Begin");
             underp = blockp->stmtsp();
-        } else if (AstNodeFTask* const fTaskp = VN_CAST(nodep, NodeFTask)) {
+        } இல்லையெனில் எனில் (Ast_முனை_FTask* மாறிலி fTaskp = VN_CAST(nodep, முனை_FTask)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for FTask");
             underp = fTaskp->stmtsp();
-        } else if (AstForeach* const foreachp = VN_CAST(nodep, Foreach)) {
-            if (endOfIter) {
+        } இல்லையெனில் எனில் (AstForeach* மாறிலி foreachp = VN_CAST(nodep, Foreach)) {
+            எனில் (endOfIter) {
                 underp = foreachp->bodyp();
                 // Keep a LoopTest **at the front** outside the jump block
-                if (VN_IS(underp, LoopTest)) underp = underp->nextp();
-            } else {
+                எனில் (VN_IS(underp, LoopTest)) underp = underp->nextp();
+            } இல்லையெனில் {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire foreach
+                under_and_next = பொய்;  // IE we skip the entire foreach
             }
-        } else if (AstLoop* const loopp = VN_CAST(nodep, Loop)) {
-            if (endOfIter) {
+        } இல்லையெனில் எனில் (AstLoop* மாறிலி loopp = VN_CAST(nodep, Loop)) {
+            எனில் (endOfIter) {
                 underp = loopp->stmtsp();
-            } else {
+            } இல்லையெனில் {
                 underp = nodep;
-                under_and_next = false;  // IE we skip the entire loop
+                under_and_next = பொய்;  // IE we skip the entire loop
             }
-        } else {
+        } இல்லையெனில் {
             nodep->v3fatalSrc("Unknown jump point for break/disable/continue");
-            return nullptr;
+            திரும்பு nullptr;
         }
         // Skip over variables as we'll just move them in a moment
         // Also this would otherwise prevent us from using a label twice
         // see t_func_return test.
-        while (underp && VN_IS(underp, Var)) underp = underp->nextp();
+        போது (underp && VN_IS(underp, Var)) underp = underp->nextp();
         UASSERT_OBJ(underp, nodep, "Break/disable/continue not under expected statement");
         UINFO(5, "  Underpoint is " << underp);
 
         // If already wrapped, we are done ...
-        if (!underp->nextp() || !under_and_next) {
-            if (AstJumpBlock* const blockp = VN_CAST(underp, JumpBlock)) return blockp;
+        எனில் (!underp->nextp() || !under_and_next) {
+            எனில் (AstJumpBlock* மாறிலி blockp = VN_CAST(underp, JumpBlock)) திரும்பு blockp;
         }
 
         // Move underp stuff to be under a new AstJumpBlock
         VNRelinker repHandle;
-        if (under_and_next) {
+        எனில் (under_and_next) {
             underp->unlinkFrBackWithNext(&repHandle);
-        } else {
+        } இல்லையெனில் {
             underp->unlinkFrBack(&repHandle);
         }
-        AstJumpBlock* const blockp = new AstJumpBlock{nodep->fileline(), underp};
-        if (endOfIter) {
+        AstJumpBlock* மாறிலி blockp = புதிய AstJumpBlock{nodep->fileline(), underp};
+        எனில் (endOfIter) {
             nodep->user1p(blockp);
-        } else {
+        } இல்லையெனில் {
             nodep->user2p(blockp);
         }
         repHandle.relink(blockp);
 
         // Keep any AstVars under the function not under the new JumpLabel
-        for (AstNode *nextp, *varp = underp; varp; varp = nextp) {
+        க்கு (Ast_முனை *nextp, *varp = underp; varp; varp = nextp) {
             nextp = varp->nextp();
-            if (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
+            எனில் (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
         }
-        return blockp;
+        திரும்பு blockp;
     }
-    void addPrefixToBlocksRecurse(const std::string& prefix, AstNode* const nodep) {
+    வெறுமை addPrefixToBlocksRecurse(மாறிலி std::string& prefix, Ast_முனை* மாறிலி nodep) {
         // Add a prefix to blocks
         // Used to not have blocks with duplicated names
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->name() != "") beginp->name(prefix + beginp->name());
+        எனில் (AstBegin* மாறிலி beginp = VN_CAST(nodep, Begin)) {
+            எனில் (beginp->name() != "") beginp->name(prefix + beginp->name());
         }
 
-        if (AstNode* const refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
     }
-    bool existsBlockAbove(const std::string& name) const {
-        for (const AstNodeBlock* const stackp : vlstd::reverse_view(m_blockStack)) {
-            if (stackp->name() == name) return true;
+    தருக்க existsBlockAbove(மாறிலி std::string& name) மாறிலி {
+        க்கு (மாறிலி Ast_முனை_Block* மாறிலி stackp : vlstd::reverse_view(m_block_அடுக்கு)) {
+            எனில் (stackp->name() == name) திரும்பு உண்மை;
         }
-        return false;
+        திரும்பு பொய்;
     }
-    static AstNodeModule* findOwnerModulep(AstNode* nodep) {
-        for (AstNode* curp = nodep; curp; curp = curp->aboveLoopp()) {
-            if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+    நிலையான Ast_முனை_Module* findOwnerModulep(Ast_முனை* nodep) {
+        க்கு (Ast_முனை* curp = nodep; curp; curp = curp->aboveLoopp()) {
+            எனில் (Ast_முனை_Module* மாறிலி modp = VN_CAST(curp, முனை_Module)) திரும்பு modp;
         }
         nodep->v3fatalSrc("Disable target is not under a module");
-        return nullptr;  // LCOV_EXCL_LINE
+        திரும்பு nullptr;  // LCOV_EXCL_LINE
     }
-    static std::string targetInstancePath(const AstDisable* const nodep) {
-        if (const AstVarXRef* const xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
-            return xrefp->dotted();
+    நிலையான std::string targetInstancePath(மாறிலி AstDisable* மாறிலி nodep) {
+        எனில் (மாறிலி AstVarXRef* மாறிலி xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
+            திரும்பு xrefp->dotted();
         }
-        return "";
+        திரும்பு "";
     }
-    static std::string queueDotted(const AstDisable* const nodep,
-                                   const AstVar* const processQueuep) {
-        return processQueuep->isTemp() ? targetInstancePath(nodep) : "";
+    நிலையான std::string queueDotted(மாறிலி AstDisable* மாறிலி nodep,
+                                   மாறிலி AstVar* மாறிலி processQueuep) {
+        திரும்பு processQueuep->isTemp() ? targetInstancePath(nodep) : "";
     }
-    AstBegin* innerForkBranchp(const AstNodeBlock* const targetp) const {
+    AstBegin* innerForkBranchp(மாறிலி Ast_முனை_Block* மாறிலி targetp) மாறிலி {
         AstBegin* innerForkBranchp = nullptr;
-        AstNodeBlock* prevBlockp = nullptr;
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (!innerForkBranchp && VN_IS(blockp, Fork)) {
+        Ast_முனை_Block* prevBlockp = nullptr;
+        க்கு (Ast_முனை_Block* மாறிலி blockp : vlstd::reverse_view(m_block_அடுக்கு)) {
+            எனில் (!innerForkBranchp && VN_IS(blockp, Fork)) {
                 innerForkBranchp = VN_CAST(prevBlockp, Begin);
             }
-            if (blockp == targetp) return innerForkBranchp;
+            எனில் (blockp == targetp) திரும்பு innerForkBranchp;
             prevBlockp = blockp;
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(AstVarRef* const queueRefp) {
+    நிலையான Ast_Stmt_கோவை* get_Queue_தள்ளு_Process_Selfp(AstVarRef* மாறிலி queueRefp) {
         // Constructs queue.push_back(std::process::self()) statement
-        FileLine* const flp = queueRefp->fileline();
-        return new AstStmtExpr{
+        File_வரி* மாறிலி flp = queueRefp->fileline();
+        திரும்பு புதிய Ast_Stmt_கோவை{
             flp,
-            new AstMethodCall{flp, queueRefp, "push_back",
-                              new AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
+            புதிய AstMethodCall{flp, queueRefp, "push_back",
+                              புதிய AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
     }
-    static AstNodeVarRef* newQueueRefp(FileLine* const fl, AstVar* const processQueuep,
-                                       const VAccess& access, const std::string& dotted = "") {
-        if (dotted != "") return new AstVarXRef{fl, processQueuep, dotted, access};
-        if (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
-            return new AstVarRef{fl, processQueuep, access};
+    நிலையான Ast_முனை_Var_Ref* newQueueRefp(File_வரி* மாறிலி fl, AstVar* மாறிலி processQueuep,
+                                       மாறிலி VAccess& access, மாறிலி std::string& dotted = "") {
+        எனில் (dotted != "") திரும்பு புதிய AstVarXRef{fl, processQueuep, dotted, access};
+        எனில் (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
+            திரும்பு புதிய AstVarRef{fl, processQueuep, access};
         }
-        AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-        return new AstVarRef{fl, topPkgp, processQueuep, access};
+        AstPackage* மாறிலி உச்சி_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+        திரும்பு புதிய AstVarRef{fl, உச்சி_Pkgp, processQueuep, access};
     }
-    static AstStmtExpr* getQueuePushProcessSelfp(FileLine* const fl, AstVar* const processQueuep) {
-        AstVarRef* const queueWriteRefp
+    நிலையான Ast_Stmt_கோவை* get_Queue_தள்ளு_Process_Selfp(File_வரி* மாறிலி fl, AstVar* மாறிலி processQueuep) {
+        AstVarRef* மாறிலி queueWriteRefp
             = VN_AS(newQueueRefp(fl, processQueuep, VAccess::WRITE), VarRef);
-        return getQueuePushProcessSelfp(queueWriteRefp);
+        திரும்பு get_Queue_தள்ளு_Process_Selfp(queueWriteRefp);
     }
-    static AstStmtExpr* getQueueKillStmtp(FileLine* const fl, AstVar* const processQueuep,
-                                          const std::string& dotted = "") {
-        AstNodeVarRef* const queueRefp
+    நிலையான Ast_Stmt_கோவை* getQueueKillStmtp(File_வரி* மாறிலி fl, AstVar* மாறிலி processQueuep,
+                                          மாறிலி std::string& dotted = "") {
+        Ast_முனை_Var_Ref* மாறிலி queueRefp
             = newQueueRefp(fl, processQueuep, VAccess::READWRITE, dotted);
         AstTaskRef* killQueueCall = nullptr;
-        for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+        க்கு (Ast_முனை* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
              itemp = itemp->nextp()) {
-            if (itemp->name() == "killQueue") {
+            எனில் (itemp->name() == "killQueue") {
                 killQueueCall
-                    = new AstTaskRef{fl, VN_AS(itemp, Task), new AstArg{fl, "", queueRefp}};
-                break;
+                    = புதிய AstTaskRef{fl, VN_AS(itemp, Task), புதிய AstArg{fl, "", queueRefp}};
+                நிறுத்து;
             }
         }
         UASSERT(killQueueCall, "Should be found");
         killQueueCall->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-        return new AstStmtExpr{fl, killQueueCall};
+        திரும்பு புதிய Ast_Stmt_கோவை{fl, killQueueCall};
     }
-    AstBegin* getOrCreateTaskDisableBeginp(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableBegins.find(taskp);
-        if (it != m_taskDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateTaskDisableBeginp(AstTask* மாறிலி taskp, File_வரி* மாறிலி fl) {
+        மாறிலி auto it = m_taskDisableBegins.find(taskp);
+        எனில் (it != m_taskDisableBegins.end()) திரும்பு it->second;
 
-        AstBegin* const taskBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* மாறிலி taskBodyp = புதிய AstBegin{fl, "", nullptr, பொய்};
         // Disable-by-name rewrites kill this detached task-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         taskBodyp->setNeedProcess();
         v3Global.setUsesTiming();
         // Ports stay in the task so calls see them
-        for (AstNode* stmtp = taskp->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
-            const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
+        க்கு (Ast_முனை* stmtp = taskp->stmtsp(); stmtp;) {
+            Ast_முனை* மாறிலி nextp = stmtp->nextp();
+            மாறிலி AstVar* மாறிலி varp = VN_CAST(stmtp, Var);
+            எனில் (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
             stmtp = nextp;
         }
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* மாறிலி forkp = புதிய AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(taskBodyp);
         taskp->addStmtsp(forkp);
 
         m_taskDisableBegins.emplace(taskp, taskBodyp);
-        return taskBodyp;
+        திரும்பு taskBodyp;
     }
-    AstVar* newProcessQueuep(AstNode* const nodep, FileLine* const fl, const VVarType& varType) {
-        AstVar* const processQueuep = new AstVar{
+    AstVar* newProcessQueuep(Ast_முனை* மாறிலி nodep, File_வரி* மாறிலி fl, மாறிலி VVarType& varType) {
+        AstVar* மாறிலி processQueuep = புதிய AstVar{
             fl, varType, m_queueNames.get(nodep->name()), VFlagChildDType{},
-            new AstQueueDType{
+            புதிய AstQueueDType{
                 fl, VFlagChildDType{},
-                new AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
+                புதிய AstClassRefDType{fl, v3Global.rootp()->stdPackageProcessp(), nullptr},
                 nullptr}};
-        processQueuep->processQueue(true);
+        processQueuep->processQueue(உண்மை);
         processQueuep->setIgnoreSchedWrite();
-        return processQueuep;
+        திரும்பு processQueuep;
     }
-    AstVar* getProcessQueuep(AstNode* const nodep, FileLine* const fl) {
-        AstNodeModule* const ownerp = findOwnerModulep(nodep);
+    AstVar* getProcessQueuep(Ast_முனை* மாறிலி nodep, File_வரி* மாறிலி fl) {
+        Ast_முனை_Module* மாறிலி ownerp = findOwnerModulep(nodep);
 
-        if (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
-            AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-            AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
+        எனில் (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
+            AstPackage* மாறிலி உச்சி_Pkgp = v3Global.rootp()->dollarUnitPkgp();
+            AstVar* மாறிலி processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
             processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
-            topPkgp->addStmtsp(processQueuep);
-            return processQueuep;
+            உச்சி_Pkgp->addStmtsp(processQueuep);
+            திரும்பு processQueuep;
         }
 
-        AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
+        AstVar* மாறிலி processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
         processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
         ownerp->addStmtsp(processQueuep);
-        return processQueuep;
+        திரும்பு processQueuep;
     }
-    AstVar* getOrCreateTaskDisableQueuep(AstTask* const taskp, FileLine* const fl) {
-        const auto it = m_taskDisableQueues.find(taskp);
-        if (it != m_taskDisableQueues.end()) return it->second;
+    AstVar* getOrCreateTaskDisableQueuep(AstTask* மாறிலி taskp, File_வரி* மாறிலி fl) {
+        மாறிலி auto it = m_taskDisableQueues.find(taskp);
+        எனில் (it != m_taskDisableQueues.end()) திரும்பு it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(taskp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
-        taskBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* மாறிலி processQueuep = getProcessQueuep(taskp, fl);
+        Ast_Stmt_கோவை* மாறிலி தள்ளு_Current_Processp = get_Queue_தள்ளு_Process_Selfp(fl, processQueuep);
+        AstBegin* மாறிலி taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
+        taskBodyp->prependStmtsp(தள்ளு_Current_Processp);
         m_taskDisableQueues.emplace(taskp, processQueuep);
-        return processQueuep;
+        திரும்பு processQueuep;
     }
-    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableBegins.find(beginp);
-        if (it != m_beginDisableBegins.end()) return it->second;
+    AstBegin* getOrCreateBeginDisableBeginp(AstBegin* மாறிலி beginp, File_வரி* மாறிலி fl) {
+        மாறிலி auto it = m_beginDisableBegins.find(beginp);
+        எனில் (it != m_beginDisableBegins.end()) திரும்பு it->second;
 
-        AstBegin* const beginBodyp = new AstBegin{fl, "", nullptr, false};
+        AstBegin* மாறிலி beginBodyp = புதிய AstBegin{fl, "", nullptr, பொய்};
         // Disable-by-name rewrites kill this detached block-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         beginBodyp->setNeedProcess();
         v3Global.setUsesTiming();
-        if (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
+        எனில் (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
 
-        AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
+        AstFork* மாறிலி forkp = புதிய AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(beginBodyp);
         beginp->addStmtsp(forkp);
 
         m_beginDisableBegins.emplace(beginp, beginBodyp);
-        return beginBodyp;
+        திரும்பு beginBodyp;
     }
-    void prependForkBranchQueuePushes(AstFork* const forkp, AstVar* const processQueuep,
-                                      FileLine* const fl, bool needProcess) {
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+    வெறுமை prependForkBranchQueuePushes(AstFork* மாறிலி forkp, AstVar* மாறிலி processQueuep,
+                                      File_வரி* மாறிலி fl, தருக்க needProcess) {
+        க்கு (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            if (needProcess) branchp->setNeedProcess();
-            branchp->prependStmtsp(getQueuePushProcessSelfp(fl, processQueuep));
+            எனில் (needProcess) branchp->setNeedProcess();
+            branchp->prependStmtsp(get_Queue_தள்ளு_Process_Selfp(fl, processQueuep));
         }
     }
-    void prependNestedForkBranchQueuePushes(AstNode* const nodep, AstVar* const processQueuep,
-                                            FileLine* const fl, bool needProcess) {
-        nodep->foreach([&](AstFork* const forkp) {
+    வெறுமை prependNestedForkBranchQueuePushes(Ast_முனை* மாறிலி nodep, AstVar* மாறிலி processQueuep,
+                                            File_வரி* மாறிலி fl, தருக்க needProcess) {
+        nodep->foreach([&](AstFork* மாறிலி forkp) {
             prependForkBranchQueuePushes(forkp, processQueuep, fl, needProcess);
         });
     }
-    AstVar* getOrCreateBeginDisableQueuep(AstBegin* const beginp, FileLine* const fl) {
-        const auto it = m_beginDisableQueues.find(beginp);
-        if (it != m_beginDisableQueues.end()) return it->second;
+    AstVar* getOrCreateBeginDisableQueuep(AstBegin* மாறிலி beginp, File_வரி* மாறிலி fl) {
+        மாறிலி auto it = m_beginDisableQueues.find(beginp);
+        எனில் (it != m_beginDisableQueues.end()) திரும்பு it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(beginp, fl);
-        AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
-        AstBegin* const beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
-        beginBodyp->prependStmtsp(pushCurrentProcessp);
+        AstVar* மாறிலி processQueuep = getProcessQueuep(beginp, fl);
+        Ast_Stmt_கோவை* மாறிலி தள்ளு_Current_Processp = get_Queue_தள்ளு_Process_Selfp(fl, processQueuep);
+        AstBegin* மாறிலி beginBodyp = getOrCreateBeginDisableBeginp(beginp, fl);
+        beginBodyp->prependStmtsp(தள்ளு_Current_Processp);
 
         // Named-block disable must also terminate detached descendants created by forks
         // under the block, so track each fork branch process in the same queue.
-        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, false);
+        prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, பொய்);
         m_beginDisableQueues.emplace(beginp, processQueuep);
-        return processQueuep;
+        திரும்பு processQueuep;
     }
-    AstVar* getOrCreateForkDisableQueuep(AstFork* const forkp, FileLine* const fl) {
-        const auto it = m_forkDisableQueues.find(forkp);
-        if (it != m_forkDisableQueues.end()) return it->second;
+    AstVar* getOrCreateForkDisableQueuep(AstFork* மாறிலி forkp, File_வரி* மாறிலி fl) {
+        மாறிலி auto it = m_forkDisableQueues.find(forkp);
+        எனில் (it != m_forkDisableQueues.end()) திரும்பு it->second;
 
-        AstVar* const processQueuep = getProcessQueuep(forkp, fl);
-        prependForkBranchQueuePushes(forkp, processQueuep, fl, true);
+        AstVar* மாறிலி processQueuep = getProcessQueuep(forkp, fl);
+        prependForkBranchQueuePushes(forkp, processQueuep, fl, உண்மை);
         // Disabling a fork must also terminate detached descendants created by nested forks
         // under each branch, so track nested fork branch processes in the same queue.
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+        க்கு (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, true);
+            prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, உண்மை);
         }
         m_forkDisableQueues.emplace(forkp, processQueuep);
-        return processQueuep;
+        திரும்பு processQueuep;
     }
-    AstStmtExpr* insertKillStmtp(AstDisable* const nodep, AstVar* const processQueuep) {
-        FileLine* const fl = nodep->fileline();
-        AstStmtExpr* const killStmtp
+    Ast_Stmt_கோவை* செருகு_Kill_Stmtp(AstDisable* மாறிலி nodep, AstVar* மாறிலி processQueuep) {
+        File_வரி* மாறிலி fl = nodep->fileline();
+        Ast_Stmt_கோவை* மாறிலி killStmtp
             = getQueueKillStmtp(fl, processQueuep, queueDotted(nodep, processQueuep));
         nodep->addNextHere(killStmtp);
-        return killStmtp;
+        திரும்பு killStmtp;
     }
-    void addJumpAfterKill(AstStmtExpr* const killStmtp, AstNode* const targetp) {
-        AstJumpBlock* const jmpBlockp = getJumpBlock(targetp, false);
-        killStmtp->addNextHere(new AstJumpGo{killStmtp->fileline(), jmpBlockp});
+    வெறுமை addJumpAfterKill(Ast_Stmt_கோவை* மாறிலி killStmtp, Ast_முனை* மாறிலி targetp) {
+        AstJumpBlock* மாறிலி jmpBlockp = getJumpBlock(targetp, பொய்);
+        killStmtp->addNextHere(புதிய AstJumpGo{killStmtp->fileline(), jmpBlockp});
     }
-    void handleDisableOnFork(AstDisable* const nodep) {
+    வெறுமை handleDisableOnFork(AstDisable* மாறிலி nodep) {
         // The support utilizes the process::kill()` method. For each disabled fork a queue of
         // processes is declared. At the beginning of each fork branch (and each nested fork
         // branch) its process handle is pushed to the queue. The `disable` statement is replaced
         // with calling `kill()` on each element of the queue.
-        FileLine* const fl = nodep->fileline();
-        AstFork* const targetp = VN_AS(nodep->targetp(), Fork);
-        if (m_ftaskp) {
-            if (!m_ftaskp->exists(
-                    [targetp](const AstNodeBlock* blockp) -> bool { return blockp == targetp; })) {
+        File_வரி* மாறிலி fl = nodep->fileline();
+        AstFork* மாறிலி targetp = VN_AS(nodep->targetp(), Fork);
+        எனில் (m_ftaskp) {
+            எனில் (!m_ftaskp->exists(
+                    [targetp](மாறிலி Ast_முனை_Block* blockp) -> தருக்க { திரும்பு blockp == targetp; })) {
                 // Disabling a fork, which is within the same task, is not a problem
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: disabling fork from task / function");
             }
         }
 
-        AstVar* const processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
-        AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        AstVar* மாறிலி processQueuep = getOrCreateForkDisableQueuep(targetp, fl);
+        Ast_Stmt_கோவை* மாறிலி killStmtp = செருகு_Kill_Stmtp(nodep, processQueuep);
 
         // 'process::kill' does not immediately kill the current process executing the disable
         // statement (because it's in the running state). If the disable runs under the target
@@ -396,262 +396,262 @@ class LinkJumpVisitor final : public VNVisitor {
         // branch keeps the jump inside a single emitted coroutine even when the disable sits in a
         // nested sub-fork; targeting the outer target fork's branch would cross a coroutine
         // boundary once forks are split into separate functions.
-        if (AstBegin* const branchp = innerForkBranchp(targetp)) {
+        எனில் (AstBegin* மாறிலி branchp = innerForkBranchp(targetp)) {
             addJumpAfterKill(killStmtp, branchp);
         }
     }
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    வெறுமை visit(Ast_முனை_Module* nodep) override {
+        எனில் (nodep->dead()) திரும்பு;
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_modRepeatNum);
+        VL_RESTORER(m_mod_Repeat_இலக்கம்);
         m_modp = nodep;
-        m_modRepeatNum = 0;
+        m_mod_Repeat_இலக்கம் = 0;
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstBegin* nodep) override {
+    வெறுமை visit(AstBegin* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
-        m_blockStack.push_back(nodep);
+        m_block_அடுக்கு.தள்ளு_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_அடுக்கு.எடு_back();
     }
-    void visit(AstFork* nodep) override {
+    வெறுமை visit(AstFork* nodep) override {
         UINFO(8, "  " << nodep);
         VL_RESTORER(m_unrollFull);
         VL_RESTORER(m_inFork);
-        m_inFork = true;
+        m_inFork = உண்மை;
         // Mark all upper blocks, can stop once see one set to avoid O(n^2)
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (blockp->user3SetOnce()) break;
+        க்கு (Ast_முனை_Block* மாறிலி blockp : vlstd::reverse_view(m_block_அடுக்கு)) {
+            எனில் (blockp->user3SetOnce()) நிறுத்து;
         }
-        m_blockStack.push_back(nodep);
+        m_block_அடுக்கு.தள்ளு_back(nodep);
         iterateChildren(nodep);
-        m_blockStack.pop_back();
+        m_block_அடுக்கு.எடு_back();
     }
-    void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
+    வெறுமை visit(AstStmtPragma* nodep) override {
+        எனில் (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
             m_unrollFull = VOptionBool::OPT_FALSE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+        } இல்லையெனில் எனில் (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
             m_unrollFull = VOptionBool::OPT_TRUE;
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+        } இல்லையெனில் {
             iterateChildren(nodep);
         }
     }
-    void visit(AstRandSequence* nodep) override {
+    வெறுமை visit(AstRandSequence* nodep) override {
         VL_RESTORER(m_randsequencep);
         m_randsequencep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstRepeat* nodep) override {
+    வெறுமை visit(AstRepeat* nodep) override {
         // So later optimizations don't need to deal with them,
         //    REPEAT(count,body) -> loop=count,WHILE(loop>0) { body, loop-- }
         // Note var can be signed or unsigned based on original number.
-        AstNodeExpr* const countp = nodep->countp()->unlinkFrBackWithNext();
-        const string name = "__Vrepeat"s + cvtToStr(m_modRepeatNum++);
-        AstBegin* const beginp = new AstBegin{nodep->fileline(), "", nullptr, true};
+        Ast_முனை_கோவை* மாறிலி countp = nodep->countp()->unlinkFrBackWithNext();
+        மாறிலி string name = "__Vrepeat"s + cvtToStr(m_mod_Repeat_இலக்கம்++);
+        AstBegin* மாறிலி beginp = புதிய AstBegin{nodep->fileline(), "", nullptr, உண்மை};
         // Spec says value is integral, if negative is ignored
-        AstVar* const varp
-            = new AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
+        AstVar* மாறிலி varp
+            = புதிய AstVar{nodep->fileline(), VVarType::BLOCKTEMP, name, nodep->findIntDType()};
         varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        varp->usedLoopIdx(true);
+        varp->usedLoopIdx(உண்மை);
         beginp->addStmtsp(varp);
-        AstNode* initsp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
-        AstNode* const decp = new AstAssign{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
-            new AstSub{nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ},
-                       new AstConst{nodep->fileline(), 1}}};
-        AstNodeExpr* const zerosp = new AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
-        AstNodeExpr* const condp = new AstGtS{
-            nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
-        AstNode* const bodysp = nodep->stmtsp();
-        if (bodysp) bodysp->unlinkFrBackWithNext();
-        FileLine* const flp = nodep->fileline();
-        AstLoop* const loopp = new AstLoop{flp};
-        loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
+        Ast_முனை* initsp = புதிய AstAssign{
+            nodep->fileline(), புதிய AstVarRef{nodep->fileline(), varp, VAccess::WRITE}, countp};
+        Ast_முனை* மாறிலி decp = புதிய AstAssign{
+            nodep->fileline(), புதிய AstVarRef{nodep->fileline(), varp, VAccess::WRITE},
+            புதிய AstSub{nodep->fileline(), புதிய AstVarRef{nodep->fileline(), varp, VAccess::READ},
+                       புதிய AstConst{nodep->fileline(), 1}}};
+        Ast_முனை_கோவை* மாறிலி zerosp = புதிய AstConst{nodep->fileline(), AstConst::Signed32{}, 0};
+        Ast_முனை_கோவை* மாறிலி condp = புதிய AstGtS{
+            nodep->fileline(), புதிய AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
+        Ast_முனை* மாறிலி bodysp = nodep->stmtsp();
+        எனில் (bodysp) bodysp->unlinkFrBackWithNext();
+        File_வரி* மாறிலி flp = nodep->fileline();
+        AstLoop* மாறிலி loopp = புதிய AstLoop{flp};
+        loopp->addStmtsp(புதிய AstLoopTest{flp, loopp, condp});
         loopp->addStmtsp(bodysp);
         loopp->addContsp(decp);
-        if (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
+        எனில் (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         beginp->addStmtsp(initsp);
         beginp->addStmtsp(loopp);
         // Replacement AstBegin will be iterated next
         nodep->replaceWith(beginp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
-        if (m_modp->hasParameterList() || m_modp->hasGParam()) {
-            nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
+    வெறுமை visit(AstLoop* nodep) override {
+        எனில் (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
+        எனில் (m_modp->hasParameterList() || m_modp->hasGParam()) {
+            nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, உண்மை);
         }
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         VL_RESTORER(m_loopp);
         VL_RESTORER(m_loopInc);
         m_loopp = nodep;
-        m_loopInc = false;
+        m_loopInc = பொய்;
         iterateAndNextNull(nodep->stmtsp());
-        m_loopInc = true;
+        m_loopInc = உண்மை;
         iterateAndNextNull(nodep->contsp());
         // Move contsp into stmtsp, no longer needed to keep separately
-        if (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
+        எனில் (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
     }
-    void visit(AstNodeForeach* nodep) override {
+    வெறுமை visit(Ast_முனை_Foreach* nodep) override {
         VL_RESTORER(m_loopp);
         m_loopp = nodep;
         iterateAndNextNull(nodep->bodyp());
     }
-    void visit(AstReturn* nodep) override {
+    வெறுமை visit(AstReturn* nodep) override {
         iterateChildren(nodep);
-        const AstFunc* const funcp = VN_CAST(m_ftaskp, Func);
-        if (m_randsequencep) {
-            nodep->replaceWith(new AstRSReturn{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_inFork) {
+        மாறிலி AstFunc* மாறிலி funcp = VN_CAST(m_ftaskp, Func);
+        எனில் (m_randsequencep) {
+            nodep->replaceWith(புதிய AstRSReturn{nodep->fileline()});
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (m_inFork) {
             nodep->v3error("Return isn't legal under fork (IEEE 1800-2023 9.2.3)");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
-        } else if (!m_ftaskp) {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (!m_ftaskp) {
             nodep->v3error("Return isn't underneath a task or function");
-        } else if (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
+        } இல்லையெனில் எனில் (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
             nodep->v3error("Return underneath a function should have return value");
-        } else if (!funcp && nodep->lhsp()) {
+        } இல்லையெனில் எனில் (!funcp && nodep->lhsp()) {
             nodep->v3error("Return underneath a task shouldn't have return value");
-        } else {
-            if (funcp && nodep->lhsp()) {
+        } இல்லையெனில் {
+            எனில் (funcp && nodep->lhsp()) {
                 // Set output variable to return value
-                nodep->addHereThisAsNext(new AstAssign{
+                nodep->addHereThisAsNext(புதிய AstAssign{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
+                    புதிய AstVarRef{nodep->fileline(), VN_AS(funcp->fvarp(), Var), VAccess::WRITE},
                     nodep->lhsp()->unlinkFrBackWithNext()});
             }
             // Jump to the end of the function call
-            AstJumpBlock* const blockp = getJumpBlock(m_ftaskp, false);
-            nodep->addHereThisAsNext(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* மாறிலி blockp = getJumpBlock(m_ftaskp, பொய்);
+            nodep->addHereThisAsNext(புதிய AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
-    void visit(AstBreak* nodep) override {
+    வெறுமை visit(AstBreak* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp && m_randsequencep) {
-            nodep->replaceWith(new AstRSBreak{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (!m_loopp) {
+        எனில் (!m_loopp && m_randsequencep) {
+            nodep->replaceWith(புதிய AstRSBreak{nodep->fileline()});
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (!m_loopp) {
             nodep->v3error("break isn't underneath a loop");
-        } else {
+        } இல்லையெனில் {
             // Jump to the end of the loop
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* மாறிலி blockp = getJumpBlock(m_loopp, பொய்);
+            nodep->addNextHere(புதிய AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
-    void visit(AstContinue* nodep) override {
+    வெறுமை visit(AstContinue* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp) {
+        எனில் (!m_loopp) {
             nodep->v3error("continue isn't underneath a loop");
-        } else {
+        } இல்லையெனில் {
             // Jump to the end of this iteration
             // If a "for" loop then need to still do the post-loop increment
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, true);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* மாறிலி blockp = getJumpBlock(m_loopp, உண்மை);
+            nodep->addNextHere(புதிய AstJumpGo{nodep->fileline(), blockp});
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
-    void visit(AstDisable* nodep) override {
+    வெறுமை visit(AstDisable* nodep) override {
         UINFO(8, "   DISABLE " << nodep);
-        AstNode* const targetp = nodep->targetp();
-        if (!targetp) {
+        Ast_முனை* மாறிலி targetp = nodep->targetp();
+        எனில் (!targetp) {
             // Linking errors on the disable target are already reported upstream.
             // Drop this node to avoid cascading into an internal assertion.
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+            திரும்பு;
         }
-        if (AstTask* const taskp = VN_CAST(targetp, Task)) {
-            AstVar* const processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
-            AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+        எனில் (AstTask* மாறிலி taskp = VN_CAST(targetp, Task)) {
+            AstVar* மாறிலி processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
+            Ast_Stmt_கோவை* மாறிலி killStmtp = செருகு_Kill_Stmtp(nodep, processQueuep);
 
             // process::kill does not terminate the currently running process immediately.
             // If we disable the current task by name from inside itself, jump to its end.
-            if (m_ftaskp == taskp) {
-                AstNode* jumpTargetp = taskp;
-                const auto it = m_taskDisableBegins.find(taskp);
-                if (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
+            எனில் (m_ftaskp == taskp) {
+                Ast_முனை* jumpTargetp = taskp;
+                மாறிலி auto it = m_taskDisableBegins.find(taskp);
+                எனில் (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
                 addJumpAfterKill(killStmtp, jumpTargetp);
             }
-        } else if (VN_IS(targetp, Fork)) {
+        } இல்லையெனில் எனில் (VN_IS(targetp, Fork)) {
             handleDisableOnFork(nodep);
-        } else if (AstBegin* const beginp = VN_CAST(targetp, Begin)) {
-            if (existsBlockAbove(beginp->name())) {
-                if (!beginp->user3()) {
+        } இல்லையெனில் எனில் (AstBegin* மாறிலி beginp = VN_CAST(targetp, Begin)) {
+            எனில் (existsBlockAbove(beginp->name())) {
+                எனில் (!beginp->user3()) {
                     // Jump to the end of the named block
-                    AstJumpBlock* const blockp = getJumpBlock(beginp, false);
-                    nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
-                } else {
-                    AstVar* const processQueuep
+                    AstJumpBlock* மாறிலி blockp = getJumpBlock(beginp, பொய்);
+                    nodep->addNextHere(புதிய AstJumpGo{nodep->fileline(), blockp});
+                } இல்லையெனில் {
+                    AstVar* மாறிலி processQueuep
                         = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                    AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
+                    Ast_Stmt_கோவை* மாறிலி killStmtp = செருகு_Kill_Stmtp(nodep, processQueuep);
 
                     // process::kill does not terminate the currently running process immediately.
                     // If disable executes inside a fork branch of this named block, jump to the
                     // end of that branch to prevent statements after disable from executing.
-                    AstBegin* const branchp = innerForkBranchp(beginp);
-                    AstBegin* const jumpTargetp
+                    AstBegin* மாறிலி branchp = innerForkBranchp(beginp);
+                    AstBegin* மாறிலி jumpTargetp
                         = branchp ? branchp : m_beginDisableBegins.at(beginp);
                     addJumpAfterKill(killStmtp, jumpTargetp);
                 }
-            } else {
-                AstVar* const processQueuep
+            } இல்லையெனில் {
+                AstVar* மாறிலி processQueuep
                     = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
-                insertKillStmtp(nodep, processQueuep);
+                செருகு_Kill_Stmtp(nodep, processQueuep);
             }
-        } else {
+        } இல்லையெனில் {
             nodep->v3fatalSrc("Disable linked with node of unhandled type "
                               << targetp->prettyTypeName());
         }
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
-    void visit(AstFinish* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+    வெறுமை visit(AstFinish* nodep) override {
+        எனில் (nodep->user1SetOnce()) திரும்பு;  // Process once
         iterateChildren(nodep);
-        if (m_inFork) {
-            nodep->replaceWith(new AstFinishFork{nodep->fileline()});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (m_loopp) {
+        எனில் (m_inFork) {
+            nodep->replaceWith(புதிய AstFinishFork{nodep->fileline()});
+            VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
+        } இல்லையெனில் எனில் (m_loopp) {
             // Jump to the end of the loop (post-finish)
-            AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
-            nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
+            AstJumpBlock* மாறிலி blockp = getJumpBlock(m_loopp, பொய்);
+            nodep->addNextHere(புதிய AstJumpGo{nodep->fileline(), blockp});
         }
     }
-    void visit(AstVarRef* nodep) override {
-        if (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
+    வெறுமை visit(AstVarRef* nodep) override {
+        எனில் (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(உண்மை);
     }
-    void visit(AstConst*) override {}
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(AstConst*) override {}
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit LinkJumpVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~LinkJumpVisitor() override = default;
+    ~LinkJumpVisitor() override = இயல்பு;
 };
 
 //######################################################################
 // Task class functions
 
-void V3LinkJump::linkJump(AstNetlist* nodep) {
+வெறுமை V3LinkJump::linkJump(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LinkJumpVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("linkjump", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("linkjump", 0, dump_மரம்_Either_Level() >= 3);
 }

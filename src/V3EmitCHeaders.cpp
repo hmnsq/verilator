@@ -14,185 +14,185 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#அந்தர்பாவ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
-#include "V3MemberMap.h"
-#include "V3UniqueNames.h"
+#அந்தர்பாவ "V3EmitC.h"
+#அந்தர்பாவ "V3EmitCBase.h"
+#அந்தர்பாவ "V3File.h"
+#அந்தர்பாவ "V3MemberMap.h"
+#அந்தர்பாவ "V3UniqueNames.h"
 
-#include <algorithm>
-#include <cstdint>
-#include <set>
-#include <string>
-#include <vector>
+#அந்தர்பாவ <algorithm>
+#அந்தர்பாவ <cstdint>
+#அந்தர்பாவ <set>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Internal EmitC implementation
 
-class EmitCHeader final : public EmitCBaseVisitorConst {
+வகுப்பு EmitCHeader final : பொது EmitCBaseVisitorConst {
     V3UniqueNames m_names;
     VMemberMap m_memberMap;
     // METHODS
 
-    class CoverCountVisitor final : public VNVisitorConst {
-        int m_bins = 0;  // Running total of coverage bins counted so far
+    வகுப்பு Cover_மொத்தம்_Visitor final : பொது VNVisitorConst {
+        முழு m_bins = 0;  // Running total of coverage bins counted so far
 
-        void visit(AstNodeCoverDecl* nodep) override {
+        வெறுமை visit(Ast_முனை_Cover_Decl* nodep) override {
             // Each module class owns the counters for declarations it emits;
             // duplicate no-inline instances need separate arrays for
             // forcePerInstance reporting.
-            if (!nodep->dataDeclNullp()) m_bins += nodep->size();
+            எனில் (!nodep->dataDeclNullp()) m_bins += nodep->size();
         }
-        void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+        வெறுமை visit(Ast_முனை* nodep) override { iterateChildrenConst(nodep); }
 
-    public:
-        explicit CoverCountVisitor(const AstNodeModule* modp) {
-            iterateConst(const_cast<AstNodeModule*>(modp));
+    பொது:
+        explicit Cover_மொத்தம்_Visitor(மாறிலி Ast_முனை_Module* modp) {
+            iterateConst(const_cast<Ast_முனை_Module*>(modp));
         }
-        int bins() const { return m_bins; }
+        முழு bins() மாறிலி { திரும்பு m_bins; }
     };
 
-    void decorateFirst(bool& first, const string& str) {
-        if (first) {
+    வெறுமை decorateFirst(தருக்க& first, மாறிலி string& str) {
+        எனில் (first) {
             putsDecoration(nullptr, str);
-            first = false;
+            first = பொய்;
         }
     }
-    void emitCellDecls(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
-                if (cellp->modp()->isConstPool()) continue;  // Special emit rules
+    வெறுமை emitCellDecls(மாறிலி Ast_முனை_Module* modp) {
+        தருக்க first = உண்மை;
+        க்கு (மாறிலி Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            எனில் (மாறிலி AstCell* மாறிலி cellp = VN_CAST(nodep, Cell)) {
+                எனில் (cellp->modp()->isConstPool()) தொடர்;  // Special emit rules
                 decorateFirst(first, "// CELLS\n");
                 putns(cellp, EmitCUtil::prefixNameProtect(cellp->modp()) + "* "
                                  + cellp->nameProtect() + ";\n");
             }
         }
     }
-    void emitDesignVarDecls(const AstNodeModule* modp) {
+    வெறுமை emitDesignVarDecls(மாறிலி Ast_முனை_Module* modp) {
         // V3VariableOrder puts all variables at the front of the list: top level ports, then
         // trivially constructible variables, then the not trivially constructible ones, then
         // those that are not model state
-        const AstVar* portp = nullptr;
-        const AstVar* trivp = nullptr;
-        const AstVar* nontp = nullptr;
+        மாறிலி AstVar* portp = nullptr;
+        மாறிலி AstVar* trivp = nullptr;
+        மாறிலி AstVar* nontp = nullptr;
         size_t nPort = 0;
         size_t nTriv = 0;
         size_t nNont = 0;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstVar* const varp = VN_CAST(nodep, Var);
-            if (!varp) break;
-            if (!varp->isModelState()) {
+        க்கு (மாறிலி Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            மாறிலி AstVar* மாறிலி varp = VN_CAST(nodep, Var);
+            எனில் (!varp) நிறுத்து;
+            எனில் (!varp->isModelState()) {
                 // Cache line alignment is only effective on emitted fields
-                UASSERT_OBJ(!varp->mtaskCacheLineAlign(), varp, "Aligned non-field");
-            } else if (varp->isPrimaryIO()) {
-                if (!portp) portp = varp;
+                UASSERT_OBJ(!varp->mtask_Cache_வரி_Align(), varp, "Aligned non-field");
+            } இல்லையெனில் எனில் (varp->isPrimaryIO()) {
+                எனில் (!portp) portp = varp;
                 ++nPort;
-            } else if (varp->isTriviallyConstructible()) {
-                if (!trivp) trivp = varp;
+            } இல்லையெனில் எனில் (varp->isTriviallyConstructible()) {
+                எனில் (!trivp) trivp = varp;
                 ++nTriv;
-            } else {
-                if (!nontp) nontp = varp;
+            } இல்லையெனில் {
+                எனில் (!nontp) nontp = varp;
                 ++nNont;
             }
         }
 
-        const auto emitAndStep = [&](const AstVar*& varpr) {
+        மாறிலி auto emitAndStep = [&](மாறிலி AstVar*& varpr) {
             emitVarDecl(varpr);
             varpr = VN_CAST(varpr->nextp(), Var);
         };
 
         // Emit primary ports
-        if (nPort) {
+        எனில் (nPort) {
             putsDecoration(nullptr, "\n// TOP LEVEL PORTS\n");
             // In anonymous union to prevent the C++ compiler from generating
             // constructor/destructor calls
             puts("union {\nstruct {\n");
-            for (size_t i = 0; i < nPort; ++i) emitAndStep(portp);
+            க்கு (size_t i = 0; i < nPort; ++i) emitAndStep(portp);
             puts("} __VprimaryPorts;\n};\n");
         }
 
         // Emit trivially constructible variables
-        if (nTriv) {
+        எனில் (nTriv) {
             putsDecoration(nullptr, "\n// TRIVIALLY CONSTRUCTIBLE STATE\n");
-            if (v3Global.opt.compLimitMembers() == 0) {
+            எனில் (v3Global.opt.compLimitMembers() == 0) {
                 // Anonymous structs disabled, so just emit them directly
-                for (size_t i = 0; i < nTriv; ++i) emitAndStep(trivp);
-            } else {
-                const size_t lim = v3Global.opt.compLimitMembers();
+                க்கு (size_t i = 0; i < nTriv; ++i) emitAndStep(trivp);
+            } இல்லையெனில் {
+                மாறிலி size_t lim = v3Global.opt.compLimitMembers();
                 size_t anonL3s = 1;
                 size_t anonL2s = 1;
                 size_t anonL1s = 1;
-                if (nTriv > (lim * lim * lim)) {
+                எனில் (nTriv > (lim * lim * lim)) {
                     anonL3s = (nTriv + (lim * lim * lim) - 1) / (lim * lim * lim);
                     anonL2s = lim;
                     anonL1s = lim;
-                } else if (nTriv > (lim * lim)) {
+                } இல்லையெனில் எனில் (nTriv > (lim * lim)) {
                     anonL2s = (nTriv + (lim * lim) - 1) / (lim * lim);
                     anonL1s = lim;
-                } else if (nTriv > lim) {
+                } இல்லையெனில் எனில் (nTriv > lim) {
                     anonL1s = (nTriv + lim - 1) / lim;
                 }
-                if (anonL1s != 1) {
+                எனில் (anonL1s != 1) {
                     putsDecoration(
                         nullptr,
                         "// Anonymous structures to workaround compiler member-count bugs\n");
                 }
                 size_t nEmitted = 0;
-                for (size_t l3 = 0; l3 < anonL3s && nEmitted < nTriv; ++l3) {
-                    if (anonL3s != 1) puts("struct {\n");
-                    for (size_t l2 = 0; l2 < anonL2s && nEmitted < nTriv; ++l2) {
-                        if (anonL2s != 1) puts("struct {\n");
-                        for (size_t l1 = 0; l1 < anonL1s && nEmitted < nTriv; ++l1) {
-                            if (anonL1s != 1) puts("struct {\n");
-                            for (size_t l0 = 0; l0 < lim && nEmitted < nTriv; ++l0, ++nEmitted) {
+                க்கு (size_t l3 = 0; l3 < anonL3s && nEmitted < nTriv; ++l3) {
+                    எனில் (anonL3s != 1) puts("struct {\n");
+                    க்கு (size_t l2 = 0; l2 < anonL2s && nEmitted < nTriv; ++l2) {
+                        எனில் (anonL2s != 1) puts("struct {\n");
+                        க்கு (size_t l1 = 0; l1 < anonL1s && nEmitted < nTriv; ++l1) {
+                            எனில் (anonL1s != 1) puts("struct {\n");
+                            க்கு (size_t l0 = 0; l0 < lim && nEmitted < nTriv; ++l0, ++nEmitted) {
                                 emitAndStep(trivp);
                             }
-                            if (anonL1s != 1) puts("};\n");
+                            எனில் (anonL1s != 1) puts("};\n");
                         }
-                        if (anonL2s != 1) puts("};\n");
+                        எனில் (anonL2s != 1) puts("};\n");
                     }
-                    if (anonL3s != 1) puts("};\n");
+                    எனில் (anonL3s != 1) puts("};\n");
                 }
                 UASSERT_OBJ(nEmitted == nTriv, modp, "Not all variables emitted");
             }
         }
 
         // Emit not trivially constructible variables
-        if (nNont) {
+        எனில் (nNont) {
             putsDecoration(nullptr, "\n// NOT TRIVIALLY CONSTRUCTIBLE STATE\n");
             // Classes use real constructors
-            if (VN_IS(modp, Class)) {
-                for (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
-                return;
+            எனில் (VN_IS(modp, Class)) {
+                க்கு (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
+                திரும்பு;
             }
             // Output under an anonymous union to prevent the C++ compiler from generating
             // constructor/destructor calls for them. They are managed explicitly in ctor/dtor.
             // While 'union { singleVar; }' for each variable would be simpler, it blows up
             // clang's compile time when using pre-compiled headers, joy.
             puts("union {\nstruct {\n");
-            for (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
+            க்கு (size_t i = 0; i < nNont; ++i) emitAndStep(nontp);
             puts("} __Vnontrivs;\n};\n");
         }
     }
-    void emitInternalVarDecls(const AstNodeModule* modp) {
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            if (classp->needRNG()) {
+    வெறுமை emitInternalVarDecls(மாறிலி Ast_முனை_Module* modp) {
+        எனில் (மாறிலி AstClass* மாறிலி classp = VN_CAST(modp, Class)) {
+            எனில் (classp->needRNG()) {
                 putsDecoration(nullptr, "\n// INTERNAL VARIABLES\n");
                 puts("VlRNGReseeds __Vm_rng;\n");
             }
-        } else {  // not class
+        } இல்லையெனில் {  // not class
             putsDecoration(nullptr, "\n// INTERNAL VARIABLES\n");
             puts(EmitCUtil::symClassName() + "* vlSymsp;\n");
             puts("const char* vlNamep;\n");
             // Allocate object-local coverage counters only on modules that
             // contain emitted coverage declarations.
-            const int coverBins = CoverCountVisitor{modp}.bins();
-            if (coverBins) {
+            மாறிலி முழு coverBins = Cover_மொத்தம்_Visitor{modp}.bins();
+            எனில் (coverBins) {
                 puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
                 puts(" __Vcoverage[");
                 puts(std::to_string(coverBins));
@@ -200,49 +200,49 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitParamDecls(const AstNodeModule* modp) {
-        bool first = true;
-        for (AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isParam()) {
+    வெறுமை emitParamDecls(மாறிலி Ast_முனை_Module* modp) {
+        தருக்க first = உண்மை;
+        க்கு (Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(nodep, Var)) {
+                எனில் (varp->isParam()) {
                     decorateFirst(first, "\n// PARAMETERS\n");
                     putns(varp, "static const ");
-                    puts(varp->dtypep()->cType(varp->nameProtect(), false, false));
+                    puts(varp->dtypep()->cType(varp->nameProtect(), பொய், பொய்));
                     puts(";\n");
                 }
             }
         }
     }
-    void emitCtorDtorDecls(const AstNodeModule* modp) {
+    வெறுமை emitCtorDtorDecls(மாறிலி Ast_முனை_Module* modp) {
         // Classes use CFuncs with isConstructor/isDestructor
-        if (VN_IS(modp, Class)) return;
+        எனில் (VN_IS(modp, Class)) திரும்பு;
 
         // Proper modules use loose split ctor/dtor and are not copyable/movable
-        const std::string name = EmitCUtil::prefixNameProtect(modp);
+        மாறிலி std::string name = EmitCUtil::prefixNameProtect(modp);
         putsDecoration(nullptr, "\n// CONSTRUCTORS\n");
         putns(modp, name + "(" + EmitCUtil::symClassName() + "* symsp, const char* namep);\n");
         putns(modp, "~" + name + "();\n");
         putns(modp, "VL_UNCOPYABLE(" + name + ");\n");
         putns(modp, "VL_UNMOVABLE(" + name + ");\n");
     }
-    void emitInternalMethodDecls(const AstNodeModule* modp) {
-        bool first = true;
-        const string section = "\n// INTERNAL METHODS\n";
+    வெறுமை emitInternalMethodDecls(மாறிலி Ast_முனை_Module* modp) {
+        தருக்க first = உண்மை;
+        மாறிலி string section = "\n// INTERNAL METHODS\n";
 
-        if (!VN_IS(modp, Class)) {
+        எனில் (!VN_IS(modp, Class)) {
             decorateFirst(first, section);
-            if (v3Global.opt.coverage()) {
+            எனில் (v3Global.opt.coverage()) {
                 puts("void " + protect("__Vconfigure") + "(bool first);\n");
             }
-        } else {
+        } இல்லையெனில் {
             decorateFirst(first, section);
-            const std::string name = V3OutFormatter::quoteNameControls(
-                VIdProtect::protectWordsIf(modp->prettyName(), v3Global.opt.protectIds()));
+            மாறிலி std::string name = V3OutFormatter::quoteNameControls(
+                VIdProtect::protect_சொற்கள்_If(modp->prettyName(), v3Global.opt.protectIds()));
             // "override", but don't want clang to start checking them:
             puts("virtual const char* typeName() const { return \""s + name + "\"; }\n");
         }
 
-        if (v3Global.opt.coverage() && !VN_IS(modp, Class)) {
+        எனில் (v3Global.opt.coverage() && !VN_IS(modp, Class)) {
             decorateFirst(first, section);
             puts("void __vlCoverInsert(");
             puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
@@ -254,7 +254,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
                  "fsmTagp);\n");
         }
 
-        if (v3Global.opt.coverageToggle() && !VN_IS(modp, Class)) {
+        எனில் (v3Global.opt.coverageToggle() && !VN_IS(modp, Class)) {
             decorateFirst(first, section);
             puts("void __vlCoverToggleInsert(int begin, int end, bool ranged, ");
             puts(v3Global.opt.threads() > 1 ? "std::atomic<uint32_t>" : "uint32_t");
@@ -263,49 +263,49 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             puts("const char* hierp, const char* pagep, const char* commentp);\n");
         }
 
-        if (v3Global.opt.savable()) {
+        எனில் (v3Global.opt.savable()) {
             decorateFirst(first, section);
             puts("void " + protect("__Vserialize") + "(VerilatedSerialize& os);\n");
             puts("void " + protect("__Vdeserialize") + "(VerilatedDeserialize& os);\n");
         }
 
         // Polymorphic clone for concrete (non-abstract, non-interface) classes
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            if (!classp->isInterfaceClass() && !classp->isVirtual()) {
+        எனில் (மாறிலி AstClass* மாறிலி classp = VN_CAST(modp, Class)) {
+            எனில் (!classp->isInterfaceClass() && !classp->isVirtual()) {
                 decorateFirst(first, section);
-                using EmbeddedCovergroupVar = std::pair<const AstClass*, const AstVar*>;
+                using EmbeddedCovergroupVar = std::pair<மாறிலி AstClass*, மாறிலி AstVar*>;
                 std::vector<EmbeddedCovergroupVar> embeddedCovergroupVars;
-                const auto hasEnclosingBackPointer = [](const AstClass* covergroupp) {
-                    return covergroupp->exists([](const AstVar* const varp) {
-                        const AstClassRefDType* const refp
+                மாறிலி auto hasEnclosingBackPointer = [](மாறிலி AstClass* covergroupp) {
+                    திரும்பு covergroupp->exists([](மாறிலி AstVar* மாறிலி varp) {
+                        மாறிலி AstClassRefDType* மாறிலி refp
                             = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                        return refp && refp->rawPointer();
+                        திரும்பு refp && refp->rawPointer();
                     });
                 };
                 const_cast<AstClass*>(classp)->foreachMember(
-                    [&](AstClass* const memberClassp, AstVar* const varp) {
-                        const AstClassRefDType* const refp
+                    [&](AstClass* மாறிலி memberClassp, AstVar* மாறிலி varp) {
+                        மாறிலி AstClassRefDType* மாறிலி refp
                             = VN_CAST(varp->dtypep()->skipRefp(), ClassRefDType);
-                        if (refp && refp->classp()->isCovergroup()
+                        எனில் (refp && refp->classp()->isCovergroup()
                             && hasEnclosingBackPointer(refp->classp())) {
                             embeddedCovergroupVars.emplace_back(memberClassp, varp);
                         }
                     });
-                const string className = EmitCUtil::prefixNameProtect(classp);
-                if (embeddedCovergroupVars.empty() && !classp->hasRandVarsUpdate()) {
+                மாறிலி string className = EmitCUtil::prefixNameProtect(classp);
+                எனில் (embeddedCovergroupVars.empty() && !classp->hasRandVarsUpdate()) {
                     putns(classp,
                           "VlClass* clone() const { return new " + className + "(*this); }\n");
-                } else {
+                } இல்லையெனில் {
                     putns(classp, "VlClass* clone() const { " + className + "* const clonep = new "
                                       + className + "(*this); ");
-                    if (classp->hasRandVarsUpdate()) {
-                        const string updateName = "__VnoInFunc___VupdateRandVars";
-                        AstCFunc* const updatep
+                    எனில் (classp->hasRandVarsUpdate()) {
+                        மாறிலி string updateName = "__VnoInFunc___VupdateRandVars";
+                        AstCFunc* மாறிலி updatep
                             = VN_AS(m_memberMap.findMember(classp, updateName), CFunc);
                         UASSERT_OBJ(updatep, classp, "Missing updateRandVars method");
                         puts("clonep->" + updatep->nameProtect() + "();\n");
                     }
-                    for (const EmbeddedCovergroupVar& item : embeddedCovergroupVars) {
+                    க்கு (மாறிலி EmbeddedCovergroupVar& item : embeddedCovergroupVars) {
                         puts("clonep->" + EmitCUtil::prefixNameProtect(item.first)
                              + "::" + item.second->nameProtect() + " = VlNull{}; ");
                     }
@@ -314,103 +314,103 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             }
         }
     }
-    void emitEnums(const AstNodeModule* modp) {
-        bool first = true;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
-            if (!tdefp) continue;
-            if (!tdefp->attrPublic()) continue;
-            const AstEnumDType* const edtypep
+    வெறுமை emitEnums(மாறிலி Ast_முனை_Module* modp) {
+        தருக்க first = உண்மை;
+        க்கு (மாறிலி Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            மாறிலி AstTypedef* மாறிலி tdefp = VN_CAST(nodep, Typedef);
+            எனில் (!tdefp) தொடர்;
+            எனில் (!tdefp->attrPublic()) தொடர்;
+            மாறிலி AstEnumDType* மாறிலி edtypep
                 = VN_CAST(tdefp->dtypep()->skipRefToEnump(), EnumDType);
-            if (!edtypep) continue;
+            எனில் (!edtypep) தொடர்;
             decorateFirst(first, "\n// ENUMS (that were declared public)\n");
-            if (edtypep->width() > 64) {
+            எனில் (edtypep->width() > 64) {
                 putsDecoration(tdefp,
                                "// enum " + tdefp->nameProtect() + " ignored: Too wide for C++\n");
-            } else {
+            } இல்லையெனில் {
                 putns(tdefp, "enum " + tdefp->name() + " {\n");
-                for (const AstEnumItem* itemp = edtypep->itemsp(); itemp;
+                க்கு (மாறிலி AstEnumItem* itemp = edtypep->itemsp(); itemp;
                      itemp = VN_AS(itemp->nextp(), EnumItem)) {
-                    if (const AstConst* const constp = VN_CAST(itemp->valuep(), Const)) {
-                        if (constp->num().isFourState()) {
+                    எனில் (மாறிலி AstConst* மாறிலி constp = VN_CAST(itemp->valuep(), Const)) {
+                        எனில் (constp->இலக்கம்().isFourState()) {
                             putns(itemp, "// " + itemp->nameProtect() + " is four-state\n");
-                            continue;
+                            தொடர்;
                         }
                     }
                     putns(itemp, itemp->nameProtect());
                     puts(" = ");
-                    putns(itemp, VN_AS(itemp->valuep(), Const)->num().emitC());
-                    if (VN_IS(itemp->nextp(), EnumItem)) puts(",");
+                    putns(itemp, VN_AS(itemp->valuep(), Const)->இலக்கம்().emitC());
+                    எனில் (VN_IS(itemp->nextp(), EnumItem)) puts(",");
                     puts("\n");
                 }
                 puts("};\n");
             }
         }
     }
-    void emitStructDecl(const AstNodeModule* modp, AstNodeUOrStructDType* sdtypep,
-                        std::set<AstNodeUOrStructDType*>& emitted) {
-        if (emitted.count(sdtypep) > 0) return;
-        emitted.insert(sdtypep);
-        for (AstMemberDType* itemp = sdtypep->membersp(); itemp;
+    வெறுமை emitStructDecl(மாறிலி Ast_முனை_Module* modp, Ast_முனை_UOr_Struct_DType* sdtypep,
+                        std::set<Ast_முனை_UOr_Struct_DType*>& emitted) {
+        எனில் (emitted.மொத்தம்(sdtypep) > 0) திரும்பு;
+        emitted.செருகு(sdtypep);
+        க்கு (AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
-            if (subp && (!subp->packed() || sdtypep->packed())) {
+            Ast_முனை_UOr_Struct_DType* மாறிலி subp = itemp->getChildStructp();
+            எனில் (subp && (!subp->packed() || sdtypep->packed())) {
                 // Recurse if it belongs to the current module
-                if (subp->classOrPackagep() == modp) {
+                எனில் (subp->classOrPackagep() == modp) {
                     emitStructDecl(modp, subp, emitted);
                     puts("\n");
                 }
             }
         }
-        if (sdtypep->packed()) {
+        எனில் (sdtypep->packed()) {
             emitPackedUOrSBody(sdtypep);
-        } else {
+        } இல்லையெனில் {
             emitUnpackedUOrSBody(sdtypep);
         }
     }
-    enum class AttributeType : uint8_t { WIDTH, DIMENSION };
+    எண்ணிக்கை வகுப்பு AttributeType : uint8_t { WIDTH, DIMENSION };
     // Get member attribute based on type
-    int getNodeAttribute(const AstMemberDType* itemp, AttributeType type) {
-        const bool isArrayType = itemp->dtypep()->isNonPackedArray();
-        switch (type) {
-        case AttributeType::WIDTH: {
-            if (isArrayType) {
+    முழு get_முனை_Attribute(மாறிலி AstMemberDType* itemp, AttributeType type) {
+        மாறிலி தருக்க isArrayType = itemp->dtypep()->isNonPackedArray();
+        தேர்வு (type) {
+        நிலை AttributeType::WIDTH: {
+            எனில் (isArrayType) {
                 // For arrays, get innermost element width
-                const AstNodeDType* dtype = itemp->dtypep();
-                while (dtype->subDTypep()) dtype = dtype->subDTypep();
-                return dtype->width();
+                மாறிலி Ast_முனை_DType* dtype = itemp->dtypep();
+                போது (dtype->subDTypep()) dtype = dtype->subDTypep();
+                திரும்பு dtype->width();
             }
-            return itemp->width();
+            திரும்பு itemp->width();
         }
-        case AttributeType::DIMENSION: {
+        நிலை AttributeType::DIMENSION: {
             // Return array dimension or 0 for non-arrays
-            return isArrayType ? itemp->dtypep()->dimensions(true).second : 0;
+            திரும்பு isArrayType ? itemp->dtypep()->dimensions(உண்மை).second : 0;
         }
-        default: {
-            return 0;
+        இயல்பு: {
+            திரும்பு 0;
         }
         }
     }
     template <AttributeType T>
-    void emitMemberVector(const AstNodeUOrStructDType* sdtypep) {
+    வெறுமை emitMemberVector(மாறிலி Ast_முனை_UOr_Struct_DType* sdtypep) {
         puts("return {");
-        bool needComma = false;
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        தருக்க needComma = பொய்;
+        க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (!itemp->isConstrainedRand()) continue;
+            எனில் (!itemp->isConstrainedRand()) தொடர்;
             // Comma handling: add before element except first
-            if (needComma) puts(",\n");
-            putns(itemp, std::to_string(getNodeAttribute(itemp, T)));
-            needComma = true;
+            எனில் (needComma) puts(",\n");
+            putns(itemp, std::to_string(get_முனை_Attribute(itemp, T)));
+            needComma = உண்மை;
         }
         puts("};\n}\n");
     }
-    void emitUnpackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    வெறுமை emitUnpackedUOrSBody(Ast_முனை_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
         puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), false, false));
+            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), பொய், பொய்));
             puts(";\n");
         }
 
@@ -420,16 +420,16 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         // - memberIndices: Retrieve member indices
         // - memberWidth: Retrieve member width
         // - memberDimension: Retrieve member dimension
-        if (sdtypep->isConstrainedRand()) {
-            bool needComma = false;
+        எனில் (sdtypep->isConstrainedRand()) {
+            தருக்க needComma = பொய்;
             putns(sdtypep, "\nstd::vector<std::string> memberNames(void) const {\n");
             puts("return {");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
+                எனில் (!itemp->isConstrainedRand()) தொடர்;
+                எனில் (needComma) puts(",\n");
                 putns(itemp, "\"" + itemp->shortName() + "\"");
-                needComma = true;
+                needComma = உண்மை;
             }
             puts("};\n}\n");
 
@@ -439,37 +439,37 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
             putns(sdtypep, "\nstd::vector<int> memberDimension(void) const {\n");
             emitMemberVector<AttributeType::DIMENSION>(sdtypep);
 
-            needComma = false;
+            needComma = பொய்;
             putns(sdtypep, "\nauto memberIndices(void) const {\n");
             puts("return std::index_sequence_for<");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
-                putns(itemp, itemp->dtypep()->cType("", false, false));
-                needComma = true;
+                எனில் (!itemp->isConstrainedRand()) தொடர்;
+                எனில் (needComma) puts(",\n");
+                putns(itemp, itemp->dtypep()->cType("", பொய், பொய்));
+                needComma = உண்மை;
             }
             puts(">{};\n}\n");
 
-            needComma = false;
+            needComma = பொய்;
             putns(sdtypep, "\ntemplate <typename T>");
             putns(sdtypep, "\nauto getMembers(T& obj) {\n");
             puts("return std::tie(");
-            for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+            க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
                  itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                if (!itemp->isConstrainedRand()) continue;
-                if (needComma) puts(",\n");
+                எனில் (!itemp->isConstrainedRand()) தொடர்;
+                எனில் (needComma) puts(",\n");
                 putns(itemp, "obj." + itemp->nameProtect());
-                needComma = true;
+                needComma = உண்மை;
             }
             puts(");\n}\n");
         }
         putns(sdtypep, "\nbool operator==(const " + EmitCUtil::prefixNameProtect(sdtypep)
                            + "& rhs) const {\n");
         puts("return ");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            if (itemp != sdtypep->membersp()) puts("\n    && ");
+            எனில் (itemp != sdtypep->membersp()) puts("\n    && ");
             putns(itemp, itemp->nameProtect() + " == " + "rhs." + itemp->nameProtect());
         }
         puts(";\n");
@@ -479,7 +479,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         puts("return !(*this == rhs);\n}\n");
         putns(sdtypep, "\nbool operator<(const " + EmitCUtil::prefixNameProtect(sdtypep)
                            + "& rhs) const {\n");
-        for (const AstMemberDType* itemp = sdtypep->membersp(); itemp;
+        க்கு (மாறிலி AstMemberDType* itemp = sdtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
             putns(itemp, "if (" + itemp->nameProtect() + " < rhs." + itemp->nameProtect()
                              + ") return true;\n");
@@ -496,17 +496,17 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
 
     // getfunc: VL_ASSIGNSEL_XX(rbits, obits, off, lhsdata, rhsdata);
     // !getfunc: VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, off);
-    void emitVlAssign(const AstNodeDType* const lhstype, const AstNodeDType* rhstype,
-                      const std::string& off, const std::string& lhsdata,
-                      const std::string& rhsdata, bool getfunc) {
+    வெறுமை emitVlAssign(மாறிலி Ast_முனை_DType* மாறிலி lhstype, மாறிலி Ast_முனை_DType* rhstype,
+                      மாறிலி std::string& off, மாறிலி std::string& lhsdata,
+                      மாறிலி std::string& rhsdata, தருக்க getfunc) {
         puts(getfunc ? "VL_ASSIGNSEL_" : "VL_SELASSIGN_");
         puts(lhstype->charIQWN());
         puts(rhstype->charIQWN());
         puts("(" + std::to_string(lhstype->width()) + ", ");  // LHS width
-        if (getfunc) {
+        எனில் (getfunc) {
             puts(std::to_string(rhstype->width()) + ", ");  // Number of copy bits
             puts(off + ", ");  // LHS offset
-        } else {
+        } இல்லையெனில் {
             // Number of copy bits. Use widthTototalBytes to
             // make VL_SELASSIGN_XX clear upper unused bits for us.
             // puts(std::to_string(lhstype->width()) + ", ");
@@ -514,37 +514,37 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         }
         puts(lhsdata + ", ");  // LHS data
         puts(rhsdata);  // RHS data
-        if (!getfunc) {
+        எனில் (!getfunc) {
             puts(", " + off);  // RHS offset
         }
         puts(");\n");
     }
 
     // `retOrArg` should be prefixed by `&` or suffixed by `.data()` depending on its type
-    void emitPackedMember(const AstNodeDType* parentDtypep, const AstNodeDType* dtypep,
-                          const std::string& fieldname, const std::string& offset, bool getfunc,
-                          const std::string& retOrArg) {
+    வெறுமை emitPackedMember(மாறிலி Ast_முனை_DType* parentDtypep, மாறிலி Ast_முனை_DType* dtypep,
+                          மாறிலி std::string& fieldname, மாறிலி std::string& offset, தருக்க getfunc,
+                          மாறிலி std::string& retOrArg) {
         dtypep = dtypep->skipRefp();
-        if (const auto* adtypep = VN_CAST(dtypep, PackArrayDType)) {
-            const std::string index = m_names.get("__Vi");
+        எனில் (மாறிலி auto* adtypep = VN_CAST(dtypep, PackArrayDType)) {
+            மாறிலி std::string index = m_names.get("__Vi");
             puts("for (int " + index + " = 0; " + index + " < "
                  + std::to_string(adtypep->elementsConst()) + "; ++" + index + ") {\n");
 
-            const std::string offsetInLoop
+            மாறிலி std::string offsetInLoop
                 = offset + " + " + index + " * " + std::to_string(adtypep->subDTypep()->width());
-            const std::string newName = fieldname + "[" + index + "]";
+            மாறிலி std::string newName = fieldname + "[" + index + "]";
             emitPackedMember(parentDtypep, adtypep->subDTypep(), newName, offsetInLoop, getfunc,
                              retOrArg);
             puts("}\n");
-        } else if (VN_IS(dtypep, NodeUOrStructDType)) {
-            const std::string tmp = m_names.get("__Vtmp");
-            if (getfunc) {  // Emit `get` func;
+        } இல்லையெனில் எனில் (VN_IS(dtypep, முனை_UOr_Struct_DType)) {
+            மாறிலி std::string tmp = m_names.get("__Vtmp");
+            எனில் (getfunc) {  // Emit `get` func;
                 // auto __tmp = field.get();
                 puts("auto " + tmp + " = " + fieldname + ".get();\n");
                 // VL_ASSIGNSEL_XX(rbits, obits, lsb, lhsdata, rhsdata);
                 emitVlAssign(parentDtypep, dtypep, offset, retOrArg, tmp, getfunc);
-            } else {  // Emit `set` func
-                const std::string tmptype = AstCDType::typeToHold(dtypep->width());
+            } இல்லையெனில் {  // Emit `set` func
+                மாறிலி std::string tmptype = AstCDType::typeToHold(dtypep->width());
                 // type tmp;
                 puts(tmptype + " " + tmp + ";\n");
                 // VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, roffset);
@@ -552,65 +552,65 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
                 // field.set(__tmp);
                 puts(fieldname + ".set(" + tmp + ");\n");
             }
-        } else {
+        } இல்லையெனில் {
             UASSERT_OBJ(VN_IS(dtypep, EnumDType) || VN_IS(dtypep, BasicDType), dtypep,
                         "Unsupported type in packed struct or union");
-            if (getfunc) {  // Emit `get` func;
+            எனில் (getfunc) {  // Emit `get` func;
                 // VL_ASSIGNSEL_XX(rbits, obits, lsb, lhsdata, rhsdata);
                 emitVlAssign(parentDtypep, dtypep, offset, retOrArg, fieldname, getfunc);
-            } else {  // Emit `set` func
+            } இல்லையெனில் {  // Emit `set` func
                 // VL_SELASSIGN_XX(rbits, obits, lhsdata, rhsdata, roffset);
                 emitVlAssign(dtypep, parentDtypep, offset, fieldname, retOrArg, getfunc);
             }
         }
     }
-    void emitPackedUOrSBody(AstNodeUOrStructDType* sdtypep) {
+    வெறுமை emitPackedUOrSBody(Ast_முனை_UOr_Struct_DType* sdtypep) {
         putns(sdtypep, sdtypep->verilogKwd());  // "struct"/"union"
         puts(" " + EmitCUtil::prefixNameProtect(sdtypep) + " {\n");
 
         AstMemberDType* itemp;
         AstMemberDType* lastItemp;
-        const AstMemberDType* witemp = nullptr;
+        மாறிலி AstMemberDType* witemp = nullptr;
         // LSB is first field in C, so loop backwards
-        for (lastItemp = sdtypep->membersp(); lastItemp && lastItemp->nextp();
+        க்கு (lastItemp = sdtypep->membersp(); lastItemp && lastItemp->nextp();
              lastItemp = VN_AS(lastItemp->nextp(), MemberDType)) {
-            if (lastItemp->width() == sdtypep->width()) witemp = lastItemp;
+            எனில் (lastItemp->width() == sdtypep->width()) witemp = lastItemp;
         }
-        for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
-            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), false, false, true));
+        க்கு (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+            putns(itemp, itemp->dtypep()->cType(itemp->nameProtect(), பொய், பொய், உண்மை));
             puts(";\n");
         }
 
-        const std::string retArgName = m_names.get("__v");
-        const std::string retArgType = AstCDType::typeToHold(sdtypep->width());
+        மாறிலி std::string retArgName = m_names.get("__v");
+        மாறிலி std::string retArgType = AstCDType::typeToHold(sdtypep->width());
 
         // Emit `get` member function
         puts(retArgType + " get() const {\n");
         puts(retArgType + " " + retArgName + ";\n");
-        if (VN_IS(sdtypep, StructDType)) {
-            for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+        எனில் (VN_IS(sdtypep, StructDType)) {
+            க்கு (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
                 emitPackedMember(sdtypep, itemp->dtypep(), itemp->nameProtect(),
-                                 std::to_string(itemp->lsb()), /*getfunc=*/true, retArgName);
+                                 std::to_string(itemp->lsb()), /*getfunc=*/உண்மை, retArgName);
             }
-        } else {
+        } இல்லையெனில் {
             // We only need to fill the widest field of union
             emitPackedMember(sdtypep, witemp->dtypep(), witemp->nameProtect(),
-                             std::to_string(witemp->lsb()), /*getfunc=*/true, retArgName);
+                             std::to_string(witemp->lsb()), /*getfunc=*/உண்மை, retArgName);
         }
         puts("return " + retArgName + ";\n");
         puts("}\n");
 
         // Emit `set` member function
         puts("void set(const " + retArgType + "& " + retArgName + ") {\n");
-        if (VN_IS(sdtypep, StructDType)) {
-            for (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
+        எனில் (VN_IS(sdtypep, StructDType)) {
+            க்கு (itemp = lastItemp; itemp; itemp = VN_CAST(itemp->backp(), MemberDType)) {
                 emitPackedMember(sdtypep, itemp->dtypep(), itemp->nameProtect(),
-                                 std::to_string(itemp->lsb()), /*getfunc=*/false, retArgName);
+                                 std::to_string(itemp->lsb()), /*getfunc=*/பொய், retArgName);
             }
-        } else {
+        } இல்லையெனில் {
             // We only need to fill the widest field of union
             emitPackedMember(sdtypep, witemp->dtypep(), witemp->nameProtect(),
-                             std::to_string(witemp->lsb()), /*getfunc=*/false, retArgName);
+                             std::to_string(witemp->lsb()), /*getfunc=*/பொய், retArgName);
         }
 
         puts("}\n");
@@ -618,52 +618,52 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         puts("};\n");
         m_names.reset();
     }
-    void emitStructs(const AstNodeModule* modp) {
+    வெறுமை emitStructs(மாறிலி Ast_முனை_Module* modp) {
         // Track structs that've been emitted already
-        std::set<AstNodeUOrStructDType*> emitted;
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            const AstTypedef* const tdefp = VN_CAST(nodep, Typedef);
-            if (!tdefp) continue;
-            AstNodeUOrStructDType* const sdtypep
-                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), NodeUOrStructDType);
-            if (!sdtypep) continue;
+        std::set<Ast_முனை_UOr_Struct_DType*> emitted;
+        க்கு (மாறிலி Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            மாறிலி AstTypedef* மாறிலி tdefp = VN_CAST(nodep, Typedef);
+            எனில் (!tdefp) தொடர்;
+            Ast_முனை_UOr_Struct_DType* மாறிலி sdtypep
+                = VN_CAST(tdefp->dtypep()->skipRefToEnump(), முனை_UOr_Struct_DType);
+            எனில் (!sdtypep) தொடர்;
             // V3Inline can copy one module into several parents. Only the module that
             // declares the struct emits it, so C++ sees only one definition.
-            const bool declaredInOtherModule = sdtypep->classOrPackagep() != modp;
-            if (declaredInOtherModule) continue;
+            மாறிலி தருக்க declaredInOtherModule = sdtypep->classOrPackagep() != modp;
+            எனில் (declaredInOtherModule) தொடர்;
             emitStructDecl(modp, sdtypep, emitted);
         }
     }
-    void emitFuncDecls(const AstNodeModule* modp, bool inClassBody) {
-        std::vector<const AstCFunc*> funcsp;
+    வெறுமை emitFuncDecls(மாறிலி Ast_முனை_Module* modp, தருக்க inClassBody) {
+        std::vector<மாறிலி AstCFunc*> funcsp;
 
-        for (const AstNode* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
-            if (const AstCFunc* const funcp = VN_CAST(nodep, CFunc)) {
-                if (funcp->dpiImportPrototype())  // Declared in __Dpi.h
-                    continue;
-                if (funcp->dpiExportDispatcher())  // Declared in __Dpi.h
-                    continue;
-                if (funcp->isMethod() != inClassBody)  // Only methods go inside class
-                    continue;
-                if (funcp->isMethod() && funcp->isLoose())  // Loose methods are declared lazily
-                    continue;
-                funcsp.push_back(funcp);
+        க்கு (மாறிலி Ast_முனை* nodep = modp->stmtsp(); nodep; nodep = nodep->nextp()) {
+            எனில் (மாறிலி AstCFunc* மாறிலி funcp = VN_CAST(nodep, CFunc)) {
+                எனில் (funcp->dpiImportPrototype())  // Declared in __Dpi.h
+                    தொடர்;
+                எனில் (funcp->dpiExportDispatcher())  // Declared in __Dpi.h
+                    தொடர்;
+                எனில் (funcp->isMethod() != inClassBody)  // Only methods go inside class
+                    தொடர்;
+                எனில் (funcp->isMethod() && funcp->isLoose())  // Loose methods are declared lazily
+                    தொடர்;
+                funcsp.தள்ளு_back(funcp);
             }
         }
 
-        std::stable_sort(funcsp.begin(), funcsp.end(), [](const AstNode* ap, const AstNode* bp) {
-            return ap->name() < bp->name();
+        std::stable_sort(funcsp.begin(), funcsp.end(), [](மாறிலி Ast_முனை* ap, மாறிலி Ast_முனை* bp) {
+            திரும்பு ap->name() < bp->name();
         });
 
-        for (const AstCFunc* const funcp : funcsp) {
-            if (inClassBody) ofp()->putsPrivate(funcp->declPrivate());
+        க்கு (மாறிலி AstCFunc* மாறிலி funcp : funcsp) {
+            எனில் (inClassBody) ofp()->putsPrivate(funcp->declPrivate());
             emitCFuncDecl(funcp, modp);
         }
     }
-    void emitAll(const AstNodeModule* modp) {
+    வெறுமை emitAll(மாறிலி Ast_முனை_Module* modp) {
         // Include files required by this AstNodeModule
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
-            for (const AstClassExtends* extp = classp->extendsp(); extp;
+        எனில் (மாறிலி AstClass* மாறிலி classp = VN_CAST(modp, Class)) {
+            க்கு (மாறிலி AstClassExtends* extp = classp->extendsp(); extp;
                  extp = VN_AS(extp->nextp(), ClassExtends)) {
                 putns(extp, "#include \""
                                 + EmitCUtil::prefixNameProtect(extp->classp()->classOrPackagep())
@@ -682,30 +682,30 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         // Open class body {{{
         puts("\n");
         putns(modp, "class ");
-        if (!VN_IS(modp, Class)) puts("alignas(VL_CACHE_LINE_BYTES) ");
+        எனில் (!VN_IS(modp, Class)) puts("alignas(VL_CACHE_LINE_BYTES) ");
         puts(EmitCUtil::prefixNameProtect(modp));
-        if (const AstClass* const classp = VN_CAST(modp, Class)) {
+        எனில் (மாறிலி AstClass* மாறிலி classp = VN_CAST(modp, Class)) {
             puts(" : ");
-            if (classp->extendsp()) {
-                bool needComma = false;
-                for (const AstClassExtends* extp = classp->extendsp(); extp;
+            எனில் (classp->extendsp()) {
+                தருக்க needComma = பொய்;
+                க்கு (மாறிலி AstClassExtends* extp = classp->extendsp(); extp;
                      extp = VN_AS(extp->nextp(), ClassExtends)) {
-                    if (needComma) puts(", ");
+                    எனில் (needComma) puts(", ");
                     // Use virtual only for interfaces for class inheritance
                     // (extends)
                     puts(extp->classp()->useVirtualPublic() ? "virtual public " : "public ");
                     putns(extp, EmitCUtil::prefixNameProtect(extp->classp()));
-                    needComma = true;
+                    needComma = உண்மை;
                 }
-            } else {
+            } இல்லையெனில் {
                 puts("public virtual VlClass");
             }
-        } else {
+        } இல்லையெனில் {
             puts(" final");
         }
         puts(" {\n");
         ofp()->resetPrivate();
-        ofp()->putsPrivate(false);  // public:
+        ofp()->putsPrivate(பொய்);  // public:
 
         // Emit all class body contents
         emitCellDecls(modp);
@@ -715,7 +715,7 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         emitParamDecls(modp);
         emitCtorDtorDecls(modp);
         emitInternalMethodDecls(modp);
-        emitFuncDecls(modp, /* inClassBody: */ true);
+        emitFuncDecls(modp, /* inClassBody: */ உண்மை);
 
         // From `systemc_interface
         emitSystemCSection(modp, VSystemCSectionType::INT);
@@ -726,51 +726,51 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
 
         // Emit out of class function declarations
         puts("\n");
-        emitFuncDecls(modp, /* inClassBody: */ false);
+        emitFuncDecls(modp, /* inClassBody: */ பொய்);
         emitSystemCSection(modp, VSystemCSectionType::HDR_POST);
     }
 
     // VISITORS
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
+    வெறுமை visit(Ast_முனை* nodep) override { nodep->v3fatalSrc("Unused"); }  // LCOV_EXCL_LINE
 
-    explicit EmitCHeader(const AstNodeModule* modp) {
+    explicit EmitCHeader(மாறிலி Ast_முனை_Module* modp) {
         UINFO(5, "  Emitting header for " << EmitCUtil::prefixNameProtect(modp));
 
         // Open output file
         openNewOutputHeaderFile(EmitCUtil::prefixNameProtect(modp), "Design internal header");
-        puts("// See " + EmitCUtil::topClassName() + ".h for the primary calling header\n");
+        puts("// See " + EmitCUtil::உச்சி_Class_Name() + ".h for the primary calling header\n");
 
         ofp()->putsGuard();
 
         // Include files
         puts("\n");
-        ofp()->putsIntTopInclude();
+        ofp()->puts_Int_உச்சி_Include();
         puts("#include \"verilated.h\"\n");
-        if (modp->isTop() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
-        if (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
-        if (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
-        if (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
-        if (v3Global.opt.coverage() || v3Global.useCovergroup())
+        எனில் (modp->is_உச்சி() && optSystemC()) puts("#include \"verilated_sc.h\"\n");
+        எனில் (v3Global.opt.mtasks()) puts("#include \"verilated_threads.h\"\n");
+        எனில் (v3Global.opt.savable()) puts("#include \"verilated_save.h\"\n");
+        எனில் (v3Global.opt.coverage()) puts("#include \"verilated_cov.h\"\n");
+        எனில் (v3Global.opt.coverage() || v3Global.useCovergroup())
             puts("#include \"verilated_covergroup.h\"\n");
-        if (v3Global.usesTiming()) puts("#include \"verilated_timing.h\"\n");
-        if (v3Global.useRandomizeMethods()) puts("#include \"verilated_random.h\"\n");
-        if (v3Global.usesForce()) puts("#include \"verilated_force.h\"\n");
+        எனில் (v3Global.usesTiming()) puts("#include \"verilated_timing.h\"\n");
+        எனில் (v3Global.useRandomizeMethods()) puts("#include \"verilated_random.h\"\n");
+        எனில் (v3Global.usesForce()) puts("#include \"verilated_force.h\"\n");
 
         std::set<string> cuse_set;
-        auto add_to_cuse_set = [&](string s) { cuse_set.insert(s); };
+        auto add_to_cuse_set = [&](string s) { cuse_set.செருகு(s); };
 
         forModCUse(modp, VUseType::INT_FWD_CLASS | VUseType::INT_INCLUDE, add_to_cuse_set);
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        எனில் (மாறிலி AstClassPackage* மாறிலி packagep = VN_CAST(modp, ClassPackage)) {
             forModCUse(packagep->classp(), VUseType::INT_INCLUDE | VUseType::INT_FWD_CLASS,
                        add_to_cuse_set);
         }
 
-        for (const string& s : cuse_set) puts(s);
+        க்கு (மாறிலி string& s : cuse_set) puts(s);
         puts("\n");
 
         emitAll(modp);
 
-        if (const AstClassPackage* const packagep = VN_CAST(modp, ClassPackage)) {
+        எனில் (மாறிலி AstClassPackage* மாறிலி packagep = VN_CAST(modp, ClassPackage)) {
             // Put the non-static class implementation in same h file for speed
             emitAll(packagep->classp());
         }
@@ -780,23 +780,23 @@ class EmitCHeader final : public EmitCBaseVisitorConst {
         // Close output file
         closeOutputFile();
     }
-    ~EmitCHeader() override = default;
+    ~EmitCHeader() override = இயல்பு;
 
-public:
-    static void main(const AstNodeModule* modp) { const EmitCHeader emitCHeader{modp}; }
+பொது:
+    நிலையான வெறுமை முதன்மை(மாறிலி Ast_முனை_Module* modp) { மாறிலி EmitCHeader emitCHeader{modp}; }
 };
 
 //######################################################################
 // EmitC class functions
 
-void V3EmitC::emitcHeaders() {
+வெறுமை V3EmitC::emitcHeaders() {
     UINFO(2, __FUNCTION__ << ":");
 
     // Process each module in turn
-    for (const AstNode* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
-        if (VN_IS(nodep, Class)) continue;  // Declared with the ClassPackage
-        const AstNodeModule* const modp = VN_AS(nodep, NodeModule);
-        if (modp->isConstPool()) continue;  // Emitted by V3EmitCConstPool
-        EmitCHeader::main(modp);
+    க்கு (மாறிலி Ast_முனை* nodep = v3Global.rootp()->modulesp(); nodep; nodep = nodep->nextp()) {
+        எனில் (VN_IS(nodep, Class)) தொடர்;  // Declared with the ClassPackage
+        மாறிலி Ast_முனை_Module* மாறிலி modp = VN_AS(nodep, முனை_Module);
+        எனில் (modp->isConstPool()) தொடர்;  // Emitted by V3EmitCConstPool
+        EmitCHeader::முதன்மை(modp);
     }
 }

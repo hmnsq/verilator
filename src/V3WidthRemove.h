@@ -17,11 +17,11 @@
 #ifndef VERILATOR_V3WIDTHREMOVE_H_
 #define VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
 
 // clang-format off
 #ifndef VERILATOR_V3WIDTH_CPP_
@@ -31,30 +31,30 @@
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class WidthRemoveVisitor final : பொது VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    வெறுமை replaceWithSignedVersion(Ast_முனை* nodep, Ast_முனை* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
+    வெறுமை visit(AstSigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
+    வெறுமை visit(AstUnsigned* nodep) override {
         VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    WidthRemoveVisitor() = இயல்பு;
+    ~WidthRemoveVisitor() override = இயல்பு;
+    Ast_முனை* mainAcceptEdit(Ast_முனை* nodep) { திரும்பு iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################

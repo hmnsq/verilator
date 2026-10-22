@@ -20,35 +20,35 @@
 
 #ifndef VERILATOR_V3HASHER_H_
 #define VERILATOR_V3HASHER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hash.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3Hash.h"
 
 //============================================================================
 
 class V3Hasher final {
     // NODE STATE
     //  AstNode::user4()    -> V3Hash.  Hash value of this node (hash of 0 is illegal)
-    const VNUser4InUse m_inuser4;
+    மாறிலி VNUser4InUse m_inuser4;
 
-public:
+பொது:
     // CONSTRUCTORS
-    V3Hasher() = default;
-    ~V3Hasher() = default;
+    V3Hasher() = இயல்பு;
+    ~V3Hasher() = இயல்பு;
 
     // METHODS
 
     // Compute hash of node. This method caches the hash in the node's user4().
-    V3Hash operator()(AstNode* nodep) const;
+    V3Hash operator()(Ast_முனை* nodep) மாறிலி;
 
     // Re-compute hash of this node, discarding cached value, but used cached hash of children.
-    V3Hash rehash(AstNode* nodep) const;
+    V3Hash rehash(Ast_முனை* nodep) மாறிலி;
 
     // Compute hash of node, without caching in user4.
-    static V3Hash uncachedHash(const AstNode* nodep);
+    நிலையான V3Hash uncachedHash(மாறிலி Ast_முனை* nodep);
 };
 
 #endif  // Guard

@@ -17,21 +17,21 @@
 #ifndef VERILATOR_V3EMITV_H_
 #define VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_முனை;
+class Ast_Sen_மரம்;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+பொது:
+    நிலையான வெறுமை verilog_For_மரம்(மாறிலி Ast_முனை* nodep, std::ostream& os = std::cout);
+    நிலையான வெறுமை debug_Verilog_For_மரம்(மாறிலி Ast_முனை* nodep, std::ostream& os);
+    நிலையான std::string debug_Verilog_For_மரம்(மாறிலி Ast_முனை* nodep);
+    நிலையான வெறுமை emitvFiles();
+    நிலையான வெறுமை debugEmitV(மாறிலி string& filename);
 };
 
 #endif  // Guard

@@ -19,95 +19,95 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Clock.h"
+#அந்தர்பாவ "V3Clock.h"
 
-#include "V3Const.h"
+#அந்தர்பாவ "V3Const.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Convert every WRITE AstVarRef to a READ ref
 
-class ConvertWriteRefsToRead final : public VNVisitor {
+வகுப்பு ConvertWriteRefsToRead final : பொது VNVisitor {
     // MEMBERS
-    AstNodeExpr* m_result = nullptr;
+    Ast_முனை_கோவை* m_result = nullptr;
 
     // CONSTRUCTORS
-    explicit ConvertWriteRefsToRead(AstNodeExpr* nodep) {
-        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), NodeExpr);
+    explicit ConvertWriteRefsToRead(Ast_முனை_கோவை* nodep) {
+        m_result = VN_AS(iterateSubtreeReturnEdits(nodep), முனை_கோவை);
     }
 
     // VISITORS
-    void visit(AstVarRef* nodep) override {
+    வெறுமை visit(AstVarRef* nodep) override {
         UASSERT_OBJ(!nodep->access().isRW(), nodep, "Cannot handle a READWRITE reference");
-        if (nodep->access().isWriteOnly()) {
+        எனில் (nodep->access().isWriteOnly()) {
             nodep->replaceWith(
-                new AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                புதிய AstVarRef{nodep->fileline(), nodep->varScopep(), VAccess::READ});
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
-    static AstNodeExpr* main(AstNodeExpr* nodep) { return ConvertWriteRefsToRead{nodep}.m_result; }
+பொது:
+    நிலையான Ast_முனை_கோவை* முதன்மை(Ast_முனை_கோவை* nodep) { திரும்பு ConvertWriteRefsToRead{nodep}.m_result; }
 };
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class ClockVisitor final : public VNVisitor {
+வகுப்பு ClockVisitor final : பொது VNVisitor {
     // VISITORS
-    void visit(AstCoverToggle* nodep) override {
+    வெறுமை visit(AstCoverToggle* nodep) override {
         // UINFOTREE(1, nodep, "", "ct");
         // COVERTOGGLE(INC, ORIG, CHANGE) ->
         //   IF(ORIG ^ CHANGE) { INC; CHANGE = ORIG; }
-        AstCoverInc* const incp = nodep->incp()->unlinkFrBack();
-        AstNodeExpr* const origp = nodep->origp()->unlinkFrBack();
-        AstNodeExpr* const changeWrp = nodep->changep()->unlinkFrBack();
-        AstNodeExpr* const changeRdp = ConvertWriteRefsToRead::main(changeWrp->cloneTree(false));
-        AstNodeExpr* comparedp = nullptr;
-        incp->toggleExprp(origp->cloneTree(false));
-        incp->toggleCovExprp(changeRdp->cloneTree(false));
-        FileLine* const flp = nodep->fileline();
+        AstCoverInc* மாறிலி incp = nodep->incp()->unlinkFrBack();
+        Ast_முனை_கோவை* மாறிலி origp = nodep->origp()->unlinkFrBack();
+        Ast_முனை_கோவை* மாறிலி changeWrp = nodep->changep()->unlinkFrBack();
+        Ast_முனை_கோவை* மாறிலி changeRdp = ConvertWriteRefsToRead::முதன்மை(changeWrp->clone_மரம்(பொய்));
+        Ast_முனை_கோவை* comparedp = nullptr;
+        incp->toggleExprp(origp->clone_மரம்(பொய்));
+        incp->toggleCovExprp(changeRdp->clone_மரம்(பொய்));
+        File_வரி* மாறிலி flp = nodep->fileline();
         // Xor will optimize better than Eq, when CoverToggle has bit selects,
         // but can only use Xor with non-opaque types
-        if (const AstBasicDType* const bdtypep
+        எனில் (மாறிலி AstBasicDType* மாறிலி bdtypep
             = VN_CAST(origp->dtypep()->skipRefp(), BasicDType)) {
-            if (!bdtypep->isOpaque()) {
-                AstNodeExpr* const zp = new AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
-                comparedp = new AstNeq{flp, zp, new AstXor{flp, origp, changeRdp}};
+            எனில் (!bdtypep->isOpaque()) {
+                Ast_முனை_கோவை* மாறிலி zp = புதிய AstConst{flp, AstConst::DTyped{}, origp->dtypep()};
+                comparedp = புதிய AstNeq{flp, zp, புதிய AstXor{flp, origp, changeRdp}};
             }
         }
-        if (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
-        AstIf* const newp = new AstIf{flp, comparedp, incp};
+        எனில் (!comparedp) comparedp = AstNeq::newTyped(flp, origp, changeRdp);
+        AstIf* மாறிலி newp = புதிய AstIf{flp, comparedp, incp};
         // We could add another IF to detect posedges, and only increment if so.
         // It's another whole branch though versus a potential memory miss.
         // We'll go with the miss.
-        newp->addThensp(new AstAssign{flp, changeWrp, origp->cloneTree(false)});
+        newp->addThensp(புதிய AstAssign{flp, changeWrp, origp->clone_மரம்(பொய்)});
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
     }
-    void visit(AstSenTree* nodep) override {
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);  // No longer needed
+    வெறுமை visit(Ast_Sen_மரம்* nodep) override {
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);  // No longer needed
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit ClockVisitor(AstNetlist* netlistp) { iterate(netlistp); }
-    ~ClockVisitor() override = default;
+    ~ClockVisitor() override = இயல்பு;
 };
 
 //######################################################################
 // Clock class functions
 
-void V3Clock::clockAll(AstNetlist* nodep) {
+வெறுமை V3Clock::clockAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClockVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("clock", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("clock", 0, dump_மரம்_Either_Level() >= 3);
 }

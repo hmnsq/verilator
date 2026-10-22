@@ -17,336 +17,336 @@
 #ifndef VERILATOR_V3SENEXPRBUILDER_H_
 #define VERILATOR_V3SENEXPRBUILDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3UniqueNames.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3UniqueNames.h"
 
 //######################################################################
 // SenExprBuilder constructs the expressions used to compute if an
 // AstSenTree have triggered
 
-class SenExprBuilder final {
-public:
+class Sen_கோவை_Builder final {
+பொது:
     // TYPES
-    struct Results final {
-        std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
-        std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
-        std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
+    கட்டமைப்பு Results final {
+        std::vector<Ast_முனை_Stmt*> m_inits;  // Initialization statements for previous values
+        std::vector<Ast_முனை_Stmt*> m_preUpdates;  // Pre update assignments
+        std::vector<Ast_முனை_Stmt*> m_postUpdates;  // Post update assignments
         // Aliases of destructive post updates (for example event clearFired) that may need
         // to run once before entering a fresh dynamic wait loop.
-        std::vector<AstNodeStmt*> m_destructivePostUpdates;
+        std::vector<Ast_முனை_Stmt*> m_destructivePostUpdates;
         std::vector<AstVar*> m_vars;  // Created temporary variables
     };
 
-private:
+தனிப்பட்ட:
     // STATE
-    AstScope* const m_scopep;  // The scope
+    AstScope* மாறிலி m_scopep;  // The scope
 
     Results m_results;  // The builder result
 
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_prev;  // The 'previous value' signals
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_curr;  // The 'current value' signals
-    std::unordered_set<VNRef<AstNode>> m_hasPreUpdate;  // Whether the given sen expression already
+    std::unordered_map<VNRef<Ast_முனை>, AstVarScope*> m_prev;  // The 'previous value' signals
+    std::unordered_map<VNRef<Ast_முனை>, AstVarScope*> m_curr;  // The 'current value' signals
+    std::unordered_set<VNRef<Ast_முனை>> m_hasPreUpdate;  // Whether the given sen expression already
                                                         // has an update statement in m_preUpdates
-    std::unordered_set<VNRef<AstNode>> m_hasPostUpdate;  // Likewise for m_postUpdates
+    std::unordered_set<VNRef<Ast_முனை>> m_hasPostUpdate;  // Likewise for m_postUpdates
 
     V3UniqueNames m_prevNames{"__Vtrigprevexpr"};  // For generating unique temporary names
 
-    static bool isSupportedDType(AstNodeDType* dtypep) {
+    நிலையான bool isSupportedDType(Ast_முனை_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        எனில் (VN_IS(dtypep, BasicDType)) திரும்பு true;
+        எனில் (VN_IS(dtypep, PackArrayDType)) திரும்பு true;
+        எனில் (VN_IS(dtypep, UnpackArrayDType)) திரும்பு isSupportedDType(dtypep->subDTypep());
+        எனில் (VN_IS(dtypep, முனை_UOr_Struct_DType)) திரும்பு true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        எனில் (VN_IS(dtypep, ClassRefDType)) திரும்பு true;
+        திரும்பு false;
     }
 
-    static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
-                   || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
+    நிலையான bool is_Simple_கோவை(மாறிலி Ast_முனை* மாறிலி exprp) {
+        திரும்பு exprp->forall([](மாறிலி Ast_முனை* மாறிலி nodep) {
+            திரும்பு VN_IS(nodep, Const) || VN_IS(nodep, முனை_Var_Ref) || VN_IS(nodep, Sel)
+                   || VN_IS(nodep, முனை_Sel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
     }
 
     // Whether a reference may be null: a class reference or a virtual interface
-    static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
-        const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
-        const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+    நிலையான bool isNullableRef(மாறிலி Ast_முனை_கோவை* மாறிலி refp) {
+        எனில் (!refp->dtypep()) திரும்பு false;
+        மாறிலி Ast_முனை_DType* மாறிலி dtypep = refp->dtypep()->skipRefp();
+        மாறிலி AstIfaceRefDType* மாறிலி ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
+        திரும்பு VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
-    static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
-            const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+    நிலையான bool hasNullableMemberAccess(மாறிலி Ast_முனை* மாறிலி exprp) {
+        திரும்பு exprp && exprp->exists([](மாறிலி Ast_முனை* மாறிலி nodep) {
+            மாறிலி AstMemberSel* மாறிலி mselp = VN_CAST(nodep, MemberSel);
+            திரும்பு mselp && isNullableRef(mselp->fromp());
         });
     }
 
     // Get the base reference expression from a member selection chain
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
-    static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
-                const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+    நிலையான மாறிலி Ast_முனை_கோவை* getBaseNullableRef(மாறிலி Ast_முனை_கோவை* exprp) {
+        போது (exprp) {
+            எனில் (மாறிலி AstMemberSel* மாறிலி mselp = VN_CAST(exprp, MemberSel)) {
+                மாறிலி Ast_முனை_கோவை* மாறிலி fromp = mselp->fromp();
+                எனில் (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    எனில் (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
-                        continue;
+                        தொடர்;
                     }
-                    return fromp;
+                    திரும்பு fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } இல்லையெனில் {
+                திரும்பு nullptr;
             }
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
 
     // METHODS
-    AstVarScope* crateTemp(AstNodeExpr* exprp) {
+    AstVarScope* crateTemp(Ast_முனை_கோவை* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            AstVarScope* const vscp = refp->varScopep();
+        எனில் (AstVarRef* மாறிலி refp = VN_CAST(exprp, VarRef)) {
+            AstVarScope* மாறிலி vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
             name = m_prevNames.get(name);
-        } else {
+        } இல்லையெனில் {
             name = m_prevNames.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
-        FileLine* const flp = m_scopep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+        File_வரி* மாறிலி flp = m_scopep->fileline();
+        AstVar* மாறிலி varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
         varp->isInternal(true);
         m_scopep->modp()->addStmtsp(varp);
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
+        AstVarScope* மாறிலி vscp = new AstVarScope{flp, m_scopep, varp};
         m_scopep->addVarsp(vscp);
-        m_results.m_vars.push_back(varp);
-        return vscp;
+        m_results.m_vars.தள்ளு_back(varp);
+        திரும்பு vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
-    AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_முனை_Stmt* wrapStmtWithNullCheck(File_வரி* flp, Ast_முனை_Stmt* stmtp,
+                                       மாறிலி Ast_முனை_கோவை* baseRefp) {
+        எனில் (!baseRefp) திரும்பு stmtp;
+        Ast_முனை_கோவை* மாறிலி nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        Ast_முனை_கோவை* மாறிலி checkp
+            = new AstNeq{flp, const_cast<Ast_முனை_கோவை*>(baseRefp)->clone_மரம்(false), nullp};
+        திரும்பு new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
-    AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_முனை_கோவை* wrap_கோவை_With_Null_Check(File_வரி* flp, Ast_முனை_கோவை* exprp,
+                                       மாறிலி Ast_முனை_கோவை* baseRefp) {
+        எனில் (!baseRefp) திரும்பு exprp;
+        Ast_முனை_கோவை* மாறிலி nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
-        AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
+        Ast_முனை_கோவை* மாறிலி checkp
+            = new AstNeq{flp, const_cast<Ast_முனை_கோவை*>(baseRefp)->clone_மரம்(false), nullp};
+        Ast_முனை_கோவை* மாறிலி falsep = new AstConst{flp, AstConst::BitFalse{}};
+        Ast_முனை_கோவை* மாறிலி condp = new AstCond{flp, checkp, exprp, falsep};
         condp->dtypeSetBit();
-        return condp;
+        திரும்பு condp;
     }
 
-    AstNodeExpr* getCurr(AstNodeExpr* exprp) {
+    Ast_முனை_கோவை* getCurr(Ast_முனை_கோவை* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        எனில் (is_Simple_கோவை(exprp)) திரும்பு exprp->clone_மரம்(false);
 
         // Create the 'current value' variable
-        FileLine* const flp = exprp->fileline();
+        File_வரி* மாறிலி flp = exprp->fileline();
         auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
-        AstVarScope* const currp = result.first->second;
+        எனில் (result.second) result.first->second = crateTemp(exprp);
+        AstVarScope* மாறிலி currp = result.first->second;
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
+        மாறிலி Ast_முனை_கோவை* மாறிலி baseRefp
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
-            m_results.m_preUpdates.push_back(
+        எனில் (m_hasPreUpdate.emplace(*currp).second) {
+            m_results.m_preUpdates.தள்ளு_back(
                 wrapStmtWithNullCheck(flp,
                                       new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
-                                                    exprp->cloneTree(false)},
+                                                    exprp->clone_மரம்(false)},
                                       baseRefp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        திரும்பு new AstVarRef{flp, currp, VAccess::READ};
     }
 
-    AstVarScope* getPrev(AstNodeExpr* exprp) {
-        FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+    AstVarScope* getPrev(Ast_முனை_கோவை* exprp) {
+        File_வரி* மாறிலி flp = exprp->fileline();
+        மாறிலி auto rdCurr = [this, exprp]() { திரும்பு getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
+        மாறிலி Ast_முனை_கோவை* மாறிலி baseRefp
             = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
 
-        AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        Ast_முனை* scopeExprp = exprp;
+        எனில் (AstVarRef* மாறிலி refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
-        const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
-            AstVarScope* const prevp = crateTemp(exprp);
+        மாறிலி auto pair = m_prev.emplace(*scopeExprp, nullptr);
+        எனில் (pair.second) {
+            AstVarScope* மாறிலி prevp = crateTemp(exprp);
             pair.first->second = prevp;
             // Add the initializer init (guarded if through a nullable reference)
-            AstAssign* const initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
-                                                   exprp->cloneTree(false)};
-            m_results.m_inits.push_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
+            AstAssign* மாறிலி initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
+                                                   exprp->clone_மரம்(false)};
+            m_results.m_inits.தள்ளு_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
         }
 
-        AstVarScope* const prevp = pair.first->second;
+        AstVarScope* மாறிலி prevp = pair.first->second;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        மாறிலி auto wrPrev = [=]() { திரும்பு new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
-            AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+        எனில் (m_hasPostUpdate.emplace(*exprp).second) {
+            Ast_முனை_DType* மாறிலி கோவை_Dtp = exprp->dtypep()->skipRefp();
+            எனில் (!isSupportedDType(கோவை_Dtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
-                        << exprDtp->prettyDTypeNameQ() << "\n"
+                        << கோவை_Dtp->prettyDTypeNameQ() << "\n"
                         << exprp->warnMore()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                திரும்பு prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
-                AstCMethodHard* const cmhp
+            எனில் (VN_IS(கோவை_Dtp, UnpackArrayDType)) {
+                AstCMethodHard* மாறிலி cmhp
                     = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
                 cmhp->dtypeSetVoid();
-                m_results.m_postUpdates.push_back(
+                m_results.m_postUpdates.தள்ளு_back(
                     wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
-                m_results.m_postUpdates.push_back(
+            } இல்லையெனில் {
+                m_results.m_postUpdates.தள்ளு_back(
                     wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
             }
         }
 
-        return prevp;
+        திரும்பு prevp;
     }
 
-    std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
-        FileLine* const flp = senItemp->fileline();
-        AstNodeExpr* const senp = senItemp->sensp();
+    std::pair<Ast_முனை_கோவை*, bool> createTerm(மாறிலி AstSenItem* senItemp) {
+        File_வரி* மாறிலி flp = senItemp->fileline();
+        Ast_முனை_கோவை* மாறிலி senp = senItemp->sensp();
 
         // Check if the sensitivity expression involves accessing through a class reference
         // that may be null (e.g., DynScope handles created in fork blocks, or class member
         // virtual interfaces). If so, we need to guard against null pointer dereference.
-        const AstNodeExpr* const baseRefp
+        மாறிலி Ast_முனை_கோவை* மாறிலி baseRefp
             = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
-        const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+        மாறிலி auto currp = [this, senp]() { திரும்பு getCurr(senp); };
+        மாறிலி auto prevp
+            = [this, flp, senp]() { திரும்பு new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        மாறிலி auto lsb = [=](Ast_முனை_கோவை* opp) { திரும்பு new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
-        switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        தேர்வு (senItemp->edgeType()) {
+        நிலை VEdgeType::ET_CHANGED:
+        நிலை VEdgeType::ET_HYBRID:  //
+            எனில் (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
-                AstCMethodHard* const resultp
+                AstCMethodHard* மாறிலி resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
                 resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                திரும்பு {wrap_கோவை_With_Null_Check(flp, resultp, baseRefp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            திரும்பு {wrap_கோவை_With_Null_Check(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
+        நிலை VEdgeType::ET_BOTHEDGE:  //
+            திரும்பு {wrap_கோவை_With_Null_Check(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
+        நிலை VEdgeType::ET_POSEDGE:  //
+            திரும்பு {wrap_கோவை_With_Null_Check(
                         flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
+        நிலை VEdgeType::ET_NEGEDGE:  //
+            திரும்பு {wrap_கோவை_With_Null_Check(
                         flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        நிலை VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
-            AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
-                = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
+            Ast_முனை_கோவை* மாறிலி clearFromp = currp();
+            எனில் (Ast_முனை_Var_Ref* மாறிலி refp
+                = VN_CAST(clearFromp->getVAccessTargetRecurse(), முனை_Var_Ref)) {
                 refp->access(VAccess::WRITE);
             }
-            AstCMethodHard* const clearp
+            AstCMethodHard* மாறிலி clearp
                 = new AstCMethodHard{flp, clearFromp, VCMethod::EVENT_CLEAR_FIRED};
             clearp->dtypeSetVoid();
-            AstNodeStmt* const clearStmtp
+            Ast_முனை_Stmt* மாறிலி clearStmtp
                 = wrapStmtWithNullCheck(flp, clearp->makeStmt(), baseRefp);
-            m_results.m_postUpdates.push_back(clearStmtp);
-            m_results.m_destructivePostUpdates.push_back(clearStmtp);
+            m_results.m_postUpdates.தள்ளு_back(clearStmtp);
+            m_results.m_destructivePostUpdates.தள்ளு_back(clearStmtp);
 
             // Get 'fired' state
-            AstCMethodHard* const callp
+            AstCMethodHard* மாறிலி callp
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
             callp->dtypeSetBit();
-            AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            Ast_முனை_கோவை* மாறிலி firedp = wrap_கோவை_With_Null_Check(flp, callp, baseRefp);
+            எனில் (மாறிலி AstVarRef* மாறிலி refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                எனில் (refp->varScopep() == v3Global.rootp()->nbaEventp()) திரும்பு {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
-            AstNodeExpr* const notFinishp
+            Ast_முனை_கோவை* மாறிலி notFinishp
                 = new AstCExpr{flp,
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            திரும்பு {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
-        default:  // LCOV_EXCL_START
+        நிலை VEdgeType::ET_TRUE:  //
+            திரும்பு {currp(), false};
+        நிலை VEdgeType::ET_INITIAL_NBA:  //
+            திரும்பு {new AstConst{flp, AstConst::BitFalse{}}, true};
+        இயல்பு:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            திரும்பு {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
-public:
+பொது:
     // Returns the expression computing the trigger, and a bool indicating that
     // this trigger should be fired on the first evaluation (at initialization)
-    std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
+    std::pair<Ast_முனை_கோவை*, bool> build(மாறிலி AstSenItem* senItemp) {
         auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
-            term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
+        எனில் (Ast_முனை_கோவை* மாறிலி condp = senItemp->condp()) {
+            term.first = new AstAnd{senItemp->fileline(), condp->clone_மரம்_Pure(false), term.first};
         }
-        return term;
+        திரும்பு term;
     }
 
     // Like above, but for a whole SenTree
-    std::pair<AstNodeExpr*, bool> build(const AstSenTree* senTreep) {
-        FileLine* const flp = senTreep->fileline();
-        AstNodeExpr* resultp = nullptr;
+    std::pair<Ast_முனை_கோவை*, bool> build(மாறிலி Ast_Sen_மரம்* senTreep) {
+        File_வரி* மாறிலி flp = senTreep->fileline();
+        Ast_முனை_கோவை* resultp = nullptr;
         bool firedAtInitialization = false;
-        for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
+        க்கு (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
              senItemp = VN_AS(senItemp->nextp(), SenItem)) {
-            const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+            மாறிலி auto& pair = build(senItemp);
+            எனில் (Ast_முனை_கோவை* termp = pair.first) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
                 firedAtInitialization |= pair.second;
             }
         }
-        return {resultp, firedAtInitialization};
+        திரும்பு {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        திரும்பு ans;
     }
 
     Results getAndClearResults() {
@@ -362,11 +362,11 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        திரும்பு std::move(m_results);
     }
 
     // CONSTRUCTOR
-    explicit SenExprBuilder(AstScope* scopep)
+    explicit Sen_கோவை_Builder(AstScope* scopep)
         : m_scopep{scopep} {}
 };
 

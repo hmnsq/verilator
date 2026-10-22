@@ -32,42 +32,42 @@
 #ifndef VERILATOR_V3SIMULATE_H_
 #define VERILATOR_V3SIMULATE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3AstUserAllocator.h"
-#include "V3Const.h"
-#include "V3Error.h"
-#include "V3Task.h"
-#include "V3Width.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3AstUserAllocator.h"
+#அந்தர்பாவ "V3Const.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3Task.h"
+#அந்தர்பாவ "V3Width.h"
 
-#include <deque>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#அந்தர்பாவ <deque>
+#அந்தர்பாவ <set>
+#அந்தர்பாவ <sstream>
+#அந்தர்பாவ <stack>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <unordered_map>
+#அந்தர்பாவ <vector>
 
 //============================================================================
 
 //######################################################################
 // Simulate class functions
 
-class SimStackNode final {
-public:
+class Sim_அடுக்கு_முனை final {
+பொது:
     // MEMBERS
-    AstFuncRef* const m_funcp;
-    V3TaskConnects* const m_tconnects;
+    AstFuncRef* மாறிலி m_funcp;
+    V3TaskConnects* மாறிலி m_tconnects;
     // CONSTRUCTORS
-    SimStackNode(AstFuncRef* funcp, V3TaskConnects* tconnects)
+    Sim_அடுக்கு_முனை(AstFuncRef* funcp, V3TaskConnects* tconnects)
         : m_funcp{funcp}
         , m_tconnects{tconnects} {}
-    ~SimStackNode() = default;
+    ~Sim_அடுக்கு_முனை() = இயல்பு;
 };
 
-class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
+class SimulateVisitor VL_NOT_FINAL : பொது VNVisitorConst {
     // Simulate a node tree, returning value of variables
     // Two major operating modes:
     //   Test the tree to see if it is conformant
@@ -75,54 +75,54 @@ class SimulateVisitor VL_NOT_FINAL : public VNVisitorConst {
     // Both are done in this same visitor to reduce risk; if a visitor
     // is missing, we will not apply the optimization, rather then bomb.
 
-private:
+தனிப்பட்ட:
     // CONSTANTS
-    static constexpr int CALL_STACK_MAX = 100;
+    நிலையான constexpr முழு CALL_அடுக்கு_MAX = 100;
 
     // NODE STATE
     // Cleared on each always/assignw
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // AstNode::user1p()     -> See AuxAstVar via m_varAux
 
-    enum VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
+    எண்ணிக்கை VarUsage : uint8_t { VU_NONE = 0, VU_LV = 1, VU_RV = 2, VU_LVDLY = 4 };
 
-    struct AuxVariable final {
+    கட்டமைப்பு AuxVariable final {
         // Checking:
         //  Set true to indicate tracking as lvalue/rvalue
         uint8_t usage = VU_NONE;
         // Simulating:
         //  Output value of variable (delayed assignments)
-        AstNodeExpr* outValuep = nullptr;
+        Ast_முனை_கோவை* outValuep = nullptr;
         //  Input value of variable or node (and output for non-delayed assignments)
-        AstNodeExpr* valuep = nullptr;
+        Ast_முனை_கோவை* valuep = nullptr;
     };
 
-    AstUser1Allocator<AstNode, AuxVariable> m_varAux;
+    AstUser1Allocator<Ast_முனை, AuxVariable> m_varAux;
 
     // We want to re-use allocated constants across calls to clear(), but we want to be able
     // to 'clear()' fast, so we use a generation number based allocator.
-    struct ConstAllocator final {
+    கட்டமைப்பு ConstAllocator final {
         size_t m_generation = 0;  // Generation as of last clear(); invalidates m_nextFree cheaply
         size_t m_nextFree = 0;  // Index of the next unused constant in m_constps
         std::deque<AstConst*> m_constps;  // Pool of allocated constants, reused across generations
-        AstConst* allocate(size_t currentGeneration, AstNode* nodep) {
-            if (m_generation != currentGeneration) {
+        AstConst* allocate(size_t currentGeneration, Ast_முனை* nodep) {
+            எனில் (m_generation != currentGeneration) {
                 m_generation = currentGeneration;
                 m_nextFree = 0;
             }
             UASSERT_OBJ(m_nextFree <= m_constps.size(), nodep, "Should only allocate at end");
-            if (m_nextFree == m_constps.size()) {
-                m_constps.push_back(
+            எனில் (m_nextFree == m_constps.size()) {
+                m_constps.தள்ளு_back(
                     new AstConst{nodep->fileline(), AstConst::DTyped{}, nodep->dtypep()});
             }
-            AstConst* const constp = m_constps[m_nextFree++];
-            constp->num().nodep(nodep);
-            return constp;
+            AstConst* மாறிலி constp = m_constps[m_nextFree++];
+            constp->இலக்கம்().nodep(nodep);
+            திரும்பு constp;
         }
 
         ~ConstAllocator() {
-            for (AstConst* const constp : m_constps) VL_DO_DANGLING(delete constp, constp);
+            க்கு (AstConst* மாறிலி constp : m_constps) VL_DO_DANGLING(delete constp, constp);
         }
     };
 
@@ -133,949 +133,949 @@ private:
     bool m_params;  ///< Doing parameter propagation
     // Checking:
     string m_whyNotOptimizable;  ///< String explaining why not optimizable or nullptr to optimize
-    AstNode* m_whyNotNodep;  ///< First node not optimizable
+    Ast_முனை* m_whyNotNodep;  ///< First node not optimizable
     bool m_anyAssignDly;  ///< True if found a delayed assignment
     bool m_anyAssignComb;  ///< True if found a non-delayed assignment
     bool m_inDlyAssign;  ///< Under delayed assignment
     bool m_isImpure;  // Not pure
     bool m_isCoverage;  // Has coverage
-    int m_instrCount;  ///< Number of nodes
-    int m_dataCount;  ///< Bytes of data
-    int m_recurseCount = 0;  // Now deep in current recursion
-    AstNode* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
+    முழு m_instr_மொத்தம்;  ///< Number of nodes
+    முழு m_data_மொத்தம்;  ///< Bytes of data
+    முழு m_recurse_மொத்தம் = 0;  // Now deep in current recursion
+    Ast_முனை* m_jumptargetp = nullptr;  // AstJumpBlock/AstLoop we are branching over
     // Simulating:
     // Allocators for constants of various data types
-    std::unordered_map<const AstNodeDType*, ConstAllocator> m_constps;
+    std::unordered_map<மாறிலி Ast_முனை_DType*, ConstAllocator> m_constps;
     size_t m_constGeneration = 0;
-    std::vector<SimStackNode*> m_callStack;  // Call stack for verbose error messages
+    std::vector<Sim_அடுக்கு_முனை*> m_call_அடுக்கு;  // Call stack for verbose error messages
 
     // Cleanup
     // V3Numbers that represents strings are a bit special and the API for
     // V3Number does not allow changing them.
-    std::vector<AstNode*> m_reclaimValuesp;  // List of allocated string numbers
+    std::vector<Ast_முனை*> m_reclaimValuesp;  // List of allocated string numbers
 
     // Note level 8&9 include debugging each simulation value
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // Potentially very slow, intended for debugging
-    string prettyNumber(const V3Number* nump, const AstNodeDType* dtypep) {
-        if (const AstRefDType* const refdtypep = VN_CAST(dtypep, RefDType)) {  //
+    string pretty_எண்(மாறிலி V3_எண்* nump, மாறிலி Ast_முனை_DType* dtypep) {
+        எனில் (மாறிலி AstRefDType* மாறிலி refdtypep = VN_CAST(dtypep, RefDType)) {  //
             dtypep = refdtypep->skipRefp();
         }
-        if (const AstNodeUOrStructDType* const stp = VN_CAST(dtypep, NodeUOrStructDType)) {
-            if (stp->packed()) {
+        எனில் (மாறிலி Ast_முனை_UOr_Struct_DType* மாறிலி stp = VN_CAST(dtypep, முனை_UOr_Struct_DType)) {
+            எனில் (stp->packed()) {
                 std::ostringstream out;
                 out << "'{";
-                for (AstMemberDType* itemp = stp->membersp(); itemp;
+                க்கு (AstMemberDType* itemp = stp->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    const int width = itemp->width();
-                    const int lsb = itemp->lsb();
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
+                    மாறிலி முழு width = itemp->width();
+                    மாறிலி முழு lsb = itemp->lsb();
+                    மாறிலி முழு msb = lsb + width - 1;
+                    V3_எண் field_இலக்கம்{nump, width};
+                    field_இலக்கம்.opSel(*nump, msb, lsb);
                     out << itemp->name() << ": ";
-                    if (const AstNodeDType* const childTypep = itemp->subDTypep()) {
-                        out << prettyNumber(&fieldNum, childTypep);
-                    } else {
-                        out << fieldNum;
+                    எனில் (மாறிலி Ast_முனை_DType* மாறிலி childTypep = itemp->subDTypep()) {
+                        out << pretty_எண்(&field_இலக்கம், childTypep);
+                    } இல்லையெனில் {
+                        out << field_இலக்கம்;
                     }
-                    if (itemp->nextp()) out << ", ";
+                    எனில் (itemp->nextp()) out << ", ";
                 }
                 out << "}";
-                return out.str();
+                திரும்பு out.str();
             }
-        } else if (const AstPackArrayDType* const arrayp = VN_CAST(dtypep, PackArrayDType)) {
-            if (const AstNodeDType* const childTypep = arrayp->subDTypep()) {
+        } இல்லையெனில் எனில் (மாறிலி AstPackArrayDType* மாறிலி arrayp = VN_CAST(dtypep, PackArrayDType)) {
+            எனில் (மாறிலி Ast_முனை_DType* மாறிலி childTypep = arrayp->subDTypep()) {
                 std::ostringstream out;
                 out << "[";
-                const int arrayElements = arrayp->elementsConst();
-                for (int element = 0; element < arrayElements; ++element) {
-                    const int width = childTypep->width();
-                    const int lsb = width * element;
-                    const int msb = lsb + width - 1;
-                    V3Number fieldNum{nump, width};
-                    fieldNum.opSel(*nump, msb, lsb);
-                    const int arrayElem = arrayp->lo() + element;
-                    out << arrayElem << " = " << prettyNumber(&fieldNum, childTypep);
-                    if (element < arrayElements - 1) out << ", ";
+                மாறிலி முழு arrayElements = arrayp->elementsConst();
+                க்கு (முழு element = 0; element < arrayElements; ++element) {
+                    மாறிலி முழு width = childTypep->width();
+                    மாறிலி முழு lsb = width * element;
+                    மாறிலி முழு msb = lsb + width - 1;
+                    V3_எண் field_இலக்கம்{nump, width};
+                    field_இலக்கம்.opSel(*nump, msb, lsb);
+                    மாறிலி முழு arrayElem = arrayp->lo() + element;
+                    out << arrayElem << " = " << pretty_எண்(&field_இலக்கம், childTypep);
+                    எனில் (element < arrayElements - 1) out << ", ";
                 }
                 out << "]";
-                return out.str();
+                திரும்பு out.str();
             }
         }
-        return nump->ascii();
+        திரும்பு nump->ascii();
     }
 
     // Checking METHODS
-public:
+பொது:
     /// Call other-this function on all new *non-constant* var references
-    virtual void varRefCb(AstVarRef* nodep) {}
+    மெய்நிகர் வெறுமை varRefCb(AstVarRef* nodep) {}
 
-    void clearOptimizable(AstNode* nodep /*null ok*/, const string& why) {
+    வெறுமை clearOptimizable(Ast_முனை* nodep /*null ok*/, மாறிலி string& why) {
         //  Something bad found.  optimizable() will return false,
         //  and fetchConst should not be called or it may assert.
-        if (!m_whyNotNodep) {
+        எனில் (!m_whyNotNodep) {
             m_whyNotNodep = nodep;
-            if (debug() >= 5) {  // LCOV_EXCL_START
+            எனில் (debug() >= 5) {  // LCOV_EXCL_START
                 UINFO_PREFIX("Clear optimizable: " << why);
-                if (nodep) std::cout << ": " << nodep;
+                எனில் (nodep) std::cout << ": " << nodep;
                 std::cout << '\n';
             }  // LCOV_EXCL_STOP
             m_whyNotOptimizable = why;
-            std::ostringstream stack;
-            int n = 0;
-            for (const auto& callstack : vlstd::reverse_view(m_callStack)) {
-                const AstFuncRef* const funcp = callstack->m_funcp;
-                stack << "\n        " << funcp->fileline() << "... Called from '"
+            std::ostringstream அடுக்கு;
+            முழு n = 0;
+            க்கு (மாறிலி auto& callstack : vlstd::reverse_view(m_call_அடுக்கு)) {
+                மாறிலி AstFuncRef* மாறிலி funcp = callstack->m_funcp;
+                அடுக்கு << "\n        " << funcp->fileline() << "... Called from '"
                       << funcp->prettyName() << "()' with parameters:";
                 V3TaskConnects* tconnects = callstack->m_tconnects;
-                for (V3TaskConnects::iterator conIt = tconnects->begin();
+                க்கு (V3TaskConnects::iterator conIt = tconnects->begin();
                      conIt != tconnects->end(); ++conIt) {
-                    const AstVar* const portp = conIt->first;
-                    AstNodeExpr* const pinp = conIt->second->exprp();
-                    const AstNodeDType* const dtypep = pinp->dtypep();
-                    if (AstConst* const valp = fetchConstNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
-                              << prettyNumber(&valp->num(), dtypep);
-                    } else if (AstNodeExpr* const valuep = fetchValueNull(pinp)) {
-                        stack << "\n           " << portp->prettyName() << " = "
+                    மாறிலி AstVar* மாறிலி portp = conIt->first;
+                    Ast_முனை_கோவை* மாறிலி pinp = conIt->second->exprp();
+                    மாறிலி Ast_முனை_DType* மாறிலி dtypep = pinp->dtypep();
+                    எனில் (AstConst* மாறிலி valp = fetchConstNull(pinp)) {
+                        அடுக்கு << "\n           " << portp->prettyName() << " = "
+                              << pretty_எண்(&valp->இலக்கம்(), dtypep);
+                    } இல்லையெனில் எனில் (Ast_முனை_கோவை* மாறிலி valuep = fetch_மதிப்பு_Null(pinp)) {
+                        அடுக்கு << "\n           " << portp->prettyName() << " = "
                               << toStringRecurse(valuep);
                     }
                 }
-                if (++n > CALL_STACK_MAX) {
-                    stack << "\n           ... stack truncated";
-                    break;
+                எனில் (++n > CALL_அடுக்கு_MAX) {
+                    அடுக்கு << "\n           ... stack truncated";
+                    நிறுத்து;
                 }
             }
-            m_whyNotOptimizable += stack.str();
+            m_whyNotOptimizable += அடுக்கு.str();
         }
     }
-    bool optimizable() const { return m_whyNotNodep == nullptr; }
-    string whyNotMessage() const { return m_whyNotOptimizable; }
-    AstNode* whyNotNodep() const { return m_whyNotNodep; }
+    bool optimizable() மாறிலி { திரும்பு m_whyNotNodep == nullptr; }
+    string whyNotMessage() மாறிலி { திரும்பு m_whyNotOptimizable; }
+    Ast_முனை* whyNotNodep() மாறிலி { திரும்பு m_whyNotNodep; }
 
-    bool isAssignDly() const { return m_anyAssignDly; }
-    bool isImpure() const { return m_isImpure; }
-    bool isCoverage() const { return m_isCoverage; }
-    int instrCount() const { return m_instrCount; }
-    int dataCount() const { return m_dataCount; }
+    bool isAssignDly() மாறிலி { திரும்பு m_anyAssignDly; }
+    bool isImpure() மாறிலி { திரும்பு m_isImpure; }
+    bool isCoverage() மாறிலி { திரும்பு m_isCoverage; }
+    முழு instr_மொத்தம்() மாறிலி { திரும்பு m_instr_மொத்தம்; }
+    முழு data_மொத்தம்() மாறிலி { திரும்பு m_data_மொத்தம்; }
 
     // Simulation METHODS
-private:
-    AstConst* allocConst(AstNode* nodep) {
+தனிப்பட்ட:
+    AstConst* allocConst(Ast_முனை* nodep) {
         // Allocate a constant with this dtype. Reuse them across a 'clear()' call for efficiency.
-        return m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
+        திரும்பு m_constps[nodep->dtypep()].allocate(m_constGeneration, nodep);
     }
 
-public:
-    void newValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newConst(nodep)->num().opAssign(constp->num());
+பொது:
+    வெறுமை new_மதிப்பு(Ast_முனை* nodep, மாறிலி Ast_முனை_கோவை* valuep) {
+        எனில் (மாறிலி AstConst* மாறிலி constp = VN_CAST(valuep, Const)) {
+            newConst(nodep)->இலக்கம்().opAssign(constp->இலக்கம்());
             UINFO(9, "     new val " << valuep->name() << " on " << nodep);
-        } else if (fetchValueNull(nodep) != valuep) {
+        } இல்லையெனில் எனில் (fetch_மதிப்பு_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_மதிப்பு(nodep, newTrackedClone(const_cast<Ast_முனை_கோவை*>(valuep)));
         }
     }
-    void newOutValue(AstNode* nodep, const AstNodeExpr* valuep) {
-        if (const AstConst* const constp = VN_CAST(valuep, Const)) {
-            newOutConst(nodep)->num().opAssign(constp->num());
+    வெறுமை new_Out_மதிப்பு(Ast_முனை* nodep, மாறிலி Ast_முனை_கோவை* valuep) {
+        எனில் (மாறிலி AstConst* மாறிலி constp = VN_CAST(valuep, Const)) {
+            newOutConst(nodep)->இலக்கம்().opAssign(constp->இலக்கம்());
             UINFO(9, "     new oval " << valuep->name() << " on " << nodep);
-        } else if (fetchOutValueNull(nodep) != valuep) {
+        } இல்லையெனில் எனில் (fetch_Out_மதிப்பு_Null(nodep) != valuep) {
             // const_cast, as clonep() is set on valuep, but nothing should care
-            setOutValue(nodep, newTrackedClone(const_cast<AstNodeExpr*>(valuep)));
+            set_Out_மதிப்பு(nodep, newTrackedClone(const_cast<Ast_முனை_கோவை*>(valuep)));
         }
     }
 
-private:
-    AstNodeExpr* newTrackedClone(AstNodeExpr* nodep) {
-        AstNodeExpr* const newp = nodep->cloneTree(false);
-        m_reclaimValuesp.push_back(newp);
-        return newp;
+தனிப்பட்ட:
+    Ast_முனை_கோவை* newTrackedClone(Ast_முனை_கோவை* nodep) {
+        Ast_முனை_கோவை* மாறிலி newp = nodep->clone_மரம்(false);
+        m_reclaimValuesp.தள்ளு_back(newp);
+        திரும்பு newp;
     }
-    AstConst* newConst(AstNode* nodep) {
+    AstConst* newConst(Ast_முனை* nodep) {
         // Set a constant value for this node
-        if (!VN_IS(m_varAux(nodep).valuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        எனில் (!VN_IS(m_varAux(nodep).valuep, Const)) {
+            AstConst* மாறிலி constp = allocConst(nodep);
             m_varAux(nodep).valuep = constp;
-            return constp;
+            திரும்பு constp;
         }
-        return fetchConst(nodep);
+        திரும்பு fetchConst(nodep);
     }
-    AstConst* newOutConst(AstNode* nodep) {
+    AstConst* newOutConst(Ast_முனை* nodep) {
         // Set a var-output constant value for this node
-        if (!VN_IS(m_varAux(nodep).outValuep, Const)) {
-            AstConst* const constp = allocConst(nodep);
+        எனில் (!VN_IS(m_varAux(nodep).outValuep, Const)) {
+            AstConst* மாறிலி constp = allocConst(nodep);
             m_varAux(nodep).outValuep = constp;
-            return constp;
+            திரும்பு constp;
         }
-        return fetchOutConst(nodep);
+        திரும்பு fetchOutConst(nodep);
     }
 
-public:
-    AstNodeExpr* fetchValueNull(AstNode* nodep) { return m_varAux(nodep).valuep; }
+பொது:
+    Ast_முனை_கோவை* fetch_மதிப்பு_Null(Ast_முனை* nodep) { திரும்பு m_varAux(nodep).valuep; }
 
-private:
-    AstNodeExpr* fetchOutValueNull(AstNode* nodep) { return m_varAux(nodep).outValuep; }
-    AstConst* fetchConstNull(AstNode* nodep) { return VN_CAST(fetchValueNull(nodep), Const); }
-    AstConst* fetchOutConstNull(AstNode* nodep) {
-        return VN_CAST(fetchOutValueNull(nodep), Const);
+தனிப்பட்ட:
+    Ast_முனை_கோவை* fetch_Out_மதிப்பு_Null(Ast_முனை* nodep) { திரும்பு m_varAux(nodep).outValuep; }
+    AstConst* fetchConstNull(Ast_முனை* nodep) { திரும்பு VN_CAST(fetch_மதிப்பு_Null(nodep), Const); }
+    AstConst* fetchOutConstNull(Ast_முனை* nodep) {
+        திரும்பு VN_CAST(fetch_Out_மதிப்பு_Null(nodep), Const);
     }
-    AstNodeExpr* fetchValue(AstNode* nodep) {
-        AstNodeExpr* const valuep = fetchValueNull(nodep);
+    Ast_முனை_கோவை* fetch_மதிப்பு(Ast_முனை* nodep) {
+        Ast_முனை_கோவை* மாறிலி valuep = fetch_மதிப்பு_Null(nodep);
         UASSERT_OBJ(valuep, nodep, "No value found for node.");
         // UINFO(9, "     fetch val " << *valuep << " on " << nodep);
-        return valuep;
+        திரும்பு valuep;
     }
-    AstConst* fetchConst(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
+    AstConst* fetchConst(Ast_முனை* nodep) {
+        AstConst* மாறிலி constp = fetchConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
         // UINFO(9, "     fetch num " << *constp << " on " << nodep);
-        return constp;
+        திரும்பு constp;
     }
-    AstConst* fetchOutConst(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
+    AstConst* fetchOutConst(Ast_முனை* nodep) {
+        AstConst* மாறிலி constp = fetchOutConstNull(nodep);
         UASSERT_OBJ(constp, nodep, "No value found for node.");
-        return constp;
+        திரும்பு constp;
     }
 
-public:
-    V3Number* fetchNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+பொது:
+    V3_எண்* fetch_எண்_Null(Ast_முனை* nodep) {
+        AstConst* மாறிலி constp = fetchConstNull(nodep);
+        எனில் (constp) திரும்பு &constp->இலக்கம்();
+        திரும்பு nullptr;
     }
-    V3Number* fetchOutNumberNull(AstNode* nodep) {
-        AstConst* const constp = fetchOutConstNull(nodep);
-        if (constp) return &constp->num();
-        return nullptr;
+    V3_எண்* fetch_Out_எண்_Null(Ast_முனை* nodep) {
+        AstConst* மாறிலி constp = fetchOutConstNull(nodep);
+        எனில் (constp) திரும்பு &constp->இலக்கம்();
+        திரும்பு nullptr;
     }
 
-private:
-    void setValue(AstNode* nodep, AstNodeExpr* valuep) {
+தனிப்பட்ட:
+    வெறுமை set_மதிப்பு(Ast_முனை* nodep, Ast_முனை_கோவை* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set val " << valuep->name() << " on " << nodep);
         m_varAux(nodep).valuep = valuep;
     }
-    void setOutValue(AstNode* nodep, AstNodeExpr* valuep) {
+    வெறுமை set_Out_மதிப்பு(Ast_முனை* nodep, Ast_முனை_கோவை* valuep) {
         UASSERT_OBJ(valuep, nodep, "Simulate setting null value");
         UINFO(9, "     set oval " << valuep->name() << " on " << nodep);
         m_varAux(nodep).outValuep = valuep;
     }
 
-    void checkNodeInfo(AstNode* nodep, bool ignorePredict = false) {
-        if (m_checkOnly) {
-            m_instrCount += nodep->instrCount();
-            m_dataCount += nodep->width();
+    வெறுமை check_முனை_Info(Ast_முனை* nodep, bool ignorePredict = false) {
+        எனில் (m_checkOnly) {
+            m_instr_மொத்தம் += nodep->instr_மொத்தம்();
+            m_data_மொத்தம் += nodep->width();
         }
-        if (!ignorePredict && !nodep->isPredictOptimizable()) {
+        எனில் (!ignorePredict && !nodep->isPredictOptimizable()) {
             // UINFO(9, "     !predictopt " << nodep);
             clearOptimizable(nodep, "Isn't predictable");
         }
-        if (!nodep->isPure()) m_isImpure = true;
+        எனில் (!nodep->isPure()) m_isImpure = true;
     }
 
-    void knownBadNodeType(AstNode* nodep) {
+    வெறுமை known_Bad_முனை_Type(Ast_முனை* nodep) {
         // Call for node types we know we can't handle
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
+        எனில் (optimizable()) {
             clearOptimizable(nodep, "Known unhandled node type "s + nodep->typeName());
         }
     }
-    void badNodeType(AstNode* nodep) {
+    வெறுமை bad_முனை_Type(Ast_முனை* nodep) {
         // Call for default node types, or other node types we don't know how to handle
-        checkNodeInfo(nodep);
-        if (optimizable()) {
+        check_முனை_Info(nodep);
+        எனில் (optimizable()) {
             // Hmm, what is this then?
             // In production code, we'll just not optimize.  It should be fixed though.
             clearOptimizable(nodep,
                              "Unknown node type, perhaps missing visitor in SimulateVisitor");
 #ifdef VL_DEBUG
-            static std::set<VNType> s_typePrinted;
-            const auto pair = s_typePrinted.emplace(nodep->type());
-            if (pair.second)
+            நிலையான std::set<VNType> s_typePrinted;
+            மாறிலி auto pair = s_typePrinted.emplace(nodep->type());
+            எனில் (pair.second)
                 UINFO(0, "Unknown node type in SimulateVisitor: " << nodep->prettyTypeName());
 #endif
         }
     }
 
-    AstNode* varOrScope(AstVarRef* nodep) const {
-        AstNode* vscp;
-        if (m_scoped) {
+    Ast_முனை* varOrScope(AstVarRef* nodep) மாறிலி {
+        Ast_முனை* vscp;
+        எனில் (m_scoped) {
             vscp = nodep->varScopep();
-        } else {
+        } இல்லையெனில் {
             vscp = nodep->varp();
         }
         UASSERT_OBJ(vscp, nodep, "Not linked");
-        return vscp;
+        திரும்பு vscp;
     }
 
     // True if current node might be jumped over - all visitors must call this up front
-    bool jumpingOver() const { return m_jumptargetp; }
-    void assignOutValue(const AstNodeAssign* nodep, AstNode* vscp, const AstNodeExpr* valuep) {
-        if (VN_IS(nodep, AssignDly)) {
+    bool jumpingOver() மாறிலி { திரும்பு m_jumptargetp; }
+    வெறுமை assign_Out_மதிப்பு(மாறிலி Ast_முனை_Assign* nodep, Ast_முனை* vscp, மாறிலி Ast_முனை_கோவை* valuep) {
+        எனில் (VN_IS(nodep, AssignDly)) {
             // Don't do setValue, as value isn't yet visible to following statements
-            newOutValue(vscp, valuep);
-        } else {
-            newValue(vscp, valuep);
-            setOutValue(vscp, fetchValue(vscp));
+            new_Out_மதிப்பு(vscp, valuep);
+        } இல்லையெனில் {
+            new_மதிப்பு(vscp, valuep);
+            set_Out_மதிப்பு(vscp, fetch_மதிப்பு(vscp));
         }
     }
 
-    string toStringRecurse(AstNodeExpr* valuep) {
+    string toStringRecurse(Ast_முனை_கோவை* valuep) {
         // Return string representation of a value, or clearOptimizable
-        if (const AstConst* const avaluep = VN_CAST(valuep, Const)) {
-            return "'h"s + avaluep->num().displayed(valuep, "%0x");
+        எனில் (மாறிலி AstConst* மாறிலி avaluep = VN_CAST(valuep, Const)) {
+            திரும்பு "'h"s + avaluep->இலக்கம்().displayed(valuep, "%0x");
         }
-        if (const AstConsArray* const avaluep = VN_CAST(valuep, ConsArray)) {
+        எனில் (மாறிலி AstConsArray* மாறிலி avaluep = VN_CAST(valuep, ConsArray)) {
             string result = "'{";
             string comma;
-            const AstUnpackArrayDType* const dtypep
+            மாறிலி AstUnpackArrayDType* மாறிலி dtypep
                 = VN_AS(valuep->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            க்கு (முழு n = 0; n < dtypep->elementsConst(); ++n) {
                 result += comma + toStringRecurse(avaluep->valuep(n));
                 comma = ", ";
             }
             result += "}";
-            return result;
+            திரும்பு result;
         }
-        if (const AstConsStruct* const avaluep = VN_CAST(valuep, ConsStruct)) {
+        எனில் (மாறிலி AstConsStruct* மாறிலி avaluep = VN_CAST(valuep, ConsStruct)) {
             string result = "'{";
             string comma;
-            for (const AstConsStructItem* itemp = avaluep->itemsp(); itemp;
+            க்கு (மாறிலி AstConsStructItem* itemp = avaluep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
                 result
                     += comma + itemp->memberp()->name() + ":" + toStringRecurse(itemp->valuep());
                 comma = ", ";
             }
             result += "}";
-            return result;
+            திரும்பு result;
         }
         clearOptimizable(valuep, "Cannot convert to string");  // LCOV_EXCL_LINE
-        return "";
+        திரும்பு "";
     }
 
     // Return a new value of the initial value of a variable of the given type, or nullptr if
     // the type isn't supported
-    AstNodeExpr* newInitValuep(AstNode* nodep, AstNodeDType* dtypep) {
+    Ast_முனை_கோவை* newInitValuep(Ast_முனை* nodep, Ast_முனை_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
-            AstNodeExpr* const elementp = newInitValuep(nodep, arrayp->subDTypep());
-            return elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
+        எனில் (AstUnpackArrayDType* மாறிலி arrayp = VN_CAST(dtypep, UnpackArrayDType)) {
+            Ast_முனை_கோவை* மாறிலி elementp = newInitValuep(nodep, arrayp->subDTypep());
+            திரும்பு elementp ? new AstConsArray{nodep->fileline(), arrayp, elementp} : nullptr;
         }
-        AstStructDType* const structp = VN_CAST(dtypep, StructDType);
-        if (structp && !structp->packed()) {
-            AstConsStruct* const newp = new AstConsStruct{nodep->fileline(), structp};
-            for (AstMemberDType* memberp = structp->membersp(); memberp;
+        AstStructDType* மாறிலி structp = VN_CAST(dtypep, StructDType);
+        எனில் (structp && !structp->packed()) {
+            AstConsStruct* மாறிலி newp = new AstConsStruct{nodep->fileline(), structp};
+            க்கு (AstMemberDType* memberp = structp->membersp(); memberp;
                  memberp = VN_AS(memberp->nextp(), MemberDType)) {
-                AstNodeExpr* const memberValuep = newInitValuep(nodep, memberp->subDTypep());
-                if (!memberValuep) {
-                    VL_DO_DANGLING(newp->deleteTree(), newp);
-                    return nullptr;
+                Ast_முனை_கோவை* மாறிலி memberValuep = newInitValuep(nodep, memberp->subDTypep());
+                எனில் (!memberValuep) {
+                    VL_DO_DANGLING(newp->delete_மரம்(), newp);
+                    திரும்பு nullptr;
                 }
                 newp->addItemsp(new AstConsStructItem{nodep->fileline(), memberp, memberValuep});
             }
-            return newp;
+            திரும்பு newp;
         }
-        if (const AstBasicDType* const basicp = dtypep->basicp()) {
-            AstConst* const constp
-                = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, basicp->widthMin(), 0};
-            if (basicp->isZeroInit()) {
-                constp->num() = V3Number{nodep, basicp};
-            } else {
-                constp->num().setAllBitsX();
+        எனில் (மாறிலி AstBasicDType* மாறிலி basicp = dtypep->basicp()) {
+            AstConst* மாறிலி constp
+                = new AstConst{nodep->fileline(), AstConst::Widthed_மதிப்பு{}, basicp->widthMin(), 0};
+            எனில் (basicp->isZeroInit()) {
+                constp->இலக்கம்() = V3_எண்{nodep, basicp};
+            } இல்லையெனில் {
+                constp->இலக்கம்().setAllBitsX();
             }
-            return constp;
+            திரும்பு constp;
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
-    void initVar(AstVar* nodep) {
-        if (AstNodeExpr* const valuep = newInitValuep(nodep, nodep->dtypep())) {
-            newValue(nodep, valuep);
-            VL_DO_DANGLING(valuep->deleteTree(), valuep);
+    வெறுமை initVar(AstVar* nodep) {
+        எனில் (Ast_முனை_கோவை* மாறிலி valuep = newInitValuep(nodep, nodep->dtypep())) {
+            new_மதிப்பு(nodep, valuep);
+            VL_DO_DANGLING(valuep->delete_மரம்(), valuep);
         }
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstAlways* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstSenTree* nodep) override {
+    வெறுமை visit(Ast_Sen_மரம்* nodep) override {
         // Sensitivities aren't inputs per se; we'll keep our tree under the same sens.
     }
-    void visit(AstVarRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    வெறுமை visit(AstVarRef* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
         UASSERT_OBJ(nodep->varp(), nodep, "Unlinked");
         iterateChildrenConst(nodep->varp());
-        AstNode* const vscp = varOrScope(nodep);
+        Ast_முனை* மாறிலி vscp = varOrScope(nodep);
 
         // We can't have non-delayed assignments with same value on LHS and RHS
         // as we don't figure out variable ordering.
         // Delayed is OK though, as we'll decode the next state separately.
-        if (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
+        எனில் (!VN_IS(nodep->varp()->dtypeSkipRefp(), BasicDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), PackArrayDType)
             && !VN_IS(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)
-            && !VN_IS(nodep->varp()->dtypeSkipRefp(), NodeUOrStructDType))
+            && !VN_IS(nodep->varp()->dtypeSkipRefp(), முனை_UOr_Struct_DType))
             clearOptimizable(nodep, "Array references/not basic");
-        if (nodep->access().isWriteOrRW()) {
-            if (m_inDlyAssign) {
-                if (!(m_varAux(vscp).usage & VU_LVDLY)) {
+        எனில் (nodep->access().isWriteOrRW()) {
+            எனில் (m_inDlyAssign) {
+                எனில் (!(m_varAux(vscp).usage & VU_LVDLY)) {
                     m_varAux(vscp).usage |= VU_LVDLY;
-                    if (m_checkOnly) varRefCb(nodep);
+                    எனில் (m_checkOnly) varRefCb(nodep);
                 }
-            } else {  // nondly asn
-                if (!(m_varAux(vscp).usage & VU_LV)) {
-                    if (!m_params && (m_varAux(vscp).usage & VU_RV)) {
+            } இல்லையெனில் {  // nondly asn
+                எனில் (!(m_varAux(vscp).usage & VU_LV)) {
+                    எனில் (!m_params && (m_varAux(vscp).usage & VU_RV)) {
                         clearOptimizable(nodep, "Var read & write");
                     }
                     m_varAux(vscp).usage |= VarUsage::VU_LV;
-                    if (m_checkOnly) varRefCb(nodep);
+                    எனில் (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (nodep->access().isReadOrRW()) {
-            if (!(m_varAux(vscp).usage & VU_RV)) {
-                if (!m_params && (m_varAux(vscp).usage & VU_LV)) {
+        எனில் (nodep->access().isReadOrRW()) {
+            எனில் (!(m_varAux(vscp).usage & VU_RV)) {
+                எனில் (!m_params && (m_varAux(vscp).usage & VU_LV)) {
                     clearOptimizable(nodep, "Var write & read");
                 }
                 m_varAux(vscp).usage |= VU_RV;
-                const bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
+                மாறிலி bool varIsConst = (nodep->varp()->isConst() || nodep->varp()->isParam())
                                         && nodep->varp()->valuep();
-                const AstNodeExpr* const valuep
-                    = varIsConst ? fetchValueNull(nodep->varp()->valuep()) : nullptr;
+                மாறிலி Ast_முனை_கோவை* மாறிலி valuep
+                    = varIsConst ? fetch_மதிப்பு_Null(nodep->varp()->valuep()) : nullptr;
                 // Propagate PARAM constants for constant function analysis
-                if (varIsConst && valuep) {
-                    if (!m_checkOnly && optimizable()) newValue(vscp, valuep);
-                } else {
-                    if (m_checkOnly) varRefCb(nodep);
+                எனில் (varIsConst && valuep) {
+                    எனில் (!m_checkOnly && optimizable()) new_மதிப்பு(vscp, valuep);
+                } இல்லையெனில் {
+                    எனில் (m_checkOnly) varRefCb(nodep);
                 }
             }
         }
-        if (m_checkOnly || !optimizable()) return;  // Not simulating
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;  // Not simulating
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep,
                     "LHS varref should be handled in AstAssign visitor.");
         {
             // Return simulation value - copy by reference instead of value for speed
-            AstNodeExpr* valuep = fetchValueNull(vscp);
-            if (!valuep) {
-                if (m_params) {
+            Ast_முனை_கோவை* valuep = fetch_மதிப்பு_Null(vscp);
+            எனில் (!valuep) {
+                எனில் (m_params) {
                     clearOptimizable(
                         nodep, "Language violation: reference to non-function-local variable");
-                } else {
+                } இல்லையெனில் {
                     nodep->v3fatalSrc(
                         "Variable value should have been set before any visitor called.");
                 }
                 valuep = allocConst(nodep);  // Any value; just so recover from error
             }
-            setValue(nodep, valuep);
+            set_மதிப்பு(nodep, valuep);
         }
     }
-    void visit(AstVarXRef* nodep) override {
-        if (jumpingOver()) return;
-        if (m_scoped) {
-            badNodeType(nodep);
-            return;
+    வெறுமை visit(AstVarXRef* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (m_scoped) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
         clearOptimizable(nodep, "Language violation: Dotted hierarchical references not "
                                 "allowed in constant functions");
     }
-    void visit(AstNodeFTask* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        if (nodep->dpiImport()) {
-            if (m_params) {
+        எனில் (nodep->dpiImport()) {
+            எனில் (m_params) {
                 nodep->v3error("Constant function may not be DPI import (IEEE 1800-2023 13.4.3)");
             }
             clearOptimizable(nodep, "DPI import functions aren't simulatable");
         }
-        if (nodep->underGenerate()) {
+        எனில் (nodep->underGenerate()) {
             nodep->v3error(
                 "Constant function may not be declared under generate (IEEE 1800-2023 13.4.3)");
             clearOptimizable(nodep, "Constant function called under generate");
         }
-        checkNodeInfo(nodep);
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstInitialAutomaticStmt* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstInitialStaticStmt* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    வெறுமை visit(AstInitialStatic* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        checkNodeInfo(nodep);
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (jumpingOver()) return;
+    வெறுமை visit(Ast_முனை_If* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
         UINFO(5, "   IF " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } இல்லையெனில் {
             iterateAndNextConstNull(nodep->condp());
-            if (optimizable()) {
-                if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            எனில் (optimizable()) {
+                எனில் (fetchConst(nodep->condp())->இலக்கம்().isNeqZero()) {
                     iterateAndNextConstNull(nodep->thensp());
-                } else {
+                } இல்லையெனில் {
                     iterateAndNextConstNull(nodep->elsesp());
                 }
             }
         }
     }
-    void visit(AstConst* nodep) override {
-        checkNodeInfo(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, nodep);
+    வெறுமை visit(AstConst* nodep) override {
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        new_மதிப்பு(nodep, nodep);
     }
     // An aggregate value is a tree of only AstConst, AstConsArray and AstConsStruct
     // nodes, so the value of an element or member is its subtree
-    void visit(AstConsArray* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstConsArray* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsArray* const valuep = new AstConsArray{
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        AstConsArray* மாறிலி valuep = new AstConsArray{
             nodep->fileline(), nodep->dtypep(),
-            nodep->defaultp() ? fetchValue(nodep->defaultp())->cloneTree(false) : nullptr};
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+            nodep->defaultp() ? fetch_மதிப்பு(nodep->defaultp())->clone_மரம்(false) : nullptr};
+        க்கு (மாறிலி AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            valuep->valuep(itemp->index(), fetchValue(itemp->valuep())->cloneTree(false));
+            valuep->valuep(itemp->index(), fetch_மதிப்பு(itemp->valuep())->clone_மரம்(false));
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.தள்ளு_back(valuep);
+        set_மதிப்பு(nodep, valuep);
     }
-    void visit(AstConsStruct* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    வெறுமை visit(AstConsStruct* nodep) override {
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        checkNodeInfo(nodep);
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        check_முனை_Info(nodep);
+        க்கு (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             iterateConst(itemp->valuep());
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const valuep = new AstConsStruct{
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        AstConsStruct* மாறிலி valuep = new AstConsStruct{
             nodep->fileline(), VN_AS(nodep->dtypep()->skipRefp(), StructDType)};
-        for (AstConsStructItem* itemp = nodep->itemsp(); itemp;
+        க்கு (AstConsStructItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsStructItem)) {
             valuep->addItemsp(
                 new AstConsStructItem{itemp->fileline(), itemp->memberp(),
-                                      fetchValue(itemp->valuep())->cloneTree(false)});
+                                      fetch_மதிப்பு(itemp->valuep())->clone_மரம்(false)});
         }
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        m_reclaimValuesp.தள்ளு_back(valuep);
+        set_மதிப்பு(nodep, valuep);
     }
-    void visit(AstCvtUnpackToUnpack* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstCvtUnpackToUnpack* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
         // An array value is an AstConsArray, so V3Const folds the conversion
-        AstNodeExpr* const cvtp = new AstCvtUnpackToUnpack{
-            nodep->fileline(), fetchValue(nodep->fromp())->cloneTree(false), nodep->dtypep()};
-        AstNodeExpr* const valuep = V3Const::constifyEdit(cvtp);
-        m_reclaimValuesp.push_back(valuep);
-        setValue(nodep, valuep);
+        Ast_முனை_கோவை* மாறிலி cvtp = new AstCvtUnpackToUnpack{
+            nodep->fileline(), fetch_மதிப்பு(nodep->fromp())->clone_மரம்(false), nodep->dtypep()};
+        Ast_முனை_கோவை* மாறிலி valuep = V3Const::constifyEdit(cvtp);
+        m_reclaimValuesp.தள்ளு_back(valuep);
+        set_மதிப்பு(nodep, valuep);
     }
-    void visit(AstConsArrayItem* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstConsArrayItem* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstEnumItemRef* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstEnumItemRef* nodep) override {
+        check_முனை_Info(nodep);
         UASSERT_OBJ(nodep->itemp(), nodep, "Not linked");
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const valuep = nodep->itemp()->valuep();
-        if (valuep) {
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        Ast_முனை* மாறிலி valuep = nodep->itemp()->valuep();
+        எனில் (valuep) {
             iterateAndNextConstNull(valuep);
-            if (!optimizable()) return;
-            newValue(nodep, fetchValue(valuep));
-        } else {
+            எனில் (!optimizable()) திரும்பு;
+            new_மதிப்பு(nodep, fetch_மதிப்பு(valuep));
+        } இல்லையெனில் {
             clearOptimizable(nodep, "No value found for enum item");  // LCOV_EXCL_LINE
         }
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_முனை_Uniop* nodep) override {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num());
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        nodep->எண்_Operate(newConst(nodep)->இலக்கம்(), fetchConst(nodep->lhsp())->இலக்கம்());
     }
     // Set resultr to whether the aggregate values are equal, like a logical and of comparing
     // each element or member. V3Width allows comparing only values of matching types, so the
     // values have the same shape, and an array value is of an unpacked array, as associative
     // and dynamic arrays and queues are not values here.
-    void aggregateEqRecurse(V3Number& resultr, AstNode* nodep, bool caseEq, AstNodeExpr* lhsp,
-                            AstNodeExpr* rhsp) {
-        if (const AstConst* const lconstp = VN_CAST(lhsp, Const)) {
-            const V3Number& lnum = lconstp->num();
-            const V3Number& rnum = VN_AS(rhsp, Const)->num();
-            V3Number eq{nodep, 1};
-            if (lnum.isDouble()) {
+    வெறுமை aggregateEqRecurse(V3_எண்& resultr, Ast_முனை* nodep, bool caseEq, Ast_முனை_கோவை* lhsp,
+                            Ast_முனை_கோவை* rhsp) {
+        எனில் (மாறிலி AstConst* மாறிலி lconstp = VN_CAST(lhsp, Const)) {
+            மாறிலி V3_எண்& lnum = lconstp->இலக்கம்();
+            மாறிலி V3_எண்& rnum = VN_AS(rhsp, Const)->இலக்கம்();
+            V3_எண் eq{nodep, 1};
+            எனில் (lnum.isDouble()) {
                 eq.opEqD(lnum, rnum);
-            } else if (lnum.isString()) {
+            } இல்லையெனில் எனில் (lnum.isString()) {
                 eq.opEqN(lnum, rnum);
-            } else if (caseEq) {
+            } இல்லையெனில் எனில் (caseEq) {
                 eq.opCaseEq(lnum, rnum);
-            } else {
+            } இல்லையெனில் {
                 eq.opEq(lnum, rnum);
             }
-            const V3Number prev = resultr;
+            மாறிலி V3_எண் prev = resultr;
             resultr.opLogAnd(prev, eq);
-        } else if (const AstConsArray* const lconsp = VN_CAST(lhsp, ConsArray)) {
-            const AstUnpackArrayDType* const dtypep
+        } இல்லையெனில் எனில் (மாறிலி AstConsArray* மாறிலி lconsp = VN_CAST(lhsp, ConsArray)) {
+            மாறிலி AstUnpackArrayDType* மாறிலி dtypep
                 = VN_AS(lhsp->dtypep()->skipRefp(), UnpackArrayDType);
-            for (int n = 0; n < dtypep->elementsConst(); ++n) {
+            க்கு (முழு n = 0; n < dtypep->elementsConst(); ++n) {
                 aggregateEqRecurse(resultr, nodep, caseEq, lconsp->valuep(n),
                                    VN_AS(rhsp, ConsArray)->valuep(n));
             }
-        } else {
-            const AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
-            for (const AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
+        } இல்லையெனில் {
+            மாறிலி AstConsStructItem* ritemp = VN_AS(rhsp, ConsStruct)->itemsp();
+            க்கு (மாறிலி AstConsStructItem* litemp = VN_AS(lhsp, ConsStruct)->itemsp(); litemp;
                  litemp = VN_AS(litemp->nextp(), ConsStructItem),
                                           ritemp = VN_AS(ritemp->nextp(), ConsStructItem)) {
                 aggregateEqRecurse(resultr, nodep, caseEq, litemp->valuep(), ritemp->valuep());
             }
         }
     }
-    void handleAggregateCompare(AstNodeBiop* nodep) {
+    வெறுமை handleAggregateCompare(Ast_முனை_Biop* nodep) {
         // V3Width allows only equality operators on aggregates (IEEE 1800-2023 11.3)
-        const bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
-        const bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
+        மாறிலி bool caseEq = VN_IS(nodep, EqCase) || VN_IS(nodep, NeqCase);
+        மாறிலி bool neq = VN_IS(nodep, Neq) || VN_IS(nodep, NeqCase);
         UASSERT_OBJ(caseEq || neq || VN_IS(nodep, Eq), nodep, "Unexpected operator on aggregate");
-        V3Number& resultr = newConst(nodep)->num();
+        V3_எண்& resultr = newConst(nodep)->இலக்கம்();
         resultr.setAllBits1();
-        aggregateEqRecurse(resultr, nodep, caseEq, fetchValue(nodep->lhsp()),
-                           fetchValue(nodep->rhsp()));
-        if (neq) {
-            const V3Number eq = resultr;
+        aggregateEqRecurse(resultr, nodep, caseEq, fetch_மதிப்பு(nodep->lhsp()),
+                           fetch_மதிப்பு(nodep->rhsp()));
+        எனில் (neq) {
+            மாறிலி V3_எண் eq = resultr;
             resultr.opLogNot(eq);
         }
     }
-    void visit(AstNodeBiop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_முனை_Biop* nodep) override {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
         // A value that is not a constant is an aggregate, and V3Width allows only
         // equality operators on aggregates (IEEE 1800-2023 11.3)
-        if (!VN_IS(fetchValue(nodep->lhsp()), Const)) {
+        எனில் (!VN_IS(fetch_மதிப்பு(nodep->lhsp()), Const)) {
             handleAggregateCompare(nodep);
-            return;
+            திரும்பு;
         }
-        AstConst* const valuep = newConst(nodep);
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num());
+        AstConst* மாறிலி valuep = newConst(nodep);
+        nodep->எண்_Operate(newConst(nodep)->இலக்கம்(), fetchConst(nodep->lhsp())->இலக்கம்(),
+                             fetchConst(nodep->rhsp())->இலக்கம்());
         // See #5490. 'numberOperate' on partially out of range select yields 'x' bits,
         // but in reality it would yield '0's without V3Table, so force 'x' bits to '0',
         // to ensure the result is the same with and without V3Table.
-        if (!m_params && VN_IS(nodep, Sel) && valuep->num().isAnyX()) {
-            const V3Number num{valuep, valuep->width(), valuep->num()};
-            valuep->num().opBitsOne(num);
+        எனில் (!m_params && VN_IS(nodep, Sel) && valuep->இலக்கம்().isAnyX()) {
+            மாறிலி V3_எண் இலக்கம்{valuep, valuep->width(), valuep->இலக்கம்()};
+            valuep->இலக்கம்().opBitsOne(இலக்கம்);
         }
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_முனை_Triop* nodep) override {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num());
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        nodep->எண்_Operate(newConst(nodep)->இலக்கம்(), fetchConst(nodep->lhsp())->இலக்கம்(),
+                             fetchConst(nodep->rhsp())->இலக்கம்(), fetchConst(nodep->thsp())->இலக்கம்());
     }
-    void visit(AstNodeQuadop* nodep) override {
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_முனை_Quadop* nodep) override {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        nodep->numberOperate(newConst(nodep)->num(), fetchConst(nodep->lhsp())->num(),
-                             fetchConst(nodep->rhsp())->num(), fetchConst(nodep->thsp())->num(),
-                             fetchConst(nodep->fhsp())->num());
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        nodep->எண்_Operate(newConst(nodep)->இலக்கம்(), fetchConst(nodep->lhsp())->இலக்கம்(),
+                             fetchConst(nodep->rhsp())->இலக்கம்(), fetchConst(nodep->thsp())->இலக்கம்(),
+                             fetchConst(nodep->fhsp())->இலக்கம்());
     }
-    void visit(AstLogAnd* nodep) override {
+    வெறுமை visit(AstLogAnd* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } இல்லையெனில் {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
+            எனில் (!optimizable()) திரும்பு;
+            எனில் (fetchConst(nodep->lhsp())->இலக்கம்().isNeqZero()) {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
-            } else {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a zero
+                எனில் (!optimizable()) திரும்பு;
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->rhsp()));
+            } இல்லையெனில் {
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->lhsp()));  // a zero
             }
         }
     }
-    void visit(AstLogOr* nodep) override {
+    வெறுமை visit(AstLogOr* nodep) override {
         // Need to short circuit
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } இல்லையெனில் {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isNeqZero()) {
-                newValue(nodep, fetchValue(nodep->lhsp()));  // a one
-            } else {
+            எனில் (!optimizable()) திரும்பு;
+            எனில் (fetchConst(nodep->lhsp())->இலக்கம்().isNeqZero()) {
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->lhsp()));  // a one
+            } இல்லையெனில் {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                எனில் (!optimizable()) திரும்பு;
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->rhsp()));
             }
         }
     }
-    void visit(AstLogIf* nodep) override {
+    வெறுமை visit(AstLogIf* nodep) override {
         // Need to short circuit, same as (!A || B)
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } இல்லையெனில் {
             iterateConst(nodep->lhsp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->lhsp())->num().isEqZero()) {
-                const AstConst cnst{nodep->fileline(), AstConst::WidthedValue{}, 1, 1};  // a one
-                newValue(nodep, &cnst);  // a one
-            } else {
+            எனில் (!optimizable()) திரும்பு;
+            எனில் (fetchConst(nodep->lhsp())->இலக்கம்().isEqZero()) {
+                மாறிலி AstConst cnst{nodep->fileline(), AstConst::Widthed_மதிப்பு{}, 1, 1};  // a one
+                new_மதிப்பு(nodep, &cnst);  // a one
+            } இல்லையெனில் {
                 iterateConst(nodep->rhsp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->rhsp()));
+                எனில் (!optimizable()) திரும்பு;
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->rhsp()));
             }
         }
     }
-    void visit(AstCond* nodep) override {
+    வெறுமை visit(AstCond* nodep) override {
         // We could use above visit(AstNodeTriop), but need to do short circuiting.
         // It's also slower even O(n^2) to evaluate both sides when we
         // really only need to evaluate one side.
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else {
+        } இல்லையெனில் {
             iterateConst(nodep->condp());
-            if (!optimizable()) return;
-            if (fetchConst(nodep->condp())->num().isNeqZero()) {
+            எனில் (!optimizable()) திரும்பு;
+            எனில் (fetchConst(nodep->condp())->இலக்கம்().isNeqZero()) {
                 iterateConst(nodep->thenp());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->thenp()));
-            } else {
+                எனில் (!optimizable()) திரும்பு;
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->thenp()));
+            } இல்லையெனில் {
                 iterateConst(nodep->elsep());
-                if (!optimizable()) return;
-                newValue(nodep, fetchValue(nodep->elsep()));
+                எனில் (!optimizable()) திரும்பு;
+                new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->elsep()));
             }
         }
     }
 
-    void handleAssignElement(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
+    வெறுமை handleAssignElement(Ast_முனை_Assign* nodep, Ast_முனை_கோவை* lhsp, Ast_முனை_கோவை* மதிப்பு_Fromp) {
         // Assign an element or member, maybe nested, of a variable, by editing the variable's
         // value. Selects, from the element inwards:
-        std::vector<AstNodeExpr*> selps;
-        AstNodeExpr* fromp = lhsp;
-        while (true) {
-            if (AstArraySel* const selp = VN_CAST(fromp, ArraySel)) {
-                checkNodeInfo(selp);
+        std::vector<Ast_முனை_கோவை*> selps;
+        Ast_முனை_கோவை* fromp = lhsp;
+        போது (true) {
+            எனில் (AstArraySel* மாறிலி selp = VN_CAST(fromp, ArraySel)) {
+                check_முனை_Info(selp);
                 iterateAndNextConstNull(selp->bitp());  // Bit index
-                selps.push_back(selp);
+                selps.தள்ளு_back(selp);
                 fromp = selp->fromp();
-            } else if (AstStructSel* const selp = VN_CAST(fromp, StructSel)) {
-                checkNodeInfo(selp);
-                selps.push_back(selp);
+            } இல்லையெனில் எனில் (AstStructSel* மாறிலி selp = VN_CAST(fromp, StructSel)) {
+                check_முனை_Info(selp);
+                selps.தள்ளு_back(selp);
                 fromp = selp->fromp();
-            } else {
-                break;
+            } இல்லையெனில் {
+                நிறுத்து;
             }
         }
-        AstVarRef* const varrefp = VN_CAST(fromp, VarRef);
-        if (!varrefp) {
+        AstVarRef* மாறிலி varrefp = VN_CAST(fromp, VarRef);
+        எனில் (!varrefp) {
             clearOptimizable(fromp, "Array select LHS isn't simple variable");
-            return;
+            திரும்பு;
         }
-        if (m_checkOnly || !optimizable()) return;
-        AstNode* const vscp = varOrScope(varrefp);
-        AstNodeExpr* rootp = fetchOutValueNull(vscp);
-        if (!rootp) rootp = fetchValueNull(vscp);
-        if (!rootp) {  // As initVar couldn't make an initial value of its type
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        Ast_முனை* மாறிலி vscp = varOrScope(varrefp);
+        Ast_முனை_கோவை* rootp = fetch_Out_மதிப்பு_Null(vscp);
+        எனில் (!rootp) rootp = fetch_மதிப்பு_Null(vscp);
+        எனில் (!rootp) {  // As initVar couldn't make an initial value of its type
             clearOptimizable(varrefp, "Assigned variable has unsupported data type");
-            return;
+            திரும்பு;
         }
         // Find the value of the selected element, making a defaulted array element explicit
-        AstNodeExpr* itemp = rootp;
-        for (AstNodeExpr* const selp : vlstd::reverse_view(selps)) {
-            if (const AstArraySel* const aselp = VN_CAST(selp, ArraySel)) {
-                AstConsArray* const consp = VN_AS(itemp, ConsArray);
-                const uint32_t index = fetchConst(aselp->bitp())->toUInt();
-                const int elements
+        Ast_முனை_கோவை* itemp = rootp;
+        க்கு (Ast_முனை_கோவை* மாறிலி selp : vlstd::reverse_view(selps)) {
+            எனில் (மாறிலி AstArraySel* மாறிலி aselp = VN_CAST(selp, ArraySel)) {
+                AstConsArray* மாறிலி consp = VN_AS(itemp, ConsArray);
+                மாறிலி uint32_t index = fetchConst(aselp->bitp())->toUInt();
+                மாறிலி முழு elements
                     = VN_AS(consp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-                if (index >= static_cast<uint32_t>(elements)) {
-                    return;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
+                எனில் (index >= static_cast<uint32_t>(elements)) {
+                    திரும்பு;  // Ignore a write out of bounds (IEEE 1800-2023 7.4.6)
                 }
                 itemp = consp->valuep(index);
-                if (itemp == consp->defaultp()) {  // Make a defaulted element explicit
-                    itemp = itemp->cloneTree(false);
+                எனில் (itemp == consp->defaultp()) {  // Make a defaulted element explicit
+                    itemp = itemp->clone_மரம்(false);
                     consp->valuep(index, itemp);
                 }
-            } else {
+            } இல்லையெனில் {
                 itemp = VN_AS(itemp, ConsStruct)->memberValuep(selp->name());
             }
         }
         // Clone first, as the value assigned may be the old value of the element
-        AstNodeExpr* const valuep = newTrackedClone(fetchValue(valueFromp));
+        Ast_முனை_கோவை* மாறிலி valuep = newTrackedClone(fetch_மதிப்பு(மதிப்பு_Fromp));
         UINFO(9, "     set " << lhsp << " = " << valuep);
         itemp->replaceWith(valuep);
-        m_reclaimValuesp.push_back(itemp);
+        m_reclaimValuesp.தள்ளு_back(itemp);
         UINFOTREE(9, rootp, "", "aggregate");
-        assignOutValue(nodep, vscp, rootp);
+        assign_Out_மதிப்பு(nodep, vscp, rootp);
     }
-    void handleAssignSel(AstNodeAssign* nodep, AstSel* selp, AstNodeExpr* valueFromp) {
+    வெறுமை handleAssignSel(Ast_முனை_Assign* nodep, AstSel* selp, Ast_முனை_கோவை* மதிப்பு_Fromp) {
         AstVarRef* varrefp = nullptr;
-        V3Number lsb{nodep};
+        V3_எண் lsb{nodep};
         handleAssignSelRecurse(nodep, selp, varrefp /*ref*/, lsb /*ref*/, 0);
-        if (m_checkOnly || !optimizable()) return;
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
         UASSERT_OBJ(varrefp, nodep,
                     "Indicated optimizable, but no variable found on RHS of select");
-        AstNode* const vscp = varOrScope(varrefp);
+        Ast_முனை* மாறிலி vscp = varOrScope(varrefp);
         AstConst* outconstp = nullptr;
-        if (AstConst* const vscpnump = fetchOutConstNull(vscp)) {
+        எனில் (AstConst* மாறிலி vscpnump = fetchOutConstNull(vscp)) {
             outconstp = vscpnump;
-        } else if (AstConst* const vscpnump = fetchConstNull(vscp)) {
+        } இல்லையெனில் எனில் (AstConst* மாறிலி vscpnump = fetchConstNull(vscp)) {
             outconstp = vscpnump;
-        } else {  // Assignment to unassigned variable, all bits are X or 0
-            outconstp = new AstConst{nodep->fileline(), AstConst::WidthedValue{},
+        } இல்லையெனில் {  // Assignment to unassigned variable, all bits are X or 0
+            outconstp = new AstConst{nodep->fileline(), AstConst::Widthed_மதிப்பு{},
                                      varrefp->varp()->widthMin(), 0};
-            if (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
-                outconstp->num().setAllBits0();
-            } else {
-                outconstp->num().setAllBitsX();
+            எனில் (varrefp->varp()->basicp() && varrefp->varp()->basicp()->isZeroInit()) {
+                outconstp->இலக்கம்().setAllBits0();
+            } இல்லையெனில் {
+                outconstp->இலக்கம்().setAllBitsX();
             }
             m_reclaimValuesp.emplace_back(outconstp);
         }
-        outconstp->num().opSelInto(fetchConst(valueFromp)->num(), lsb, selp->widthConst());
-        assignOutValue(nodep, vscp, outconstp);
+        outconstp->இலக்கம்().opSelInto(fetchConst(மதிப்பு_Fromp)->இலக்கம்(), lsb, selp->widthConst());
+        assign_Out_மதிப்பு(nodep, vscp, outconstp);
     }
-    void handleAssignSelRecurse(AstNodeAssign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
-                                V3Number& lsbRef, int depth) {
+    வெறுமை handleAssignSelRecurse(Ast_முனை_Assign* nodep, AstSel* selp, AstVarRef*& outVarrefpRef,
+                                V3_எண்& lsbRef, முழு depth) {
         // Recurse down to find final variable being set (outVarrefp), with
         // lsb to be eventually set on lsbRef
-        checkNodeInfo(selp);
+        check_முனை_Info(selp);
         iterateAndNextConstNull(selp->lsbp());  // Bit index
-        if (AstVarRef* const varrefp = VN_CAST(selp->fromp(), VarRef)) {
+        எனில் (AstVarRef* மாறிலி varrefp = VN_CAST(selp->fromp(), VarRef)) {
             outVarrefpRef = varrefp;
-            lsbRef = fetchConst(selp->lsbp())->num();
-            return;  // And presumably still optimizable()
+            lsbRef = fetchConst(selp->lsbp())->இலக்கம்();
+            திரும்பு;  // And presumably still optimizable()
         }
-        if (AstSel* const subselp = VN_CAST(selp->fromp(), Sel)) {
-            V3Number sublsb{nodep};
+        எனில் (AstSel* மாறிலி subselp = VN_CAST(selp->fromp(), Sel)) {
+            V3_எண் sublsb{nodep};
             handleAssignSelRecurse(nodep, subselp, outVarrefpRef, sublsb /*ref*/, depth + 1);
-            if (optimizable()) {
+            எனில் (optimizable()) {
                 lsbRef = sublsb;
-                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->num());
+                lsbRef.opAdd(sublsb, fetchConst(selp->lsbp())->இலக்கம்());
             }
-        } else {
+        } இல்லையெனில் {
             clearOptimizable(selp->fromp(), "Select LHS isn't simple variable");
         }
     }
-    void handleAssignRecurse(AstNodeAssign* nodep, AstNodeExpr* lhsp, AstNodeExpr* valueFromp) {
-        if (!optimizable()) return;
-        if (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
-            if (!m_params) {
+    வெறுமை handleAssignRecurse(Ast_முனை_Assign* nodep, Ast_முனை_கோவை* lhsp, Ast_முனை_கோவை* மதிப்பு_Fromp) {
+        எனில் (!optimizable()) திரும்பு;
+        எனில் (VN_IS(lhsp, ArraySel) || VN_IS(lhsp, StructSel)) {
+            எனில் (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                திரும்பு;
             }
-            handleAssignElement(nodep, lhsp, valueFromp);
-        } else if (AstConcat* const selp = VN_CAST(lhsp, Concat)) {
-            checkNodeInfo(selp);
-            if (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
+            handleAssignElement(nodep, lhsp, மதிப்பு_Fromp);
+        } இல்லையெனில் எனில் (AstConcat* மாறிலி selp = VN_CAST(lhsp, Concat)) {
+            check_முனை_Info(selp);
+            எனில் (!VN_IS(selp->rhsp()->dtypep()->skipRefp(), BasicDType)) {
                 clearOptimizable(lhsp, "Assign LHS concat of non-basic type");
-                return;
+                திரும்பு;
             }
             // Split value into left and right concat values
-            if (!m_checkOnly) {
+            எனில் (!m_checkOnly) {
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->lhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* மாறிலி outconstp
+                        = new AstConst{selp->lhsp()->fileline(), AstConst::Widthed_மதிப்பு{},
                                        selp->lhsp()->width(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->இலக்கம்().opSel(fetchConst(மதிப்பு_Fromp)->இலக்கம்(),
                                            selp->lhsp()->width() + selp->rhsp()->width() + 1,
                                            selp->rhsp()->width());
-                    newValue(selp->lhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_மதிப்பு(selp->lhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_மரம்(), outconstp);
                 }
                 {
-                    AstConst* const outconstp
-                        = new AstConst{selp->rhsp()->fileline(), AstConst::WidthedValue{},
+                    AstConst* மாறிலி outconstp
+                        = new AstConst{selp->rhsp()->fileline(), AstConst::Widthed_மதிப்பு{},
                                        selp->rhsp()->widthMin(), 0};
-                    outconstp->num().opSel(fetchConst(valueFromp)->num(),
+                    outconstp->இலக்கம்().opSel(fetchConst(மதிப்பு_Fromp)->இலக்கம்(),
                                            selp->rhsp()->width() - 1, 0);
-                    newValue(selp->rhsp(), outconstp);
-                    VL_DO_DANGLING(outconstp->deleteTree(), outconstp);
+                    new_மதிப்பு(selp->rhsp(), outconstp);
+                    VL_DO_DANGLING(outconstp->delete_மரம்(), outconstp);
                 }
             }
             handleAssignRecurse(nodep, selp->lhsp(), selp->lhsp());
             handleAssignRecurse(nodep, selp->rhsp(), selp->rhsp());
-        } else if (AstReplicate* const selp = VN_CAST(lhsp, Replicate)) {
-            checkNodeInfo(selp);
+        } இல்லையெனில் எனில் (AstReplicate* மாறிலி selp = VN_CAST(lhsp, Replicate)) {
+            check_முனை_Info(selp);
             iterateAndNextConstNull(selp->countp());
-            AstConst* const countp = VN_CAST(selp->countp(), Const);
-            if (!countp || !countp->num().isEqOne()) {
+            AstConst* மாறிலி countp = VN_CAST(selp->countp(), Const);
+            எனில் (!countp || !countp->இலக்கம்().isEqOne()) {
                 clearOptimizable(selp, "Replicate LHS count isn't one");
-                return;
+                திரும்பு;
             }
-            handleAssignRecurse(nodep, selp->srcp(), valueFromp);
-        } else if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (!m_params) {
+            handleAssignRecurse(nodep, selp->srcp(), மதிப்பு_Fromp);
+        } இல்லையெனில் எனில் (AstSel* மாறிலி selp = VN_CAST(lhsp, Sel)) {
+            எனில் (!m_params) {
                 clearOptimizable(lhsp, "Assign LHS has select");
-                return;
+                திரும்பு;
             }
-            handleAssignSel(nodep, selp, valueFromp);
-        } else if (VN_IS(lhsp, VarRef)) {
-            if (m_checkOnly) {
+            handleAssignSel(nodep, selp, மதிப்பு_Fromp);
+        } இல்லையெனில் எனில் (VN_IS(lhsp, VarRef)) {
+            எனில் (m_checkOnly) {
                 iterateAndNextConstNull(lhsp);
-            } else {
-                AstNode* const vscp = varOrScope(VN_CAST(lhsp, VarRef));
-                assignOutValue(nodep, vscp, fetchValue(valueFromp));
+            } இல்லையெனில் {
+                Ast_முனை* மாறிலி vscp = varOrScope(VN_CAST(lhsp, VarRef));
+                assign_Out_மதிப்பு(nodep, vscp, fetch_மதிப்பு(மதிப்பு_Fromp));
             }
-        } else {
+        } இல்லையெனில் {
             clearOptimizable(lhsp, "Assign LHS isn't simple variable");
         }
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_முனை_Assign* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
 
         VL_RESTORER(m_inDlyAssign);
 
-        if (VN_IS(nodep, AssignForce)) {
+        எனில் (VN_IS(nodep, AssignForce)) {
             clearOptimizable(nodep, "Force");
-        } else if (VN_IS(nodep, AssignDly)) {
-            if (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } இல்லையெனில் எனில் (VN_IS(nodep, AssignDly)) {
+            எனில் (m_anyAssignComb) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignDly = true;
             m_inDlyAssign = true;
-        } else {
-            if (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
+        } இல்லையெனில் {
+            எனில் (m_anyAssignDly) clearOptimizable(nodep, "Mix of dly/non-dly assigns");
             m_anyAssignComb = true;
         }
 
-        if (VN_IS(nodep->rhsp(), CReset)) {
+        எனில் (VN_IS(nodep->rhsp(), CReset)) {
             initVar(VN_AS(nodep->lhsp(), VarRef)->varp());
-            return;
+            திரும்பு;
         }
 
         iterateAndNextConstNull(nodep->rhsp());  // Value to assign
@@ -1083,86 +1083,86 @@ private:
         // UINFO(9, "set " << fetchConst(nodep->rhsp())->num().ascii() << " for assign "
         //  << nodep->lhsp()->name());
     }
-    void visit(AstArraySel* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstArraySel* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const AstConst* const indexp = fetchConst(nodep->bitp());
-            const uint32_t offset = indexp->num().toUInt();
-            AstNodeExpr* const itemp = consp->valuep(offset);
-            if (!itemp) {
+        எனில் (மாறிலி AstConsArray* மாறிலி consp = VN_CAST(fetch_மதிப்பு_Null(nodep->fromp()), ConsArray)) {
+            மாறிலி AstConst* மாறிலி indexp = fetchConst(nodep->bitp());
+            மாறிலி uint32_t offset = indexp->இலக்கம்().toUInt();
+            Ast_முனை_கோவை* மாறிலி itemp = consp->valuep(offset);
+            எனில் (!itemp) {
                 clearOptimizable(nodep, "Array select out of range: " + std::to_string(offset));
-            } else {
-                setValue(nodep, itemp);
+            } இல்லையெனில் {
+                set_மதிப்பு(nodep, itemp);
             }
-        } else {
+        } இல்லையெனில் {
             clearOptimizable(nodep, "Array select of non-array");
         }
     }
-    void visit(AstStructSel* nodep) override {
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+    வெறுமை visit(AstStructSel* nodep) override {
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        checkNodeInfo(nodep);
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        AstConsStruct* const consp = VN_AS(fetchValue(nodep->fromp()), ConsStruct);
-        setValue(nodep, consp->memberValuep(nodep->name()));
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        AstConsStruct* மாறிலி consp = VN_AS(fetch_மதிப்பு(nodep->fromp()), ConsStruct);
+        set_மதிப்பு(nodep, consp->memberValuep(nodep->name()));
     }
 
     // Evaluate a slice of an unpacked array.  If the base value is a constant
     // AstConsArray, build a new AstConsArray representing the slice and assign
     // it as this node's value.  New index 0 corresponds to the lowest index of
     // the slice.  Otherwise, mark this node as unoptimizable.
-    void visit(AstSliceSel* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstSliceSel* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
         // Fetch the base constant array
-        if (const AstConsArray* const consp = VN_CAST(fetchValueNull(nodep->fromp()), ConsArray)) {
-            const VNumRange& sliceRange = nodep->declRange();
-            const uint32_t sliceElements = sliceRange.elements();
-            const int sliceLo = sliceRange.lo();
+        எனில் (மாறிலி AstConsArray* மாறிலி consp = VN_CAST(fetch_மதிப்பு_Null(nodep->fromp()), ConsArray)) {
+            மாறிலி VNumRange& sliceRange = nodep->declRange();
+            மாறிலி uint32_t sliceElements = sliceRange.elements();
+            மாறிலி முழு sliceLo = sliceRange.lo();
             // Use this node's dtype for the slice array
-            AstNodeDType* const dtypep = nodep->dtypep()->skipRefp();
-            AstConsArray* const newConsp = new AstConsArray{nodep->fileline(), dtypep};
+            Ast_முனை_DType* மாறிலி dtypep = nodep->dtypep()->skipRefp();
+            AstConsArray* மாறிலி newConsp = new AstConsArray{nodep->fileline(), dtypep};
             // Copy slice elements in ascending order
-            for (uint32_t idx = 0; idx < sliceElements; ++idx) {
-                const uint32_t baseIdx = sliceLo + idx;
-                newConsp->valuep(idx, consp->valuep(baseIdx)->cloneTree(false));
+            க்கு (uint32_t idx = 0; idx < sliceElements; ++idx) {
+                மாறிலி uint32_t baseIdx = sliceLo + idx;
+                newConsp->valuep(idx, consp->valuep(baseIdx)->clone_மரம்(false));
             }
             // Assign the new constant array and track it for later deletion
-            setValue(nodep, newConsp);
-            m_reclaimValuesp.push_back(newConsp);
-        } else {
+            set_மதிப்பு(nodep, newConsp);
+            m_reclaimValuesp.தள்ளு_back(newConsp);
+        } இல்லையெனில் {
             clearOptimizable(nodep, "Slice select of non-array");
         }
     }
 
-    void visit(AstBegin* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstBegin* nodep) override {
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstCase* nodep) override {
-        if (jumpingOver()) return;
+    வெறுமை visit(AstCase* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
         UINFO(5, "   CASE " << nodep);
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-        } else if (optimizable()) {
+        } இல்லையெனில் எனில் (optimizable()) {
             iterateAndNextConstNull(nodep->exprp());
             bool hit = false;
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            க்கு (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (!itemp->isDefault()) {
-                    for (AstNode* ep = itemp->condsp(); ep; ep = ep->nextp()) {
-                        if (hit) break;
+                எனில் (!itemp->isDefault()) {
+                    க்கு (Ast_முனை* ep = itemp->condsp(); ep; ep = ep->nextp()) {
+                        எனில் (hit) நிறுத்து;
                         iterateAndNextConstNull(ep);
-                        if (optimizable()) {
-                            V3Number match{nodep, 1};
-                            match.opEq(fetchConst(nodep->exprp())->num(), fetchConst(ep)->num());
-                            if (match.isNeqZero()) {
+                        எனில் (optimizable()) {
+                            V3_எண் match{nodep, 1};
+                            match.opEq(fetchConst(nodep->exprp())->இலக்கம்(), fetchConst(ep)->இலக்கம்());
+                            எனில் (match.isNeqZero()) {
                                 iterateAndNextConstNull(itemp->stmtsp());
                                 hit = true;
                             }
@@ -1171,10 +1171,10 @@ private:
                 }
             }
             // Else default match
-            for (AstCaseItem* itemp = nodep->itemsp(); itemp;
+            க்கு (AstCaseItem* itemp = nodep->itemsp(); itemp;
                  itemp = VN_AS(itemp->nextp(), CaseItem)) {
-                if (hit) break;
-                if (itemp->isDefault()) {
+                எனில் (hit) நிறுத்து;
+                எனில் (itemp->isDefault()) {
                     iterateAndNextConstNull(itemp->stmtsp());
                     hit = true;
                 }
@@ -1182,143 +1182,143 @@ private:
         }
     }
 
-    void visit(AstCaseItem* nodep) override {
+    வெறுமை visit(AstCaseItem* nodep) override {
         // Real handling is in AstNodeCase
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstComment*) override {}
+    வெறுமை visit(AstComment*) override {}
 
-    void visit(AstStmtExpr* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_Stmt_கோவை* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
     }
-    void visit(AstExprStmt* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    வெறுமை visit(Ast_கோவை_Stmt* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
         iterateAndNextConstNull(nodep->stmtsp());
-        if (!optimizable()) return;
+        எனில் (!optimizable()) திரும்பு;
         iterateAndNextConstNull(nodep->resultp());
-        if (m_checkOnly || !optimizable()) return;
-        newValue(nodep, fetchValue(nodep->resultp()));
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        new_மதிப்பு(nodep, fetch_மதிப்பு(nodep->resultp()));
     }
 
-    void visit(AstJumpBlock* nodep) override {
-        if (jumpingOver()) return;
+    வெறுமை visit(AstJumpBlock* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
         iterateChildrenConst(nodep);
-        if (m_jumptargetp == nodep) {
+        எனில் (m_jumptargetp == nodep) {
             UINFO(5, "   JUMP DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstJumpGo* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
-        if (!m_checkOnly) {
+    வெறுமை visit(AstJumpGo* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
+        எனில் (!m_checkOnly) {
             UINFO(5, "   JUMP GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->blockp();
         }
     }
-    void visit(AstLoop* nodep) override {
+    வெறுமை visit(AstLoop* nodep) override {
         UASSERT_OBJ(!nodep->contsp(), nodep, "'contsp' only used before LinkJump");
-        if (jumpingOver()) return;
+        எனில் (jumpingOver()) திரும்பு;
         UINFO(5, "   LOOP " << nodep);
         // Doing lots of loops is slow, so only for parameters
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        checkNodeInfo(nodep);
-        if (m_checkOnly) {
+        check_முனை_Info(nodep);
+        எனில் (m_checkOnly) {
             iterateChildrenConst(nodep);
-            return;
+            திரும்பு;
         }
-        if (!optimizable()) return;
+        எனில் (!optimizable()) திரும்பு;
 
-        size_t iterCount = 0;
-        const size_t iterLimit = v3Global.opt.unrollLimit();
-        while (true) {
-            if (iterCount > iterLimit) {
+        size_t iter_மொத்தம் = 0;
+        மாறிலி size_t iterLimit = v3Global.opt.unrollLimit();
+        போது (true) {
+            எனில் (iter_மொத்தம் > iterLimit) {
                 clearOptimizable(nodep, "Loop simulation took too long; probably this is an "
                                         "infinite loop, otherwise set '--unroll-limit' above "
                                             + std::to_string(iterLimit));
-                break;
+                நிறுத்து;
             }
-            ++iterCount;
+            ++iter_மொத்தம்;
 
             UINFO(5, "    LOOP-ITER " << nodep);
             iterateAndNextConstNull(nodep->stmtsp());
-            if (jumpingOver()) break;
+            எனில் (jumpingOver()) நிறுத்து;
         }
 
-        if (m_jumptargetp == nodep) {
+        எனில் (m_jumptargetp == nodep) {
             UINFO(5, "   LOOP TEST DONE " << nodep);
             m_jumptargetp = nullptr;
         }
     }
-    void visit(AstLoopTest* nodep) override {
-        if (jumpingOver()) return;
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstLoopTest* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        check_முனை_Info(nodep);
         iterateConst(nodep->condp());
-        if (m_checkOnly || !optimizable()) return;
-        if (fetchConst(nodep->condp())->num().isEqZero()) {
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        எனில் (fetchConst(nodep->condp())->இலக்கம்().isEqZero()) {
             UINFO(5, "   LOOP TEST GO " << nodep);
             UASSERT_OBJ(!m_jumptargetp, nodep, "Jump inside jump");
             m_jumptargetp = nodep->loopp();
         }
     }
 
-    void visit(AstStop* nodep) override {
-        if (jumpingOver()) return;
-        if (m_params) {  // This message seems better than an obscure $stop
+    வெறுமை visit(AstStop* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (m_params) {  // This message seems better than an obscure $stop
             // The spec says $stop is just ignored, it seems evil to ignore assertions
             clearOptimizable(
                 nodep,
                 "$stop executed during function constification; maybe indicates assertion firing");
         }
-        checkNodeInfo(nodep);
+        check_முனை_Info(nodep);
     }
-    void visit(AstFuncRef* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    வெறுமை visit(AstFuncRef* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
         UINFO(5, "   FUNCREF " << nodep);
-        checkNodeInfo(nodep);
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        check_முனை_Info(nodep);
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
         }
-        AstNodeFTask* funcp = nodep->taskp();
+        Ast_முனை_FTask* funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
-        if (m_params) V3Width::widthParamsEdit(funcp);
+        எனில் (m_params) V3Width::widthParamsEdit(funcp);
         VL_DANGLING(funcp);  // Make sure we've sized the function
         funcp = nodep->taskp();
         UASSERT_OBJ(funcp, nodep, "Not linked");
 
-        if (funcp->recursive()) {
-            if (m_recurseCount >= v3Global.opt.funcRecursionDepth()) {
+        எனில் (funcp->recursive()) {
+            எனில் (m_recurse_மொத்தம் >= v3Global.opt.funcRecursionDepth()) {
                 clearOptimizable(funcp, "Constant function recursed more than "s
                                             + std::to_string(v3Global.opt.funcRecursionDepth())
                                             + " times");
-                return;
+                திரும்பு;
             }
-            ++m_recurseCount;
+            ++m_recurse_மொத்தம்;
         }
 
         // Values from previous call, so can save to stack
         // The "stack" is this visit function's local stack, as this visit is itself recursing
-        std::map<AstNode*, AstNodeExpr*> oldValues;
+        std::map<Ast_முனை*, Ast_முனை_கோவை*> old_மதிப்புகள்;
 
-        if (funcp->recursive() && !m_checkOnly) {
+        எனில் (funcp->recursive() && !m_checkOnly) {
             // Save local automatics
-            funcp->foreach([this, &oldValues](AstVar* varp) {
-                if (varp->lifetime().isAutomatic()) {  // This also does function's I/O
-                    if (AstNodeExpr* const valuep = fetchValueNull(varp)) {
-                        AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                        oldValues.emplace(varp, nvaluep);
+            funcp->foreach([this, &old_மதிப்புகள்](AstVar* varp) {
+                எனில் (varp->lifetime().isAutomatic()) {  // This also does function's I/O
+                    எனில் (Ast_முனை_கோவை* மாறிலி valuep = fetch_மதிப்பு_Null(varp)) {
+                        Ast_முனை_கோவை* மாறிலி nvaluep = newTrackedClone(valuep);
+                        old_மதிப்புகள்.emplace(varp, nvaluep);
                     }
                 }
             });
@@ -1328,11 +1328,11 @@ private:
             // we could look at the visit stack to determine what nodes
             // need save-restore, but that is difficult to get right, and
             // recursion is rare.
-            funcp->foreach([this, &oldValues](AstNodeExpr* exprp) {
-                if (VN_IS(exprp, Const)) return;  // Speed up as won't change
-                if (AstNodeExpr* const valuep = fetchValueNull(exprp)) {
-                    AstNodeExpr* const nvaluep = newTrackedClone(valuep);
-                    oldValues.emplace(exprp, nvaluep);
+            funcp->foreach([this, &old_மதிப்புகள்](Ast_முனை_கோவை* exprp) {
+                எனில் (VN_IS(exprp, Const)) திரும்பு;  // Speed up as won't change
+                எனில் (Ast_முனை_கோவை* மாறிலி valuep = fetch_மதிப்பு_Null(exprp)) {
+                    Ast_முனை_கோவை* மாறிலி nvaluep = newTrackedClone(valuep);
+                    old_மதிப்புகள்.emplace(exprp, nvaluep);
                 }
             });
         }
@@ -1340,219 +1340,219 @@ private:
         V3TaskConnects tconnects = V3Task::taskConnects(nodep, nodep->taskp()->stmtsp());
         // Must do this in two steps, eval all params, then apply them
         // Otherwise chained functions may have the wrong results
-        std::vector<std::pair<AstVar*, AstNodeExpr*>> portValues;
-        for (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
-            AstVar* const portp = it->first;
-            AstNode* const pinp = it->second->exprp();
-            if (pinp) {  // Else too few arguments in function call - ignore it
-                if (portp->isWritable()) {
+        std::vector<std::pair<AstVar*, Ast_முனை_கோவை*>> port_மதிப்புகள்;
+        க்கு (V3TaskConnects::iterator it = tconnects.begin(); it != tconnects.end(); ++it) {
+            AstVar* மாறிலி portp = it->first;
+            Ast_முனை* மாறிலி pinp = it->second->exprp();
+            எனில் (pinp) {  // Else too few arguments in function call - ignore it
+                எனில் (portp->isWritable()) {
                     clearOptimizable(
                         portp,
                         "Language violation: Outputs/refs not allowed in constant functions");
-                    return;
+                    திரும்பு;
                 }
                 // Evaluate pin value
                 iterateConst(pinp);
                 // Clone in case are recursing
-                portValues.emplace_back(std::make_pair(portp, newTrackedClone(fetchValue(pinp))));
+                port_மதிப்புகள்.emplace_back(std::make_pair(portp, newTrackedClone(fetch_மதிப்பு(pinp))));
             }
         }
         // Apply value to the function
-        if (!m_checkOnly && optimizable())
-            for (const auto& it : portValues) {
-                if (!m_checkOnly && optimizable()) newValue(it.first, it.second);
+        எனில் (!m_checkOnly && optimizable())
+            க்கு (மாறிலி auto& it : port_மதிப்புகள்) {
+                எனில் (!m_checkOnly && optimizable()) new_மதிப்பு(it.first, it.second);
             }
-        SimStackNode stackNode{nodep, &tconnects};
+        Sim_அடுக்கு_முனை அடுக்கு_முனை{nodep, &tconnects};
         // cppcheck-suppress danglingLifetime
-        m_callStack.push_back(&stackNode);
-        if (!m_checkOnly) {
+        m_call_அடுக்கு.தள்ளு_back(&அடுக்கு_முனை);
+        எனில் (!m_checkOnly) {
             // Clear output variable
             initVar(VN_CAST(funcp->fvarp(), Var));
             // Clear other automatic variables
             funcp->foreach([this](AstVar* varp) {
-                if (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
+                எனில் (varp->lifetime().isAutomatic() && (!varp->isIO() || varp->isFuncReturn()))
                     initVar(varp);
             });
         }
 
         // Evaluate the function
         iterateConst(funcp);
-        m_callStack.pop_back();
-        const AstNodeExpr* returnp = nullptr;
-        if (!m_checkOnly && optimizable()) {
+        m_call_அடுக்கு.எடு_back();
+        மாறிலி Ast_முனை_கோவை* returnp = nullptr;
+        எனில் (!m_checkOnly && optimizable()) {
             // Grab return value from output variable
             UASSERT_OBJ(funcp->fvarp(), nodep, "Function reference points at non-function");
-            returnp = newTrackedClone(fetchValue(funcp->fvarp()));
+            returnp = newTrackedClone(fetch_மதிப்பு(funcp->fvarp()));
             UINFO(5, "func " << nodep->name() << " return = " << returnp);
         }
         // Restore local automatics (none unless recursed)
-        for (const auto& it : oldValues) {
-            if (it.second) newValue(it.first, it.second);
+        க்கு (மாறிலி auto& it : old_மதிப்புகள்) {
+            எனில் (it.second) new_மதிப்பு(it.first, it.second);
         }
-        if (returnp) newValue(nodep, returnp);
-        if (funcp->recursive()) {
-            UASSERT_OBJ(m_recurseCount > 0, nodep, "recurse underflow");
-            --m_recurseCount;
-        }
-    }
-
-    void visit(AstVar* nodep) override {
-        if (jumpingOver()) return;
-        if (!m_params) {
-            badNodeType(nodep);
-            return;
+        எனில் (returnp) new_மதிப்பு(nodep, returnp);
+        எனில் (funcp->recursive()) {
+            UASSERT_OBJ(m_recurse_மொத்தம் > 0, nodep, "recurse underflow");
+            --m_recurse_மொத்தம்;
         }
     }
 
-    void visit(AstScopeName* /*nodep*/) override {
-        if (jumpingOver()) return;
+    வெறுமை visit(AstVar* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!m_params) {
+            bad_முனை_Type(nodep);
+            திரும்பு;
+        }
+    }
+
+    வெறுமை visit(AstScopeName* /*nodep*/) override {
+        எனில் (jumpingOver()) திரும்பு;
         // Ignore
     }
 
-    void visit(AstSFormatArg* nodep) override {
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstSFormatArg* nodep) override {
+        check_முனை_Info(nodep);
         // Constant enum names come from the dtype, not the runtime lookup.
         iterateAndNextConstNull(nodep->exprp());
     }
-    void visit(AstSFormatF* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstSFormatF* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
 
-        AstNode* nextArgp = nodep->exprsp();
+        Ast_முனை* nextArgp = nodep->exprsp();
         string result;
-        const string format = nodep->text();
+        மாறிலி string format = nodep->text();
         auto pos = format.cbegin();
         bool inPct = false;
         string width;
-        for (; pos != format.cend(); ++pos) {
-            if (!inPct && pos[0] == '%') {
+        க்கு (; pos != format.cend(); ++pos) {
+            எனில் (!inPct && pos[0] == '%') {
                 inPct = true;
                 width = "";
-            } else if (!inPct) {  // Normal text
+            } இல்லையெனில் எனில் (!inPct) {  // Normal text
                 result += *pos;
-            } else {  // Format character
-                if (std::isdigit(pos[0])) {
+            } இல்லையெனில் {  // Format character
+                எனில் (std::isdigit(pos[0])) {
                     width += pos[0];
-                    continue;
+                    தொடர்;
                 }
 
                 inPct = false;
 
-                if (V3Number::displayedFmtHasArg(std::tolower(pos[0]), false)) {
-                    AstNode* const argp = nextArgp;
+                எனில் (V3_எண்::displayedFmtHasArg(std::tolower(pos[0]), false)) {
+                    Ast_முனை* மாறிலி argp = nextArgp;
                     nextArgp = nextArgp->nextp();
-                    AstSFormatArg* const fargp = VN_CAST(argp, SFormatArg);
-                    AstNode* const subargp = fargp ? fargp->exprp() : argp;
-                    AstConst* const constp = fetchConstNull(subargp);
-                    const VFormatAttr formatAttr
+                    AstSFormatArg* மாறிலி fargp = VN_CAST(argp, SFormatArg);
+                    Ast_முனை* மாறிலி subargp = fargp ? fargp->exprp() : argp;
+                    AstConst* மாறிலி constp = fetchConstNull(subargp);
+                    மாறிலி VFormatAttr formatAttr
                         = argp ? AstSFormatArg::formatAttrDefauled(fargp, subargp->dtypep())
                                : VFormatAttr{};
-                    if (!constp) {
+                    எனில் (!constp) {
                         clearOptimizable(nodep,
                                          "Argument for $display-like statement is not constant");
-                        break;
+                        நிறுத்து;
                     }
-                    const string pformat = "%"s + width + pos[0];
+                    மாறிலி string pformat = "%"s + width + pos[0];
                     result += formatAttr.isEnum()
-                                  ? constp->num().displayedEnum(fargp, pformat)
-                                  : constp->num().displayed(nodep, pformat, formatAttr);
-                } else {
-                    switch (std::tolower(pos[0])) {
-                    case '%': result += "%"; break;
-                    case 'm':
+                                  ? constp->இலக்கம்().displayedEnum(fargp, pformat)
+                                  : constp->இலக்கம்().displayed(nodep, pformat, formatAttr);
+                } இல்லையெனில் {
+                    தேர்வு (std::tolower(pos[0])) {
+                    நிலை '%': result += "%"; நிறுத்து;
+                    நிலை 'm':
                         // This happens prior to AstScope so we don't
                         // know the scope name. Leave the %m in place.
                         result += "%m";
-                        break;
-                    default: clearOptimizable(nodep, "Unknown $display-like format code."); break;
+                        நிறுத்து;
+                    இயல்பு: clearOptimizable(nodep, "Unknown $display-like format code."); நிறுத்து;
                     }
                 }
             }
         }
 
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        AstConst* மாறிலி resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_மதிப்பு(nodep, resultConstp);
+        m_reclaimValuesp.தள்ளு_back(resultConstp);
     }
 
-    void visit(AstDisplay* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
+    வெறுமை visit(AstDisplay* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
         // We ignore isPredictOptimizable as $display is often in constant
         // functions and we want them to work if used with parameters
-        checkNodeInfo(nodep, /*display:*/ true);
+        check_முனை_Info(nodep, /*display:*/ true);
         iterateChildrenConst(nodep);
-        if (m_params) {
-            const AstConst* const textp = fetchConst(nodep->fmtp());
-            switch (nodep->displayType()) {
-            case VDisplayType::DT_DISPLAY:  // FALLTHRU
-            case VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); break;
-            case VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); break;
-            case VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); break;
-            case VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); break;
-            case VDisplayType::DT_WRITE:  // FALLTHRU
-            default: clearOptimizable(nodep, "Unexpected display type");
+        எனில் (m_params) {
+            மாறிலி AstConst* மாறிலி textp = fetchConst(nodep->fmtp());
+            தேர்வு (nodep->displayType()) {
+            நிலை VDisplayType::DT_DISPLAY:  // FALLTHRU
+            நிலை VDisplayType::DT_INFO: v3warn(USERINFO, textp->name()); நிறுத்து;
+            நிலை VDisplayType::DT_ERROR: v3warn(USERERROR, textp->name()); நிறுத்து;
+            நிலை VDisplayType::DT_WARNING: v3warn(USERWARN, textp->name()); நிறுத்து;
+            நிலை VDisplayType::DT_FATAL: v3warn(USERFATAL, textp->name()); நிறுத்து;
+            நிலை VDisplayType::DT_WRITE:  // FALLTHRU
+            இயல்பு: clearOptimizable(nodep, "Unexpected display type");
             }
         }
     }
-    void visit(AstToStringN* nodep) override {
-        if (jumpingOver()) return;
-        if (!optimizable()) return;  // Accelerate
-        checkNodeInfo(nodep);
+    வெறுமை visit(AstToStringN* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        எனில் (!optimizable()) திரும்பு;  // Accelerate
+        check_முனை_Info(nodep);
         iterateChildrenConst(nodep);
-        if (m_checkOnly || !optimizable()) return;
-        const std::string result = toStringRecurse(fetchValue(nodep->lhsp()));
-        if (!optimizable()) return;
-        AstConst* const resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
-        setValue(nodep, resultConstp);
-        m_reclaimValuesp.push_back(resultConstp);
+        எனில் (m_checkOnly || !optimizable()) திரும்பு;
+        மாறிலி std::string result = toStringRecurse(fetch_மதிப்பு(nodep->lhsp()));
+        எனில் (!optimizable()) திரும்பு;
+        AstConst* மாறிலி resultConstp = new AstConst{nodep->fileline(), AstConst::String{}, result};
+        set_மதிப்பு(nodep, resultConstp);
+        m_reclaimValuesp.தள்ளு_back(resultConstp);
     }
 
-    void visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
+    வெறுமை visit(AstCoverInc* /*nodep*/) override { m_isCoverage = true; }
 
     // ====
     // Known Bad
-    void visit(AstCMethodHard* nodep) override {
+    வெறுமை visit(AstCMethodHard* nodep) override {
         // Some CMethods such as size() on queues could be supported, but
         // instead we should change those methods to new Ast types so we can
         // properly dispatch them
-        knownBadNodeType(nodep);
+        known_Bad_முனை_Type(nodep);
     }
-    void visit(AstGetInitialRandomSeed* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstMemberSel* nodep) override { knownBadNodeType(nodep); }
-    void visit(AstSampled* nodep) override { knownBadNodeType(nodep); }
+    வெறுமை visit(AstGetInitialRandomSeed* nodep) override { known_Bad_முனை_Type(nodep); }
+    வெறுமை visit(AstMemberSel* nodep) override { known_Bad_முனை_Type(nodep); }
+    வெறுமை visit(AstSampled* nodep) override { known_Bad_முனை_Type(nodep); }
     // ====
     // default
     // These types are definitely not reducible
     //   AstCoverInc, AstFinish,
     //   AstRand, AstTime, AstCCall, AstCStmt*, AstCExpr*
-    void visit(AstNode* nodep) override {
-        if (jumpingOver()) return;
-        badNodeType(nodep);
+    வெறுமை visit(Ast_முனை* nodep) override {
+        எனில் (jumpingOver()) திரும்பு;
+        bad_முனை_Type(nodep);
     }
 
     // MEMBERS - called by constructor
-    void setMode(bool scoped, bool checkOnly, bool params) {
+    வெறுமை setMode(bool scoped, bool checkOnly, bool params) {
         m_checkOnly = checkOnly;
         m_scoped = scoped;
         m_params = params;
     }
-    void mainGuts(AstNode* nodep) {
+    வெறுமை mainGuts(Ast_முனை* nodep) {
         iterateConst(nodep);
         UASSERT_OBJ(!m_jumptargetp, m_jumptargetp, "Jump target was not found");
     }
 
-public:
+பொது:
     // CONSTRUCTORS
     SimulateVisitor() {
         // Note AstUser#InUse ensures only one invocation exists at once
         setMode(false, false, false);
         clear();  // We reuse this structure in the main loop, so put initializers inside clear()
     }
-    void clear() {
+    வெறுமை clear() {
         m_whyNotOptimizable = "";
         m_whyNotNodep = nullptr;
         m_anyAssignComb = false;
@@ -1560,35 +1560,35 @@ public:
         m_inDlyAssign = false;
         m_isImpure = false;
         m_isCoverage = false;
-        m_instrCount = 0;
-        m_dataCount = 0;
+        m_instr_மொத்தம் = 0;
+        m_data_மொத்தம் = 0;
         m_jumptargetp = nullptr;
 
-        AstNode::user1ClearTree();
+        Ast_முனை::user1_Clear_மரம்();
         m_varAux.clear();
         ++m_constGeneration;
     }
-    void mainTableCheck(AstNode* nodep) {
+    வெறுமை mainTableCheck(Ast_முனை* nodep) {
         setMode(true /*scoped*/, true /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainTableEmulate(AstNode* nodep) {
+    வெறுமை mainTableEmulate(Ast_முனை* nodep) {
         setMode(true /*scoped*/, false /*checking*/, false /*params*/);
         mainGuts(nodep);
     }
-    void mainParamEmulate(AstNode* nodep) {
+    வெறுமை mainParamEmulate(Ast_முனை* nodep) {
         setMode(false /*scoped*/, false /*checking*/, true /*params*/);
         mainGuts(nodep);
     }
     ~SimulateVisitor() override {
         m_constps.clear();
         // A value replaced in an aggregate may be listed twice
-        std::set<AstNode*> unusedRootps;
-        for (AstNode* const nodep : m_reclaimValuesp) {
-            if (!nodep->backp()) unusedRootps.emplace(nodep);
+        std::set<Ast_முனை*> unusedRootps;
+        க்கு (Ast_முனை* மாறிலி nodep : m_reclaimValuesp) {
+            எனில் (!nodep->backp()) unusedRootps.emplace(nodep);
         }
         m_reclaimValuesp.clear();
-        for (AstNode* const nodep : unusedRootps) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        க்கு (Ast_முனை* மாறிலி nodep : unusedRootps) VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
     }
 };
 

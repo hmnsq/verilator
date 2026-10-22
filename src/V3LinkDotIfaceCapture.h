@@ -19,21 +19,21 @@
 #ifndef VERILATOR_V3LINKDOTIFACECAPTURE_H_
 #define VERILATOR_V3LINKDOTIFACECAPTURE_H_
 
-#include "config_build.h"
+#அந்தர்பாவ "config_build.h"
 
-#include "V3Ast.h"
+#அந்தர்பாவ "V3Ast.h"
 
-#include <deque>
-#include <functional>
-#include <string>
-#include <unordered_set>
+#அந்தர்பாவ <deque>
+#அந்தர்பாவ <functional>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <unordered_set>
 
 class VSymEnt;
 
 // Capture record of an AstRefDType, shared by all clones of that reference
 class VIfaceCaptureTag final {
-public:
-    enum class Kind : uint8_t {
+பொது:
+    எண்ணிக்கை class Kind : uint8_t {
         TYPEDEF,  // Refers to a typedef in the interface
         PARAM_TYPE  // Refers to a type parameter of the interface
     };
@@ -44,57 +44,57 @@ public:
 };
 
 class V3LinkDotIfaceCapture final {
-    static std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
-    static bool s_enabled;
+    நிலையான std::deque<VIfaceCaptureTag> s_tags;  // Owns every tag; a deque keeps addresses stable
+    நிலையான bool s_enabled;
 
     // --- Internal-only methods (not called outside V3LinkDotIfaceCapture.cpp) ---
-    static void enable(bool flag);  // LCOV_EXCL_LINE
-    static void reset();
-    static void clearModuleCache();
-    static AstIfaceRefDType* ifaceRefFromVarDType(AstNodeDType* dtypep);
+    நிலையான வெறுமை enable(bool flag);  // LCOV_EXCL_LINE
+    நிலையான வெறுமை reset();
+    நிலையான வெறுமை clearModuleCache();
+    நிலையான AstIfaceRefDType* ifaceRefFromVarDType(Ast_முனை_DType* dtypep);
     // Point a reference at a typedef and fix its other links.
-    static void retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
+    நிலையான வெறுமை retargetRefToTypedef(AstRefDType* refp, AstTypedef* typedefp);
     // Same, for a parameter type.
-    static void retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
+    நிலையான வெறுமை retargetRefToParamType(AstRefDType* refp, AstParamTypeDType* paramTypep);
     // Tag a reference captured in capturedInp
-    static void tag(AstRefDType* refp, const AstNodeModule* capturedInp,
-                    VIfaceCaptureTag::Kind kind, const string& cellPath,
-                    const string& ownerModName);
-    static int resolveCapturedRefs();
-    static void verifyNoDeadRefs(const std::unordered_set<const AstNode*>& liveNodes);
+    நிலையான வெறுமை tag(AstRefDType* refp, மாறிலி Ast_முனை_Module* capturedInp,
+                    VIfaceCaptureTag::Kind kind, மாறிலி string& cellPath,
+                    மாறிலி string& ownerModName);
+    நிலையான முழு resolveCapturedRefs();
+    நிலையான வெறுமை verifyNoDeadRefs(மாறிலி std::unordered_set<மாறிலி Ast_முனை*>& liveNodes);
 
-public:
-    static bool enabled() { return s_enabled; }
+பொது:
+    நிலையான bool enabled() { திரும்பு s_enabled; }
     // Tag of a reference, or nullptr if untagged or copied into another module
-    static const VIfaceCaptureTag* captureTag(AstRefDType* refp);
-    static AstNodeModule* findOwnerModule(AstNode* nodep);
+    நிலையான மாறிலி VIfaceCaptureTag* captureTag(AstRefDType* refp);
+    நிலையான Ast_முனை_Module* findOwnerModule(Ast_முனை* nodep);
     // Find a Typedef by name in a module's top-level statements
-    static AstTypedef* findTypedefInModule(AstNodeModule* modp, const string& name);
+    நிலையான AstTypedef* findTypedefInModule(Ast_முனை_Module* modp, மாறிலி string& name);
     // Find a NodeDType by name and VNType in a module's top-level statements
-    static AstNodeDType* findDTypeInModule(AstNodeModule* modp, const string& name, VNType type);
+    நிலையான Ast_முனை_DType* findDTypeInModule(Ast_முனை_Module* modp, மாறிலி string& name, VNType type);
     // Find a ParamTypeDType by name in a module's top-level statements
-    static AstParamTypeDType* findParamTypeInModule(AstNodeModule* modp, const string& name);
+    நிலையான AstParamTypeDType* findParamTypeInModule(Ast_முனை_Module* modp, மாறிலி string& name);
     // Retarget a captured reference at the same-named target in targetModp.
-    static bool retargetRefToModule(AstRefDType* refp, AstNodeModule* targetModp);
-    static void addParamType(AstRefDType* refp, const string& cellPath, AstNodeModule* ownerModp,
-                             AstParamTypeDType* paramTypep, const string& paramTypeOwnerModName);
+    நிலையான bool retargetRefToModule(AstRefDType* refp, Ast_முனை_Module* targetModp);
+    நிலையான வெறுமை addParamType(AstRefDType* refp, மாறிலி string& cellPath, Ast_முனை_Module* ownerModp,
+                             AstParamTypeDType* paramTypep, மாறிலி string& paramTypeOwnerModName);
 
     // Walk a dot-separated cell path (e.g. "cca_io.tlb_io") starting from
     // startModp, returning the module at the end of the path.  Returns
     // nullptr if any component cannot be resolved.
-    static AstNodeModule* followCellPath(AstNodeModule* startModp, const string& cellPath);
+    நிலையான Ast_முனை_Module* followCellPath(Ast_முனை_Module* startModp, மாறிலி string& cellPath);
 
-    static void captureTypedefContext(AstRefDType* refp, const char* stageLabel, int dotPos,
-                                      const std::string& dotText, VSymEnt* dotSymp,
-                                      AstNodeModule* modp,
-                                      const std::function<std::string()>& indentFn);
+    நிலையான வெறுமை captureTypedefContext(AstRefDType* refp, மாறிலி எழுத்து* stageLabel, முழு dotPos,
+                                      மாறிலி std::string& dotText, VSymEnt* dotSymp,
+                                      Ast_முனை_Module* modp,
+                                      மாறிலி std::function<std::string()>& indentFn);
 
     // Debug: dump all captured references
-    static void dumpEntries(const string& label);
+    நிலையான வெறுமை dumpEntries(மாறிலி string& label);
 
     // Called after V3Param but before V3Dead to fix any remaining cross-interface refs
     // that still point to template nodes (which will be deleted by V3Dead).
-    static void finalizeIfaceCapture();
+    நிலையான வெறுமை finalizeIfaceCapture();
 };
 
 #endif  // VERILATOR_V3LINKDOTIFACECAPTURE_H_

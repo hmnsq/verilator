@@ -17,65 +17,65 @@
 // clang-format off
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
+#அந்தர்பாவ "config_build.h"
 #ifndef HAVE_CONFIG_PACKAGE
 # error "Something failed during ./configure as config_package.h is incomplete. Perhaps you used autoreconf, don't."
 #endif
 // clang-format on
 
-#include "verilatedos.h"
+#அந்தர்பாவ "verilatedos.h"
 
 // Cheat for speed and compile .cpp files into one object TODO: Reconsider
 #ifndef V3ERROR_NO_GLOBAL_
 #define V3ERROR_NO_GLOBAL_
 #endif
-#include "V3Error.h"
-static int debug() { return V3Error::debugDefault(); }
-#include "V3Error.cpp"
-#include "V3String.cpp"
+#அந்தர்பாவ "V3Error.h"
+நிலையான முழு debug() { திரும்பு V3Error::debugDefault(); }
+#அந்தர்பாவ "V3Error.cpp"
+#அந்தர்பாவ "V3String.cpp"
 #define V3OPTION_PARSER_NO_VOPTION_BOOL
 // clang-format off
-#include "V3OptionParser.cpp"
-#include "V3Os.cpp"
-#include "VlcTop.cpp"
+#அந்தர்பாவ "V3OptionParser.cpp"
+#அந்தர்பாவ "V3Os.cpp"
+#அந்தர்பாவ "VlcTop.cpp"
 // clang-format on
 
-#include "VlcOptions.h"
-#include "VlcTop.h"
+#அந்தர்பாவ "VlcOptions.h"
+#அந்தர்பாவ "VlcTop.h"
 
-#include <algorithm>
-#include <fstream>
+#அந்தர்பாவ <algorithm>
+#அந்தர்பாவ <fstream>
 
 //######################################################################
 // VlcOptions
 
-void VlcOptions::addReadFile(const string& filename) { m_readFiles.insert(filename); }
+வெறுமை VlcOptions::addReadFile(மாறிலி string& filename) { m_readFiles.செருகு(filename); }
 
 string VlcOptions::version() {
     string ver = PACKAGE_STRING;
     ver += " rev " + cvtToStr(DTVERSION_rev);
-    return ver;
+    திரும்பு ver;
 }
 
-void VlcOptions::parseReportOption() {
-    if (m_report.empty()) return;
+வெறுமை VlcOptions::parseReportOption() {
+    எனில் (m_report.empty()) திரும்பு;
     string::size_type start = 0;
-    while (true) {
-        const string::size_type comma = m_report.find(',', start);
-        const string kind = m_report.substr(start, comma - start);
-        if (kind == "summary") {
-            m_reportSummary = true;
-        } else if (kind == "hier" || kind == "hierarchy") {
-            m_reportHierarchy = true;
-        } else {
+    போது (உண்மை) {
+        மாறிலி string::size_type comma = m_report.find(',', start);
+        மாறிலி string kind = m_report.substr(start, comma - start);
+        எனில் (kind == "summary") {
+            m_reportSummary = உண்மை;
+        } இல்லையெனில் எனில் (kind == "hier" || kind == "hierarchy") {
+            m_reportHierarchy = உண்மை;
+        } இல்லையெனில் {
             v3fatal("Invalid --report option: " << m_report);
         }
-        if (comma == string::npos) break;
+        எனில் (comma == string::npos) நிறுத்து;
         start = comma + 1;
     }
 }
 
-void VlcOptions::parseOptsList(int argc, char** argv) {
+வெறுமை VlcOptions::parseOptsList(முழு argc, எழுத்து** argv) {
     V3OptionParser parser;
     V3OptionParser::AppendHelper DECL_OPTION{parser};
     V3OPTION_PARSER_DECL_TAGS;
@@ -85,7 +85,7 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     DECL_OPTION("-annotate-min", Set, &m_annotateMin);
     DECL_OPTION("-annotate-points", OnOff, &m_annotatePoints);
     DECL_OPTION("-debug", CbCall, []() { V3Error::debugDefault(3); });
-    DECL_OPTION("-debugi", CbVal, [](int v) { V3Error::debugDefault(v); });
+    DECL_OPTION("-debugi", CbVal, [](முழு v) { V3Error::debugDefault(v); });
     DECL_OPTION("-filter-type", Set, &m_filterType);
     DECL_OPTION("-include-reset-arcs", OnOff, &m_includeResetArcs);
     DECL_OPTION("-levels", Set, &m_reportLevels);
@@ -93,11 +93,11 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     DECL_OPTION("-report", Set, &m_report);
     DECL_OPTION("-unlink", OnOff, &m_unlink);
     DECL_OPTION("-V", CbCall, []() {
-        showVersion(true);
+        showVersion(உண்மை);
         std::exit(0);
     });
     DECL_OPTION("-version", CbCall, []() {
-        showVersion(false);
+        showVersion(பொய்);
         std::exit(0);
     });
     DECL_OPTION("-write", Set, &m_writeFile);
@@ -107,16 +107,16 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     // Parse parameters
     // Note argc and argv DO NOT INCLUDE the filename in [0]!!!
     // May be called recursively when there are -f files.
-    for (int i = 0; i < argc;) {
+    க்கு (முழு i = 0; i < argc;) {
         UINFO(9, " Option: " << argv[i]);
-        if (argv[i][0] == '-') {
-            if (const int consumed = parser.parse(i, argc, argv).first) {
+        எனில் (argv[i][0] == '-') {
+            எனில் (மாறிலி முழு consumed = parser.parse(i, argc, argv).first) {
                 i += consumed;
-            } else {
+            } இல்லையெனில் {
                 v3fatal("Invalid option: " << argv[i] << parser.getSuggestion(argv[i]));
                 ++i;  // LCOV_EXCL_LINE
             }
-        } else {
+        } இல்லையெனில் {
             addReadFile(argv[i]);
             ++i;
         }
@@ -124,10 +124,10 @@ void VlcOptions::parseOptsList(int argc, char** argv) {
     parseReportOption();
 }
 
-void VlcOptions::showVersion(bool verbose) {
+வெறுமை VlcOptions::showVersion(தருக்க verbose) {
     std::cout << version();
     std::cout << "\n";
-    if (!verbose) return;
+    எனில் (!verbose) திரும்பு;
 
     std::cout << "\n";
     std::cout << "Copyright 2003-2026 by Wilson Snyder.  Verilator is free software; you can\n";
@@ -141,51 +141,51 @@ void VlcOptions::showVersion(bool verbose) {
 
 //######################################################################
 
-int main(int argc, char** argv) {
+முழு முதன்மை(முழு argc, எழுத்து** argv) {
     // General initialization
     std::ios::sync_with_stdio();
 
-    VlcTop top;
+    Vlc_உச்சி உச்சி;
 
     // Command option parsing
-    top.opt.parseOptsList(argc - 1, argv + 1);
+    உச்சி.opt.parseOptsList(argc - 1, argv + 1);
 
-    if (top.opt.readFiles().empty()) top.opt.addReadFile("vlt_coverage.dat");
+    எனில் (உச்சி.opt.readFiles().empty()) உச்சி.opt.addReadFile("vlt_coverage.dat");
 
     {
-        const VlStringSet& readFiles = top.opt.readFiles();
-        for (const auto& filename : readFiles) top.readCoverage(filename);
+        மாறிலி VlStringSet& readFiles = உச்சி.opt.readFiles();
+        க்கு (மாறிலி auto& filename : readFiles) உச்சி.readCoverage(filename);
     }
 
-    if (debug() >= 9) {
-        top.tests().dump(true);
-        top.points().dump();
+    எனில் (debug() >= 9) {
+        உச்சி.tests().dump(உண்மை);
+        உச்சி.points().dump();
     }
 
-    const bool defaultReport = !top.opt.reportSpecified() && !top.opt.rank()
-                               && top.opt.writeFile().empty() && top.opt.writeInfoFile().empty();
-    if (top.opt.reportSpecified()) {
-        if (top.opt.reportSummary()) top.printTypeSummary();
-        if (top.opt.reportHierarchy()) top.printHierarchyReport();
-    } else if (defaultReport) {
-        top.printTypeSummary();
+    மாறிலி தருக்க defaultReport = !உச்சி.opt.reportSpecified() && !உச்சி.opt.rank()
+                               && உச்சி.opt.writeFile().empty() && உச்சி.opt.writeInfoFile().empty();
+    எனில் (உச்சி.opt.reportSpecified()) {
+        எனில் (உச்சி.opt.reportSummary()) உச்சி.printTypeSummary();
+        எனில் (உச்சி.opt.reportHierarchy()) உச்சி.printHierarchyReport();
+    } இல்லையெனில் எனில் (defaultReport) {
+        உச்சி.printTypeSummary();
     }
 
     V3Error::abortIfWarnings();
-    if (!top.opt.annotateOut().empty()) top.annotate(top.opt.annotateOut());
+    எனில் (!உச்சி.opt.annotateOut().empty()) உச்சி.annotate(உச்சி.opt.annotateOut());
 
-    if (top.opt.rank()) {
-        top.rank();
-        top.tests().dump(false);
+    எனில் (உச்சி.opt.rank()) {
+        உச்சி.rank();
+        உச்சி.tests().dump(பொய்);
     }
 
-    if (!top.opt.writeFile().empty() || !top.opt.writeInfoFile().empty()) {
-        if (!top.opt.writeFile().empty()) top.writeCoverage(top.opt.writeFile());
-        if (!top.opt.writeInfoFile().empty()) top.writeInfo(top.opt.writeInfoFile());
+    எனில் (!உச்சி.opt.writeFile().empty() || !உச்சி.opt.writeInfoFile().empty()) {
+        எனில் (!உச்சி.opt.writeFile().empty()) உச்சி.writeCoverage(உச்சி.opt.writeFile());
+        எனில் (!உச்சி.opt.writeInfoFile().empty()) உச்சி.writeInfo(உச்சி.opt.writeInfoFile());
         V3Error::abortIfWarnings();
-        if (top.opt.unlink()) {
-            const VlStringSet& readFiles = top.opt.readFiles();
-            for (const auto& filename : readFiles) unlink(filename.c_str());
+        எனில் (உச்சி.opt.unlink()) {
+            மாறிலி VlStringSet& readFiles = உச்சி.opt.readFiles();
+            க்கு (மாறிலி auto& filename : readFiles) unlink(filename.c_str());
         }
     }
 

@@ -35,155 +35,155 @@
 // simplified to look primarily for SLICESELs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Slice.h"
+#அந்தர்பாவ "V3Slice.h"
 
-#include "V3Stats.h"
+#அந்தர்பாவ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //*************************************************************************
 
-class SliceVisitor final : public VNVisitor {
+வகுப்பு SliceVisitor final : பொது VNVisitor {
     // NODE STATE
     // Cleared on netlist
     //  AstNodeAssign::user1()      -> bool.  True if find is complete
     //  AstNodeUniop::user1()       -> bool.  True if find is complete
     //  AstArraySel::user1p()       -> AstVarRef. The VarRef that the final ArraySel points to
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // STATE - across all visitors
     VDouble0 m_statAssigns;  // Statistic tracking
     VDouble0 m_statSliceElementSkips;  // Statistic tracking
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNode* m_assignp = nullptr;  // Assignment we are under
-    bool m_assignError = false;  // True if the current assign already has an error
-    bool m_okConsArray = false;  // Allow ConsArray children
+    Ast_முனை* m_assignp = nullptr;  // Assignment we are under
+    தருக்க m_assignError = பொய்;  // True if the current assign already has an error
+    தருக்க m_okConsArray = பொய்;  // Allow ConsArray children
 
     // METHODS
-    AstNodeExpr* cloneAndSel(AstNodeExpr* const nodep, uint64_t elements, uint64_t elemIdx,
-                             const bool needPure) {
+    Ast_முனை_கோவை* cloneAndSel(Ast_முனை_கோவை* மாறிலி nodep, uint64_t elements, uint64_t elemIdx,
+                             மாறிலி தருக்க needPure) {
         // Insert an ArraySel, except for a few special cases
-        const AstUnpackArrayDType* const arrayp
+        மாறிலி AstUnpackArrayDType* மாறிலி arrayp
             = VN_CAST(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        if (!arrayp) {  // V3Width should have complained, but...
-            if (!m_assignError) {
+        எனில் (!arrayp) {  // V3Width should have complained, but...
+            எனில் (!m_assignError) {
                 nodep->v3error(
                     nodep->prettyTypeName()
                     << " is not an unpacked array, but is in an unpacked array context");
-            } else {
+            } இல்லையெனில் {
                 V3Error::incErrors();  // Otherwise might infinite loop
             }
-            m_assignError = true;
+            m_assignError = உண்மை;
             // Likely will cause downstream errors
-            return nodep->cloneTree(false, needPure);
+            திரும்பு nodep->clone_மரம்(பொய், needPure);
         }
-        if (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
-            if (!m_assignError) {
+        எனில் (static_cast<uint64_t>(arrayp->rangep()->elementsConst()) != elements) {
+            எனில் (!m_assignError) {
                 nodep->v3error(
                     "Slices of arrays in assignments have different unpacked dimensions, "
                     << elements << " versus " << arrayp->rangep()->elementsConst());
             }
-            m_assignError = true;
+            m_assignError = உண்மை;
             elements = 1;
             elemIdx = 0;
         }
-        AstNodeExpr* newp;
-        if (AstConsArray* const consp = VN_CAST(nodep, ConsArray)) {
+        Ast_முனை_கோவை* newp;
+        எனில் (AstConsArray* மாறிலி consp = VN_CAST(nodep, ConsArray)) {
             UINFO(9, "  cloneConsArray(" << elements << "," << elemIdx << ") " << nodep);
-            const uint64_t index
+            மாறிலி uint64_t index
                 = arrayp->rangep()->ascending() ? elemIdx : elements - 1 - elemIdx;
-            newp = consp->valuep(index)->cloneTree(false, needPure);
-        } else if (const AstCvtUnpackToUnpack* const cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
+            newp = consp->valuep(index)->clone_மரம்(பொய், needPure);
+        } இல்லையெனில் எனில் (மாறிலி AstCvtUnpackToUnpack* மாறிலி cvtp = VN_CAST(nodep, CvtUnpackToUnpack)) {
             UINFO(9, "  cloneCvtUnpackToUnpack(" << elements << "," << elemIdx << ") " << nodep);
             // The element in the same left-to-right position of the source
-            AstNodeExpr* const elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
-            AstNodeDType* const subDTypep = arrayp->subDTypep();
-            const AstUnpackArrayDType* const subArrayp
+            Ast_முனை_கோவை* மாறிலி elemp = cloneAndSel(cvtp->fromp(), elements, elemIdx, needPure);
+            Ast_முனை_DType* மாறிலி subDTypep = arrayp->subDTypep();
+            மாறிலி AstUnpackArrayDType* மாறிலி subArrayp
                 = VN_CAST(subDTypep->skipRefp(), UnpackArrayDType);
-            if (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) return elemp;
-            return new AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
-        } else if (AstCond* const snodep = VN_CAST(nodep, Cond)) {
+            எனில் (!subArrayp || !subArrayp->isReverseOf(elemp->dtypep())) திரும்பு elemp;
+            திரும்பு புதிய AstCvtUnpackToUnpack{nodep->fileline(), elemp, subDTypep};
+        } இல்லையெனில் எனில் (AstCond* மாறிலி snodep = VN_CAST(nodep, Cond)) {
             UINFO(9, "  cloneCond(" << elements << "," << elemIdx << ") " << nodep);
-            return new AstCond{snodep->fileline(), snodep->condp()->cloneTree(false, needPure),
+            திரும்பு புதிய AstCond{snodep->fileline(), snodep->condp()->clone_மரம்(பொய், needPure),
                                cloneAndSel(snodep->thenp(), elements, elemIdx, needPure),
                                cloneAndSel(snodep->elsep(), elements, elemIdx, needPure)};
-        } else if (const AstSliceSel* const snodep = VN_CAST(nodep, SliceSel)) {
+        } இல்லையெனில் எனில் (மாறிலி AstSliceSel* மாறிலி snodep = VN_CAST(nodep, SliceSel)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = (snodep->declRange().lo()
+            மாறிலி முழு leOffset = (snodep->declRange().lo()
                                   + (!snodep->declRange().ascending()
                                          ? snodep->declRange().elements() - 1 - elemIdx
                                          : elemIdx));
-            newp = new AstArraySel{nodep->fileline(), snodep->fromp()->cloneTree(false, needPure),
+            newp = புதிய AstArraySel{nodep->fileline(), snodep->fromp()->clone_மரம்(பொய், needPure),
                                    leOffset};
-        } else if (const AstSampled* const snodep = VN_CAST(nodep, Sampled)) {
+        } இல்லையெனில் எனில் (மாறிலி AstSampled* மாறிலி snodep = VN_CAST(nodep, Sampled)) {
             UINFO(9, "  cloneSliceSel(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const exprp = VN_AS(snodep->exprp(), NodeExpr);
-            AstNodeExpr* const selp = cloneAndSel(exprp, elements, elemIdx, needPure);
-            return new AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
-        } else if (AstExprStmt* const snodep = VN_CAST(nodep, ExprStmt)) {
+            Ast_முனை_கோவை* மாறிலி exprp = VN_AS(snodep->exprp(), முனை_கோவை);
+            Ast_முனை_கோவை* மாறிலி selp = cloneAndSel(exprp, elements, elemIdx, needPure);
+            திரும்பு புதிய AstSampled{nodep->fileline(), selp, selp->dtypep(), snodep->internal()};
+        } இல்லையெனில் எனில் (Ast_கோவை_Stmt* மாறிலி snodep = VN_CAST(nodep, கோவை_Stmt)) {
             UINFO(9, "  cloneExprStmt(" << elements << "," << elemIdx << ") " << nodep);
-            AstNodeExpr* const resultSelp
+            Ast_முனை_கோவை* மாறிலி resultSelp
                 = cloneAndSel(snodep->resultp(), elements, elemIdx, needPure);
-            if (snodep->stmtsp()) {
-                return new AstExprStmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
+            எனில் (snodep->stmtsp()) {
+                திரும்பு புதிய Ast_கோவை_Stmt{nodep->fileline(), snodep->stmtsp()->unlinkFrBackWithNext(),
                                        resultSelp};
-            } else {
-                return resultSelp;
+            } இல்லையெனில் {
+                திரும்பு resultSelp;
             }
-        } else if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, NodeSel) || VN_IS(nodep, CMethodHard)
+        } இல்லையெனில் எனில் (VN_IS(nodep, முனை_Var_Ref) || VN_IS(nodep, முனை_Sel) || VN_IS(nodep, CMethodHard)
                    || VN_IS(nodep, MemberSel) || VN_IS(nodep, StructSel)) {
             UINFO(9, "  cloneSel(" << elements << "," << elemIdx << ") " << nodep);
-            const int leOffset = !arrayp->rangep()->ascending()
+            மாறிலி முழு leOffset = !arrayp->rangep()->ascending()
                                      ? arrayp->rangep()->elementsConst() - 1 - elemIdx
                                      : elemIdx;
-            newp = new AstArraySel{nodep->fileline(), nodep->cloneTree(false, needPure), leOffset};
-        } else {
-            if (!m_assignError) {
+            newp = புதிய AstArraySel{nodep->fileline(), nodep->clone_மரம்(பொய், needPure), leOffset};
+        } இல்லையெனில் {
+            எனில் (!m_assignError) {
                 nodep->v3error(nodep->prettyTypeName()
                                << " unexpected in assignment to unpacked array");
             }
-            m_assignError = true;
+            m_assignError = உண்மை;
             // Likely will cause downstream errors
-            newp = nodep->cloneTree(false, needPure);
+            newp = nodep->clone_மரம்(பொய், needPure);
         }
-        return newp;
+        திரும்பு newp;
     }
 
-    bool assignOptimize(AstNodeAssign* nodep) {
+    தருக்க assignOptimize(Ast_முனை_Assign* nodep) {
         // Return true if did optimization
-        AstNodeDType* const dtp = nodep->lhsp()->dtypep()->skipRefp();
-        AstNode* stp = nodep->rhsp();
-        const AstUnpackArrayDType* const arrayp = VN_CAST(dtp, UnpackArrayDType);
-        if (!arrayp) return false;
-        if (VN_IS(stp, CvtPackedToArray)) return false;
-        if (VN_IS(stp, CReset)) return false;
+        Ast_முனை_DType* மாறிலி dtp = nodep->lhsp()->dtypep()->skipRefp();
+        Ast_முனை* stp = nodep->rhsp();
+        மாறிலி AstUnpackArrayDType* மாறிலி arrayp = VN_CAST(dtp, UnpackArrayDType);
+        எனில் (!arrayp) திரும்பு பொய்;
+        எனில் (VN_IS(stp, CvtPackedToArray)) திரும்பு பொய்;
+        எனில் (VN_IS(stp, CReset)) திரும்பு பொய்;
 
         // Any isSc variables must be expanded regardless of --fno-slice
-        const bool hasSc
-            = nodep->exists([&](const AstVarRef* refp) -> bool { return refp->varp()->isSc(); });
-        if (!hasSc && !v3Global.opt.fSlice()) {
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+        மாறிலி தருக்க hasSc
+            = nodep->exists([&](மாறிலி AstVarRef* refp) -> தருக்க { திரும்பு refp->varp()->isSc(); });
+        எனில் (!hasSc && !v3Global.opt.fSlice()) {
+            m_okConsArray = உண்மை;  // VL_RESTORER in visit(AstNodeAssign)
+            திரும்பு பொய்;
         }
 
         // Skip optimization if array is too large
-        const int elements = arrayp->rangep()->elementsConst();
-        const int elementLimit = v3Global.opt.fSliceElementLimit();
-        if (elements > elementLimit && elementLimit > 0) {
+        மாறிலி முழு elements = arrayp->rangep()->elementsConst();
+        மாறிலி முழு elementLimit = v3Global.opt.fSliceElementLimit();
+        எனில் (elements > elementLimit && elementLimit > 0) {
             ++m_statSliceElementSkips;
-            m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-            return false;
+            m_okConsArray = உண்மை;  // VL_RESTORER in visit(AstNodeAssign)
+            திரும்பு பொய்;
         }
 
         // Skip if this is a simple a = b assignment of identical arrays
-        if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
-            if (AstVarRef* const rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
-                if (!hasSc && lhsp->dtypep()->skipRefp()->sameTree(rhsp->dtypep()->skipRefp())) {
-                    m_okConsArray = true;  // VL_RESTORER in visit(AstNodeAssign)
-                    return false;
+        எனில் (AstVarRef* மாறிலி lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+            எனில் (AstVarRef* மாறிலி rhsp = VN_CAST(nodep->rhsp(), VarRef)) {
+                எனில் (!hasSc && lhsp->dtypep()->skipRefp()->same_மரம்(rhsp->dtypep()->skipRefp())) {
+                    m_okConsArray = உண்மை;  // VL_RESTORER in visit(AstNodeAssign)
+                    திரும்பு பொய்;
                 }
             }
         }
@@ -195,115 +195,115 @@ class SliceVisitor final : public VNVisitor {
         // but #elements is common and all variables are realigned to start at zero
         // Assign of an ascending range slice to a descending range one must reverse
         // the elements
-        AstNodeAssign* newlistp = nullptr;
-        for (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
+        Ast_முனை_Assign* newlistp = nullptr;
+        க்கு (uint64_t elemIdx = 0; elemIdx < static_cast<uint64_t>(elements); ++elemIdx) {
             // Original node is replaced, so it is safe to copy it one time even if it is impure.
-            AstNodeAssign* const newp
+            Ast_முனை_Assign* மாறிலி newp
                 = nodep->cloneType(cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                                    cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0));
             UINFOTREE(9, newp, "", "new");
-            newlistp = AstNode::addNext(newlistp, newp);
+            newlistp = Ast_முனை::addNext(newlistp, newp);
         }
         UINFOTREE(9, nodep, "", "Deslice-Dn");
         nodep->replaceWith(newlistp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
         // Normal edit iterator will now iterate on all of the expansion assignments
         // This will potentially call this function again to resolve next level of slicing
-        return true;
+        திரும்பு உண்மை;
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    வெறுமை visit(Ast_முனை_Assign* nodep) override {
         // Called recursively on newly created assignments
-        if (nodep->user1SetOnce()) return;  // Process once
+        எனில் (nodep->user1SetOnce()) திரும்பு;  // Process once
         UINFOTREE(9, nodep, "", "Deslice-In");
         VL_RESTORER(m_assignError);
         VL_RESTORER(m_assignp);
         VL_RESTORER(m_okConsArray);  // Set in assignOptimize
-        m_assignError = false;
+        m_assignError = பொய்;
         m_assignp = nodep;
-        if (assignOptimize(nodep)) return;
+        எனில் (assignOptimize(nodep)) திரும்பு;
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeCons* nodep) override {
+    வெறுமை visit(Ast_முனை_Cons* nodep) override {
         VL_RESTORER(m_okConsArray);
-        m_okConsArray = true;
+        m_okConsArray = உண்மை;
         iterateChildren(nodep);
     }
-    void visit(AstConsArray* nodep) override {
+    வெறுமை visit(AstConsArray* nodep) override {
         UASSERT_OBJ(!m_assignp || m_okConsArray, nodep,
                     "Array initialization should have been removed earlier");
     }
 
-    template <typename T_NodeBiop>
-    void expandBiOp(T_NodeBiop* biopp) {
-        AstNodeBiop* nodep = biopp;
-        if (nodep->user1SetOnce()) return;  // Process once
+    template <typename T_முனை_Biop>
+    வெறுமை expandBiOp(T_முனை_Biop* biopp) {
+        Ast_முனை_Biop* nodep = biopp;
+        எனில் (nodep->user1SetOnce()) திரும்பு;  // Process once
         UINFO(9, "  Bi-Eq/Neq expansion " << nodep);
 
         // Only expand if lhs is an unpacked array (we assume type checks already passed)
-        const AstNodeDType* const fromDtp = nodep->lhsp()->dtypep()->skipRefp();
-        if (const AstUnpackArrayDType* const adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
-            AstNodeBiop* logp = nullptr;
+        மாறிலி Ast_முனை_DType* மாறிலி fromDtp = nodep->lhsp()->dtypep()->skipRefp();
+        எனில் (மாறிலி AstUnpackArrayDType* மாறிலி adtypep = VN_CAST(fromDtp, UnpackArrayDType)) {
+            Ast_முனை_Biop* logp = nullptr;
 
-            const int elements = adtypep->rangep()->elementsConst();
-            for (int elemIdx = 0; elemIdx < elements; ++elemIdx) {
+            மாறிலி முழு elements = adtypep->rangep()->elementsConst();
+            க்கு (முழு elemIdx = 0; elemIdx < elements; ++elemIdx) {
                 // EQ(a,b) -> LOGAND(EQ(ARRAYSEL(a,0), ARRAYSEL(b,0)), ...[1])
                 // Original node is replaced, so it is safe to copy it one time even if it is
                 // impure.
-                T_NodeBiop* const clonep = new T_NodeBiop{
+                T_முனை_Biop* மாறிலி clonep = புதிய T_முனை_Biop{
                     nodep->fileline(), cloneAndSel(nodep->lhsp(), elements, elemIdx, elemIdx != 0),
                     cloneAndSel(nodep->rhsp(), elements, elemIdx, elemIdx != 0)};
-                if (!logp) {
+                எனில் (!logp) {
                     logp = clonep;
-                } else {
-                    switch (nodep->type()) {
-                    case VNType::Eq:  // FALLTHRU
-                    case VNType::EqCase:
-                        logp = new AstLogAnd{nodep->fileline(), logp, clonep};
-                        break;
-                    case VNType::Neq:  // FALLTHRU
-                    case VNType::NeqCase:
-                        logp = new AstLogOr{nodep->fileline(), logp, clonep};
-                        break;
-                    default: nodep->v3fatalSrc("Unknown node type processing array slice"); break;
+                } இல்லையெனில் {
+                    தேர்வு (nodep->type()) {
+                    நிலை VNType::Eq:  // FALLTHRU
+                    நிலை VNType::EqCase:
+                        logp = புதிய AstLogAnd{nodep->fileline(), logp, clonep};
+                        நிறுத்து;
+                    நிலை VNType::Neq:  // FALLTHRU
+                    நிலை VNType::NeqCase:
+                        logp = புதிய AstLogOr{nodep->fileline(), logp, clonep};
+                        நிறுத்து;
+                    இயல்பு: nodep->v3fatalSrc("Unknown node type processing array slice"); நிறுத்து;
                     }
                 }
             }
             UASSERT_OBJ(logp, nodep, "Unpacked array with empty indices range");
             nodep->replaceWith(logp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
             nodep = logp;
         }
 
         iterateChildren(nodep);
     }
 
-    void visit(AstEq* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeq* nodep) override { expandBiOp(nodep); }
-    void visit(AstEqCase* nodep) override { expandBiOp(nodep); }
-    void visit(AstNeqCase* nodep) override { expandBiOp(nodep); }
+    வெறுமை visit(AstEq* nodep) override { expandBiOp(nodep); }
+    வெறுமை visit(AstNeq* nodep) override { expandBiOp(nodep); }
+    வெறுமை visit(AstEqCase* nodep) override { expandBiOp(nodep); }
+    வெறுமை visit(AstNeqCase* nodep) override { expandBiOp(nodep); }
 
-    void visit(AstSliceSel* nodep) override {
+    வெறுமை visit(AstSliceSel* nodep) override {
         // Slice used as a bare value, e.g. a $display argument. Build it via
         // VlUnpacked::slice<N_Out>(loIdx), as DYN_SLICE already does for Queues.
         iterateChildren(nodep);
-        AstNodeExpr* const fromp = nodep->fromp()->unlinkFrBack();
-        AstConst* const lop = new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 32,
+        Ast_முனை_கோவை* மாறிலி fromp = nodep->fromp()->unlinkFrBack();
+        AstConst* மாறிலி lop = புதிய AstConst{nodep->fileline(), AstConst::Widthed_மதிப்பு{}, 32,
                                            static_cast<uint32_t>(nodep->declRange().lo())};
-        AstCMethodHard* const newp
-            = new AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_SLICE};
+        AstCMethodHard* மாறிலி newp
+            = புதிய AstCMethodHard{nodep->fileline(), fromp, VCMethod::ARRAY_SLICE};
         newp->addPinsp(lop);
         newp->dtypeFrom(nodep);  // Reuse the already-correct sliced array dtype
-        newp->didWidth(true);
-        newp->protect(false);
+        newp->didWidth(உண்மை);
+        newp->protect(பொய்);
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit SliceVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~SliceVisitor() override {
@@ -316,8 +316,8 @@ public:
 //######################################################################
 // Link class functions
 
-void V3Slice::sliceAll(AstNetlist* nodep) {
+வெறுமை V3Slice::sliceAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SliceVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("slice", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("slice", 0, dump_மரம்_Either_Level() >= 3);
 }

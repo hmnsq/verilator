@@ -21,22 +21,22 @@
 #endif
 #define VL_PCH_INCLUDED
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Broken.h"
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3FunctionTraits.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
-#include "V3Number.h"
-#include "V3Options.h"
-#include "V3StdFuture.h"
-#include "V3String.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Broken.h"
+#அந்தர்பாவ "V3Container.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3FileLine.h"
+#அந்தர்பாவ "V3FunctionTraits.h"
+#அந்தர்பாவ "V3Global.h"
+#அந்தர்பாவ "V3Mutex.h"
+#அந்தர்பாவ "V3Number.h"
+#அந்தர்பாவ "V3Options.h"
+#அந்தர்பாவ "V3StdFuture.h"
+#அந்தர்பாவ "V3String.h"
 
-#include <algorithm>
+#அந்தர்பாவ <algorithm>
 
 #endif  // Guard

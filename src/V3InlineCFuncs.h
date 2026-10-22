@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3INLINECFUNCS_H_
 #define VERILATOR_V3INLINECFUNCS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 class V3InlineCFuncs final {
-public:
-    static void inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை inlineAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

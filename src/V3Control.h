@@ -17,79 +17,79 @@
 #ifndef VERILATOR_V3CONFIG_H_
 #define VERILATOR_V3CONFIG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Mutex.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3FileLine.h"
+#அந்தர்பாவ "V3Mutex.h"
 
 //######################################################################
 
 class V3Control final {
-public:
-    struct FsmRegisterWrapper final {
+பொது:
+    கட்டமைப்பு FsmRegisterWrapper final {
         string moduleName;
         string d;
         string q;
         string clock;
         string reset;
-        string resetValue;
+        string reset_மதிப்பு;
     };
 
-    enum class VarSpecKind : uint8_t {
+    எண்ணிக்கை class VarSpecKind : uint8_t {
         PARAM,  // Select only matching parameters
         PORT,  // Select only matching ports
         VAR  // Select any matching AstVar (including params and ports)
     };
 
-    static void addCaseFull(const string& file, int lineno);
-    static void addCaseParallel(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& file, int lineno);
-    static void addCoverageBlockOff(const string& module, const string& blockname);
-    static void addHierWorkers(FileLine* fl, const string& model, int workers);
-    static void addFsmRegisterWrapper(FileLine* fl, const string& module, const string& d,
-                                      const string& q, const string& clock, const string& reset,
-                                      const string& resetValue);
-    static void addIgnore(V3ErrorCode code, bool on, const string& filename, int min, int max);
-    static void addIgnoreMatch(V3ErrorCode code, const string& filename, const string& contents,
-                               const string& match);
-    static void addInline(FileLine* fl, const string& module, const string& ftask, bool on);
-    static void addModulePragma(const string& module, VPragmaType pragma);
-    static void addProfileData(FileLine* fl, const string& hierDpi, uint64_t cost);
-    static void addProfileData(FileLine* fl, const string& model, const string& key,
+    நிலையான வெறுமை addCaseFull(மாறிலி string& file, முழு lineno);
+    நிலையான வெறுமை addCaseParallel(மாறிலி string& file, முழு lineno);
+    நிலையான வெறுமை addCoverageBlockOff(மாறிலி string& file, முழு lineno);
+    நிலையான வெறுமை addCoverageBlockOff(மாறிலி string& module, மாறிலி string& blockname);
+    நிலையான வெறுமை addHierWorkers(File_வரி* fl, மாறிலி string& model, முழு workers);
+    நிலையான வெறுமை addFsmRegisterWrapper(File_வரி* fl, மாறிலி string& module, மாறிலி string& d,
+                                      மாறிலி string& q, மாறிலி string& clock, மாறிலி string& reset,
+                                      மாறிலி string& reset_மதிப்பு);
+    நிலையான வெறுமை addIgnore(V3ErrorCode code, bool on, மாறிலி string& filename, முழு min, முழு max);
+    நிலையான வெறுமை addIgnoreMatch(V3ErrorCode code, மாறிலி string& filename, மாறிலி string& contents,
+                               மாறிலி string& match);
+    நிலையான வெறுமை addInline(File_வரி* fl, மாறிலி string& module, மாறிலி string& ftask, bool on);
+    நிலையான வெறுமை addModulePragma(மாறிலி string& module, VPragmaType pragma);
+    நிலையான வெறுமை addProfileData(File_வரி* fl, மாறிலி string& hierDpi, uint64_t cost);
+    நிலையான வெறுமை addProfileData(File_வரி* fl, மாறிலி string& model, மாறிலி string& சாவி,
                                uint64_t cost);
-    static void addScopeTraceOn(bool on, const string& scope, int levels);
-    static void addVarAttr(FileLine* fl, const string& module, const string& ftask,
-                           VarSpecKind kind, const string& pattern, VAttrType type,
-                           AstSenTree* nodep);
+    நிலையான வெறுமை addScopeTraceOn(bool on, மாறிலி string& scope, முழு levels);
+    நிலையான வெறுமை addVarAttr(File_வரி* fl, மாறிலி string& module, மாறிலி string& ftask,
+                           VarSpecKind kind, மாறிலி string& pattern, VAttrType type,
+                           Ast_Sen_மரம்* nodep);
 
-    static void applyCase(AstCase* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstBegin* nodep);
-    static void applyCoverageBlock(AstNodeModule* modulep, AstGenBlock* nodep);
-    static void applyFTask(AstNodeModule* modulep, AstNodeFTask* ftaskp);
-    static void applyIgnores(FileLine* filelinep);
-    static void applyModule(AstNodeModule* modulep);
-    static void applyVarAttr(const AstNodeModule* modulep, const AstNodeFTask* ftaskp,
+    நிலையான வெறுமை applyCase(AstCase* nodep);
+    நிலையான வெறுமை applyCoverageBlock(Ast_முனை_Module* modulep, AstBegin* nodep);
+    நிலையான வெறுமை applyCoverageBlock(Ast_முனை_Module* modulep, AstGenBlock* nodep);
+    நிலையான வெறுமை applyFTask(Ast_முனை_Module* modulep, Ast_முனை_FTask* ftaskp);
+    நிலையான வெறுமை applyIgnores(File_வரி* filelinep);
+    நிலையான வெறுமை applyModule(Ast_முனை_Module* modulep);
+    நிலையான வெறுமை applyVarAttr(மாறிலி Ast_முனை_Module* modulep, மாறிலி Ast_முனை_FTask* ftaskp,
                              AstVar* varp);
 
-    static int getHierWorkers(const string& model);
-    static FileLine* getHierWorkersFileLine(const string& model);
-    static const FsmRegisterWrapper* getFsmRegisterWrapper(const string& module);
-    static uint64_t getProfileData(const string& hierDpi);
-    static uint64_t getProfileData(const string& model, const string& key);
-    static FileLine* getProfileDataFileLine();
-    static bool getScopeTraceOn(const string& scope);
+    நிலையான முழு getHierWorkers(மாறிலி string& model);
+    நிலையான File_வரி* get_Hier_Workers_File_வரி(மாறிலி string& model);
+    நிலையான மாறிலி FsmRegisterWrapper* getFsmRegisterWrapper(மாறிலி string& module);
+    நிலையான uint64_t getProfileData(மாறிலி string& hierDpi);
+    நிலையான uint64_t getProfileData(மாறிலி string& model, மாறிலி string& சாவி);
+    நிலையான File_வரி* get_Profile_Data_File_வரி();
+    நிலையான bool getScopeTraceOn(மாறிலி string& scope);
 
-    static void contentsPushText(const string& text);
+    நிலையான வெறுமை contents_தள்ளு_Text(மாறிலி string& text);
 
-    static bool containsMTaskProfileData();
-    static uint64_t getCurrentHierBlockCost();
+    நிலையான bool containsMTaskProfileData();
+    நிலையான uint64_t getCurrentHierBlockCost();
 
-    static bool waive(const FileLine* filelinep, V3ErrorCode code, const string& message);
+    நிலையான bool waive(மாறிலி File_வரி* filelinep, V3ErrorCode code, மாறிலி string& message);
 
-    static void selfTest();
+    நிலையான வெறுமை selfTest();
 };
 
 #endif  // Guard

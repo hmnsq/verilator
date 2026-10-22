@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3DESCOPE_H_
 #define VERILATOR_V3DESCOPE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Descope final {
-public:
-    static void descopeAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை descopeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

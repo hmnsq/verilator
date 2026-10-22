@@ -17,15 +17,15 @@
 #ifndef VERILATOR_VLCOPTIONS_H_
 #define VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#அந்தர்பாவ "VlcPoint.h"
+#அந்தர்பாவ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#அந்தர்பாவ <map>
+#அந்தர்பாவ <set>
+#அந்தர்பாவ <vector>
 
 //######################################################################
 // V3Options - Command line options
@@ -37,12 +37,12 @@ class VlcOptions final {
     // clang-format off
     string m_annotateOut;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    முழு m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
     VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    முழு m_reportLevels = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,42 +52,42 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+தனிப்பட்ட:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    வெறுமை parseReportOption() VL_MT_DISABLED;
+    நிலையான வெறுமை showVersion(bool verbose) VL_MT_DISABLED;
 
-public:
+பொது:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = இயல்பு;
+    ~VlcOptions() = இயல்பு;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    வெறுமை parseOptsList(முழு argc, எழுத்து** argv) VL_MT_DISABLED;
+    வெறுமை addReadFile(மாறிலி string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    மாறிலி VlStringSet& readFiles() மாறிலி { திரும்பு m_readFiles; }
+    string annotateOut() மாறிலி { திரும்பு m_annotateOut; }
+    bool annotateAll() மாறிலி { திரும்பு m_annotateAll; }
+    முழு annotateMin() மாறிலி { திரும்பு m_annotateMin; }
+    bool மொத்தம்_Ok(uint64_t மொத்தம்) மாறிலி { திரும்பு மொத்தம் >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() மாறிலி { திரும்பு m_annotatePoints; }
+    bool includeResetArcs() மாறிலி { திரும்பு m_includeResetArcs; }
+    முழு reportLevels() மாறிலி { திரும்பு m_reportLevels; }
+    bool reportSpecified() மாறிலி { திரும்பு !m_report.empty(); }
+    bool reportSummary() மாறிலி { திரும்பு m_reportSummary; }
+    bool reportHierarchy() மாறிலி { திரும்பு m_reportHierarchy; }
+    bool rank() மாறிலி { திரும்பு m_rank; }
+    bool unlink() மாறிலி { திரும்பு m_unlink; }
+    string writeFile() மாறிலி { திரும்பு m_writeFile; }
+    string writeInfoFile() மாறிலி { திரும்பு m_writeInfoFile; }
+    bool isTypeMatch(மாறிலி எழுத்து* name) மாறிலி {
+        திரும்பு VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    நிலையான string version() VL_MT_DISABLED;
 };
 
 //######################################################################

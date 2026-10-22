@@ -17,14 +17,14 @@
 #ifndef VERILATOR_V3EMITCMAIN_H_
 #define VERILATOR_V3EMITCMAIN_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 //============================================================================
 
 class V3EmitCMain final {
-public:
-    static void emit() VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை emit() VL_MT_DISABLED;
 };
 
 #endif  // Guard

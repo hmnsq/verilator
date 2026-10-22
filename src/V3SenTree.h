@@ -19,49 +19,49 @@
 #ifndef VERILATOR_V3SENTREE_H_
 #define VERILATOR_V3SENTREE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hasher.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Hasher.h"
 
-#include <unordered_set>
+#அந்தர்பாவ <unordered_set>
 
 //######################################################################
 // Collect SenTrees under the entire scope
 // And provide functions to find/add a new one
 
-class SenTreeFinder final {
+class Sen_மரம்_Finder final {
     // STATE - across all visitors
-    AstTopScope* const m_topScopep;  // Top scope to add global SenTrees to
-    std::unordered_set<VNRef<AstSenTree>> m_trees;  // Set of global SenTrees
-    AstSenTree* m_combop = nullptr;  // The unique combinational domain SenTree
-    AstSenTree* m_initialp = nullptr;  // The unique initial domain SenTree
+    Ast_உச்சி_Scope* மாறிலி m_உச்சி_Scopep;  // Top scope to add global SenTrees to
+    std::unordered_set<VNRef<Ast_Sen_மரம்>> m_trees;  // Set of global SenTrees
+    Ast_Sen_மரம்* m_combop = nullptr;  // The unique combinational domain SenTree
+    Ast_Sen_மரம்* m_initialp = nullptr;  // The unique initial domain SenTree
 
-    VL_UNCOPYABLE(SenTreeFinder);
+    VL_UNCOPYABLE(Sen_மரம்_Finder);
 
     template <typename T_Domain>  //
-    AstSenTree* makeUnique() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_Domain{}}};
-        AstSenTree* const restultp = getSenTree(senTreep);
-        VL_DO_DANGLING(senTreep->deleteTree(), senTreep);  // getSenTree clones, so can delete
-        return restultp;
+    Ast_Sen_மரம்* makeUnique() {
+        File_வரி* மாறிலி fl = m_உச்சி_Scopep->fileline();
+        Ast_Sen_மரம்* மாறிலி senTreep = new Ast_Sen_மரம்{fl, new AstSenItem{fl, T_Domain{}}};
+        Ast_Sen_மரம்* மாறிலி restultp = get_Sen_மரம்(senTreep);
+        VL_DO_DANGLING(senTreep->delete_மரம்(), senTreep);  // getSenTree clones, so can delete
+        திரும்பு restultp;
     }
 
-public:
+பொது:
     // CONSTRUCTORS
-    SenTreeFinder()
-        : SenTreeFinder{v3Global.rootp()} {}
+    Sen_மரம்_Finder()
+        : Sen_மரம்_Finder{v3Global.rootp()} {}
 
-    explicit SenTreeFinder(AstNetlist* netlistp)
-        : m_topScopep{netlistp->topScopep()} {
+    explicit Sen_மரம்_Finder(AstNetlist* netlistp)
+        : m_உச்சி_Scopep{netlistp->உச்சி_Scopep()} {
         // Gather existing global SenTrees
-        for (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
-             senTreep = VN_AS(senTreep->nextp(), SenTree)) {
+        க்கு (Ast_Sen_மரம்* senTreep = m_உச்சி_Scopep->senTreesp(); senTreep;
+             senTreep = VN_AS(senTreep->nextp(), Sen_மரம்)) {
             m_trees.emplace(*senTreep);
-            if (senTreep->hasCombo()) m_combop = senTreep;
-            if (senTreep->hasInitial()) m_initialp = senTreep;
+            எனில் (senTreep->hasCombo()) m_combop = senTreep;
+            எனில் (senTreep->hasInitial()) m_initialp = senTreep;
         }
     }
 
@@ -69,30 +69,30 @@ public:
 
     // Return a global AstSenTree equivalent to the given senTreep.
     // If no such global AstSenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getSenTree(AstSenTree* senTreep) {
+    Ast_Sen_மரம்* get_Sen_மரம்(Ast_Sen_மரம்* senTreep) {
         auto it = m_trees.find(*senTreep);
         // If match found, return it.
-        if (it != m_trees.end()) return &(*it).get();
+        எனில் (it != m_trees.end()) திரும்பு &(*it).get();
 
         // Not found, create a new one
-        AstSenTree* const newSenTreep = senTreep->cloneTree(false);
-        m_topScopep->addSenTreesp(newSenTreep);
+        Ast_Sen_மரம்* மாறிலி newSenTreep = senTreep->clone_மரம்(false);
+        m_உச்சி_Scopep->addSenTreesp(newSenTreep);
         m_trees.emplace(*newSenTreep);
-        return newSenTreep;
+        திரும்பு newSenTreep;
     }
 
     // Return the global combinational AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getComb() {
-        if (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
-        return m_combop;
+    Ast_Sen_மரம்* getComb() {
+        எனில் (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
+        திரும்பு m_combop;
     }
 
     // Return the global initial AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getInitial() {
-        if (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
-        return m_initialp;
+    Ast_Sen_மரம்* getInitial() {
+        எனில் (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
+        திரும்பு m_initialp;
     }
 };
 

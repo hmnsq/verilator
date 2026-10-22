@@ -20,52 +20,52 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Class.h"
+#அந்தர்பாவ "V3Class.h"
 
-#include "V3UniqueNames.h"
+#அந்தர்பாவ "V3UniqueNames.h"
 
-#include <queue>
-#include <set>
+#அந்தர்பாவ <queue>
+#அந்தர்பாவ <set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ClassVisitor final : public VNVisitor {
+வகுப்பு ClassVisitor final : பொது VNVisitor {
     // NODE STATE
     //  AstClass::user1()       -> bool.  True if iterated already
     //  AstVar::user1p()        -> AstVarScope*  Scope used with this var
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // MEMBERS
     string m_prefix;  // String prefix to add to class name based on hier
     V3UniqueNames m_names;  // For unique naming of structs and unions
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeModule* m_classPackagep = nullptr;  // Package moving into
-    const AstScope* m_classScopep = nullptr;  // Package moving scopes into
+    Ast_முனை_Module* m_modp = nullptr;  // Current module
+    Ast_முனை_Module* m_classPackagep = nullptr;  // Package moving into
+    மாறிலி AstScope* m_classScopep = nullptr;  // Package moving scopes into
     AstScope* m_packageScopep = nullptr;  // Class package scope
-    const AstNodeFTask* m_ftaskp = nullptr;  // Current task
-    std::vector<std::pair<AstNode*, AstScope*>> m_toScopeMoves;
-    std::vector<std::pair<AstNode*, AstNodeModule*>> m_toPackageMoves;
+    மாறிலி Ast_முனை_FTask* m_ftaskp = nullptr;  // Current task
+    std::vector<std::pair<Ast_முனை*, AstScope*>> m_toScopeMoves;
+    std::vector<std::pair<Ast_முனை*, Ast_முனை_Module*>> m_toPackageMoves;
     std::set<AstTypedef*> m_typedefps;  // Contains all typedef nodes
-    std::set<AstNodeUOrStructDType*> m_strDtypeps;  // Contains all packed structs and unions
+    std::set<Ast_முனை_UOr_Struct_DType*> m_strDtypeps;  // Contains all packed structs and unions
     // Contains all public packed structs and unions, using a queue to
     // mark embedded struct / union public by BFS
-    std::queue<AstNodeUOrStructDType*> m_pubStrDtypeps;
+    std::queue<Ast_முனை_UOr_Struct_DType*> m_pubStrDtypeps;
 
     // METHODS
 
-    void recurseImplements(AstClass* nodep) {
+    வெறுமை recurseImplements(AstClass* nodep) {
         // In SystemVerilog, we have two inheritance chains:
         // - extends of concrete clasess: mapped to non-virtual C++ inheritance
         //   as there is only single ancestor allowed
         // - implements of concrete classes / extends of interface classes: mapped
         //   to virtual inheritance to allow diamond patterns with multiple ancestors
-        if (nodep->useVirtualPublic()) return;  // Short-circuit to exit diamond cycles
-        if (nodep->isInterfaceClass()) { nodep->useVirtualPublic(true); }
-        for (const AstClassExtends* extp = nodep->extendsp(); extp;
+        எனில் (nodep->useVirtualPublic()) திரும்பு;  // Short-circuit to exit diamond cycles
+        எனில் (nodep->isInterfaceClass()) { nodep->useVirtualPublic(உண்மை); }
+        க்கு (மாறிலி AstClassExtends* extp = nodep->extendsp(); extp;
              extp = VN_AS(extp->nextp(), ClassExtends)) {
             recurseImplements(extp->classp());
         }
@@ -73,8 +73,8 @@ class ClassVisitor final : public VNVisitor {
 
     // VISITORS
 
-    void visit(AstClass* nodep) override {
-        if (nodep->user1SetOnce()) return;
+    வெறுமை visit(AstClass* nodep) override {
+        எனில் (nodep->user1SetOnce()) திரும்பு;
         // Move this class
         nodep->name(m_prefix + nodep->name());
         nodep->unlinkFrBack();
@@ -82,16 +82,16 @@ class ClassVisitor final : public VNVisitor {
         recurseImplements(nodep);
         // Make containing package
         // Note origName is the same as the class origName so errors look correct
-        AstClassPackage* const packagep
-            = new AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
+        AstClassPackage* மாறிலி packagep
+            = புதிய AstClassPackage{nodep->fileline(), nodep->origName(), nodep->libname()};
         packagep->name(nodep->name() + "__Vclpkg");
-        nodep->editCountInc();
+        nodep->edit_மொத்தம்_Inc();
         nodep->classOrPackagep(packagep);
         packagep->classp(nodep);
         packagep->timeunit(nodep->timeunit());
         v3Global.rootp()->addModulesp(packagep);
         // Add package to hierarchy
-        AstCell* const cellp = new AstCell{packagep->fileline(),
+        AstCell* மாறிலி cellp = புதிய AstCell{packagep->fileline(),
                                            packagep->fileline(),
                                            packagep->name(),
                                            packagep->name(),
@@ -99,18 +99,18 @@ class ClassVisitor final : public VNVisitor {
                                            nullptr,
                                            nullptr};
         cellp->modp(packagep);
-        v3Global.rootp()->topModulep()->addStmtsp(cellp);
+        v3Global.rootp()->உச்சி_Modulep()->addStmtsp(cellp);
         // Find class's scope
         // Alternative would be to move this and related to V3Scope
-        const AstScope* classScopep = nullptr;
-        for (AstNode* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
-            if ((classScopep = VN_CAST(itp, Scope))) break;
+        மாறிலி AstScope* classScopep = nullptr;
+        க்கு (Ast_முனை* itp = nodep->stmtsp(); itp; itp = itp->nextp()) {
+            எனில் ((classScopep = VN_CAST(itp, Scope))) நிறுத்து;
         }
         UASSERT_OBJ(classScopep, nodep, "No scope under class");
 
         // Add scope
-        AstScope* const scopep
-            = new AstScope{nodep->fileline(), packagep, classScopep->name(),
+        AstScope* மாறிலி scopep
+            = புதிய AstScope{nodep->fileline(), packagep, classScopep->name(),
                            classScopep->aboveScopep(), classScopep->aboveCellp()};
         packagep->addStmtsp(scopep);
         // Iterate
@@ -126,7 +126,7 @@ class ClassVisitor final : public VNVisitor {
         m_prefix = nodep->name() + "__02e";  // .
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {
+    வெறுமை visit(Ast_முனை_Module* nodep) override {
         // Visit for NodeModules that are not AstClass (AstClass is-a AstNodeModule)
         // Classes are always under a Package (perhaps $unit) or a module
         VL_RESTORER_CLEAR(m_prefix);
@@ -136,16 +136,16 @@ class ClassVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstVar* nodep) override {
+    வெறுமை visit(AstVar* nodep) override {
         iterateChildren(nodep);
-        if (m_packageScopep) {
-            if (m_ftaskp && m_ftaskp->isStatic()) {
+        எனில் (m_packageScopep) {
+            எனில் (m_ftaskp && m_ftaskp->isStatic()) {
                 // Move later, or we wouldn't keep iterating the class
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
                 m_toScopeMoves.emplace_back(nodep, m_packageScopep);
             }
-            if (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
+            எனில் (!m_ftaskp && (nodep->lifetime().isStatic() || nodep->isParam())) {
                 m_toPackageMoves.emplace_back(nodep, m_classPackagep);
                 // We're really moving the VarScope but we might not
                 // have a pointer to it yet
@@ -154,20 +154,20 @@ class ClassVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstVarScope* nodep) override {
+    வெறுமை visit(AstVarScope* nodep) override {
         iterateChildren(nodep);
         nodep->varp()->user1p(nodep);
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
-        if (m_packageScopep && nodep->isStatic()) {
+        எனில் (m_packageScopep && nodep->isStatic()) {
             m_toScopeMoves.emplace_back(nodep, m_packageScopep);
         }
     }
-    void visit(AstCFunc* nodep) override {
+    வெறுமை visit(AstCFunc* nodep) override {
         iterateChildren(nodep);
         // Don't move now, or wouldn't keep iterating the class
         // TODO move function statics only
@@ -175,109 +175,109 @@ class ClassVisitor final : public VNVisitor {
         //    m_toScopeMoves.emplace_back(nodep, m_classScopep);
         //}
     }
-    void visit(AstNodeCoverDecl* nodep) override {
+    வெறுமை visit(Ast_முனை_Cover_Decl* nodep) override {
         // Need to declare coverage in package, where we have access to symbol table
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        எனில் (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
     }
-    void visit(AstInitial* nodep) override {
+    வெறுமை visit(AstInitial* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        எனில் (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
-    void visit(AstInitialStatic* nodep) override {
+    வெறுமை visit(AstInitialStatic* nodep) override {
         // But not AstInitialAutomatic, which remains under the class
         iterateChildren(nodep);
-        if (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
+        எனில் (m_packageScopep) m_toScopeMoves.emplace_back(nodep, m_packageScopep);
     }
 
-    void setStructModulep(AstNodeUOrStructDType* const dtypep) {
+    வெறுமை setStructModulep(Ast_முனை_UOr_Struct_DType* மாறிலி dtypep) {
         // Give struct a pointer to its package and a final name
-        dtypep->editCountInc();
+        dtypep->edit_மொத்தம்_Inc();
         dtypep->classOrPackagep(m_classPackagep ? m_classPackagep : m_modp);
         dtypep->name(
             m_names.get(dtypep->name() + (VN_IS(dtypep, UnionDType) ? "__union" : "__struct")));
-        if (dtypep->packed()) m_strDtypeps.insert(dtypep);
+        எனில் (dtypep->packed()) m_strDtypeps.செருகு(dtypep);
 
-        for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        க்கு (AstMemberDType* itemp = dtypep->membersp(); itemp;
              itemp = VN_AS(itemp->nextp(), MemberDType)) {
-            AstNodeUOrStructDType* const subp = itemp->getChildStructp();
+            Ast_முனை_UOr_Struct_DType* மாறிலி subp = itemp->getChildStructp();
             // Recurse only into anonymous structs inside this definition,
             // other structs will be reached from another typedefs
-            if (subp && subp->name().empty()) setStructModulep(subp);
+            எனில் (subp && subp->name().empty()) setStructModulep(subp);
         }
     }
-    void visit(AstTypedef* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        AstNodeUOrStructDType* const dtypep = VN_CAST(nodep->dtypep(), NodeUOrStructDType);
-        if (dtypep && dtypep->packed()) {
-            m_typedefps.insert(nodep);
-            if (nodep->attrPublic()) m_pubStrDtypeps.push(dtypep);
+    வெறுமை visit(AstTypedef* nodep) override {
+        எனில் (nodep->user1SetOnce()) திரும்பு;
+        Ast_முனை_UOr_Struct_DType* மாறிலி dtypep = VN_CAST(nodep->dtypep(), முனை_UOr_Struct_DType);
+        எனில் (dtypep && dtypep->packed()) {
+            m_typedefps.செருகு(nodep);
+            எனில் (nodep->attrPublic()) m_pubStrDtypeps.தள்ளு(dtypep);
         }
         iterateChildren(nodep);
-        if (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
+        எனில் (m_classPackagep) m_classPackagep->addStmtsp(nodep->unlinkFrBack());
 
-        if (dtypep) {
+        எனில் (dtypep) {
             dtypep->name(nodep->name());
             setStructModulep(dtypep);
         }
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short circuit
-    void visit(AstNodeStmt* nodep) override {}  // Short circuit
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை_கோவை* nodep) override {}  // Short circuit
+    வெறுமை visit(Ast_முனை_Stmt* nodep) override {}  // Short circuit
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit ClassVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ClassVisitor() override {
-        for (auto moved : m_toScopeMoves) {
-            AstNode* const nodep = moved.first;
-            AstScope* const scopep = moved.second;
+        க்கு (auto moved : m_toScopeMoves) {
+            Ast_முனை* மாறிலி nodep = moved.first;
+            AstScope* மாறிலி scopep = moved.second;
             UINFO(9, "moving " << nodep << " to " << scopep);
-            if (VN_IS(nodep, NodeFTask)) {
+            எனில் (VN_IS(nodep, முனை_FTask)) {
                 scopep->addBlocksp(nodep->unlinkFrBack());
-            } else if (VN_IS(nodep, Var)) {
-                AstVarScope* const vscp = VN_AS(nodep->user1p(), VarScope);
+            } இல்லையெனில் எனில் (VN_IS(nodep, Var)) {
+                AstVarScope* மாறிலி vscp = VN_AS(nodep->user1p(), VarScope);
                 vscp->scopep(scopep);
                 vscp->unlinkFrBack();
                 scopep->addVarsp(vscp);
-            } else if (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
+            } இல்லையெனில் எனில் (VN_IS(nodep, Initial) || VN_IS(nodep, InitialStatic)) {
                 nodep->unlinkFrBack();
                 scopep->addBlocksp(nodep);
-            } else {
+            } இல்லையெனில் {
                 nodep->v3fatalSrc("Bad case");
             }
         }
-        for (auto moved : m_toPackageMoves) {
-            AstNode* const nodep = moved.first;
-            AstNodeModule* const modp = moved.second;
+        க்கு (auto moved : m_toPackageMoves) {
+            Ast_முனை* மாறிலி nodep = moved.first;
+            Ast_முனை_Module* மாறிலி modp = moved.second;
             UINFO(9, "moving " << nodep << " to " << modp);
             nodep->unlinkFrBack();
             modp->addStmtsp(nodep);
         }
         // BFS to mark public typedefs.
-        std::set<const AstNodeUOrStructDType*> pubStrDtypeps;
-        while (!m_pubStrDtypeps.empty()) {
-            AstNodeUOrStructDType* const dtypep = m_pubStrDtypeps.front();
-            m_pubStrDtypeps.pop();
-            if (pubStrDtypeps.insert(dtypep).second) {
-                for (AstMemberDType* itemp = dtypep->membersp(); itemp;
+        std::set<மாறிலி Ast_முனை_UOr_Struct_DType*> pubStrDtypeps;
+        போது (!m_pubStrDtypeps.empty()) {
+            Ast_முனை_UOr_Struct_DType* மாறிலி dtypep = m_pubStrDtypeps.front();
+            m_pubStrDtypeps.எடு();
+            எனில் (pubStrDtypeps.செருகு(dtypep).second) {
+                க்கு (AstMemberDType* itemp = dtypep->membersp(); itemp;
                      itemp = VN_AS(itemp->nextp(), MemberDType)) {
-                    if (AstNodeUOrStructDType* const subp = itemp->getChildStructp())
-                        m_pubStrDtypeps.push(subp);
+                    எனில் (Ast_முனை_UOr_Struct_DType* மாறிலி subp = itemp->getChildStructp())
+                        m_pubStrDtypeps.தள்ளு(subp);
                 }
             }
         }
-        for (AstTypedef* typedefp : m_typedefps) {
-            const AstNodeUOrStructDType* const sdtypep
-                = VN_AS(typedefp->dtypep(), NodeUOrStructDType);
-            if (pubStrDtypeps.count(sdtypep)) typedefp->attrPublic(true);
+        க்கு (AstTypedef* typedefp : m_typedefps) {
+            மாறிலி Ast_முனை_UOr_Struct_DType* மாறிலி sdtypep
+                = VN_AS(typedefp->dtypep(), முனை_UOr_Struct_DType);
+            எனில் (pubStrDtypeps.மொத்தம்(sdtypep)) typedefp->attrPublic(உண்மை);
         }
         // Clear package pointer of non-public packed struct / union type, which will never be
         // exported.
-        for (AstNodeUOrStructDType* sdtypep : m_strDtypeps) {
-            if (!pubStrDtypeps.count(sdtypep)) sdtypep->classOrPackagep(nullptr);
+        க்கு (Ast_முனை_UOr_Struct_DType* sdtypep : m_strDtypeps) {
+            எனில் (!pubStrDtypeps.மொத்தம்(sdtypep)) sdtypep->classOrPackagep(nullptr);
         }
     }
 };
@@ -285,8 +285,8 @@ public:
 //######################################################################
 // Class class functions
 
-void V3Class::classAll(AstNetlist* nodep) {
+வெறுமை V3Class::classAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ClassVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("class", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("class", 0, dump_மரம்_Either_Level() >= 3);
 }

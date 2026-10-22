@@ -17,20 +17,20 @@
 #ifndef VERILATOR_V3STRING_H_
 #define VERILATOR_V3STRING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 // No V3 headers here - this is a base class for Vlc etc
 
-#include <deque>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
+#அந்தர்பாவ <deque>
+#அந்தர்பாவ <iomanip>
+#அந்தர்பாவ <map>
+#அந்தர்பாவ <set>
+#அந்தர்பாவ <sstream>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <type_traits>
+#அந்தர்பாவ <unordered_map>
+#அந்தர்பாவ <vector>
 
 using VStringList = std::vector<std::string>;
 using VStringSet = std::set<std::string>;
@@ -39,115 +39,115 @@ using VStringSet = std::set<std::string>;
 // Global string-related functions
 
 template <typename T>
-std::string cvtToStr(const T& t) VL_PURE {
+std::string cvtToStr(மாறிலி T& t) VL_PURE {
     std::ostringstream os;
     os << t;
-    return os.str();
+    திரும்பு os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
-cvtToHex(const T tp) VL_PURE {
+typename std::enable_if<std::is_pointer<T>::மதிப்பு, std::string>::type
+cvtToHex(மாறிலி T tp) VL_PURE {
     std::ostringstream os;
-    os << static_cast<const void*>(tp);
-    return os.str();
+    os << static_cast<மாறிலி வெறுமை*>(tp);
+    திரும்பு os.str();
 }
 template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+typename std::enable_if<std::is_integral<T>::மதிப்பு, std::string>::type cvtToHex(மாறிலி T t) {
     std::ostringstream os;
-    os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    os << std::hex << std::setw(அளவு(T) * 8 / 4) << std::setfill('0') << t;
+    திரும்பு os.str();
 }
 
-inline string ucfirst(const string& text) {
+உள்வரி string ucfirst(மாறிலி string& text) {
     string result = text;
     result[0] = std::toupper(result[0]);
-    return result;
+    திரும்பு result;
 }
 
 //######################################################################
 // VString - String manipulation
 
 class VString final {
-    static bool wildmatchi(const char* s, const char* p) VL_PURE;
+    நிலையான bool wildmatchi(மாறிலி எழுத்து* s, மாறிலி எழுத்து* p) VL_PURE;
 
-public:
+பொது:
     // METHODS (generic string utilities)
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const char* s, const char* p) VL_PURE;
+    நிலையான bool wildmatch(மாறிலி எழுத்து* s, மாறிலி எழுத்து* p) VL_PURE;
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const string& s, const string& p) VL_PURE;
+    நிலையான bool wildmatch(மாறிலி string& s, மாறிலி string& p) VL_PURE;
     // Return {a}{dot}{b}, omitting dot if a or b are empty
-    static string dot(const string& a, const string& dot, const string& b);
+    நிலையான string dot(மாறிலி string& a, மாறிலி string& dot, மாறிலி string& b);
     // Convert string to lowercase (tolower)
-    static string downcase(const string& str) VL_PURE;
+    நிலையான string downcase(மாறிலி string& str) VL_PURE;
     // Convert string to upper case (toupper)
-    static string upcase(const string& str) VL_PURE;
+    நிலையான string upcase(மாறிலி string& str) VL_PURE;
     // Insert esc just before tgt
-    static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
+    நிலையான string quoteAny(மாறிலி string& str, எழுத்து tgt, எழுத்து esc) VL_PURE;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    நிலையான string quoteBackslash(மாறிலி string& str) VL_PURE { திரும்பு quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    நிலையான string quotePercent(மாறிலி string& str) VL_PURE { திரும்பு quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
-    static string dequotePercent(const string& str);
+    நிலையான string dequotePercent(மாறிலி string& str);
     // Surround a raw string by double quote and escape if necessary
     // e.g. input abc's  becomes "\"abc\'s\""
-    static string escapeStringForPath(const string& str);
+    நிலையான string escapeStringForPath(மாறிலி string& str);
     // Convert SV quoted string input from source code to normal form.
     // Reverse is V3OutFormatter::quoteNameControls(...)
-    static string unquoteSVString(const string& text, string& errOut);
+    நிலையான string unquoteSVString(மாறிலி string& text, string& errOut);
     // Position just past the string literal 'pos' opens with '"', as written by
     // V3OutFormatter::quoteNameControls(...), whose escapes each begin with '\', or npos if the
     // literal does not end
-    static size_t quotedEnd(const string& str, size_t pos) VL_PURE;
+    நிலையான size_t quotedEnd(மாறிலி string& str, size_t pos) VL_PURE;
     // Escape path in Windows
     // e.g. input `C:\Program Files\My Program\My Program.exe` becomes
     // `C:\\Program\ Files\\My\ Program\\My\ Program.exe`
-    static string quoteStringLiteralForShell(const string& str);
+    நிலையான string quoteStringLiteralForShell(மாறிலி string& str);
     // Replace any unprintable with space
     // This includes removing tabs, so column tracking is correct
-    static string spaceUnprintable(const string& str) VL_PURE;
+    நிலையான string spaceUnprintable(மாறிலி string& str) VL_PURE;
     // Remove any whitespace
-    static string removeWhitespace(const string& str);
+    நிலையான string removeWhitespace(மாறிலி string& str);
     // Trim leading/trailing whitespace on each line
-    static string trimWhitespace(const string& str);
+    நிலையான string trimWhitespace(மாறிலி string& str);
     // Return true if only identifer or ""
-    static bool isIdentifier(const string& str);
+    நிலையான bool isIdentifier(மாறிலி string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    நிலையான bool isIdentifierChar(எழுத்து c) { திரும்பு isalnum(c) || c == '_'; }
     // Return true if only whitespace or ""
-    static bool isWhitespace(const string& str);
+    நிலையான bool isWhitespace(மாறிலி string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    நிலையான string::size_type leading_Whitespace_மொத்தம்(மாறிலி string& str);
     // Return double by parsing string
-    static double parseDouble(const string& str, bool* successp);
+    நிலையான இரட்டை parseDouble(மாறிலி string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
-    static string replaceSubstr(const string& str, const string& from, const string& to);
+    நிலையான string replaceSubstr(மாறிலி string& str, மாறிலி string& from, மாறிலி string& to);
     // Replace all occurrences of the word 'from' in 'str' with 'to'. A word is considered
     // to be a consecutive sequence of the characters [a-zA-Z0-9_]. Sub-words are not replaced.
     // e.g.: replaceWords("one apple bad_apple", "apple", "banana") -> "one banana bad_apple"
-    static string replaceWord(const string& str, const string& from, const string& to);
+    நிலையான string replaceWord(மாறிலி string& str, மாறிலி string& from, மாறிலி string& to);
     // Return deque of strings split by the given delimiter
-    static std::deque<string> split(const string& str, char delimiter = ',');
+    நிலையான std::deque<string> split(மாறிலி string& str, எழுத்து delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
-    static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+    நிலையான bool startsWith(மாறிலி string& str, மாறிலி எழுத்து* prefixp) {
+        திரும்பு !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
-    static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+    நிலையான bool startsWith(மாறிலி string& str, மாறிலி string& prefix) {
+        திரும்பு !str.rfind(prefix, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
-    static bool endsWith(const string& str, const string& suffix);
+    நிலையான bool endsWith(மாறிலி string& str, மாறிலி string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
-    static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    நிலையான string aOrAn(மாறிலி எழுத்து* word);
+    நிலையான string aOrAn(மாறிலி string& word) { திரும்பு aOrAn(word.c_str()); }
     // Hash the string
-    static uint64_t hashMurmur(const string& str) VL_PURE;
+    நிலையான uint64_t hashMurmur(மாறிலி string& str) VL_PURE;
 
     // Base 64 encode
-    static string base64Enc(const string& str) VL_PURE;
+    நிலையான string base64Enc(மாறிலி string& str) VL_PURE;
 
-    static void selfTest();  // Test this class
+    நிலையான வெறுமை selfTest();  // Test this class
 };
 
 //######################################################################
@@ -164,7 +164,7 @@ class VHashSha512 final {
     string m_remainder;  // Unhashed data
     size_t m_totLength = 0;  // Total all-chunk length as needed by output digest
     bool m_final = false;  // Finalized
-public:
+பொது:
     // CONSTRUCTORS
     VHashSha512() {
         m_inthash[0] = 0x6a09e667f3bcc908ULL;
@@ -176,36 +176,36 @@ public:
         m_inthash[6] = 0x1f83d9abfb41bd6bULL;
         m_inthash[7] = 0x5be0cd19137e2179ULL;
     }
-    explicit VHashSha512(const string& data)
+    explicit VHashSha512(மாறிலி string& data)
         : VHashSha512{} {
-        insert(data);
+        செருகு(data);
     }
-    ~VHashSha512() = default;
+    ~VHashSha512() = இயல்பு;
 
     // CONSTANTS
     // Characters digestSymbol24 keeps, 6 bits each, so 144 bits and no collisions in practice
-    static constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
+    நிலையான constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_இருமம்();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
-    static void selfTest();  // Test this class
+    நிலையான வெறுமை selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    வெறுமை செருகு(மாறிலி வெறுமை* datap, size_t length);  // Process data into the digest
+    வெறுமை செருகு(மாறிலி string& data) {
+        செருகு(data.data(), data.length());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    வெறுமை செருகு(uint64_t மதிப்பு) { செருகு(cvtToStr(மதிப்பு)); }
+    வெறுமை செருகு_File(மாறிலி string& filename);
 
-private:
-    static void selfTestOne(const string& data, const string& data2, const string& exp,
-                            const string& exp64, const string& exp24);
-    void finalize();  // Process remaining data
+தனிப்பட்ட:
+    நிலையான வெறுமை selfTestOne(மாறிலி string& data, மாறிலி string& data2, மாறிலி string& exp,
+                            மாறிலி string& exp64, மாறிலி string& exp24);
+    வெறுமை finalize();  // Process remaining data
 };
 
 //######################################################################
@@ -215,27 +215,27 @@ private:
 class VName final {
     string m_name;  // Pre-hashed symbol name
     string m_hashed;  // Hashed version of symbol name
-    static std::map<string, string> s_dehashMap;  // hashed -> original decoder
+    நிலையான std::map<string, string> s_dehashMap;  // hashed -> original decoder
 
-    static size_t s_maxLength;  // Length at which to start hashing
-    static size_t s_minLength;  // Length to preserve if over maxLength
+    நிலையான size_t s_maxLength;  // Length at which to start hashing
+    நிலையான size_t s_minLength;  // Length to preserve if over maxLength
 
-public:
+பொது:
     // CONSTRUCTORS
-    explicit VName(const string& name)
+    explicit VName(மாறிலி string& name)
         : m_name{name} {}
-    ~VName() = default;
+    ~VName() = இயல்பு;
     // METHODS
-    void name(const string& name) {
+    வெறுமை name(மாறிலி string& name) {
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() மாறிலி { திரும்பு m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
-    static void maxLength(size_t flag) { s_maxLength = flag; }
-    static string dehash(const string& in);
+    நிலையான வெறுமை maxLength(size_t flag) { s_maxLength = flag; }
+    நிலையான string dehash(மாறிலி string& in);
 };
 
 //######################################################################
@@ -243,53 +243,53 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
-    static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
+    நிலையான constexpr unsigned இலக்கம்_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
+    நிலையான constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
-    struct Candidate final {
+    using EditDistance = unsigned முழு;
+    கட்டமைப்பு Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string செய்தி;  // Message to print on a match
     };
     // MEMBERS
     std::vector<Candidate> m_candidates;  // Strings we try to match
-public:
+பொது:
     // CONSTRUCTORS
-    VSpellCheck() = default;
-    ~VSpellCheck() = default;
+    VSpellCheck() = இயல்பு;
+    ~VSpellCheck() = இயல்பு;
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    வெறுமை தள்ளு_Candidate(மாறிலி string& str) { தள்ளு_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    வெறுமை தள்ளு_Candidate(மாறிலி string& str, மாறிலி string& செய்தி) {
+        எனில் (m_candidates.size() < இலக்கம்_CANDIDATE_LIMIT) m_candidates.தள்ளு_back({str, செய்தி});
     }
     // Return candidate is closest to provided string, or "" for none
-    VSpellCheck::Candidate bestCandidate(const string& goal) const {
+    VSpellCheck::Candidate bestCandidate(மாறிலி string& goal) மாறிலி {
         EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+        திரும்பு bestCandidateInfo(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
-        const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+    string best_Candidate_செய்தி(மாறிலி string& goal) மாறிலி {
+        மாறிலி auto candidate = bestCandidate(goal);
+        எனில் (candidate.செய்தி.empty()) திரும்பு "";
+        திரும்பு "... Suggested alternative: '"s + candidate.செய்தி + "'";
     }
-    static void selfTest();
-    std::vector<std::string> candidates() const {
+    நிலையான வெறுமை selfTest();
+    std::vector<std::string> candidates() மாறிலி {
         std::vector<std::string> result;
         result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+        க்கு (மாறிலி auto& candidate : m_candidates) { result.தள்ளு_back(candidate.செய்தி); }
+        திரும்பு result;
     }
 
-private:
-    static EditDistance editDistance(const string& s, const string& t);
-    static EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
-    VSpellCheck::Candidate bestCandidateInfo(const string& goal, EditDistance& distancer) const;
-    static void selfTestDistanceOne(const string& a, const string& b, EditDistance expected);
-    static void selfTestSuggestOne(bool matches, const string& c, const string& goal,
+தனிப்பட்ட:
+    நிலையான EditDistance editDistance(மாறிலி string& s, மாறிலி string& t);
+    நிலையான EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
+    VSpellCheck::Candidate bestCandidateInfo(மாறிலி string& goal, EditDistance& distancer) மாறிலி;
+    நிலையான வெறுமை selfTestDistanceOne(மாறிலி string& a, மாறிலி string& b, EditDistance expected);
+    நிலையான வெறுமை selfTestSuggestOne(bool matches, மாறிலி string& c, மாறிலி string& goal,
                                    EditDistance dist);
 };
 

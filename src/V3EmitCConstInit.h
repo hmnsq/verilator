@@ -14,44 +14,44 @@
 //
 //*************************************************************************
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3EmitCBase.h"
-#include "V3Error.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3EmitCBase.h"
+#அந்தர்பாவ "V3Error.h"
 
-#include <cinttypes>
+#அந்தர்பாவ <cinttypes>
 
 //######################################################################
 // Emitter that can emit NodeCons expressions
 
-class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
+class EmitCConstInit VL_NOT_FINAL : பொது EmitCBaseVisitorConst {
     // METHODS
-    static uint32_t tabModulus(const AstNodeDType* dtypep) {
-        const uint32_t elemBytes = dtypep->widthTotalBytes();
-        return dtypep->isString() ? 1  // String
+    நிலையான uint32_t tabModulus(மாறிலி Ast_முனை_DType* dtypep) {
+        மாறிலி uint32_t elemBytes = dtypep->widthTotalBytes();
+        திரும்பு dtypep->isString() ? 1  // String
                : elemBytes <= 2   ? 8  // CData, SData
                : elemBytes <= 4   ? 4  // IData
                : elemBytes <= 8   ? 2  // QData
                                   : 1;
     }
 
-    void emitConsArray(AstConsArray* nodep) {
-        const AstUnpackArrayDType* const dtypep
+    வெறுமை emitConsArray(AstConsArray* nodep) {
+        மாறிலி AstUnpackArrayDType* மாறிலி dtypep
             = VN_AS(nodep->dtypep()->skipRefp(), UnpackArrayDType);
-        const uint64_t size = dtypep->elementsConst();
+        மாறிலி uint64_t size = dtypep->elementsConst();
         uint32_t tabMod = tabModulus(dtypep->subDTypep());
-        if (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
-        for (const AstConsArrayItem* itemp = nodep->itemsp(); itemp;
+        எனில் (nodep->defaultp() && !VN_IS(nodep->defaultp(), Const)) tabMod = 1;
+        க்கு (மாறிலி AstConsArrayItem* itemp = nodep->itemsp(); itemp;
              itemp = VN_AS(itemp->nextp(), ConsArrayItem)) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+            எனில் (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         ofp()->putsNoTracking("{");
         puts("\n");
-        for (uint64_t n = 0; n < size; ++n) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(nodep->valuep(n));
+        க்கு (uint64_t n = 0; n < size; ++n) {
+            எனில் (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_மதிப்பு(nodep->valuep(n));
         }
         puts("\n");
         ofp()->putsNoTracking("}");
@@ -60,21 +60,21 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
     // 'size, default, {{key, value}, ...}', where the size and default are optional, or nothing
     // if empty
     template <typename T_Item>
-    void emitKeyedConsItems(AstNodeExpr* sizep, AstNodeExpr* defaultp, T_Item* itemsp) {
-        if (!sizep && !defaultp && !itemsp) return;
+    வெறுமை emit_Keyed_Cons_பொருட்கள்(Ast_முனை_கோவை* sizep, Ast_முனை_கோவை* defaultp, T_Item* itemsp) {
+        எனில் (!sizep && !defaultp && !itemsp) திரும்பு;
         puts("\n");
-        for (AstNodeExpr* const valuep : {sizep, defaultp}) {
-            if (!valuep) continue;
-            emitValue(valuep);
+        க்கு (Ast_முனை_கோவை* மாறிலி valuep : {sizep, defaultp}) {
+            எனில் (!valuep) தொடர்;
+            emit_மதிப்பு(valuep);
             puts(",\n");
         }
         puts("{");
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (itemp != itemsp) puts(",");
+        க்கு (T_Item* itemp = itemsp; itemp; itemp = Ast_முனை::as<T_Item>(itemp->nextp())) {
+            எனில் (itemp != itemsp) puts(",");
             puts("\n{");
-            emitValue(itemp->keyp());
+            emit_மதிப்பு(itemp->keyp());
             puts(", ");
-            emitValue(itemp->valuep());
+            emit_மதிப்பு(itemp->valuep());
             puts("}");
         }
         puts("\n}");
@@ -83,128 +83,128 @@ class EmitCConstInit VL_NOT_FINAL : public EmitCBaseVisitorConst {
 
     // The items, 'tabMod' per line if all are constants, otherwise one per line
     template <typename T_Item>
-    void emitUnkeyedConsItems(T_Item* itemsp, uint32_t tabMod) {
-        if (!itemsp) return;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
+    வெறுமை emit_Unkeyed_Cons_பொருட்கள்(T_Item* itemsp, uint32_t tabMod) {
+        எனில் (!itemsp) திரும்பு;
+        க்கு (T_Item* itemp = itemsp; itemp; itemp = Ast_முனை::as<T_Item>(itemp->nextp())) {
+            எனில் (!VN_IS(itemp->valuep(), Const)) tabMod = 1;
         }
         puts("\n");
         uint64_t n = 0;
-        for (T_Item* itemp = itemsp; itemp; itemp = AstNode::as<T_Item>(itemp->nextp())) {
-            if (n) puts((n % tabMod) ? ", " : ",\n");
-            emitValue(itemp->valuep());
+        க்கு (T_Item* itemp = itemsp; itemp; itemp = Ast_முனை::as<T_Item>(itemp->nextp())) {
+            எனில் (n) puts((n % tabMod) ? ", " : ",\n");
+            emit_மதிப்பு(itemp->valuep());
             ++n;
         }
         puts("\n");
     }
 
     // Emit a value
-    void emitValue(AstNodeExpr* nodep) {
+    வெறுமை emit_மதிப்பு(Ast_முனை_கோவை* nodep) {
         // Either a value constructor
-        if (AstNodeCons* const consp = VN_CAST(nodep, NodeCons)) {
+        எனில் (Ast_முனை_Cons* மாறிலி consp = VN_CAST(nodep, முனை_Cons)) {
             emitValCons(consp);
-            return;
+            திரும்பு;
         }
         // Or a constant
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
+        எனில் (மாறிலி AstConst* மாறிலி constp = VN_CAST(nodep, Const)) {
+            மாறிலி V3_எண்& இலக்கம் = constp->இலக்கம்();
+            UASSERT_OBJ(!இலக்கம்.isFourState(), constp, "4-state value in emitted constant");
             // A narrow constant is a literal, which converts implicitly wherever a value is used
             // (This also covers string, double and null, which don't need type prefix)
-            if (!constp->isWide()) {
-                putns(constp, num.emitC());
-                return;
+            எனில் (!constp->isWide()) {
+                putns(constp, இலக்கம்.emitC());
+                திரும்பு;
             }
             // Otherwise need the type prefix (naked braced lists cannot be deduced by templates)
             putnbs(constp, constp->dtypep()->cType("", false, false));
             emitInitializer(nodep);
-            return;
+            திரும்பு;
         }
         // Or an arbitrary expression, emitted via the derived visitor
         iterateConst(nodep);
     }
 
-    void emitInitializerBody(AstNodeExpr* nodep) {
-        if (AstConsArray* const arrayp = VN_CAST(nodep, ConsArray)) {
+    வெறுமை emitInitializerBody(Ast_முனை_கோவை* nodep) {
+        எனில் (AstConsArray* மாறிலி arrayp = VN_CAST(nodep, ConsArray)) {
             emitConsArray(arrayp);
-            return;
+            திரும்பு;
         }
-        if (AstConsAssoc* const assocp = VN_CAST(nodep, ConsAssoc)) {
-            emitKeyedConsItems(nullptr, assocp->defaultp(), assocp->itemsp());
-            return;
+        எனில் (AstConsAssoc* மாறிலி assocp = VN_CAST(nodep, ConsAssoc)) {
+            emit_Keyed_Cons_பொருட்கள்(nullptr, assocp->defaultp(), assocp->itemsp());
+            திரும்பு;
         }
-        if (AstConsWildcard* const wildp = VN_CAST(nodep, ConsWildcard)) {
-            emitKeyedConsItems(nullptr, wildp->defaultp(), wildp->itemsp());
-            return;
+        எனில் (AstConsWildcard* மாறிலி wildp = VN_CAST(nodep, ConsWildcard)) {
+            emit_Keyed_Cons_பொருட்கள்(nullptr, wildp->defaultp(), wildp->itemsp());
+            திரும்பு;
         }
-        AstConsDynArray* const dynp = VN_CAST(nodep, ConsDynArray);
-        if (dynp && dynp->sizep()) {
-            emitKeyedConsItems(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
-            return;
+        AstConsDynArray* மாறிலி dynp = VN_CAST(nodep, ConsDynArray);
+        எனில் (dynp && dynp->sizep()) {
+            emit_Keyed_Cons_பொருட்கள்(dynp->sizep(), dynp->defaultp(), dynp->itemsp());
+            திரும்பு;
         }
-        if (dynp) {
-            emitUnkeyedConsItems(dynp->itemsp(),
+        எனில் (dynp) {
+            emit_Unkeyed_Cons_பொருட்கள்(dynp->itemsp(),
                                  tabModulus(dynp->dtypep()->skipRefp()->subDTypep()));
-            return;
+            திரும்பு;
         }
-        if (AstConsQueue* const queuep = VN_CAST(nodep, ConsQueue)) {
-            emitUnkeyedConsItems(queuep->itemsp(),
+        எனில் (AstConsQueue* மாறிலி queuep = VN_CAST(nodep, ConsQueue)) {
+            emit_Unkeyed_Cons_பொருட்கள்(queuep->itemsp(),
                                  tabModulus(queuep->dtypep()->skipRefp()->subDTypep()));
-            return;
+            திரும்பு;
         }
-        if (AstConsStruct* const structp = VN_CAST(nodep, ConsStruct)) {
-            emitUnkeyedConsItems(structp->itemsp(), 1);  // Members of mixed types
-            return;
+        எனில் (AstConsStruct* மாறிலி structp = VN_CAST(nodep, ConsStruct)) {
+            emit_Unkeyed_Cons_பொருட்கள்(structp->itemsp(), 1);  // Members of mixed types
+            திரும்பு;
         }
-        if (VN_IS(nodep, Unbounded)) {
+        எனில் (VN_IS(nodep, Unbounded)) {
             // A public parameter's '$', which is only special during elaboration, so use zero
             puts("0");
-            return;
+            திரும்பு;
         }
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
-            const V3Number& num = constp->num();
-            UASSERT_OBJ(!num.isFourState(), constp, "4-state value in emitted constant");
-            if (!constp->isWide()) {
-                puts(num.emitC());
-                return;
+        எனில் (மாறிலி AstConst* மாறிலி constp = VN_CAST(nodep, Const)) {
+            மாறிலி V3_எண்& இலக்கம் = constp->இலக்கம்();
+            UASSERT_OBJ(!இலக்கம்.isFourState(), constp, "4-state value in emitted constant");
+            எனில் (!constp->isWide()) {
+                puts(இலக்கம்.emitC());
+                திரும்பு;
             }
 
             ofp()->putsNoTracking("{");  // The initializer of m_storage within the VlWide
-            const int words = constp->widthWords();
-            const int tabMod = 4;
-            if (words > tabMod) puts("\n");
-            for (int n = 0; n < words; ++n) {
-                if (n) puts((n % tabMod) ? ", " : ",\n");
-                ofp()->printf("0x%08" PRIx32, num.edataWord(n));
+            மாறிலி முழு சொற்கள் = constp->width_சொற்கள்();
+            மாறிலி முழு tabMod = 4;
+            எனில் (சொற்கள் > tabMod) puts("\n");
+            க்கு (முழு n = 0; n < சொற்கள்; ++n) {
+                எனில் (n) puts((n % tabMod) ? ", " : ",\n");
+                ofp()->printf("0x%08" PRIx32, இலக்கம்.edataWord(n));
             }
-            if (words > tabMod) puts("\n");
+            எனில் (சொற்கள் > tabMod) puts("\n");
             ofp()->putsNoTracking("}");
-            return;
+            திரும்பு;
         }
         nodep->v3fatalSrc("Unknown node type in emitInitializerBody: " << nodep->prettyTypeName());
     }
 
     // Emit the braced initializer for the given value '{...}'
-    void emitInitializer(AstNodeExpr* nodep) {
+    வெறுமை emitInitializer(Ast_முனை_கோவை* nodep) {
         putns(nodep, "{");
         emitInitializerBody(nodep);
         puts("}");
     }
 
-protected:
+பாதுகாக்கப்பட்ட:
     // Emit a C++ value constructor: 'Type{...}'
-    void emitValCons(AstNodeCons* nodep) {
+    வெறுமை emitValCons(Ast_முனை_Cons* nodep) {
         putnbs(nodep, nodep->dtypep()->cType("", false, false));
         emitInitializer(nodep);
     }
 
     // Emit the C++ variable definition 'Type name{...}'
-    void emitVarDefn(const AstVar* varp) {
-        const std::string name = varp->constPoolEntry()
+    வெறுமை emitVarDefn(மாறிலி AstVar* varp) {
+        மாறிலி std::string name = varp->constPoolEntry()
                                      ? EmitCUtil::constPoolName(varp)
                                      : EmitCUtil::prefixNameProtect(EmitCParentModule::get(varp))
                                            + "::" + varp->nameProtect();
         putnbs(varp, varp->dtypep()->cType(name, false, false));
-        emitInitializer(VN_AS(varp->valuep(), NodeExpr));
+        emitInitializer(VN_AS(varp->valuep(), முனை_கோவை));
     }
 };

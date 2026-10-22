@@ -17,71 +17,71 @@
 #ifndef VERILATOR_V3HASH_H_
 #define VERILATOR_V3HASH_H_
 
-#include "verilatedos.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include <cstdint>
-#include <string>
+#அந்தர்பாவ <cstdint>
+#அந்தர்பாவ <string>
 
 //######################################################################
 // V3Hash -- Generic hashing
 
 class V3Hash final {
-    uint32_t m_value;  // The 32-bit hash value.
+    uint32_t m_மதிப்பு;  // The 32-bit hash value.
 
-    static uint32_t combine(uint32_t a, uint32_t b) {
-        return a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
+    நிலையான uint32_t combine(uint32_t a, uint32_t b) {
+        திரும்பு a ^ (b + 0x9e3779b9 + (a << 6) + (a >> 2));
     }
 
-public:
+பொது:
     // CONSTRUCTORS
     V3Hash()
-        : m_value{0} {}
+        : m_மதிப்பு{0} {}
     explicit V3Hash(uint32_t val)
-        : m_value{val} {}
+        : m_மதிப்பு{val} {}
     explicit V3Hash(uint64_t val)
-        : m_value{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
-    explicit V3Hash(const std::string& val);
-    explicit V3Hash(double val);
+        : m_மதிப்பு{combine(static_cast<uint32_t>(val), static_cast<uint32_t>(val >> 32))} {}
+    explicit V3Hash(மாறிலி std::string& val);
+    explicit V3Hash(இரட்டை val);
 
     explicit V3Hash(int32_t val)
         : V3Hash{static_cast<uint32_t>(val)} {}
     explicit V3Hash(int64_t val)
         : V3Hash{static_cast<uint64_t>(val)} {}
-    explicit V3Hash(const void* val)
+    explicit V3Hash(மாறிலி வெறுமை* val)
         : V3Hash{static_cast<uint64_t>(reinterpret_cast<uintptr_t>(val))} {}
 
     // METHODS
-    uint32_t value() const VL_MT_SAFE { return m_value; }
-    std::string toString() const VL_MT_SAFE;
+    uint32_t மதிப்பு() மாறிலி VL_MT_SAFE { திரும்பு m_மதிப்பு; }
+    std::string toString() மாறிலி VL_MT_SAFE;
 
     // OPERATORS
     // Comparisons
-    bool operator==(const V3Hash& rh) const { return m_value == rh.m_value; }
-    bool operator!=(const V3Hash& rh) const { return m_value != rh.m_value; }
-    bool operator<(const V3Hash& rh) const { return m_value < rh.m_value; }
+    bool operator==(மாறிலி V3Hash& rh) மாறிலி { திரும்பு m_மதிப்பு == rh.m_மதிப்பு; }
+    bool operator!=(மாறிலி V3Hash& rh) மாறிலி { திரும்பு m_மதிப்பு != rh.m_மதிப்பு; }
+    bool operator<(மாறிலி V3Hash& rh) மாறிலி { திரும்பு m_மதிப்பு < rh.m_மதிப்பு; }
 
     // '+' combines hashes
     template <typename T>
-    V3Hash operator+(T that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(T that) மாறிலி {
+        திரும்பு V3Hash{combine(m_மதிப்பு, V3Hash{that}.m_மதிப்பு)};
     }
-    V3Hash operator+(const std::string& that) const {
-        return V3Hash{combine(m_value, V3Hash{that}.m_value)};
+    V3Hash operator+(மாறிலி std::string& that) மாறிலி {
+        திரும்பு V3Hash{combine(m_மதிப்பு, V3Hash{that}.m_மதிப்பு)};
     }
 
     // '+=' combines in place
     template <typename T>
     V3Hash& operator+=(T that) {
-        return *this = *this + that;
+        திரும்பு *this = *this + that;
     }
-    V3Hash& operator+=(const std::string& that) { return *this = *this + that; }
+    V3Hash& operator+=(மாறிலி std::string& that) { திரும்பு *this = *this + that; }
 };
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE;
+std::ostream& operator<<(std::ostream& os, மாறிலி V3Hash& rhs) VL_MT_SAFE;
 
 template <>
-struct std::hash<V3Hash> {
-    std::size_t operator()(const V3Hash& h) const noexcept { return h.value(); }
+கட்டமைப்பு std::hash<V3Hash> {
+    std::size_t operator()(மாறிலி V3Hash& h) மாறிலி noexcept { திரும்பு h.மதிப்பு(); }
 };
 
 #endif  // Guard

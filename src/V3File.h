@@ -17,60 +17,60 @@
 #ifndef VERILATOR_V3FILE_H_
 #define VERILATOR_V3FILE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3Stats.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3Stats.h"
 
-#include <array>
-#include <fstream>
-#include <list>
-#include <memory>
-#include <set>
-#include <stack>
-#include <vector>
+#அந்தர்பாவ <array>
+#அந்தர்பாவ <fstream>
+#அந்தர்பாவ <list>
+#அந்தர்பாவ <memory>
+#அந்தர்பாவ <set>
+#அந்தர்பாவ <stack>
+#அந்தர்பாவ <vector>
 
-class AstNode;
+class Ast_முனை;
 
 //============================================================================
 // V3File: Create streams, recording dependency information
 
 class V3File final {
-public:
-    static std::ifstream* new_ifstream(const string& filename) {
+பொது:
+    நிலையான std::ifstream* new_ifstream(மாறிலி string& filename) {
         addSrcDepend(filename);
-        return new_ifstream_nodepend(filename);
+        திரும்பு new_ifstream_nodepend(filename);
     }
-    static std::ifstream* new_ifstream_nodepend(const string& filename) VL_MT_SAFE {
-        return new std::ifstream{filename.c_str()};
+    நிலையான std::ifstream* new_ifstream_nodepend(மாறிலி string& filename) VL_MT_SAFE {
+        திரும்பு new std::ifstream{filename.c_str()};
     }
-    static std::ofstream* new_ofstream(const string& filename, bool append = false) {
+    நிலையான std::ofstream* new_ofstream(மாறிலி string& filename, bool append = false) {
         addTgtDepend(filename);
-        return new_ofstream_nodepend(filename, append);
+        திரும்பு new_ofstream_nodepend(filename, append);
     }
-    static std::ofstream* new_ofstream_nodepend(const string& filename, bool append = false) {
+    நிலையான std::ofstream* new_ofstream_nodepend(மாறிலி string& filename, bool append = false) {
         createMakeDirFor(filename);
-        if (append) return new std::ofstream{filename.c_str(), std::ios::app};
-        return new std::ofstream{filename.c_str()};
+        எனில் (append) திரும்பு new std::ofstream{filename.c_str(), std::ios::app};
+        திரும்பு new std::ofstream{filename.c_str()};
     }
-    static FILE* new_fopen_w(const string& filename) {
+    நிலையான FILE* new_fopen_w(மாறிலி string& filename) {
         createMakeDirFor(filename);
         addTgtDepend(filename);
-        return fopen(filename.c_str(), "w");
+        திரும்பு fopen(filename.c_str(), "w");
     }
 
     // Dependencies
-    static void addSrcDepend(const string& filename) VL_MT_SAFE;
-    static void addTgtDepend(const string& filename) VL_MT_SAFE;
-    static void writeDepend(const string& filename);
-    static std::vector<string> getAllDeps();
-    static void writeTimes(const string& filename, const string& cmdlineIn);
-    static bool checkTimes(const string& filename, const string& cmdlineIn);
+    நிலையான வெறுமை addSrcDepend(மாறிலி string& filename) VL_MT_SAFE;
+    நிலையான வெறுமை addTgtDepend(மாறிலி string& filename) VL_MT_SAFE;
+    நிலையான வெறுமை writeDepend(மாறிலி string& filename);
+    நிலையான std::vector<string> getAllDeps();
+    நிலையான வெறுமை writeTimes(மாறிலி string& filename, மாறிலி string& cmdlineIn);
+    நிலையான bool checkTimes(மாறிலி string& filename, மாறிலி string& cmdlineIn);
 
     // Directory utilities
-    static void createMakeDirFor(const string& filename);
-    static void createMakeDir();
+    நிலையான வெறுமை createMakeDirFor(மாறிலி string& filename);
+    நிலையான வெறுமை createMakeDir();
 };
 
 //============================================================================
@@ -79,23 +79,23 @@ public:
 class VInFilterImp;
 
 class VInFilter final {
-public:
+பொது:
     // TYPES
     using StrList = std::list<std::string>;
 
-private:
+தனிப்பட்ட:
     VInFilterImp* m_impp;
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(VInFilter);
 
-public:
-    explicit VInFilter(const string& command);
+பொது:
+    explicit VInFilter(மாறிலி string& command);
     ~VInFilter();
 
     // METHODS
     // Read file contents and return it.  Return true on success.
-    bool readWholefile(const string& filename, StrList& outl);
+    bool readWholefile(மாறிலி string& filename, StrList& outl);
 };
 
 //============================================================================
@@ -103,137 +103,137 @@ public:
 
 class V3OutFormatter VL_NOT_FINAL {
     // TYPES
-public:
-    enum AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
-    enum Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
+பொது:
+    எண்ணிக்கை AlignClass : uint8_t { AL_AUTO = 0, AL_STATIC = 1 };
+    எண்ணிக்கை Language : uint8_t { LA_C, LA_JSON, LA_MK, LA_VERILOG, LA_XML };
 
-private:
+தனிப்பட்ட:
     // MEMBERS
-    const Language m_lang;  // Indenting Verilog code
-    int m_blockIndent;  // Characters per block indent
-    int m_commaWidth;  // Width after which to break at ,'s
-    int m_lineno = 1;
-    int m_column = 0;
-    int m_nobreak = false;  // Basic operator or begin paren, don't break next
-    int m_sourceLastLineno = 0;
-    int m_sourceLastFilenameno = 0;
+    மாறிலி Language m_lang;  // Indenting Verilog code
+    முழு m_blockIndent;  // Characters per block indent
+    முழு m_commaWidth;  // Width after which to break at ,'s
+    முழு m_lineno = 1;
+    முழு m_column = 0;
+    முழு m_nobreak = false;  // Basic operator or begin paren, don't break next
+    முழு m_sourceLastLineno = 0;
+    முழு m_sourceLastFilenameno = 0;
     bool m_prependIndent = true;
     bool m_inStringLiteral = false;  // Inside a quote
     bool m_inBackslash = false;  // Inside a backslash
-    int m_indentLevel = 0;  // Current {} indentation
-    std::stack<int> m_parenVec;  // Stack of columns where last ( was
-    int m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
+    முழு m_indentLevel = 0;  // Current {} indentation
+    std::அடுக்கு<முழு> m_parenVec;  // Stack of columns where last ( was
+    முழு m_bracketLevel = 0;  // Indenting = { block, indicates number of {'s seen.
 
-    int endLevels(const char* strg);
-    void putcNoTracking(char chr);
+    முழு endLevels(மாறிலி எழுத்து* strg);
+    வெறுமை putcNoTracking(எழுத்து chr);
 
-public:
+பொது:
     explicit V3OutFormatter(Language lang);
-    virtual ~V3OutFormatter() = default;
+    மெய்நிகர் ~V3OutFormatter() = இயல்பு;
     // ACCESSORS
-    void blockIndent(int flag) { m_blockIndent = flag; }
+    வெறுமை blockIndent(முழு flag) { m_blockIndent = flag; }
     // METHODS
-    void printf(const char* fmt...) VL_ATTR_PRINTF(2);
-    void puts(const char* strg) { putns(nullptr, strg); }
-    void puts(const string& strg) { putns(nullptr, strg); }
-    void putns(const AstNode* nodep, const char* strg);
-    void putns(const AstNode* nodep, const string& strg) { putns(nodep, strg.c_str()); }
-    void putsNoTracking(const string& strg);
-    void putsQuoted(const string& strg);
-    void putBreak();  // Print linebreak if line is too wide
-    void putBreakExpr();  // Print linebreak in expression if line is too wide
-    void putbs(const char* strg) {
-        putBreakExpr();
+    வெறுமை printf(மாறிலி எழுத்து* fmt...) VL_ATTR_PRINTF(2);
+    வெறுமை puts(மாறிலி எழுத்து* strg) { putns(nullptr, strg); }
+    வெறுமை puts(மாறிலி string& strg) { putns(nullptr, strg); }
+    வெறுமை putns(மாறிலி Ast_முனை* nodep, மாறிலி எழுத்து* strg);
+    வெறுமை putns(மாறிலி Ast_முனை* nodep, மாறிலி string& strg) { putns(nodep, strg.c_str()); }
+    வெறுமை putsNoTracking(மாறிலி string& strg);
+    வெறுமை putsQuoted(மாறிலி string& strg);
+    வெறுமை putBreak();  // Print linebreak if line is too wide
+    வெறுமை put_Break_கோவை();  // Print linebreak in expression if line is too wide
+    வெறுமை putbs(மாறிலி எழுத்து* strg) {
+        put_Break_கோவை();
         putns(nullptr, strg);
     }
-    void putbs(const string& strg) {
-        putBreakExpr();
+    வெறுமை putbs(மாறிலி string& strg) {
+        put_Break_கோவை();
         putns(nullptr, strg);
     }
-    void putnbs(const AstNode* nodep, const string& strg) {
-        putBreakExpr();
+    வெறுமை putnbs(மாறிலி Ast_முனை* nodep, மாறிலி string& strg) {
+        put_Break_கோவை();
         putns(nodep, strg);
     }
-    bool exceededWidth() const { return m_column > m_commaWidth; }
-    void indentInc() { m_indentLevel += m_blockIndent; }
-    void indentDec() {
+    bool exceededWidth() மாறிலி { திரும்பு m_column > m_commaWidth; }
+    வெறுமை indentInc() { m_indentLevel += m_blockIndent; }
+    வெறுமை indentDec() {
         m_indentLevel -= m_blockIndent;
         UASSERT(m_indentLevel >= 0, "Underflow of indentation");
     }
-    void blockInc() { m_parenVec.push(m_indentLevel + m_blockIndent); }
-    void blockDec() {
-        if (!m_parenVec.empty()) m_parenVec.pop();
+    வெறுமை blockInc() { m_parenVec.தள்ளு(m_indentLevel + m_blockIndent); }
+    வெறுமை blockDec() {
+        எனில் (!m_parenVec.empty()) m_parenVec.எடு();
     }
-    void ensureNewLine() {
-        if (!m_nobreak) puts("\n");
+    வெறுமை ensure_New_வரி() {
+        எனில் (!m_nobreak) puts("\n");
     }
     // STATIC METHODS
-    static const std::string& indentSpaces(int num);
+    நிலையான மாறிலி std::string& indentSpaces(முழு இலக்கம்);
     // Add escaped characters to strings
-    static string quoteNameControls(const string& namein, Language lang = LA_C) VL_PURE;
-    static bool tokenMatch(const char* cp, const char* cmp);
-    static bool tokenNotStart(const char* cp);  // Import/export meaning no endfunction
-    static bool tokenStart(const char* cp);
-    static bool tokenEnd(const char* cp);
+    நிலையான string quoteNameControls(மாறிலி string& namein, Language lang = LA_C) VL_PURE;
+    நிலையான bool tokenMatch(மாறிலி எழுத்து* cp, மாறிலி எழுத்து* cmp);
+    நிலையான bool tokenNotStart(மாறிலி எழுத்து* cp);  // Import/export meaning no endfunction
+    நிலையான bool tokenStart(மாறிலி எழுத்து* cp);
+    நிலையான bool tokenEnd(மாறிலி எழுத்து* cp);
 
     // CALLBACKS - MUST OVERRIDE
-    virtual void putcOutput(char chr) = 0;
-    virtual void putsOutput(const char* str) = 0;
+    மெய்நிகர் வெறுமை putcOutput(எழுத்து chr) = 0;
+    மெய்நிகர் வெறுமை putsOutput(மாறிலி எழுத்து* str) = 0;
 };
 
 //============================================================================
 // V3OutFile: A class for printing to a file, with automatic indentation of C++ code.
 
-class V3OutFile VL_NOT_FINAL : public V3OutFormatter {
+class V3OutFile VL_NOT_FINAL : பொது V3OutFormatter {
     // Size of m_bufferp.
     // 128kB has been experimentally determined to be in the zone of buffer sizes that work best.
     // It is also considered to be the smallest I/O buffer size in GNU coreutils (io_blksize) that
     // allows to best minimize syscall overhead.
     // The hard boundaries are CPU L2/L3 cache size on the top and filesystem block size
     // on the bottom.
-    static constexpr std::size_t WRITE_BUFFER_SIZE_BYTES = 128 * 1024;
+    நிலையான constexpr std::size_t WRITE_BUFFER_SIZE_BYTES = 128 * 1024;
 
     // MEMBERS
-    const std::string m_filename;
+    மாறிலி std::string m_filename;
     FILE* m_fp = nullptr;
     std::size_t m_usedBytes = 0;  // Number of bytes stored in m_bufferp
     std::size_t m_writtenBytes = 0;  // Number of bytes written to output
-    std::unique_ptr<std::array<char, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
+    std::unique_ptr<std::array<எழுத்து, WRITE_BUFFER_SIZE_BYTES>> m_bufferp;  // Write buffer
 
-public:
-    V3OutFile(const string& filename, V3OutFormatter::Language lang);
-    V3OutFile(const V3OutFile&) = delete;
-    V3OutFile& operator=(const V3OutFile&) = delete;
+பொது:
+    V3OutFile(மாறிலி string& filename, V3OutFormatter::Language lang);
+    V3OutFile(மாறிலி V3OutFile&) = delete;
+    V3OutFile& operator=(மாறிலி V3OutFile&) = delete;
     V3OutFile(V3OutFile&&) = delete;
     V3OutFile& operator=(V3OutFile&&) = delete;
     ~V3OutFile() override;
 
-    std::string filename() const { return m_filename; }
+    std::string filename() மாறிலி { திரும்பு m_filename; }
 
-    void putsForceIncs();
+    வெறுமை putsForceIncs();
 
-    void statRecordWritten() {
+    வெறுமை statRecordWritten() {
         writeBlock();
         V3Stats::addStatSum(V3Stats::STAT_CPP_CHARS, m_writtenBytes);
     }
 
-private:
-    void writeBlock() {
-        if (VL_LIKELY(m_usedBytes > 0)) {
+தனிப்பட்ட:
+    வெறுமை writeBlock() {
+        எனில் (VL_LIKELY(m_usedBytes > 0)) {
             fwrite(m_bufferp->data(), m_usedBytes, 1, m_fp);
             m_writtenBytes += m_usedBytes;
             m_usedBytes = 0;
         }
     }
     // CALLBACKS
-    void putcOutput(char chr) override {
+    வெறுமை putcOutput(எழுத்து chr) override {
         m_bufferp->at(m_usedBytes++) = chr;
-        if (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
+        எனில் (VL_UNLIKELY(m_usedBytes >= WRITE_BUFFER_SIZE_BYTES)) writeBlock();
     }
-    void putsOutput(const char* str) override {
+    வெறுமை putsOutput(மாறிலி எழுத்து* str) override {
         std::size_t len = strlen(str);
         std::size_t availableBytes = WRITE_BUFFER_SIZE_BYTES - m_usedBytes;
-        while (VL_UNLIKELY(len >= availableBytes)) {
+        போது (VL_UNLIKELY(len >= availableBytes)) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, availableBytes);
             m_usedBytes = WRITE_BUFFER_SIZE_BYTES;
             writeBlock();
@@ -241,54 +241,54 @@ private:
             len -= availableBytes;
             availableBytes = WRITE_BUFFER_SIZE_BYTES;
         }
-        if (len > 0) {
+        எனில் (len > 0) {
             std::memcpy(m_bufferp->data() + m_usedBytes, str, len);
             m_usedBytes += len;
         }
     }
 };
 
-class V3OutCFile VL_NOT_FINAL : public V3OutFile {
-    int m_guard = false;  // Created header guard
-    int m_private;  // 1 = Most recently emitted private:, 2 = public:
-public:
-    explicit V3OutCFile(const string& filename,
+class V3OutCFile VL_NOT_FINAL : பொது V3OutFile {
+    முழு m_guard = false;  // Created header guard
+    முழு m_private;  // 1 = Most recently emitted private:, 2 = public:
+பொது:
+    explicit V3OutCFile(மாறிலி string& filename,
                         V3OutFormatter::Language lang = V3OutFormatter::LA_C)
         : V3OutFile{filename, lang} {
         resetPrivate();
     }
     ~V3OutCFile() override { statRecordWritten(); }
-    virtual void putsHeader() { puts("// Verilated -*- C++ -*-\n"); }
-    virtual void putsIntTopInclude() { putsForceIncs(); }
-    virtual void putsGuard();
-    virtual void putsEndGuard() {
-        if (m_guard) puts("\n#endif  // guard\n");
+    மெய்நிகர் வெறுமை putsHeader() { puts("// Verilated -*- C++ -*-\n"); }
+    மெய்நிகர் வெறுமை puts_Int_உச்சி_Include() { putsForceIncs(); }
+    மெய்நிகர் வெறுமை putsGuard();
+    மெய்நிகர் வெறுமை putsEndGuard() {
+        எனில் (m_guard) puts("\n#endif  // guard\n");
     }
     // Print out public/privates
-    void resetPrivate() { m_private = 0; }
-    void putsPrivate(bool setPrivate) {
-        if (setPrivate && m_private != 1) {
+    வெறுமை resetPrivate() { m_private = 0; }
+    வெறுமை putsPrivate(bool setPrivate) {
+        எனில் (setPrivate && m_private != 1) {
             puts("private:\n");
             m_private = 1;
-        } else if (!setPrivate && m_private != 2) {
+        } இல்லையெனில் எனில் (!setPrivate && m_private != 2) {
             puts("public:\n");
             m_private = 2;
         }
     }
 };
 
-class V3OutJsonFile final : public V3OutFile {
+class V3OutJsonFile final : பொது V3OutFile {
     // CONSTANTS
-    static constexpr const char* INDENT = "    ";  // Single indent (4, per JSON std)
+    நிலையான constexpr மாறிலி எழுத்து* INDENT = "    ";  // Single indent (4, per JSON std)
 
     // MEMBERS
-private:
-    std::stack<char> m_scope;  // Stack of ']' and '}'  to close currently open scopes
+தனிப்பட்ட:
+    std::அடுக்கு<எழுத்து> m_scope;  // Stack of ']' and '}'  to close currently open scopes
     std::string m_prefix;  // Prefix emitted before each line in current scope
-    std::stack<bool> m_empty;  // Current scope is empty, no comma later
+    std::அடுக்கு<bool> m_empty;  // Current scope is empty, no comma later
 
-public:
-    explicit V3OutJsonFile(const string& filename)
+பொது:
+    explicit V3OutJsonFile(மாறிலி string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_JSON} {
         begin();
     }
@@ -296,56 +296,56 @@ public:
         end();
         puts("\n");
     }
-    virtual void putsHeader() {}
+    மெய்நிகர் வெறுமை putsHeader() {}
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    வெறுமை puts(மாறிலி எழுத்து* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
-    void puts(const string& strg) { putsNoTracking(strg); }
+    வெறுமை puts(மாறிலி string& strg) { putsNoTracking(strg); }
 
     // METHODS
-    V3OutJsonFile& begin(const std::string& name, char type = '{') {
+    V3OutJsonFile& begin(மாறிலி std::string& name, எழுத்து type = '{') {
         comma();
         puts(m_prefix + "\"" + name + "\": " + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
-        return *this;
+        m_scope.தள்ளு(type == '{' ? '}' : ']');
+        எனில் (!m_empty.empty()) m_empty.உச்சி() = false;
+        m_empty.தள்ளு(true);
+        திரும்பு *this;
     }
-    V3OutJsonFile& begin(char type = '{') {
+    V3OutJsonFile& begin(எழுத்து type = '{') {
         comma();
         puts(m_prefix + type + "\n");
         m_prefix += INDENT;
-        m_scope.push(type == '{' ? '}' : ']');
-        if (!m_empty.empty()) m_empty.top() = false;
-        m_empty.push(true);
-        return *this;
+        m_scope.தள்ளு(type == '{' ? '}' : ']');
+        எனில் (!m_empty.empty()) m_empty.உச்சி() = false;
+        m_empty.தள்ளு(true);
+        திரும்பு *this;
     }
 
     // Put a named value
-    V3OutJsonFile& put(const std::string& name, const char* valuep) {
-        return putNamed(name, std::string{valuep}, true);
+    V3OutJsonFile& put(மாறிலி std::string& name, மாறிலி எழுத்து* valuep) {
+        திரும்பு putNamed(name, std::string{valuep}, true);
     }
-    V3OutJsonFile& put(const std::string& name, const std::string& value) {
-        return putNamed(name, value, true);
+    V3OutJsonFile& put(மாறிலி std::string& name, மாறிலி std::string& மதிப்பு) {
+        திரும்பு putNamed(name, மதிப்பு, true);
     }
-    V3OutJsonFile& put(const std::string& name, bool value) {
-        return putNamed(name, value ? "true" : "false", false);
+    V3OutJsonFile& put(மாறிலி std::string& name, bool மதிப்பு) {
+        திரும்பு putNamed(name, மதிப்பு ? "true" : "false", false);
     }
-    V3OutJsonFile& put(const std::string& name, int value) {
-        return putNamed(name, std::to_string(value), false);
+    V3OutJsonFile& put(மாறிலி std::string& name, முழு மதிப்பு) {
+        திரும்பு putNamed(name, std::to_string(மதிப்பு), false);
     }
 
     // Put unnamed value
-    V3OutJsonFile& put(const std::string& value) { return putNamed("", value, true); }
-    V3OutJsonFile& put(bool value) { return putNamed("", value ? "true" : "false", false); }
-    V3OutJsonFile& put(int value) { return putNamed("", std::to_string(value), false); }
+    V3OutJsonFile& put(மாறிலி std::string& மதிப்பு) { திரும்பு putNamed("", மதிப்பு, true); }
+    V3OutJsonFile& put(bool மதிப்பு) { திரும்பு putNamed("", மதிப்பு ? "true" : "false", false); }
+    V3OutJsonFile& put(முழு மதிப்பு) { திரும்பு putNamed("", std::to_string(மதிப்பு), false); }
 
-    V3OutJsonFile& putList(const std::string& name, const std::vector<std::string>& list) {
-        if (list.empty()) return *this;
+    V3OutJsonFile& putList(மாறிலி std::string& name, மாறிலி std::vector<std::string>& list) {
+        எனில் (list.empty()) திரும்பு *this;
         begin(name, '[');
-        for (const std::string& str : list) put(str);
-        return end();
+        க்கு (மாறிலி std::string& str : list) put(str);
+        திரும்பு end();
     }
 
     V3OutJsonFile& end() {
@@ -353,92 +353,92 @@ public:
         m_prefix.erase(m_prefix.end() - strlen(INDENT), m_prefix.end());
         UASSERT(!m_scope.empty(), "end() without begin()");
         UASSERT(!m_empty.empty(), "end() without begin()");
-        puts("\n" + m_prefix + m_scope.top());
-        m_scope.pop();
-        m_empty.pop();
-        return *this;
+        puts("\n" + m_prefix + m_scope.உச்சி());
+        m_scope.எடு();
+        m_empty.எடு();
+        திரும்பு *this;
     }
 
     V3OutJsonFile& operator+=(V3OutJsonFile& /*cursor*/) {
         // Meaningless syntax sugar, at least for now
-        return *this;
+        திரும்பு *this;
     }
 
-private:
-    void comma() {
-        if (m_empty.empty()) return;
-        if (!m_empty.top()) puts(",\n");
-        m_empty.top() = true;
+தனிப்பட்ட:
+    வெறுமை comma() {
+        எனில் (m_empty.empty()) திரும்பு;
+        எனில் (!m_empty.உச்சி()) puts(",\n");
+        m_empty.உச்சி() = true;
     }
-    V3OutJsonFile& putNamed(const std::string& name, const std::string& value, bool quoted) {
+    V3OutJsonFile& putNamed(மாறிலி std::string& name, மாறிலி std::string& மதிப்பு, bool quoted) {
         comma();
-        const string valueQ
-            = quoted ? "\""s + V3OutFormatter::quoteNameControls(value) + "\"" : value;
-        if (name.empty()) {
-            puts(m_prefix + valueQ);
-        } else {
-            puts(m_prefix + "\"" + name + "\": " + valueQ);
+        மாறிலி string மதிப்பு_Q
+            = quoted ? "\""s + V3OutFormatter::quoteNameControls(மதிப்பு) + "\"" : மதிப்பு;
+        எனில் (name.empty()) {
+            puts(m_prefix + மதிப்பு_Q);
+        } இல்லையெனில் {
+            puts(m_prefix + "\"" + name + "\": " + மதிப்பு_Q);
         }
-        m_empty.top() = false;
-        return *this;
+        m_empty.உச்சி() = false;
+        திரும்பு *this;
     }
 };
 
-class V3OutMkFile final : public V3OutFile {
-public:
-    explicit V3OutMkFile(const string& filename)
+class V3OutMkFile final : பொது V3OutFile {
+பொது:
+    explicit V3OutMkFile(மாறிலி string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_MK} {}
-    ~V3OutMkFile() override = default;
-    virtual void putsHeader() { puts("# Verilated -*- Makefile -*-\n"); }
+    ~V3OutMkFile() override = இயல்பு;
+    மெய்நிகர் வெறுமை putsHeader() { puts("# Verilated -*- Makefile -*-\n"); }
     // No automatic indentation yet.
     // cppcheck-suppress duplInheritedMember
-    void puts(const char* strg) { putsNoTracking(strg); }
+    வெறுமை puts(மாறிலி எழுத்து* strg) { putsNoTracking(strg); }
     // cppcheck-suppress duplInheritedMember
-    void puts(const string& strg) { putsNoTracking(strg); }
+    வெறுமை puts(மாறிலி string& strg) { putsNoTracking(strg); }
     // Put VARIABLE = VALUE
-    void putSet(const string& var, const string& value) {
-        puts(VString::dot(var + " =", " ", value) + "\n");
+    வெறுமை putSet(மாறிலி string& var, மாறிலி string& மதிப்பு) {
+        puts(VString::dot(var + " =", " ", மதிப்பு) + "\n");
     }
     // Put VARIABLE ?= VALUE
-    void putSetQ(const string& var, const string& value) {
-        puts(VString::dot(var + " ?=", " ", value) + "\n");
+    வெறுமை putSetQ(மாறிலி string& var, மாறிலி string& மதிப்பு) {
+        puts(VString::dot(var + " ?=", " ", மதிப்பு) + "\n");
     }
 };
 
-class V3OutVFile final : public V3OutCFile {
-public:
-    explicit V3OutVFile(const string& filename)
+class V3OutVFile final : பொது V3OutCFile {
+பொது:
+    explicit V3OutVFile(மாறிலி string& filename)
         : V3OutCFile{filename, V3OutFormatter::LA_VERILOG} {}
-    ~V3OutVFile() override = default;
-    void putsHeader() override { puts("// Verilated -*- Verilog -*-\n"); }
+    ~V3OutVFile() override = இயல்பு;
+    வெறுமை putsHeader() override { puts("// Verilated -*- Verilog -*-\n"); }
 };
 
-class V3OutXmlFile final : public V3OutFile {
-public:
-    explicit V3OutXmlFile(const string& filename)
+class V3OutXmlFile final : பொது V3OutFile {
+பொது:
+    explicit V3OutXmlFile(மாறிலி string& filename)
         : V3OutFile{filename, V3OutFormatter::LA_XML} {
         blockIndent(2);
     }
-    ~V3OutXmlFile() override = default;
-    virtual void putsHeader() { puts("<?xml version=\"1.0\" ?>\n"); }
+    ~V3OutXmlFile() override = இயல்பு;
+    மெய்நிகர் வெறுமை putsHeader() { puts("<?xml version=\"1.0\" ?>\n"); }
 };
 
 //============================================================================
 // V3OutStream: A class for printing formatted code to any std::ostream
 
-class V3OutStream VL_NOT_FINAL : public V3OutFormatter {
+class V3OutStream VL_NOT_FINAL : பொது V3OutFormatter {
     // MEMBERS
     std::ostream& m_ostream;
 
     VL_UNCOPYABLE(V3OutStream);
     VL_UNMOVABLE(V3OutStream);
 
-public:
+பொது:
     V3OutStream(std::ostream& ostream, V3OutFormatter::Language lang);
-    ~V3OutStream() override = default;
+    ~V3OutStream() override = இயல்பு;
 
-    void putcOutput(char chr) override { m_ostream << chr; };
-    void putsOutput(const char* str) override { m_ostream << str; };
+    வெறுமை putcOutput(எழுத்து chr) override { m_ostream << chr; };
+    வெறுமை putsOutput(மாறிலி எழுத்து* str) override { m_ostream << str; };
 };
 
 //============================================================================
@@ -447,17 +447,17 @@ public:
 class VIdProtectImp;
 
 class VIdProtect final {
-public:
+பொது:
     // METHODS
     // Return 'in' only if not protecting (e.g. for emitting a comment)
-    static string ifNoProtect(const string& in) VL_MT_SAFE;
+    நிலையான string ifNoProtect(மாறிலி string& in) VL_MT_SAFE;
     // Rename to a new encoded string (unless earlier passthru'ed)
-    static string protect(const string& old) VL_MT_SAFE { return protectIf(old, true); }
-    static string protectIf(const string& old, bool doIt = true) VL_MT_SAFE;
+    நிலையான string protect(மாறிலி string& old) VL_MT_SAFE { திரும்பு protectIf(old, true); }
+    நிலையான string protectIf(மாறிலி string& old, bool doIt = true) VL_MT_SAFE;
     // Rename words to a new encoded string
-    static string protectWordsIf(const string& old, bool doIt = true) VL_MT_SAFE;
+    நிலையான string protect_சொற்கள்_If(மாறிலி string& old, bool doIt = true) VL_MT_SAFE;
     // Write map of renames to output file
-    static void writeMapFile(const string& filename);
+    நிலையான வெறுமை writeMapFile(மாறிலி string& filename);
 };
 
 #endif  // Guard

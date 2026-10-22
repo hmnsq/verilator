@@ -29,107 +29,107 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Reloop.h"
+#அந்தர்பாவ "V3Reloop.h"
 
-#include "V3Stats.h"
+#அந்தர்பாவ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 
-class ReloopVisitor final : public VNVisitor {
+வகுப்பு ReloopVisitor final : பொது VNVisitor {
     // NODE STATE
     // AstCFunc::user1p      -> Var number temp var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // STATE
     VDouble0 m_statReloops;  // Statistic tracking
-    VDouble0 m_statReItems;  // Statistic tracking
+    VDouble0 m_stat_Re_பொருட்கள்;  // Statistic tracking
     AstCFunc* m_cfuncp = nullptr;  // Current block
 
-    std::vector<AstNodeAssign*> m_mgAssignps;  // List of assignments merging
+    std::vector<Ast_முனை_Assign*> m_mgAssignps;  // List of assignments merging
     AstCFunc* m_mgCfuncp = nullptr;  // Parent C function
-    const AstNode* m_mgNextp = nullptr;  // Next node
-    const AstNodeSel* m_mgSelLp = nullptr;  // Parent select, nullptr = idle
-    const AstNodeSel* m_mgSelRp = nullptr;  // Parent select, nullptr = constant
-    const AstNodeVarRef* m_mgVarrefLp = nullptr;  // Parent varref
-    const AstNodeVarRef* m_mgVarrefRp = nullptr;  // Parent varref, nullptr = constant
+    மாறிலி Ast_முனை* m_mgNextp = nullptr;  // Next node
+    மாறிலி Ast_முனை_Sel* m_mgSelLp = nullptr;  // Parent select, nullptr = idle
+    மாறிலி Ast_முனை_Sel* m_mgSelRp = nullptr;  // Parent select, nullptr = constant
+    மாறிலி Ast_முனை_Var_Ref* m_mgVarrefLp = nullptr;  // Parent varref
+    மாறிலி Ast_முனை_Var_Ref* m_mgVarrefRp = nullptr;  // Parent varref, nullptr = constant
     int64_t m_mgOffset = 0;  // Index offset
-    const AstConst* m_mgConstRp = nullptr;  // Parent RHS constant, nullptr = sel
+    மாறிலி AstConst* m_mgConstRp = nullptr;  // Parent RHS constant, nullptr = sel
     uint32_t m_mgIndexLo = 0;  // Merge range
     uint32_t m_mgIndexHi = 0;  // Merge range
 
     // METHODS
 
-    static AstVar* createVarTemp(FileLine* fl, AstCFunc* cfuncp) {
+    நிலையான AstVar* createVarTemp(File_வரி* fl, AstCFunc* cfuncp) {
         UASSERT_OBJ(cfuncp, fl, "Assignment not under a function");
-        const string newvarname{"__Vilp" + std::to_string(cfuncp->user1Inc() + 1)};
-        AstVar* const varp
-            = new AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
+        மாறிலி string newvarname{"__Vilp" + std::to_string(cfuncp->user1Inc() + 1)};
+        AstVar* மாறிலி varp
+            = புதிய AstVar{fl, VVarType::STMTTEMP, newvarname, VFlagLogicPacked{}, 32};
         cfuncp->addVarsp(varp);
-        return varp;
+        திரும்பு varp;
     }
-    void mergeEnd() {
-        if (!m_mgAssignps.empty()) {
-            const uint32_t items = m_mgIndexHi - m_mgIndexLo + 1;
-            UINFO(9, "End merge iter=" << items << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
+    வெறுமை mergeEnd() {
+        எனில் (!m_mgAssignps.empty()) {
+            மாறிலி uint32_t பொருட்கள் = m_mgIndexHi - m_mgIndexLo + 1;
+            UINFO(9, "End merge iter=" << பொருட்கள் << " " << m_mgIndexHi << ":" << m_mgIndexLo << " "
                                        << m_mgOffset << " " << m_mgAssignps[0]);
-            if (items >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
-                UINFO(6, "Reloop merging items=" << items << " " << m_mgIndexHi << ":"
+            எனில் (பொருட்கள் >= static_cast<uint32_t>(v3Global.opt.reloopLimit())) {
+                UINFO(6, "Reloop merging items=" << பொருட்கள் << " " << m_mgIndexHi << ":"
                                                  << m_mgIndexLo << " " << m_mgOffset << " "
                                                  << m_mgAssignps[0]);
                 ++m_statReloops;
-                m_statReItems += items;
+                m_stat_Re_பொருட்கள் += பொருட்கள்;
 
                 // Transform first assign into for loop body
-                AstNodeAssign* const bodyp = m_mgAssignps.front();
+                Ast_முனை_Assign* மாறிலி bodyp = m_mgAssignps.front();
                 UASSERT_OBJ(bodyp->lhsp() == m_mgSelLp, bodyp, "Corrupt queue/state");
-                FileLine* const fl = bodyp->fileline();
-                AstVar* const itp = createVarTemp(fl, m_mgCfuncp);
+                File_வரி* மாறிலி fl = bodyp->fileline();
+                AstVar* மாறிலி itp = createVarTemp(fl, m_mgCfuncp);
 
-                if (m_mgOffset > 0) {
+                எனில் (m_mgOffset > 0) {
                     UASSERT_OBJ(m_mgIndexLo >= m_mgOffset, bodyp,
                                 "Reloop iteration starts at negative index");
                     m_mgIndexLo -= m_mgOffset;
                     m_mgIndexHi -= m_mgOffset;
                 }
 
-                AstNode* const initp = new AstAssign{fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                                                     new AstConst{fl, m_mgIndexLo}};
-                AstNodeExpr* const condp = new AstLte{fl, new AstVarRef{fl, itp, VAccess::READ},
-                                                      new AstConst{fl, m_mgIndexHi}};
-                AstNode* const incp = new AstAssign{
-                    fl, new AstVarRef{fl, itp, VAccess::WRITE},
-                    new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, itp, VAccess::READ}}};
-                AstLoop* const loopp = new AstLoop{fl};
-                loopp->addStmtsp(new AstLoopTest{fl, loopp, condp});
+                Ast_முனை* மாறிலி initp = புதிய AstAssign{fl, புதிய AstVarRef{fl, itp, VAccess::WRITE},
+                                                     புதிய AstConst{fl, m_mgIndexLo}};
+                Ast_முனை_கோவை* மாறிலி condp = புதிய AstLte{fl, புதிய AstVarRef{fl, itp, VAccess::READ},
+                                                      புதிய AstConst{fl, m_mgIndexHi}};
+                Ast_முனை* மாறிலி incp = புதிய AstAssign{
+                    fl, புதிய AstVarRef{fl, itp, VAccess::WRITE},
+                    புதிய AstAdd{fl, புதிய AstConst{fl, 1}, புதிய AstVarRef{fl, itp, VAccess::READ}}};
+                AstLoop* மாறிலி loopp = புதிய AstLoop{fl};
+                loopp->addStmtsp(புதிய AstLoopTest{fl, loopp, condp});
                 initp->addNext(loopp);
                 bodyp->replaceWith(initp);
                 loopp->addStmtsp(bodyp);
                 loopp->addStmtsp(incp);
 
                 // Replace constant index with new loop index
-                AstNodeExpr* const offsetp
-                    = m_mgOffset == 0 ? nullptr : new AstConst(fl, std::abs(m_mgOffset));
-                AstNodeExpr* const lbitp = m_mgSelLp->bitp();
-                AstNodeExpr* const lvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                lbitp->replaceWith(m_mgOffset > 0 ? new AstAdd{fl, lvrefp, offsetp} : lvrefp);
-                VL_DO_DANGLING(lbitp->deleteTree(), lbitp);
-                if (m_mgSelRp) {  // else constant and no replace
-                    AstNodeExpr* const rbitp = m_mgSelRp->bitp();
-                    AstNodeExpr* const rvrefp = new AstVarRef{fl, itp, VAccess::READ};
-                    rbitp->replaceWith(m_mgOffset < 0 ? new AstAdd{fl, rvrefp, offsetp} : rvrefp);
-                    VL_DO_DANGLING(rbitp->deleteTree(), lbitp);
+                Ast_முனை_கோவை* மாறிலி offsetp
+                    = m_mgOffset == 0 ? nullptr : புதிய AstConst(fl, std::abs(m_mgOffset));
+                Ast_முனை_கோவை* மாறிலி lbitp = m_mgSelLp->bitp();
+                Ast_முனை_கோவை* மாறிலி lvrefp = புதிய AstVarRef{fl, itp, VAccess::READ};
+                lbitp->replaceWith(m_mgOffset > 0 ? புதிய AstAdd{fl, lvrefp, offsetp} : lvrefp);
+                VL_DO_DANGLING(lbitp->delete_மரம்(), lbitp);
+                எனில் (m_mgSelRp) {  // else constant and no replace
+                    Ast_முனை_கோவை* மாறிலி rbitp = m_mgSelRp->bitp();
+                    Ast_முனை_கோவை* மாறிலி rvrefp = புதிய AstVarRef{fl, itp, VAccess::READ};
+                    rbitp->replaceWith(m_mgOffset < 0 ? புதிய AstAdd{fl, rvrefp, offsetp} : rvrefp);
+                    VL_DO_DANGLING(rbitp->delete_மரம்(), lbitp);
                 }
                 UINFOTREE(9, initp, "", "new");
                 UINFOTREE(9, loopp, "", "new");
 
                 // Remove remaining assigns
-                for (AstNodeAssign* assp : m_mgAssignps) {
-                    if (assp != bodyp) {
-                        VL_DO_DANGLING(assp->unlinkFrBack()->deleteTree(), assp);
+                க்கு (Ast_முனை_Assign* assp : m_mgAssignps) {
+                    எனில் (assp != bodyp) {
+                        VL_DO_DANGLING(assp->unlinkFrBack()->delete_மரம்(), assp);
                     }
                 }
             }
@@ -145,60 +145,60 @@ class ReloopVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstCFunc* nodep) override {
+    வெறுமை visit(AstCFunc* nodep) override {
         VL_RESTORER(m_cfuncp);
         m_cfuncp = nodep;
         iterateChildren(nodep);
         mergeEnd();  // Finish last pending merge, if any
     }
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_cfuncp) return;
+    வெறுமை visit(Ast_முனை_Assign* nodep) override {
+        எனில் (!m_cfuncp) திரும்பு;
 
         // Left select WordSel or ArraySel
-        AstNodeSel* const lselp = VN_CAST(nodep->lhsp(), NodeSel);
-        if (!lselp) {  // Not ever merged
+        Ast_முனை_Sel* மாறிலி lselp = VN_CAST(nodep->lhsp(), முனை_Sel);
+        எனில் (!lselp) {  // Not ever merged
             mergeEnd();
-            return;
+            திரும்பு;
         }
         // Of a constant index
-        const AstConst* const lbitp = VN_CAST(lselp->bitp(), Const);
-        if (!lbitp) {
+        மாறிலி AstConst* மாறிலி lbitp = VN_CAST(lselp->bitp(), Const);
+        எனில் (!lbitp) {
             mergeEnd();
-            return;
+            திரும்பு;
         }
-        if (lbitp->width() > 32) {  // Assoc arrays can do this
+        எனில் (lbitp->width() > 32) {  // Assoc arrays can do this
             mergeEnd();
-            return;
+            திரும்பு;
         }
-        const uint32_t lindex = lbitp->toUInt();
+        மாறிலி uint32_t lindex = lbitp->toUInt();
         // Of variable
-        const AstNodeVarRef* const lvarrefp = VN_CAST(lselp->fromp(), NodeVarRef);
-        if (!lvarrefp) {
+        மாறிலி Ast_முனை_Var_Ref* மாறிலி lvarrefp = VN_CAST(lselp->fromp(), முனை_Var_Ref);
+        எனில் (!lvarrefp) {
             mergeEnd();
-            return;
+            திரும்பு;
         }
 
         // RHS is a constant or a select
-        const AstConst* const rconstp = VN_CAST(nodep->rhsp(), Const);
-        const AstNodeSel* const rselp = VN_CAST(nodep->rhsp(), NodeSel);
-        const AstNodeVarRef* rvarrefp = nullptr;
+        மாறிலி AstConst* மாறிலி rconstp = VN_CAST(nodep->rhsp(), Const);
+        மாறிலி Ast_முனை_Sel* மாறிலி rselp = VN_CAST(nodep->rhsp(), முனை_Sel);
+        மாறிலி Ast_முனை_Var_Ref* rvarrefp = nullptr;
         uint32_t rindex = lindex;
-        if (rconstp) {  // Ok
-        } else if (rselp) {
-            const AstConst* const rbitp = VN_CAST(rselp->bitp(), Const);
-            rvarrefp = VN_CAST(rselp->fromp(), NodeVarRef);
-            if (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
+        எனில் (rconstp) {  // Ok
+        } இல்லையெனில் எனில் (rselp) {
+            மாறிலி AstConst* மாறிலி rbitp = VN_CAST(rselp->bitp(), Const);
+            rvarrefp = VN_CAST(rselp->fromp(), முனை_Var_Ref);
+            எனில் (!rbitp || !rvarrefp || lvarrefp->varp() == rvarrefp->varp()) {
                 mergeEnd();
-                return;
+                திரும்பு;
             }
             rindex = rbitp->toUInt();
-        } else {
+        } இல்லையெனில் {
             mergeEnd();
-            return;
+            திரும்பு;
         }
 
-        if (m_mgSelLp) {  // Old merge
-            if (m_mgCfuncp == m_cfuncp  // In same function
+        எனில் (m_mgSelLp) {  // Old merge
+            எனில் (m_mgCfuncp == m_cfuncp  // In same function
                 && m_mgNextp == nodep  // Consecutive node
                 && m_mgVarrefLp->isSame(lvarrefp)  // Same array on left hand side
                 && (m_mgConstRp  // On the right hand side either ...
@@ -208,17 +208,17 @@ class ReloopVisitor final : public VNVisitor {
                 && (m_mgConstRp || lindex == rindex + m_mgOffset)  // Same right index offset
             ) {
                 // Sequentially next to last assign; continue merge
-                if (lindex == m_mgIndexLo - 1) {
+                எனில் (lindex == m_mgIndexLo - 1) {
                     m_mgIndexLo = lindex;
-                } else if (lindex == m_mgIndexHi + 1) {
+                } இல்லையெனில் எனில் (lindex == m_mgIndexHi + 1) {
                     m_mgIndexHi = lindex;
                 }
                 UINFO(9, "Continue merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                              << " " << nodep);
-                m_mgAssignps.push_back(nodep);
+                m_mgAssignps.தள்ளு_back(nodep);
                 m_mgNextp = nodep->nextp();
-                return;
-            } else {
+                திரும்பு;
+            } இல்லையெனில் {
                 UINFO(9, "End merge i=" << lindex << " " << m_mgIndexHi << ":" << m_mgIndexLo
                                         << " " << nodep);
                 // This assign doesn't merge with previous assign,
@@ -228,7 +228,7 @@ class ReloopVisitor final : public VNVisitor {
         }
 
         // Merge start
-        m_mgAssignps.push_back(nodep);
+        m_mgAssignps.தள்ளு_back(nodep);
         m_mgCfuncp = m_cfuncp;
         m_mgNextp = nodep->nextp();
         m_mgSelLp = lselp;
@@ -241,26 +241,26 @@ class ReloopVisitor final : public VNVisitor {
         m_mgIndexHi = lindex;
         UINFO(9, "Start merge i=" << lindex << " o=" << m_mgOffset << nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_கோவை_Stmt* nodep) override { iterateChildren(nodep); }
     //--------------------
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstNodeExpr*) override {}  // Accelerate
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(AstVar*) override {}  // Accelerate
+    வெறுமை visit(Ast_முனை_கோவை*) override {}  // Accelerate
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit ReloopVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~ReloopVisitor() override {
         V3Stats::addStat("Optimizations, Reloops", m_statReloops);
-        V3Stats::addStat("Optimizations, Reloop iterations", m_statReItems);
+        V3Stats::addStat("Optimizations, Reloop iterations", m_stat_Re_பொருட்கள்);
     }
 };
 
 //######################################################################
 // Reloop class functions
 
-void V3Reloop::reloopAll(AstNetlist* nodep) {
+வெறுமை V3Reloop::reloopAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { ReloopVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("reloop", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_மரம்("reloop", 0, dump_மரம்_Either_Level() >= 6);
 }

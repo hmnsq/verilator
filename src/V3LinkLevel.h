@@ -17,27 +17,27 @@
 #ifndef VERILATOR_V3LINKLEVEL_H_
 #define VERILATOR_V3LINKLEVEL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
 
-#include <vector>
+#அந்தர்பாவ <vector>
 
 //============================================================================
 
 class V3LinkLevel final {
-    using ModVec = std::vector<AstNodeModule*>;
+    using ModVec = std::vector<Ast_முனை_Module*>;
 
-    static void timescaling(const ModVec& mods) VL_MT_DISABLED;
-    static void wrapTopCell(AstNetlist* rootp) VL_MT_DISABLED;
-    static void wrapTopPackages(AstNetlist* rootp) VL_MT_DISABLED;
+    நிலையான வெறுமை timescaling(மாறிலி ModVec& mods) VL_MT_DISABLED;
+    நிலையான வெறுமை wrap_உச்சி_Cell(AstNetlist* rootp) VL_MT_DISABLED;
+    நிலையான வெறுமை wrap_உச்சி_Packages(AstNetlist* rootp) VL_MT_DISABLED;
 
-public:
-    static void modSortByLevel() VL_MT_DISABLED;
-    static void wrapTop(AstNetlist* rootp) VL_MT_DISABLED;
-    static void nonWrapTop(AstNetlist* rootp) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை modSortByLevel() VL_MT_DISABLED;
+    நிலையான வெறுமை wrap_உச்சி(AstNetlist* rootp) VL_MT_DISABLED;
+    நிலையான வெறுமை non_Wrap_உச்சி(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

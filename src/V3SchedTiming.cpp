@@ -24,67 +24,67 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3AstUserAllocator.h"
-#include "V3ClassGraph.h"
-#include "V3EmitCBase.h"
-#include "V3Sched.h"
+#அந்தர்பாவ "V3AstUserAllocator.h"
+#அந்தர்பாவ "V3ClassGraph.h"
+#அந்தர்பாவ "V3EmitCBase.h"
+#அந்தர்பாவ "V3Sched.h"
 
-#include <unordered_map>
-#include <unordered_set>
+#அந்தர்பாவ <unordered_map>
+#அந்தர்பாவ <unordered_set>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace V3Sched {
+நாமாகாஶ V3Sched {
 
 //============================================================================
 // Trigger indices of the external domains of each variable
 
-std::map<const AstVarScope*, std::vector<uint32_t>>
-TimingKit::externalTriggerIndices(const TriggerKit& trigKit) const {
-    std::map<const AstVarScope*, std::vector<uint32_t>> result;
-    for (const auto& vscpDomains : m_externalDomains) {
+std::map<மாறிலி AstVarScope*, std::vector<uint32_t>>
+TimingKit::externalTriggerIndices(மாறிலி TriggerKit& trigKit) மாறிலி {
+    std::map<மாறிலி AstVarScope*, std::vector<uint32_t>> result;
+    க்கு (மாறிலி auto& vscpDomains : m_externalDomains) {
         std::vector<uint32_t>& indices = result[vscpDomains.first];
-        for (const AstSenTree* const domainp : vscpDomains.second) {
-            for (const AstSenItem* itemp = domainp->sensesp(); itemp;
+        க்கு (மாறிலி Ast_Sen_மரம்* மாறிலி domainp : vscpDomains.second) {
+            க்கு (மாறிலி AstSenItem* itemp = domainp->sensesp(); itemp;
                  itemp = VN_AS(itemp->nextp(), SenItem)) {
-                indices.push_back(trigKit.senItem2TrigIdx(itemp));
+                indices.தள்ளு_back(trigKit.senItem2TrigIdx(itemp));
             }
         }
     }
-    return result;
+    திரும்பு result;
 }
 
 //============================================================================
 // Creates a timing resume call (if needed, else returns null)
 
 AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
-    if (!m_resumeFuncp) {
-        if (m_lbs.empty()) return nullptr;
+    எனில் (!m_resumeFuncp) {
+        எனில் (m_lbs.empty()) திரும்பு nullptr;
         // Create global resume function
-        AstNetlist* const netlistp = v3Global.rootp();
-        AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-        m_resumeFuncp = new AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
-        m_resumeFuncp->dontCombine(true);
-        m_resumeFuncp->isLoose(true);
-        m_resumeFuncp->isConst(false);
-        m_resumeFuncp->declPrivate(true);
+        AstNetlist* மாறிலி netlistp = v3Global.rootp();
+        AstScope* மாறிலி scopeTopp = netlistp->உச்சி_Scopep()->scopep();
+        m_resumeFuncp = புதிய AstCFunc{netlistp->fileline(), "_timing_resume", scopeTopp, ""};
+        m_resumeFuncp->dontCombine(உண்மை);
+        m_resumeFuncp->isLoose(உண்மை);
+        m_resumeFuncp->isConst(பொய்);
+        m_resumeFuncp->declPrivate(உண்மை);
         scopeTopp->addBlocksp(m_resumeFuncp);
 
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            activep->foreach([this](AstCMethodHard* const exprp) {
-                if (exprp->method() != VCMethod::SCHED_RESUME) return;
-                AstNodeExpr* const fromp = exprp->fromp();
-                if (VN_AS(fromp->dtypep(), BasicDType)->keyword()
+        க்கு (மாறிலி auto& entry : m_lbs) {
+            AstActive* மாறிலி activep = entry.m_activep;
+            activep->foreach([இது](AstCMethodHard* மாறிலி exprp) {
+                எனில் (exprp->method() != VCMethod::SCHED_RESUME) திரும்பு;
+                Ast_முனை_கோவை* மாறிலி fromp = exprp->fromp();
+                எனில் (VN_AS(fromp->dtypep(), BasicDType)->keyword()
                     != VBasicDTypeKwd::TRIGGER_SCHEDULER) {
-                    return;
+                    திரும்பு;
                 }
-                AstCMethodHard* const moveToResumep = new AstCMethodHard{
-                    fromp->fileline(), fromp->cloneTree(false),
+                AstCMethodHard* மாறிலி moveToResumep = புதிய AstCMethodHard{
+                    fromp->fileline(), fromp->clone_மரம்(பொய்),
                     VCMethod::SCHED_MOVE_TO_RESUME_QUEUE,
-                    exprp->pinsp() ? exprp->pinsp()->cloneTree(true) : nullptr};
+                    exprp->pinsp() ? exprp->pinsp()->clone_மரம்(உண்மை) : nullptr};
                 moveToResumep->dtypeSetVoid();
                 m_resumeFuncp->addStmtsp(moveToResumep->makeStmt());
             });
@@ -92,123 +92,123 @@ AstCCall* TimingKit::createResume(AstVarScope* trigVscp) {
 
         // Put all the timing actives in the resume function
         AstIf* dlyShedIfp = nullptr;
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
+        க்கு (மாறிலி auto& entry : m_lbs) {
+            AstActive* மாறிலி activep = entry.m_activep;
             // Resume time delays last. For no particular reason other than
             // that's what we used to do prior to proper #0 support.
-            AstVarRef* const schedrefp = VN_AS(
-                VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
+            AstVarRef* மாறிலி schedrefp = VN_AS(
+                VN_AS(VN_AS(activep->stmtsp(), Stmt_கோவை)->exprp(), CMethodHard)->fromp(), VarRef);
 
-            AstNode* const actionp = activep->stmtsp()->unlinkFrBackWithNext();
-            if (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
-                FileLine* const flp = trigVscp->fileline();
-                const std::set<uint32_t>& triggers = entry.m_triggers;
-                AstTriggered* const condp
-                    = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-                dlyShedIfp = new AstIf{flp, condp};
+            Ast_முனை* மாறிலி actionp = activep->stmtsp()->unlinkFrBackWithNext();
+            எனில் (schedrefp->varScopep()->dtypep()->basicp()->isDelayScheduler()) {
+                File_வரி* மாறிலி flp = trigVscp->fileline();
+                மாறிலி std::set<uint32_t>& triggers = entry.m_triggers;
+                AstTriggered* மாறிலி condp
+                    = புதிய AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
+                dlyShedIfp = புதிய AstIf{flp, condp};
                 dlyShedIfp->addThensp(actionp);
-            } else {
+            } இல்லையெனில் {
                 m_resumeFuncp->addStmtsp(actionp);
             }
         }
-        if (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
+        எனில் (dlyShedIfp) m_resumeFuncp->addStmtsp(dlyShedIfp);
 
         // These are now spent, oispose of now empty AstActive instances
         m_lbs.deleteActives();
     }
-    AstCCall* const callp = new AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
+    AstCCall* மாறிலி callp = புதிய AstCCall{m_resumeFuncp->fileline(), m_resumeFuncp};
     callp->dtypeSetVoid();
-    return callp;
+    திரும்பு callp;
 }
 
-AstVarScope* TimingKit::getDelayScheduler(AstNetlist* const /*netlistp*/) {
-    for (const auto& entry : m_lbs) {
-        AstActive* const ap = entry.m_activep;
+AstVarScope* TimingKit::getDelayScheduler(AstNetlist* மாறிலி /*netlistp*/) {
+    க்கு (மாறிலி auto& entry : m_lbs) {
+        AstActive* மாறிலி ap = entry.m_activep;
         // TODO: this triple VN_AS expression is ridiculous
-        AstVarRef* const schedrefp
-            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), StmtExpr)->exprp(), CMethodHard)->fromp(), VarRef);
-        AstVarScope* const vscp = schedrefp->varScopep();
-        if (vscp->dtypep()->basicp()->isDelayScheduler()) return vscp;
+        AstVarRef* மாறிலி schedrefp
+            = VN_AS(VN_AS(VN_AS(ap->stmtsp(), Stmt_கோவை)->exprp(), CMethodHard)->fromp(), VarRef);
+        AstVarScope* மாறிலி vscp = schedrefp->varScopep();
+        எனில் (vscp->dtypep()->basicp()->isDelayScheduler()) திரும்பு vscp;
     }
     // None found. Design doesn't use any time delays
-    return nullptr;
+    திரும்பு nullptr;
 }
 
 //============================================================================
 // Creates a timing ready call (if needed, else returns null)
 
 AstCCall* TimingKit::createReady(AstVarScope* trigVscp) {
-    if (!m_readyFuncp) {
-        for (const auto& entry : m_lbs) {
-            AstActive* const activep = entry.m_activep;
-            auto* const resumep = VN_AS(VN_AS(activep->stmtsp(), StmtExpr)->exprp(), CMethodHard);
+    எனில் (!m_readyFuncp) {
+        க்கு (மாறிலி auto& entry : m_lbs) {
+            AstActive* மாறிலி activep = entry.m_activep;
+            auto* மாறிலி resumep = VN_AS(VN_AS(activep->stmtsp(), Stmt_கோவை)->exprp(), CMethodHard);
             UASSERT_OBJ(!resumep->nextp(), resumep, "Should be the only statement here");
-            AstVarScope* const schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
+            AstVarScope* மாறிலி schedulerp = VN_AS(resumep->fromp(), VarRef)->varScopep();
             UASSERT_OBJ(schedulerp->dtypep()->basicp()->isDelayScheduler()
                             || schedulerp->dtypep()->basicp()->isTriggerScheduler()
                             || schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler(),
                         schedulerp, "Unexpected type");
-            if (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) continue;
+            எனில் (!schedulerp->dtypep()->basicp()->isTriggerScheduler()) தொடர்;
             // Create the global ready function only if we have trigger schedulers
-            if (!m_readyFuncp) {
-                AstNetlist* const netlistp = v3Global.rootp();
-                AstScope* const scopeTopp = netlistp->topScopep()->scopep();
-                m_readyFuncp = new AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
-                m_readyFuncp->dontCombine(true);
-                m_readyFuncp->isLoose(true);
-                m_readyFuncp->isConst(false);
-                m_readyFuncp->declPrivate(true);
+            எனில் (!m_readyFuncp) {
+                AstNetlist* மாறிலி netlistp = v3Global.rootp();
+                AstScope* மாறிலி scopeTopp = netlistp->உச்சி_Scopep()->scopep();
+                m_readyFuncp = புதிய AstCFunc{netlistp->fileline(), "_timing_ready", scopeTopp, ""};
+                m_readyFuncp->dontCombine(உண்மை);
+                m_readyFuncp->isLoose(உண்மை);
+                m_readyFuncp->isConst(பொய்);
+                m_readyFuncp->declPrivate(உண்மை);
                 scopeTopp->addBlocksp(m_readyFuncp);
             }
 
-            FileLine* const flp = activep->sentreep()->fileline();
+            File_வரி* மாறிலி flp = activep->sentreep()->fileline();
 
             // Create an 'AstIf' sensitive to the suspending triggers
-            const std::set<uint32_t>& triggers = entry.m_triggers;
-            AstTriggered* const condp
-                = new AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
-            AstIf* const ifp = new AstIf{flp, condp};
+            மாறிலி std::set<uint32_t>& triggers = entry.m_triggers;
+            AstTriggered* மாறிலி condp
+                = புதிய AstTriggered{flp, trigVscp, {triggers.begin(), triggers.end()}};
+            AstIf* மாறிலி ifp = புதிய AstIf{flp, condp};
             m_readyFuncp->addStmtsp(ifp);
 
             // Mark as ready the processes resumed on this sensitivity expression
-            AstVarRef* const refp = new AstVarRef{flp, schedulerp, VAccess::READWRITE};
-            AstCMethodHard* const callp = new AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
+            AstVarRef* மாறிலி refp = புதிய AstVarRef{flp, schedulerp, VAccess::READWRITE};
+            AstCMethodHard* மாறிலி callp = புதிய AstCMethodHard{flp, refp, VCMethod::SCHED_READY};
             callp->dtypeSetVoid();
-            if (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->cloneTree(false));
+            எனில் (resumep->pinsp()) callp->addPinsp(resumep->pinsp()->clone_மரம்(பொய்));
             ifp->addThensp(callp->makeStmt());
         }
         // We still haven't created a ready function (no trigger schedulers), return null
-        if (!m_readyFuncp) return nullptr;
+        எனில் (!m_readyFuncp) திரும்பு nullptr;
     }
-    AstCCall* const callp = new AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
+    AstCCall* மாறிலி callp = புதிய AstCCall{m_readyFuncp->fileline(), m_readyFuncp};
     callp->dtypeSetVoid();
-    return callp;
+    திரும்பு callp;
 }
 
 //============================================================================
 // Creates the timing kit and marks variables written by suspendables
 
-class AwaitVisitor final : public VNVisitor {
+வகுப்பு AwaitVisitor final : பொது VNVisitor {
     // NODE STATE
     //  AstSenTree::user1()  -> bool.               Set true if the sentree has been visited.
     //  AstCFunc::user1()    -> AstUser1Allocator.  See alocator below
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // STATE
-    bool m_inProcess = false;  // Are we in a process?
-    bool m_gatherVars = false;  // Should we gather vars in m_writtenBySuspendable?
-    AstScope* const m_scopeTopp;  // Scope at the top
+    தருக்க m_inProcess = பொய்;  // Are we in a process?
+    தருக்க m_gatherVars = பொய்;  // Should we gather vars in m_writtenBySuspendable?
+    AstScope* மாறிலி m_scopeTopp;  // Scope at the top
     LogicByScope& m_lbs;  // Timing resume actives
-    AstNodeStmt*& m_postUpdatesr;  // Post updates for the trigger eval function
+    Ast_முனை_Stmt*& m_postUpdatesr;  // Post updates for the trigger eval function
     // Additional var sensitivities
-    std::map<const AstVarScope*, std::set<AstSenTree*>>& m_externalDomains;
+    std::map<மாறிலி AstVarScope*, std::set<Ast_Sen_மரம்*>>& m_externalDomains;
     std::unique_ptr<V3ClassGraph>
         m_classGraphp;  // class graph to get possibly called functions from a virtual call
-    std::set<AstSenTree*> m_processDomains;  // Sentrees from the current process
+    std::set<Ast_Sen_மரம்*> m_processDomains;  // Sentrees from the current process
     // Variables written by suspendable processes
     std::set<AstVarScope*> m_writtenBySuspendable;
-    struct CFuncCache final {
-        std::set<AstSenTree*> m_processDomains;  // What shall be added to m_processDomains
+    கட்டமைப்பு CFuncCache final {
+        std::set<Ast_Sen_மரம்*> m_processDomains;  // What shall be added to m_processDomains
         std::set<AstVarScope*>
             m_writtenBySuspendable;  // What shall be added to m_writtenBySuspendable
         std::set<AstCFunc*> m_includes;  // CFuncs whose CFuncCache shall be included into this
@@ -221,14 +221,14 @@ class AwaitVisitor final : public VNVisitor {
         //  won't be in visiting state
         //  therefore, every node in a m_includes shall take value of m_gatherVars under which
         //  current CFuncCache is
-        enum State : uint8_t {
+        எண்ணிக்கை State : uint8_t {
             UNINITIALIZED = 0,  // Not initialized members are empty
             VISITING,  // Visiting - needed for breaking recursion
             INITIALIZED,  // Members contains correct values
         } m_state  // Current state of Cache
             = UNINITIALIZED;
     };
-    std::vector<const AstCFunc*> m_callStack;  // Current callstack of AstCFuncs
+    std::vector<மாறிலி AstCFunc*> m_call_அடுக்கு;  // Current callstack of AstCFuncs
     // Caches how visiting the function with given value of m_gatherVars changes
     // m_processDomains and m_writtenBySuspendable - only accessed from visit(AstCFunc* nodep)
     AstUser1Allocator<AstCFunc, std::array<CFuncCache, 2>> m_cfuncsCache;
@@ -237,158 +237,158 @@ class AwaitVisitor final : public VNVisitor {
 
     // METHODS
     // Add arguments to a resume() call based on arguments in the suspending call
-    void addResumePins(AstCMethodHard* const resumep, AstNodeExpr* pinsp) {
-        AstCExpr* const exprp = VN_CAST(pinsp, CExpr);
-        AstText* const textp = VN_CAST(exprp->nodesp(), Text);
-        if (textp) {
+    வெறுமை addResumePins(AstCMethodHard* மாறிலி resumep, Ast_முனை_கோவை* pinsp) {
+        AstCExpr* மாறிலி exprp = VN_CAST(pinsp, CExpr);
+        AstText* மாறிலி textp = VN_CAST(exprp->nodesp(), Text);
+        எனில் (textp) {
             // The first argument, vlProcess, isn't used by any of resume() methods, skip it
-            if ((pinsp = VN_CAST(pinsp->nextp(), NodeExpr))) {
-                resumep->addPinsp(pinsp->cloneTree(false));
+            எனில் ((pinsp = VN_CAST(pinsp->nextp(), முனை_கோவை))) {
+                resumep->addPinsp(pinsp->clone_மரம்(பொய்));
             }
-        } else {
-            resumep->addPinsp(pinsp->cloneTree(false));
+        } இல்லையெனில் {
+            resumep->addPinsp(pinsp->clone_மரம்(பொய்));
         }
     }
-    void addCFuncCachedValues(const AstCFunc* const cfuncp,
-                              std::unordered_set<const AstCFunc*>& visited) {
-        if (!visited.insert(cfuncp).second) return;
-        CFuncCache& value = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
-        const size_t initialSize = m_writtenBySuspendable.size();
-        m_writtenBySuspendable.insert(value.m_writtenBySuspendable.begin(),
-                                      value.m_writtenBySuspendable.end());
+    வெறுமை add_CFunc_Cached_மதிப்புகள்(மாறிலி AstCFunc* மாறிலி cfuncp,
+                              std::unordered_set<மாறிலி AstCFunc*>& visited) {
+        எனில் (!visited.செருகு(cfuncp).second) திரும்பு;
+        CFuncCache& மதிப்பு = m_cfuncsCache(cfuncp)[static_cast<size_t>(m_gatherVars)];
+        மாறிலி size_t initialSize = m_writtenBySuspendable.size();
+        m_writtenBySuspendable.செருகு(மதிப்பு.m_writtenBySuspendable.begin(),
+                                      மதிப்பு.m_writtenBySuspendable.end());
         m_notInlinedWritesInSuspendableUsage += m_writtenBySuspendable.size() - initialSize;
-        m_processDomains.insert(value.m_processDomains.begin(), value.m_processDomains.end());
-        for (const AstCFunc* const includedp : value.m_includes) {
-            addCFuncCachedValues(includedp, visited);
+        m_processDomains.செருகு(மதிப்பு.m_processDomains.begin(), மதிப்பு.m_processDomains.end());
+        க்கு (மாறிலி AstCFunc* மாறிலி includedp : மதிப்பு.m_includes) {
+            add_CFunc_Cached_மதிப்புகள்(includedp, visited);
         }
     }
     // Create an active with a timing scheduler resume() call
-    void createResumeActive(AstCAwait* const awaitp) {
-        auto* const methodp = VN_AS(awaitp->exprp(), CMethodHard);
-        AstVarScope* const schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
-        AstSenTree* const sentreep = awaitp->sentreep();
-        FileLine* const flp = sentreep->fileline();
+    வெறுமை createResumeActive(AstCAwait* மாறிலி awaitp) {
+        auto* மாறிலி methodp = VN_AS(awaitp->exprp(), CMethodHard);
+        AstVarScope* மாறிலி schedulerp = VN_AS(methodp->fromp(), VarRef)->varScopep();
+        Ast_Sen_மரம்* மாறிலி sentreep = awaitp->sentreep();
+        File_வரி* மாறிலி flp = sentreep->fileline();
         // Create a resume() call on the timing scheduler
-        auto* const resumep = new AstCMethodHard{
-            flp, new AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
+        auto* மாறிலி resumep = புதிய AstCMethodHard{
+            flp, புதிய AstVarRef{flp, schedulerp, VAccess::READWRITE}, VCMethod::SCHED_RESUME};
         resumep->dtypeSetVoid();
-        if (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
+        எனில் (schedulerp->dtypep()->basicp()->isTriggerScheduler()) {
             UASSERT_OBJ(methodp->pinsp(), methodp,
                         "Trigger method should have pins from V3Timing");
             // The first pin is the ready boolean, the rest (if any) should be debug info
             // See V3Timing for details
-            if (AstNode* const dbginfop = methodp->pinsp()->nextp()) {
-                if (methodp->pinsp()) addResumePins(resumep, static_cast<AstNodeExpr*>(dbginfop));
+            எனில் (Ast_முனை* மாறிலி dbginfop = methodp->pinsp()->nextp()) {
+                எனில் (methodp->pinsp()) addResumePins(resumep, static_cast<Ast_முனை_கோவை*>(dbginfop));
             }
-        } else if (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
-            auto* const postp = resumep->cloneTree(false);
+        } இல்லையெனில் எனில் (schedulerp->dtypep()->basicp()->isDynamicTriggerScheduler()) {
+            auto* மாறிலி postp = resumep->clone_மரம்(பொய்);
             postp->method(VCMethod::SCHED_DO_POST_UPDATES);
-            m_postUpdatesr = AstNode::addNext(m_postUpdatesr, postp->makeStmt());
+            m_postUpdatesr = Ast_முனை::addNext(m_postUpdatesr, postp->makeStmt());
         }
         // Put it in an active
-        AstActive* const activep = new AstActive{flp, "_timing", sentreep};
+        AstActive* மாறிலி activep = புதிய AstActive{flp, "_timing", sentreep};
         activep->addStmtsp(resumep->makeStmt());
         m_lbs.add(m_scopeTopp, activep);
     }
     // Visit AstCFunc from a AstNodeCCall - this function is rather expensive to call therefore, it
     // only shall be called when necessary
-    void visitCalledCFunc(AstCFunc* const nodep) {
-        if (!m_inProcess) return;  // Skip if not in process - nothing would be added to any set
-        const size_t cacheKey = static_cast<size_t>(m_gatherVars);
-        CFuncCache& value = m_cfuncsCache(nodep)[cacheKey];
-        switch (value.m_state) {
-        case CFuncCache::UNINITIALIZED: {
+    வெறுமை visitCalledCFunc(AstCFunc* மாறிலி nodep) {
+        எனில் (!m_inProcess) திரும்பு;  // Skip if not in process - nothing would be added to any set
+        மாறிலி size_t cache_சாவி = static_cast<size_t>(m_gatherVars);
+        CFuncCache& மதிப்பு = m_cfuncsCache(nodep)[cache_சாவி];
+        தேர்வு (மதிப்பு.m_state) {
+        நிலை CFuncCache::UNINITIALIZED: {
             // Save current state
             VL_RESTORER_CLEAR(m_processDomains);
             VL_RESTORER_CLEAR(m_writtenBySuspendable);
 
             // Visit
-            value.m_state = CFuncCache::VISITING;
-            m_callStack.push_back(nodep);
+            மதிப்பு.m_state = CFuncCache::VISITING;
+            m_call_அடுக்கு.தள்ளு_back(nodep);
             iterateChildren(nodep);
-            m_callStack.pop_back();
-            value.m_state = CFuncCache::INITIALIZED;
+            m_call_அடுக்கு.எடு_back();
+            மதிப்பு.m_state = CFuncCache::INITIALIZED;
 
             // Save a cache
-            std::swap(m_processDomains, value.m_processDomains);
-            std::swap(m_writtenBySuspendable, value.m_writtenBySuspendable);
-        } break;
-        case CFuncCache::VISITING: {
-            for (size_t i = m_callStack.size() - 1; m_callStack.at(i) != nodep; --i) {
-                m_cfuncsCache(m_callStack[i])[cacheKey].m_includes.insert(nodep);
+            std::swap(m_processDomains, மதிப்பு.m_processDomains);
+            std::swap(m_writtenBySuspendable, மதிப்பு.m_writtenBySuspendable);
+        } நிறுத்து;
+        நிலை CFuncCache::VISITING: {
+            க்கு (size_t i = m_call_அடுக்கு.size() - 1; m_call_அடுக்கு.at(i) != nodep; --i) {
+                m_cfuncsCache(m_call_அடுக்கு[i])[cache_சாவி].m_includes.செருகு(nodep);
             }
-            return;  // Break recursion
+            திரும்பு;  // Break recursion
         }
-        case CFuncCache::INITIALIZED: break;
+        நிலை CFuncCache::INITIALIZED: நிறுத்து;
         }
-        std::unordered_set<const AstCFunc*> visited;
-        addCFuncCachedValues(nodep, visited);
+        std::unordered_set<மாறிலி AstCFunc*> visited;
+        add_CFunc_Cached_மதிப்புகள்(nodep, visited);
     }
 
     // VISITORS
-    void visit(AstNodeProcedure* const nodep) override {
+    வெறுமை visit(Ast_முனை_Procedure* மாறிலி nodep) override {
         UASSERT_OBJ(!m_inProcess && !m_gatherVars && m_processDomains.empty()
                         && m_writtenBySuspendable.empty(),
                     nodep, "Process in process?");
-        m_inProcess = true;
+        m_inProcess = உண்மை;
         m_gatherVars = nodep->isSuspendable();  // Only gather vars in a suspendable
         iterateChildren(nodep);
-        for (AstVarScope* const vscp : m_writtenBySuspendable) {
-            m_externalDomains[vscp].insert(m_processDomains.begin(), m_processDomains.end());
+        க்கு (AstVarScope* மாறிலி vscp : m_writtenBySuspendable) {
+            m_externalDomains[vscp].செருகு(m_processDomains.begin(), m_processDomains.end());
             vscp->varp()->setWrittenBySuspendable();
         }
         m_processDomains.clear();
         m_writtenBySuspendable.clear();
-        m_inProcess = false;
-        m_gatherVars = false;
+        m_inProcess = பொய்;
+        m_gatherVars = பொய்;
     }
-    void visit(AstFork* nodep) override {
+    வெறுமை visit(AstFork* nodep) override {
         VL_RESTORER(m_gatherVars);
-        if (m_inProcess) m_gatherVars = true;
+        எனில் (m_inProcess) m_gatherVars = உண்மை;
         // If not in a process, we don't need to gather variables or domains
         iterateChildren(nodep);
     }
-    void visit(AstCAwait* nodep) override {
-        if (AstSenTree* const sentreep = nodep->sentreep()) {
-            if (!sentreep->user1SetOnce()) createResumeActive(nodep);
-            if (m_inProcess) m_processDomains.insert(sentreep);
+    வெறுமை visit(AstCAwait* nodep) override {
+        எனில் (Ast_Sen_மரம்* மாறிலி sentreep = nodep->sentreep()) {
+            எனில் (!sentreep->user1SetOnce()) createResumeActive(nodep);
+            எனில் (m_inProcess) m_processDomains.செருகு(sentreep);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
-            m_writtenBySuspendable.insert(nodep->varScopep());
+    வெறுமை visit(Ast_முனை_Var_Ref* nodep) override {
+        எனில் (m_gatherVars && nodep->access().isWriteOrRW() && !nodep->varp()->ignoreSchedWrite()) {
+            m_writtenBySuspendable.செருகு(nodep->varScopep());
         }
     }
-    void visit(AstNodeCCall* const nodep) override {
+    வெறுமை visit(Ast_முனை_CCall* மாறிலி nodep) override {
         iterateChildren(nodep);
         // We need to visit bodies of non-inlined functions
-        const auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
-        if (cfuncps.empty()) {
+        மாறிலி auto& cfuncps = m_classGraphp->getCallPossibleCFuncs(nodep);
+        எனில் (cfuncps.empty()) {
             visitCalledCFunc(nodep->funcp());
-        } else {
-            for (AstCFunc* const cfuncp : cfuncps) visitCalledCFunc(cfuncp);
+        } இல்லையெனில் {
+            க்கு (AstCFunc* மாறிலி cfuncp : cfuncps) visitCalledCFunc(cfuncp);
         }
     }
-    void visit(AstCFunc* const nodep) override {
-        const auto& value = m_cfuncsCache(nodep);
+    வெறுமை visit(AstCFunc* மாறிலி nodep) override {
+        மாறிலி auto& மதிப்பு = m_cfuncsCache(nodep);
         // Check whether it was already visited by visitCalledCFunc()
-        if (value[0].m_state != CFuncCache::UNINITIALIZED
-            || value[1].m_state != CFuncCache::UNINITIALIZED) {
-            return;
+        எனில் (மதிப்பு[0].m_state != CFuncCache::UNINITIALIZED
+            || மதிப்பு[1].m_state != CFuncCache::UNINITIALIZED) {
+            திரும்பு;
         }
         iterateChildren(nodep);
     }
-    void visit(AstExprStmt* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_கோவை_Stmt* nodep) override { iterateChildren(nodep); }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
-    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, AstNodeStmt*& postUpdatesr,
-                          std::map<const AstVarScope*, std::set<AstSenTree*>>& externalDomains)
-        : m_scopeTopp{nodep->topScopep()->scopep()}
+    explicit AwaitVisitor(AstNetlist* nodep, LogicByScope& lbs, Ast_முனை_Stmt*& postUpdatesr,
+                          std::map<மாறிலி AstVarScope*, std::set<Ast_Sen_மரம்*>>& externalDomains)
+        : m_scopeTopp{nodep->உச்சி_Scopep()->scopep()}
         , m_lbs{lbs}
         , m_postUpdatesr{postUpdatesr}
         , m_externalDomains{externalDomains}
@@ -401,27 +401,27 @@ public:
     }
 };
 
-TimingKit prepareTiming(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return {};
+TimingKit prepareTiming(AstNetlist* மாறிலி netlistp) {
+    எனில் (!v3Global.usesTiming()) திரும்பு {};
     LogicByScope lbs;
-    AstNodeStmt* postUpdates = nullptr;
-    std::map<const AstVarScope*, std::set<AstSenTree*>> externalDomains;
+    Ast_முனை_Stmt* postUpdates = nullptr;
+    std::map<மாறிலி AstVarScope*, std::set<Ast_Sen_மரம்*>> externalDomains;
     { AwaitVisitor{netlistp, lbs, postUpdates, externalDomains}; }
-    return {std::move(lbs), postUpdates, std::move(externalDomains)};
+    திரும்பு {std::move(lbs), postUpdates, std::move(externalDomains)};
 }
 
 //============================================================================
 // Visits all forks and transforms their sub-statements into separate functions.
 
 // Transform all forked processes into functions
-class TransformForksVisitor final : public VNVisitor {
+வகுப்பு TransformForksVisitor final : பொது VNVisitor {
     // NODE STATE
     //  AstVar::user1()  -> bool.  Set true if the variable was declared before the current fork.
-    const VNUser1InUse m_inuser1;
+    மாறிலி VNUser1InUse m_inuser1;
 
     // STATE
-    bool m_inClass = false;  // Are we in a class?
-    bool m_beginHasAwaits = false;  // Does the current begin have awaits?
+    தருக்க m_inClass = பொய்;  // Are we in a class?
+    தருக்க m_beginHasAwaits = பொய்;  // Does the current begin have awaits?
     AstFork* m_forkp = nullptr;  // Current fork
     AstCFunc* m_funcp = nullptr;  // Current function
 
@@ -430,64 +430,64 @@ class TransformForksVisitor final : public VNVisitor {
     // TODO: We should only pass variables to the fork that are
     // live in the fork body, but for that we need a proper data
     // flow analysis framework which we don't have at the moment
-    void remapLocals(AstCFunc* const funcp, AstCCall* const callp) {
-        const VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
-        funcp->foreach([&](AstNodeVarRef* refp) {
-            AstVar* const varp = refp->varp();
-            AstVarScope* const vscp = refp->varScopep();
-            AstBasicDType* const dtypep = varp->dtypep()->basicp();
+    வெறுமை remapLocals(AstCFunc* மாறிலி funcp, AstCCall* மாறிலி callp) {
+        மாறிலி VNUser2InUse user2InUse;  // AstVarScope -> AstVarScope: var to remap to
+        funcp->foreach([&](Ast_முனை_Var_Ref* refp) {
+            AstVar* மாறிலி varp = refp->varp();
+            AstVarScope* மாறிலி vscp = refp->varScopep();
+            AstBasicDType* மாறிலி dtypep = varp->dtypep()->basicp();
             // If not a fork..join, copy. All write refs should've been handled by V3Fork
-            bool passByValue = !m_forkp->joinType().join();
-            if (vscp->forkByValue()) {
+            தருக்க pass_By_மதிப்பு = !m_forkp->joinType().join();
+            எனில் (vscp->fork_By_மதிப்பு()) {
                 // Set just before the fork, for its processes to get by value
-                passByValue = true;
-            } else if (!varp->isFuncLocal()) {
+                pass_By_மதிப்பு = உண்மை;
+            } இல்லையெனில் எனில் (!varp->isFuncLocal()) {
                 // Not func local. Its lifetime is longer than the forked process. Skip
-                return;
-            } else if (!varp->user1()) {
+                திரும்பு;
+            } இல்லையெனில் எனில் (!varp->user1()) {
                 // Not declared before the fork. It cannot outlive the forked process
-                return;
-            } else if (dtypep && dtypep->isForkSync()) {
+                திரும்பு;
+            } இல்லையெனில் எனில் (dtypep && dtypep->isForkSync()) {
                 // We can just pass it by value to the new function
-                passByValue = true;
+                pass_By_மதிப்பு = உண்மை;
             }
             // Remap the reference
-            if (!vscp->user2p()) {
+            எனில் (!vscp->user2p()) {
                 // Clone the var to the new function
-                AstVar* const newvarp
-                    = new AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
-                newvarp->funcLocal(true);
-                newvarp->direction(passByValue ? VDirection::INPUT : VDirection::REF);
+                AstVar* மாறிலி newvarp
+                    = புதிய AstVar{varp->fileline(), VVarType::BLOCKTEMP, varp->name(), varp};
+                newvarp->funcLocal(உண்மை);
+                newvarp->direction(pass_By_மதிப்பு ? VDirection::உள்ளீடு : VDirection::REF);
                 funcp->addArgsp(newvarp);
-                AstVarScope* const newvscp
-                    = new AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
+                AstVarScope* மாறிலி newvscp
+                    = புதிய AstVarScope{newvarp->fileline(), funcp->scopep(), newvarp};
                 funcp->scopep()->addVarsp(newvscp);
                 vscp->user2p(newvscp);
-                callp->addArgsp(new AstVarRef{refp->fileline(), vscp,
-                                              passByValue ? VAccess::READ : VAccess::READWRITE});
+                callp->addArgsp(புதிய AstVarRef{refp->fileline(), vscp,
+                                              pass_By_மதிப்பு ? VAccess::READ : VAccess::READWRITE});
             }
-            AstVarScope* const newvscp = VN_AS(vscp->user2p(), VarScope);
+            AstVarScope* மாறிலி newvscp = VN_AS(vscp->user2p(), VarScope);
             refp->varScopep(newvscp);
             refp->varp(newvscp->varp());
         });
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    வெறுமை visit(Ast_முனை_Module* nodep) override {
         VL_RESTORER(m_inClass);
         m_inClass = VN_IS(nodep, Class);
         iterateChildren(nodep);
     }
-    void visit(AstCFunc* nodep) override {
+    வெறுமை visit(AstCFunc* nodep) override {
         VL_RESTORER(m_funcp);
         m_funcp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (!m_forkp) nodep->user1(true);
+    வெறுமை visit(AstVar* nodep) override {
+        எனில் (!m_forkp) nodep->user1(உண்மை);
     }
-    void visit(AstFork* nodep) override {
-        if (m_forkp) return;  // Handle forks in forks after moving them to new functions
+    வெறுமை visit(AstFork* nodep) override {
+        எனில் (m_forkp) திரும்பு;  // Handle forks in forks after moving them to new functions
         VL_RESTORER(m_forkp);
         m_forkp = nodep;
         iterateChildrenConst(nodep);  // Const, so we don't iterate the calls twice
@@ -495,88 +495,88 @@ class TransformForksVisitor final : public VNVisitor {
         // process to suspend whenever any of the children do)
         // V3Dead could have removed all statements from the fork, so guard against it
         // Inline begins now that they are not needed
-        AstNode* resp = nullptr;
-        if (AstNode* const declsp = nodep->declsp()) {
-            resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        Ast_முனை* resp = nullptr;
+        எனில் (Ast_முனை* மாறிலி declsp = nodep->declsp()) {
+            resp = Ast_முனை::addNext(resp, declsp->unlinkFrBackWithNext());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
-            resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+        எனில் (Ast_முனை* மாறிலி stmtsp = nodep->stmtsp()) {
+            resp = Ast_முனை::addNext(resp, stmtsp->unlinkFrBackWithNext());
         }
-        while (AstBegin* const beginp = nodep->forksp()) {
-            if (AstNode* const declsp = beginp->declsp()) {
-                resp = AstNode::addNext(resp, declsp->unlinkFrBackWithNext());
+        போது (AstBegin* மாறிலி beginp = nodep->forksp()) {
+            எனில் (Ast_முனை* மாறிலி declsp = beginp->declsp()) {
+                resp = Ast_முனை::addNext(resp, declsp->unlinkFrBackWithNext());
             }
-            if (AstNode* const stmtsp = beginp->stmtsp()) {
-                resp = AstNode::addNext(resp, stmtsp->unlinkFrBackWithNext());
+            எனில் (Ast_முனை* மாறிலி stmtsp = beginp->stmtsp()) {
+                resp = Ast_முனை::addNext(resp, stmtsp->unlinkFrBackWithNext());
             }
-            VL_DO_DANGLING(pushDeletep(beginp->unlinkFrBack()), beginp);
+            VL_DO_DANGLING(தள்ளு_Deletep(beginp->unlinkFrBack()), beginp);
         }
-        if (resp) {
+        எனில் (resp) {
             nodep->replaceWith(resp);
-        } else {
+        } இல்லையெனில் {
             nodep->unlinkFrBack();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
-    void visit(AstBegin* nodep) override {
+    வெறுமை visit(AstBegin* nodep) override {
         UASSERT_OBJ(m_forkp, nodep, "Begin outside of a fork");
         // Start with children, so later we only find awaits that are actually in this begin
-        m_beginHasAwaits = false;
+        m_beginHasAwaits = பொய்;
         iterateChildrenConst(nodep);
-        if (!nodep->stmtsp()) return;
-        if (!m_beginHasAwaits && !nodep->needProcess()) return;
+        எனில் (!nodep->stmtsp()) திரும்பு;
+        எனில் (!m_beginHasAwaits && !nodep->needProcess()) திரும்பு;
 
         UASSERT_OBJ(!nodep->name().empty(), nodep, "Begin needs a name");
         // Create a function to put this begin's statements in
-        FileLine* const flp = nodep->fileline();
-        AstCFunc* const newfuncp = new AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
+        File_வரி* மாறிலி flp = nodep->fileline();
+        AstCFunc* மாறிலி newfuncp = புதிய AstCFunc{flp, m_funcp->name() + "__" + nodep->name(),
                                                 m_funcp->scopep(), "VlCoroutine"};
 
         m_funcp->addNextHere(newfuncp);
         newfuncp->isLoose(m_funcp->isLoose());
         newfuncp->slow(m_funcp->slow());
         newfuncp->isConst(m_funcp->isConst());
-        newfuncp->declPrivate(true);
+        newfuncp->declPrivate(உண்மை);
         // Create the call to the function
-        AstCCall* const callp = new AstCCall{flp, newfuncp};
+        AstCCall* மாறிலி callp = புதிய AstCCall{flp, newfuncp};
         callp->dtypeSetVoid();
         // If we're in a class, add a vlSymsp arg
-        if (m_inClass) {
-            newfuncp->addStmtsp(new AstCStmt{flp, "VL_KEEP_THIS;"});
+        எனில் (m_inClass) {
+            newfuncp->addStmtsp(புதிய AstCStmt{flp, "VL_KEEP_THIS;"});
             newfuncp->argTypes(EmitCUtil::symClassVar());
             callp->argTypes("vlSymsp");
         }
         // Put the begin's statements in the function
-        if (AstNode* const declsp = nodep->declsp()) {
+        எனில் (Ast_முனை* மாறிலி declsp = nodep->declsp()) {
             newfuncp->addStmtsp(declsp->unlinkFrBackWithNext());
         }
-        if (AstNode* const stmtsp = nodep->stmtsp()) {
+        எனில் (Ast_முனை* மாறிலி stmtsp = nodep->stmtsp()) {
             newfuncp->addStmtsp(stmtsp->unlinkFrBackWithNext());
         }
         // Replace the body of the begin with a call to the newly created function
         nodep->addStmtsp(callp->makeStmt());
         // Propagate if needs process
-        if (nodep->needProcess()) newfuncp->setNeedProcess();
+        எனில் (nodep->needProcess()) newfuncp->setNeedProcess();
         remapLocals(newfuncp, callp);
     }
-    void visit(AstCAwait* nodep) override {
-        m_beginHasAwaits = true;
+    வெறுமை visit(AstCAwait* nodep) override {
+        m_beginHasAwaits = உண்மை;
         iterateChildrenConst(nodep);
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit TransformForksVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~TransformForksVisitor() override = default;
+    ~TransformForksVisitor() override = இயல்பு;
 };
 
-void transformForks(AstNetlist* const netlistp) {
-    if (!v3Global.usesTiming()) return;
+வெறுமை transformForks(AstNetlist* மாறிலி netlistp) {
+    எனில் (!v3Global.usesTiming()) திரும்பு;
     { TransformForksVisitor{netlistp}; }
-    V3Global::dumpCheckGlobalTree("transform_forks", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("transform_forks", 0, dump_மரம்_Either_Level() >= 3);
 }
 
 }  // namespace V3Sched

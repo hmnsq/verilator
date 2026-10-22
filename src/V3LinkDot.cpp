@@ -49,7 +49,7 @@
 //      LinkResolve:
 //          #10: Unlink modports, not needed later except for JSON/Lint
 //*************************************************************************
-// TOP
+//உச்சி
 //      {name-of-top-modulename}
 //      a          (VSymEnt->AstCell)
 //        {name-of-cell}
@@ -61,115 +61,115 @@
 //      b          (VSymEnt->AstCell)
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkDot.h"
+#அந்தர்பாவ "V3LinkDot.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
-#include "V3LinkDotIfaceCapture.h"
-#include "V3MemberMap.h"
-#include "V3Parse.h"
-#include "V3Randomize.h"
-#include "V3Stats.h"
-#include "V3String.h"
-#include "V3SymTable.h"
+#அந்தர்பாவ "V3Global.h"
+#அந்தர்பாவ "V3Graph.h"
+#அந்தர்பாவ "V3LinkDotIfaceCapture.h"
+#அந்தர்பாவ "V3MemberMap.h"
+#அந்தர்பாவ "V3Parse.h"
+#அந்தர்பாவ "V3Randomize.h"
+#அந்தர்பாவ "V3Stats.h"
+#அந்தர்பாவ "V3String.h"
+#அந்தர்பாவ "V3SymTable.h"
 
-#include <algorithm>
-#include <cstdlib>
-#include <vector>
+#அந்தர்பாவ <algorithm>
+#அந்தர்பாவ <cstdlib>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-static string extractDottedPath(AstNode* nodep, bool& hasPartSelect) {
-    if (AstParseRef* const refp = VN_CAST(nodep, ParseRef)) {
-        return refp->name();
-    } else if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-        return refp->name();
-    } else if (AstDot* const dotp = VN_CAST(nodep, Dot)) {
-        const string lhs = extractDottedPath(dotp->lhsp(), hasPartSelect);
-        const string rhs = extractDottedPath(dotp->rhsp(), hasPartSelect);
-        return VString::dot(lhs, ".", rhs);
-    } else if (VN_IS(nodep, SelBit) || VN_IS(nodep, SelExtract) || VN_IS(nodep, SelPlus)
+நிலையான string extractDottedPath(Ast_முனை* nodep, தருக்க& hasPartSelect) {
+    எனில் (AstParseRef* மாறிலி refp = VN_CAST(nodep, ParseRef)) {
+        திரும்பு refp->name();
+    } இல்லையெனில் எனில் (AstVarRef* மாறிலி refp = VN_CAST(nodep, VarRef)) {
+        திரும்பு refp->name();
+    } இல்லையெனில் எனில் (AstDot* மாறிலி dotp = VN_CAST(nodep, Dot)) {
+        மாறிலி string lhs = extractDottedPath(dotp->lhsp(), hasPartSelect);
+        மாறிலி string rhs = extractDottedPath(dotp->rhsp(), hasPartSelect);
+        திரும்பு VString::dot(lhs, ".", rhs);
+    } இல்லையெனில் எனில் (VN_IS(nodep, SelBit) || VN_IS(nodep, SelExtract) || VN_IS(nodep, SelPlus)
                || VN_IS(nodep, SelMinus)) {
-        hasPartSelect = true;
-        return "";
+        hasPartSelect = உண்மை;
+        திரும்பு "";
     }
-    return "";
+    திரும்பு "";
 }
-static string lexicalDisablePath(AstNode* const targetp) {
+நிலையான string lexicalDisablePath(Ast_முனை* மாறிலி targetp) {
     std::vector<string> names;
-    for (AstNode* curp = targetp; curp; curp = curp->aboveLoopp()) {
-        if (AstNodeBlock* const blockp = VN_CAST(curp, NodeBlock)) {
-            if (blockp->name() != "") names.push_back(blockp->name());
-        } else if (AstNodeFTask* const ftaskp = VN_CAST(curp, NodeFTask)) {
-            names.push_back(ftaskp->name());
-        } else if (VN_IS(curp, NodeModule)) {
-            break;
+    க்கு (Ast_முனை* curp = targetp; curp; curp = curp->aboveLoopp()) {
+        எனில் (Ast_முனை_Block* மாறிலி blockp = VN_CAST(curp, முனை_Block)) {
+            எனில் (blockp->name() != "") names.தள்ளு_back(blockp->name());
+        } இல்லையெனில் எனில் (Ast_முனை_FTask* மாறிலி ftaskp = VN_CAST(curp, முனை_FTask)) {
+            names.தள்ளு_back(ftaskp->name());
+        } இல்லையெனில் எனில் (VN_IS(curp, முனை_Module)) {
+            நிறுத்து;
         }
     }
     string path;
-    for (auto it = names.crbegin(); it != names.crend(); ++it) {
+    க்கு (auto it = names.crbegin(); it != names.crend(); ++it) {
         path = VString::dot(path, ".", *it);
     }
-    return path;
+    திரும்பு path;
 }
-static string targetInstancePath(AstNode* const targetp, const string& targetPath) {
-    const string lexicalPath = lexicalDisablePath(targetp);
-    if (lexicalPath == "" || targetPath == lexicalPath) return "";
-    const string suffix = "." + lexicalPath;
-    if (!VString::endsWith(targetPath, suffix)) return "";
-    return targetPath.substr(0, targetPath.size() - suffix.size());
+நிலையான string targetInstancePath(Ast_முனை* மாறிலி targetp, மாறிலி string& targetPath) {
+    மாறிலி string lexicalPath = lexicalDisablePath(targetp);
+    எனில் (lexicalPath == "" || targetPath == lexicalPath) திரும்பு "";
+    மாறிலி string suffix = "." + lexicalPath;
+    எனில் (!VString::endsWith(targetPath, suffix)) திரும்பு "";
+    திரும்பு targetPath.substr(0, targetPath.size() - suffix.size());
 }
 
 // ######################################################################
 //  Matcher classes (for suggestion matching)
 
-class LinkNodeMatcherClassOrPackage final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        return VN_IS(nodep, Class) || VN_IS(nodep, Package);
+வகுப்பு Link_முனை_Matcher_Class_Or_Package final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override {
+        திரும்பு VN_IS(nodep, Class) || VN_IS(nodep, Package);
     }
 };
-class LinkNodeMatcherFTask final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, NodeFTask); }
+வகுப்பு Link_முனை_Matcher_FTask final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override { திரும்பு VN_IS(nodep, முனை_FTask); }
 };
-class LinkNodeMatcherModport final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, Modport); }
+வகுப்பு Link_முனை_Matcher_Modport final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override { திரும்பு VN_IS(nodep, Modport); }
 };
-class LinkNodeMatcherProd final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override { return VN_IS(nodep, RSProd); }
+வகுப்பு Link_முனை_Matcher_Prod final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override { திரும்பு VN_IS(nodep, RSProd); }
 };
-class LinkNodeMatcherVar final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        return VN_IS(nodep, Var) || VN_IS(nodep, LambdaArgRef);
+வகுப்பு Link_முனை_Matcher_Var final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override {
+        திரும்பு VN_IS(nodep, Var) || VN_IS(nodep, LambdaArgRef);
     }
 };
-class LinkNodeMatcherVarIO final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        const AstVar* const varp = VN_CAST(nodep, Var);
-        if (!varp) return false;
-        return varp->isIO();
+வகுப்பு Link_முனை_Matcher_Var_IO final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override {
+        மாறிலி AstVar* மாறிலி varp = VN_CAST(nodep, Var);
+        எனில் (!varp) திரும்பு பொய்;
+        திரும்பு varp->isIO();
     }
 };
-class LinkNodeMatcherVarParam final : public VNodeMatcher {
-public:
-    bool nodeMatch(const AstNode* nodep) const override {
-        const AstVar* const varp = VN_CAST(nodep, Var);
-        if (!varp) return false;
-        return varp->isParam();
+வகுப்பு Link_முனை_Matcher_Var_Param final : பொது VNodeMatcher {
+பொது:
+    தருக்க முனை_Match(மாறிலி Ast_முனை* nodep) மாறிலி override {
+        மாறிலி AstVar* மாறிலி varp = VN_CAST(nodep, Var);
+        எனில் (!varp) திரும்பு பொய்;
+        திரும்பு varp->isParam();
     }
 };
 
 //######################################################################
 // LinkDot state, as a visitor of each AstNode
 
-class LinkDotState final {
+வகுப்பு LinkDotState final {
     // NODE STATE
     // Cleared on Netlist
     //  AstNodeModule::user1p()         // VSymEnt*.      Last symbol created for this node
@@ -183,21 +183,21 @@ class LinkDotState final {
     //  AstVar::user4()                 // bool.          True if port set for this variable
     //  AstNodeBlock::user4()           // bool.          Did name processing
     //  AstNodeModule::user4()          // bool.          Live module
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
-    const VNUser4InUse m_inuser4;
+    மாறிலி VNUser1InUse m_inuser1;
+    மாறிலி VNUser2InUse m_inuser2;
+    மாறிலி VNUser4InUse m_inuser4;
 
-public:
+பொது:
     // ENUMS
     // In order of priority, compute first ... compute last
-    enum SAMNum : uint8_t { SAMN_MODPORT, SAMN_IFTOP, SAMN__MAX };  // Values for m_scopeAliasMap
+    எண்ணிக்கை SAMNum : uint8_t { SAMN_MODPORT, SAMN_IFTOP, SAMN__MAX };  // Values for m_scopeAliasMap
 
-private:
+தனிப்பட்ட:
     // TYPES
     using ScopeAliasMap = std::unordered_map<VSymEnt*, VSymEnt*>;
     using IfaceModSyms = std::vector<std::pair<AstIface*, VSymEnt*>>;
 
-    static LinkDotState* s_errorThisp;  // Last self, for error reporting only
+    நிலையான LinkDotState* s_errorThisp;  // Last self, for error reporting only
 
     // MEMBERS
     VSymGraph m_syms;  // Symbol table by hierarchy
@@ -205,34 +205,34 @@ private:
     VSymEnt* m_dunitEntp = nullptr;  // $unit entry
     std::multimap<std::string, VSymEnt*>
         m_nameScopeSymMap;  // Map of scope referenced by non-pretty textual name
-    std::set<std::pair<AstNodeModule*, std::string>>
+    std::set<std::pair<Ast_முனை_Module*, std::string>>
         m_implicitNameSet;  // For [module][signalname] if we can implicitly create it
     std::array<ScopeAliasMap, SAMN__MAX> m_scopeAliasMap;  // Map of <lhs,rhs> aliases
     std::vector<VSymEnt*> m_ifaceVarSyms;  // List of AstIfaceRefDType's to be imported
     IfaceModSyms m_ifaceModSyms;  // List of AstIface+Symbols to be processed
-    const VLinkDotStep m_step;  // Operational step
+    மாறிலி VLinkDotStep m_step;  // Operational step
 
-public:
+பொது:
     // METHODS
 
-    void dumpSelf(const string& nameComment, bool force = false) {
-        if (debug() >= 6 || dumpLevel() >= 6 || force) {
-            const string filename = v3Global.debugFilename(nameComment) + ".txt";
+    வெறுமை dumpSelf(மாறிலி string& nameComment, தருக்க force = பொய்) {
+        எனில் (debug() >= 6 || dumpLevel() >= 6 || force) {
+            மாறிலி string filename = v3Global.debugFilename(nameComment) + ".txt";
             UINFO(4, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-            if (logp->fail()) v3fatal("Can't write file: " << filename);
+            மாறிலி std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+            எனில் (logp->fail()) v3fatal("Can't write file: " << filename);
             std::ostream& os = *logp;
             // TODO the symbol table has node pointers which may be
             // dangling, as we call deleteTree in these visitors without
             // pushing for later deletion (or deleting from the symbol table)
             // So, only completely safe to call this when under --debug or --debug-leak.
             m_syms.dumpSelf(os);
-            bool first = true;
-            for (int samn = 0; samn < SAMN__MAX; ++samn) {
-                if (!m_scopeAliasMap[samn].empty()) {
-                    if (first) os << "\nScopeAliasMap:\n";
-                    first = false;
-                    for (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
+            தருக்க first = உண்மை;
+            க்கு (முழு samn = 0; samn < SAMN__MAX; ++samn) {
+                எனில் (!m_scopeAliasMap[samn].empty()) {
+                    எனில் (first) os << "\nScopeAliasMap:\n";
+                    first = பொய்;
+                    க்கு (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
                          it != m_scopeAliasMap[samn].end(); ++it) {
                         // left side is what we will import into
                         os << "\t" << samn << "\t" << it->first << " ("
@@ -243,15 +243,15 @@ public:
             }
         }
     }
-    static void preErrorDumpHandler() {
-        if (s_errorThisp) s_errorThisp->preErrorDump();
+    நிலையான வெறுமை preErrorDumpHandler() {
+        எனில் (s_errorThisp) s_errorThisp->preErrorDump();
     }
-    void preErrorDump() {
-        static bool s_diddump = false;
-        if (!s_diddump && dumpTreeLevel()) {
-            s_diddump = true;
-            dumpSelf("linkdot-preerr", true);
-            v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("linkdot-preerr.tree"));
+    வெறுமை preErrorDump() {
+        நிலையான தருக்க s_diddump = பொய்;
+        எனில் (!s_diddump && dump_மரம்_Level()) {
+            s_diddump = உண்மை;
+            dumpSelf("linkdot-preerr", உண்மை);
+            v3Global.rootp()->dump_மரம்_File(v3Global.debugFilename("linkdot-preerr.tree"));
         }
     }
 
@@ -261,7 +261,7 @@ public:
         , m_mods{rootp}
         , m_step{step} {
         UINFO(4, __FUNCTION__ << ": ");
-        s_errorThisp = this;
+        s_errorThisp = இது;
         V3Error::errorExitCb(preErrorDumpHandler);  // If get error, dump self
         readModNames();
     }
@@ -271,66 +271,66 @@ public:
     }
 
     // ACCESSORS
-    VSymGraph* symsp() { return &m_syms; }
-    int stepNumber() const { return static_cast<int>(m_step); }
-    bool forPrimary() const { return m_step == LDS_PRIMARY; }
-    bool forParamed() const { return m_step == LDS_PARAMED; }
-    bool forScopeCreation() const { return m_step == LDS_SCOPED; }
+    VSymGraph* symsp() { திரும்பு &m_syms; }
+    முழு step_எண்() மாறிலி { திரும்பு static_cast<முழு>(m_step); }
+    தருக்க forPrimary() மாறிலி { திரும்பு m_step == LDS_PRIMARY; }
+    தருக்க forParamed() மாறிலி { திரும்பு m_step == LDS_PARAMED; }
+    தருக்க forScopeCreation() மாறிலி { திரும்பு m_step == LDS_SCOPED; }
 
     // METHODS
-    static string nodeTextType(AstNode* nodep) {
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) {
-            if (varp->isIO() || varp->isIfaceRef()) {
-                return "port";
-            } else if (varp->isGParam()) {
-                return "parameter";
-            } else if (varp->varType() == VVarType::LPARAM) {
-                return "local parameter";
-            } else {
-                return "variable";
+    நிலையான string முனை_Text_Type(Ast_முனை* nodep) {
+        எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(nodep, Var)) {
+            எனில் (varp->isIO() || varp->isIfaceRef()) {
+                திரும்பு "port";
+            } இல்லையெனில் எனில் (varp->isGParam()) {
+                திரும்பு "parameter";
+            } இல்லையெனில் எனில் (varp->varType() == VVarType::LPARAM) {
+                திரும்பு "local parameter";
+            } இல்லையெனில் {
+                திரும்பு "variable";
             }
-        } else if (const AstParamTypeDType* const dtypep = VN_CAST(nodep, ParamTypeDType)) {
-            if (dtypep->isGParam()) {
-                return "type parameter";
-            } else {
-                return "local type parameter";
+        } இல்லையெனில் எனில் (மாறிலி AstParamTypeDType* மாறிலி dtypep = VN_CAST(nodep, ParamTypeDType)) {
+            எனில் (dtypep->isGParam()) {
+                திரும்பு "type parameter";
+            } இல்லையெனில் {
+                திரும்பு "local type parameter";
             }
-        } else if (VN_IS(nodep, Begin)) {
-            return "block";
-        } else if (VN_IS(nodep, Cell)) {
-            return "instance";
-        } else if (VN_IS(nodep, Constraint)) {
-            return "constraint";
-        } else if (VN_IS(nodep, Func)) {
-            return "function";
-        } else if (VN_IS(nodep, GenBlock)) {
-            return "generate block";
-        } else if (VN_IS(nodep, Iface)) {
-            return "interface";
-        } else if (VN_IS(nodep, RSProd)) {
-            return "randsequence production";
-        } else if (VN_IS(nodep, Task)) {
-            return "task";
-        } else {
-            return nodep->prettyTypeName();
+        } இல்லையெனில் எனில் (VN_IS(nodep, Begin)) {
+            திரும்பு "block";
+        } இல்லையெனில் எனில் (VN_IS(nodep, Cell)) {
+            திரும்பு "instance";
+        } இல்லையெனில் எனில் (VN_IS(nodep, Constraint)) {
+            திரும்பு "constraint";
+        } இல்லையெனில் எனில் (VN_IS(nodep, Func)) {
+            திரும்பு "function";
+        } இல்லையெனில் எனில் (VN_IS(nodep, GenBlock)) {
+            திரும்பு "generate block";
+        } இல்லையெனில் எனில் (VN_IS(nodep, Iface)) {
+            திரும்பு "interface";
+        } இல்லையெனில் எனில் (VN_IS(nodep, RSProd)) {
+            திரும்பு "randsequence production";
+        } இல்லையெனில் எனில் (VN_IS(nodep, Task)) {
+            திரும்பு "task";
+        } இல்லையெனில் {
+            திரும்பு nodep->prettyTypeName();
         }
     }
 
-    AstNodeModule* findModuleSym(const string& modName) {
-        const VSymEnt* const foundp = m_mods.rootp()->findIdFallback(modName);
-        return foundp ? VN_AS(foundp->nodep(), NodeModule) : nullptr;
+    Ast_முனை_Module* findModuleSym(மாறிலி string& modName) {
+        மாறிலி VSymEnt* மாறிலி foundp = m_mods.rootp()->findIdFallback(modName);
+        திரும்பு foundp ? VN_AS(foundp->nodep(), முனை_Module) : nullptr;
     }
-    void readModNames() {
+    வெறுமை readModNames() {
         // Look at all modules, and store pointers to all module names
-        for (AstNodeModule *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
-            nextp = VN_AS(nodep->nextp(), NodeModule);
-            m_mods.rootp()->insert(nodep->name(), new VSymEnt{&m_mods, nodep});
+        க்கு (Ast_முனை_Module *nextp, *nodep = v3Global.rootp()->modulesp(); nodep; nodep = nextp) {
+            nextp = VN_AS(nodep->nextp(), முனை_Module);
+            m_mods.rootp()->செருகு(nodep->name(), புதிய VSymEnt{&m_mods, nodep});
         }
     }
 
-    VSymEnt* rootEntp() const { return m_syms.rootp(); }
-    VSymEnt* dunitEntp() const { return m_dunitEntp; }
-    void checkDuplicate(VSymEnt* lookupSymp, AstNode* nodep, const string& name) {
+    VSymEnt* வேர்_Entp() மாறிலி { திரும்பு m_syms.rootp(); }
+    VSymEnt* dunitEntp() மாறிலி { திரும்பு m_dunitEntp; }
+    வெறுமை checkDuplicate(VSymEnt* lookupSymp, Ast_முனை* nodep, மாறிலி string& name) {
         // Lookup the given name under current symbol table
         // Insert if not found
         // Report error if there's a duplicate
@@ -338,13 +338,13 @@ public:
         // Note we only check for conflicts at the same level; it's ok if one block hides another
         // We also wouldn't want to not insert it even though it's lower down
 
-        const VSymEnt* const foundp = lookupSymp->findIdFlat(name);
-        AstNode* const fnodep = foundp ? foundp->nodep() : nullptr;
-        if (!fnodep) {
+        மாறிலி VSymEnt* மாறிலி foundp = lookupSymp->findIdFlat(name);
+        Ast_முனை* மாறிலி fnodep = foundp ? foundp->nodep() : nullptr;
+        எனில் (!fnodep) {
             // Not found, will add in a moment.
-            if (forPrimary() && VSymEnt::checkSimilarname(nodep)) {
-                const VSymEnt* const alt = lookupSymp->findSimilarIdFlat(name);
-                if (alt) {
+            எனில் (forPrimary() && VSymEnt::checkSimilarname(nodep)) {
+                மாறிலி VSymEnt* மாறிலி alt = lookupSymp->findSimilarIdFlat(name);
+                எனில் (alt) {
                     nodep->v3warn(SIMILARNAME, "Declaration overlaps another with different case: "
                                                    << nodep->prettyNameQ() << '\n'
                                                    << nodep->warnContextPrimary() << '\n'
@@ -353,107 +353,107 @@ public:
                                                    << alt->nodep()->warnContextSecondary());
                 }
             }
-        } else if (nodep == fnodep) {  // Already inserted.
+        } இல்லையெனில் எனில் (nodep == fnodep) {  // Already inserted.
             // Good.
-        } else if (foundp->imported()) {  // From package
+        } இல்லையெனில் எனில் (foundp->imported()) {  // From package
             // We don't throw VARHIDDEN as if the import is later the symbol
             // table's import wouldn't warn
-        } else if (forPrimary() && VN_IS(nodep, GenBlock)
+        } இல்லையெனில் எனில் (forPrimary() && VN_IS(nodep, GenBlock)
                    && (VN_IS(fnodep, Begin) || VN_IS(fnodep, GenBlock))) {
             // Begin: ... blocks often replicate under genif/genfor, so
             // suppress duplicate checks.  See t_gen_forif.v for an example.
-        } else {
+        } இல்லையெனில் {
             UINFO(4, "name " << name);  // Not always same as nodep->name
             UINFO(4, "Var1 " << nodep);
             UINFO(4, "Var2 " << fnodep);
             // Quote the node's own name as for messages, if it is the symbol's
-            const string nameQ
-                = fnodep->name() == name ? fnodep->prettyNameQ() : AstNode::prettyNameQ(name);
-            if (nodep->type() == fnodep->type()) {
+            மாறிலி string nameQ
+                = fnodep->name() == name ? fnodep->prettyNameQ() : Ast_முனை::prettyNameQ(name);
+            எனில் (nodep->type() == fnodep->type()) {
                 nodep->v3error("Duplicate declaration of "
-                               << nodeTextType(fnodep) << ": " << nameQ << '\n'
+                               << முனை_Text_Type(fnodep) << ": " << nameQ << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << fnodep->warnOther() << "... Location of original declaration\n"
                                << fnodep->warnContextSecondary());
-                nodep->declTokenNumSetMin(0);  // Disable checking forward typedefs
-                fnodep->declTokenNumSetMin(0);  // Disable checking forward typedefs
-            } else {
+                nodep->decl_Token_இலக்கம்_Set_Min(0);  // Disable checking forward typedefs
+                fnodep->decl_Token_இலக்கம்_Set_Min(0);  // Disable checking forward typedefs
+            } இல்லையெனில் {
                 nodep->v3error("Unsupported in C: "
-                               << ucfirst(nodeTextType(nodep)) << " has the same name as "
-                               << nodeTextType(fnodep) << ": " << nameQ << '\n'
+                               << ucfirst(முனை_Text_Type(nodep)) << " has the same name as "
+                               << முனை_Text_Type(fnodep) << ": " << nameQ << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << fnodep->warnOther() << "... Location of original declaration\n"
                                << fnodep->warnContextSecondary());
             }
         }
     }
-    void insertDUnit(AstNetlist* nodep) {
+    வெறுமை செருகு_DUnit(AstNetlist* nodep) {
         // $unit on top scope
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTdunit se" << cvtToHex(symp));
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(வேர்_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(nullptr);
-        rootEntp()->insert("$unit ", symp);  // Space so can never name conflict with user code
+        வேர்_Entp()->செருகு("$unit ", symp);  // Space so can never name conflict with user code
         //
         UASSERT_OBJ(!m_dunitEntp, nodep, "Call insertDUnit only once");
         m_dunitEntp = symp;
     }
-    VSymEnt* insertTopCell(AstNodeModule* nodep, const string& scopename) {
+    VSymEnt* செருகு_உச்சி_Cell(Ast_முனை_Module* nodep, மாறிலி string& scopename) {
         // Only called on the module at the very top of the hierarchy
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTtop se" << cvtToHex(symp) << "  " << scopename << " " << nodep);
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(வேர்_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        checkDuplicate(rootEntp(), nodep, nodep->origName());
-        rootEntp()->insert(nodep->origName(), symp);
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        checkDuplicate(வேர்_Entp(), nodep, nodep->origName());
+        வேர்_Entp()->செருகு(nodep->origName(), symp);
+        எனில் (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        திரும்பு symp;
     }
-    VSymEnt* insertTopIface(AstCell* nodep, const string& scopename) {
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+    VSymEnt* செருகு_உச்சி_Iface(AstCell* nodep, மாறிலி string& scopename) {
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTtopiface se" << cvtToHex(symp) << "  " << scopename << " " << nodep);
-        symp->parentp(rootEntp());  // Needed so backward search can find name of top module
+        symp->parentp(வேர்_Entp());  // Needed so backward search can find name of top module
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        if (nodep->modp()) nodep->modp()->user1p(symp);
-        checkDuplicate(rootEntp(), nodep, nodep->origName());
-        rootEntp()->insert(nodep->origName(), symp);
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        எனில் (nodep->modp()) nodep->modp()->user1p(symp);
+        checkDuplicate(வேர்_Entp(), nodep, nodep->origName());
+        வேர்_Entp()->செருகு(nodep->origName(), symp);
+        எனில் (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        திரும்பு symp;
     }
-    VSymEnt* insertCell(VSymEnt* abovep, VSymEnt* modSymp, AstCell* nodep,
-                        const string& scopename) {
+    VSymEnt* செருகு_Cell(VSymEnt* abovep, VSymEnt* modSymp, AstCell* nodep,
+                        மாறிலி string& scopename) {
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTcel se" << cvtToHex(symp) << "  " << scopename << " above=se"
                                       << cvtToHex(abovep) << " mods=se" << cvtToHex(modSymp)
                                       << " node=" << nodep);
         symp->parentp(abovep);
         symp->fallbackp(dunitEntp());  // Needed so can find $unit stuff
         nodep->user1p(symp);
-        if (nodep->modp()) nodep->modp()->user1p(symp);
+        எனில் (nodep->modp()) nodep->modp()->user1p(symp);
         checkDuplicate(abovep, nodep, nodep->origName());
         abovep->reinsert(nodep->origName(), symp);
-        if (forScopeCreation() && abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
+        எனில் (forScopeCreation() && abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
             // If it's foo_DOT_bar, we need to be able to find it under "foo_DOT_bar" too.
             // Duplicates are possible, as until resolve generates might
             // have 2 same cells under an if
             modSymp->reinsert(nodep->name(), symp);
         }
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
-        return symp;
+        எனில் (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+        திரும்பு symp;
     }
-    void insertMap(VSymEnt* symp, const string& scopename) {
-        if (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
+    வெறுமை செருகு_Map(VSymEnt* symp, மாறிலி string& scopename) {
+        எனில் (forScopeCreation()) m_nameScopeSymMap.emplace(scopename, symp);
     }
 
-    VSymEnt* insertInline(VSymEnt* abovep, VSymEnt* modSymp, AstCellInline* nodep,
-                          const string& basename) {
+    VSymEnt* செருகு_Inline(VSymEnt* abovep, VSymEnt* modSymp, AstCellInline* nodep,
+                          மாறிலி string& basename) {
         // A fake point in the hierarchy, corresponding to a named block flattened by V3Begin.
         // Names are looked up in the module with the block's flattened prefix.
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTinl se" << cvtToHex(symp) << "  " << basename << " above=se"
                                       << cvtToHex(abovep) << " mods=se" << cvtToHex(modSymp)
                                       << " node=" << nodep);
@@ -463,20 +463,20 @@ public:
         nodep->user1p(symp);
         checkDuplicate(abovep, nodep, nodep->name());
         abovep->reinsert(basename, symp);
-        if (abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
+        எனில் (abovep != modSymp && !modSymp->findIdFlat(nodep->name())) {
             // If it's foo_DOT_bar, we need to be able to find it under that too.
             modSymp->reinsert(nodep->name(), symp);
         }
-        return symp;
+        திரும்பு symp;
     }
-    VSymEnt* insertBlock(VSymEnt* abovep, const string& name, AstNode* nodep,
-                         AstNodeModule* classOrPackagep) {
+    VSymEnt* செருகு_Block(VSymEnt* abovep, மாறிலி string& name, Ast_முனை* nodep,
+                         Ast_முனை_Module* classOrPackagep) {
         // A fake point in the hierarchy, corresponding to a begin or function/task block
         // After we remove begins these will go away
         // Note we fallback to the symbol table of the parent, as we want to find variables there
         // However, cells walk the graph, so cells will appear under the begin/ftask itself
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTblk se" << cvtToHex(symp) << "  above=se" << cvtToHex(abovep)
                                       << " pkg=" << cvtToHex(classOrPackagep)
                                       << "  node=" << nodep);
@@ -484,15 +484,15 @@ public:
         symp->classOrPackagep(classOrPackagep);
         symp->fallbackp(abovep);
         nodep->user1p(symp);
-        if (name != "") checkDuplicate(abovep, nodep, name);
+        எனில் (name != "") checkDuplicate(abovep, nodep, name);
         // Duplicates are possible, as until resolve generates might have 2 same cells under an if
         abovep->reinsert(name, symp);
-        return symp;
+        திரும்பு symp;
     }
-    VSymEnt* insertSym(VSymEnt* abovep, const string& name, AstNode* nodep,
-                       AstNodeModule* classOrPackagep) {
+    VSymEnt* செருகு_Sym(VSymEnt* abovep, மாறிலி string& name, Ast_முனை* nodep,
+                       Ast_முனை_Module* classOrPackagep) {
         UASSERT_OBJ(abovep, nodep, "Null symbol table inserting node");
-        VSymEnt* const symp = new VSymEnt{&m_syms, nodep};
+        VSymEnt* மாறிலி symp = புதிய VSymEnt{&m_syms, nodep};
         UINFO(9, "      INSERTsym se" << cvtToHex(symp) << "  name='" << name << "' above=se"
                                       << cvtToHex(abovep) << " pkg=" << cvtToHex(classOrPackagep)
                                       << "  node=" << nodep);
@@ -504,161 +504,161 @@ public:
         nodep->user1p(symp);
         checkDuplicate(abovep, nodep, name);
         abovep->reinsert(name, symp);
-        return symp;
+        திரும்பு symp;
     }
-    static bool existsNodeSym(AstNode* nodep) { return nodep->user1p() != nullptr; }
-    static VSymEnt* getNodeSym(AstNode* nodep) {
+    நிலையான தருக்க exists_முனை_Sym(Ast_முனை* nodep) { திரும்பு nodep->user1p() != nullptr; }
+    நிலையான VSymEnt* get_முனை_Sym(Ast_முனை* nodep) {
         // Don't use this in ResolveVisitor, as we need to pick up the proper
         // reference under each SCOPE
-        VSymEnt* const symp = nodep->user1u().toSymEnt();
+        VSymEnt* மாறிலி symp = nodep->user1u().toSymEnt();
         UASSERT_OBJ(symp, nodep, "Module/etc never assigned a symbol entry?");
-        return symp;
+        திரும்பு symp;
     }
     VSymEnt* getScopeSym(AstScope* nodep) {
-        const auto it = m_nameScopeSymMap.find(nodep->name());
+        மாறிலி auto it = m_nameScopeSymMap.find(nodep->name());
         UASSERT_OBJ(it != m_nameScopeSymMap.end(), nodep,
                     "Scope never assigned a symbol entry '" << nodep->name() << "'");
-        return it->second;
+        திரும்பு it->second;
     }
-    void implicitOkAdd(AstNodeModule* nodep, const string& varname) {
+    வெறுமை implicitOkAdd(Ast_முனை_Module* nodep, மாறிலி string& varname) {
         // Mark the given variable name as being allowed to be implicitly declared
-        if (nodep) {
-            const auto it = m_implicitNameSet.find(std::make_pair(nodep, varname));
-            if (it == m_implicitNameSet.end()) m_implicitNameSet.emplace(nodep, varname);
+        எனில் (nodep) {
+            மாறிலி auto it = m_implicitNameSet.find(std::make_pair(nodep, varname));
+            எனில் (it == m_implicitNameSet.end()) m_implicitNameSet.emplace(nodep, varname);
         }
     }
-    bool implicitOk(AstNodeModule* nodep, const string& varname) {
-        return nodep
+    தருக்க implicitOk(Ast_முனை_Module* nodep, மாறிலி string& varname) {
+        திரும்பு nodep
                && (m_implicitNameSet.find(std::make_pair(nodep, varname))
                    != m_implicitNameSet.end());
     }
 
     // Track and later recurse interface modules
-    void insertIfaceModSym(AstIface* nodep, VSymEnt* symp) {
+    வெறுமை செருகு_Iface_Mod_Sym(AstIface* nodep, VSymEnt* symp) {
         m_ifaceModSyms.emplace_back(nodep, symp);
     }
-    void computeIfaceModSyms();
+    வெறுமை computeIfaceModSyms();
 
     // Track and later insert interface references
-    void insertIfaceVarSym(VSymEnt* symp) {  // Where sym is for a VAR of dtype IFACEREFDTYPE
-        m_ifaceVarSyms.push_back(symp);
+    வெறுமை செருகு_Iface_Var_Sym(VSymEnt* symp) {  // Where sym is for a VAR of dtype IFACEREFDTYPE
+        m_ifaceVarSyms.தள்ளு_back(symp);
     }
     // Iface for a raw or arrayed iface; peels nested array layers for multi-dim arrays.
-    static AstIfaceRefDType* ifaceRefFromArray(AstNodeDType* nodep) {
-        while (nodep) {
-            if (AstIfaceRefDType* const ifp = VN_CAST(nodep, IfaceRefDType)) return ifp;
-            if (const AstBracketArrayDType* const arrp = VN_CAST(nodep, BracketArrayDType)) {
+    நிலையான AstIfaceRefDType* ifaceRefFromArray(Ast_முனை_DType* nodep) {
+        போது (nodep) {
+            எனில் (AstIfaceRefDType* மாறிலி ifp = VN_CAST(nodep, IfaceRefDType)) திரும்பு ifp;
+            எனில் (மாறிலி AstBracketArrayDType* மாறிலி arrp = VN_CAST(nodep, BracketArrayDType)) {
                 nodep = arrp->subDTypep();
-            } else if (const AstUnpackArrayDType* const arrp = VN_CAST(nodep, UnpackArrayDType)) {
+            } இல்லையெனில் எனில் (மாறிலி AstUnpackArrayDType* மாறிலி arrp = VN_CAST(nodep, UnpackArrayDType)) {
                 nodep = arrp->subDTypep();
-            } else {
-                return nullptr;
+            } இல்லையெனில் {
+                திரும்பு nullptr;
             }
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
     // Given a pin expression, resolve it to a live AstIface* (or nullptr).
     // Handles both simple VarRef and dotted VarXRef pin connections.
-    AstIface* liveIfaceFromPinExpr(AstNode* exprp, VSymEnt* parentSymp) {
+    AstIface* live_Iface_From_Pin_கோவை(Ast_முனை* exprp, VSymEnt* parentSymp) {
         AstVar* resolvedVarp = nullptr;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        எனில் (AstVarRef* மாறிலி refp = VN_CAST(exprp, VarRef)) {
             resolvedVarp = refp->varp();
-        } else if (AstVarXRef* const xrefp = VN_CAST(exprp, VarXRef)) {
-            VSymEnt* const lookupSymp = parentSymp ? parentSymp->parentp() : nullptr;
-            if (lookupSymp) {
+        } இல்லையெனில் எனில் (AstVarXRef* மாறிலி xrefp = VN_CAST(exprp, VarXRef)) {
+            VSymEnt* மாறிலி lookupSymp = parentSymp ? parentSymp->parentp() : nullptr;
+            எனில் (lookupSymp) {
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                const string dotpath = xrefp->dotted() + "." + xrefp->name();
-                VSymEnt* const dotSymp
-                    = findDotted(xrefp->fileline(), lookupSymp, dotpath, baddot, okSymp, true);
-                if (dotSymp) resolvedVarp = VN_CAST(dotSymp->nodep(), Var);
+                மாறிலி string dotpath = xrefp->dotted() + "." + xrefp->name();
+                VSymEnt* மாறிலி dotSymp
+                    = findDotted(xrefp->fileline(), lookupSymp, dotpath, baddot, okSymp, உண்மை);
+                எனில் (dotSymp) resolvedVarp = VN_CAST(dotSymp->nodep(), Var);
             }
         }
         AstIface* resultp = nullptr;
-        if (resolvedVarp) {
-            AstIfaceRefDType* const irefp = ifaceRefFromArray(resolvedVarp->subDTypep());
-            if (irefp && irefp->ifaceViaCellp() && !irefp->ifaceViaCellp()->dead()) {
+        எனில் (resolvedVarp) {
+            AstIfaceRefDType* மாறிலி irefp = ifaceRefFromArray(resolvedVarp->subDTypep());
+            எனில் (irefp && irefp->ifaceViaCellp() && !irefp->ifaceViaCellp()->dead()) {
                 resultp = irefp->ifaceViaCellp();
             }
         }
-        return resultp;
+        திரும்பு resultp;
     }
 
     // Attempt to repair a port's AstIfaceRefDType by tracing through the
     // parent cell's pin connection to find the correct live interface.
     // Returns true if repaired or already correct; false if unresolvable.
-    bool repairIfaceRef(VSymEnt* varSymp, AstVar* varp, AstIfaceRefDType* ifacerefp, bool isDead) {
+    தருக்க repairIfaceRef(VSymEnt* varSymp, AstVar* varp, AstIfaceRefDType* ifacerefp, தருக்க isDead) {
         // Walk up symbol-table parents to find the enclosing AstCell
         VSymEnt* parentSymp = varSymp->parentp();
         AstCell* parentCellp = nullptr;
-        for (int depth = 0; parentSymp && depth < 20; ++depth) {
-            if (AstCell* const cp = VN_CAST(parentSymp->nodep(), Cell)) {
+        க்கு (முழு depth = 0; parentSymp && depth < 20; ++depth) {
+            எனில் (AstCell* மாறிலி cp = VN_CAST(parentSymp->nodep(), Cell)) {
                 parentCellp = cp;
-                break;
+                நிறுத்து;
             }
             parentSymp = parentSymp->parentp();
         }
-        if (!parentCellp) return false;
+        எனில் (!parentCellp) திரும்பு பொய்;
         // Scan pins to find the one connected to this port variable
-        for (AstPin* pinp = parentCellp->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
-            if (pinp->modVarp() != varp && pinp->name() != varp->name()) continue;
-            AstNode* const exprp = pinp->exprp();
-            if (!exprp) return false;
-            AstIface* const newIfacep = liveIfaceFromPinExpr(exprp, parentSymp);
-            if (newIfacep && newIfacep != ifacerefp->ifaceViaCellp()) {
+        க்கு (AstPin* pinp = parentCellp->pinsp(); pinp; pinp = VN_AS(pinp->nextp(), Pin)) {
+            எனில் (pinp->modVarp() != varp && pinp->name() != varp->name()) தொடர்;
+            Ast_முனை* மாறிலி exprp = pinp->exprp();
+            எனில் (!exprp) திரும்பு பொய்;
+            AstIface* மாறிலி newIfacep = live_Iface_From_Pin_கோவை(exprp, parentSymp);
+            எனில் (newIfacep && newIfacep != ifacerefp->ifaceViaCellp()) {
                 UINFO(4, "  REPAIR-IFACE-REF var=" << varp->prettyNameQ()
                                                    << " old=" << ifacerefp->ifacep()->prettyNameQ()
                                                    << " new=" << newIfacep->prettyNameQ());
                 ifacerefp->ifacep(newIfacep);
-                return true;
+                திரும்பு உண்மை;
             }
-            if (newIfacep) return !isDead;  // Same interface - OK if live
-            return false;
+            எனில் (newIfacep) திரும்பு !isDead;  // Same interface - OK if live
+            திரும்பு பொய்;
         }
-        return false;
+        திரும்பு பொய்;
     }
 
-    void computeIfaceVarSyms() {
-        for (VSymEnt* varSymp : m_ifaceVarSyms) {
-            AstVar* const varp = varSymp ? VN_AS(varSymp->nodep(), Var) : nullptr;
+    வெறுமை computeIfaceVarSyms() {
+        க்கு (VSymEnt* varSymp : m_ifaceVarSyms) {
+            AstVar* மாறிலி varp = varSymp ? VN_AS(varSymp->nodep(), Var) : nullptr;
             UINFO(9, "  insAllIface se" << cvtToHex(varSymp) << " " << varp);
-            AstIfaceRefDType* const ifacerefp = ifaceRefFromArray(varp->subDTypep());
+            AstIfaceRefDType* மாறிலி ifacerefp = ifaceRefFromArray(varp->subDTypep());
             UASSERT_OBJ(ifacerefp, varp, "Non-ifacerefs on list!");
-            if (!ifacerefp->cellp() && !ifacerefp->isVirtual() && (varp->pinNum() == 0)) {
+            எனில் (!ifacerefp->cellp() && !ifacerefp->isVirtual() && (varp->pin_இலக்கம்() == 0)) {
                 varp->v3error("Interface port declaration "
                               << varp->prettyNameQ() << " doesn't have corresponding port\n"
                               << varp->warnMore()
                                      + "... Perhaps intended an interface instantiation but "
                                        "are missing parenthesis (IEEE 1800-2023 25.3)?");
             }
-            if (!ifacerefp->ifaceViaCellp()) {
-                if (!ifacerefp->cellp()) {  // Probably a NotFoundModule, or a normal module if
+            எனில் (!ifacerefp->ifaceViaCellp()) {
+                எனில் (!ifacerefp->cellp()) {  // Probably a NotFoundModule, or a normal module if
                                             // made mistake
-                    UINFO(1, "Associated cell " << AstNode::prettyNameQ(ifacerefp->cellName()));
+                    UINFO(1, "Associated cell " << Ast_முனை::prettyNameQ(ifacerefp->cellName()));
                     ifacerefp->v3error("Cannot find file containing interface: "
-                                       << AstNode::prettyNameQ(ifacerefp->ifaceName()));
-                    continue;
-                } else {
+                                       << Ast_முனை::prettyNameQ(ifacerefp->ifaceName()));
+                    தொடர்;
+                } இல்லையெனில் {
                     ifacerefp->v3fatalSrc("Unlinked interface");
                 }
-            } else if (varp->isIfaceRef() && !ifacerefp->cellp() && ifacerefp->ifaceViaCellp()) {
+            } இல்லையெனில் எனில் (varp->isIfaceRef() && !ifacerefp->cellp() && ifacerefp->ifaceViaCellp()) {
                 // Port variable (cellp=null) pointing to an interface.
                 // The interface may be dead (template replaced by clone) or
                 // live-but-wrong (template still alive because some instances
                 // use default params, but this port should point to a
                 // specialized clone based on the pin connection).
-                const bool isDead = ifacerefp->ifaceViaCellp()->dead();
-                if (isDead && forPrimary() && !varp->isIfaceParent()
-                    && !v3Global.opt.topIfacesSupported()) {
+                மாறிலி தருக்க isDead = ifacerefp->ifaceViaCellp()->dead();
+                எனில் (isDead && forPrimary() && !varp->isIfaceParent()
+                    && !v3Global.opt.உச்சி_Ifaces_Supported()) {
                     varp->v3warn(E_UNSUPPORTED,
                                  "Unsupported: Interfaced port on top level module");
                 }
                 // Attempt repair: trace through parent cell's pin to find
                 // the correct live interface for this port variable
-                const bool repaired = repairIfaceRef(varSymp, varp, ifacerefp, isDead);
-                if (!repaired && isDead) {
+                மாறிலி தருக்க repaired = repairIfaceRef(varSymp, varp, ifacerefp, isDead);
+                எனில் (!repaired && isDead) {
                     ifacerefp->v3error(
-                        "Interface " << AstNode::prettyNameQ(ifacerefp->ifaceName())
+                        "Interface " << Ast_முனை::prettyNameQ(ifacerefp->ifaceName())
                                      << " not connected as parent's interface not connected\n"
                                      << ifacerefp->warnMore()
                                      << "... Perhaps caused by another error on the parent "
@@ -666,31 +666,31 @@ public:
                                      << ifacerefp->warnMore()
                                      << "... Or, perhaps intended an interface instantiation but "
                                         "are missing parenthesis (IEEE 1800-2023 25.3)?");
-                    continue;
+                    தொடர்;
                 }
-            } else if (ifacerefp->ifaceViaCellp()->dead()
-                       || !existsNodeSym(ifacerefp->ifaceViaCellp())) {
+            } இல்லையெனில் எனில் (ifacerefp->ifaceViaCellp()->dead()
+                       || !exists_முனை_Sym(ifacerefp->ifaceViaCellp())) {
                 ifacerefp->ifaceViaCellp()->v3fatalSrc(
                     "Interface referenced by virtual iface is dead. "
                     "Dead interfaces have required linking steps skipped");
             }
-            VSymEnt* const ifaceSymp = getNodeSym(ifacerefp->ifaceViaCellp());
+            VSymEnt* மாறிலி ifaceSymp = get_முனை_Sym(ifacerefp->ifaceViaCellp());
             VSymEnt* ifOrPortSymp = ifaceSymp;
             // Link Modport names to the Modport Node under the Interface
-            if (ifacerefp->isModport()) {
-                VSymEnt* const foundp = ifaceSymp->findIdFallback(ifacerefp->modportName());
-                bool ok = false;
-                if (foundp) {
-                    if (AstModport* const modportp = VN_CAST(foundp->nodep(), Modport)) {
+            எனில் (ifacerefp->isModport()) {
+                VSymEnt* மாறிலி foundp = ifaceSymp->findIdFallback(ifacerefp->modportName());
+                தருக்க ok = பொய்;
+                எனில் (foundp) {
+                    எனில் (AstModport* மாறிலி modportp = VN_CAST(foundp->nodep(), Modport)) {
                         UINFO(4, "Link Modport: " << modportp);
                         ifacerefp->modportp(modportp);
                         ifOrPortSymp = foundp;
-                        ok = true;
+                        ok = உண்மை;
                     }
                 }
-                if (!ok) {
-                    const string suggest = suggestSymFallback(ifaceSymp, ifacerefp->modportName(),
-                                                              LinkNodeMatcherModport{});
+                எனில் (!ok) {
+                    மாறிலி string suggest = suggestSymFallback(ifaceSymp, ifacerefp->modportName(),
+                                                              Link_முனை_Matcher_Modport{});
                     ifacerefp->modportFileline()->v3error(
                         "Modport not found under interface "
                         << ifacerefp->prettyNameQ(ifacerefp->ifaceName()) << ": "
@@ -699,12 +699,12 @@ public:
                 }
             }
             // Alias won't expand until interfaces and modport names are known; see notes at top
-            insertScopeAlias(SAMN_IFTOP, varSymp, ifOrPortSymp);
+            செருகு_Scope_Alias(SAMN_IFTOP, varSymp, ifOrPortSymp);
         }
         m_ifaceVarSyms.clear();
     }
 
-    void insertScopeAlias(SAMNum samn, VSymEnt* lhsp, VSymEnt* rhsp) {
+    வெறுமை செருகு_Scope_Alias(SAMNum samn, VSymEnt* lhsp, VSymEnt* rhsp) {
         // Track and later insert scope aliases; an interface referenced by
         // a child cell connecting to that interface
         // Typically lhsp=VAR w/dtype IFACEREF, rhsp=IFACE cell
@@ -714,20 +714,20 @@ public:
             rhsp->nodep(), "Got a non-IFACE alias RHS");
         m_scopeAliasMap[samn].emplace(lhsp, rhsp);
     }
-    void computeScopeAliases() {
+    வெறுமை computeScopeAliases() {
         UINFO(9, "computeIfaceAliases");
-        for (int samn = 0; samn < SAMN__MAX; ++samn) {
-            for (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
+        க்கு (முழு samn = 0; samn < SAMN__MAX; ++samn) {
+            க்கு (ScopeAliasMap::iterator it = m_scopeAliasMap[samn].begin();
                  it != m_scopeAliasMap[samn].end(); ++it) {
-                VSymEnt* const lhsp = it->first;
+                VSymEnt* மாறிலி lhsp = it->first;
                 VSymEnt* srcp = lhsp;
-                while (true) {  // Follow chain of aliases up to highest level non-alias
-                    const auto it2 = m_scopeAliasMap[samn].find(srcp);
-                    if (it2 != m_scopeAliasMap[samn].end()) {
+                போது (உண்மை) {  // Follow chain of aliases up to highest level non-alias
+                    மாறிலி auto it2 = m_scopeAliasMap[samn].find(srcp);
+                    எனில் (it2 != m_scopeAliasMap[samn].end()) {
                         srcp = it2->second;
-                        continue;
-                    } else {
-                        break;
+                        தொடர்;
+                    } இல்லையெனில் {
+                        நிறுத்து;
                     }
                 }
                 UINFO(9, "  iiasa: Insert alias se" << lhsp << " (" << lhsp->nodep()->typeName()
@@ -736,176 +736,176 @@ public:
                 // import
                 lhsp->importFromIface(symsp(), srcp);
                 // Allow access to objects not permissible to be listed in a modport
-                if (VN_IS(srcp->nodep(), Modport)) {
-                    lhsp->importFromIface(symsp(), srcp->parentp(), true);
+                எனில் (VN_IS(srcp->nodep(), Modport)) {
+                    lhsp->importFromIface(symsp(), srcp->parentp(), உண்மை);
                 }
             }
             // m_scopeAliasMap[samn].clear();  // Done with it, but put into debug file
         }
     }
 
-private:
-    VSymEnt* findWithAltFallback(VSymEnt* symp, const string& name, const string& altname) {
+தனிப்பட்ட:
+    VSymEnt* findWithAltFallback(VSymEnt* symp, மாறிலி string& name, மாறிலி string& altname) {
         VSymEnt* findp = symp->findIdFallback(name);
-        if (findp) return findp;
-        if (altname != "") {
+        எனில் (findp) திரும்பு findp;
+        எனில் (altname != "") {
             UINFO(8, "     alt fallback");
             findp = symp->findIdFallback(altname);
         }
-        return findp;
+        திரும்பு findp;
     }
 
-    VSymEnt* findWithAltFlat(VSymEnt* symp, const string& name, const string& altname) {
+    VSymEnt* findWithAltFlat(VSymEnt* symp, மாறிலி string& name, மாறிலி string& altname) {
         VSymEnt* findp = symp->findIdFlat(name);
-        if (findp) return findp;
-        if (altname != "") {
+        எனில் (findp) திரும்பு findp;
+        எனில் (altname != "") {
             UINFO(8, "     alt flat");
             findp = symp->findIdFlat(altname);
         }
-        return findp;
+        திரும்பு findp;
     }
 
-public:
-    VSymEnt* findDotted(FileLine* refLocationp, VSymEnt* lookupSymp, const string& dotname,
-                        string& baddot, VSymEnt*& okSymp, bool firstId) {
+பொது:
+    VSymEnt* findDotted(File_வரி* refLocationp, VSymEnt* lookupSymp, மாறிலி string& dotname,
+                        string& baddot, VSymEnt*& okSymp, தருக்க firstId) {
         // Given a dotted hierarchy name, return where in scope it is
         // Note when dotname=="" we just fall through and return lookupSymp
         UINFO(8, "    dottedFind se" << cvtToHex(lookupSymp) << " '" << dotname << "'");
         string leftname = dotname;
         okSymp = lookupSymp;  // So can list bad scopes
-        while (leftname != "") {  // foreach dotted part of xref name
+        போது (leftname != "") {  // foreach dotted part of xref name
             string::size_type pos = leftname.find('.');
             string ident;
-            if (pos != string::npos) {
+            எனில் (pos != string::npos) {
                 ident = leftname.substr(0, pos);
                 leftname = leftname.substr(pos + 1);
-            } else {
+            } இல்லையெனில் {
                 ident = leftname;
                 leftname = "";
             }
             baddot = ident;  // So user can see where they botched it
             okSymp = lookupSymp;
             string altIdent;
-            if (!forScopeCreation()) {
+            எனில் (!forScopeCreation()) {
                 // GENFOR Begin is foo__BRA__##__KET__ after we've genloop unrolled,
                 // but presently should be just "foo".
                 // Likewise cell foo__[array] before we've expanded arrays is just foo.
                 // Multi-dim iface arrays append multiple __BRA__..__KET__ suffixes; strip them
                 // all.
                 altIdent = ident;
-                while (VString::endsWith(altIdent, "__KET__")) {
-                    const auto braPos = altIdent.rfind("__BRA__");
-                    if (braPos == string::npos) break;
+                போது (VString::endsWith(altIdent, "__KET__")) {
+                    மாறிலி auto braPos = altIdent.rfind("__BRA__");
+                    எனில் (braPos == string::npos) நிறுத்து;
                     altIdent = altIdent.substr(0, braPos);
                 }
-                if (altIdent == ident) altIdent.clear();
+                எனில் (altIdent == ident) altIdent.clear();
             }
             UINFO(8, "         id " << ident << " alt " << altIdent << " left " << leftname
                                     << " at se" << lookupSymp);
             // Spec says; Look at existing module (cellnames then modname),
             // then look up (inst name or modname)
-            if (firstId) {
+            எனில் (firstId) {
                 // Check this module - subcellnames
-                const AstCell* cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
+                மாறிலி AstCell* cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
                                                   : nullptr;  // Replicated below
-                if (VSymEnt* const findSymp = findWithAltFallback(lookupSymp, ident, altIdent)) {
+                எனில் (VSymEnt* மாறிலி findSymp = findWithAltFallback(lookupSymp, ident, altIdent)) {
                     lookupSymp = findSymp;
                 }
 
                 // Check this module - cur modname
-                else if (cellp && cellp->modp()->origName() == ident) {
+                இல்லையெனில் எனில் (cellp && cellp->modp()->origName() == ident) {
                 }
                 // $root we walk up to Netlist
-                else if (ident == "$root") {
-                    lookupSymp = rootEntp();
+                இல்லையெனில் எனில் (ident == "$root") {
+                    lookupSymp = வேர்_Entp();
                     // We've added the '$root' module, now everything else is one lower
-                    if (forScopeCreation()) {
+                    எனில் (forScopeCreation()) {
                         lookupSymp = lookupSymp->findIdFlat(ident);
                         UASSERT(lookupSymp, "Cannot find $root module under netlist");
                     }
                 }
                 // Move up and check cellname + modname
-                else {
-                    bool crossedCell = false;  // Crossed a cell boundary
-                    while (lookupSymp) {
+                இல்லையெனில் {
+                    தருக்க crossedCell = பொய்;  // Crossed a cell boundary
+                    போது (lookupSymp) {
                         lookupSymp = lookupSymp->parentp();
                         cellp = lookupSymp ? VN_CAST(lookupSymp->nodep(), Cell)
                                            : nullptr;  // Replicated above
-                        if (lookupSymp) {
+                        எனில் (lookupSymp) {
                             UINFO(9, "    Up to " << lookupSymp);
-                            if (cellp || VN_IS(lookupSymp->nodep(), CellInline)) {
-                                crossedCell = true;
+                            எனில் (cellp || VN_IS(lookupSymp->nodep(), CellInline)) {
+                                crossedCell = உண்மை;
                             }
-                            if (cellp && cellp->modp()->origName() == ident) {
-                                break;
-                            } else if (VSymEnt* const findSym2p
+                            எனில் (cellp && cellp->modp()->origName() == ident) {
+                                நிறுத்து;
+                            } இல்லையெனில் எனில் (VSymEnt* மாறிலி findSym2p
                                        = findWithAltFallback(lookupSymp, ident, altIdent)) {
                                 lookupSymp = findSym2p;
-                                if (crossedCell && VN_IS(lookupSymp->nodep(), Var)) {
+                                எனில் (crossedCell && VN_IS(lookupSymp->nodep(), Var)) {
                                     UINFO(9, "    Not found but matches var name in parent "
                                                  << lookupSymp);
-                                    return nullptr;
+                                    திரும்பு nullptr;
                                 }
-                                break;
+                                நிறுத்து;
                             }
-                        } else {
-                            break;
+                        } இல்லையெனில் {
+                            நிறுத்து;
                         }
                     }
-                    if (!lookupSymp) return nullptr;  // Not found
+                    எனில் (!lookupSymp) திரும்பு nullptr;  // Not found
                 }
-            } else {  // Searching for middle path component, must be a cell or interface port
+            } இல்லையெனில் {  // Searching for middle path component, must be a cell or interface port
                 VSymEnt* findSymp = findWithAltFlat(lookupSymp, ident, altIdent);
-                if (findSymp) {
+                எனில் (findSymp) {
                     lookupSymp = findSymp;
-                } else {
+                } இல்லையெனில் {
                     // Try prefixed lookup for interface ports accessed through hierarchy
                     // (e.g., slave_inst.bus.data where bus is an interface port)
                     // After inlining, interface ports have prefixed names like
                     // top__DOT__slave_inst__DOT__bus
                     UINFO(8, "     middle-path: trying prefixed lookup for '" << ident << "'\n");
                     string baddot;
-                    findSymp = findSymPrefixed(lookupSymp, ident, baddot, /*fallback=*/true);
+                    findSymp = findSymPrefixed(lookupSymp, ident, baddot, /*fallback=*/உண்மை);
                     UINFO(8, "     middle-path: prefixed lookup result: "
                                  << (findSymp ? "found" : "not found") << "\n");
-                    if (findSymp) {
+                    எனில் (findSymp) {
                         // Check if this is an interface reference variable
-                        const AstVar* varp = VN_CAST(findSymp->nodep(), Var);
-                        if (!varp) {
-                            if (const AstVarScope* vscp = VN_CAST(findSymp->nodep(), VarScope)) {
+                        மாறிலி AstVar* varp = VN_CAST(findSymp->nodep(), Var);
+                        எனில் (!varp) {
+                            எனில் (மாறிலி AstVarScope* vscp = VN_CAST(findSymp->nodep(), VarScope)) {
                                 varp = vscp->varp();
                             }
                         }
-                        if (varp && varp->isIfaceRef()) {
+                        எனில் (varp && varp->isIfaceRef()) {
                             // Found an interface port - use findSymp directly
                             // computeScopeAliases has already imported interface members
                             // into this symbol entry, so we use it instead of redirecting
                             // to the shared modport definition (which would cause all
                             // instances to resolve to the same symbols - bug #2656)
                             lookupSymp = findSymp;
-                        } else {
+                        } இல்லையெனில் {
                             // Non-interface symbol in middle path must be a cell (module instance)
                             // to continue hierarchical resolution
-                            if (VN_IS(findSymp->nodep(), Cell)) {
+                            எனில் (VN_IS(findSymp->nodep(), Cell)) {
                                 lookupSymp = findSymp;
-                            } else {
+                            } இல்லையெனில் {
                                 // Reject non-cell, non-interface symbols found via fallback
                                 // to prevent accidental resolution to unrelated symbols
                                 UINFO(8, "     middle-path: rejecting non-cell symbol\n");
-                                return nullptr;
+                                திரும்பு nullptr;
                             }
                         }
-                    } else {
-                        return nullptr;  // Not found
+                    } இல்லையெனில் {
+                        திரும்பு nullptr;  // Not found
                     }
                 }
             }
-            if (lookupSymp) {
-                if (const AstCell* const cellp = VN_CAST(lookupSymp->nodep(), Cell)) {
-                    if (const AstNodeModule* const modp = cellp->modp()) {
-                        if (modp->hierBlock() && !leftname.empty()) {
+            எனில் (lookupSymp) {
+                எனில் (மாறிலி AstCell* மாறிலி cellp = VN_CAST(lookupSymp->nodep(), Cell)) {
+                    எனில் (மாறிலி Ast_முனை_Module* மாறிலி modp = cellp->modp()) {
+                        எனில் (modp->hierBlock() && !leftname.empty()) {
                             refLocationp->v3error("Cannot access scope inside hierarchical block");
-                        } else if (VN_IS(modp, NotFoundModule)) {
+                        } இல்லையெனில் எனில் (VN_IS(modp, NotFoundModule)) {
                             refLocationp->v3error("Dotted reference to instance that refers to "
                                                   "missing module/interface: "
                                                   << modp->prettyNameQ());
@@ -913,74 +913,74 @@ public:
                     }
                 }
                 // Follow scope alias for nested interface port access
-                if (!leftname.empty()) {
-                    const auto aliasIt = m_scopeAliasMap[SAMN_IFTOP].find(lookupSymp);
-                    if (aliasIt != m_scopeAliasMap[SAMN_IFTOP].end()) {
+                எனில் (!leftname.empty()) {
+                    மாறிலி auto aliasIt = m_scopeAliasMap[SAMN_IFTOP].find(lookupSymp);
+                    எனில் (aliasIt != m_scopeAliasMap[SAMN_IFTOP].end()) {
                         lookupSymp = aliasIt->second;
                         // Alias may point to __Viftop VarScope; find corresponding Cell
-                        if (const AstVarScope* const vscp
+                        எனில் (மாறிலி AstVarScope* மாறிலி vscp
                             = VN_CAST(lookupSymp->nodep(), VarScope)) {
-                            const string varName = vscp->varp()->name();
-                            static constexpr const char* const VIFTOP_SUFFIX = "__Viftop";
-                            if (VString::endsWith(varName, VIFTOP_SUFFIX)) {
-                                const string cellName
+                            மாறிலி string varName = vscp->varp()->name();
+                            நிலையான constexpr மாறிலி எழுத்து* மாறிலி VIFTOP_SUFFIX = "__Viftop";
+                            எனில் (VString::endsWith(varName, VIFTOP_SUFFIX)) {
+                                மாறிலி string cellName
                                     = varName.substr(0, varName.size() - strlen(VIFTOP_SUFFIX));
-                                VSymEnt* const parentSymp = lookupSymp->parentp();
-                                if (parentSymp) {
-                                    VSymEnt* const cellSymp = parentSymp->findIdFlat(cellName);
-                                    if (cellSymp && VN_IS(cellSymp->nodep(), Cell)) {
+                                VSymEnt* மாறிலி parentSymp = lookupSymp->parentp();
+                                எனில் (parentSymp) {
+                                    VSymEnt* மாறிலி cellSymp = parentSymp->findIdFlat(cellName);
+                                    எனில் (cellSymp && VN_IS(cellSymp->nodep(), Cell)) {
                                         lookupSymp = cellSymp;  // Use Cell for member lookup
                                     }
                                 }
                             }
                         }
-                    } else {
+                    } இல்லையெனில் {
                         // No alias; try following IfaceRefDType to interface cell
-                        const AstVar* varp = VN_CAST(lookupSymp->nodep(), Var);
-                        if (!varp) {
-                            if (const AstVarScope* const vscp
+                        மாறிலி AstVar* varp = VN_CAST(lookupSymp->nodep(), Var);
+                        எனில் (!varp) {
+                            எனில் (மாறிலி AstVarScope* மாறிலி vscp
                                 = VN_CAST(lookupSymp->nodep(), VarScope)) {
                                 varp = vscp->varp();
                             }
                         }
-                        if (varp && varp->isIfaceRef()) {
-                            if (const AstIfaceRefDType* const ifaceRefp
+                        எனில் (varp && varp->isIfaceRef()) {
+                            எனில் (மாறிலி AstIfaceRefDType* மாறிலி ifaceRefp
                                 = ifaceRefFromArray(varp->dtypep())) {
-                                if (ifaceRefp->cellp() && existsNodeSym(ifaceRefp->cellp())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->cellp());
-                                } else if (ifaceRefp->ifaceViaCellp()
-                                           && existsNodeSym(ifaceRefp->ifaceViaCellp())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->ifaceViaCellp());
-                                } else if (ifaceRefp->ifacep()
-                                           && existsNodeSym(ifaceRefp->ifacep())) {
-                                    lookupSymp = getNodeSym(ifaceRefp->ifacep());
+                                எனில் (ifaceRefp->cellp() && exists_முனை_Sym(ifaceRefp->cellp())) {
+                                    lookupSymp = get_முனை_Sym(ifaceRefp->cellp());
+                                } இல்லையெனில் எனில் (ifaceRefp->ifaceViaCellp()
+                                           && exists_முனை_Sym(ifaceRefp->ifaceViaCellp())) {
+                                    lookupSymp = get_முனை_Sym(ifaceRefp->ifaceViaCellp());
+                                } இல்லையெனில் எனில் (ifaceRefp->ifacep()
+                                           && exists_முனை_Sym(ifaceRefp->ifacep())) {
+                                    lookupSymp = get_முனை_Sym(ifaceRefp->ifacep());
                                 }
                             }
                         }
                     }
                 }
             }
-            firstId = false;
+            firstId = பொய்;
         }
-        return lookupSymp;
+        திரும்பு lookupSymp;
     }
 
-    static string removeLastInlineScope(const string& name) {
+    நிலையான string removeLastInlineScope(மாறிலி string& name) {
         string out = name;
-        const string dot = "__DOT__";
-        const size_t dotPos = out.rfind(dot, out.size() - dot.length() - 1);
-        if (dotPos == string::npos) {
-            return "";
-        } else {
-            return out.erase(dotPos + dot.length(), string::npos);
+        மாறிலி string dot = "__DOT__";
+        மாறிலி size_t dotPos = out.rfind(dot, out.size() - dot.length() - 1);
+        எனில் (dotPos == string::npos) {
+            திரும்பு "";
+        } இல்லையெனில் {
+            திரும்பு out.erase(dotPos + dot.length(), string::npos);
         }
     }
 
-    VSymEnt* findSymPrefixed(VSymEnt* lookupSymp, const string& dotname, string& baddot,
-                             bool fallback) {
+    VSymEnt* findSymPrefixed(VSymEnt* lookupSymp, மாறிலி string& dotname, string& baddot,
+                             தருக்க fallback) {
         // Find symbol in given point in hierarchy, allowing prefix (post-Inline)
         // For simplicity lookupSymp may be passed nullptr result from findDotted
-        if (!lookupSymp) return nullptr;
+        எனில் (!lookupSymp) திரும்பு nullptr;
         UINFO(8, "    findSymPrefixed "
                      << dotname << " under se" << cvtToHex(lookupSymp)
                      << ((lookupSymp->symPrefix() == "") ? "" : " as ")
@@ -988,112 +988,112 @@ public:
                      << "  at se" << lookupSymp << " fallback=" << fallback);
         string prefix = lookupSymp->symPrefix();
         VSymEnt* foundp = nullptr;
-        while (!foundp) {
-            if (fallback) {
+        போது (!foundp) {
+            எனில் (fallback) {
                 foundp = lookupSymp->findIdFallback(prefix + dotname);  // Might be nullptr
-            } else {
+            } இல்லையெனில் {
                 foundp = lookupSymp->findIdFlat(prefix + dotname);  // Might be nullptr
             }
-            if (prefix.empty()) break;
-            const string nextPrefix = removeLastInlineScope(prefix);
-            if (prefix == nextPrefix) break;
+            எனில் (prefix.empty()) நிறுத்து;
+            மாறிலி string nextPrefix = removeLastInlineScope(prefix);
+            எனில் (prefix == nextPrefix) நிறுத்து;
             prefix = nextPrefix;
         }
-        if (!foundp) baddot = dotname;
-        return foundp;
+        எனில் (!foundp) baddot = dotname;
+        திரும்பு foundp;
     }
-    static bool checkIfClassOrPackage(const VSymEnt* const symp) {
-        if (VN_IS(symp->nodep(), Class) || VN_IS(symp->nodep(), Package)) return true;
+    நிலையான தருக்க checkIfClassOrPackage(மாறிலி VSymEnt* மாறிலி symp) {
+        எனில் (VN_IS(symp->nodep(), Class) || VN_IS(symp->nodep(), Package)) திரும்பு உண்மை;
 
         // Helper: check if a RefDType might resolve to a class later.
-        const auto isPotentialClassRef = [](const AstRefDType* refp) -> bool {
-            return refp && !refp->typeofp()
+        மாறிலி auto isPotentialClassRef = [](மாறிலி AstRefDType* refp) -> தருக்க {
+            திரும்பு refp && !refp->typeofp()
                    && (!refp->classOrPackageOpp()
                        || VN_IS(refp->classOrPackageOpp(), ClassOrPackageRef));
         };
 
         // Helper: allow types that can represent a class/package handle or an unresolved ref.
         // BasicDType is allowed here only for null/object handles.
-        const auto isValidTypeNode = [](const AstNode* nodep) -> bool {
-            return VN_IS(nodep, VoidDType) || VN_IS(nodep, BasicDType)
+        மாறிலி auto is_Valid_Type_முனை = [](மாறிலி Ast_முனை* nodep) -> தருக்க {
+            திரும்பு VN_IS(nodep, VoidDType) || VN_IS(nodep, BasicDType)
                    || VN_IS(nodep, ClassRefDType) || VN_IS(nodep, ParseRef);
         };
 
-        if (const AstTypedef* const typedefp = VN_CAST(symp->nodep(), Typedef)) {
-            const AstNodeDType* dtypep = typedefp->subDTypep();
-            if (!dtypep) dtypep = typedefp->childDTypep();
-            if (VN_IS(dtypep, ClassRefDType)) return true;
-            if (isPotentialClassRef(VN_CAST(dtypep, RefDType))) return true;
-        } else if (const AstParamTypeDType* const paramTypep
+        எனில் (மாறிலி AstTypedef* மாறிலி typedefp = VN_CAST(symp->nodep(), Typedef)) {
+            மாறிலி Ast_முனை_DType* dtypep = typedefp->subDTypep();
+            எனில் (!dtypep) dtypep = typedefp->childDTypep();
+            எனில் (VN_IS(dtypep, ClassRefDType)) திரும்பு உண்மை;
+            எனில் (isPotentialClassRef(VN_CAST(dtypep, RefDType))) திரும்பு உண்மை;
+        } இல்லையெனில் எனில் (மாறிலி AstParamTypeDType* மாறிலி paramTypep
                    = VN_CAST(symp->nodep(), ParamTypeDType)) {
             // Before V3Param the declared default is in childDTypep (possibly
             // wrapped in a RequireDType); after V3Param it is consumed and the
             // bound type is the resolved data type, e.g. a type parameter
             // inherited from a specialized base class (REQ #(Item) -> class Item).
-            AstNode* childp = paramTypep->childDTypep();
-            if (const AstRequireDType* const reqp = VN_CAST(childp, RequireDType)) {
+            Ast_முனை* childp = paramTypep->childDTypep();
+            எனில் (மாறிலி AstRequireDType* மாறிலி reqp = VN_CAST(childp, RequireDType)) {
                 childp = reqp->lhsp();
             }
-            const AstNode* const checkp = childp ? childp : paramTypep->skipRefp();
-            if (isValidTypeNode(checkp) || isPotentialClassRef(VN_CAST(checkp, RefDType))) {
-                return true;
+            மாறிலி Ast_முனை* மாறிலி checkp = childp ? childp : paramTypep->skipRefp();
+            எனில் (is_Valid_Type_முனை(checkp) || isPotentialClassRef(VN_CAST(checkp, RefDType))) {
+                திரும்பு உண்மை;
             }
         }
-        return false;
+        திரும்பு பொய்;
     }
-    VSymEnt* resolveClassOrPackage(VSymEnt* lookSymp, AstClassOrPackageRef* nodep, bool fallback,
-                                   bool classOnly, const string& forWhat,
-                                   bool deferIfUnresolved = false) {
-        if (nodep->classOrPackageSkipp()) return getNodeSym(nodep->classOrPackageSkipp());
+    VSymEnt* resolveClassOrPackage(VSymEnt* lookSymp, AstClassOrPackageRef* nodep, தருக்க fallback,
+                                   தருக்க classOnly, மாறிலி string& forWhat,
+                                   தருக்க deferIfUnresolved = பொய்) {
+        எனில் (nodep->classOrPackageSkipp()) திரும்பு get_முனை_Sym(nodep->classOrPackageSkipp());
         VSymEnt* foundp;
-        VSymEnt* searchSymp = lookSymp;
-        if (VL_UNCOVERABLE(searchSymp && VN_IS(searchSymp->nodep(), ParamTypeDType))) {
-            searchSymp->nodep()->v3fatalSrc(  // LCOV_EXCL_LINE
+        VSymEnt* தேடல்_Symp = lookSymp;
+        எனில் (VL_UNCOVERABLE(தேடல்_Symp && VN_IS(தேடல்_Symp->nodep(), ParamTypeDType))) {
+            தேடல்_Symp->nodep()->v3fatalSrc(  // LCOV_EXCL_LINE
                 "resolveClassOrPackage: unexpected ParamTypeDType lookup");
         }
-        if (fallback) {
-            VSymEnt* currentLookSymp = searchSymp;
-            do {
+        எனில் (fallback) {
+            VSymEnt* currentLookSymp = தேடல்_Symp;
+            செய் {
                 foundp = currentLookSymp->findIdFlat(nodep->name());
-                if (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
-                if (!foundp) currentLookSymp = currentLookSymp->fallbackp();
-            } while (!foundp && currentLookSymp);
-        } else {
-            foundp = searchSymp->findIdFlat(nodep->name());
-            if (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
+                எனில் (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
+                எனில் (!foundp) currentLookSymp = currentLookSymp->fallbackp();
+            } போது (!foundp && currentLookSymp);
+        } இல்லையெனில் {
+            foundp = தேடல்_Symp->findIdFlat(nodep->name());
+            எனில் (foundp && !checkIfClassOrPackage(foundp)) foundp = nullptr;
         }
-        if (!foundp && v3Global.rootp()->stdPackagep()) {  // Look under implied std::
-            foundp = getNodeSym(v3Global.rootp()->stdPackagep())->findIdFlat(nodep->name());
+        எனில் (!foundp && v3Global.rootp()->stdPackagep()) {  // Look under implied std::
+            foundp = get_முனை_Sym(v3Global.rootp()->stdPackagep())->findIdFlat(nodep->name());
         }
-        if (foundp) {
+        எனில் (foundp) {
             nodep->classOrPackageNodep(foundp->nodep());
-            return foundp;
+            திரும்பு foundp;
         }
-        if (deferIfUnresolved) return nullptr;
-        const string suggest
-            = suggestSymFallback(lookSymp, nodep->name(), LinkNodeMatcherClassOrPackage{});
+        எனில் (deferIfUnresolved) திரும்பு nullptr;
+        மாறிலி string suggest
+            = suggestSymFallback(lookSymp, nodep->name(), Link_முனை_Matcher_Class_Or_Package{});
         nodep->v3error((classOnly ? "Class" : "Package/class")
                        << " for '" << forWhat  // extends/implements
                        << "' not found: " << nodep->prettyNameQ() << '\n'
                        << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-        return nullptr;
+        திரும்பு nullptr;
     }
-    string suggestSymFallback(VSymEnt* lookupSymp, const string& name,
-                              const VNodeMatcher& matcher) {
+    string suggestSymFallback(VSymEnt* lookupSymp, மாறிலி string& name,
+                              மாறிலி VNodeMatcher& matcher) {
         // Suggest alternative symbol in given point in hierarchy
         // Does not support inline, as we find user-level errors before inlining
         // For simplicity lookupSymp may be passed nullptr result from findDotted
-        if (!lookupSymp) return "";
+        எனில் (!lookupSymp) திரும்பு "";
         VSpellCheck speller;
         lookupSymp->candidateIdFallback(&speller, &matcher);
-        return speller.bestCandidateMsg(name);
+        திரும்பு speller.best_Candidate_செய்தி(name);
     }
-    string suggestSymFlat(VSymEnt* lookupSymp, const string& name, const VNodeMatcher& matcher,
-                          bool includeType) {
-        if (!lookupSymp) return "";
+    string suggestSymFlat(VSymEnt* lookupSymp, மாறிலி string& name, மாறிலி VNodeMatcher& matcher,
+                          தருக்க includeType) {
+        எனில் (!lookupSymp) திரும்பு "";
         VSpellCheck speller;
         lookupSymp->candidateIdFlat(&speller, &matcher, includeType);
-        return speller.bestCandidateMsg(name);
+        திரும்பு speller.best_Candidate_செய்தி(name);
     }
 };
 
@@ -1101,18 +1101,18 @@ LinkDotState* LinkDotState::s_errorThisp = nullptr;
 
 //======================================================================
 
-class LinkDotFindVisitor final : public VNVisitor {
+வகுப்பு LinkDotFindVisitor final : பொது VNVisitor {
     // NODE STATE
     // Cleared on global
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user3()              // bool. Node stored in m_virtualIfaces
     //  *::user4()              -> See LinkDotState
-    const VNUser3InUse m_inuser3;
+    மாறிலி VNUser3InUse m_inuser3;
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNodeModule* m_classOrPackagep = nullptr;  // Current package
+    LinkDotState* மாறிலி m_statep;  // State to pass between visitors, including symbol table
+    Ast_முனை_Module* m_classOrPackagep = nullptr;  // Current package
     AstClocking* m_clockingp = nullptr;  // Current clocking block
     std::vector<AstScope*> m_scopes;  // Scopes detached during repeated module visits
     uint64_t m_statScopeVisits = 0;  // Non-top scopes encountered while finding instance symbols
@@ -1121,73 +1121,73 @@ class LinkDotFindVisitor final : public VNVisitor {
     string
         m_hierParamsName;  // Name of module with hierarchical type parameters, empty when not used
     string m_scope;  // Scope text
-    const AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    bool m_inRecursion = false;  // Inside a recursive module
-    int m_paramNum = 0;  // Parameter number, for position based connection
-    bool m_explicitNew = false;  // Hit a "new" function
-    int m_modBlockNum = 0;  // Begin block number in module, 0=none seen
-    int m_modWithNum = 0;  // With block number, 0=none seen
-    int m_modArgNum = 0;  // Arg block number for randomize(), 0=none seen
+    மாறிலி Ast_முனை_FTask* m_ftaskp = nullptr;  // Current function/task
+    தருக்க m_inRecursion = பொய்;  // Inside a recursive module
+    முழு m_param_இலக்கம் = 0;  // Parameter number, for position based connection
+    தருக்க m_explicitNew = பொய்;  // Hit a "new" function
+    முழு m_mod_Block_இலக்கம் = 0;  // Begin block number in module, 0=none seen
+    முழு m_mod_With_இலக்கம் = 0;  // With block number, 0=none seen
+    முழு m_mod_Arg_இலக்கம் = 0;  // Arg block number for randomize(), 0=none seen
     std::vector<AstIface*> m_virtIfaces;  // interfaces used as virtual,
                                           // needed for handleUnvisitedVirtIfaces()
 
     // METHODS
-    void makeImplicitNew(AstClass* nodep) {
-        AstFunc* const newp = new AstFunc{nodep->fileline(), "new", nullptr, nullptr};
+    வெறுமை makeImplicitNew(AstClass* nodep) {
+        AstFunc* மாறிலி newp = புதிய AstFunc{nodep->fileline(), "new", nullptr, nullptr};
         // If needed, super.new() call is added the 2nd pass of V3LinkDotResolve,
         // because base classes are already resolved there.
-        newp->isConstructor(true);
+        newp->isConstructor(உண்மை);
         nodep->addMembersp(newp);
         UINFO(8, "Made implicit new for " << nodep->name() << ": " << nodep);
-        m_statep->insertBlock(m_curSymp, newp->name(), newp, m_classOrPackagep);
+        m_statep->செருகு_Block(m_curSymp, newp->name(), newp, m_classOrPackagep);
     }
 
-    static bool isHierBlockWrapper(const string& name) {
-        const V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
-        return hierBlocks.find(name) != hierBlocks.end();
+    நிலையான தருக்க isHierBlockWrapper(மாறிலி string& name) {
+        மாறிலி V3HierBlockOptSet& hierBlocks = v3Global.opt.hierBlocks();
+        திரும்பு hierBlocks.find(name) != hierBlocks.end();
     }
 
-    void moveExternFuncDecl(AstNodeFTask* nodep, AstClass* classp) {
+    வெறுமை moveExternFuncDecl(Ast_முனை_FTask* nodep, AstClass* classp) {
         // Move an 'extern function|task' to inside a class or, from an outer to inner-class
-        if (nodep->isExternDef()) return;
+        எனில் (nodep->isExternDef()) திரும்பு;
         // Move it to proper spot under the target class
         nodep->unlinkFrBack();
         classp->addStmtsp(nodep);
-        nodep->isExternDef(true);  // So we check there's a matching extern
-        nodep->classOrPackagep()->unlinkFrBack()->deleteTree();
+        nodep->isExternDef(உண்மை);  // So we check there's a matching extern
+        nodep->classOrPackagep()->unlinkFrBack()->delete_மரம்();
         // Any "Type::" reference in the function's IO are really "MovedToClass::" references
-        if (nodep->fvarp()) moveExternFuncDeclRefs(nodep->fvarp(), classp);
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                if (portp->isIO()) moveExternFuncDeclRefs(portp, classp);
+        எனில் (nodep->fvarp()) moveExternFuncDeclRefs(nodep->fvarp(), classp);
+        க்கு (Ast_முனை* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            எனில் (AstVar* மாறிலி portp = VN_CAST(stmtp, Var)) {
+                எனில் (portp->isIO()) moveExternFuncDeclRefs(portp, classp);
             }
         }
     }
-    void moveExternFuncDeclRefs(AstNode* nodep, AstClass* classp) {
-        nodep->foreach([this, classp](AstClassOrPackageRef* refp) {  //
-            if (refp->name() == classp->name() && !refp->paramsp()) {
+    வெறுமை moveExternFuncDeclRefs(Ast_முனை* nodep, AstClass* classp) {
+        nodep->foreach([இது, classp](AstClassOrPackageRef* refp) {  //
+            எனில் (refp->name() == classp->name() && !refp->paramsp()) {
                 UINFO(9, "Cleaning up external function type for class " << refp);
-                AstDot* const dotp = VN_CAST(refp->backp(), Dot);
-                if (dotp && dotp->lhsp() == refp) {
+                AstDot* மாறிலி dotp = VN_CAST(refp->backp(), Dot);
+                எனில் (dotp && dotp->lhsp() == refp) {
                     // If had DOT(CLASSREF this, ...) the DOT can go away
                     dotp->replaceWith(dotp->rhsp()->unlinkFrBack());
-                    VL_DO_DANGLING2(pushDeletep(dotp), dotp, refp);
-                } else {
-                    VL_DO_DANGLING(pushDeletep(refp->unlinkFrBack()), refp);
+                    VL_DO_DANGLING2(தள்ளு_Deletep(dotp), dotp, refp);
+                } இல்லையெனில் {
+                    VL_DO_DANGLING(தள்ளு_Deletep(refp->unlinkFrBack()), refp);
                 }
             }
         });
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstNetlist* nodep) override {  // FindVisitor::
         // Process $unit or other packages
         // Not needed - dotted references not allowed from inside packages
         // for (AstNodeModule* nodep = v3Global.rootp()->modulesp();
         //     nodep; nodep=VN_AS(nodep->nextp(), NodeModule)) {
         //    if (VN_IS(nodep, Package)) {}}
 
-        m_statep->insertDUnit(nodep);
+        m_statep->செருகு_DUnit(nodep);
 
         // First back iterate, to find all packages. Backward as must do base
         // packages before using packages
@@ -1199,54 +1199,54 @@ class LinkDotFindVisitor final : public VNVisitor {
         // wrapTop may have not been created yet.
         // $unit and the constant pool always exist, so nothing else, and nothing in $unit,
         // means nothing was given
-        AstNodeModule* const modulesp = nodep->modulesp();
+        Ast_முனை_Module* மாறிலி modulesp = nodep->modulesp();
         UASSERT_OBJ(modulesp, nodep, "$unit should always be in the netlist");
-        if (m_statep->forPrimary()) {
-            const bool onlyBuiltins = [&]() {
-                for (AstNodeModule* modp = modulesp; modp;
-                     modp = VN_AS(modp->nextp(), NodeModule)) {
-                    if (!modp->isDollarUnit() && !modp->isConstPool()) return false;
+        எனில் (m_statep->forPrimary()) {
+            மாறிலி தருக்க onlyBuiltins = [&]() {
+                க்கு (Ast_முனை_Module* modp = modulesp; modp;
+                     modp = VN_AS(modp->nextp(), முனை_Module)) {
+                    எனில் (!modp->isDollarUnit() && !modp->isConstPool()) திரும்பு பொய்;
                 }
-                return true;
+                திரும்பு உண்மை;
             }();
-            if (onlyBuiltins && !v3Global.rootp()->dollarUnitPkgp()->stmtsp()) {
+            எனில் (onlyBuiltins && !v3Global.rootp()->dollarUnitPkgp()->stmtsp()) {
                 nodep->v3error("No top level module found");
             }
         }
-        for (AstNodeModule* modp = nodep->modulesp(); modp && modp->isTop();
-             modp = VN_AS(modp->nextp(), NodeModule)) {
+        க்கு (Ast_முனை_Module* modp = nodep->modulesp(); modp && modp->is_உச்சி();
+             modp = VN_AS(modp->nextp(), முனை_Module)) {
             UINFO(8, "Top Module: " << modp);
             m_scope = "TOP";
 
-            if (!m_statep->forScopeCreation() && v3Global.opt.topIfacesSupported()) {
-                for (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-                    if (AstVar* const varp = VN_CAST(subnodep, Var)) {
-                        if (varp->isIfaceRef()) {
-                            const AstNodeDType* const subtypep = varp->subDTypep();
-                            const AstIfaceRefDType* ifacerefp = nullptr;
-                            if (VN_IS(subtypep, IfaceRefDType)) {
+            எனில் (!m_statep->forScopeCreation() && v3Global.opt.உச்சி_Ifaces_Supported()) {
+                க்கு (Ast_முனை* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+                    எனில் (AstVar* மாறிலி varp = VN_CAST(subnodep, Var)) {
+                        எனில் (varp->isIfaceRef()) {
+                            மாறிலி Ast_முனை_DType* மாறிலி subtypep = varp->subDTypep();
+                            மாறிலி AstIfaceRefDType* ifacerefp = nullptr;
+                            எனில் (VN_IS(subtypep, IfaceRefDType)) {
                                 ifacerefp = VN_AS(varp->subDTypep(), IfaceRefDType);
-                            } else if (VN_IS(subtypep, BracketArrayDType)) {
-                                const AstBracketArrayDType* const arrp
+                            } இல்லையெனில் எனில் (VN_IS(subtypep, BracketArrayDType)) {
+                                மாறிலி AstBracketArrayDType* மாறிலி arrp
                                     = VN_AS(subtypep, BracketArrayDType);
-                                const AstNodeDType* const arrsubtypep = arrp->subDTypep();
-                                if (VN_IS(arrsubtypep, IfaceRefDType)) {
+                                மாறிலி Ast_முனை_DType* மாறிலி arrsubtypep = arrp->subDTypep();
+                                எனில் (VN_IS(arrsubtypep, IfaceRefDType)) {
                                     ifacerefp = VN_AS(arrsubtypep, IfaceRefDType);
                                 }
-                            } else if (VN_IS(subtypep, UnpackArrayDType)) {
-                                const AstUnpackArrayDType* const arrp
+                            } இல்லையெனில் எனில் (VN_IS(subtypep, UnpackArrayDType)) {
+                                மாறிலி AstUnpackArrayDType* மாறிலி arrp
                                     = VN_AS(subtypep, UnpackArrayDType);
-                                const AstNodeDType* const arrsubtypep = arrp->subDTypep();
-                                if (VN_IS(arrsubtypep, IfaceRefDType)) {
+                                மாறிலி Ast_முனை_DType* மாறிலி arrsubtypep = arrp->subDTypep();
+                                எனில் (VN_IS(arrsubtypep, IfaceRefDType)) {
                                     ifacerefp = VN_AS(arrsubtypep, IfaceRefDType);
                                 }
                             }
 
-                            if (ifacerefp && !ifacerefp->cellp()) {
+                            எனில் (ifacerefp && !ifacerefp->cellp()) {
                                 // A dummy cell to keep the top level interface alive and correctly
                                 // optimized for default parameter values
                                 AstCell* ifacecellp
-                                    = new AstCell{nodep->fileline(),
+                                    = புதிய AstCell{nodep->fileline(),
                                                   nodep->fileline(),
                                                   modp->name() + "__02E" + varp->name(),
                                                   ifacerefp->ifaceName(),
@@ -1255,111 +1255,111 @@ class LinkDotFindVisitor final : public VNVisitor {
                                                   nullptr};
                                 ifacecellp->modp(ifacerefp->ifacep());
                                 m_curSymp = m_modSymp
-                                    = m_statep->insertTopIface(ifacecellp, m_scope);
+                                    = m_statep->செருகு_உச்சி_Iface(ifacecellp, m_scope);
                                 iterate(ifacecellp);
-                                VL_DO_DANGLING(pushDeletep(ifacecellp), ifacecellp);
+                                VL_DO_DANGLING(தள்ளு_Deletep(ifacecellp), ifacecellp);
                             }
                         }
                     }
                 }
             }
 
-            m_curSymp = m_modSymp = m_statep->insertTopCell(modp, m_scope);
+            m_curSymp = m_modSymp = m_statep->செருகு_உச்சி_Cell(modp, m_scope);
             { iterate(modp); }
 
             m_scope = "";
             m_curSymp = m_modSymp = nullptr;
         }
     }
-    void visit(AstTypeTable*) override {}  // FindVisitor::
-    void visit(AstIfaceRefDType* nodep) override {  // FindVisitor::
-        if (!m_statep->forScopeCreation() && nodep->isVirtual() && nodep->ifacep()
+    வெறுமை visit(AstTypeTable*) override {}  // FindVisitor::
+    வெறுமை visit(AstIfaceRefDType* nodep) override {  // FindVisitor::
+        எனில் (!m_statep->forScopeCreation() && nodep->isVirtual() && nodep->ifacep()
             && !nodep->ifacep()->user3()) {
-            m_virtIfaces.push_back(nodep->ifacep());
-            nodep->ifacep()->user3(true);
+            m_virtIfaces.தள்ளு_back(nodep->ifacep());
+            nodep->ifacep()->user3(உண்மை);
         }
         iterateChildren(nodep);
     }
-    void visit(AstNodeModule* nodep) override {  // FindVisitor::
+    வெறுமை visit(Ast_முனை_Module* nodep) override {  // FindVisitor::
         // Called on top module from Netlist, other modules from the cell creating them,
         // and packages
         UINFO(8, "   " << nodep);
         // m_curSymp/m_modSymp maybe nullptr for packages and non-top modules
         // Packages will be under top after the initial phases, but until then
         // need separate handling
-        const bool standalonePkg
+        மாறிலி தருக்க standalonePkg
             = !m_modSymp && !m_statep->forScopeCreation() && VN_IS(nodep, Package);
-        const bool doit = (m_modSymp || standalonePkg);
+        மாறிலி தருக்க doit = (m_modSymp || standalonePkg);
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
-        VL_RESTORER(m_modBlockNum);
-        VL_RESTORER(m_modWithNum);
-        VL_RESTORER(m_modArgNum);
-        if (doit && nodep->user2()) {
+        VL_RESTORER(m_param_இலக்கம்);
+        VL_RESTORER(m_mod_Block_இலக்கம்);
+        VL_RESTORER(m_mod_With_இலக்கம்);
+        VL_RESTORER(m_mod_Arg_இலக்கம்);
+        எனில் (doit && nodep->user2()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Identically recursive module (module instantiates "
                           "itself, without changing parameters): "
-                              << AstNode::prettyNameQ(nodep->origName()));
-        } else if (doit) {
+                              << Ast_முனை::prettyNameQ(nodep->origName()));
+        } இல்லையெனில் எனில் (doit) {
             UINFO(4, "     Link Module: " << nodep);
             UASSERT_OBJ(!nodep->dead(), nodep, "Module in instance tree mislabeled as dead?");
-            AstPackage* const pkgp = VN_CAST(nodep, Package);
+            AstPackage* மாறிலி pkgp = VN_CAST(nodep, Package);
             m_classOrPackagep = pkgp;
-            if (standalonePkg) {
-                if (pkgp->isDollarUnit()) {
+            எனில் (standalonePkg) {
+                எனில் (pkgp->isDollarUnit()) {
                     m_curSymp = m_modSymp = m_statep->dunitEntp();
                     nodep->user1p(m_curSymp);
-                } else {
-                    VSymEnt* const upperSymp = m_statep->dunitEntp();
+                } இல்லையெனில் {
+                    VSymEnt* மாறிலி upperSymp = m_statep->dunitEntp();
                     m_scope = nodep->name();
-                    m_curSymp = m_modSymp = m_statep->insertBlock(upperSymp, nodep->name(), nodep,
+                    m_curSymp = m_modSymp = m_statep->செருகு_Block(upperSymp, nodep->name(), nodep,
                                                                   m_classOrPackagep);
                     UINFO(9, "New module scope " << m_curSymp);
                 }
             }
             //
-            m_paramNum = 0;
-            m_modBlockNum = 0;
-            m_modWithNum = 0;
-            m_modArgNum = 0;
+            m_param_இலக்கம் = 0;
+            m_mod_Block_இலக்கம் = 0;
+            m_mod_With_இலக்கம் = 0;
+            m_mod_Arg_இலக்கம் = 0;
             // m_modSymp/m_curSymp for non-packages set by AstCell above this module
             // Iterate
-            nodep->user2(true);
+            nodep->user2(உண்மை);
             iterateChildren(nodep);
-            nodep->user2(false);
-            nodep->user4(true);
+            nodep->user2(பொய்);
+            nodep->user4(உண்மை);
             // Interfaces need another pass when signals are resolved. When creating
             // scopes this is done from the AstScopes in LinkDotScopeVisitor instead, as
             // only those entries hold the AstVarScopes the modport items resolve against.
-            if (!m_statep->forScopeCreation()) {
-                if (AstIface* const ifacep = VN_CAST(nodep, Iface)) {
-                    m_statep->insertIfaceModSym(ifacep, m_curSymp);
+            எனில் (!m_statep->forScopeCreation()) {
+                எனில் (AstIface* மாறிலி ifacep = VN_CAST(nodep, Iface)) {
+                    m_statep->செருகு_Iface_Mod_Sym(ifacep, m_curSymp);
                 }
             }
-        } else if (isHierBlockWrapper(nodep->name())) {
+        } இல்லையெனில் எனில் (isHierBlockWrapper(nodep->name())) {
             UINFO(5, "Module is hierarchical block, must not be dead: " << nodep);
             m_scope = nodep->name();
-            VSymEnt* const upperSymp = m_curSymp ? m_curSymp : m_statep->rootEntp();
+            VSymEnt* மாறிலி upperSymp = m_curSymp ? m_curSymp : m_statep->வேர்_Entp();
             m_curSymp = m_modSymp
-                = m_statep->insertBlock(upperSymp, nodep->name() + "::", nodep, m_classOrPackagep);
+                = m_statep->செருகு_Block(upperSymp, nodep->name() + "::", nodep, m_classOrPackagep);
             iterateChildren(nodep);
-            nodep->user4(true);
-        } else {  // !doit
-            if (nodep->hierParams()) {
+            nodep->user4(உண்மை);
+        } இல்லையெனில் {  // !doit
+            எனில் (nodep->hierParams()) {
                 UINFO(1, "Found module with hier type parameters");
                 m_hierParamsName = nodep->name();
-                for (const AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (const AstTypedef* const tdef = VN_CAST(stmtp, Typedef)) {
+                க்கு (மாறிலி Ast_முனை* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    எனில் (மாறிலி AstTypedef* மாறிலி tdef = VN_CAST(stmtp, Typedef)) {
                         UINFO(1, "Inserting hier type parameter typedef: " << tdef);
-                        VSymEnt* const upperSymp = m_curSymp ? m_curSymp : m_statep->rootEntp();
-                        m_curSymp = m_modSymp = m_statep->insertBlock(upperSymp, nodep->name(),
+                        VSymEnt* மாறிலி upperSymp = m_curSymp ? m_curSymp : m_statep->வேர்_Entp();
+                        m_curSymp = m_modSymp = m_statep->செருகு_Block(upperSymp, nodep->name(),
                                                                       nodep, m_classOrPackagep);
                     }
                 }
-            } else {
+            } இல்லையெனில் {
                 // Will be optimized away later
                 // Can't remove now, as our backwards iterator will throw up
                 UINFO(5, "Module not under any CELL or top - dead module: " << nodep);
@@ -1367,193 +1367,193 @@ class LinkDotFindVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstClass* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstClass* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Class not under module/package/$unit");
         UINFO(8, "   " << nodep);
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
-        VL_RESTORER(m_modBlockNum);
-        VL_RESTORER(m_modWithNum);
-        VL_RESTORER(m_modArgNum);
+        VL_RESTORER(m_param_இலக்கம்);
+        VL_RESTORER(m_mod_Block_இலக்கம்);
+        VL_RESTORER(m_mod_With_இலக்கம்);
+        VL_RESTORER(m_mod_Arg_இலக்கம்);
         VL_RESTORER(m_explicitNew);
         {
             UINFO(4, "     Link Class: " << nodep);
-            VSymEnt* const upperSymp = m_curSymp;
+            VSymEnt* மாறிலி upperSymp = m_curSymp;
             m_scope = m_scope + "." + nodep->name();
             m_classOrPackagep = nodep;
             m_curSymp = m_modSymp
-                = m_statep->insertBlock(upperSymp, nodep->name(), nodep, m_classOrPackagep);
-            m_statep->insertMap(m_curSymp, m_scope);
+                = m_statep->செருகு_Block(upperSymp, nodep->name(), nodep, m_classOrPackagep);
+            m_statep->செருகு_Map(m_curSymp, m_scope);
             UINFO(9, "New module scope " << m_curSymp);
             //
-            m_paramNum = 0;
-            m_modBlockNum = 0;
-            m_modWithNum = 0;
-            m_modArgNum = 0;
-            m_explicitNew = false;
+            m_param_இலக்கம் = 0;
+            m_mod_Block_இலக்கம் = 0;
+            m_mod_With_இலக்கம் = 0;
+            m_mod_Arg_இலக்கம் = 0;
+            m_explicitNew = பொய்;
             // m_modSymp/m_curSymp for non-packages set by AstCell above this module
             // Iterate
             iterateChildren(nodep);
-            nodep->user4(true);
+            nodep->user4(உண்மை);
             // Implicit new needed?
-            if (!m_explicitNew && m_statep->forPrimary()) makeImplicitNew(nodep);
+            எனில் (!m_explicitNew && m_statep->forPrimary()) makeImplicitNew(nodep);
         }
     }
-    void visit(AstClassOrPackageRef* nodep) override {  // FindVisitor::
-        if (!nodep->classOrPackageNodep() && nodep->name() == "$unit") {
+    வெறுமை visit(AstClassOrPackageRef* nodep) override {  // FindVisitor::
+        எனில் (!nodep->classOrPackageNodep() && nodep->name() == "$unit") {
             nodep->classOrPackageNodep(v3Global.rootp()->dollarUnitPkgp());
         }
         iterateChildren(nodep);
     }
-    void visit(AstScope* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstScope* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep,
                     "Scopes should only exist right after V3Scope");
         // Detach on first encounter, will re add at the end.
         // Otherwise would be visited O(cells^2) time after V3Scope
-        if (!nodep->isTop()) {
+        எனில் (!nodep->is_உச்சி()) {
             ++m_statScopeVisits;
             nodep->unlinkFrBack();
-            m_scopes.push_back(nodep);
+            m_scopes.தள்ளு_back(nodep);
         }
     }
-    void visit(AstCell* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstCell* nodep) override {  // FindVisitor::
         UINFO(5, "   CELL under " << m_scope << " is " << nodep);
         // Process XREFs/etc inside pins
-        if (nodep->recursive() && m_inRecursion) return;
+        எனில் (nodep->recursive() && m_inRecursion) திரும்பு;
         iterateChildren(nodep);
         // Recurse in, preserving state
         VL_RESTORER_COPY(m_scope);
         VL_RESTORER(m_modSymp);
         VL_RESTORER(m_curSymp);
-        VL_RESTORER(m_paramNum);
+        VL_RESTORER(m_param_இலக்கம்);
         VL_RESTORER(m_inRecursion);
         // Where do we add it?
         VSymEnt* aboveSymp = m_curSymp;
-        const string origname = AstNode::dedotName(nodep->name());
+        மாறிலி string origname = Ast_முனை::dedotName(nodep->name());
         string::size_type pos = origname.rfind('.');
-        if (pos != string::npos) {
+        எனில் (pos != string::npos) {
             // Flattened, find what CellInline it should live under
-            const string scope = origname.substr(0, pos);
+            மாறிலி string scope = origname.substr(0, pos);
             string baddot;
             VSymEnt* okSymp;
             aboveSymp
-                = m_statep->findDotted(nodep->fileline(), aboveSymp, scope, baddot, okSymp, false);
+                = m_statep->findDotted(nodep->fileline(), aboveSymp, scope, baddot, okSymp, பொய்);
             UASSERT_OBJ(aboveSymp, nodep,
                         "Can't find instance insertion point at "
-                            << AstNode::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
+                            << Ast_முனை::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
         }
         {
             m_scope = m_scope + "." + nodep->name();
-            m_curSymp = m_modSymp = m_statep->insertCell(aboveSymp, m_modSymp, nodep, m_scope);
+            m_curSymp = m_modSymp = m_statep->செருகு_Cell(aboveSymp, m_modSymp, nodep, m_scope);
             m_inRecursion = nodep->recursive();
             // We don't report NotFoundModule, as may be a unused module in a generate
-            if (nodep->modp()) iterate(nodep->modp());
+            எனில் (nodep->modp()) iterate(nodep->modp());
         }
     }
-    void visit(AstCellInline* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstCellInline* nodep) override {  // FindVisitor::
         UINFO(5, "   CELLINLINE under " << m_scope << " is " << nodep);
         VSymEnt* aboveSymp = m_curSymp;
         std::string ident = nodep->name();
         // If baz__DOT__foo__DOT__bar, we need to find baz__DOT__foo and add bar to it.
-        const std::string::size_type pos = ident.rfind("__DOT__");
-        if (pos != std::string::npos) {
-            const std::string dotted = ident.substr(0, pos);
+        மாறிலி std::string::size_type pos = ident.rfind("__DOT__");
+        எனில் (pos != std::string::npos) {
+            மாறிலி std::string dotted = ident.substr(0, pos);
             ident = ident.substr(pos + std::strlen("__DOT__"));
             std::string baddot;
             VSymEnt* okSymp;
             aboveSymp = m_statep->findDotted(nodep->fileline(), aboveSymp, dotted, baddot, okSymp,
-                                             false);
+                                             பொய்);
             UASSERT_OBJ(aboveSymp, nodep,
                         "Can't find cellinline insertion point at "
-                            << AstNode::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
+                            << Ast_முனை::prettyNameQ(baddot) << " in: " << nodep->prettyNameQ());
         }
-        m_statep->insertInline(aboveSymp, m_modSymp, nodep, ident);
+        m_statep->செருகு_Inline(aboveSymp, m_modSymp, nodep, ident);
     }
-    void visit(AstDefParam* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstDefParam* nodep) override {  // FindVisitor::
         nodep->user1p(m_curSymp);
         iterateChildren(nodep);
     }
-    void visit(AstRefDType* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstRefDType* nodep) override {  // FindVisitor::
         nodep->user1p(m_curSymp);
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstGenBlock* nodep) override {  // FindVisitor::
         UINFO(5, "   " << nodep);
-        if (nodep->name() == "" && nodep->unnamed()) {
+        எனில் (nodep->name() == "" && nodep->unnamed()) {
             // Unnamed blocks are only important when they contain var
             // decls, so search for them. (Otherwise adding all the
             // unnamed#'s would just confuse tracing variables in
             // places such as tasks, where "task ...; begin ... end"
             // are common.
-            for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
-                if (VN_IS(itemp, Var) || VN_IS(itemp, Foreach)) {
+            க்கு (Ast_முனை* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+                எனில் (VN_IS(itemp, Var) || VN_IS(itemp, Foreach)) {
                     std::string name;
-                    const std::string stepStr = m_statep->forPrimary()
+                    மாறிலி std::string stepStr = m_statep->forPrimary()
                                                     ? ""
-                                                    : std::to_string(m_statep->stepNumber()) + "_";
-                    do {
-                        ++m_modBlockNum;
-                        name = "unnamedblk" + stepStr + cvtToStr(m_modBlockNum);
+                                                    : std::to_string(m_statep->step_எண்()) + "_";
+                    செய் {
+                        ++m_mod_Block_இலக்கம்;
+                        name = "unnamedblk" + stepStr + cvtToStr(m_mod_Block_இலக்கம்);
                         // Increment again if earlier pass of V3LinkDot claimed this name
-                    } while (m_curSymp->findIdFlat(name));
+                    } போது (m_curSymp->findIdFlat(name));
                     nodep->name(name);
-                    break;
+                    நிறுத்து;
                 }
             }
         }
-        if (nodep->name() == "") {
+        எனில் (nodep->name() == "") {
             iterateChildren(nodep);
-        } else {
+        } இல்லையெனில் {
             VL_RESTORER(m_curSymp);
             {
                 m_curSymp
-                    = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                    = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
                 m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
                 // Iterate
                 iterateChildren(nodep);
             }
         }
     }
-    void visit(AstNodeBlock* nodep) override {  // FindVisitor::
+    வெறுமை visit(Ast_முனை_Block* nodep) override {  // FindVisitor::
         UINFO(5, "   " << nodep);
-        if (nodep->name() == "" && nodep->unnamed()) {
+        எனில் (nodep->name() == "" && nodep->unnamed()) {
             // Unnamed blocks are only important when they contain var
             // decls, so search for them. (Otherwise adding all the
             // unnamed#'s would just confuse tracing variables in
             // places such as tasks, where "task ...; begin ... end"
             // are common.
-            const auto containsDecl = [](const AstNode* nodesp) -> bool {
-                for (const AstNode* np = nodesp; np; np = np->nextp()) {
-                    if (VN_IS(np, Var) || VN_IS(np, Foreach)) return true;
+            மாறிலி auto containsDecl = [](மாறிலி Ast_முனை* nodesp) -> தருக்க {
+                க்கு (மாறிலி Ast_முனை* np = nodesp; np; np = np->nextp()) {
+                    எனில் (VN_IS(np, Var) || VN_IS(np, Foreach)) திரும்பு உண்மை;
                 }
-                return false;
+                திரும்பு பொய்;
             };
-            bool needName = nodep->declsp() || containsDecl(nodep->stmtsp());
-            if (const AstFork* const forkp = VN_CAST(nodep, Fork)) {
+            தருக்க needName = nodep->declsp() || containsDecl(nodep->stmtsp());
+            எனில் (மாறிலி AstFork* மாறிலி forkp = VN_CAST(nodep, Fork)) {
                 needName = needName || containsDecl(forkp->forksp());
             }
-            if (needName) {
-                const std::string stepStr
-                    = m_statep->forPrimary() ? "" : std::to_string(m_statep->stepNumber()) + "_";
+            எனில் (needName) {
+                மாறிலி std::string stepStr
+                    = m_statep->forPrimary() ? "" : std::to_string(m_statep->step_எண்()) + "_";
                 std::string name;
-                do {
-                    ++m_modBlockNum;
-                    name = "unnamedblk" + stepStr + cvtToStr(m_modBlockNum);
+                செய் {
+                    ++m_mod_Block_இலக்கம்;
+                    name = "unnamedblk" + stepStr + cvtToStr(m_mod_Block_இலக்கம்);
                     // Increment again if earlier pass of V3LinkDot claimed this name
-                } while (m_curSymp->findIdFlat(name));
+                } போது (m_curSymp->findIdFlat(name));
                 nodep->name(name);
             }
         }
-        if (nodep->name() == "") {
+        எனில் (nodep->name() == "") {
             iterateChildren(nodep);
-        } else {
+        } இல்லையெனில் {
             VL_RESTORER(m_curSymp);
             {
                 m_curSymp
-                    = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                    = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
                 m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
                 // Iterate
                 iterateChildren(nodep);
@@ -1563,137 +1563,137 @@ class LinkDotFindVisitor final : public VNVisitor {
     // Handle out-of-block interface method definition (IEEE 1800-2023 25.7)
     // Move task body from module into the interface's prototype task,
     // rewriting port-prefixed references in the body.
-    void moveIfaceExportBody(AstNodeFTask* nodep) {
-        const string& portName = nodep->ifacePortName();
+    வெறுமை moveIfaceExportBody(Ast_முனை_FTask* nodep) {
+        மாறிலி string& portName = nodep->ifacePortName();
         UINFO(5, "   moveIfaceExportBody: port=" << portName << " task=" << nodep->name());
         // Look up the interface port variable in the module's symbol table
-        VSymEnt* const portSymp = m_modSymp->findIdFallback(portName);
-        if (!portSymp) {
+        VSymEnt* மாறிலி portSymp = m_modSymp->findIdFallback(portName);
+        எனில் (!portSymp) {
             nodep->v3error("Interface port not found for out-of-block definition: '"
                            << portName << "' (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
         }
-        AstVar* const portp = VN_CAST(portSymp->nodep(), Var);
-        if (!portp) {
+        AstVar* மாறிலி portp = VN_CAST(portSymp->nodep(), Var);
+        எனில் (!portp) {
             nodep->v3fatalSrc("Out-of-block definition port is not a variable: " << portName);
-            return;
+            திரும்பு;
         }
         // Get the interface name from the port's type
         // At this stage dtypep() may not be set yet; check childDTypep() too
         AstIfaceRefDType* ifaceRefDtp = nullptr;
-        if (portp->dtypep()) { ifaceRefDtp = VN_CAST(portp->dtypep(), IfaceRefDType); }
-        if (!ifaceRefDtp && portp->childDTypep()) {
+        எனில் (portp->dtypep()) { ifaceRefDtp = VN_CAST(portp->dtypep(), IfaceRefDType); }
+        எனில் (!ifaceRefDtp && portp->childDTypep()) {
             ifaceRefDtp = VN_CAST(portp->childDTypep(), IfaceRefDType);
         }
-        if (!ifaceRefDtp) {
+        எனில் (!ifaceRefDtp) {
             nodep->v3error("Out-of-block definition port is not an interface port: '"
                            << portName << "' (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
         }
-        const string ifaceName = ifaceRefDtp->ifaceName();
+        மாறிலி string ifaceName = ifaceRefDtp->ifaceName();
         UINFO(5, "   moveIfaceExportBody: iface=" << ifaceName);
         // Find the interface module by name
-        AstNodeModule* const ifaceModp = m_statep->findModuleSym(ifaceName);
-        if (!ifaceModp) {
+        Ast_முனை_Module* மாறிலி ifaceModp = m_statep->findModuleSym(ifaceName);
+        எனில் (!ifaceModp) {
             nodep->v3fatalSrc("Interface not found for out-of-block definition: " << ifaceName);
-            return;
+            திரும்பு;
         }
         // Find the prototype task in the interface
-        AstNodeFTask* protoTaskp = nullptr;
-        for (AstNode* itemp = ifaceModp->stmtsp(); itemp; itemp = itemp->nextp()) {
-            if (AstNodeFTask* const ftaskp = VN_CAST(itemp, NodeFTask)) {
-                if (ftaskp->name() == nodep->name() && ftaskp->prototype()) {
+        Ast_முனை_FTask* protoTaskp = nullptr;
+        க்கு (Ast_முனை* itemp = ifaceModp->stmtsp(); itemp; itemp = itemp->nextp()) {
+            எனில் (Ast_முனை_FTask* மாறிலி ftaskp = VN_CAST(itemp, முனை_FTask)) {
+                எனில் (ftaskp->name() == nodep->name() && ftaskp->prototype()) {
                     protoTaskp = ftaskp;
-                    break;
+                    நிறுத்து;
                 }
             }
         }
-        if (!protoTaskp) {
+        எனில் (!protoTaskp) {
             nodep->v3error("No matching export prototype found in interface "
                            << ifaceName << " for task " << nodep->prettyNameQ()
                            << " (IEEE 1800-2023 25.7)");
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
         }
         // Move body statements (non-port declarations) from the out-of-block task
         // to the prototype task. Rewrite port.X references to just X in the body.
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp;) {
-            AstNode* const nextp = stmtp->nextp();
+        க்கு (Ast_முனை* stmtp = nodep->stmtsp(); stmtp;) {
+            Ast_முனை* மாறிலி nextp = stmtp->nextp();
             // Skip port declarations -- they already exist in the prototype
-            if (const AstVar* const varp = VN_CAST(stmtp, Var)) {
-                if (varp->isIO()) {
+            எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(stmtp, Var)) {
+                எனில் (varp->isIO()) {
                     stmtp = nextp;
-                    continue;
+                    தொடர்;
                 }
             }
             // Clone this statement and rewrite port references
-            AstNode* const newStmtp = stmtp->cloneTree(false);
+            Ast_முனை* மாறிலி newStmtp = stmtp->clone_மரம்(பொய்);
             rewriteIfacePortRefsSingle(newStmtp, portName);
             protoTaskp->addStmtsp(newStmtp);
             stmtp = nextp;
         }
         // Mark prototype as no longer prototype (it has a body now)
-        protoTaskp->prototype(false);
+        protoTaskp->prototype(பொய்);
         // Delete the out-of-block task from the module
         nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
     }
 
     // Rewrite AstDot nodes where lhsp is AstParseRef with the port name
     // to just the rhsp (stripping the port prefix).
-    static void rewriteIfacePortRefsSingle(AstNode* nodep, const string& portName) {
-        if (!nodep) return;
+    நிலையான வெறுமை rewriteIfacePortRefsSingle(Ast_முனை* nodep, மாறிலி string& portName) {
+        எனில் (!nodep) திரும்பு;
         // Check if this is a non-colon Dot with lhs matching portName
-        if (AstDot* const dotp = VN_CAST(nodep, Dot)) {
-            if (!dotp->colon()) {
-                const AstParseRef* const lhsRefp = VN_CAST(dotp->lhsp(), ParseRef);
-                if (lhsRefp && lhsRefp->name() == portName) {
+        எனில் (AstDot* மாறிலி dotp = VN_CAST(nodep, Dot)) {
+            எனில் (!dotp->colon()) {
+                மாறிலி AstParseRef* மாறிலி lhsRefp = VN_CAST(dotp->lhsp(), ParseRef);
+                எனில் (lhsRefp && lhsRefp->name() == portName) {
                     UINFO(5, "   rewriteIfacePortRefs: stripping port prefix from " << dotp);
-                    AstNode* const rhsp = dotp->rhsp()->unlinkFrBack();
+                    Ast_முனை* மாறிலி rhsp = dotp->rhsp()->unlinkFrBack();
                     dotp->replaceWith(rhsp);
-                    VL_DO_DANGLING(dotp->deleteTree(), dotp);
+                    VL_DO_DANGLING(dotp->delete_மரம்(), dotp);
                     rewriteIfacePortRefsSingle(rhsp, portName);
-                    return;
+                    திரும்பு;
                 }
             }
         }
         // Recurse into all children
-        for (AstNode* childp : {nodep->op1p(), nodep->op2p(), nodep->op3p(), nodep->op4p()}) {
-            while (childp) {
-                AstNode* const nextp = childp->nextp();
+        க்கு (Ast_முனை* childp : {nodep->op1p(), nodep->op2p(), nodep->op3p(), nodep->op4p()}) {
+            போது (childp) {
+                Ast_முனை* மாறிலி nextp = childp->nextp();
                 rewriteIfacePortRefsSingle(childp, portName);
                 childp = nextp;
             }
         }
     }
 
-    void visit(AstNodeFTask* nodep) override {  // FindVisitor::
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {  // FindVisitor::
         // NodeTask: Remember its name for later resolution
         UINFO(5, "   " << nodep);
         UASSERT_OBJ(m_curSymp && m_modSymp, nodep, "Function/Task not under module?");
-        if (nodep->name() == "new") m_explicitNew = true;
+        எனில் (nodep->name() == "new") m_explicitNew = உண்மை;
         // Handle out-of-block interface method definition (IEEE 25.8)
-        if (!nodep->ifacePortName().empty() && m_statep->forPrimary()) {
+        எனில் (!nodep->ifacePortName().empty() && m_statep->forPrimary()) {
             moveIfaceExportBody(nodep);
-            return;  // Task has been deleted
+            திரும்பு;  // Task has been deleted
         }
         // Remember the existing symbol table scope
         VL_RESTORER(m_classOrPackagep);
         VL_RESTORER(m_curSymp);
         VSymEnt* upSymp = m_curSymp;
 
-        if (VN_IS(m_curSymp->nodep(), Class)) {
-            if (VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->pureVirtual()
+        எனில் (VN_IS(m_curSymp->nodep(), Class)) {
+            எனில் (VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->pureVirtual()
                 && !nodep->isConstructor()) {
                 nodep->v3error("Interface class functions must be pure virtual"
                                << " (IEEE 1800-2023 8.26): " << nodep->prettyNameQ());
             }
-            if (m_statep->forPrimary()
+            எனில் (m_statep->forPrimary()
                 && (nodep->name() == "randomize" || nodep->name() == "srandom")) {
                 nodep->v3error(nodep->prettyNameQ()
                                << " is a predefined class method; redefinition not allowed"
@@ -1701,199 +1701,199 @@ class LinkDotFindVisitor final : public VNVisitor {
             }
         }
         // Change to appropriate package if extern declaration (vs definition)
-        if (nodep->classOrPackagep()) {
+        எனில் (nodep->classOrPackagep()) {
             // class-in-class
-            AstDot* const dotp = VN_CAST(nodep->classOrPackagep(), Dot);
-            AstClassOrPackageRef* const cpackagerefp
+            AstDot* மாறிலி dotp = VN_CAST(nodep->classOrPackagep(), Dot);
+            AstClassOrPackageRef* மாறிலி cpackagerefp
                 = VN_CAST(nodep->classOrPackagep(), ClassOrPackageRef);
-            if (dotp) {
-                AstClassOrPackageRef* const lhsp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
-                m_statep->resolveClassOrPackage(m_curSymp, lhsp, true, false,
+            எனில் (dotp) {
+                AstClassOrPackageRef* மாறிலி lhsp = VN_AS(dotp->lhsp(), ClassOrPackageRef);
+                m_statep->resolveClassOrPackage(m_curSymp, lhsp, உண்மை, பொய்,
                                                 "External definition :: reference");
-                AstClass* const lhsclassp = VN_CAST(lhsp->classOrPackageSkipp(), Class);
-                if (!lhsclassp) {
+                AstClass* மாறிலி lhsclassp = VN_CAST(lhsp->classOrPackageSkipp(), Class);
+                எனில் (!lhsclassp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(lhsclassp);
+                } இல்லையெனில் {
+                    m_curSymp = m_statep->get_முனை_Sym(lhsclassp);
                     upSymp = m_curSymp;
-                    AstClassOrPackageRef* const rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
-                    m_statep->resolveClassOrPackage(m_curSymp, rhsp, true, false,
+                    AstClassOrPackageRef* மாறிலி rhsp = VN_AS(dotp->rhsp(), ClassOrPackageRef);
+                    m_statep->resolveClassOrPackage(m_curSymp, rhsp, உண்மை, பொய்,
                                                     "External definition :: reference");
-                    AstClass* const rhsclassp = VN_CAST(rhsp->classOrPackageSkipp(), Class);
-                    if (!rhsclassp) {
+                    AstClass* மாறிலி rhsclassp = VN_CAST(rhsp->classOrPackageSkipp(), Class);
+                    எனில் (!rhsclassp) {
                         nodep->v3error("Extern declaration's scope is not a defined class");
-                    } else {
-                        m_curSymp = m_statep->getNodeSym(rhsclassp);
+                    } இல்லையெனில் {
+                        m_curSymp = m_statep->get_முனை_Sym(rhsclassp);
                         upSymp = m_curSymp;
                         moveExternFuncDecl(nodep, rhsclassp);
                     }
                 }
-            } else if (cpackagerefp) {
-                if (!cpackagerefp->classOrPackageSkipp()) {
-                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, true, false,
+            } இல்லையெனில் எனில் (cpackagerefp) {
+                எனில் (!cpackagerefp->classOrPackageSkipp()) {
+                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, உண்மை, பொய்,
                                                     "External definition :: reference");
                 }
-                AstClass* const classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
-                if (!classp) {
+                AstClass* மாறிலி classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
+                எனில் (!classp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(classp);
+                } இல்லையெனில் {
+                    m_curSymp = m_statep->get_முனை_Sym(classp);
                     upSymp = m_curSymp;
                     moveExternFuncDecl(nodep, classp);
                 }
-            } else {
+            } இல்லையெனில் {
                 v3fatalSrc("Unhandled extern function definition package");
             }
         }
         // Set the class as package for iteration
-        if (VN_IS(m_curSymp->nodep(), Class)) {
+        எனில் (VN_IS(m_curSymp->nodep(), Class)) {
             m_classOrPackagep = VN_AS(m_curSymp->nodep(), Class);
         }
         // Create symbol table for the task's vars
-        const string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
-        m_curSymp = m_statep->insertBlock(m_curSymp, name, nodep, m_classOrPackagep);
+        மாறிலி string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, name, nodep, m_classOrPackagep);
         m_curSymp->fallbackp(upSymp);
         // Convert the func's range to the output variable
         // This should probably be done in the Parser instead, as then we could
         // just attach normal signal attributes to it.
-        if (!nodep->isExternProto() && nodep->fvarp() && !VN_IS(nodep->fvarp(), Var)) {
-            AstNodeDType* dtypep = VN_CAST(nodep->fvarp(), NodeDType);
+        எனில் (!nodep->isExternProto() && nodep->fvarp() && !VN_IS(nodep->fvarp(), Var)) {
+            Ast_முனை_DType* dtypep = VN_CAST(nodep->fvarp(), முனை_DType);
             // If unspecified, function returns one bit; however when we
             // support NEW() it could also return the class reference.
-            if (dtypep) {
+            எனில் (dtypep) {
                 dtypep->unlinkFrBack();
-            } else {
-                dtypep = new AstBasicDType{nodep->fileline(), VBasicDTypeKwd::LOGIC};
+            } இல்லையெனில் {
+                dtypep = புதிய AstBasicDType{nodep->fileline(), VBasicDTypeKwd::LOGIC};
             }
-            AstVar* const newvarp
-                = new AstVar{nodep->fileline(), VVarType::VAR, nodep->name(), VFlagChildDType{},
+            AstVar* மாறிலி newvarp
+                = புதிய AstVar{nodep->fileline(), VVarType::VAR, nodep->name(), VFlagChildDType{},
                              dtypep};  // Not dtype resolved yet
             newvarp->direction(VDirection::OUTPUT);
             newvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            newvarp->funcReturn(true);
-            newvarp->trace(false);  // Not user visible
+            newvarp->funcReturn(உண்மை);
+            newvarp->trace(பொய்);  // Not user visible
             nodep->fvarp(newvarp);
             // Explicit insert required, as the var name shadows the upper level's task name
-            m_statep->insertSym(m_curSymp, newvarp->name(), newvarp, nullptr /*classOrPackagep*/);
+            m_statep->செருகு_Sym(m_curSymp, newvarp->name(), newvarp, nullptr /*classOrPackagep*/);
         }
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClocking* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstClocking* nodep) override {  // FindVisitor::
         VL_RESTORER(m_clockingp);
         m_clockingp = nodep;
         iterate(nodep->sentreep());
         iterateAndNextNull(nodep->itemsp());
         // If the block has no name, one cannot reference the clockvars
         VSymEnt* itSymp = nullptr;
-        if (nodep->isGlobal()  //
+        எனில் (nodep->isGlobal()  //
             && m_statep->forPrimary()) {  // else flattening may see two globals
             m_statep->checkDuplicate(m_curSymp, nodep, "__024global_clock");
             itSymp
-                = m_statep->insertBlock(m_curSymp, "__024global_clock", nodep, m_classOrPackagep);
+                = m_statep->செருகு_Block(m_curSymp, "__024global_clock", nodep, m_classOrPackagep);
             itSymp->fallbackp(nullptr);
         }
-        if (!nodep->name().empty()) {
-            itSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        எனில் (!nodep->name().empty()) {
+            itSymp = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
             itSymp->fallbackp(nullptr);
         }
-        if (itSymp) {
+        எனில் (itSymp) {
             VL_RESTORER(m_curSymp);
             m_curSymp = itSymp;
             iterateAndNextNull(nodep->itemsp());
         }
     }
-    void visit(AstClockingItem* nodep) override {  // FindVisitor::
-        if (nodep->varp()) {
-            if (m_curSymp->nodep() == m_clockingp) iterate(nodep->varp());
-            return;
+    வெறுமை visit(AstClockingItem* nodep) override {  // FindVisitor::
+        எனில் (nodep->varp()) {
+            எனில் (m_curSymp->nodep() == m_clockingp) iterate(nodep->varp());
+            திரும்பு;
         }
         std::string varname;
-        AstNodeDType* dtypep;
-        if (AstAssign* const assignp = nodep->assignp()) {
-            AstNodeExpr* const rhsp = assignp->rhsp()->unlinkFrBack();
-            dtypep = new AstRefDType{nodep->fileline(), AstRefDType::FlagTypeOfExpr{},
-                                     rhsp->cloneTree(false)};
+        Ast_முனை_DType* dtypep;
+        எனில் (AstAssign* மாறிலி assignp = nodep->assignp()) {
+            Ast_முனை_கோவை* மாறிலி rhsp = assignp->rhsp()->unlinkFrBack();
+            dtypep = புதிய AstRefDType{nodep->fileline(), AstRefDType::Flag_Type_Of_கோவை{},
+                                     rhsp->clone_மரம்(பொய்)};
             nodep->exprp(rhsp);
             varname = assignp->lhsp()->name();
-            VL_DO_DANGLING(assignp->unlinkFrBack()->deleteTree(), assignp);
-        } else {
-            AstNodeExpr* const refp = nodep->exprp();
-            const VSymEnt* foundp = m_curSymp->findIdFallback(refp->name());
-            if (!foundp || !foundp->nodep()) {
+            VL_DO_DANGLING(assignp->unlinkFrBack()->delete_மரம்(), assignp);
+        } இல்லையெனில் {
+            Ast_முனை_கோவை* மாறிலி refp = nodep->exprp();
+            மாறிலி VSymEnt* foundp = m_curSymp->findIdFallback(refp->name());
+            எனில் (!foundp || !foundp->nodep()) {
                 refp->v3error("Corresponding variable " << refp->prettyNameQ()
                                                         << " does not exist");
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
+                திரும்பு;
             }
             varname = refp->name();
-            dtypep = VN_AS(foundp->nodep(), Var)->childDTypep()->cloneTree(false);
+            dtypep = VN_AS(foundp->nodep(), Var)->childDTypep()->clone_மரம்(பொய்);
         }
-        AstVar* const newvarp = new AstVar{nodep->fileline(), VVarType::MODULETEMP, varname,
+        AstVar* மாறிலி newvarp = புதிய AstVar{nodep->fileline(), VVarType::MODULETEMP, varname,
                                            VFlagChildDType{}, dtypep};
         newvarp->lifetime(VLifetime::STATIC_EXPLICIT);
         nodep->varp(newvarp);
         iterate(nodep->exprp());
     }
-    void visit(AstConstraint* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstConstraint* nodep) override {  // FindVisitor::
         VL_RESTORER(m_curSymp);
         // Change to appropriate package if extern declaration (vs definition)
         VSymEnt* upSymp = m_curSymp;
-        if (nodep->classOrPackagep()) {
-            AstClassOrPackageRef* const cpackagerefp
+        எனில் (nodep->classOrPackagep()) {
+            AstClassOrPackageRef* மாறிலி cpackagerefp
                 = VN_CAST(nodep->classOrPackagep(), ClassOrPackageRef);
-            if (!cpackagerefp) {
+            எனில் (!cpackagerefp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: extern constraint definition with class-in-class");
-            } else {
-                if (!cpackagerefp->classOrPackageSkipp()) {
-                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, true, false,
+            } இல்லையெனில் {
+                எனில் (!cpackagerefp->classOrPackageSkipp()) {
+                    m_statep->resolveClassOrPackage(m_curSymp, cpackagerefp, உண்மை, பொய்,
                                                     "External definition :: reference");
                 }
-                AstClass* const classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
-                if (!classp) {
+                AstClass* மாறிலி classp = VN_CAST(cpackagerefp->classOrPackageSkipp(), Class);
+                எனில் (!classp) {
                     nodep->v3error("Extern declaration's scope is not a defined class");
-                } else {
-                    m_curSymp = m_statep->getNodeSym(classp);
+                } இல்லையெனில் {
+                    m_curSymp = m_statep->get_முனை_Sym(classp);
                     upSymp = m_curSymp;
                     // Move it to proper spot under the target class
                     nodep->unlinkFrBack();
                     classp->addStmtsp(nodep);
-                    nodep->classOrPackagep()->unlinkFrBack()->deleteTree();
+                    nodep->classOrPackagep()->unlinkFrBack()->delete_மரம்();
                 }
             }
         }
         // Set the class as package for iteration
-        const string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
-        m_curSymp = m_statep->insertBlock(upSymp, name, nodep, m_classOrPackagep);
+        மாறிலி string name = (nodep->isExternProto() ? "extern "s : ""s) + nodep->name();
+        m_curSymp = m_statep->செருகு_Block(upSymp, name, nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstVar* nodep) override {  // FindVisitor::
         // Var: Remember its name for later resolution
         UASSERT_OBJ(m_curSymp && m_modSymp, nodep, "Var not under module?");
         iterateChildren(nodep);
-        if (VN_IS(m_curSymp->nodep(), Class)
+        எனில் (VN_IS(m_curSymp->nodep(), Class)
             && VN_AS(m_curSymp->nodep(), Class)->isInterfaceClass() && !nodep->isParam()) {
             nodep->v3error("Interface class cannot contain non-parameter members"
                            << " (IEEE 1800-2023 8.26): " << nodep->prettyNameQ());
         }
-        if (!m_statep->forScopeCreation()) {
+        எனில் (!m_statep->forScopeCreation()) {
             // Find under either a task or the module's vars
-            const VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
-            if (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
+            மாறிலி VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
+            எனில் (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
                 foundp = m_modSymp;  // Conflicts with modname?
             }
-            AstVar* const findvarp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
+            AstVar* மாறிலி findvarp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
             // clocking items can have duplicate names (inout)
-            if (findvarp && VN_IS(findvarp->backp(), ClockingItem)
+            எனில் (findvarp && VN_IS(findvarp->backp(), ClockingItem)
                 && VN_IS(nodep->backp(), ClockingItem)) {
-                AstClockingItem* const itemp = VN_AS(nodep->backp(), ClockingItem);
-                AstClockingItem* const finditemp = VN_AS(findvarp->backp(), ClockingItem);
+                AstClockingItem* மாறிலி itemp = VN_AS(nodep->backp(), ClockingItem);
+                AstClockingItem* மாறிலி finditemp = VN_AS(findvarp->backp(), ClockingItem);
                 UINFO(4, "ClockCompl: " << itemp << " ;; " << finditemp);
                 UINFO(4, "ClockCompV: " << nodep << " ;; " << findvarp);
-                if (*itemp->exprp()->fileline() == *finditemp->exprp()->fileline()) {
-                    UASSERT_OBJ(finditemp->direction() == VDirection::INPUT
+                எனில் (*itemp->exprp()->fileline() == *finditemp->exprp()->fileline()) {
+                    UASSERT_OBJ(finditemp->direction() == VDirection::உள்ளீடு
                                     && itemp->direction() == VDirection::OUTPUT,
                                 itemp, "Input after output?");
                     // pretend nothing found and rename
@@ -1902,35 +1902,35 @@ class LinkDotFindVisitor final : public VNVisitor {
                     finditemp->outputp(itemp);
                 }
             }
-            bool ins = false;
-            if (!foundp) {
-                ins = true;
-            } else if (!findvarp && m_curSymp->findIdFlat(nodep->name()) && !foundp->imported()) {
+            தருக்க ins = பொய்;
+            எனில் (!foundp) {
+                ins = உண்மை;
+            } இல்லையெனில் எனில் (!findvarp && m_curSymp->findIdFlat(nodep->name()) && !foundp->imported()) {
                 nodep->v3error("Unsupported in C: Variable has same name as "
-                               << LinkDotState::nodeTextType(foundp->nodep()) << ": "
+                               << LinkDotState::முனை_Text_Type(foundp->nodep()) << ": "
                                << nodep->prettyNameQ());
-            } else if (findvarp != nodep) {
+            } இல்லையெனில் எனில் (findvarp != nodep) {
                 UINFO(4, "DupVar: " << nodep << " ;; " << foundp->nodep());
                 UINFO(4, "    found  cur=se" << cvtToHex(m_curSymp) << " ;; parent=se"
                                              << cvtToHex(foundp->parentp()));
-                if (foundp->parentp() == m_curSymp  // Only when on same level
+                எனில் (foundp->parentp() == m_curSymp  // Only when on same level
                     && !foundp->imported()) {  // and not from package
-                    if (VN_IS(m_curSymp->nodep(), Clocking)) {
+                    எனில் (VN_IS(m_curSymp->nodep(), Clocking)) {
                         nodep->v3error("Multiple clockvars with the same name not allowed");
-                        return;
+                        திரும்பு;
                     }
-                    const bool nansiBad
+                    மாறிலி தருக்க nansiBad
                         = (((findvarp->isDeclTyped() || findvarp->isNet())
                             && (nodep->isDeclTyped() || nodep->isNet()))
                            || (findvarp->isIO() && nodep->isIO())  // e.g. !(output && output)
                            || findvarp->gotNansiType());  // e.g. int x && int x
-                    const bool ansiBad
+                    மாறிலி தருக்க ansiBad
                         = findvarp->isAnsi() || nodep->isAnsi();  // dup illegal with ANSI
-                    if (ansiBad || nansiBad) {
-                        bool ansiWarn = ansiBad && !nansiBad;
-                        if (ansiWarn) {
-                            static int s_didAnsiWarn = false;
-                            if (s_didAnsiWarn++) ansiWarn = false;
+                    எனில் (ansiBad || nansiBad) {
+                        தருக்க ansiWarn = ansiBad && !nansiBad;
+                        எனில் (ansiWarn) {
+                            நிலையான முழு s_didAnsiWarn = பொய்;
+                            எனில் (s_didAnsiWarn++) ansiWarn = பொய்;
                         }
                         nodep->v3error("Duplicate declaration of signal: "
                                        << nodep->prettyNameQ() << '\n'
@@ -1946,40 +1946,40 @@ class LinkDotFindVisitor final : public VNVisitor {
                         // Combining most likely reduce other errors
                         findvarp->combineType(nodep);
                         findvarp->fileline()->modifyStateInherit(nodep->fileline());
-                    } else {
+                    } இல்லையெனில் {
                         findvarp->combineType(nodep);
                         findvarp->fileline()->modifyStateInherit(nodep->fileline());
-                        findvarp->gotNansiType(true);
+                        findvarp->gotNansiType(உண்மை);
                         UASSERT_OBJ(nodep->subDTypep(), nodep, "Var has no type");
-                        if (nodep->subDTypep()->numeric().isSigned()
+                        எனில் (nodep->subDTypep()->numeric().isSigned()
                             && !findvarp->subDTypep()->numeric().isSigned()) {
-                            findvarp->subDTypep()->numeric(VSigning{true});
+                            findvarp->subDTypep()->numeric(VSigning{உண்மை});
                         }
-                        AstNodeDType* const varDtp = findvarp->subDTypep();
-                        AstNodeDType* const otherDtp = nodep->subDTypep();
-                        if (varDtp
+                        Ast_முனை_DType* மாறிலி varDtp = findvarp->subDTypep();
+                        Ast_முனை_DType* மாறிலி otherDtp = nodep->subDTypep();
+                        எனில் (varDtp
                             && (VN_IS(varDtp, BasicDType)
                                 && VN_AS(varDtp, BasicDType)->implicit())) {
                             // Then have "input foo" and "real foo" so the
                             // dtype comes from the other side.
-                            VL_DO_DANGLING(varDtp->unlinkFrBack()->deleteTree(), varDtp);
+                            VL_DO_DANGLING(varDtp->unlinkFrBack()->delete_மரம்(), varDtp);
                             findvarp->childDTypep(otherDtp->unlinkFrBack());
-                        } else if (!m_statep->forScopeCreation() && otherDtp && varDtp
+                        } இல்லையெனில் எனில் (!m_statep->forScopeCreation() && otherDtp && varDtp
                                    && !(VN_IS(otherDtp, BasicDType)
                                         && VN_AS(otherDtp, BasicDType)->implicit())) {
                             // otherDtp and varDtp both non-nullptr and neither are implicit
                             // Can't compare dtypes now as might contain parameters,
                             // defer to V3Width
-                            AstAttrOf* const newp
-                                = new AstAttrOf{otherDtp->fileline(), VAttrType::VAR_PORT_DTYPE,
+                            AstAttrOf* மாறிலி newp
+                                = புதிய AstAttrOf{otherDtp->fileline(), VAttrType::VAR_PORT_DTYPE,
                                                 otherDtp->unlinkFrBack()};
                             findvarp->addAttrsp(newp);
                         }
                     }
-                    VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-                } else {
+                    VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
+                } இல்லையெனில் {
                     // User can disable the message at either point
-                    if (!(m_ftaskp && m_ftaskp->dpiImport())
+                    எனில் (!(m_ftaskp && m_ftaskp->dpiImport())
                         && (!m_ftaskp || m_ftaskp != foundp->nodep())  // Not the function's
                                                                        // variable hiding function
                         && !nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
@@ -1992,115 +1992,115 @@ class LinkDotFindVisitor final : public VNVisitor {
                                           << "... Location of original declaration\n"
                                           << foundp->nodep()->warnContextSecondary());
                     }
-                    ins = true;
+                    ins = உண்மை;
                 }
             }
-            if (ins) {
-                if (m_statep->forPrimary() && nodep->isGParam()
+            எனில் (ins) {
+                எனில் (m_statep->forPrimary() && nodep->isGParam()
                     && VN_IS(m_modSymp->nodep(), Module)
-                    && (m_statep->rootEntp()->nodep() == m_modSymp->parentp()->nodep())) {
+                    && (m_statep->வேர்_Entp()->nodep() == m_modSymp->parentp()->nodep())) {
                     // This is the toplevel module. Check for command line overwrites of parameters
                     // We first search if the parameter is overwritten and then replace it with a
                     // new value.
-                    if (v3Global.opt.hasParameter(nodep->name())) {
-                        const string svalue = v3Global.opt.parameter(nodep->name());
-                        if (AstConst* const valuep
+                    எனில் (v3Global.opt.hasParameter(nodep->name())) {
+                        மாறிலி string svalue = v3Global.opt.parameter(nodep->name());
+                        எனில் (AstConst* மாறிலி valuep
                             = AstConst::parseParamLiteral(nodep->fileline(), svalue)) {
                             UINFO(9, "       replace parameter " << nodep);
                             UINFO(9, "       with " << valuep);
-                            if (nodep->valuep()) pushDeletep(nodep->valuep()->unlinkFrBack());
+                            எனில் (nodep->valuep()) தள்ளு_Deletep(nodep->valuep()->unlinkFrBack());
                             nodep->valuep(valuep);
                             // Do not warn ENUMVALUE when overriding an enum param from the cli.
-                            nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, true);
+                            nodep->fileline()->warnOff(V3ErrorCode::ENUMVALUE, உண்மை);
                         }
                     }
                 }
-                m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-                if (m_statep->forPrimary() && nodep->isGParam()) {
-                    ++m_paramNum;
-                    VSymEnt* const symp
-                        = m_statep->insertSym(m_curSymp, "__paramNumber" + cvtToStr(m_paramNum),
+                m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+                எனில் (m_statep->forPrimary() && nodep->isGParam()) {
+                    ++m_param_இலக்கம்;
+                    VSymEnt* மாறிலி symp
+                        = m_statep->செருகு_Sym(m_curSymp, "__paramNumber" + cvtToStr(m_param_இலக்கம்),
                                               nodep, m_classOrPackagep);
-                    symp->exported(false);
+                    symp->exported(பொய்);
                 }
             }
         }
     }
-    void visit(AstTypedef* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstTypedef* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Typedef not under module/package/$unit");
-        if (VN_IS(m_classOrPackagep, Class)) nodep->isUnderClass(true);
+        எனில் (VN_IS(m_classOrPackagep, Class)) nodep->isUnderClass(உண்மை);
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstTypedefFwd* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstTypedefFwd* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Typedef not under module/package/$unit");
         iterateChildren(nodep);
         // No need to insert, only the real typedef matters, but need to track for errors
         nodep->user1p(m_curSymp);
     }
-    void visit(AstNodeUOrStructDType* nodep) override {  // FindVisitor::
+    வெறுமை visit(Ast_முனை_UOr_Struct_DType* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Struct/union dtype not under module/package/$unit");
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__Vdtype" + cvtToStr(nodep->uniqueNum()),
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, "__Vdtype" + cvtToStr(nodep->unique_இலக்கம்()),
                                           nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstMemberDType* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstMemberDType* nodep) override {  // FindVisitor::
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstParamTypeDType* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstParamTypeDType* nodep) override {  // FindVisitor::
         UASSERT_OBJ(m_curSymp, nodep, "Parameter type not under module/package/$unit");
 
         // Replace missing param types with provided hierarchical type params.
-        if (!m_hierParamsName.empty()) {
-            if (const VSymEnt* const typedefEntp = m_curSymp->findIdFallback(m_hierParamsName)) {
-                const AstModule* modp = VN_CAST(typedefEntp->nodep(), Module);
+        எனில் (!m_hierParamsName.empty()) {
+            எனில் (மாறிலி VSymEnt* மாறிலி typedefEntp = m_curSymp->findIdFallback(m_hierParamsName)) {
+                மாறிலி AstModule* modp = VN_CAST(typedefEntp->nodep(), Module);
 
-                for (const AstNode* stmtp = modp ? modp->stmtsp() : nullptr; stmtp;
+                க்கு (மாறிலி Ast_முனை* stmtp = modp ? modp->stmtsp() : nullptr; stmtp;
                      stmtp = stmtp->nextp()) {
-                    const AstTypedef* tdefp = VN_CAST(stmtp, Typedef);
+                    மாறிலி AstTypedef* tdefp = VN_CAST(stmtp, Typedef);
 
-                    if (tdefp && tdefp->name() == nodep->name() && m_statep->forPrimary()) {
+                    எனில் (tdefp && tdefp->name() == nodep->name() && m_statep->forPrimary()) {
                         UINFO(8, "Replacing type of" << nodep << "  -->with " << tdefp);
-                        AstNodeDType* const newDtp = tdefp->childDTypep();
-                        AstNodeDType* const oldDtp = nodep->childDTypep();
+                        Ast_முனை_DType* மாறிலி newDtp = tdefp->childDTypep();
+                        Ast_முனை_DType* மாறிலி oldDtp = nodep->childDTypep();
 
-                        oldDtp->replaceWith(newDtp->cloneTree(false));
-                        VL_DO_DANGLING(oldDtp->deleteTree(), oldDtp);
+                        oldDtp->replaceWith(newDtp->clone_மரம்(பொய்));
+                        VL_DO_DANGLING(oldDtp->delete_மரம்(), oldDtp);
                     }
                 }
             }
         }
 
         iterateChildren(nodep);
-        m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-        if (m_statep->forPrimary() && nodep->isGParam()) {
-            ++m_paramNum;
-            VSymEnt* const symp = m_statep->insertSym(
-                m_curSymp, "__paramNumber" + cvtToStr(m_paramNum), nodep, m_classOrPackagep);
-            symp->exported(false);
+        m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        எனில் (m_statep->forPrimary() && nodep->isGParam()) {
+            ++m_param_இலக்கம்;
+            VSymEnt* மாறிலி symp = m_statep->செருகு_Sym(
+                m_curSymp, "__paramNumber" + cvtToStr(m_param_இலக்கம்), nodep, m_classOrPackagep);
+            symp->exported(பொய்);
         }
     }
-    void visit(AstCFunc* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstCFunc* nodep) override {  // FindVisitor::
         // For dotted resolution, ignore all AstVars under functions, otherwise shouldn't exist
         UASSERT_OBJ(!m_statep->forScopeCreation(), nodep, "No CFuncs expected in tree yet");
     }
-    void visit(AstEnumItem* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstEnumItem* nodep) override {  // FindVisitor::
         // EnumItem: Remember its name for later resolution
         iterateChildren(nodep);
         // Find under either a task or the module's vars
-        const VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
-        if (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
+        மாறிலி VSymEnt* foundp = m_curSymp->findIdFallback(nodep->name());
+        எனில் (!foundp && m_modSymp && nodep->name() == m_modSymp->nodep()->name()) {
             foundp = m_modSymp;  // Conflicts with modname?
         }
-        AstEnumItem* const findvarp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
-        bool ins = false;
-        if (!foundp) {
-            ins = true;
-        } else if (findvarp != nodep) {
+        AstEnumItem* மாறிலி findvarp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
+        தருக்க ins = பொய்;
+        எனில் (!foundp) {
+            ins = உண்மை;
+        } இல்லையெனில் எனில் (findvarp != nodep) {
             UINFO(4, "DupVar: " << nodep << " ;; " << foundp);
-            if (foundp->parentp() == m_curSymp  // Only when on same level
+            எனில் (foundp->parentp() == m_curSymp  // Only when on same level
                 && !foundp->imported()) {  // and not from package
                 nodep->v3error("Duplicate declaration of enum value: "
                                << nodep->prettyName() << '\n'
@@ -2108,9 +2108,9 @@ class LinkDotFindVisitor final : public VNVisitor {
                                << foundp->nodep()->warnOther()
                                << "... Location of original declaration\n"
                                << foundp->nodep()->warnContextSecondary());
-            } else {
+            } இல்லையெனில் {
                 // User can disable the message at either point
-                if (!nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
+                எனில் (!nodep->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)
                     && !foundp->nodep()->fileline()->warnIsOff(V3ErrorCode::VARHIDDEN)) {
                     nodep->v3warn(VARHIDDEN,
                                   "Declaration of enum value hides declaration in upper scope: "
@@ -2120,45 +2120,45 @@ class LinkDotFindVisitor final : public VNVisitor {
                                       << "... Location of original declaration\n"
                                       << foundp->nodep()->warnContextSecondary());
                 }
-                ins = true;
+                ins = உண்மை;
             }
         }
-        if (ins) m_statep->insertSym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        எனில் (ins) m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
     }
-    void visit(AstPackageImport* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstPackageImport* nodep) override {  // FindVisitor::
         UINFO(4, "  Link: " << nodep);
-        if (!nodep->packagep()) return;  // Errored in V3LinkCells
-        VSymEnt* const srcp = m_statep->getNodeSym(nodep->packagep());
-        if (nodep->name() == "*") {
-            if (nodep->packagep() != v3Global.rootp()->stdPackagep()) {
-                if (m_curSymp == m_statep->dunitEntp()) {
+        எனில் (!nodep->packagep()) திரும்பு;  // Errored in V3LinkCells
+        VSymEnt* மாறிலி srcp = m_statep->get_முனை_Sym(nodep->packagep());
+        எனில் (nodep->name() == "*") {
+            எனில் (nodep->packagep() != v3Global.rootp()->stdPackagep()) {
+                எனில் (m_curSymp == m_statep->dunitEntp()) {
                     nodep->v3warn(IMPORTSTAR,
                                   "'import::*' in $unit scope may pollute global namespace");
                 }
             }
-        } else if (!nodep->resolvedClassp()) {
-            VSymEnt* const impp = srcp->findIdFlat(nodep->name());
-            if (!impp) {
+        } இல்லையெனில் எனில் (!nodep->resolvedClassp()) {
+            VSymEnt* மாறிலி impp = srcp->findIdFlat(nodep->name());
+            எனில் (!impp) {
                 nodep->v3error("Import object not found: " << nodep->prettyPkgNameQ());
-            } else if (nodep->resolvedClassp()) {
+            } இல்லையெனில் எனில் (nodep->resolvedClassp()) {
                 UASSERT_OBJ(nodep->resolvedClassp()->classOrPackageSkipp() == impp->nodep(), nodep,
                             "Import should resolve to the same node");
-            } else if (AstClass* const classp = VN_CAST(impp->nodep(), Class)) {
+            } இல்லையெனில் எனில் (AstClass* மாறிலி classp = VN_CAST(impp->nodep(), Class)) {
                 nodep->resolvedClassp(
-                    new AstClassOrPackageRef{nodep->fileline(), classp->name(), classp, nullptr});
+                    புதிய AstClassOrPackageRef{nodep->fileline(), classp->name(), classp, nullptr});
             }
         }
         m_curSymp->importFromPackage(m_statep->symsp(), srcp, nodep->name());
         UINFO(9, "    Link Done: " << nodep);
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
-    void visit(AstPackageExport* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstPackageExport* nodep) override {  // FindVisitor::
         UINFO(9, "  Link: " << nodep);
-        if (!nodep->packagep()) return;  // Errored in V3LinkCells
-        VSymEnt* const srcp = m_statep->getNodeSym(nodep->packagep());
-        if (nodep->name() != "*") {
-            VSymEnt* const impp = srcp->findIdFlat(nodep->name());
-            if (!impp) {
+        எனில் (!nodep->packagep()) திரும்பு;  // Errored in V3LinkCells
+        VSymEnt* மாறிலி srcp = m_statep->get_முனை_Sym(nodep->packagep());
+        எனில் (nodep->name() != "*") {
+            VSymEnt* மாறிலி impp = srcp->findIdFlat(nodep->name());
+            எனில் (!impp) {
                 nodep->v3error("Export object not found: '" << nodep->packagep()->prettyName()
                                                             << "::" << nodep->prettyName() << "'");
             }
@@ -2167,40 +2167,40 @@ class LinkDotFindVisitor final : public VNVisitor {
         UINFO(9, "    Link Done: " << nodep);
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
-    void visit(AstPackageExportStarStar* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstPackageExportStarStar* nodep) override {  // FindVisitor::
         UINFO(4, "  Link: " << nodep);
         m_curSymp->exportStarStar(m_statep->symsp());
         // No longer needed, but can't delete until any multi-instantiated modules are expanded
     }
 
-    void visit(AstNodeForeach* nodep) override {  // FindVisitor::
+    வெறுமை visit(Ast_முனை_Foreach* nodep) override {  // FindVisitor::
         // Symbol table needs nodep->name() as the index variable's name
         VL_RESTORER(m_curSymp);
         {
-            ++m_modWithNum;
-            m_curSymp = m_statep->insertBlock(m_curSymp, "__Vforeach" + cvtToStr(m_modWithNum),
+            ++m_mod_With_இலக்கம்;
+            m_curSymp = m_statep->செருகு_Block(m_curSymp, "__Vforeach" + cvtToStr(m_mod_With_இலக்கம்),
                                               nodep, m_classOrPackagep);
             m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-            for (AstNode *nextp, *argp = nodep->headerp()->elementsp(); argp; argp = nextp) {
+            க்கு (Ast_முனை *nextp, *argp = nodep->headerp()->elementsp(); argp; argp = nextp) {
                 nextp = argp->nextp();
                 AstVar* argrefp = nullptr;
-                if (AstParseRef* const parserefp = VN_CAST(argp, ParseRef)) {
+                எனில் (AstParseRef* மாறிலி parserefp = VN_CAST(argp, ParseRef)) {
                     // IEEE 1800-2023 12.7.3: foreach loop variable type shall be int (2-state)
                     // This might get changed in V3Width when types resolve (e.g., for assoc
                     // arrays)
-                    argrefp = new AstVar{parserefp->fileline(), VVarType::BLOCKTEMP,
+                    argrefp = புதிய AstVar{parserefp->fileline(), VVarType::BLOCKTEMP,
                                          parserefp->name(), argp->findIntDType()};
                     argrefp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
                     parserefp->replaceWith(argrefp);
-                    VL_DO_DANGLING2(parserefp->deleteTree(), parserefp, argp);
+                    VL_DO_DANGLING2(parserefp->delete_மரம்(), parserefp, argp);
                     // Insert argref's name into symbol table
-                    m_statep->insertSym(m_curSymp, argrefp->name(), argrefp, nullptr);
-                } else if (const auto largrefp = VN_CAST(argp, Var)) {
+                    m_statep->செருகு_Sym(m_curSymp, argrefp->name(), argrefp, nullptr);
+                } இல்லையெனில் எனில் (மாறிலி auto largrefp = VN_CAST(argp, Var)) {
                     argrefp = largrefp;
                     // Insert argref's name into symbol table
-                    m_statep->insertSym(m_curSymp, argrefp->name(), argrefp, nullptr);
-                } else if (VN_IS(argp, Empty)) {
-                } else {
+                    m_statep->செருகு_Sym(m_curSymp, argrefp->name(), argrefp, nullptr);
+                } இல்லையெனில் எனில் (VN_IS(argp, Empty)) {
+                } இல்லையெனில் {
                     argp->v3error("'foreach' loop variable expects simple variable name");
                 }
             }
@@ -2208,147 +2208,147 @@ class LinkDotFindVisitor final : public VNVisitor {
         }
     }
 
-    void visit(AstRandSequence* nodep) override {
+    வெறுமை visit(AstRandSequence* nodep) override {
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
         iterateChildren(nodep);
     }
-    void visit(AstRSProd* nodep) override {
+    வெறுமை visit(AstRSProd* nodep) override {
         VL_RESTORER(m_curSymp);
-        m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
-        if (nodep->fvarp())
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, m_classOrPackagep);
+        எனில் (nodep->fvarp())
             nodep->fvarp()->v3warn(E_UNSUPPORTED,
                                    "Unsupported: randsequence production function variable");
         // Mark formal ports as port-checked so the primary resolve pass does not
         // flag them with "does not appear in port list" -- V3RandSequence will
         // later move them onto the generated task as real input ports.
-        for (AstNode* itp = nodep->portsp(); itp; itp = itp->nextp()) {
-            VN_AS(itp, Var)->user4(true);
+        க்கு (Ast_முனை* itp = nodep->portsp(); itp; itp = itp->nextp()) {
+            VN_AS(itp, Var)->user4(உண்மை);
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstWithParse* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstWithParse* nodep) override {  // FindVisitor::
         // Change WITHPARSE(FUNCREF, equation) to FUNCREF(WITH(equation))
-        AstNodeFTaskRef* funcrefp = VN_CAST(nodep->funcrefp(), NodeFTaskRef);
-        if (const AstDot* const dotp = VN_CAST(nodep->funcrefp(), Dot))
-            funcrefp = VN_CAST(dotp->rhsp(), NodeFTaskRef);
+        Ast_முனை_FTask_Ref* funcrefp = VN_CAST(nodep->funcrefp(), முனை_FTask_Ref);
+        எனில் (மாறிலி AstDot* மாறிலி dotp = VN_CAST(nodep->funcrefp(), Dot))
+            funcrefp = VN_CAST(dotp->rhsp(), முனை_FTask_Ref);
         UASSERT_OBJ(funcrefp, nodep, "'with' only can operate on a function/task");
         string name = funcrefp->name() == "randomize" ? "__Vrandwith_obj" : "item";
-        FileLine* argFl = nodep->fileline();
-        AstArg* const argsp = funcrefp->argsp();
-        if (argsp) {
+        File_வரி* argFl = nodep->fileline();
+        AstArg* மாறிலி argsp = funcrefp->argsp();
+        எனில் (argsp) {
             argsp->unlinkFrBackWithNext();
-            if (funcrefp->name() != "randomize") {
-                if (const auto parserefp = VN_CAST(argsp->exprp(), ParseRef)) {
+            எனில் (funcrefp->name() != "randomize") {
+                எனில் (மாறிலி auto parserefp = VN_CAST(argsp->exprp(), ParseRef)) {
                     name = parserefp->name();
                     argFl = parserefp->fileline();
-                } else {
+                } இல்லையெனில் {
                     argsp->v3error("'with' function expects simple variable name");
                 }
-                if (argsp->nextp()) {
+                எனில் (argsp->nextp()) {
                     argsp->nextp()->v3error("'with' function expects only up to one argument");
                 }
-                VL_DO_DANGLING(argsp->deleteTree(), argsp);
+                VL_DO_DANGLING(argsp->delete_மரம்(), argsp);
             }
         }
         // Type depends on the method used, let V3Width figure it out later
         // 'with (...) { ... }' constraint_block form is randomize-only
         // (IEEE 1800-2023 7.12 vs. 18.7); array methods take 'with (expr)'.
-        if (nodep->restricted() && funcrefp->name() != "randomize") {
+        எனில் (nodep->restricted() && funcrefp->name() != "randomize") {
             nodep->v3error("'with (...) { ... }' constraint block is only valid for"
                            " randomize() (IEEE 1800-2023 18.7)");
             funcrefp->addArgsp(argsp);
             nodep->replaceWith(nodep->funcrefp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
+            திரும்பு;
         }
-        const bool restrictedRandomize = nodep->restricted();
-        if (nodep->exprsp() || nodep->constraintsp()
+        மாறிலி தருக்க restrictedRandomize = nodep->restricted();
+        எனில் (nodep->exprsp() || nodep->constraintsp()
             || restrictedRandomize) {  // Else empty expression and pretend no "with"
-            AstLambdaArgRef* const indexArgRefp
-                = new AstLambdaArgRef{argFl, name + "__DOT__index", true};
-            AstLambdaArgRef* const valueArgRefp = new AstLambdaArgRef{argFl, name, false};
-            AstWith* const newp
-                = new AstWith{nodep->fileline(), indexArgRefp, valueArgRefp, nullptr};
+            AstLambdaArgRef* மாறிலி indexArgRefp
+                = புதிய AstLambdaArgRef{argFl, name + "__DOT__index", உண்மை};
+            AstLambdaArgRef* மாறிலி மதிப்பு_Arg_Refp = புதிய AstLambdaArgRef{argFl, name, பொய்};
+            AstWith* மாறிலி newp
+                = புதிய AstWith{nodep->fileline(), indexArgRefp, மதிப்பு_Arg_Refp, nullptr};
             // Harvest the identifier_list into AstWith; grammar guarantees AstParseRef.
-            if (restrictedRandomize) {
-                newp->restricted(true);
-                while (AstNode* const itemp = nodep->exprsp()) {
+            எனில் (restrictedRandomize) {
+                newp->restricted(உண்மை);
+                போது (Ast_முனை* மாறிலி itemp = nodep->exprsp()) {
                     newp->addRestrictedName(VN_AS(itemp, ParseRef)->name());
                     itemp->unlinkFrBack();
-                    VL_DO_DANGLING(pushDeletep(itemp), itemp);
+                    VL_DO_DANGLING(தள்ளு_Deletep(itemp), itemp);
                 }
             }
-            AstNode* exprOrConstraintsp = nullptr;
-            if (nodep->exprsp()) exprOrConstraintsp = nodep->exprsp()->unlinkFrBackWithNext();
-            if (nodep->constraintsp())
-                exprOrConstraintsp = AstNode::addNext(
-                    exprOrConstraintsp, nodep->constraintsp()->unlinkFrBackWithNext());
-            newp->addExprp(exprOrConstraintsp);  // addExprp() tolerates nullptr
+            Ast_முனை* கோவை_Or_Constraintsp = nullptr;
+            எனில் (nodep->exprsp()) கோவை_Or_Constraintsp = nodep->exprsp()->unlinkFrBackWithNext();
+            எனில் (nodep->constraintsp())
+                கோவை_Or_Constraintsp = Ast_முனை::addNext(
+                    கோவை_Or_Constraintsp, nodep->constraintsp()->unlinkFrBackWithNext());
+            newp->addExprp(கோவை_Or_Constraintsp);  // addExprp() tolerates nullptr
             funcrefp->withp(newp);
         }
         funcrefp->addArgsp(argsp);
         nodep->replaceWith(nodep->funcrefp()->unlinkFrBack());
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_மரம்(), nodep);
     }
-    void visit(AstWith* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstWith* nodep) override {  // FindVisitor::
         // Symbol table needs nodep->name() as the index variable's name
         // Iteration will pickup the AstVar we made under AstWith
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__Vwith" + cvtToStr(m_modWithNum), nodep,
+        ++m_mod_With_இலக்கம்;
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, "__Vwith" + cvtToStr(m_mod_With_இலக்கம்), nodep,
                                           m_classOrPackagep);
         m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
         UASSERT_OBJ(nodep->indexArgRefp(), nodep, "Missing lambda argref");
-        UASSERT_OBJ(nodep->valueArgRefp(), nodep, "Missing lambda argref");
+        UASSERT_OBJ(nodep->மதிப்பு_Arg_Refp(), nodep, "Missing lambda argref");
         // Insert argref's name into symbol table
-        m_statep->insertSym(m_curSymp, nodep->valueArgRefp()->name(), nodep->valueArgRefp(),
+        m_statep->செருகு_Sym(m_curSymp, nodep->மதிப்பு_Arg_Refp()->name(), nodep->மதிப்பு_Arg_Refp(),
                             nullptr);
         iterateChildren(nodep);
     }
-    void visit(AstCoverWith* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstCoverWith* nodep) override {  // FindVisitor::
         // The range list is outside the scope of the filter, which declares 'item'
         iterateAndNextNull(nodep->subp());
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__VcoverWith" + cvtToStr(m_modWithNum),
+        ++m_mod_With_இலக்கம்;
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, "__VcoverWith" + cvtToStr(m_mod_With_இலக்கம்),
                                           nodep, m_classOrPackagep);
         m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
         iterateAndNextNull(nodep->itemp());
         iterateAndNextNull(nodep->filterp());
     }
-    void visit(AstCoverCrossWith* nodep) override {  // FindVisitor::
+    வெறுமை visit(AstCoverCrossWith* nodep) override {  // FindVisitor::
         // The selection, the 'matches' count, and the cross items' types, of their coverpoints'
         // expressions with any nested scopes, are outside the filter's scope, which declares the
         // items.  As visit(AstVar) would resolve a type in the scope declaring its variable, the
         // items, generated and unique, are inserted directly.
         iterateAndNextNull(nodep->selectp());
         iterateAndNextNull(nodep->countp());
-        for (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+        க்கு (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
             iterateAndNextNull(varp->childDTypep());
         }
         VL_RESTORER(m_curSymp);
-        ++m_modWithNum;
-        m_curSymp = m_statep->insertBlock(m_curSymp, "__VcoverWith" + cvtToStr(m_modWithNum),
+        ++m_mod_With_இலக்கம்;
+        m_curSymp = m_statep->செருகு_Block(m_curSymp, "__VcoverWith" + cvtToStr(m_mod_With_இலக்கம்),
                                           nodep, m_classOrPackagep);
         m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
-        for (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
-            m_statep->insertSym(m_curSymp, varp->name(), varp, m_classOrPackagep);
+        க்கு (AstVar* varp = nodep->varsp(); varp; varp = VN_AS(varp->nextp(), Var)) {
+            m_statep->செருகு_Sym(m_curSymp, varp->name(), varp, m_classOrPackagep);
         }
         iterateAndNextNull(nodep->filterp());
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // FindVisitor::
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }  // FindVisitor::
 
-    void handleUnvisitedVirtIfaces() {
-        AstNodeModule* const top = v3Global.rootp()->modulesp();
-        m_curSymp = m_statep->getNodeSym(top);
-        for (AstIface* ifacep : m_virtIfaces) {
-            if (!ifacep->user4()) {  // virtual interface never assigned any actual interface
+    வெறுமை handleUnvisitedVirtIfaces() {
+        Ast_முனை_Module* மாறிலி உச்சி = v3Global.rootp()->modulesp();
+        m_curSymp = m_statep->get_முனை_Sym(உச்சி);
+        க்கு (AstIface* ifacep : m_virtIfaces) {
+            எனில் (!ifacep->user4()) {  // virtual interface never assigned any actual interface
                 // Create dummy cell to keep the virtual interface alive
                 // (later stages assume that non-dead interface has associated cell)
-                AstCell* const ifacecellp = new AstCell{ifacep->fileline(),
+                AstCell* மாறிலி ifacecellp = புதிய AstCell{ifacep->fileline(),
                                                         ifacep->fileline(),
                                                         "__VdummyInstOf" + ifacep->name(),
                                                         ifacep->name(),
@@ -2356,133 +2356,133 @@ class LinkDotFindVisitor final : public VNVisitor {
                                                         nullptr,
                                                         nullptr};
                 ifacecellp->modp(ifacep);
-                top->addStmtsp(ifacecellp);
+                உச்சி->addStmtsp(ifacecellp);
 
                 iterate(ifacecellp);
             }
         }
     }
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotFindVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
 
-        if (!m_virtIfaces.empty()) handleUnvisitedVirtIfaces();
-        for (AstScope* const scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
-        if (m_statep->forScopeCreation()) {
+        எனில் (!m_virtIfaces.empty()) handleUnvisitedVirtIfaces();
+        க்கு (AstScope* மாறிலி scopep : m_scopes) scopep->modp()->addStmtsp(scopep);
+        எனில் (m_statep->forScopeCreation()) {
             V3Stats::addStat("LinkDot, Scope visits", m_statScopeVisits);
         }
     }
-    ~LinkDotFindVisitor() override = default;
+    ~LinkDotFindVisitor() override = இயல்பு;
 };
 
 //======================================================================
 
-class LinkDotFindIfaceVisitor final : public VNVisitor {
+வகுப்பு LinkDotFindIfaceVisitor final : பொது VNVisitor {
     // NODE STATE
     //  *::user1p()             -> See LinkDotState
 
     // STATE - for current visit position (use VL_RESTORER)
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNode* m_declp = nullptr;  // Current declaring object that may soon contain IfaceRefDType
+    LinkDotState* மாறிலி m_statep;  // State to pass between visitors, including symbol table
+    Ast_முனை* m_declp = nullptr;  // Current declaring object that may soon contain IfaceRefDType
 
     // METHODS
-    const VSymEnt* findNonDeclSym(VSymEnt* symp, const string& name) {
+    மாறிலி VSymEnt* findNonDeclSym(VSymEnt* symp, மாறிலி string& name) {
         // Find if there is a symbol of given name, ignoring the node that is declaring
         // it (m_declp) itself.  Thus if searching for "ifc" (an interface):
         //
         // module x;  // Finishes here and finds the typedef
         //   typedef foo ifc;
         //   ifc ifc;   // symp starts pointing here, but matches m_declp
-        while (symp) {
-            const VSymEnt* const foundp = symp->findIdFlat(name);
-            if (foundp && foundp->nodep() != m_declp) return foundp;
+        போது (symp) {
+            மாறிலி VSymEnt* மாறிலி foundp = symp->findIdFlat(name);
+            எனில் (foundp && foundp->nodep() != m_declp) திரும்பு foundp;
             symp = symp->fallbackp();
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
 
     // VISITORS
-    void visit(AstRefDType* nodep) override {  // FindIfaceVisitor::
-        if (m_statep->forPrimary() && !nodep->classOrPackagep()) {
+    வெறுமை visit(AstRefDType* nodep) override {  // FindIfaceVisitor::
+        எனில் (m_statep->forPrimary() && !nodep->classOrPackagep()) {
             UINFO(9, "  FindIfc: " << nodep);
             // If under a var, ignore the var itself as might be e.g. "intf intf;"
             // Critical tests:
             //   t_interface_param_genblk.v  // Checks this does make interface
             //   t_interface_hidden.v  // Checks this doesn't making interface when hidden
-            if (m_statep->existsNodeSym(nodep)) {
-                VSymEnt* symp = m_statep->getNodeSym(nodep);
-                const VSymEnt* foundp = findNonDeclSym(symp, nodep->name());
-                AstNode* foundNodep = nullptr;
+            எனில் (m_statep->exists_முனை_Sym(nodep)) {
+                VSymEnt* symp = m_statep->get_முனை_Sym(nodep);
+                மாறிலி VSymEnt* foundp = findNonDeclSym(symp, nodep->name());
+                Ast_முனை* foundNodep = nullptr;
                 // This: v4make test_regress/t/t_interface_param_genblk.py --debug
                 // --debugi-V3LinkDot 9 Passes with this commented out:
-                if (foundp) foundNodep = foundp->nodep();
-                if (!foundNodep) foundNodep = m_statep->findModuleSym(nodep->name());
-                if (foundNodep) UINFO(9, "    Ifc foundNodep " << foundNodep);
-                if (AstIface* const defp = VN_CAST(foundNodep, Iface)) {
+                எனில் (foundp) foundNodep = foundp->nodep();
+                எனில் (!foundNodep) foundNodep = m_statep->findModuleSym(nodep->name());
+                எனில் (foundNodep) UINFO(9, "    Ifc foundNodep " << foundNodep);
+                எனில் (AstIface* மாறிலி defp = VN_CAST(foundNodep, Iface)) {
                     // Must be found as module name, and not hidden/ by normal symbol (foundp)
-                    AstIfaceRefDType* const newp
-                        = new AstIfaceRefDType{nodep->fileline(), "", nodep->name()};
-                    if (nodep->paramsp())
+                    AstIfaceRefDType* மாறிலி newp
+                        = புதிய AstIfaceRefDType{nodep->fileline(), "", nodep->name()};
+                    எனில் (nodep->paramsp())
                         newp->addParamsp(nodep->paramsp()->unlinkFrBackWithNext());
                     newp->ifacep(defp);
                     newp->user1u(nodep->user1u());
                     UINFO(9, "    Resolved interface " << nodep << "  =>  " << defp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    திரும்பு;
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {  // FindIfaceVisitor::
+    வெறுமை visit(AstVar* nodep) override {  // FindIfaceVisitor::
         VL_RESTORER(m_declp);
         m_declp = nodep;
         iterateChildren(nodep);
-        AstIfaceRefDType* const ifacerefp = LinkDotState::ifaceRefFromArray(nodep->subDTypep());
-        if (ifacerefp && m_statep->existsNodeSym(nodep)) {
+        AstIfaceRefDType* மாறிலி ifacerefp = LinkDotState::ifaceRefFromArray(nodep->subDTypep());
+        எனில் (ifacerefp && m_statep->exists_முனை_Sym(nodep)) {
             // Can't resolve until interfaces and modport names are
             // known; see notes at top
             UINFO(9, "  FindIfc Var IfaceRef " << ifacerefp);
-            if (!ifacerefp->isVirtual()) nodep->setIfaceRef();
-            VSymEnt* const symp = m_statep->getNodeSym(nodep);
-            m_statep->insertIfaceVarSym(symp);
+            எனில் (!ifacerefp->isVirtual()) nodep->setIfaceRef();
+            VSymEnt* மாறிலி symp = m_statep->get_முனை_Sym(nodep);
+            m_statep->செருகு_Iface_Var_Sym(symp);
         }
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // FindIfaceVisitor::
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }  // FindIfaceVisitor::
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotFindIfaceVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
     }
-    ~LinkDotFindIfaceVisitor() override = default;
+    ~LinkDotFindIfaceVisitor() override = இயல்பு;
 };
 
 //======================================================================
 
-class LinkDotParamVisitor final : public VNVisitor {
+வகுப்பு LinkDotParamVisitor final : பொது VNVisitor {
     // NODE STATE
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user4()              -> See LinkDotState
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    AstNodeModule* m_modp = nullptr;  // Current module
+    LinkDotState* மாறிலி m_statep;  // State to pass between visitors, including symbol table
+    Ast_முனை_Module* m_modp = nullptr;  // Current module
 
-    void pinImplicitExprRecurse(AstNode* nodep) {
+    வெறுமை pin_Implicit_கோவை_Recurse(Ast_முனை* nodep) {
         // Under a pin, Check interconnect expression for a pin reference or a concat.
         // Create implicit variable as needed
-        if (VN_IS(nodep, Dot)) {  // Not creating a simple implied type,
+        எனில் (VN_IS(nodep, Dot)) {  // Not creating a simple implied type,
             // and implying something else would just confuse later errors
-        } else if (VN_IS(nodep, VarRef) || VN_IS(nodep, ParseRef)) {
+        } இல்லையெனில் எனில் (VN_IS(nodep, VarRef) || VN_IS(nodep, ParseRef)) {
             // To prevent user errors, we should only do single bit
             // implicit vars, however some netlists (MIPS) expect single
             // bit implicit wires to get created with range 0:0 etc.
@@ -2490,21 +2490,21 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         // These are perhaps a little too generous, as a SELect of siga[sigb]
         // perhaps shouldn't create an implicit variable.  But, we've warned...
-        else {
-            if (AstNode* const refp = nodep->op1p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op2p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op3p()) pinImplicitExprRecurse(refp);
-            if (AstNode* const refp = nodep->op4p()) pinImplicitExprRecurse(refp);
+        இல்லையெனில் {
+            எனில் (Ast_முனை* மாறிலி refp = nodep->op1p()) pin_Implicit_கோவை_Recurse(refp);
+            எனில் (Ast_முனை* மாறிலி refp = nodep->op2p()) pin_Implicit_கோவை_Recurse(refp);
+            எனில் (Ast_முனை* மாறிலி refp = nodep->op3p()) pin_Implicit_கோவை_Recurse(refp);
+            எனில் (Ast_முனை* மாறிலி refp = nodep->op4p()) pin_Implicit_கோவை_Recurse(refp);
         }
         // Continue along a list (e.g. the terminals under AstImplicit), also after a reference
-        if (AstNode* const refp = nodep->nextp()) pinImplicitExprRecurse(refp);
+        எனில் (Ast_முனை* மாறிலி refp = nodep->nextp()) pin_Implicit_கோவை_Recurse(refp);
     }
 
     // VISITORS
-    void visit(AstTypeTable*) override {}  // ParamVisitor::
-    void visit(AstNodeModule* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstTypeTable*) override {}  // ParamVisitor::
+    வெறுமை visit(Ast_முனை_Module* nodep) override {  // ParamVisitor::
         UINFO(5, "   " << nodep);
-        if ((nodep->dead() || !nodep->user4()) && !nodep->hierParams()) {
+        எனில் ((nodep->dead() || !nodep->user4()) && !nodep->hierParams()) {
             UINFO(4, "Mark dead module " << nodep);
             UASSERT_OBJ(!m_statep->forScopeCreation(), nodep,
                         "Dead module persisted past where should have removed");
@@ -2512,110 +2512,110 @@ class LinkDotParamVisitor final : public VNVisitor {
             // parameterized modules with VARXREFs into the deleted module
             // region.  V3Dead should cleanup.
             // Downstream visitors up until V3Dead need to check for nodep->dead.
-            nodep->dead(true);
-            return;
+            nodep->dead(உண்மை);
+            திரும்பு;
         }
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstPin* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstPin* nodep) override {  // ParamVisitor::
         // Pin: Link to submodule's port
         // Deal with implicit definitions - do before Resolve visitor as may
         // be referenced above declaration
-        if (nodep->exprp()  // Else specifically unconnected pin
+        எனில் (nodep->exprp()  // Else specifically unconnected pin
             && !nodep->svImplicit()) {  // SV 19.11.3: .name pins don't allow implicit decls
-            pinImplicitExprRecurse(nodep->exprp());
+            pin_Implicit_கோவை_Recurse(nodep->exprp());
         }
     }
-    void visit(AstDefParam* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstDefParam* nodep) override {  // ParamVisitor::
         iterateChildren(nodep);
         nodep->v3warn(DEFPARAM, "defparam is deprecated (IEEE 1800-2023 C.4.1)\n"
                                     << nodep->warnMore()
                                     << "... Suggest use instantiation with #(."
                                     << nodep->prettyName() << "(...etc...))");
-        bool hasPartSelect = false;
-        const string path = extractDottedPath(nodep->pathp(), hasPartSelect);
+        தருக்க hasPartSelect = பொய்;
+        மாறிலி string path = extractDottedPath(nodep->pathp(), hasPartSelect);
         UASSERT_OBJ(!hasPartSelect && !path.empty(), nodep, "Unexpected defparam path shape");
         string baddot;
         VSymEnt* okSymp = nullptr;
-        VSymEnt* const foundp = m_statep->findDotted(
-            nodep->fileline(), m_statep->getNodeSym(nodep), path, baddot, okSymp, true);
-        AstCell* const cellp = foundp ? VN_AS(foundp->nodep(), Cell) : nullptr;
-        if (!cellp) {
+        VSymEnt* மாறிலி foundp = m_statep->findDotted(
+            nodep->fileline(), m_statep->get_முனை_Sym(nodep), path, baddot, okSymp, உண்மை);
+        AstCell* மாறிலி cellp = foundp ? VN_AS(foundp->nodep(), Cell) : nullptr;
+        எனில் (!cellp) {
             nodep->v3error("In defparam, instance " << path << " never declared");
-        } else {
-            AstNodeExpr* const exprp = nodep->rhsp()->unlinkFrBack();
+        } இல்லையெனில் {
+            Ast_முனை_கோவை* மாறிலி exprp = nodep->rhsp()->unlinkFrBack();
             UINFO(9, "Defparam cell " << path << "." << nodep->name() << " attach-to " << cellp
                                       << "  <= " << exprp);
             // Don't need to check the name of the defparam exists.  V3Param does.
-            AstPin* const pinp = new AstPin{nodep->fileline(),
+            AstPin* மாறிலி pinp = புதிய AstPin{nodep->fileline(),
                                             -1,  // Pin# not relevant
                                             nodep->name(), exprp};
-            pinp->param(true);
+            pinp->param(உண்மை);
             pinp->paramPath(path);
             cellp->addParamsp(pinp);
         }
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
     }
-    void visit(AstPort* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstPort* nodep) override {  // ParamVisitor::
         // Port: Stash the pin number
         // Need to set pin numbers after varnames are created
         // But before we do the final resolution based on names
-        VSymEnt* const foundp = m_statep->getNodeSym(m_modp)->findIdFlat(nodep->name());
-        AstVar* const refp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
-        if (!foundp) {
+        VSymEnt* மாறிலி foundp = m_statep->get_முனை_Sym(m_modp)->findIdFlat(nodep->name());
+        AstVar* மாறிலி refp = foundp ? VN_CAST(foundp->nodep(), Var) : nullptr;
+        எனில் (!foundp) {
             nodep->v3error(
                 "Input/output/inout declaration not found for port: " << nodep->prettyNameQ());
-        } else if (!refp || (!refp->isIO() && !refp->isIfaceRef())) {
+        } இல்லையெனில் எனில் (!refp || (!refp->isIO() && !refp->isIfaceRef())) {
             nodep->v3error("Pin is not an in/out/inout/interface: " << nodep->prettyNameQ());
-        } else {
-            if (refp->user4()) {
+        } இல்லையெனில் {
+            எனில் (refp->user4()) {
                 nodep->v3error("Duplicate declaration of port: "
                                << nodep->prettyNameQ() << '\n'
                                << nodep->warnContextPrimary() << '\n'
                                << refp->warnOther() << "... Location of original declaration\n"
                                << refp->warnContextSecondary());
             }
-            refp->user4(true);
-            VSymEnt* const symp = m_statep->insertSym(m_statep->getNodeSym(m_modp),
-                                                      "__pinNumber" + cvtToStr(nodep->pinNum()),
+            refp->user4(உண்மை);
+            VSymEnt* மாறிலி symp = m_statep->செருகு_Sym(m_statep->get_முனை_Sym(m_modp),
+                                                      "__pinNumber" + cvtToStr(nodep->pin_இலக்கம்()),
                                                       refp, nullptr /*classOrPackagep*/);
-            symp->exported(false);
-            refp->pinNum(nodep->pinNum());
+            symp->exported(பொய்);
+            refp->pin_இலக்கம்(nodep->pin_இலக்கம்());
             // Put the variable where the port is, so that variables stay
             // in pin number sorted order. Otherwise hierarchical or JSON
             // may botch by-position instances.
             nodep->addHereThisAsNext(refp->unlinkFrBack());
         }
         // Ports not needed any more
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
     }
-    void visit(AstAssignW* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstAssignW* nodep) override {  // ParamVisitor::
         // Deal with implicit definitions
         // We used to nodep->allowImplicit() here, but it turns out
         // normal "assigns" can also make implicit wires.  Yuk.
-        pinImplicitExprRecurse(nodep->lhsp());
+        pin_Implicit_கோவை_Recurse(nodep->lhsp());
         iterateChildren(nodep);
     }
 
-    void visit(AstImplicit* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstImplicit* nodep) override {  // ParamVisitor::
         // Unsupported gates need implicit creation
-        pinImplicitExprRecurse(nodep->exprsp());
+        pin_Implicit_கோவை_Recurse(nodep->exprsp());
         // We're done with implicit gates
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
     }
-    void visit(AstClassOrPackageRef* nodep) override {  // ParamVisitor::
-        if (auto* const fwdp = VN_CAST(nodep->classOrPackageNodep(), TypedefFwd)) {
+    வெறுமை visit(AstClassOrPackageRef* nodep) override {  // ParamVisitor::
+        எனில் (auto* மாறிலி fwdp = VN_CAST(nodep->classOrPackageNodep(), TypedefFwd)) {
             // Relink forward definitions to the "real" definition
-            VSymEnt* const foundp = m_statep->getNodeSym(fwdp)->findIdFallback(fwdp->name());
-            if (foundp && (VN_IS(foundp->nodep(), Class) || VN_IS(foundp->nodep(), Package))) {
-                nodep->classOrPackagep(VN_AS(foundp->nodep(), NodeModule));
-            } else if (foundp && VN_IS(foundp->nodep(), ParamTypeDType)) {
+            VSymEnt* மாறிலி foundp = m_statep->get_முனை_Sym(fwdp)->findIdFallback(fwdp->name());
+            எனில் (foundp && (VN_IS(foundp->nodep(), Class) || VN_IS(foundp->nodep(), Package))) {
+                nodep->classOrPackagep(VN_AS(foundp->nodep(), முனை_Module));
+            } இல்லையெனில் எனில் (foundp && VN_IS(foundp->nodep(), ParamTypeDType)) {
                 UASSERT(m_statep->forPrimary(), "Param types should have been resolved");
                 nodep->classOrPackageNodep(VN_AS(foundp->nodep(), ParamTypeDType));
-            } else {
-                if (foundp) UINFO(1, "found nodep = " << foundp->nodep());
+            } இல்லையெனில் {
+                எனில் (foundp) UINFO(1, "found nodep = " << foundp->nodep());
                 nodep->v3error(
                     "Forward typedef used as class/package does not resolve to class/package: "
                     << nodep->prettyNameQ() << '\n'
@@ -2627,22 +2627,22 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstPull* nodep) override {  // ParamVisitor::
+    வெறுமை visit(AstPull* nodep) override {  // ParamVisitor::
         // Deal with implicit definitions
         // We used to nodep->allowImplicit() here, but it turns out
         // normal "assigns" can also make implicit wires.  Yuk.
-        pinImplicitExprRecurse(nodep->lhsp());
+        pin_Implicit_கோவை_Recurse(nodep->lhsp());
         iterateChildren(nodep);
     }
-    void visit(AstTypedefFwd* nodep) override {  // ParamVisitor::
-        VSymEnt* const foundp = m_statep->getNodeSym(nodep)->findIdFallback(nodep->name());
-        if (foundp) {
+    வெறுமை visit(AstTypedefFwd* nodep) override {  // ParamVisitor::
+        VSymEnt* மாறிலி foundp = m_statep->get_முனை_Sym(nodep)->findIdFallback(nodep->name());
+        எனில் (foundp) {
             // If the typedef was earlier in source order (tokenNum), then remember that earlier
             // point to avoid error something wasn't declared
             // Might be forward declaring something odd (with declTokenNumSetMin not implemented,
             // but should be harmless to ignore as this is just for error detection
-            foundp->nodep()->declTokenNumSetMin(nodep->fileline()->tokenNum());
-        } else if (v3Global.opt.pedantic()) {
+            foundp->nodep()->decl_Token_இலக்கம்_Set_Min(nodep->fileline()->token_இலக்கம்());
+        } இல்லையெனில் எனில் (v3Global.opt.pedantic()) {
             // We only check it was ever really defined in pedantic mode, as it
             // might have been in a header file referring to a module we never
             // needed so there are false positives
@@ -2652,50 +2652,50 @@ class LinkDotParamVisitor final : public VNVisitor {
         }
         // We only needed the forward declaration in order to parse correctly.
         // Delete later as may be ClassOrPackageRef's still pointing to it
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // ParamVisitor::
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }  // ParamVisitor::
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotParamVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
         UINFO(4, __FUNCTION__ << ": ");
         iterate(rootp);
     }
-    ~LinkDotParamVisitor() override = default;
+    ~LinkDotParamVisitor() override = இயல்பு;
 };
 
 //======================================================================
 
-class LinkDotScopeVisitor final : public VNVisitor {
+வகுப்பு LinkDotScopeVisitor final : பொது VNVisitor {
 
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
-    const AstScope* m_scopep = nullptr;  // The current scope
+    LinkDotState* மாறிலி m_statep;  // State to pass between visitors, including symbol table
+    மாறிலி AstScope* m_scopep = nullptr;  // The current scope
     VSymEnt* m_modSymp = nullptr;  // Symbol entry for current module
     // Deferred AliasScope processing - must be done outer-to-inner for correct alias resolution
     std::vector<std::pair<AstAliasScope*, VSymEnt*>> m_deferredAliasScopes;
 
     // METHODS
-public:
+பொது:
     // getAlias with setVarAlias and setIfaceAlias implement disjoint-set data structure.
     // This algorithm is needed for the case when multiple alias statements
     // reference partially the same variables.
-    static AstVarScope* getAlias(AstVarScope* const vscp) {
-        if (vscp->user2p() && vscp != vscp->user2p()) {
-            AstVarScope* const aliasp = getAlias(VN_AS(vscp->user2p(), VarScope));
+    நிலையான AstVarScope* getAlias(AstVarScope* மாறிலி vscp) {
+        எனில் (vscp->user2p() && vscp != vscp->user2p()) {
+            AstVarScope* மாறிலி aliasp = getAlias(VN_AS(vscp->user2p(), VarScope));
             vscp->user2p(aliasp);
-            return aliasp;
-        } else {
-            return vscp;
+            திரும்பு aliasp;
+        } இல்லையெனில் {
+            திரும்பு vscp;
         }
     }
 
-private:
+தனிப்பட்ட:
     // Alias an interface reference to the interface it is connected to
-    void setIfaceAlias(AstVarScope* const vscp, AstVarScope* const aliasp) {
+    வெறுமை setIfaceAlias(AstVarScope* மாறிலி vscp, AstVarScope* மாறிலி aliasp) {
         UASSERT_OBJ(vscp->varp()->isIfaceRef(), vscp, "Interface alias of non-interface");
         UASSERT_OBJ(aliasp->varp()->isIfaceRef(), aliasp, "Interface alias of non-interface");
         getAlias(vscp)->user2p(getAlias(aliasp));
@@ -2703,46 +2703,46 @@ private:
 
     // Alias two variables. An output port in the lower scope survives, unless the other
     // must keep its own storage.
-    void setVarAlias(AstVarScope* ap, AstVarScope* bp) {
+    வெறுமை setVarAlias(AstVarScope* ap, AstVarScope* bp) {
         UASSERT_OBJ(!ap->varp()->isIfaceRef(), ap, "Variable alias of interface");
         UASSERT_OBJ(!bp->varp()->isIfaceRef(), bp, "Variable alias of interface");
         ap = getAlias(ap);
         bp = getAlias(bp);
-        if (ap == bp) return;
-        const bool aWins = [&]() {
-            const AstVar* const aVarp = ap->varp();
-            const AstVar* const bVarp = bp->varp();
+        எனில் (ap == bp) திரும்பு;
+        மாறிலி தருக்க aWins = [&]() {
+            மாறிலி AstVar* மாறிலி aVarp = ap->varp();
+            மாறிலி AstVar* மாறிலி bVarp = bp->varp();
             // A primary IO is accessed directly by the user of the model, so must survive
             UASSERT_OBJ(!aVarp->isPrimaryIO() || !bVarp->isPrimaryIO(), ap,
                         "Alias of two primary IOs");
-            if (bVarp->isPrimaryIO()) return false;
-            if (aVarp->isPrimaryIO()) return true;
+            எனில் (bVarp->isPrimaryIO()) திரும்பு பொய்;
+            எனில் (aVarp->isPrimaryIO()) திரும்பு உண்மை;
             // A forced or public variable must keep its own storage. If both are, either works.
-            if (aVarp->isForced() != bVarp->isForced()) return aVarp->isForced();
-            if (aVarp->isSigPublic() != bVarp->isSigPublic()) return aVarp->isSigPublic();
+            எனில் (aVarp->isForced() != bVarp->isForced()) திரும்பு aVarp->isForced();
+            எனில் (aVarp->isSigPublic() != bVarp->isSigPublic()) திரும்பு aVarp->isSigPublic();
             // Otherwise prefer an output port in the lower scope. This enables better V3Combine
             // due to having fewer upward hierarchical references (which prevent combining).
-            if (aVarp->direction() != VDirection::OUTPUT) return false;
+            எனில் (aVarp->direction() != VDirection::OUTPUT) திரும்பு பொய்;
             // Is 'ap' strictly below 'bp' in the hierarchy
-            for (const AstScope* scopep = ap->scopep()->aboveScopep(); scopep;
+            க்கு (மாறிலி AstScope* scopep = ap->scopep()->aboveScopep(); scopep;
                  scopep = scopep->aboveScopep()) {
-                if (scopep == bp->scopep()) return true;
+                எனில் (scopep == bp->scopep()) திரும்பு உண்மை;
             }
-            return false;
+            திரும்பு பொய்;
         }();
-        if (aWins) {
+        எனில் (aWins) {
             bp->user2p(ap);
-        } else {
+        } இல்லையெனில் {
             ap->user2p(bp);
         }
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {  // ScopeVisitor::
+    வெறுமை visit(AstNetlist* nodep) override {  // ScopeVisitor::
         // Recurse..., backward as must do packages before using packages
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstScope* nodep) override {  // ScopeVisitor::
+    வெறுமை visit(AstScope* nodep) override {  // ScopeVisitor::
         UINFO(8, "  SCOPE " << nodep);
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep,
                     "Scopes should only exist right after V3Scope");
@@ -2753,37 +2753,37 @@ private:
         m_modSymp = m_statep->getScopeSym(nodep);
         // Interfaces need another pass when signals are resolved. Register the scope's
         // entry, as that is the one holding the AstVarScopes.
-        if (AstIface* const ifacep = VN_CAST(nodep->modp(), Iface)) {
-            m_statep->insertIfaceModSym(ifacep, m_modSymp);
+        எனில் (AstIface* மாறிலி ifacep = VN_CAST(nodep->modp(), Iface)) {
+            m_statep->செருகு_Iface_Mod_Sym(ifacep, m_modSymp);
         }
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstVarScope* nodep) override {  // ScopeVisitor::
-        if (!nodep->varp()->isFuncLocal() && !nodep->varp()->isClassMember()) {
-            VSymEnt* const varSymp
-                = m_statep->insertSym(m_modSymp, nodep->varp()->name(), nodep, nullptr);
-            if (nodep->varp()->isIfaceRef()) {
-                AstIfaceRefDType* const dtypep
+    வெறுமை visit(AstVarScope* nodep) override {  // ScopeVisitor::
+        எனில் (!nodep->varp()->isFuncLocal() && !nodep->varp()->isClassMember()) {
+            VSymEnt* மாறிலி varSymp
+                = m_statep->செருகு_Sym(m_modSymp, nodep->varp()->name(), nodep, nullptr);
+            எனில் (nodep->varp()->isIfaceRef()) {
+                AstIfaceRefDType* மாறிலி dtypep
                     = LinkDotState::ifaceRefFromArray(nodep->varp()->dtypep());
                 UASSERT_OBJ(dtypep, nodep, "Non AstIfaceRefDType on isIfaceRef() var");
-                if (nodep->varp()->isIfaceParent()) {
+                எனில் (nodep->varp()->isIfaceParent()) {
                     UINFO(9, "Iface parent ref var " << nodep->varp()->name() << " " << nodep);
                     // Find the interface cell the var references
                     UINFO(9, "Iface parent dtype " << dtypep);
-                    const string ifcellname = dtypep->cellName();
+                    மாறிலி string ifcellname = dtypep->cellName();
                     string baddot;
                     VSymEnt* okSymp;
                     VSymEnt* cellSymp = m_statep->findDotted(nodep->fileline(), m_modSymp,
-                                                             ifcellname, baddot, okSymp, false);
+                                                             ifcellname, baddot, okSymp, பொய்);
                     UASSERT_OBJ(
                         cellSymp, nodep,
                         "No symbol for interface instance: " << nodep->prettyNameQ(ifcellname));
                     UINFO(5, "       Found interface instance: se" << cvtToHex(cellSymp) << " "
                                                                    << cellSymp->nodep());
-                    if (dtypep->modportName() != "") {
+                    எனில் (dtypep->modportName() != "") {
                         // Look up the modport within the interface cell's symbol table
-                        VSymEnt* const mpSymp = cellSymp->findIdFallback(dtypep->modportName());
+                        VSymEnt* மாறிலி mpSymp = cellSymp->findIdFallback(dtypep->modportName());
                         UASSERT_OBJ(mpSymp, nodep,
                                     "No symbol for interface modport: "
                                         << nodep->prettyNameQ(dtypep->modportName()));
@@ -2794,89 +2794,89 @@ private:
                     // Interface reference; need to put whole thing into
                     // symtable, but can't clone it now as we may have a later
                     // alias for it.
-                    m_statep->insertScopeAlias(LinkDotState::SAMN_IFTOP, varSymp, cellSymp);
+                    m_statep->செருகு_Scope_Alias(LinkDotState::SAMN_IFTOP, varSymp, cellSymp);
                 }
             }
         }
     }
-    void visit(AstNodeFTask* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {  // ScopeVisitor::
+        VSymEnt* மாறிலி symp = m_statep->செருகு_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         iterateChildren(nodep);
     }
-    void visit(AstNodeForeach* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    வெறுமை visit(Ast_முனை_Foreach* nodep) override {  // ScopeVisitor::
+        VSymEnt* மாறிலி symp = m_statep->செருகு_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         // No recursion, we don't want to pick up variables
     }
-    void visit(AstConstraintForeach* nodep) override {  // ScopeVisitor::
+    வெறுமை visit(AstConstraintForeach* nodep) override {  // ScopeVisitor::
         iterateChildren(nodep);
     }
-    void visit(AstWith* nodep) override {  // ScopeVisitor::
-        VSymEnt* const symp = m_statep->insertBlock(m_modSymp, nodep->name(), nodep, nullptr);
+    வெறுமை visit(AstWith* nodep) override {  // ScopeVisitor::
+        VSymEnt* மாறிலி symp = m_statep->செருகு_Block(m_modSymp, nodep->name(), nodep, nullptr);
         symp->fallbackp(m_modSymp);
         iterateChildren(nodep);
     }
-    void visit(AstAlias* nodep) override {  // ScopeVisitor::
+    வெறுமை visit(AstAlias* nodep) override {  // ScopeVisitor::
         // Track aliases
         UINFOTREE(9, nodep, "", "alias");
         AstVarScope* aliasVscp = nullptr;
-        for (AstNode* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
+        க்கு (Ast_முனை* itemp = nodep->itemsp(); itemp; itemp = itemp->nextp()) {
             AstVarScope* vscp = nullptr;
-            if (const AstVarRef* const refp = VN_CAST(itemp, VarRef)) {
+            எனில் (மாறிலி AstVarRef* மாறிலி refp = VN_CAST(itemp, VarRef)) {
                 vscp = refp->varScopep();
-            } else {
+            } இல்லையெனில் {
                 // Reaches into the scope of an instance, look it up by name
-                const AstVarXRef* const xrefp = VN_AS(itemp, VarXRef);
-                const string scopename = xrefp->dotted() + "." + xrefp->name();
+                மாறிலி AstVarXRef* மாறிலி xrefp = VN_AS(itemp, VarXRef);
+                மாறிலி string scopename = xrefp->dotted() + "." + xrefp->name();
                 string baddot;
                 VSymEnt* okSymp;
-                VSymEnt* const symp = m_statep->findDotted(xrefp->fileline(), m_modSymp, scopename,
-                                                           baddot, okSymp, false);
+                VSymEnt* மாறிலி symp = m_statep->findDotted(xrefp->fileline(), m_modSymp, scopename,
+                                                           baddot, okSymp, பொய்);
                 UASSERT_OBJ(symp, nodep, "No symbol for alias item: " << scopename);
                 vscp = VN_CAST(symp->nodep(), VarScope);
             }
             UASSERT_OBJ(vscp, nodep, "VarScope unset");
-            if (aliasVscp) {
+            எனில் (aliasVscp) {
                 setVarAlias(aliasVscp, vscp);
-            } else {
+            } இல்லையெனில் {
                 aliasVscp = vscp;
             }
         }
         iterateChildren(nodep);
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstAliasScope* nodep) override {  // ScopeVisitor::
+    வெறுமை visit(AstAliasScope* nodep) override {  // ScopeVisitor::
         // Defer AliasScope processing - must process outer scopes before inner ones
         // so that nested interface port alias resolution works correctly
         UINFO(5, "ALIASSCOPE (deferred) " << nodep);
         m_deferredAliasScopes.emplace_back(nodep, m_modSymp);
     }
-    void processAliasScope(AstAliasScope* nodep, VSymEnt* modSymp) {
+    வெறுமை processAliasScope(AstAliasScope* nodep, VSymEnt* modSymp) {
         UINFO(5, "ALIASSCOPE  " << nodep);
         UINFOTREE(9, nodep, "", "avs");
         VSymEnt* rhsSymp;
         {
-            AstVarRef* const refp = VN_CAST(nodep->rhsp(), VarRef);
-            AstVarXRef* const xrefp = VN_CAST(nodep->rhsp(), VarXRef);
+            AstVarRef* மாறிலி refp = VN_CAST(nodep->rhsp(), VarRef);
+            AstVarXRef* மாறிலி xrefp = VN_CAST(nodep->rhsp(), VarXRef);
             UASSERT_OBJ(refp || xrefp, nodep,
                         "Unsupported: Non Var(X)Ref attached to interface pin");
             string inl
                 = ((xrefp && xrefp->inlinedDots().size()) ? (xrefp->inlinedDots() + "__DOT__")
                                                           : "");
-            const string dottedPath
+            மாறிலி string dottedPath
                 = (xrefp && !xrefp->dotted().empty()) ? (xrefp->dotted() + ".") : "";
             VSymEnt* symp = nullptr;
             string scopename;
-            while (!symp) {
+            போது (!symp) {
                 scopename = refp ? refp->name()
                                  : (inl.size() ? (inl + dottedPath + xrefp->name())
                                                : (dottedPath + xrefp->name()));
                 string baddot;
                 VSymEnt* okSymp;
                 symp = m_statep->findDotted(nodep->rhsp()->fileline(), modSymp, scopename, baddot,
-                                            okSymp, true);
-                if (inl == "") break;
+                                            okSymp, உண்மை);
+                எனில் (inl == "") நிறுத்து;
                 inl = LinkDotState::removeLastInlineScope(inl);
             }
             UASSERT_OBJ(symp, nodep, "No symbol for interface alias rhs");
@@ -2886,17 +2886,17 @@ private:
         }
         VSymEnt* lhsSymp;
         {
-            const AstVarXRef* const xrefp = VN_CAST(nodep->lhsp(), VarXRef);
-            const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef);
+            மாறிலி AstVarXRef* மாறிலி xrefp = VN_CAST(nodep->lhsp(), VarXRef);
+            மாறிலி AstVarRef* மாறிலி refp = VN_CAST(nodep->lhsp(), VarRef);
 
             UASSERT_OBJ(refp || xrefp, nodep,
                         "Unsupported: Non Var(X)Ref attached to interface pin");
-            const string scopename
+            மாறிலி string scopename
                 = refp ? refp->varp()->name() : xrefp->dotted() + "." + xrefp->name();
             string baddot;
             VSymEnt* okSymp;
-            VSymEnt* const symp = m_statep->findDotted(nodep->lhsp()->fileline(), modSymp,
-                                                       scopename, baddot, okSymp, false);
+            VSymEnt* மாறிலி symp = m_statep->findDotted(nodep->lhsp()->fileline(), modSymp,
+                                                       scopename, baddot, okSymp, பொய்);
             UASSERT_OBJ(symp, nodep, "No symbol for interface alias lhs");
             UINFO(5, "       Found a linked scope LHS: " << scopename << "  se" << cvtToHex(symp)
                                                          << " " << symp->nodep());
@@ -2904,45 +2904,45 @@ private:
         }
         // Remember the alias - can't do it yet because we may have additional symbols to be added,
         // or maybe an alias of an alias
-        m_statep->insertScopeAlias(LinkDotState::SAMN_IFTOP, lhsSymp, rhsSymp);
-        AstVarScope* const lhsVscp = VN_CAST(lhsSymp->nodep(), VarScope);
-        AstVarScope* const rhsVscp = VN_CAST(rhsSymp->nodep(), VarScope);
+        m_statep->செருகு_Scope_Alias(LinkDotState::SAMN_IFTOP, lhsSymp, rhsSymp);
+        AstVarScope* மாறிலி lhsVscp = VN_CAST(lhsSymp->nodep(), VarScope);
+        AstVarScope* மாறிலி rhsVscp = VN_CAST(rhsSymp->nodep(), VarScope);
         UASSERT_OBJ(lhsVscp && rhsVscp, nodep, "Interface alias missing variable scope");
         setIfaceAlias(lhsVscp, rhsVscp);
         // We have stored the link, we don't need these any more
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
     }
-    void processDeferredAliasScopes() {
+    வெறுமை processDeferredAliasScopes() {
         // Sort by hierarchy depth (shallower first) so outer aliases are resolved before inner
         // Pre-compute depth map to avoid O(N log N * D) complexity in sort comparisons
-        std::unordered_map<VSymEnt*, int> depthMap;
-        for (const auto& pair : m_deferredAliasScopes) {
-            VSymEnt* const symp = pair.second;
-            if (depthMap.find(symp) == depthMap.end()) {
-                int depth = 0;
-                for (VSymEnt* p = symp; p; p = p->parentp()) ++depth;
+        std::unordered_map<VSymEnt*, முழு> depthMap;
+        க்கு (மாறிலி auto& pair : m_deferredAliasScopes) {
+            VSymEnt* மாறிலி symp = pair.second;
+            எனில் (depthMap.find(symp) == depthMap.end()) {
+                முழு depth = 0;
+                க்கு (VSymEnt* p = symp; p; p = p->parentp()) ++depth;
                 depthMap[symp] = depth;
             }
         }
         std::stable_sort(m_deferredAliasScopes.begin(), m_deferredAliasScopes.end(),
-                         [&depthMap](const std::pair<AstAliasScope*, VSymEnt*>& a,
-                                     const std::pair<AstAliasScope*, VSymEnt*>& b) {
-                             return depthMap.at(a.second) < depthMap.at(b.second);
+                         [&depthMap](மாறிலி std::pair<AstAliasScope*, VSymEnt*>& a,
+                                     மாறிலி std::pair<AstAliasScope*, VSymEnt*>& b) {
+                             திரும்பு depthMap.at(a.second) < depthMap.at(b.second);
                          });
         // Process in sorted order
-        for (auto& pair : m_deferredAliasScopes) { processAliasScope(pair.first, pair.second); }
+        க்கு (auto& pair : m_deferredAliasScopes) { processAliasScope(pair.first, pair.second); }
         m_deferredAliasScopes.clear();
     }
-    void visit(AstNodeGen* nodep) override {  // ScopeVisitor::  // LCOV_EXCL_LINE
+    வெறுமை visit(Ast_முனை_Gen* nodep) override {  // ScopeVisitor::  // LCOV_EXCL_LINE
         nodep->v3fatalSrc("Generate constructs should have been reduced out");
     }
     // For speed, don't recurse things that can't have scope
     // Note we allow AstNodeStmt's as generates may be under them
-    void visit(AstCell*) override {}  // ScopeVisitor::
-    void visit(AstVar*) override {}  // ScopeVisitor::
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // ScopeVisitor::
+    வெறுமை visit(AstCell*) override {}  // ScopeVisitor::
+    வெறுமை visit(AstVar*) override {}  // ScopeVisitor::
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }  // ScopeVisitor::
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotScopeVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
@@ -2951,49 +2951,49 @@ public:
         // Process deferred AliasScopes in outer-to-inner order
         processDeferredAliasScopes();
     }
-    ~LinkDotScopeVisitor() override = default;
+    ~LinkDotScopeVisitor() override = இயல்பு;
 };
 
 //======================================================================
 
 // Iterate an interface to resolve modports
-class LinkDotIfaceVisitor final : public VNVisitor {
+வகுப்பு LinkDotIfaceVisitor final : பொது VNVisitor {
     // STATE
-    LinkDotState* const m_statep;  // State to pass between visitors, including symbol table
+    LinkDotState* மாறிலி m_statep;  // State to pass between visitors, including symbol table
     VSymEnt* m_curSymp;  // Symbol Entry for current table, where to lookup/insert
 
     // VISITORS
-    void visit(AstModport* nodep) override {  // IfaceVisitor::
+    வெறுமை visit(AstModport* nodep) override {  // IfaceVisitor::
         // Modport: Remember its name for later resolution
         UINFO(5, "   fiv: " << nodep);
         VL_RESTORER(m_curSymp);
         {
             // Create symbol table for the vars
-            m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), nodep, nullptr);
+            m_curSymp = m_statep->செருகு_Block(m_curSymp, nodep->name(), nodep, nullptr);
             m_curSymp->fallbackp(VL_RESTORER_PREV(m_curSymp));
             iterateChildren(nodep);
         }
     }
-    void visit(AstModportFTaskRef* nodep) override {  // IfaceVisitor::
+    வெறுமை visit(AstModportFTaskRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fif: " << nodep);
         iterateChildren(nodep);
-        VSymEnt* const symp = m_curSymp->findIdFallback(nodep->name());
-        if (!symp) {
+        VSymEnt* மாறிலி symp = m_curSymp->findIdFallback(nodep->name());
+        எனில் (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstNodeFTask* const ftaskp = VN_CAST(symp->nodep(), NodeFTask)) {
+        } இல்லையெனில் எனில் (Ast_முனை_FTask* மாறிலி ftaskp = VN_CAST(symp->nodep(), முனை_FTask)) {
             // Make symbol under modport that points at the _interface_'s var, not the modport.
             nodep->ftaskp(ftaskp);
-            VSymEnt* const subSymp
-                = m_statep->insertSym(m_curSymp, nodep->name(), ftaskp, nullptr /*package*/);
-            m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
-        } else {
+            VSymEnt* மாறிலி subSymp
+                = m_statep->செருகு_Sym(m_curSymp, nodep->name(), ftaskp, nullptr /*package*/);
+            m_statep->செருகு_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+        } இல்லையெனில் {
             nodep->v3error("Modport item is not a function/task: " << nodep->prettyNameQ());
         }
-        if (m_statep->forScopeCreation()) {
+        எனில் (m_statep->forScopeCreation()) {
             // Done with AstModportFTaskRef.
             // Delete to prevent problems if we dead-delete pointed to ftask
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
         }
     }
 
@@ -3002,49 +3002,49 @@ class LinkDotIfaceVisitor final : public VNVisitor {
     // this follows the interface type to resolve the remaining path.
     // Returns the resolved symbol, or nullptr if not found.
     // On success, clears baddot; on partial match of multi-level path, updates baddot.
-    VSymEnt* resolveNestedInterfacePath(FileLine* fl, VSymEnt* okSymp, string& baddot) {
-        if (!okSymp || baddot.empty()) return nullptr;
+    VSymEnt* resolveNestedInterfacePath(File_வரி* fl, VSymEnt* okSymp, string& baddot) {
+        எனில் (!okSymp || baddot.empty()) திரும்பு nullptr;
 
-        static constexpr int MAX_NESTING_DEPTH = 64;
+        நிலையான constexpr முழு MAX_NESTING_DEPTH = 64;
         VSymEnt* curOkSymp = okSymp;
 
-        for (int depth = 0; depth < MAX_NESTING_DEPTH; ++depth) {
+        க்கு (முழு depth = 0; depth < MAX_NESTING_DEPTH; ++depth) {
             // Try to get interface from the partially-matched symbol
             AstIface* ifacep = nullptr;
-            if (const AstCell* const cellp = VN_CAST(curOkSymp->nodep(), Cell)) {
+            எனில் (மாறிலி AstCell* மாறிலி cellp = VN_CAST(curOkSymp->nodep(), Cell)) {
                 ifacep = VN_CAST(cellp->modp(), Iface);
-            } else if (const AstVar* const varp = VN_CAST(curOkSymp->nodep(), Var)) {
-                if (varp->isIfaceRef()) {
-                    if (const AstIfaceRefDType* const ifaceRefp
+            } இல்லையெனில் எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(curOkSymp->nodep(), Var)) {
+                எனில் (varp->isIfaceRef()) {
+                    எனில் (மாறிலி AstIfaceRefDType* மாறிலி ifaceRefp
                         = LinkDotState::ifaceRefFromArray(varp->dtypep())) {
                         ifacep = ifaceRefp->ifaceViaCellp();
                     }
                 }
             }
 
-            if (!ifacep || !m_statep->existsNodeSym(ifacep)) return nullptr;
+            எனில் (!ifacep || !m_statep->exists_முனை_Sym(ifacep)) திரும்பு nullptr;
 
-            VSymEnt* const ifaceSymp = m_statep->getNodeSym(ifacep);
+            VSymEnt* மாறிலி ifaceSymp = m_statep->get_முனை_Sym(ifacep);
 
-            if (baddot.find('.') == string::npos) {
+            எனில் (baddot.find('.') == string::npos) {
                 // Simple identifier - direct lookup
-                VSymEnt* const symp = ifaceSymp->findIdFallback(baddot);
-                if (symp) baddot.clear();
-                return symp;
+                VSymEnt* மாறிலி symp = ifaceSymp->findIdFallback(baddot);
+                எனில் (symp) baddot.clear();
+                திரும்பு symp;
             }
 
             // Multi-level path - use findDotted for partial resolution
             string remainingBaddot;
             VSymEnt* remainingOkSymp = nullptr;
-            VSymEnt* const symp = m_statep->findDotted(fl, ifaceSymp, baddot, remainingBaddot,
-                                                       remainingOkSymp, true);
-            if (symp) {
+            VSymEnt* மாறிலி symp = m_statep->findDotted(fl, ifaceSymp, baddot, remainingBaddot,
+                                                       remainingOkSymp, உண்மை);
+            எனில் (symp) {
                 baddot = remainingBaddot;
-                return symp;
+                திரும்பு symp;
             }
 
             // findDotted partially matched - check progress
-            if (remainingBaddot == baddot || !remainingOkSymp) return nullptr;
+            எனில் (remainingBaddot == baddot || !remainingOkSymp) திரும்பு nullptr;
 
             // Continue resolving with updated state
             baddot = remainingBaddot;
@@ -3052,155 +3052,155 @@ class LinkDotIfaceVisitor final : public VNVisitor {
         }
 
         UINFO(1, "Nested interface resolution depth limit exceeded at " << fl);
-        return nullptr;
+        திரும்பு nullptr;
     }
 
     // Resolve a modport expression to find the referenced symbol
-    VSymEnt* resolveModportExpression(FileLine* fl, AstNodeExpr* exprp) {
+    VSymEnt* resolveModportExpression(File_வரி* fl, Ast_முனை_கோவை* exprp) {
         UINFO(5, "     resolveModportExpression: " << exprp);
         VSymEnt* symp = nullptr;
-        if (AstParseRef* const refp = VN_CAST(exprp, ParseRef)) {
+        எனில் (AstParseRef* மாறிலி refp = VN_CAST(exprp, ParseRef)) {
             // Simple variable reference: modport mp(input .a(sig_a))
             symp = m_curSymp->findIdFallback(refp->name());
-        } else if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
+        } இல்லையெனில் எனில் (AstVarRef* மாறிலி refp = VN_CAST(exprp, VarRef)) {
             // Already resolved VarRef (can happen if iterateChildren resolved it)
-            if (refp->varScopep()) {
+            எனில் (refp->varScopep()) {
                 // During scope creation, VarRef may have VarScope already linked
-                symp = m_statep->getNodeSym(refp->varScopep());
-            } else if (refp->varp()) {
+                symp = m_statep->get_முனை_Sym(refp->varScopep());
+            } இல்லையெனில் எனில் (refp->varp()) {
                 symp = m_curSymp->findIdFallback(refp->varp()->name());
             }
-        } else if (AstVarXRef* const refp = VN_CAST(exprp, VarXRef)) {
+        } இல்லையெனில் எனில் (AstVarXRef* மாறிலி refp = VN_CAST(exprp, VarXRef)) {
             // Resolved VarXRef (dotted reference resolved by earlier pass)
-            if (refp->varp()) {
+            எனில் (refp->varp()) {
                 // For nested interfaces, the var is in a different scope
                 // First try to find the symbol via the var itself
-                if (m_statep->existsNodeSym(refp->varp())) {
-                    symp = m_statep->getNodeSym(refp->varp());
-                } else {
+                எனில் (m_statep->exists_முனை_Sym(refp->varp())) {
+                    symp = m_statep->get_முனை_Sym(refp->varp());
+                } இல்லையெனில் {
                     // Fallback: look up in current scope
                     symp = m_curSymp->findIdFallback(refp->varp()->name());
                 }
-            } else if (!refp->dotted().empty()) {
+            } இல்லையெனில் எனில் (!refp->dotted().empty()) {
                 // varp not set yet - use dotted path to find the symbol
                 // The dotted part (e.g., "base") is the interface cell, and name is the member
-                const string fullPath = refp->dotted() + "." + refp->name();
+                மாறிலி string fullPath = refp->dotted() + "." + refp->name();
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                symp = m_statep->findDotted(fl, m_curSymp, fullPath, baddot, okSymp, true);
+                symp = m_statep->findDotted(fl, m_curSymp, fullPath, baddot, okSymp, உண்மை);
                 // Handle nested interface path when findDotted had partial match
-                if (okSymp && !baddot.empty()) {
-                    VSymEnt* const resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
-                    if (resolved) symp = resolved;
+                எனில் (okSymp && !baddot.empty()) {
+                    VSymEnt* மாறிலி resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
+                    எனில் (resolved) symp = resolved;
                 }
             }
-        } else if (AstDot* const dotp = VN_CAST(exprp, Dot)) {
+        } இல்லையெனில் எனில் (AstDot* மாறிலி dotp = VN_CAST(exprp, Dot)) {
             // Dotted path: modport mp(input .a(inner.sig))
-            bool hasPartSelect = false;
-            const string dottedPath = extractDottedPath(dotp, hasPartSelect);
-            if (hasPartSelect) {
+            தருக்க hasPartSelect = பொய்;
+            மாறிலி string dottedPath = extractDottedPath(dotp, hasPartSelect);
+            எனில் (hasPartSelect) {
                 fl->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Modport expression with part select (IEEE 1800-2023 25.5.4)");
-            } else {
+            } இல்லையெனில் {
                 string baddot;
                 VSymEnt* okSymp = nullptr;
-                symp = m_statep->findDotted(fl, m_curSymp, dottedPath, baddot, okSymp, true);
+                symp = m_statep->findDotted(fl, m_curSymp, dottedPath, baddot, okSymp, உண்மை);
 
                 // Handle nested interface path when findDotted had partial match
-                if (okSymp && !baddot.empty()) {
-                    VSymEnt* const resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
-                    if (resolved) symp = resolved;
+                எனில் (okSymp && !baddot.empty()) {
+                    VSymEnt* மாறிலி resolved = resolveNestedInterfacePath(fl, okSymp, baddot);
+                    எனில் (resolved) symp = resolved;
                 }
 
-                if (!symp || !baddot.empty()) {
+                எனில் (!symp || !baddot.empty()) {
                     fl->v3error("Can't find modport expression target: "
-                                << AstNode::prettyNameQ(dottedPath));
+                                << Ast_முனை::prettyNameQ(dottedPath));
                     symp = nullptr;
                 }
             }
-        } else if (VN_IS(exprp, SelBit) || VN_IS(exprp, SelExtract)) {
+        } இல்லையெனில் எனில் (VN_IS(exprp, SelBit) || VN_IS(exprp, SelExtract)) {
             // Part select expressions not yet supported
             fl->v3warn(E_UNSUPPORTED,
                        "Unsupported: Modport expression with part select (IEEE 1800-2023 25.5.4)");
-        } else {
+        } இல்லையெனில் {
             // Other expression types not supported
             fl->v3warn(E_UNSUPPORTED,
                        "Unsupported: Complex modport expression (IEEE 1800-2023 25.5.4)");
         }
-        return symp;
+        திரும்பு symp;
     }
 
-    void visit(AstModportVarRef* nodep) override {  // IfaceVisitor::
+    வெறுமை visit(AstModportVarRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fiv: " << nodep);
         iterateChildren(nodep);
         VSymEnt* symp = nullptr;
-        if (nodep->exprp()) {
+        எனில் (nodep->exprp()) {
             // Modport expression syntax: modport mp(input .port_name(expression))
             symp = resolveModportExpression(nodep->fileline(), nodep->exprp());
-        } else {
+        } இல்லையெனில் {
             symp = m_curSymp->findIdFallback(nodep->name());
         }
-        if (!symp) {
+        எனில் (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstVar* const varp = VN_CAST(symp->nodep(), Var)) {
+        } இல்லையெனில் எனில் (AstVar* மாறிலி varp = VN_CAST(symp->nodep(), Var)) {
             // Make symbol under modport that points at the _interface_'s var via the modport.
             // (Need modport still to test input/output markings)
             nodep->varp(varp);
-            if (nodep->exprp()) {
+            எனில் (nodep->exprp()) {
                 // For modport expressions, insert symbol pointing to the underlying var (not the
                 // ModportVarRef which will be deleted during scope creation). The virtual port
                 // name maps to the real signal's var.
-                VSymEnt* const subSymp
-                    = m_statep->insertSym(m_curSymp, nodep->name(), varp, nullptr /*package*/);
-                m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
-            } else {
+                VSymEnt* மாறிலி subSymp
+                    = m_statep->செருகு_Sym(m_curSymp, nodep->name(), varp, nullptr /*package*/);
+                m_statep->செருகு_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+            } இல்லையெனில் {
                 // For regular modport items, insert symbol pointing to ModportVarRef for
                 // input/output marking tests.
-                m_statep->insertSym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
+                m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
             }
-        } else if (AstVarScope* const vscp = VN_CAST(symp->nodep(), VarScope)) {
+        } இல்லையெனில் எனில் (AstVarScope* மாறிலி vscp = VN_CAST(symp->nodep(), VarScope)) {
             // Make symbol under modport that points at the _interface_'s var, not the modport.
             nodep->varp(vscp->varp());
             // Only insert symbol for modport expression virtual ports (exprp set).
             // For regular modport items, don't insert into the shared modport table because
             // each instance would overwrite the previous one, causing wrong VarScope lookups.
             // Regular items are found via the modport's fallback to the interface.
-            if (nodep->exprp()) {
-                VSymEnt* const subSymp
-                    = m_statep->insertSym(m_curSymp, nodep->name(), vscp, nullptr /*package*/);
-                m_statep->insertScopeAlias(LinkDotState::SAMN_MODPORT, subSymp, symp);
+            எனில் (nodep->exprp()) {
+                VSymEnt* மாறிலி subSymp
+                    = m_statep->செருகு_Sym(m_curSymp, nodep->name(), vscp, nullptr /*package*/);
+                m_statep->செருகு_Scope_Alias(LinkDotState::SAMN_MODPORT, subSymp, symp);
             }
-        } else {
+        } இல்லையெனில் {
             nodep->v3error("Modport item is not a variable: " << nodep->prettyNameQ());
         }
-        if (m_statep->forScopeCreation()) {
+        எனில் (m_statep->forScopeCreation()) {
             // Done with AstModportVarRef.
             // Delete to prevent problems if we dead-delete pointed to variable
             nodep->unlinkFrBack();
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
         }
     }
-    void visit(AstModportClockingRef* nodep) override {  // IfaceVisitor::
+    வெறுமை visit(AstModportClockingRef* nodep) override {  // IfaceVisitor::
         UINFO(5, "   fic: " << nodep);
         iterateChildren(nodep);
-        VSymEnt* const symp = m_curSymp->findIdFallback(nodep->name());
-        if (!symp) {
+        VSymEnt* மாறிலி symp = m_curSymp->findIdFallback(nodep->name());
+        எனில் (!symp) {
             nodep->v3error("Modport item not found: " << nodep->prettyNameQ());
-        } else if (AstClocking* const clockingp = VN_CAST(symp->nodep(), Clocking)) {
+        } இல்லையெனில் எனில் (AstClocking* மாறிலி clockingp = VN_CAST(symp->nodep(), Clocking)) {
             nodep->clockingp(clockingp);
-            m_statep->insertSym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
-        } else {
+            m_statep->செருகு_Sym(m_curSymp, nodep->name(), nodep, nullptr /*package*/);
+        } இல்லையெனில் {
             nodep->v3error("Modport item is not a clocking block: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstScope* nodep) override {  // IfaceVisitor::
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstScope* nodep) override {  // IfaceVisitor::
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }  // IfaceVisitor::
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildren(nodep); }  // IfaceVisitor::
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotIfaceVisitor(AstIface* nodep, VSymEnt* curSymp, LinkDotState* statep)
         : m_statep{statep}
@@ -3208,33 +3208,33 @@ public:
         UINFO(4, __FUNCTION__ << ": ");
         iterate(nodep);
     }
-    ~LinkDotIfaceVisitor() override = default;
+    ~LinkDotIfaceVisitor() override = இயல்பு;
 };
 
-void LinkDotState::computeIfaceModSyms() {
+வெறுமை LinkDotState::computeIfaceModSyms() {
     //  AstScope::user3()  // bool. Already iterated by a LinkDotIfaceVisitor
-    const VNUser3InUse user3InUse;
-    for (const auto& itr : m_ifaceModSyms) {
-        AstIface* const nodep = itr.first;
-        VSymEnt* const symp = itr.second;
-        LinkDotIfaceVisitor{nodep, symp, this};
+    மாறிலி VNUser3InUse user3InUse;
+    க்கு (மாறிலி auto& itr : m_ifaceModSyms) {
+        AstIface* மாறிலி nodep = itr.first;
+        VSymEnt* மாறிலி symp = itr.second;
+        LinkDotIfaceVisitor{nodep, symp, இது};
     }
     m_ifaceModSyms.clear();
 }
 
 //======================================================================
 
-class LinkDotResolveVisitor final : public VNVisitor {
+வகுப்பு LinkDotResolveVisitor final : பொது VNVisitor {
     // NODE STATE
     // Cleared on global
     //  *::user1p()             -> See LinkDotState
     //  *::user2p()             -> See LinkDotState
     //  *::user3()              // bool. Processed
     //  *::user4()              -> See LinkDotState
-    const VNUser3InUse m_inuser3;
+    மாறிலி VNUser3InUse m_inuser3;
 
     // TYPES
-    enum DotPosition : uint8_t {
+    எண்ணிக்கை DotPosition : uint8_t {
         // Must match ascii() method below
         DP_NONE = 0,  // Not under a DOT
         DP_PACKAGE,  // {package-or-class}:: DOT
@@ -3245,99 +3245,99 @@ class LinkDotResolveVisitor final : public VNVisitor {
     };
 
     // STATE
-    LinkDotState* const m_statep;  // State, including dotted symbol table
+    LinkDotState* மாறிலி m_statep;  // State, including dotted symbol table
     VSymEnt* m_curSymp = nullptr;  // SymEnt for current lookup point
     VSymEnt* m_modSymp = nullptr;  // SymEnt for current module
     VSymEnt* m_pinSymp = nullptr;  // SymEnt for pin lookups
     VSymEnt* m_randSymp = nullptr;  // SymEnt for randomize target class's lookups
-    const AstCell* m_cellp = nullptr;  // Current cell
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
+    மாறிலி AstCell* m_cellp = nullptr;  // Current cell
+    Ast_முனை_Module* m_modp = nullptr;  // Current module
+    Ast_முனை_FTask* m_ftaskp = nullptr;  // Current function/task
     AstMethodCall* m_randMethodCallp = nullptr;  // Current randomize() method call
-    int m_modportNum = 0;  // Uniqueify modport numbers
-    int m_indent = 0;  // Indentation (tree depth) for debug
-    bool m_inSens = false;  // True if in senitem
-    const AstWith* m_currentWithp = nullptr;  // Enclosing 'with' (nullptr if none)
+    முழு m_modport_இலக்கம் = 0;  // Uniqueify modport numbers
+    முழு m_indent = 0;  // Indentation (tree depth) for debug
+    தருக்க m_inSens = பொய்;  // True if in senitem
+    மாறிலி AstWith* m_currentWithp = nullptr;  // Enclosing 'with' (nullptr if none)
     std::set<std::string>
         m_restrictedNamesUsed;  // Names from current 'with (id_list)' that resolved into target
-    bool m_genericIfaceModule = false;  // True if in module containing generic interface
-    std::map<std::string, AstNode*> m_ifClassImpNames;  // Names imported from interface class
+    தருக்க m_genericIfaceModule = பொய்;  // True if in module containing generic interface
+    std::map<std::string, Ast_முனை*> m_ifClassImpNames;  // Names imported from interface class
     // Inherited interface implementations needing a forward in the current class, by name
-    std::map<std::string, const VSymEnt*> m_ifForwards;
+    std::map<std::string, மாறிலி VSymEnt*> m_ifForwards;
     std::set<AstClass*> m_extendsParam;  // Classes that have a parameterized super class
                                          // (except the default instances)
                                          // They are added to the set only in linkDotPrimary.
-    bool m_insideClassExtParam = false;  // Inside a class from m_extendsParam
+    தருக்க m_insideClassExtParam = பொய்;  // Inside a class from m_extendsParam
     AstNew* m_explicitSuperNewp = nullptr;  // Hit a "super.new" call inside a "new" function
-    std::map<AstNode*, AstPin*> m_usedPins;  // Pin used in this cell, map to duplicate
-    std::map<AstNode*, std::map<std::string, AstPin*>> m_usedDefParamPins;
+    std::map<Ast_முனை*, AstPin*> m_usedPins;  // Pin used in this cell, map to duplicate
+    std::map<Ast_முனை*, std::map<std::string, AstPin*>> m_usedDefParamPins;
     // Defparam pins used for a given formal, by hierarchical path
-    std::map<std::string, AstNodeModule*> m_modulesToRevisit;  // Modules to revisit a second time
-    AstNode* m_lastDeferredp = nullptr;  // Last node which requested a revisit of its module
-    AstNodeDType* m_packedArrayDtp = nullptr;  // Datatype reference for packed array
-    bool m_inPackedArray = false;  // Currently traversing a packed array tree
-    bool m_replaceWithAlias
-        = true;  // Replace VarScope with an alias. Used in the handling of AstAlias
-    bool m_isParam = false;  // Specifies whether currently visiting param variable
-    bool m_resolvingTypedef = false;  // Currently traversing a Typedef tree
+    std::map<std::string, Ast_முனை_Module*> m_modulesToRevisit;  // Modules to revisit a second time
+    Ast_முனை* m_lastDeferredp = nullptr;  // Last node which requested a revisit of its module
+    Ast_முனை_DType* m_packedArrayDtp = nullptr;  // Datatype reference for packed array
+    தருக்க m_inPackedArray = பொய்;  // Currently traversing a packed array tree
+    தருக்க m_replaceWithAlias
+        = உண்மை;  // Replace VarScope with an alias. Used in the handling of AstAlias
+    தருக்க m_isParam = பொய்;  // Specifies whether currently visiting param variable
+    தருக்க m_resolvingTypedef = பொய்;  // Currently traversing a Typedef tree
 
-    struct DotStates final {
+    கட்டமைப்பு DotStates final {
         DotPosition m_dotPos;  // Scope part of dotted resolution
         VSymEnt* m_dotSymp;  // SymEnt for dotted AstParse lookup
-        const AstDot* m_dotp;  // Current dot
-        bool m_super;  // Starts with super reference
-        bool m_unresolvedCell;  // Unresolved cell, needs help from V3Param
-        bool m_unresolvedClass;  // Unresolved class reference, needs help from V3Param
-        bool m_unresolvedGenericIface;  // Unresolved generic interface, needs help from V3Param
-        bool m_genBlk;  // Contains gen block reference
-        AstNode* m_unlinkedScopep;  // Unresolved scope, needs corresponding VarXRef
+        மாறிலி AstDot* m_dotp;  // Current dot
+        தருக்க m_super;  // Starts with super reference
+        தருக்க m_unresolvedCell;  // Unresolved cell, needs help from V3Param
+        தருக்க m_unresolvedClass;  // Unresolved class reference, needs help from V3Param
+        தருக்க m_unresolvedGenericIface;  // Unresolved generic interface, needs help from V3Param
+        தருக்க m_genBlk;  // Contains gen block reference
+        Ast_முனை* m_unlinkedScopep;  // Unresolved scope, needs corresponding VarXRef
         AstDisable* m_disablep;  // Disable statement under which the reference is
-        bool m_dotErr;  // Error found in dotted resolution, ignore upwards
+        தருக்க m_dotErr;  // Error found in dotted resolution, ignore upwards
         string m_dotText;  // String of dotted names found in below parseref
         DotStates() { init(nullptr); }
-        ~DotStates() = default;
-        void init(VSymEnt* curSymp, bool unresolvedClass = false) {
+        ~DotStates() = இயல்பு;
+        வெறுமை init(VSymEnt* curSymp, தருக்க unresolvedClass = பொய்) {
             m_dotPos = DP_NONE;
             m_dotSymp = curSymp;
             m_dotp = nullptr;
-            m_super = false;
-            m_dotErr = false;
+            m_super = பொய்;
+            m_dotErr = பொய்;
             m_dotText = "";
-            m_unresolvedCell = false;
+            m_unresolvedCell = பொய்;
             m_unresolvedClass = unresolvedClass;
-            m_unresolvedGenericIface = false;
-            m_genBlk = false;
+            m_unresolvedGenericIface = பொய்;
+            m_genBlk = பொய்;
             m_unlinkedScopep = nullptr;
             m_disablep = nullptr;
         }
-        string ascii() const {
-            static const char* const names[]
+        string ascii() மாறிலி {
+            நிலையான மாறிலி எழுத்து* மாறிலி names[]
                 = {"DP_NONE", "DP_PACKAGE", "DP_FIRST", "DP_SCOPE", "DP_FINAL", "DP_MEMBER"};
             std::ostringstream sstr;
             sstr << "ds=" << names[m_dotPos];
             sstr << "  dse" << cvtToHex(m_dotSymp);
-            const string dsname = m_dotSymp->nodep()->name().substr(0, 8);
+            மாறிலி string dsname = m_dotSymp->nodep()->name().substr(0, 8);
             sstr << "(" << m_dotSymp->nodep()->typeName() << (dsname.empty() ? "" : ":") << dsname
                  << ")";
-            if (m_dotErr) sstr << "  [dotErr]";
-            if (m_super) sstr << "  [super]";
-            if (m_unresolvedCell) sstr << "  [unrCell]";
-            if (m_unresolvedClass) sstr << "  [unrClass]";
-            if (m_unresolvedGenericIface) sstr << "  [unrGIface]";
-            if (m_genBlk) sstr << "  [genBlk]";
+            எனில் (m_dotErr) sstr << "  [dotErr]";
+            எனில் (m_super) sstr << "  [super]";
+            எனில் (m_unresolvedCell) sstr << "  [unrCell]";
+            எனில் (m_unresolvedClass) sstr << "  [unrClass]";
+            எனில் (m_unresolvedGenericIface) sstr << "  [unrGIface]";
+            எனில் (m_genBlk) sstr << "  [genBlk]";
             sstr << "  txt=" << m_dotText;
-            return sstr.str();
+            திரும்பு sstr.str();
         }
     } m_ds;  // State to preserve across recursions
 
     // METHODS - Variables
-    AstVar* createImplicitVar(VSymEnt* /*lookupSymp*/, AstParseRef* nodep, AstNodeModule* modp,
-                              VSymEnt* moduleSymp, bool noWarn) {
+    AstVar* createImplicitVar(VSymEnt* /*lookupSymp*/, AstParseRef* nodep, Ast_முனை_Module* modp,
+                              VSymEnt* moduleSymp, தருக்க noWarn) {
         // Create implicit after warning
-        if (!noWarn) {
-            if (nodep->fileline()->warnIsOff(V3ErrorCode::I_DEF_NETTYPE_WIRE)) {
-                const string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
-                                                                    LinkNodeMatcherVar{});
+        எனில் (!noWarn) {
+            எனில் (nodep->fileline()->warnIsOff(V3ErrorCode::I_DEF_NETTYPE_WIRE)) {
+                மாறிலி string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
+                                                                    Link_முனை_Matcher_Var{});
                 nodep->v3error("Signal definition not found, and implicit disabled with "
                                "`default_nettype: "
                                << nodep->prettyNameQ() << '\n'
@@ -3346,40 +3346,40 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
             // Bypass looking for suggestions if IMPLICIT is turned off
             // as there could be thousands of these suppressed in large netlists
-            else if (!nodep->fileline()->warnIsOff(V3ErrorCode::IMPLICIT)) {
-                const string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
-                                                                    LinkNodeMatcherVar{});
+            இல்லையெனில் எனில் (!nodep->fileline()->warnIsOff(V3ErrorCode::IMPLICIT)) {
+                மாறிலி string suggest = m_statep->suggestSymFallback(moduleSymp, nodep->name(),
+                                                                    Link_முனை_Matcher_Var{});
                 nodep->v3warn(IMPLICIT,
                               "Signal definition not found, creating implicitly: "
                                   << nodep->prettyNameQ() << '\n'
                                   << (suggest.empty() ? "" : nodep->warnMore() + suggest));
             }
         }
-        AstVar* const newp
-            = new AstVar{nodep->fileline(), VVarType::WIRE, nodep->name(), VFlagLogicPacked{}, 1};
+        AstVar* மாறிலி newp
+            = புதிய AstVar{nodep->fileline(), VVarType::WIRE, nodep->name(), VFlagLogicPacked{}, 1};
         newp->lifetime(VLifetime::STATIC_IMPLICIT);
         newp->trace(modp->modTrace());
         modp->addStmtsp(newp);
         // Link it to signal list, must add the variable under the module;
         // current scope might be lower now
-        m_statep->insertSym(moduleSymp, newp->name(), newp, nullptr /*classOrPackagep*/);
-        return newp;
+        m_statep->செருகு_Sym(moduleSymp, newp->name(), newp, nullptr /*classOrPackagep*/);
+        திரும்பு newp;
     }
-    AstVar* foundToVarp(const VSymEnt* symp, AstNode* nodep, VAccess access) {
+    AstVar* foundToVarp(மாறிலி VSymEnt* symp, Ast_முனை* nodep, VAccess access) {
         // Return a variable if possible, auto converting a modport to variable
-        if (!symp) {
-            return nullptr;
-        } else if (VN_IS(symp->nodep(), Var)) {
-            return VN_AS(symp->nodep(), Var);
-        } else if (VN_IS(symp->nodep(), ModportVarRef)) {
-            AstModportVarRef* const snodep = VN_AS(symp->nodep(), ModportVarRef);
-            AstVar* const varp = snodep->varp();
-            if (access.isWriteOrRW() && snodep->direction().isReadOnly()) {
+        எனில் (!symp) {
+            திரும்பு nullptr;
+        } இல்லையெனில் எனில் (VN_IS(symp->nodep(), Var)) {
+            திரும்பு VN_AS(symp->nodep(), Var);
+        } இல்லையெனில் எனில் (VN_IS(symp->nodep(), ModportVarRef)) {
+            AstModportVarRef* மாறிலி snodep = VN_AS(symp->nodep(), ModportVarRef);
+            AstVar* மாறிலி varp = snodep->varp();
+            எனில் (access.isWriteOrRW() && snodep->direction().isReadOnly()) {
                 nodep->v3error("Attempt to drive input-only modport: " << nodep->prettyNameQ());
             }  // else other simulators don't warn about reading, and IEEE doesn't say illegal
-            return varp;
-        } else {
-            return nullptr;
+            திரும்பு varp;
+        } இல்லையெனில் {
+            திரும்பு nullptr;
         }
     }
 
@@ -3387,93 +3387,93 @@ class LinkDotResolveVisitor final : public VNVisitor {
     // When a dotted reference uses a modport with expression syntax, the virtual port name
     // maps to the real signal. This helper resolves that mapping during scope creation.
     // Returns the VarScope for the real signal, or nullptr if not found.
-    AstVarScope* findVirtualPortVarScope(VSymEnt* dotSymp, const string& portName) {
-        const AstVarScope* const dotVscp = VN_CAST(dotSymp->nodep(), VarScope);
-        const AstVar* const dotVarp = dotVscp ? dotVscp->varp() : nullptr;
-        if (!dotVarp) return nullptr;
+    AstVarScope* findVirtualPortVarScope(VSymEnt* dotSymp, மாறிலி string& portName) {
+        மாறிலி AstVarScope* மாறிலி dotVscp = VN_CAST(dotSymp->nodep(), VarScope);
+        மாறிலி AstVar* மாறிலி dotVarp = dotVscp ? dotVscp->varp() : nullptr;
+        எனில் (!dotVarp) திரும்பு nullptr;
 
-        AstNodeDType* dtypep = dotVarp->childDTypep();
-        if (!dtypep) dtypep = dotVarp->subDTypep();
-        if (!dtypep) return nullptr;
-        const AstIfaceRefDType* const ifaceRefp = VN_CAST(dtypep, IfaceRefDType);
-        if (!ifaceRefp || !ifaceRefp->modportp() || !ifaceRefp->ifaceViaCellp()) return nullptr;
+        Ast_முனை_DType* dtypep = dotVarp->childDTypep();
+        எனில் (!dtypep) dtypep = dotVarp->subDTypep();
+        எனில் (!dtypep) திரும்பு nullptr;
+        மாறிலி AstIfaceRefDType* மாறிலி ifaceRefp = VN_CAST(dtypep, IfaceRefDType);
+        எனில் (!ifaceRefp || !ifaceRefp->modportp() || !ifaceRefp->ifaceViaCellp()) திரும்பு nullptr;
 
         // Get the interface cell's symbol table
-        VSymEnt* const ifaceCellSymp = m_statep->getNodeSym(ifaceRefp->ifaceViaCellp());
+        VSymEnt* மாறிலி ifaceCellSymp = m_statep->get_முனை_Sym(ifaceRefp->ifaceViaCellp());
 
         // Look up modport by name in interface cell
-        VSymEnt* const modportSymp = ifaceCellSymp->findIdFallback(ifaceRefp->modportp()->name());
-        if (!modportSymp) return nullptr;
+        VSymEnt* மாறிலி modportSymp = ifaceCellSymp->findIdFallback(ifaceRefp->modportp()->name());
+        எனில் (!modportSymp) திரும்பு nullptr;
 
         // Look up virtual port name in modport symbol table
         string baddot;
-        VSymEnt* const virtPortp = m_statep->findSymPrefixed(modportSymp, portName, baddot, true);
-        if (!virtPortp) return nullptr;
+        VSymEnt* மாறிலி virtPortp = m_statep->findSymPrefixed(modportSymp, portName, baddot, உண்மை);
+        எனில் (!virtPortp) திரும்பு nullptr;
 
         // Symbol may point to VarScope or Var
-        if (AstVarScope* vscp = VN_CAST(virtPortp->nodep(), VarScope)) return vscp;
+        எனில் (AstVarScope* vscp = VN_CAST(virtPortp->nodep(), VarScope)) திரும்பு vscp;
 
         // Symbol points to Var - look up VarScope by name in interface cell
-        if (const AstVar* const realVarp = VN_CAST(virtPortp->nodep(), Var)) {
-            VSymEnt* const realFoundp
-                = m_statep->findSymPrefixed(ifaceCellSymp, realVarp->name(), baddot, true);
-            return realFoundp ? VN_CAST(realFoundp->nodep(), VarScope) : nullptr;
+        எனில் (மாறிலி AstVar* மாறிலி realVarp = VN_CAST(virtPortp->nodep(), Var)) {
+            VSymEnt* மாறிலி realFoundp
+                = m_statep->findSymPrefixed(ifaceCellSymp, realVarp->name(), baddot, உண்மை);
+            திரும்பு realFoundp ? VN_CAST(realFoundp->nodep(), VarScope) : nullptr;
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
 
     // Capture a ParamTypeDType reference for interface typedef retargeting.
     // Called when a RefDType resolves to a ParamTypeDType owned by an interface.
-    void captureIfaceParamType(AstRefDType* nodep, AstParamTypeDType* defp) {
-        if (!V3LinkDotIfaceCapture::enabled() || !m_statep->forPrimary()) return;
-        AstNodeModule* const defOwnerModp = V3LinkDotIfaceCapture::findOwnerModule(defp);
-        if (!defOwnerModp || !VN_IS(defOwnerModp, Iface)) return;
-        AstCell* const cellForCapture
+    வெறுமை captureIfaceParamType(AstRefDType* nodep, AstParamTypeDType* defp) {
+        எனில் (!V3LinkDotIfaceCapture::enabled() || !m_statep->forPrimary()) திரும்பு;
+        Ast_முனை_Module* மாறிலி defOwnerModp = V3LinkDotIfaceCapture::findOwnerModule(defp);
+        எனில் (!defOwnerModp || !VN_IS(defOwnerModp, Iface)) திரும்பு;
+        AstCell* மாறிலி cellForCapture
             = m_ds.m_dotSymp ? VN_CAST(m_ds.m_dotSymp->nodep(), Cell) : nullptr;
-        if (!cellForCapture) return;
+        எனில் (!cellForCapture) திரும்பு;
         UINFO(9, indent() << "iface capture add paramtype " << nodep
                           << " iface=" << defOwnerModp->prettyNameQ());
         V3LinkDotIfaceCapture::addParamType(nodep, cellForCapture->name(), m_modp, defp,
                                             defOwnerModp->name());
     }
 
-    AstNodeStmt* addImplicitSuperNewCall(AstFunc* const nodep,
-                                         const AstClassExtends* const classExtendsp) {
+    Ast_முனை_Stmt* addImplicitSuperNewCall(AstFunc* மாறிலி nodep,
+                                         மாறிலி AstClassExtends* மாறிலி classExtendsp) {
         // Returns the added node
-        FileLine* const fl = nodep->fileline();
+        File_வரி* மாறிலி fl = nodep->fileline();
         AstArg* argsp = nullptr;
-        if (classExtendsp->argsp()) argsp = classExtendsp->argsp()->cloneTree(true);
-        AstNew* const newExprp = new AstNew{fl, argsp};
-        newExprp->isImplicit(true);
-        AstDot* const superNewp = new AstDot{fl, false, new AstParseRef{fl, "super"}, newExprp};
-        AstNodeStmt* const superNewStmtp = superNewp->makeStmt();
-        for (AstNode* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+        எனில் (classExtendsp->argsp()) argsp = classExtendsp->argsp()->clone_மரம்(உண்மை);
+        AstNew* மாறிலி newExprp = புதிய AstNew{fl, argsp};
+        newExprp->isImplicit(உண்மை);
+        AstDot* மாறிலி superNewp = புதிய AstDot{fl, பொய், புதிய AstParseRef{fl, "super"}, newExprp};
+        Ast_முனை_Stmt* மாறிலி superNewStmtp = superNewp->makeStmt();
+        க்கு (Ast_முனை* stmtp = nodep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
             // super.new shall be the first statement (IEEE 1800-2023 8.15)
             // but some nodes (such as variable declarations and typedefs) should stay before
-            if (VN_IS(stmtp, NodeStmt)) {
+            எனில் (VN_IS(stmtp, முனை_Stmt)) {
                 stmtp->addHereThisAsNext(superNewStmtp);
-                return superNewStmtp;
+                திரும்பு superNewStmtp;
             }
         }
         // There were no statements
         nodep->addStmtsp(superNewStmtp);
-        return superNewStmtp;
+        திரும்பு superNewStmtp;
     }
-    void checkNoDot(AstNode* nodep) {
-        if (VL_UNLIKELY(!nodep)) {
+    வெறுமை checkNoDot(Ast_முனை* nodep) {
+        எனில் (VL_UNLIKELY(!nodep)) {
             UINFO(9, indent() << "iface capture null node passed to checkNoDot; dot state="
                               << m_ds.ascii());
-            m_ds.m_dotErr = true;
-            return;
+            m_ds.m_dotErr = உண்மை;
+            திரும்பு;
         }
-        if (VL_UNLIKELY(m_ds.m_dotPos != DP_NONE)) {
+        எனில் (VL_UNLIKELY(m_ds.m_dotPos != DP_NONE)) {
             UINFO(9, indent() << "ds=" << m_ds.ascii());
             UINFO(9, indent() << "iface capture checkNoDot hit node=" << nodep
                               << " dotState=" << m_ds.ascii());
-            if (VL_UNLIKELY(!m_ds.m_dotp)) {
+            எனில் (VL_UNLIKELY(!m_ds.m_dotp)) {
                 nodep->v3error("Syntax error: Not expecting " << nodep->type()
                                                               << " here (missing dot context)");
-            } else {
+            } இல்லையெனில் {
                 nodep->v3error("Syntax error: Not expecting "
                                << nodep->type() << " under a " << nodep->backp()->type()
                                << " in dotted expression\n"
@@ -3481,269 +3481,269 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                << "... Resolving this reference\n"
                                << m_ds.m_dotp->warnContextSecondary());
             }
-            m_ds.m_dotErr = true;
+            m_ds.m_dotErr = உண்மை;
         }
     }
-    AstVar* findIfaceTopVarp(AstNode* nodep, VSymEnt* parentEntp, const string& name) {
-        const string findName = name + "__Viftop";
-        VSymEnt* const ifaceSymp = parentEntp->findIdFallback(findName);
-        AstVar* const ifaceTopVarp = ifaceSymp ? VN_AS(ifaceSymp->nodep(), Var) : nullptr;
-        UASSERT_OBJ(ifaceTopVarp, nodep, "Can't find interface var ref: " << findName);
-        return ifaceTopVarp;
+    AstVar* find_Iface_உச்சி_Varp(Ast_முனை* nodep, VSymEnt* parentEntp, மாறிலி string& name) {
+        மாறிலி string findName = name + "__Viftop";
+        VSymEnt* மாறிலி ifaceSymp = parentEntp->findIdFallback(findName);
+        AstVar* மாறிலி iface_உச்சி_Varp = ifaceSymp ? VN_AS(ifaceSymp->nodep(), Var) : nullptr;
+        UASSERT_OBJ(iface_உச்சி_Varp, nodep, "Can't find interface var ref: " << findName);
+        திரும்பு iface_உச்சி_Varp;
     }
-    AstRSProd* findProd(AstNode* nodep, VSymEnt* parentEntp, const string& name) {
-        const VSymEnt* const foundp = parentEntp->findIdFallback(name);
+    AstRSProd* findProd(Ast_முனை* nodep, VSymEnt* parentEntp, மாறிலி string& name) {
+        மாறிலி VSymEnt* மாறிலி foundp = parentEntp->findIdFallback(name);
         AstRSProd* foundNodep = foundp ? VN_CAST(foundp->nodep(), RSProd) : nullptr;
-        if (!foundNodep) {
+        எனில் (!foundNodep) {
             VSpellCheck speller;
-            LinkNodeMatcherProd matcher;
-            parentEntp->candidateIdFlat(&speller, &matcher, false);
-            const string suggest = speller.bestCandidateMsg(name);
+            Link_முனை_Matcher_Prod matcher;
+            parentEntp->candidateIdFlat(&speller, &matcher, பொய்);
+            மாறிலி string suggest = speller.best_Candidate_செய்தி(name);
             UINFO(1, "   ErrParseRef curSymp=se" << cvtToHex(parentEntp));
-            nodep->v3error("Production " << AstNode::prettyNameQ(name) << " not found\n"
+            nodep->v3error("Production " << Ast_முனை::prettyNameQ(name) << " not found\n"
                                          << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-            return nullptr;
+            திரும்பு nullptr;
         }
-        return foundNodep;
+        திரும்பு foundNodep;
     }
-    void duplicatePinError(AstPin* nodep, AstNode* origp, const char* whatp) {
+    வெறுமை duplicatePinError(AstPin* nodep, Ast_முனை* origp, மாறிலி எழுத்து* whatp) {
         nodep->v3error("Duplicate " << whatp << " connection: " << nodep->prettyNameQ() << '\n'
                                     << nodep->warnContextPrimary() << '\n'
                                     << origp->warnOther() << "... Location of original " << whatp
                                     << " connection\n"
                                     << origp->warnContextSecondary());
     }
-    void markAndCheckPinDup(AstPin* nodep, AstNode* refp, const char* whatp) {
-        const auto pair = m_usedPins.emplace(refp, nodep);
-        if (pair.second) {
-            if (!nodep->paramPath().empty())
+    வெறுமை markAndCheckPinDup(AstPin* nodep, Ast_முனை* refp, மாறிலி எழுத்து* whatp) {
+        மாறிலி auto pair = m_usedPins.emplace(refp, nodep);
+        எனில் (pair.second) {
+            எனில் (!nodep->paramPath().empty())
                 m_usedDefParamPins[refp].emplace(nodep->paramPath(), nodep);
-            return;
-        } else {
-            AstNode* const origp = pair.first->second;
-            if (nodep->paramPath().empty() || VN_AS(origp, Pin)->paramPath().empty()) {
+            திரும்பு;
+        } இல்லையெனில் {
+            Ast_முனை* மாறிலி origp = pair.first->second;
+            எனில் (nodep->paramPath().empty() || VN_AS(origp, Pin)->paramPath().empty()) {
                 duplicatePinError(nodep, origp, whatp);
-                return;
+                திரும்பு;
             }
         }
 
         auto& defParamPins = m_usedDefParamPins[refp];
-        const auto defParamIt = defParamPins.find(nodep->paramPath());
-        if (defParamIt != defParamPins.end()) {
+        மாறிலி auto defParamIt = defParamPins.find(nodep->paramPath());
+        எனில் (defParamIt != defParamPins.end()) {
             duplicatePinError(nodep, defParamIt->second, whatp);
-            return;
+            திரும்பு;
         }
         defParamPins.emplace(nodep->paramPath(), nodep);
     }
-    static bool extendsClass(const AstClass* classp, const AstClass* targetp) {
+    நிலையான தருக்க extendsClass(மாறிலி AstClass* classp, மாறிலி AstClass* targetp) {
         // Return true if classp inherits from targetp through already resolved extends
         // If performance of this becomes a problem, use just a counter to check
         // exceeds some number of iterations then perform the more expensive analysis
-        std::set<const AstClass*> visited;
-        std::vector<const AstClass*> todo{classp};
-        while (!todo.empty()) {
-            const AstClass* const currp = todo.back();
-            todo.pop_back();
-            if (currp == targetp) return true;
-            if (!visited.insert(currp).second) continue;
-            for (const AstClassExtends* cextp = currp->extendsp(); cextp;
+        std::set<மாறிலி AstClass*> visited;
+        std::vector<மாறிலி AstClass*> todo{classp};
+        போது (!todo.empty()) {
+            மாறிலி AstClass* மாறிலி currp = todo.back();
+            todo.எடு_back();
+            எனில் (currp == targetp) திரும்பு உண்மை;
+            எனில் (!visited.செருகு(currp).second) தொடர்;
+            க்கு (மாறிலி AstClassExtends* cextp = currp->extendsp(); cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
-                if (const AstClass* const basep = cextp->classOrNullp()) todo.push_back(basep);
+                எனில் (மாறிலி AstClass* மாறிலி basep = cextp->classOrNullp()) todo.தள்ளு_back(basep);
             }
         }
-        return false;
+        திரும்பு பொய்;
     }
-    static AstClocking* sensClockingp(AstNode* nodep) {
+    நிலையான AstClocking* sensClockingp(Ast_முனை* nodep) {
         // Return the clocking block referenced by nodep, either directly or through a modport
-        if (AstClocking* const clockingp = VN_CAST(nodep, Clocking)) return clockingp;
-        if (const AstModportClockingRef* const clockingRefp = VN_CAST(nodep, ModportClockingRef))
-            return clockingRefp->clockingp();
-        return nullptr;
+        எனில் (AstClocking* மாறிலி clockingp = VN_CAST(nodep, Clocking)) திரும்பு clockingp;
+        எனில் (மாறிலி AstModportClockingRef* மாறிலி clockingRefp = VN_CAST(nodep, ModportClockingRef))
+            திரும்பு clockingRefp->clockingp();
+        திரும்பு nullptr;
     }
     VSymEnt* getCreateClockingEventSymEnt(AstClocking* clockingp) {
-        AstVar* const eventp = clockingp->ensureEventp(true);
-        if (!eventp->user1p()) eventp->user1p(new VSymEnt{m_statep->symsp(), eventp});
-        return reinterpret_cast<VSymEnt*>(eventp->user1p());
+        AstVar* மாறிலி eventp = clockingp->ensureEventp(உண்மை);
+        எனில் (!eventp->user1p()) eventp->user1p(புதிய VSymEnt{m_statep->symsp(), eventp});
+        திரும்பு reinterpret_cast<VSymEnt*>(eventp->user1p());
     }
-    VSymEnt* findInlinedDotsSym(AstNode* nodep, const string& inlinedDots) {
+    VSymEnt* findInlinedDotsSym(Ast_முனை* nodep, மாறிலி string& inlinedDots) {
         // Return scope that applies for searching, given renaming due to module inlining.
         // Dotted lookup is always relative to module, as maybe variable
         // name lower down with same scope name we want to ignore (t_math_divw)
         VSymEnt* dotSymp = m_modSymp;
-        const string inl = AstNode::dedotName(inlinedDots);
+        மாறிலி string inl = Ast_முனை::dedotName(inlinedDots);
         string baddot;
         VSymEnt* okSymp = nullptr;
-        dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, inl, baddot, okSymp, false);
+        dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, inl, baddot, okSymp, பொய்);
         UASSERT_OBJ(dotSymp, nodep,
-                    "Couldn't resolve inlined scope " << AstNode::prettyNameQ(baddot)
+                    "Couldn't resolve inlined scope " << Ast_முனை::prettyNameQ(baddot)
                                                       << " in: " << inlinedDots);
         UINFO(9, indent() << "findInlinedDotsSym " << dotSymp
                           << " search start due to inlinedDots=" << inlinedDots);
-        return dotSymp;
+        திரும்பு dotSymp;
     }
-    VSymEnt* findDottedRefSymp(AstNode* nodep, VSymEnt* lookupSymp, const string& dotted,
-                               string& baddot, VSymEnt*& okSymp, bool* modportp = nullptr) {
+    VSymEnt* findDottedRefSymp(Ast_முனை* nodep, VSymEnt* lookupSymp, மாறிலி string& dotted,
+                               string& baddot, VSymEnt*& okSymp, தருக்க* modportp = nullptr) {
         // Return scope to search for a relinked hierarchical reference
         // (AstVarXRef or AstEnumItemRef), or nullptr after error if not found
         // If modportp is given, set true when the reference went through a modport
-        if (modportp) *modportp = false;
+        எனில் (modportp) *modportp = பொய்;
         VSymEnt* dotSymp = m_statep->findDotted(nodep->fileline(), lookupSymp, dotted, baddot,
-                                                okSymp, true);  // Maybe nullptr
-        if (!dotSymp) {
+                                                okSymp, உண்மை);  // Maybe nullptr
+        எனில் (!dotSymp) {
             nodep->v3error(
                 "Can't find definition of "
-                << (!baddot.empty() ? AstNode::prettyNameQ(baddot) : nodep->prettyNameQ()) << '\n'
+                << (!baddot.empty() ? Ast_முனை::prettyNameQ(baddot) : nodep->prettyNameQ()) << '\n'
                 << nodep->warnContextPrimary());
-            return nullptr;
+            திரும்பு nullptr;
         }
-        if (const AstVar* const varp = VN_CAST(dotSymp->nodep(), Var)) {
-            if (const AstIfaceRefDType* const ifaceRefp
+        எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(dotSymp->nodep(), Var)) {
+            எனில் (மாறிலி AstIfaceRefDType* மாறிலி ifaceRefp
                 = VN_CAST(varp->childDTypep(), IfaceRefDType)) {
-                if (ifaceRefp->modportp()) {
-                    dotSymp = m_statep->getNodeSym(ifaceRefp->modportp());
-                    if (modportp) *modportp = true;
-                } else {
-                    dotSymp = m_statep->getNodeSym(ifaceRefp->ifacep());
+                எனில் (ifaceRefp->modportp()) {
+                    dotSymp = m_statep->get_முனை_Sym(ifaceRefp->modportp());
+                    எனில் (modportp) *modportp = உண்மை;
+                } இல்லையெனில் {
+                    dotSymp = m_statep->get_முனை_Sym(ifaceRefp->ifacep());
                 }
             }
-        } else if (const AstModportClockingRef* const clockingRefp
+        } இல்லையெனில் எனில் (மாறிலி AstModportClockingRef* மாறிலி clockingRefp
                    = VN_CAST(dotSymp->nodep(), ModportClockingRef)) {
-            dotSymp = m_statep->getNodeSym(clockingRefp->clockingp());
+            dotSymp = m_statep->get_முனை_Sym(clockingRefp->clockingp());
         }
-        return dotSymp;
+        திரும்பு dotSymp;
     }
 
-    static bool isParamedClassRefDType(const AstNode* classp) {
-        while (const AstRefDType* const refp = VN_CAST(classp, RefDType))
+    நிலையான தருக்க isParamedClassRefDType(மாறிலி Ast_முனை* classp) {
+        போது (மாறிலி AstRefDType* மாறிலி refp = VN_CAST(classp, RefDType))
             classp = refp->subDTypep();
-        return (VN_IS(classp, ClassRefDType) && VN_AS(classp, ClassRefDType)->paramsp())
+        திரும்பு (VN_IS(classp, ClassRefDType) && VN_AS(classp, ClassRefDType)->paramsp())
                || VN_IS(classp, ParamTypeDType);
     }
-    bool isParamedClassRef(const AstNode* nodep) {
+    தருக்க isParamedClassRef(மாறிலி Ast_முனை* nodep) {
         // Is this a parameterized reference to a class, or a reference to class parameter
-        if (const auto* classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
-            if (classRefp->paramsp()) return true;
-            const auto* classp = classRefp->classOrPackageNodep();
-            while (const auto* typedefp = VN_CAST(classp, Typedef)) classp = typedefp->subDTypep();
-            return isParamedClassRefDType(classp);
+        எனில் (மாறிலி auto* classRefp = VN_CAST(nodep, ClassOrPackageRef)) {
+            எனில் (classRefp->paramsp()) திரும்பு உண்மை;
+            மாறிலி auto* classp = classRefp->classOrPackageNodep();
+            போது (மாறிலி auto* typedefp = VN_CAST(classp, Typedef)) classp = typedefp->subDTypep();
+            திரும்பு isParamedClassRefDType(classp);
         }
-        return isParamedClassRefDType(nodep);
+        திரும்பு isParamedClassRefDType(nodep);
     }
     VSymEnt* getThisClassSymp() {
         VSymEnt* classSymp = m_ds.m_dotSymp;
-        while (classSymp && !VN_IS(classSymp->nodep(), Class)) {
+        போது (classSymp && !VN_IS(classSymp->nodep(), Class)) {
             classSymp = classSymp->parentp();
         }
-        return classSymp;
+        திரும்பு classSymp;
     }
     // Is the current scope within the given class, including within its nested classes
-    bool insideClass(const AstClass* classp) const {
-        for (const VSymEnt* symp = m_curSymp; symp; symp = symp->parentp()) {
-            if (symp->nodep() == classp) return true;
+    தருக்க insideClass(மாறிலி AstClass* classp) மாறிலி {
+        க்கு (மாறிலி VSymEnt* symp = m_curSymp; symp; symp = symp->parentp()) {
+            எனில் (symp->nodep() == classp) திரும்பு உண்மை;
         }
-        return false;
+        திரும்பு பொய்;
     }
     // 'randomize() with' target class not yet specialized; defer to post-V3Param pass
-    bool randTargetUnresolved() const {
-        return m_statep->forPrimary() && m_currentWithp && m_randMethodCallp && !m_randSymp;
+    தருக்க randTargetUnresolved() மாறிலி {
+        திரும்பு m_statep->forPrimary() && m_currentWithp && m_randMethodCallp && !m_randSymp;
     }
     // Is 'funcp' of 'classp' virtual, directly or by overriding a virtual method of a base
     // class (IEEE 1800-2023 8.20)
-    bool isVirtualMethod(const AstNodeFTask* funcp, const AstClass* classp) const {
-        if (funcp->isVirtual()) return true;
-        for (const AstClassExtends* cextp = classp->extendsp(); cextp;
+    தருக்க isVirtualMethod(மாறிலி Ast_முனை_FTask* funcp, மாறிலி AstClass* classp) மாறிலி {
+        எனில் (funcp->isVirtual()) திரும்பு உண்மை;
+        க்கு (மாறிலி AstClassExtends* cextp = classp->extendsp(); cextp;
              cextp = VN_AS(cextp->nextp(), ClassExtends)) {
-            AstClass* const basep = cextp->classOrNullp();
-            if (!basep) continue;
-            const VSymEnt* const foundp = m_statep->getNodeSym(basep)->findIdFlat(funcp->name());
-            const AstNodeFTask* const baseFuncp
-                = foundp ? VN_CAST(foundp->nodep(), NodeFTask) : nullptr;
-            const AstClass* const baseClassp = foundp && foundp->parentp()
+            AstClass* மாறிலி basep = cextp->classOrNullp();
+            எனில் (!basep) தொடர்;
+            மாறிலி VSymEnt* மாறிலி foundp = m_statep->get_முனை_Sym(basep)->findIdFlat(funcp->name());
+            மாறிலி Ast_முனை_FTask* மாறிலி baseFuncp
+                = foundp ? VN_CAST(foundp->nodep(), முனை_FTask) : nullptr;
+            மாறிலி AstClass* மாறிலி baseClassp = foundp && foundp->parentp()
                                                    ? VN_CAST(foundp->parentp()->nodep(), Class)
                                                    : nullptr;
-            if (baseFuncp && baseClassp && isVirtualMethod(baseFuncp, baseClassp)) return true;
+            எனில் (baseFuncp && baseClassp && isVirtualMethod(baseFuncp, baseClassp)) திரும்பு உண்மை;
         }
-        return false;
+        திரும்பு பொய்;
     }
     // Is imported 'implp' an implementation of interface method 'ifSymp' (IEEE 1800-2023
     // 8.26.2)? If its class does not derive from the interface class, it needs a forwarding
     // override in the derived class to be reachable through the interface.
-    bool inheritedImplements(const VSymEnt* implp, const VSymEnt* ifSymp, bool& needForwardr) {
-        needForwardr = false;
-        const AstNodeFTask* const implFuncp = VN_CAST(implp->nodep(), NodeFTask);
-        if (!implFuncp || implFuncp->pureVirtual() || implFuncp->isStatic()) return false;
-        const AstClass* const implClassp
+    தருக்க inheritedImplements(மாறிலி VSymEnt* implp, மாறிலி VSymEnt* ifSymp, தருக்க& needForwardr) {
+        needForwardr = பொய்;
+        மாறிலி Ast_முனை_FTask* மாறிலி implFuncp = VN_CAST(implp->nodep(), முனை_FTask);
+        எனில் (!implFuncp || implFuncp->pureVirtual() || implFuncp->isStatic()) திரும்பு பொய்;
+        மாறிலி AstClass* மாறிலி implClassp
             = implp->parentp() ? VN_CAST(implp->parentp()->nodep(), Class) : nullptr;
-        const AstClass* const ifClassp
+        மாறிலி AstClass* மாறிலி ifClassp
             = ifSymp->parentp() ? VN_CAST(ifSymp->parentp()->nodep(), Class) : nullptr;
-        if (!implClassp || !ifClassp) return false;
-        if (extendsClass(implClassp, ifClassp)) return true;
-        if (!isVirtualMethod(implFuncp, implClassp)) return false;
-        needForwardr = true;
-        return true;
+        எனில் (!implClassp || !ifClassp) திரும்பு பொய்;
+        எனில் (extendsClass(implClassp, ifClassp)) திரும்பு உண்மை;
+        எனில் (!isVirtualMethod(implFuncp, implClassp)) திரும்பு பொய்;
+        needForwardr = உண்மை;
+        திரும்பு உண்மை;
     }
     // Add 'implp' override to 'classp' that calls super.implp, so the C++ method of an
     // implemented interface class is overridden
-    void addInterfaceForward(AstClass* classp, AstNodeFTask* implp, AstClass* implClassp) {
-        FileLine* const flp = implp->fileline();
+    வெறுமை addInterfaceForward(AstClass* classp, Ast_முனை_FTask* implp, AstClass* implClassp) {
+        File_வரி* மாறிலி flp = implp->fileline();
         AstVar* fvarp = nullptr;
-        AstNodeFTask* newp;
-        if (AstFunc* const implFuncp = VN_CAST(implp, Func)) {
-            fvarp = VN_AS(implFuncp->fvarp(), Var)->cloneTree(false);
-            newp = new AstFunc{flp, implp->name(), nullptr, fvarp};
-        } else {
-            newp = new AstTask{flp, implp->name(), nullptr};
+        Ast_முனை_FTask* newp;
+        எனில் (AstFunc* மாறிலி implFuncp = VN_CAST(implp, Func)) {
+            fvarp = VN_AS(implFuncp->fvarp(), Var)->clone_மரம்(பொய்);
+            newp = புதிய AstFunc{flp, implp->name(), nullptr, fvarp};
+        } இல்லையெனில் {
+            newp = புதிய AstTask{flp, implp->name(), nullptr};
         }
-        newp->classMethod(true);
-        newp->isVirtual(true);
+        newp->classMethod(உண்மை);
+        newp->isVirtual(உண்மை);
         newp->lifetime(implp->lifetime());
         AstArg* argsp = nullptr;
-        for (AstNode* stmtp = implp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            AstVar* const portp = VN_CAST(stmtp, Var);
-            if (!portp || !portp->isIO()) continue;
-            AstVar* const newPortp = portp->cloneTree(false);
+        க்கு (Ast_முனை* stmtp = implp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            AstVar* மாறிலி portp = VN_CAST(stmtp, Var);
+            எனில் (!portp || !portp->isIO()) தொடர்;
+            AstVar* மாறிலி newPortp = portp->clone_மரம்(பொய்);
             newp->addStmtsp(newPortp);
-            argsp = AstNode::addNext(
-                argsp, new AstArg{flp, "", new AstVarRef{flp, newPortp, VAccess::READ}});
+            argsp = Ast_முனை::addNext(
+                argsp, புதிய AstArg{flp, "", புதிய AstVarRef{flp, newPortp, VAccess::READ}});
         }
-        AstNodeFTaskRef* callp;
-        if (AstFunc* const implFuncp = VN_CAST(implp, Func)) {
-            callp = new AstFuncRef{flp, implFuncp, argsp};
-        } else {
-            callp = new AstTaskRef{flp, VN_AS(implp, Task), argsp};
+        Ast_முனை_FTask_Ref* callp;
+        எனில் (AstFunc* மாறிலி implFuncp = VN_CAST(implp, Func)) {
+            callp = புதிய AstFuncRef{flp, implFuncp, argsp};
+        } இல்லையெனில் {
+            callp = புதிய AstTaskRef{flp, VN_AS(implp, Task), argsp};
         }
         callp->classOrPackagep(implClassp);
-        callp->superReference(true);
-        if (fvarp) {
-            newp->addStmtsp(new AstAssign{flp, new AstVarRef{flp, fvarp, VAccess::WRITE}, callp});
-        } else {
+        callp->superReference(உண்மை);
+        எனில் (fvarp) {
+            newp->addStmtsp(புதிய AstAssign{flp, புதிய AstVarRef{flp, fvarp, VAccess::WRITE}, callp});
+        } இல்லையெனில் {
             newp->addStmtsp(callp->makeStmt());
         }
         UINFO(9, indent() << "Interface forward " << newp);
         classp->addMembersp(newp);
     }
-    void importDerivedClass(AstClass* derivedClassp, VSymEnt* baseSymp, AstClass* baseClassp) {
+    வெறுமை importDerivedClass(AstClass* derivedClassp, VSymEnt* baseSymp, AstClass* baseClassp) {
         // Also used for standard 'extends' from a base class
         UINFO(8, indent() << "importDerivedClass to " << derivedClassp << " from " << baseClassp);
-        for (VSymEnt::const_iterator it = baseSymp->begin(); it != baseSymp->end(); ++it) {
-            if (AstNode* baseSubp = it->second->nodep()) {
+        க்கு (VSymEnt::const_iterator it = baseSymp->begin(); it != baseSymp->end(); ++it) {
+            எனில் (Ast_முனை* baseSubp = it->second->nodep()) {
                 UINFO(8, indent() << "  SymFunc " << baseSubp);
-                const string impOrExtends
+                மாறிலி string impOrExtends
                     = baseClassp->isInterfaceClass() ? " implements " : " extends ";
-                if (VN_IS(baseSubp, NodeFTask)) {
-                    const VSymEnt* const foundp = m_curSymp->findIdFlat(baseSubp->name());
-                    const AstNodeFTask* const baseFuncp = VN_CAST(baseSubp, NodeFTask);
-                    if (!baseFuncp || !baseFuncp->pureVirtual()) continue;
-                    bool needForward = false;
-                    const bool existsInDerived
+                எனில் (VN_IS(baseSubp, முனை_FTask)) {
+                    மாறிலி VSymEnt* மாறிலி foundp = m_curSymp->findIdFlat(baseSubp->name());
+                    மாறிலி Ast_முனை_FTask* மாறிலி baseFuncp = VN_CAST(baseSubp, முனை_FTask);
+                    எனில் (!baseFuncp || !baseFuncp->pureVirtual()) தொடர்;
+                    தருக்க needForward = பொய்;
+                    மாறிலி தருக்க existsInDerived
                         = foundp
                           && (!foundp->imported()
                               || inheritedImplements(foundp, it->second, needForward));
-                    if (needForward && m_statep->forPrimary()
+                    எனில் (needForward && m_statep->forPrimary()
                         && !derivedClassp->isInterfaceClass()) {
                         m_ifForwards.emplace(baseSubp->name(), foundp);
                     }
-                    if (m_statep->forPrimary() && !existsInDerived
+                    எனில் (m_statep->forPrimary() && !existsInDerived
                         && !derivedClassp->isInterfaceClass() && !derivedClassp->isVirtual()) {
                         derivedClassp->v3error(
                             "Class " << derivedClassp->prettyNameQ() << impOrExtends
@@ -3755,8 +3755,8 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                      << "... Location of interface class's function\n"
                                      << baseSubp->warnContextSecondary());
                     }
-                    const auto itn = m_ifClassImpNames.find(baseSubp->name());
-                    if (m_statep->forPrimary() && !existsInDerived
+                    மாறிலி auto itn = m_ifClassImpNames.find(baseSubp->name());
+                    எனில் (m_statep->forPrimary() && !existsInDerived
                         && itn != m_ifClassImpNames.end()
                         && itn->second != baseSubp) {  // Not exact same function from diamond
                         derivedClassp->v3error(
@@ -3771,12 +3771,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     }
                     m_ifClassImpNames.emplace(baseSubp->name(), baseSubp);
                 }
-                if (VN_IS(baseSubp, Constraint)) {
-                    const VSymEnt* const foundp = m_curSymp->findIdFlat(baseSubp->name());
-                    const AstConstraint* const baseFuncp = VN_CAST(baseSubp, Constraint);
-                    if (!baseFuncp || !baseFuncp->isKwdPure()) continue;
-                    const bool existsInDerived = foundp && !foundp->imported();
-                    if (m_statep->forPrimary() && !existsInDerived
+                எனில் (VN_IS(baseSubp, Constraint)) {
+                    மாறிலி VSymEnt* மாறிலி foundp = m_curSymp->findIdFlat(baseSubp->name());
+                    மாறிலி AstConstraint* மாறிலி baseFuncp = VN_CAST(baseSubp, Constraint);
+                    எனில் (!baseFuncp || !baseFuncp->isKwdPure()) தொடர்;
+                    மாறிலி தருக்க existsInDerived = foundp && !foundp->imported();
+                    எனில் (m_statep->forPrimary() && !existsInDerived
                         && !derivedClassp->isInterfaceClass() && !derivedClassp->isVirtual()) {
                         derivedClassp->v3error(
                             "Class " << derivedClassp->prettyNameQ() << impOrExtends
@@ -3792,25 +3792,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
         }
     }
-    void importSymbolsFromExtended(AstClass* const nodep, AstClassExtends* const cextp) {
-        AstClass* const baseClassp = cextp->classp();
-        VSymEnt* const srcp = m_statep->getNodeSym(baseClassp);
+    வெறுமை importSymbolsFromExtended(AstClass* மாறிலி nodep, AstClassExtends* மாறிலி cextp) {
+        AstClass* மாறிலி baseClassp = cextp->classp();
+        VSymEnt* மாறிலி srcp = m_statep->get_முனை_Sym(baseClassp);
         importDerivedClass(nodep, srcp, baseClassp);
-        if (!cextp->isImplements()) m_curSymp->importFromClass(m_statep->symsp(), srcp);
+        எனில் (!cextp->isImplements()) m_curSymp->importFromClass(m_statep->symsp(), srcp);
     }
-    void classExtendImport(AstClass* nodep) {
+    வெறுமை classExtendImport(AstClass* nodep) {
         // A class reference might be to a class that is later in Ast due to
         // e.g. parameterization or referring to a "class (type T) extends T"
         // Resolve it so later Class:: references into its base classes work
-        symIterateNull(nodep, m_statep->getNodeSym(nodep));
+        symIterateNull(nodep, m_statep->get_முனை_Sym(nodep));
     }
 
-    void checkDeclOrder(AstNode* nodep, AstNode* declp) {
-        const uint32_t declTokenNum = declp->declTokenNum();
-        if (!declTokenNum) return;  // Not implemented/valid on this object
-        if (nodep->fileline()->tokenNum() < declTokenNum) {
-            UINFO(1, "Related node " << nodep->fileline()->tokenNum() << " " << nodep);
-            UINFO(1, "Related decl " << declTokenNum << " " << declp);
+    வெறுமை checkDeclOrder(Ast_முனை* nodep, Ast_முனை* declp) {
+        மாறிலி uint32_t decl_Token_இலக்கம் = declp->decl_Token_இலக்கம்();
+        எனில் (!decl_Token_இலக்கம்) திரும்பு;  // Not implemented/valid on this object
+        எனில் (nodep->fileline()->token_இலக்கம்() < decl_Token_இலக்கம்) {
+            UINFO(1, "Related node " << nodep->fileline()->token_இலக்கம்() << " " << nodep);
+            UINFO(1, "Related decl " << decl_Token_இலக்கம் << " " << declp);
             nodep->v3error("Reference to "
                            << nodep->prettyNameQ() << " before declaration (IEEE 1800-2023 6.18)\n"
                            << nodep->warnMore()
@@ -3821,11 +3821,11 @@ class LinkDotResolveVisitor final : public VNVisitor {
                            << declp->warnContextSecondary());
         }
     }
-    void checkMemberDeclOrder(AstNode* nodep, AstMemberDType* declp) {
-        const uint32_t declTokenNum = declp->fileline()->tokenNum();
-        if (nodep->fileline()->tokenNum() < declTokenNum) {
-            UINFO(1, "Related node " << nodep->fileline()->tokenNum() << " " << nodep);
-            UINFO(1, "Related decl " << declTokenNum << " " << declp);
+    வெறுமை checkMemberDeclOrder(Ast_முனை* nodep, AstMemberDType* declp) {
+        மாறிலி uint32_t decl_Token_இலக்கம் = declp->fileline()->token_இலக்கம்();
+        எனில் (nodep->fileline()->token_இலக்கம்() < decl_Token_இலக்கம்) {
+            UINFO(1, "Related node " << nodep->fileline()->token_இலக்கம்() << " " << nodep);
+            UINFO(1, "Related decl " << decl_Token_இலக்கம் << " " << declp);
             nodep->v3error("Reference to "
                            << nodep->prettyNameQ() << " before declaration (IEEE 1800-2023 6.18)\n"
                            << nodep->warnMore()
@@ -3836,50 +3836,50 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
     }
 
-    void replaceWithCheckBreak(AstNode* oldp, AstNodeDType* newp) {
+    வெறுமை replaceWithCheckBreak(Ast_முனை* oldp, Ast_முனை_DType* newp) {
         // Flag now to avoid V3Broken throwing an internal error
-        if (oldp->wouldBreak(newp)) {
+        எனில் (oldp->wouldBreak(newp)) {
             newp->v3error(
                 "Data type used where a non-data type is expected: " << newp->prettyNameQ());
-            oldp->replaceWith(new AstConst{newp->fileline(), AstConst::BitFalseErroring{}});
-        } else {
+            oldp->replaceWith(புதிய AstConst{newp->fileline(), AstConst::BitFalseErroring{}});
+        } இல்லையெனில் {
             oldp->replaceWith(newp);
         }
     }
 
     // Marks the current module to be revisited after the initial AST iteration
-    void revisitLater(AstNode* deferredNodep) {
+    வெறுமை revisitLater(Ast_முனை* deferredNodep) {
         // Need to revisit entire module to build up all the necessary context
         m_lastDeferredp = deferredNodep;
-        m_modulesToRevisit.insert(std::make_pair(m_modp->name(), m_modp));
+        m_modulesToRevisit.செருகு(std::make_pair(m_modp->name(), m_modp));
     }
 
-    void updateVarUse(AstVar* nodep) {
+    வெறுமை updateVarUse(AstVar* nodep) {
         // Avoid dotted.PARAM false positive when in a parameter block
         // that is if ()'ed off by same dotted name as another block
-        if (nodep && nodep->isParam()) nodep->usedParam(true);
+        எனில் (nodep && nodep->isParam()) nodep->usedParam(உண்மை);
     }
 
-    static VSymEnt* findIdFallbackSkipMemberDType(VSymEnt* lookp, const string& name) {
+    நிலையான VSymEnt* findIdFallbackSkipMemberDType(VSymEnt* lookp, மாறிலி string& name) {
         VSymEnt* shadowEntp = nullptr;  // Shadowing variable: not a type, kept for error report
-        while (lookp) {
-            VSymEnt* const foundp = lookp->findIdFlat(name);
-            if (foundp && !VN_IS(foundp->nodep(), MemberDType)) {
+        போது (lookp) {
+            VSymEnt* மாறிலி foundp = lookp->findIdFlat(name);
+            எனில் (foundp && !VN_IS(foundp->nodep(), MemberDType)) {
                 // Non-type entries are not type candidates
                 // (IEEE 1800-2023 6.18); skip them so an enclosing
                 // type is found, but keep one to preserve the "found: ..." error.
-                if (VN_IS(foundp->nodep(), Typedef) || VN_IS(foundp->nodep(), ParamTypeDType)
+                எனில் (VN_IS(foundp->nodep(), Typedef) || VN_IS(foundp->nodep(), ParamTypeDType)
                     || VN_IS(foundp->nodep(), Class)) {
-                    return foundp;
+                    திரும்பு foundp;
                 }
-                if (!shadowEntp) shadowEntp = foundp;
+                எனில் (!shadowEntp) shadowEntp = foundp;
             }
             lookp = lookp->fallbackp();
         }
-        return shadowEntp;
+        திரும்பு shadowEntp;
     }
 
-    void symIterateChildren(AstNode* nodep, VSymEnt* symp) {
+    வெறுமை symIterateChildren(Ast_முனை* nodep, VSymEnt* symp) {
         // Iterate children, changing to given context, with restore to old context
         VL_RESTORER_COPY(m_ds);
         VL_RESTORER(m_curSymp);
@@ -3887,7 +3887,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         m_ds.init(m_curSymp);
         iterateChildren(nodep);
     }
-    void symIterateNull(AstNode* nodep, VSymEnt* symp) {
+    வெறுமை symIterateNull(Ast_முனை* nodep, VSymEnt* symp) {
         // Iterate node, changing to given context, with restore to old context
         VL_RESTORER_COPY(m_ds);
         VL_RESTORER(m_curSymp);
@@ -3895,83 +3895,83 @@ class LinkDotResolveVisitor final : public VNVisitor {
         m_ds.init(m_curSymp);
         iterateNull(nodep);
     }
-    static const AstNodeDType* getExprDTypep(const AstNodeExpr* selp) {
-        while (const AstNodePreSel* const sp = VN_CAST(selp, NodePreSel)) selp = sp->fromp();
-        if (const AstMemberSel* const sp = VN_CAST(selp, MemberSel)) {
-            if (const AstNodeDType* dtypep = getExprDTypep(sp->fromp())) {
-                if (const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType)) {
-                    const AstClass* const classp = classRefp->classp();
-                    const bool found = classp->existsMember(
-                        [&dtypep, name = selp->name()](const AstClass*, const AstVar* nodep) {
+    நிலையான மாறிலி Ast_முனை_DType* get_கோவை_DTypep(மாறிலி Ast_முனை_கோவை* selp) {
+        போது (மாறிலி Ast_முனை_Pre_Sel* மாறிலி sp = VN_CAST(selp, முனை_Pre_Sel)) selp = sp->fromp();
+        எனில் (மாறிலி AstMemberSel* மாறிலி sp = VN_CAST(selp, MemberSel)) {
+            எனில் (மாறிலி Ast_முனை_DType* dtypep = get_கோவை_DTypep(sp->fromp())) {
+                எனில் (மாறிலி AstClassRefDType* மாறிலி classRefp = VN_CAST(dtypep, ClassRefDType)) {
+                    மாறிலி AstClass* மாறிலி classp = classRefp->classp();
+                    மாறிலி தருக்க found = classp->existsMember(
+                        [&dtypep, name = selp->name()](மாறிலி AstClass*, மாறிலி AstVar* nodep) {
                             dtypep = nodep->childDTypep();
-                            return nodep->name() == name;
+                            திரும்பு nodep->name() == name;
                         });
-                    if (found) return dtypep->elemDTypep();
+                    எனில் (found) திரும்பு dtypep->elemDTypep();
                     selp->v3error("Class " << classRefp->prettyNameQ()
                                            << " does not contain field " << selp->prettyNameQ());
-                } else {
+                } இல்லையெனில் {
                     selp->v3fatalSrc("Member selection on expression of type "
                                      << dtypep->prettyDTypeNameQ()
                                      << ", which is not a class type");
                 }
             }
-        } else if (const AstNodeVarRef* const varRefp = VN_CAST(selp, NodeVarRef)) {
-            return varRefp->varp()->childDTypep()->elemDTypep();
+        } இல்லையெனில் எனில் (மாறிலி Ast_முனை_Var_Ref* மாறிலி varRefp = VN_CAST(selp, முனை_Var_Ref)) {
+            திரும்பு varRefp->varp()->childDTypep()->elemDTypep();
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
-    static const AstVar* getNextVarp(const AstNode* stmtsp) {
+    நிலையான மாறிலி AstVar* getNextVarp(மாறிலி Ast_முனை* stmtsp) {
         // Only IO ports, as parameters are on paramsp(), not the pinsp() list paired here
-        while (stmtsp) {
-            if (const AstVar* const varp = VN_CAST(stmtsp, Var)) {
-                if (varp->isIO()) return varp;
+        போது (stmtsp) {
+            எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(stmtsp, Var)) {
+                எனில் (varp->isIO()) திரும்பு varp;
             }
             stmtsp = stmtsp->nextp();
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
     // Introduce implicit parameters for modules with generic interafeces
-    void addImplicitParametersOfGenericIface(AstCell* const nodep, const AstModule* const modp) {
+    வெறுமை addImplicitParametersOfGenericIface(AstCell* மாறிலி nodep, மாறிலி AstModule* மாறிலி modp) {
         // Get Param number
-        int paramNum = 1;
-        for (AstPin* paramp = nodep->paramsp(); paramp; paramp = VN_CAST(paramp->nextp(), Pin)) {
-            ++paramNum;
+        முழு param_இலக்கம் = 1;
+        க்கு (AstPin* paramp = nodep->paramsp(); paramp; paramp = VN_CAST(paramp->nextp(), Pin)) {
+            ++param_இலக்கம்;
         }
 
         // Add each implicit parameter type
-        const AstVar* modIfaceVarp = getNextVarp(modp->stmtsp());
-        for (const AstPin* pinp = nodep->pinsp(); pinp && modIfaceVarp;
+        மாறிலி AstVar* modIfaceVarp = getNextVarp(modp->stmtsp());
+        க்கு (மாறிலி AstPin* pinp = nodep->pinsp(); pinp && modIfaceVarp;
              pinp = VN_CAST(pinp->nextp(), Pin),
                            modIfaceVarp = getNextVarp(modIfaceVarp->nextp())) {
-            if (modIfaceVarp->varType() != VVarType::IFACEREF
+            எனில் (modIfaceVarp->varType() != VVarType::IFACEREF
                 || !VN_IS(modIfaceVarp->childDTypep()->elemDTypep(), IfaceGenericDType)) {
-                continue;
+                தொடர்;
             }
-            AstNode* exprp = pinp->exprp();
-            if (!exprp) {
+            Ast_முனை* exprp = pinp->exprp();
+            எனில் (!exprp) {
                 modIfaceVarp->v3error("Interface port "
                                       << modIfaceVarp->prettyNameQ()
                                       << " is not connected to interface/modport pin expression");
-                continue;
+                தொடர்;
             }
-            while (const AstNodePreSel* const preSelp = VN_CAST(exprp, NodePreSel)) {
+            போது (மாறிலி Ast_முனை_Pre_Sel* மாறிலி preSelp = VN_CAST(exprp, முனை_Pre_Sel)) {
                 exprp = preSelp->fromp();
             }
             // Resolve pin expression to the enclosing module's port Var. At primary
             // LinkDot the expression may still be an AstParseRef, so also look up by name.
             AstVar* enclosingVarp = nullptr;
-            const AstVarRef* const varRefp = VN_CAST(exprp, VarRef);
-            if (varRefp) {
+            மாறிலி AstVarRef* மாறிலி varRefp = VN_CAST(exprp, VarRef);
+            எனில் (varRefp) {
                 enclosingVarp = varRefp->varp();
-            } else if (const AstParseRef* const parseRefp = VN_CAST(exprp, ParseRef)) {
-                if (m_modp) {
-                    if (VSymEnt* const symp
-                        = m_statep->getNodeSym(m_modp)->findIdFlat(parseRefp->name())) {
+            } இல்லையெனில் எனில் (மாறிலி AstParseRef* மாறிலி parseRefp = VN_CAST(exprp, ParseRef)) {
+                எனில் (m_modp) {
+                    எனில் (VSymEnt* மாறிலி symp
+                        = m_statep->get_முனை_Sym(m_modp)->findIdFlat(parseRefp->name())) {
                         enclosingVarp = VN_CAST(symp->nodep(), Var);
                     }
                 }
             }
-            if (enclosingVarp && enclosingVarp->varType() == VVarType::IFACEREF
+            எனில் (enclosingVarp && enclosingVarp->varType() == VVarType::IFACEREF
                 && VN_IS(enclosingVarp->childDTypep()->skipRefp(), IfaceGenericDType)) {
                 // Nested generic-iface forwarding (#7454): enclosing port is itself still
                 // generic, so emit a placeholder __VGIfaceParam pin carrying a VarRef to
@@ -3979,109 +3979,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 // the enclosing module is specialized (see
                 // ParamProcessor::resolveGenericIfaceForwardingPins for the ordering
                 // constraint that keeps the rewrite inside V3Param).
-                AstVarRef* const fwdRefp
-                    = new AstVarRef{exprp->fileline(), enclosingVarp, VAccess::READ};
-                AstPin* const newPinp = new AstPin{
-                    pinp->fileline(), paramNum, "__VGIfaceParam" + modIfaceVarp->name(), fwdRefp};
-                newPinp->param(true);
+                AstVarRef* மாறிலி fwdRefp
+                    = புதிய AstVarRef{exprp->fileline(), enclosingVarp, VAccess::READ};
+                AstPin* மாறிலி newPinp = புதிய AstPin{
+                    pinp->fileline(), param_இலக்கம், "__VGIfaceParam" + modIfaceVarp->name(), fwdRefp};
+                newPinp->param(உண்மை);
                 visit(newPinp);
                 nodep->addParamsp(newPinp);
-            } else if (varRefp) {
-                const AstVar* const varp = varRefp->varp();
-                if (const AstIfaceRefDType* const refp
+            } இல்லையெனில் எனில் (varRefp) {
+                மாறிலி AstVar* மாறிலி varp = varRefp->varp();
+                எனில் (மாறிலி AstIfaceRefDType* மாறிலி refp
                     = VN_CAST(varp->childDTypep()->elemDTypep(), IfaceRefDType)) {
-                    AstIface* const ifacep = VN_AS(refp->cellp()->modp(), Iface);
+                    AstIface* மாறிலி ifacep = VN_AS(refp->cellp()->modp(), Iface);
                     AstIfaceRefDType* newIfaceRefp;
-                    if (refp->modportp()) {
-                        newIfaceRefp = new AstIfaceRefDType{
+                    எனில் (refp->modportp()) {
+                        newIfaceRefp = புதிய AstIfaceRefDType{
                             refp->fileline(), refp->modportFileline(), m_modp->name(),
                             ifacep->name(), refp->modportName()};
-                    } else {
-                        newIfaceRefp = new AstIfaceRefDType{refp->fileline(), m_modp->name(),
+                    } இல்லையெனில் {
+                        newIfaceRefp = புதிய AstIfaceRefDType{refp->fileline(), m_modp->name(),
                                                             ifacep->name()};
                     }
                     newIfaceRefp->ifacep(ifacep);
-                    if (refp->cellp()->paramsp()) {
-                        newIfaceRefp->addParamsp(refp->cellp()->paramsp()->cloneTree(true));
+                    எனில் (refp->cellp()->paramsp()) {
+                        newIfaceRefp->addParamsp(refp->cellp()->paramsp()->clone_மரம்(உண்மை));
                     }
                     UASSERT_OBJ(pinp->name().find("__pinNumber") == 0
                                     || pinp->name() == modIfaceVarp->name(),
                                 pinp, "Not found interface with such name");
-                    AstPin* const newPinp
-                        = new AstPin{pinp->fileline(), paramNum,
+                    AstPin* மாறிலி newPinp
+                        = புதிய AstPin{pinp->fileline(), param_இலக்கம்,
                                      "__VGIfaceParam" + modIfaceVarp->name(), newIfaceRefp};
-                    newPinp->param(true);
+                    newPinp->param(உண்மை);
                     visit(newPinp);
                     nodep->addParamsp(newPinp);
-                } else {
+                } இல்லையெனில் {
                     varRefp->v3error("Generic interfaces can only connect to an interface and "
                                      << varp->prettyNameQ() << " is "
                                      << (varp->childDTypep()
                                              ? "of type " + varp->childDTypep()->prettyDTypeNameQ()
                                              : "not an interface"));
                 }
-            } else {
+            } இல்லையெனில் {
                 exprp->v3error("Expected an interface but " << exprp->prettyNameQ()
                                                             << " is not an interface");
             }
-            ++paramNum;
+            ++param_இலக்கம்;
         }
     }
 
     // Returns true and issues error iff 'varp' cannot be accesed with a VarXRef
     // in a hier_block given by 'scopeSymp'
-    bool errorHierNonPort(AstVarXRef* refp, AstVar* varp, VSymEnt* scopeSymp) {
+    தருக்க errorHierNonPort(AstVarXRef* refp, AstVar* varp, VSymEnt* scopeSymp) {
         // OK to access ports on hier_block
-        if (varp->isIO()) return false;
+        எனில் (varp->isIO()) திரும்பு பொய்;
         // OK if not an instance
-        const AstCell* const cellp = VN_CAST(scopeSymp->nodep(), Cell);
-        if (!cellp) return false;
+        மாறிலி AstCell* மாறிலி cellp = VN_CAST(scopeSymp->nodep(), Cell);
+        எனில் (!cellp) திரும்பு பொய்;
         // Ok if not a hier_block
-        const AstNodeModule* const modp = cellp->modp();
-        if (!modp->hierBlock()) return false;
+        மாறிலி Ast_முனை_Module* மாறிலி modp = cellp->modp();
+        எனில் (!modp->hierBlock()) திரும்பு பொய்;
         // Bad
         refp->v3error("Cannot access non-port symbols inside hierarchical block");
-        return true;
+        திரும்பு உண்மை;
     }
 
 #define LINKDOT_VISIT_START() \
     VL_RESTORER(m_indent); \
     ++m_indent;
 
-    string indent() const {
+    string indent() மாறிலி {
         string result = "";
-        result.insert(0, m_indent, ':');
-        return result + " ";
+        result.செருகு(0, m_indent, ':');
+        திரும்பு result + " ";
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    வெறுமை visit(AstNetlist* nodep) override {
         // Recurse..., backward as must do packages before using packages
         iterateChildrenBackwardsConst(nodep);
     }
-    void visit(AstTypeTable*) override {}
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+    வெறுமை visit(AstTypeTable*) override {}
+    வெறுமை visit(Ast_முனை_Module* nodep) override {
+        எனில் (nodep->dead()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         VL_RESTORER(m_genericIfaceModule);
-        if (const AstModule* const modp = VN_CAST(nodep, Module)) {
+        எனில் (மாறிலி AstModule* மாறிலி modp = VN_CAST(nodep, Module)) {
             m_genericIfaceModule = modp->hasGenericIface();
         }
         checkNoDot(nodep);
         m_ds.init(m_curSymp);
         m_ds.m_dotSymp = m_curSymp = m_modSymp
-            = m_statep->getNodeSym(nodep);  // Until overridden by a SCOPE
+            = m_statep->get_முனை_Sym(nodep);  // Until overridden by a SCOPE
         m_cellp = nullptr;
         m_modp = nodep;
-        m_modportNum = 0;
+        m_modport_இலக்கம் = 0;
         iterateChildren(nodep);
         m_modp = nullptr;
         m_ds.m_dotSymp = m_curSymp = m_modSymp = nullptr;
         m_ds.m_dotPos = DP_NONE;
-        m_ds.m_dotErr = false;
+        m_ds.m_dotErr = பொய்;
     }
-    void visit(AstScope* nodep) override {
+    வெறுமை visit(AstScope* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -4091,13 +4091,13 @@ class LinkDotResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
         m_ds.m_dotSymp = m_curSymp = m_modSymp = nullptr;
     }
-    void visit(AstCellInline* nodep) override {
+    வெறுமை visit(AstCellInline* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         UASSERT_OBJ(m_statep->forScopeCreation(), nodep, "CellInline should not exist yet");
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstCell* nodep) override {
+    வெறுமை visit(AstCell* nodep) override {
         // Cell: Recurse inside or cleanup not founds
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -4110,24 +4110,24 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_pinSymp);
         {
             m_cellp = nodep;
-            if (VN_IS(nodep->modp(), NotFoundModule)) {
+            எனில் (VN_IS(nodep->modp(), NotFoundModule)) {
                 // Prevent warnings about missing pin connects
-                if (nodep->pinsp()) nodep->pinsp()->unlinkFrBackWithNext()->deleteTree();
-                if (nodep->paramsp()) nodep->paramsp()->unlinkFrBackWithNext()->deleteTree();
+                எனில் (nodep->pinsp()) nodep->pinsp()->unlinkFrBackWithNext()->delete_மரம்();
+                எனில் (nodep->paramsp()) nodep->paramsp()->unlinkFrBackWithNext()->delete_மரம்();
             }
             // Need to pass the module info to this cell, so we can link up the pin names
             // However can't use m_curSymp as pin connections need to use the
             // instantiator's symbols
-            else {
-                m_pinSymp = m_statep->getNodeSym(nodep->modp());
+            இல்லையெனில் {
+                m_pinSymp = m_statep->get_முனை_Sym(nodep->modp());
                 UINFO(4, indent() << "(Backto) visit " << nodep);
                 // UINFOTREE(1, nodep, "", "linkcell");
                 // UINFOTREE(1, nodep->modp(), "", "linkcemd");
                 iterateChildren(nodep);
 
-                if (m_statep->forPrimary())
-                    if (const AstModule* const modp = VN_CAST(nodep->modp(), Module)) {
-                        if (modp->hasGenericIface())
+                எனில் (m_statep->forPrimary())
+                    எனில் (மாறிலி AstModule* மாறிலி modp = VN_CAST(nodep->modp(), Module)) {
+                        எனில் (modp->hasGenericIface())
                             addImplicitParametersOfGenericIface(nodep, modp);
                     }
             }
@@ -4135,7 +4135,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // Parent module inherits child's publicity
         // This is done bottom up in the LinkBotupVisitor stage
     }
-    void visit(AstClassRefDType* nodep) override {
+    வெறுமை visit(AstClassRefDType* nodep) override {
         // Cell: Recurse inside or cleanup not founds
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -4143,46 +4143,46 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER_CLEAR(m_usedPins);
         VL_RESTORER_CLEAR(m_usedDefParamPins);
         UASSERT_OBJ(nodep->classp(), nodep, "ClassRef has unlinked class");
-        UASSERT_OBJ(m_statep->forPrimary() || !nodep->paramsp() || V3Error::errorCount(), nodep,
+        UASSERT_OBJ(m_statep->forPrimary() || !nodep->paramsp() || V3Error::error_மொத்தம்(), nodep,
                     "class reference parameter not removed by V3Param");
         VL_RESTORER(m_pinSymp);
         {
             // ClassRef's have pins, so track
-            m_pinSymp = m_statep->getNodeSym(nodep->classp());
+            m_pinSymp = m_statep->get_முனை_Sym(nodep->classp());
             UINFO(4, indent() << "(Backto) visit " << nodep);
             // UINFOTREE(1, nodep, "", "linkcell");
             // UINFOTREE(1, nodep->modp(), "", "linkcemd");
             iterateChildren(nodep);
         }
     }
-    void visit(AstPin* nodep) override {
+    வெறுமை visit(AstPin* nodep) override {
         // Pin: Link to submodule's port
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         iterateChildren(nodep);
-        if (!nodep->modVarp()) {
+        எனில் (!nodep->modVarp()) {
             UASSERT_OBJ(m_pinSymp, nodep, "Pin not under instance?");
-            VSymEnt* const foundp = m_pinSymp->findIdFlat(nodep->name());
-            const char* const whatp = nodep->param() ? "parameter" : "pin";
-            if (!foundp) {
-                if (m_cellp && VN_IS(m_cellp->modp(), Primitive)
+            VSymEnt* மாறிலி foundp = m_pinSymp->findIdFlat(nodep->name());
+            மாறிலி எழுத்து* மாறிலி whatp = nodep->param() ? "parameter" : "pin";
+            எனில் (!foundp) {
+                எனில் (m_cellp && VN_IS(m_cellp->modp(), Primitive)
                     && (nodep->name() == "__paramNumber1" || nodep->name() == "__paramNumber2")) {
                     // Primitive parameter is really a delay2 we can just ignore
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
-                } else if (nodep->param() && !nodep->exprp() && !nodep->svDotName()) {
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                    திரும்பு;
+                } இல்லையெனில் எனில் (nodep->param() && !nodep->exprp() && !nodep->svDotName()) {
                     // Placeholder pin the parser makes for an empty '#()', to signal
                     // the user did type the '#()'. No further use, deleting.
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
-                } else {
-                    const std::string suggest
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                    திரும்பு;
+                } இல்லையெனில் {
+                    மாறிலி std::string suggest
                         = (nodep->param()
                                ? m_statep->suggestSymFlat(m_pinSymp, nodep->name(),
-                                                          LinkNodeMatcherVarParam{}, false)
+                                                          Link_முனை_Matcher_Var_Param{}, பொய்)
                                : m_statep->suggestSymFlat(m_pinSymp, nodep->name(),
-                                                          LinkNodeMatcherVarIO{}, false));
-                    const std::string decl
+                                                          Link_முனை_Matcher_Var_IO{}, பொய்));
+                    மாறிலி std::string decl
                         = ((m_cellp && m_cellp->modp())
                                ? "\n"s + nodep->warnMore() + "... Location of instance's "
                                      + m_cellp->modp()->verilogKwd() + " declaration\n"
@@ -4194,66 +4194,66 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                       << (suggest.empty() ? "" : nodep->warnMore() + suggest)
                                       << '\n'
                                       << nodep->warnContextPrimary() << decl);
-                    VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                    return;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                    திரும்பு;
                 }
             }
             VVarType refVarType = VVarType::UNKNOWN;
-            bool wrongPinType = false;
-            if (AstVar* const varp = VN_CAST(foundp->nodep(), Var)) {
-                if (varp->isIO() || varp->isParam() || varp->isIfaceRef()) {
+            தருக்க wrongPinType = பொய்;
+            எனில் (AstVar* மாறிலி varp = VN_CAST(foundp->nodep(), Var)) {
+                எனில் (varp->isIO() || varp->isParam() || varp->isIfaceRef()) {
                     refVarType = varp->varType();
                     nodep->modVarp(varp);
-                } else {
-                    wrongPinType = true;
+                } இல்லையெனில் {
+                    wrongPinType = உண்மை;
                 }
-            } else if (AstParamTypeDType* const typep = VN_CAST(foundp->nodep(), ParamTypeDType)) {
+            } இல்லையெனில் எனில் (AstParamTypeDType* மாறிலி typep = VN_CAST(foundp->nodep(), ParamTypeDType)) {
                 refVarType = typep->varType();
                 nodep->modPTypep(typep);
-            } else {
-                wrongPinType = true;
+            } இல்லையெனில் {
+                wrongPinType = உண்மை;
             }
             // Don't connect parameter pin to module ports or vice versa
-            if (nodep->param() != (refVarType == VVarType::GPARAM)) wrongPinType = true;
-            if (wrongPinType) {
-                string targetType = LinkDotState::nodeTextType(foundp->nodep());
+            எனில் (nodep->param() != (refVarType == VVarType::GPARAM)) wrongPinType = உண்மை;
+            எனில் (wrongPinType) {
+                string targetType = LinkDotState::முனை_Text_Type(foundp->nodep());
                 targetType = VString::aOrAn(targetType) + ' ' + targetType;
-                if (nodep->param()) {
+                எனில் (nodep->param()) {
                     nodep->v3error("Instance attempts to override "
                                    << nodep->prettyNameQ() << " as a " << whatp << ", but it is "
                                    << targetType);
-                } else {
+                } இல்லையெனில் {
                     nodep->v3error("Instance attempts to connect to "
                                    << nodep->prettyNameQ() << ", but it is " << targetType);
                 }
-                return;
+                திரும்பு;
             }
             markAndCheckPinDup(nodep, foundp->nodep(), whatp);
         }
         // Early return() above when deleted
     }
 
-    static bool isDotThisReference(const AstDot* nodep) {
-        return VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "this";
+    நிலையான தருக்க isDotThisReference(மாறிலி AstDot* nodep) {
+        திரும்பு VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "this";
     }
 
-    void visit(AstDot* nodep) override {
+    வெறுமை visit(AstDot* nodep) override {
         // Legal under a DOT: AstDot, AstParseRef, AstPackageRef, AstNodeSel, AstPackArrayDType
         //    also a DOT can be part of an expression, but only above plus
         //    AstFTaskRef are legal children
         // Dot(PackageRef, ParseRef(text))
         // Dot(Dot(ClassOrPackageRef,ClassOrPackageRef), ParseRef(text))
         // Dot(Dot(Dot(ParseRef(text), ...
-        if (nodep->user3SetOnce()) return;
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
-        const DotStates lastStates = m_ds;
-        const bool start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
-        const DotPosition initialDotPos = m_ds.m_dotPos;
+        மாறிலி DotStates lastStates = m_ds;
+        மாறிலி தருக்க start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
+        மாறிலி DotPosition initialDotPos = m_ds.m_dotPos;
         VL_RESTORER(m_randSymp);
         {
-            if (start) {  // Starting dot sequence
+            எனில் (start) {  // Starting dot sequence
                 UINFOTREE(9, nodep, "", "dot-in");
                 // Keep deferral from visit(AstMethodCall) for unspecialized rand target
                 m_ds.init(m_curSymp, m_ds.m_unresolvedClass && randTargetUnresolved());
@@ -4261,329 +4261,329 @@ class LinkDotResolveVisitor final : public VNVisitor {
             m_ds.m_dotp = nodep;  // Always, not just at start
             m_ds.m_dotPos = DP_FIRST;
 
-            if (isDotThisReference(nodep)) {
+            எனில் (isDotThisReference(nodep)) {
                 VSymEnt* classSymp = getThisClassSymp();
                 // In 'randomize() with { this.member }', 'this' refers to randomized
                 // object, not the calling class (IEEE 1800-2023 18.7)
-                if (m_randSymp && m_currentWithp) classSymp = m_randSymp;
-                if (!classSymp && randTargetUnresolved()) {
+                எனில் (m_randSymp && m_currentWithp) classSymp = m_randSymp;
+                எனில் (!classSymp && randTargetUnresolved()) {
                     // Bind 'this' in post-V3Param pass
-                } else if (!classSymp) {
+                } இல்லையெனில் எனில் (!classSymp) {
                     nodep->v3error("'this' used outside class (IEEE 1800-2023 8.11)");
-                    m_ds.m_dotErr = true;
-                } else {
+                    m_ds.m_dotErr = உண்மை;
+                } இல்லையெனில் {
                     m_ds.m_dotSymp = classSymp;
                     UINFO(8, indent() << "this. " << m_ds.ascii());
                 }
-            } else if (VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "super") {
-                const VSymEnt* classSymp = getThisClassSymp();
-                if (!classSymp) {
+            } இல்லையெனில் எனில் (VN_IS(nodep->lhsp(), ParseRef) && nodep->lhsp()->name() == "super") {
+                மாறிலி VSymEnt* classSymp = getThisClassSymp();
+                எனில் (!classSymp) {
                     nodep->v3error("'super' used outside class (IEEE 1800-2023 8.15)");
-                    m_ds.m_dotErr = true;
-                } else {
-                    const auto classp = VN_AS(classSymp->nodep(), Class);
-                    const auto cextp = classp->extendsp();
-                    if (!cextp) {
+                    m_ds.m_dotErr = உண்மை;
+                } இல்லையெனில் {
+                    மாறிலி auto classp = VN_AS(classSymp->nodep(), Class);
+                    மாறிலி auto cextp = classp->extendsp();
+                    எனில் (!cextp) {
                         nodep->v3error("'super' used on non-extended class (IEEE 1800-2023 8.15)");
-                        m_ds.m_dotErr = true;
-                    } else {
-                        if (m_statep->forPrimary()
+                        m_ds.m_dotErr = உண்மை;
+                    } இல்லையெனில் {
+                        எனில் (m_statep->forPrimary()
                             && m_extendsParam.find(classp) != m_extendsParam.end()) {
                             UINFO(9, indent()
                                          << "deferring until post-V3Param: " << nodep->lhsp());
-                            m_ds.m_unresolvedClass = true;
-                        } else {
-                            const auto baseClassp = cextp->classp();
+                            m_ds.m_unresolvedClass = உண்மை;
+                        } இல்லையெனில் {
+                            மாறிலி auto baseClassp = cextp->classp();
                             UASSERT_OBJ(baseClassp, nodep, "Bad superclass");
-                            m_ds.m_dotSymp = m_statep->getNodeSym(baseClassp);
-                            m_ds.m_super = true;
+                            m_ds.m_dotSymp = m_statep->get_முனை_Sym(baseClassp);
+                            m_ds.m_super = உண்மை;
                             UINFO(8, indent() << "super. " << m_ds.ascii());
                         }
                     }
                 }
-            } else if (AstClassOrPackageRef* const lhsp
+            } இல்லையெனில் எனில் (AstClassOrPackageRef* மாறிலி lhsp
                        = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
                 // m_ds.m_dotText communicates the cell prefix between stages
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
                 iterateAndNextNull(lhsp);
-                if (!lhsp->classOrPackageSkipp() && lhsp->name() != "local::") {
+                எனில் (!lhsp->classOrPackageSkipp() && lhsp->name() != "local::") {
                     revisitLater(nodep);
                     m_ds = lastStates;
                     // Resolve function args before bailing
-                    if (AstNodeFTaskRef* const ftaskrefp = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
+                    எனில் (Ast_முனை_FTask_Ref* மாறிலி ftaskrefp = VN_CAST(nodep->rhsp(), முனை_FTask_Ref)) {
                         iterateAndNextNull(ftaskrefp->argsp());
                     }
-                    return;
+                    திரும்பு;
                 }
                 m_ds.m_dotPos = DP_PACKAGE;
                 // nodep->lhsp() may be a new node
-                if (AstClassOrPackageRef* const classOrPackageRefp
+                எனில் (AstClassOrPackageRef* மாறிலி classOrPackageRefp
                     = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
-                    if (AstNode* const classOrPackageNodep
+                    எனில் (Ast_முனை* மாறிலி classOrPackageNodep
                         = classOrPackageRefp->classOrPackageSkipp()) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackageNodep);
+                        m_ds.m_dotSymp = m_statep->get_முனை_Sym(classOrPackageNodep);
                     }
                 }
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-            } else if (VN_IS(nodep->lhsp(), Dot) && VN_AS(nodep->lhsp(), Dot)->colon()) {
+            } இல்லையெனில் எனில் (VN_IS(nodep->lhsp(), Dot) && VN_AS(nodep->lhsp(), Dot)->colon()) {
                 // m_ds.m_dotText communicates the cell prefix between stages
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
                 m_ds.m_dotPos = DP_PACKAGE;
                 iterateAndNextNull(nodep->lhsp());
                 // nodep->lhsp() may be a new node
-                if (AstClassOrPackageRef* const crefp
+                எனில் (AstClassOrPackageRef* மாறிலி crefp
                     = VN_CAST(nodep->lhsp(), ClassOrPackageRef)) {
-                    if (!crefp->classOrPackageSkipp()) {
+                    எனில் (!crefp->classOrPackageSkipp()) {
                         revisitLater(nodep);
                         m_ds = lastStates;
                         // Resolve function args before bailing
-                        if (AstNodeFTaskRef* const ftaskrefp
-                            = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
+                        எனில் (Ast_முனை_FTask_Ref* மாறிலி ftaskrefp
+                            = VN_CAST(nodep->rhsp(), முனை_FTask_Ref)) {
                             iterateAndNextNull(ftaskrefp->argsp());
                         }
-                        return;
+                        திரும்பு;
                     }
                 }
-                if (m_lastDeferredp == nodep->lhsp()) {
+                எனில் (m_lastDeferredp == nodep->lhsp()) {
                     // LHS got deferred, so this node won't be resolved. Defer it too
                     m_ds = lastStates;
                     // Resolve function args before bailing
-                    if (AstNodeFTaskRef* const ftaskrefp = VN_CAST(nodep->rhsp(), NodeFTaskRef)) {
+                    எனில் (Ast_முனை_FTask_Ref* மாறிலி ftaskrefp = VN_CAST(nodep->rhsp(), முனை_FTask_Ref)) {
                         iterateAndNextNull(ftaskrefp->argsp());
                     }
-                    return;
+                    திரும்பு;
                 }
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-            } else {
+            } இல்லையெனில் {
                 m_ds.m_dotPos = DP_FIRST;
-                m_ds.m_unresolvedGenericIface = false;
+                m_ds.m_unresolvedGenericIface = பொய்;
                 UINFO(8, indent() << "iter.lhs   " << m_ds.ascii() << " " << nodep);
                 iterateAndNextNull(nodep->lhsp());
                 UINFO(8, indent() << "iter.ldone " << m_ds.ascii() << " " << nodep);
-                if (m_ds.m_unresolvedGenericIface) {
+                எனில் (m_ds.m_unresolvedGenericIface) {
                     m_ds.m_dotPos = initialDotPos;
-                    return;
+                    திரும்பு;
                 }
                 // UINFOTREE(9, nodep, "", "dot-lho");
             }
-            if (m_statep->forPrimary() && isParamedClassRef(nodep->lhsp())) {
+            எனில் (m_statep->forPrimary() && isParamedClassRef(nodep->lhsp())) {
                 // Dots of paramed classes will be linked after deparameterization
                 UINFO(9, indent() << "deferring until post-V3Param: " << nodep->lhsp());
-                m_ds.m_unresolvedClass = true;
+                m_ds.m_unresolvedClass = உண்மை;
             }
-            if (m_ds.m_unresolvedCell
+            எனில் (m_ds.m_unresolvedCell
                 && (VN_IS(nodep->lhsp(), CellRef) || VN_IS(nodep->lhsp(), CellArrayRef))) {
                 m_ds.m_unlinkedScopep = nodep->lhsp();
             }
-            if (m_ds.m_dotPos == DP_FIRST) m_ds.m_dotPos = DP_SCOPE;
-            if (!m_ds.m_dotErr) {  // Once something wrong, give up
+            எனில் (m_ds.m_dotPos == DP_FIRST) m_ds.m_dotPos = DP_SCOPE;
+            எனில் (!m_ds.m_dotErr) {  // Once something wrong, give up
                 // Top 'final' dot RHS is final RHS, else it's a
                 // DOT(DOT(x,*here*),real-rhs) which we consider a RHS
-                if (start && m_ds.m_dotPos == DP_SCOPE) m_ds.m_dotPos = DP_FINAL;
+                எனில் (start && m_ds.m_dotPos == DP_SCOPE) m_ds.m_dotPos = DP_FINAL;
                 UINFO(8, indent() << "iter.rhs   " << m_ds.ascii() << " " << nodep);
                 // m_ds.m_dotSymp points at lhsp()'s symbol table, so resolve RHS under that
                 iterateAndNextNull(nodep->rhsp());
                 UINFO(8, indent() << "iter.rdone " << m_ds.ascii() << " " << nodep);
                 // UINFOTREE(9, nodep, "", "dot-rho");
             }
-            if (!m_ds.m_unresolvedClass) {
-                if (start) {
-                    AstNode* newp;
-                    if (m_ds.m_dotErr) {
-                        newp = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
-                    } else {
+            எனில் (!m_ds.m_unresolvedClass) {
+                எனில் (start) {
+                    Ast_முனை* newp;
+                    எனில் (m_ds.m_dotErr) {
+                        newp = புதிய AstConst{nodep->fileline(), AstConst::BitFalse{}};
+                    } இல்லையெனில் {
                         newp = nodep->rhsp()->unlinkFrBack();
                     }
                     UINFOTREE(9, newp, "", "dot-out");
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else {  // Dot midpoint
-                    AstNode* newp = nodep->rhsp()->unlinkFrBack();
-                    if (m_ds.m_unresolvedCell) {
-                        AstCellRef* const crp = new AstCellRef{
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                } இல்லையெனில் {  // Dot midpoint
+                    Ast_முனை* newp = nodep->rhsp()->unlinkFrBack();
+                    எனில் (m_ds.m_unresolvedCell) {
+                        AstCellRef* மாறிலி crp = புதிய AstCellRef{
                             nodep->fileline(), nodep->name(), nodep->lhsp()->unlinkFrBack(), newp};
                         newp = crp;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                 }
             }
         }
-        if (start) {
+        எனில் (start) {
             m_ds = lastStates;
-        } else {
-            const bool unresolvedClass = m_ds.m_unresolvedClass;
+        } இல்லையெனில் {
+            மாறிலி தருக்க unresolvedClass = m_ds.m_unresolvedClass;
             m_ds.m_dotp = lastStates.m_dotp;
             m_ds.m_unresolvedClass |= unresolvedClass;
         }
         UINFO(8, indent() << "done " << m_ds.ascii() << " " << nodep);
     }
-    void visit(AstDefaultClocking* nodep) override {
-        if (VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name())) {
-            if (AstClocking* const clockingp = VN_CAST(foundp->nodep(), Clocking)) {
+    வெறுமை visit(AstDefaultClocking* nodep) override {
+        எனில் (VSymEnt* மாறிலி foundp = m_curSymp->findIdFallback(nodep->name())) {
+            எனில் (AstClocking* மாறிலி clockingp = VN_CAST(foundp->nodep(), Clocking)) {
                 clockingp->makeDefault();
-                VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
-            } else {
+                VL_DO_DANGLING(nodep->unlinkFrBack()->delete_மரம்(), nodep);
+            } இல்லையெனில் {
                 nodep->v3error(nodep->prettyNameQ() << " is not a clocking identifier");
             }
-        } else {
+        } இல்லையெனில் {
             nodep->v3error("Can't find definition of clocking: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstSenItem* nodep) override {
+    வெறுமை visit(AstSenItem* nodep) override {
         LINKDOT_VISIT_START();
         VL_RESTORER(m_inSens);
-        m_inSens = true;
+        m_inSens = உண்மை;
         iterateChildren(nodep);
     }
-    void visit(AstPatMember* nodep) override {
+    வெறுமை visit(AstPatMember* nodep) override {
         LINKDOT_VISIT_START();
-        if (nodep->varrefp()) return;  // only do this mapping once
+        எனில் (nodep->varrefp()) திரும்பு;  // only do this mapping once
         // If we have a TEXT token as our key, lookup if it's a LPARAM
-        if (AstText* const textp = VN_CAST(nodep->keyp(), Text)) {
+        எனில் (AstText* மாறிலி textp = VN_CAST(nodep->keyp(), Text)) {
             UINFO(9, indent() << "visit " << nodep);
             UINFO(9, indent() << "      " << textp);
             // Lookup
-            if (VSymEnt* const foundp = m_curSymp->findIdFallback(textp->text())) {
-                if (AstVar* const varp = VN_CAST(foundp->nodep(), Var)) {
-                    if (varp->isParam() || varp->isGenVar()) {
+            எனில் (VSymEnt* மாறிலி foundp = m_curSymp->findIdFallback(textp->text())) {
+                எனில் (AstVar* மாறிலி varp = VN_CAST(foundp->nodep(), Var)) {
+                    எனில் (varp->isParam() || varp->isGenVar()) {
                         // Attach found Text reference to PatMember
                         nodep->varrefp(
-                            new AstVarRef{nodep->fileline(),
+                            புதிய AstVarRef{nodep->fileline(),
                                           foundp->imported() ? foundp->classOrPackagep() : nullptr,
                                           varp, VAccess::READ});
                         UINFO(9, indent() << " new " << nodep->varrefp());
                     }
                 }
-                if (AstEnumItem* const itemp = VN_CAST(foundp->nodep(), EnumItem)) {
+                எனில் (AstEnumItem* மாறிலி itemp = VN_CAST(foundp->nodep(), EnumItem)) {
                     // Attach enum item value to PatMember
                     nodep->varrefp(
-                        new AstEnumItemRef{nodep->fileline(), itemp, foundp->classOrPackagep()});
+                        புதிய AstEnumItemRef{nodep->fileline(), itemp, foundp->classOrPackagep()});
                     UINFO(9, indent() << " new " << itemp);
                 }
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstParseRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstParseRef* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(9, indent() << "visit " << nodep);
         UINFO(9, indent() << m_ds.ascii());
-        if (m_ds.m_unresolvedClass) return;
+        எனில் (m_ds.m_unresolvedClass) திரும்பு;
         // m_curSymp is symbol table of outer expression
         // m_ds.m_dotSymp is symbol table relative to "."'s above now
         UASSERT_OBJ(m_ds.m_dotSymp, nodep, "nullptr lookup symbol table");
         // Generally resolved during Primary, but might be at param time under AstUnlinkedRef
         UASSERT_OBJ(!m_statep->forScopeCreation(), nodep, "ParseRefs should no longer exist");
-        const DotStates lastStates = m_ds;
-        const bool start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
-        bool first = start || m_ds.m_dotPos == DP_FIRST;
+        மாறிலி DotStates lastStates = m_ds;
+        மாறிலி தருக்க start = (m_ds.m_dotPos == DP_NONE);  // Save, as m_dotp will be changed
+        தருக்க first = start || m_ds.m_dotPos == DP_FIRST;
 
-        if (start) {
+        எனில் (start) {
             m_ds.init(m_curSymp);
             // Note m_ds.m_dotp remains nullptr; this is a reference not under a dot
         }
-        if (nodep->name() == "super") {
+        எனில் (nodep->name() == "super") {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: super");
-            m_ds.m_dotErr = true;
+            m_ds.m_dotErr = உண்மை;
         }
-        if (nodep->name() == "this") {
+        எனில் (nodep->name() == "this") {
             iterateChildren(nodep);
-            if (m_statep->forPrimary()) return;  // The class might be parameterized somewhere
-            const VSymEnt* classSymp = getThisClassSymp();
-            if (!classSymp) {
+            எனில் (m_statep->forPrimary()) திரும்பு;  // The class might be parameterized somewhere
+            மாறிலி VSymEnt* classSymp = getThisClassSymp();
+            எனில் (!classSymp) {
                 nodep->v3error("'this' used outside class (IEEE 1800-2023 8.11)");
-                return;
+                திரும்பு;
             }
-            AstClass* const classp = VN_AS(classSymp->nodep(), Class);
-            AstClassRefDType* const dtypep
-                = new AstClassRefDType{nodep->fileline(), classp, nullptr};
-            AstThisRef* const newp = new AstThisRef{nodep->fileline(), VFlagChildDType{}, dtypep};
+            AstClass* மாறிலி classp = VN_AS(classSymp->nodep(), Class);
+            AstClassRefDType* மாறிலி dtypep
+                = புதிய AstClassRefDType{nodep->fileline(), classp, nullptr};
+            AstThisRef* மாறிலி newp = புதிய AstThisRef{nodep->fileline(), VFlagChildDType{}, dtypep};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
         }
-        if (m_ds.m_dotPos == DP_MEMBER && VN_IS(m_ds.m_dotp->lhsp(), LambdaArgRef)
+        எனில் (m_ds.m_dotPos == DP_MEMBER && VN_IS(m_ds.m_dotp->lhsp(), LambdaArgRef)
             && nodep->name() == "index") {
             // 'with' statement's 'item.index'
             // m_ds.dotp->lhsp() was checked to know if `index` is directly after lambda arg ref.
             // If not, treat it as normal member select
             iterateChildren(nodep);
-            AstLambdaArgRef* const newp = new AstLambdaArgRef{
-                nodep->fileline(), m_ds.m_dotp->lhsp()->name() + "__DOT__index", true};
+            AstLambdaArgRef* மாறிலி newp = புதிய AstLambdaArgRef{
+                nodep->fileline(), m_ds.m_dotp->lhsp()->name() + "__DOT__index", உண்மை};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotPos == DP_MEMBER) {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_MEMBER) {
             // Found a Var, everything following is membership.  {scope}.{var}.HERE {member}
-            if (m_ds.m_dotErr) {
+            எனில் (m_ds.m_dotErr) {
                 nodep->unlinkFrBack();  // Avoid circular node loop on errors
-            } else {
-                AstNodeExpr* const varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), NodeExpr);
-                AstNodeExpr* const newp = new AstMemberSel{nodep->fileline(), varEtcp,  //
+            } இல்லையெனில் {
+                Ast_முனை_கோவை* மாறிலி varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), முனை_கோவை);
+                Ast_முனை_கோவை* மாறிலி newp = புதிய AstMemberSel{nodep->fileline(), varEtcp,  //
                                                            VFlagChildDType{}, nodep->name()};
                 nodep->replaceWith(newp);
             }
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+        } இல்லையெனில் {
             //
             string expectWhat;
-            bool allowScope = false;
-            bool allowVar = false;
-            bool allowFTask = false;
-            bool staticAccess = false;
-            if (m_ds.m_disablep) {
-                allowScope = true;
-                allowFTask = true;
+            தருக்க allowScope = பொய்;
+            தருக்க allowVar = பொய்;
+            தருக்க allowFTask = பொய்;
+            தருக்க staticAccess = பொய்;
+            எனில் (m_ds.m_disablep) {
+                allowScope = உண்மை;
+                allowFTask = உண்மை;
                 expectWhat = "block/task";
-            } else if (m_ds.m_dotPos == DP_PACKAGE) {
+            } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_PACKAGE) {
                 // {package-or-class}::{a}
-                AstNodeModule* classOrPackagep = nullptr;
+                Ast_முனை_Module* classOrPackagep = nullptr;
                 expectWhat = "scope/variable/func";
-                allowScope = true;
-                allowVar = true;
-                allowFTask = true;
-                staticAccess = true;
+                allowScope = உண்மை;
+                allowVar = உண்மை;
+                allowFTask = உண்மை;
+                staticAccess = உண்மை;
                 UINFO(9, "chk pkg " << m_ds.ascii() << " lhsp=" << m_ds.m_dotp->lhsp());
                 UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                             "Bad package link");
-                AstClassOrPackageRef* const cpackagerefp
+                AstClassOrPackageRef* மாறிலி cpackagerefp
                     = VN_AS(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
-                if (cpackagerefp->name() == "local::") {
+                எனில் (cpackagerefp->name() == "local::") {
                     m_randSymp = nullptr;
-                    first = true;
-                } else if (!cpackagerefp->classOrPackageSkipp()) {
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        m_ds.m_dotSymp, cpackagerefp, true, false, ":: reference");
-                    if (!foundp) return;
+                    first = உண்மை;
+                } இல்லையெனில் எனில் (!cpackagerefp->classOrPackageSkipp()) {
+                    VSymEnt* மாறிலி foundp = m_statep->resolveClassOrPackage(
+                        m_ds.m_dotSymp, cpackagerefp, உண்மை, பொய், ":: reference");
+                    எனில் (!foundp) திரும்பு;
                     classOrPackagep = cpackagerefp->classOrPackageSkipp();
-                    if (classOrPackagep) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackagep);
-                    } else {
+                    எனில் (classOrPackagep) {
+                        m_ds.m_dotSymp = m_statep->get_முனை_Sym(classOrPackagep);
+                    } இல்லையெனில் {
                         m_ds = lastStates;
-                        return;
+                        திரும்பு;
                     }
-                } else {
+                } இல்லையெனில் {
                     classOrPackagep = cpackagerefp->classOrPackageSkipp();
                     UASSERT_OBJ(classOrPackagep, m_ds.m_dotp->lhsp(), "Bad package link");
-                    m_ds.m_dotSymp = m_statep->getNodeSym(classOrPackagep);
+                    m_ds.m_dotSymp = m_statep->get_முனை_Sym(classOrPackagep);
                 }
                 m_ds.m_dotPos = DP_SCOPE;
-            } else if (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST) {
+            } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST) {
                 // {a}.{b}, where {a} maybe a module name
                 // or variable, where dotting into structure member
                 expectWhat = "scope/variable";
-                allowScope = true;
-                allowVar = true;
-            } else if (m_ds.m_dotPos == DP_NONE) {
+                allowScope = உண்மை;
+                allowVar = உண்மை;
+            } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_NONE) {
                 expectWhat = "variable";
-                allowVar = true;
-            } else if (m_ds.m_dotPos == DP_FINAL) {
+                allowVar = உண்மை;
+            } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_FINAL) {
                 expectWhat = "variable/method";
-                allowFTask = true;
-                allowVar = true;
-            } else {
+                allowFTask = உண்மை;
+                allowVar = உண்மை;
+            } இல்லையெனில் {
                 UINFO(1, "ds=" << m_ds.ascii());
                 nodep->v3fatalSrc("Unhandled DotPosition");
             }
@@ -4592,66 +4592,66 @@ class LinkDotResolveVisitor final : public VNVisitor {
             string baddot;
             VSymEnt* okSymp = nullptr;
             // Restricted 'with (id_list)': only id_list names bind into target class.
-            if (m_randSymp
+            எனில் (m_randSymp
                 && (!m_currentWithp || m_currentWithp->nameResolvesToTarget(nodep->name()))) {
                 foundp = m_randSymp->findIdFlat(nodep->name());
-                if (foundp) {
-                    if (m_currentWithp && m_currentWithp->restricted()) {
-                        m_restrictedNamesUsed.insert(nodep->name());
+                எனில் (foundp) {
+                    எனில் (m_currentWithp && m_currentWithp->restricted()) {
+                        m_restrictedNamesUsed.செருகு(nodep->name());
                     }
-                    if (!start) m_ds.m_dotPos = DP_MEMBER;
-                    if (!m_currentWithp) {
+                    எனில் (!start) m_ds.m_dotPos = DP_MEMBER;
+                    எனில் (!m_currentWithp) {
                         UASSERT_OBJ(m_randMethodCallp, nodep, "Expected to be under randomize()");
                         // This will start failing once complex expressions are allowed on the LHS
                         // of randomize() with args
                         UASSERT_OBJ(VN_IS(m_randMethodCallp->fromp(), VarRef), m_randMethodCallp,
                                     "Expected simple randomize target");
                         // A ParseRef is used here so that the dot RHS gets resolved
-                        AstMemberSel* const newp = new AstMemberSel{
-                            nodep->fileline(), m_randMethodCallp->fromp()->cloneTree(false),
+                        AstMemberSel* மாறிலி newp = புதிய AstMemberSel{
+                            nodep->fileline(), m_randMethodCallp->fromp()->clone_மரம்(பொய்),
                             VFlagChildDType{}, nodep->name()};
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return;
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                        திரும்பு;
                     }
                     UINFO(9, indent() << "randomize-with fromSym " << foundp->nodep());
-                    AstLambdaArgRef* const lambdaRefp
-                        = new AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", false};
-                    AstMemberSel* newp = new AstMemberSel{nodep->fileline(), lambdaRefp,
+                    AstLambdaArgRef* மாறிலி lambdaRefp
+                        = புதிய AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", பொய்};
+                    AstMemberSel* newp = புதிய AstMemberSel{nodep->fileline(), lambdaRefp,
                                                           VFlagChildDType{}, nodep->name()};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    திரும்பு;
                 }
             }
-            if (allowScope) {
+            எனில் (allowScope) {
                 foundp = m_statep->findDotted(nodep->fileline(), m_ds.m_dotSymp, nodep->name(),
                                               baddot, okSymp, first);  // Maybe nullptr
-            } else if (first) {
+            } இல்லையெனில் எனில் (first) {
                 foundp = m_ds.m_dotSymp->findIdFallback(nodep->name());
-            } else {
+            } இல்லையெனில் {
                 foundp = m_ds.m_dotSymp->findIdFlat(nodep->name());
             }
-            if (!foundp && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)) {
-                const AstClass* const classp = VN_CAST(m_ds.m_dotSymp->nodep(), Class);
-                if (classp && classp->isCovergroup() && classp->covergroupEnclosingClassp()) {
-                    VSymEnt* const enclosingClassSymp
-                        = m_statep->getNodeSym(classp->covergroupEnclosingClassp());
+            எனில் (!foundp && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)) {
+                மாறிலி AstClass* மாறிலி classp = VN_CAST(m_ds.m_dotSymp->nodep(), Class);
+                எனில் (classp && classp->isCovergroup() && classp->covergroupEnclosingClassp()) {
+                    VSymEnt* மாறிலி enclosingClassSymp
+                        = m_statep->get_முனை_Sym(classp->covergroupEnclosingClassp());
                     foundp = enclosingClassSymp->findIdFallback(nodep->name());
-                    if (foundp) m_ds.m_dotSymp = enclosingClassSymp;
+                    எனில் (foundp) m_ds.m_dotSymp = enclosingClassSymp;
                 }
             }
             // If not found in modport, check interface fallback for parameters and typedefs.
             // Parameters and typedefs are always visible through a modport (IEEE 1800-2023 25.5).
             // This mirrors the VarXRef modport parameter fallback in visit(AstVarXRef).
-            if (!foundp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)
+            எனில் (!foundp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)
                 && m_ds.m_dotSymp->fallbackp()) {
-                VSymEnt* const ifaceFallbackp = m_ds.m_dotSymp->fallbackp();
-                VSymEnt* const ifaceFoundp = ifaceFallbackp->findIdFlat(nodep->name());
-                if (ifaceFoundp) {
-                    if (const AstVar* const varp = VN_CAST(ifaceFoundp->nodep(), Var)) {
-                        if (varp->isParam()) foundp = ifaceFoundp;
-                    } else if (VN_IS(ifaceFoundp->nodep(), Typedef)
+                VSymEnt* மாறிலி ifaceFallbackp = m_ds.m_dotSymp->fallbackp();
+                VSymEnt* மாறிலி ifaceFoundp = ifaceFallbackp->findIdFlat(nodep->name());
+                எனில் (ifaceFoundp) {
+                    எனில் (மாறிலி AstVar* மாறிலி varp = VN_CAST(ifaceFoundp->nodep(), Var)) {
+                        எனில் (varp->isParam()) foundp = ifaceFoundp;
+                    } இல்லையெனில் எனில் (VN_IS(ifaceFoundp->nodep(), Typedef)
                                || VN_IS(ifaceFoundp->nodep(), ParamTypeDType)) {
                         // Redirect dotSymp to the interface cell so that downstream
                         // typedef/ParamTypeDType handlers see the correct context
@@ -4663,190 +4663,190 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
             // When flat lookup in modport fails, provide dotSymp for error diagnostics
             // so the "Known scopes under..." hint appears (restores pre-routing behavior)
-            if (!foundp && !okSymp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)) {
+            எனில் (!foundp && !okSymp && VN_IS(m_ds.m_dotSymp->nodep(), Modport)) {
                 okSymp = m_ds.m_dotSymp;
             }
-            if (foundp) {
+            எனில் (foundp) {
                 UINFO(9, indent() << "found=se" << cvtToHex(foundp) << "  exp=" << expectWhat
                                   << "  n=" << foundp->nodep());
             }
             // What fell out?
-            bool ok = false;
+            தருக்க ok = பொய்;
             // Special case: waiting on clocking event
-            if (m_inSens && foundp && m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST) {
-                if (AstClocking* const clockingp = sensClockingp(foundp->nodep())) {
+            எனில் (m_inSens && foundp && m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST) {
+                எனில் (AstClocking* மாறிலி clockingp = sensClockingp(foundp->nodep())) {
                     foundp = getCreateClockingEventSymEnt(clockingp);
                 }
             }
-            if (!foundp) {
-            } else if (VN_IS(foundp->nodep(), Cell) || VN_IS(foundp->nodep(), NodeBlock)
+            எனில் (!foundp) {
+            } இல்லையெனில் எனில் (VN_IS(foundp->nodep(), Cell) || VN_IS(foundp->nodep(), முனை_Block)
                        || VN_IS(foundp->nodep(), GenBlock)
                        || VN_IS(foundp->nodep(), Netlist)  // for $root
                        || VN_IS(foundp->nodep(), Module)) {  // if top
-                if (allowScope) {
-                    ok = true;
+                எனில் (allowScope) {
+                    ok = உண்மை;
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     m_ds.m_dotSymp = foundp;
                     m_ds.m_dotPos = DP_SCOPE;
-                    if (m_ds.m_disablep && VN_IS(foundp->nodep(), NodeBlock)) {
+                    எனில் (m_ds.m_disablep && VN_IS(foundp->nodep(), முனை_Block)) {
                         // Possibly it is not the final link. If we are under dot and not in its
                         // last component, `targetp()` field will be overwritten by next components
                         m_ds.m_disablep->targetp(foundp->nodep());
                     }
-                    if (VN_IS(foundp->nodep(), GenBlock)) {
-                        m_ds.m_genBlk = true;
-                        if (m_ds.m_disablep) {
+                    எனில் (VN_IS(foundp->nodep(), GenBlock)) {
+                        m_ds.m_genBlk = உண்மை;
+                        எனில் (m_ds.m_disablep) {
                             m_ds.m_disablep->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported: Generate block referenced by disable");
                         }
                     }
                     // Upper AstDot visitor will handle it from here
-                } else if (VN_IS(foundp->nodep(), Cell) && allowVar) {
-                    AstCell* const cellp = VN_AS(foundp->nodep(), Cell);
-                    if (VN_IS(cellp->modp(), Iface)) {
+                } இல்லையெனில் எனில் (VN_IS(foundp->nodep(), Cell) && allowVar) {
+                    AstCell* மாறிலி cellp = VN_AS(foundp->nodep(), Cell);
+                    எனில் (VN_IS(cellp->modp(), Iface)) {
                         // Interfaces can be referenced like a variable for interconnect
-                        VSymEnt* const cellEntp = m_statep->getNodeSym(cellp);
+                        VSymEnt* மாறிலி cellEntp = m_statep->get_முனை_Sym(cellp);
                         UASSERT_OBJ(cellEntp, nodep, "No interface sym entry");
-                        VSymEnt* const parentEntp
+                        VSymEnt* மாறிலி parentEntp
                             = cellEntp->parentp();  // Container of the var; probably a module or
                                                     // generate begin
-                        AstVar* const ifaceRefVarp
-                            = findIfaceTopVarp(nodep, parentEntp, nodep->name());
+                        AstVar* மாறிலி ifaceRefVarp
+                            = find_Iface_உச்சி_Varp(nodep, parentEntp, nodep->name());
                         //
-                        ok = true;
+                        ok = உண்மை;
                         m_ds.m_dotSymp = foundp;
                         m_ds.m_dotPos = DP_SCOPE;
                         UINFO(9, indent() << " cell -> iface varref " << foundp->nodep());
-                        AstNodeExpr* newp;
-                        if (m_ds.m_dotText != "") {
-                            newp = new AstVarXRef{nodep->fileline(), ifaceRefVarp, m_ds.m_dotText,
+                        Ast_முனை_கோவை* newp;
+                        எனில் (m_ds.m_dotText != "") {
+                            newp = புதிய AstVarXRef{nodep->fileline(), ifaceRefVarp, m_ds.m_dotText,
                                                   VAccess::READ};
-                            if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
-                                newp = new AstUnlinkedRef{nodep->fileline(), newp, newp->name(),
+                            எனில் (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                                newp = புதிய AstUnlinkedRef{nodep->fileline(), newp, newp->name(),
                                                           m_ds.m_unlinkedScopep->unlinkFrBack()};
                                 m_ds.m_unlinkedScopep = nullptr;
-                                m_ds.m_unresolvedCell = false;
+                                m_ds.m_unresolvedCell = பொய்;
                                 m_ds.m_dotText = "";
                             }
-                        } else {
-                            AstVarRef* const refp
-                                = new AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
+                        } இல்லையெனில் {
+                            AstVarRef* மாறிலி refp
+                                = புதிய AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
                             newp = refp;
                         }
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    } else if (VN_IS(cellp->modp(), NotFoundModule)) {
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    } இல்லையெனில் எனில் (VN_IS(cellp->modp(), NotFoundModule)) {
                         cellp->modNameFileline()->v3error("Cannot find file containing interface: "
                                                           << cellp->modp()->prettyNameQ());
                     }
                 }
-            } else if (allowScope && !allowFTask && VN_IS(foundp->nodep(), NodeFTask)) {
+            } இல்லையெனில் எனில் (allowScope && !allowFTask && VN_IS(foundp->nodep(), முனை_FTask)) {
                 // Function/task used as scope for static variable access (IEEE std 1800-2017 6.21)
                 // Don't set m_dotText so the static variable resolves as a VarRef rather than
                 // VarXRef. This is so that V3Begin won't move it out of the function/task's scope.
-                ok = true;
+                ok = உண்மை;
                 m_ds.m_dotSymp = foundp;
                 m_ds.m_dotPos = DP_SCOPE;
-            } else if (allowFTask && VN_IS(foundp->nodep(), NodeFTask)) {
-                AstNodeFTaskRef* taskrefp;
-                if (VN_IS(foundp->nodep(), Task)) {
-                    taskrefp = new AstTaskRef{nodep->fileline(), nodep->name()};
-                } else {
-                    taskrefp = new AstFuncRef{nodep->fileline(), nodep->name()};
+            } இல்லையெனில் எனில் (allowFTask && VN_IS(foundp->nodep(), முனை_FTask)) {
+                Ast_முனை_FTask_Ref* taskrefp;
+                எனில் (VN_IS(foundp->nodep(), Task)) {
+                    taskrefp = புதிய AstTaskRef{nodep->fileline(), nodep->name()};
+                } இல்லையெனில் {
+                    taskrefp = புதிய AstFuncRef{nodep->fileline(), nodep->name()};
                 }
                 nodep->replaceWith(taskrefp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                 m_ds = lastStates;
-                return;
-            } else if (AstVar* const varp = foundToVarp(foundp, nodep, VAccess::READ)) {
+                திரும்பு;
+            } இல்லையெனில் எனில் (AstVar* மாறிலி varp = foundToVarp(foundp, nodep, VAccess::READ)) {
                 // Preserve explicit 'this' references to members inherited from
                 // generic classes until after specialization.
-                if (m_statep->forPrimary() && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)
+                எனில் (m_statep->forPrimary() && m_ds.m_dotp && isDotThisReference(m_ds.m_dotp)
                     && foundp->classOrPackagep() != m_modp
                     && VN_IS(foundp->classOrPackagep(), Class)
                     && foundp->classOrPackagep()->hasGParam()) {
-                    m_ds.m_unresolvedClass = true;
-                    return;
+                    m_ds.m_unresolvedClass = உண்மை;
+                    திரும்பு;
                 }
-                AstIfaceRefDType* const ifacerefp
+                AstIfaceRefDType* மாறிலி ifacerefp
                     = LinkDotState::ifaceRefFromArray(varp->subDTypep());
-                if (varp->isIfaceRef() && m_genericIfaceModule
+                எனில் (varp->isIfaceRef() && m_genericIfaceModule
                     && VN_IS(varp->childDTypep(), IfaceGenericDType) && !start) {
                     // Defer only dotted member access ('d.PARAM'), as V3Param must specialize
                     // first; a standalone ref ('.x(d)') resolves via allowVar below now
-                    ok = true;
-                    m_ds.m_unresolvedGenericIface = true;
-                } else if (ifacerefp && varp->isIfaceRef()) {
+                    ok = உண்மை;
+                    m_ds.m_unresolvedGenericIface = உண்மை;
+                } இல்லையெனில் எனில் (ifacerefp && varp->isIfaceRef()) {
                     UASSERT_OBJ(ifacerefp->ifaceViaCellp(), ifacerefp, "Unlinked interface");
                     // Really this is a scope reference into an interface
                     UINFO(9, indent() << "varref-ifaceref " << m_ds.m_dotText << "  " << nodep);
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     // If modport specified, use modport symbol table for lookup of virtual ports
-                    if (ifacerefp->modportp() && m_statep->existsNodeSym(ifacerefp->modportp())) {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(ifacerefp->modportp());
-                    } else {
-                        m_ds.m_dotSymp = m_statep->getNodeSym(ifacerefp->ifaceViaCellp());
+                    எனில் (ifacerefp->modportp() && m_statep->exists_முனை_Sym(ifacerefp->modportp())) {
+                        m_ds.m_dotSymp = m_statep->get_முனை_Sym(ifacerefp->modportp());
+                    } இல்லையெனில் {
+                        m_ds.m_dotSymp = m_statep->get_முனை_Sym(ifacerefp->ifaceViaCellp());
                     }
                     m_ds.m_dotPos = DP_SCOPE;
-                    ok = true;
+                    ok = உண்மை;
 
-                    AstVarRef* const refp = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+                    AstVarRef* மாறிலி refp = புதிய AstVarRef{nodep->fileline(), varp, VAccess::READ};
                     nodep->replaceWith(refp);
 
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                } else if (allowVar) {
-                    AstNode* newp;
-                    if (m_ds.m_dotText != "") {
-                        AstVarXRef* const refp
-                            = new AstVarXRef{nodep->fileline(), nodep->name(), m_ds.m_dotText,
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                } இல்லையெனில் எனில் (allowVar) {
+                    Ast_முனை* newp;
+                    எனில் (m_ds.m_dotText != "") {
+                        AstVarXRef* மாறிலி refp
+                            = புதிய AstVarXRef{nodep->fileline(), nodep->name(), m_ds.m_dotText,
                                              VAccess::READ};  // lvalue'ness computed later
                         refp->varp(varp);
                         // Not linked again after V3LinkLValue, so that reports writing it
-                        if (const AstModportVarRef* const mvarp
+                        எனில் (மாறிலி AstModportVarRef* மாறிலி mvarp
                             = VN_CAST(foundp->nodep(), ModportVarRef)) {
-                            if (m_statep->forParamed() && mvarp->direction().isReadOnly()) {
-                                refp->readOnlyModport(true);
+                            எனில் (m_statep->forParamed() && mvarp->direction().isReadOnly()) {
+                                refp->readOnlyModport(உண்மை);
                             }
                         }
                         refp->containsGenBlock(m_ds.m_genBlk);
                         m_ds.m_dotText = "";
-                        if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
-                            const string dotted = refp->dotted();
-                            const size_t pos = dotted.find("__BRA__??__KET__");
+                        எனில் (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                            மாறிலி string dotted = refp->dotted();
+                            மாறிலி size_t pos = dotted.find("__BRA__??__KET__");
                             // Arrays of interfaces all have the same parameters
-                            if (pos != string::npos && varp->isParam()
+                            எனில் (pos != string::npos && varp->isParam()
                                 && VN_IS(m_ds.m_unlinkedScopep, CellArrayRef)) {
                                 refp->dotted(dotted.substr(0, pos));
                                 newp = refp;
-                            } else {
+                            } இல்லையெனில் {
                                 UINFO(9, indent() << "deferring until post-V3Param: " << refp);
-                                newp = new AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
+                                newp = புதிய AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
                                                           m_ds.m_unlinkedScopep->unlinkFrBack()};
                                 m_ds.m_unlinkedScopep = nullptr;
-                                m_ds.m_unresolvedCell = false;
+                                m_ds.m_unresolvedCell = பொய்;
                             }
-                        } else {
+                        } இல்லையெனில் {
                             newp = refp;
                         }
-                    } else {
-                        if (staticAccess && !varp->lifetime().isStatic() && !varp->isParam()) {
+                    } இல்லையெனில் {
+                        எனில் (staticAccess && !varp->lifetime().isStatic() && !varp->isParam()) {
                             // TODO bug4077
                             // nodep->v3error("Static access to non-static member variable "
                             //                << varp->prettyNameQ() << endl);
                         }
-                        AstVarRef* const refp = new AstVarRef{
+                        AstVarRef* மாறிலி refp = புதிய AstVarRef{
                             nodep->fileline(), varp, VAccess::READ};  // lvalue'ness computed later
                         refp->classOrPackagep(foundp->classOrPackagep());
                         newp = refp;
                     }
                     UINFO(9, indent() << "new " << newp);
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     m_ds.m_dotPos = DP_MEMBER;
-                    ok = true;
+                    ok = உண்மை;
                 }
-            } else if (const AstModport* const modportp = VN_CAST(foundp->nodep(), Modport)) {
+            } இல்லையெனில் எனில் (மாறிலி AstModport* மாறிலி modportp = VN_CAST(foundp->nodep(), Modport)) {
                 // A scope reference into an interface's modport (not
                 // necessarily at a pin connection)
                 UINFO(9, indent() << "cell-ref-to-modport " << m_ds.m_dotText << "  " << nodep);
@@ -4854,142 +4854,142 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 UINFO(9,
                       indent() << "dotSymp " << m_ds.m_dotSymp << " " << m_ds.m_dotSymp->nodep());
                 // Iface was the previously dotted component
-                if (!m_ds.m_dotSymp || !VN_IS(m_ds.m_dotSymp->nodep(), Cell)
+                எனில் (!m_ds.m_dotSymp || !VN_IS(m_ds.m_dotSymp->nodep(), Cell)
                     || !VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
                     || !VN_IS(VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface)) {
                     nodep->v3error("Modport not referenced as <interface>."
                                    << modportp->prettyNameQ());
-                } else if (!VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
+                } இல்லையெனில் எனில் (!VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp()
                            || !VN_IS(VN_AS(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface)) {
                     nodep->v3error("Modport not referenced from underneath an interface: "
                                    << modportp->prettyNameQ());
-                } else {
-                    AstCell* const cellp = VN_AS(m_ds.m_dotSymp->nodep(), Cell);
+                } இல்லையெனில் {
+                    AstCell* மாறிலி cellp = VN_AS(m_ds.m_dotSymp->nodep(), Cell);
                     UASSERT_OBJ(cellp, nodep, "Modport not referenced from an instance");
-                    VSymEnt* const cellEntp = m_statep->getNodeSym(cellp);
+                    VSymEnt* மாறிலி cellEntp = m_statep->get_முனை_Sym(cellp);
                     UASSERT_OBJ(cellEntp, nodep, "No interface sym entry");
-                    VSymEnt* const parentEntp
+                    VSymEnt* மாறிலி parentEntp
                         = cellEntp->parentp();  // Container of the var; probably a
                                                 // module or generate begin
                     // We drop __BRA__??__KET__ as cells don't have that naming yet
-                    AstVar* const ifaceRefVarp
-                        = findIfaceTopVarp(nodep, parentEntp, cellp->name());
+                    AstVar* மாறிலி ifaceRefVarp
+                        = find_Iface_உச்சி_Varp(nodep, parentEntp, cellp->name());
                     //
-                    ok = true;
+                    ok = உண்மை;
                     m_ds.m_dotText = VString::dot(m_ds.m_dotText, ".", nodep->name());
                     m_ds.m_dotSymp = foundp;
                     m_ds.m_dotPos = DP_SCOPE;
                     UINFO(9, indent() << "modport -> iface varref " << foundp->nodep());
                     // We lose the modport name here, so we cannot detect mismatched modports.
-                    AstVarRef* const refp
-                        = new AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
-                    AstNodeExpr* newp = refp;
+                    AstVarRef* மாறிலி refp
+                        = புதிய AstVarRef{nodep->fileline(), ifaceRefVarp, VAccess::READ};
+                    Ast_முனை_கோவை* newp = refp;
 
-                    auto* const cellarrayrefp = VN_CAST(m_ds.m_unlinkedScopep, CellArrayRef);
-                    if (cellarrayrefp) {
+                    auto* மாறிலி cellarrayrefp = VN_CAST(m_ds.m_unlinkedScopep, CellArrayRef);
+                    எனில் (cellarrayrefp) {
                         // iface[vec].modport became CellArrayRef(iface, lsb)
                         // Convert back to SelBit(iface, lsb)
                         UINFO(9, indent() << "Array modport to SelBit " << cellarrayrefp);
-                        newp = new AstSelBit{cellarrayrefp->fileline(), newp,
+                        newp = புதிய AstSelBit{cellarrayrefp->fileline(), newp,
                                              cellarrayrefp->selp()->unlinkFrBack()};
-                        newp->user3(true);  // Don't process again
-                        VL_DO_DANGLING(pushDeletep(cellarrayrefp->unlinkFrBack()), cellarrayrefp);
+                        newp->user3(உண்மை);  // Don't process again
+                        VL_DO_DANGLING(தள்ளு_Deletep(cellarrayrefp->unlinkFrBack()), cellarrayrefp);
                         m_ds.m_unlinkedScopep = nullptr;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                 }
-            } else if (AstConstraint* const defp = VN_CAST(foundp->nodep(), Constraint)) {
-                AstNode* const newp = new AstConstraintRef{nodep->fileline(), nullptr, defp};
+            } இல்லையெனில் எனில் (AstConstraint* மாறிலி defp = VN_CAST(foundp->nodep(), Constraint)) {
+                Ast_முனை* மாறிலி newp = புதிய AstConstraintRef{nodep->fileline(), nullptr, defp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                ok = true;
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                ok = உண்மை;
                 m_ds.m_dotPos = DP_MEMBER;
                 m_ds.m_dotText = "";
-            } else if (AstClass* const defp = VN_CAST(foundp->nodep(), Class)) {
-                if (allowVar) {
-                    if (m_ds.m_dotPos == DP_SCOPE && !staticAccess) {
+            } இல்லையெனில் எனில் (AstClass* மாறிலி defp = VN_CAST(foundp->nodep(), Class)) {
+                எனில் (allowVar) {
+                    எனில் (m_ds.m_dotPos == DP_SCOPE && !staticAccess) {
                         // Continue hierarchical lookup in the class scope.
                         m_ds.m_dotSymp = foundp;
-                    } else {
-                        AstRefDType* const newp
-                            = new AstRefDType{nodep->fileline(), nodep->name()};
+                    } இல்லையெனில் {
+                        AstRefDType* மாறிலி newp
+                            = புதிய AstRefDType{nodep->fileline(), nodep->name()};
                         replaceWithCheckBreak(nodep, newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     }
-                    ok = true;
+                    ok = உண்மை;
                     m_ds.m_dotText = "";
-                } else {
-                    (void)defp;  // Prevent unused variable warning
+                } இல்லையெனில் {
+                    (வெறுமை)defp;  // Prevent unused variable warning
                 }
-            } else if (AstMemberDType* const defp = VN_CAST(foundp->nodep(), MemberDType)) {
-                if (allowVar) {
+            } இல்லையெனில் எனில் (AstMemberDType* மாறிலி defp = VN_CAST(foundp->nodep(), MemberDType)) {
+                எனில் (allowVar) {
                     checkMemberDeclOrder(nodep, defp);
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                    AstRefDType* மாறிலி refp = புதிய AstRefDType{nodep->fileline(), nodep->name()};
                     refp->refDTypep(defp);
                     replaceWithCheckBreak(nodep, refp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    ok = உண்மை;
                     m_ds.m_dotText = "";
                 }
-            } else if (AstEnumItem* const valuep = VN_CAST(foundp->nodep(), EnumItem)) {
-                if (allowVar) {
-                    AstEnumItemRef* const refp
-                        = new AstEnumItemRef{nodep->fileline(), valuep, foundp->classOrPackagep()};
-                    AstNode* newp = refp;
+            } இல்லையெனில் எனில் (AstEnumItem* மாறிலி valuep = VN_CAST(foundp->nodep(), EnumItem)) {
+                எனில் (allowVar) {
+                    AstEnumItemRef* மாறிலி refp
+                        = புதிய AstEnumItemRef{nodep->fileline(), valuep, foundp->classOrPackagep()};
+                    Ast_முனை* newp = refp;
                     // Hierarchical reference, relinked after V3Param as the referenced
                     // module may be specialized, similar to AstVarXRef
                     refp->dotted(m_ds.m_dotText);
                     refp->containsGenBlock(m_ds.m_genBlk);
-                    if (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
+                    எனில் (m_ds.m_unresolvedCell && m_ds.m_unlinkedScopep) {
                         UINFO(9, indent() << "deferring until post-V3Param: " << refp);
-                        newp = new AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
+                        newp = புதிய AstUnlinkedRef{nodep->fileline(), refp, refp->name(),
                                                   m_ds.m_unlinkedScopep->unlinkFrBack()};
                         m_ds.m_unlinkedScopep = nullptr;
-                        m_ds.m_unresolvedCell = false;
+                        m_ds.m_unresolvedCell = பொய்;
                     }
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    ok = உண்மை;
                     m_ds.m_dotText = "";
                 }
-            } else if (const AstLambdaArgRef* const argrefp
+            } இல்லையெனில் எனில் (மாறிலி AstLambdaArgRef* மாறிலி argrefp
                        = VN_CAST(foundp->nodep(), LambdaArgRef)) {
-                if (allowVar) {
-                    AstNode* const newp
-                        = new AstLambdaArgRef{nodep->fileline(), argrefp->name(), false};
+                எனில் (allowVar) {
+                    Ast_முனை* மாறிலி newp
+                        = புதிய AstLambdaArgRef{nodep->fileline(), argrefp->name(), பொய்};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    ok = true;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    ok = உண்மை;
                     m_ds.m_dotPos = DP_MEMBER;
                     m_ds.m_dotText = "";
                 }
-            } else if (VN_IS(foundp->nodep(), Clocking)) {
+            } இல்லையெனில் எனில் (VN_IS(foundp->nodep(), Clocking)) {
                 m_ds.m_dotSymp = foundp;
-                if (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
+                எனில் (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
                 ok = m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST;
-            } else if (const AstModportClockingRef* const clockingRefp
+            } இல்லையெனில் எனில் (மாறிலி AstModportClockingRef* மாறிலி clockingRefp
                        = VN_CAST(foundp->nodep(), ModportClockingRef)) {
                 // Clocking block accessed through a modport - redirect to actual clocking
-                m_ds.m_dotSymp = m_statep->getNodeSym(clockingRefp->clockingp());
-                if (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
+                m_ds.m_dotSymp = m_statep->get_முனை_Sym(clockingRefp->clockingp());
+                எனில் (m_ds.m_dotText != "") m_ds.m_dotText += "." + nodep->name();
                 ok = m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST;
-            } else if (const AstNodeFTask* const ftaskp = VN_CAST(foundp->nodep(), NodeFTask)) {
-                if (!ftaskp->isFunction() || ftaskp->classMethod()) {
+            } இல்லையெனில் எனில் (மாறிலி Ast_முனை_FTask* மாறிலி ftaskp = VN_CAST(foundp->nodep(), முனை_FTask)) {
+                எனில் (!ftaskp->isFunction() || ftaskp->classMethod()) {
                     ok = m_ds.m_dotPos == DP_NONE;
-                    if (ok) {
+                    எனில் (ok) {
                         // The condition is true for tasks,
                         // properties and void functions.
                         // In these cases, the parentheses may be skipped.
                         // Also SV class methods can be called without parens
-                        AstFuncRef* const funcRefp
-                            = new AstFuncRef{nodep->fileline(), nodep->name()};
+                        AstFuncRef* மாறிலி funcRefp
+                            = புதிய AstFuncRef{nodep->fileline(), nodep->name()};
                         nodep->replaceWith(funcRefp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     }
                 }
-            } else if (AstTypedef* const defp = VN_CAST(foundp->nodep(), Typedef)) {
-                const bool ifaceFinalSegmentAllowed
+            } இல்லையெனில் எனில் (AstTypedef* மாறிலி defp = VN_CAST(foundp->nodep(), Typedef)) {
+                மாறிலி தருக்க ifaceFinalSegmentAllowed
                     = (m_ds.m_dotPos == DP_FINAL) && m_ds.m_dotSymp
                       && (VN_IS(m_ds.m_dotSymp->nodep(), Modport)
                           || (VN_IS(m_ds.m_dotSymp->nodep(), Cell)
@@ -4999,109 +4999,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 // The dependency graph handles resolution when IfaceCapture is disabled
                 ok = (m_ds.m_dotPos == DP_NONE || m_ds.m_dotPos == DP_SCOPE
                       || ifaceFinalSegmentAllowed);
-                if (ifaceFinalSegmentAllowed) {
+                எனில் (ifaceFinalSegmentAllowed) {
                     UINFO(9, indent() << "allow final-segment typedef name="
                                       << nodep->prettyNameQ() << " dotText='" << m_ds.m_dotText
                                       << "' dotSym=" << m_ds.m_dotSymp);
                 }
-                if (ok) {
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                எனில் (ok) {
+                    AstRefDType* மாறிலி refp = புதிய AstRefDType{nodep->fileline(), nodep->name()};
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (m_ds.m_dotPos == DP_NONE) checkDeclOrder(nodep, defp);
+                    எனில் (m_ds.m_dotPos == DP_NONE) checkDeclOrder(nodep, defp);
                     refp->typedefp(defp);
 
                     V3LinkDotIfaceCapture::captureTypedefContext(
-                        refp, "typedef", static_cast<int>(m_ds.m_dotPos), m_ds.m_dotText,
-                        m_ds.m_dotSymp, m_modp, [this]() { return indent(); });
+                        refp, "typedef", static_cast<முழு>(m_ds.m_dotPos), m_ds.m_dotText,
+                        m_ds.m_dotSymp, m_modp, [இது]() { திரும்பு indent(); });
 
-                    if (VN_IS(nodep->backp(), SelExtract)) {
+                    எனில் (VN_IS(nodep->backp(), SelExtract)) {
                         m_packedArrayDtp = refp;
-                    } else {
+                    } இல்லையெனில் {
                         replaceWithCheckBreak(nodep, refp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     }
                 }
-            } else if (AstParamTypeDType* const defp = VN_CAST(foundp->nodep(), ParamTypeDType)) {
+            } இல்லையெனில் எனில் (AstParamTypeDType* மாறிலி defp = VN_CAST(foundp->nodep(), ParamTypeDType)) {
                 ok = (m_ds.m_dotPos == DP_NONE || m_ds.m_dotPos == DP_SCOPE
                       || m_ds.m_dotPos == DP_FINAL);
-                if (ok) {
-                    AstRefDType* const refp = new AstRefDType{nodep->fileline(), nodep->name()};
+                எனில் (ok) {
+                    AstRefDType* மாறிலி refp = புதிய AstRefDType{nodep->fileline(), nodep->name()};
                     refp->refDTypep(defp);
 
                     V3LinkDotIfaceCapture::captureTypedefContext(
-                        refp, "paramtype", static_cast<int>(m_ds.m_dotPos), m_ds.m_dotText,
-                        m_ds.m_dotSymp, m_modp, [this]() { return indent(); });
+                        refp, "paramtype", static_cast<முழு>(m_ds.m_dotPos), m_ds.m_dotText,
+                        m_ds.m_dotSymp, m_modp, [இது]() { திரும்பு indent(); });
 
-                    if (VN_IS(nodep->backp(), SelExtract)) {
+                    எனில் (VN_IS(nodep->backp(), SelExtract)) {
                         m_packedArrayDtp = refp;
-                    } else {
+                    } இல்லையெனில் {
                         replaceWithCheckBreak(nodep, refp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     }
                 }
             }
-            if (!ok) {
-                if (m_insideClassExtParam) {
+            எனில் (!ok) {
+                எனில் (m_insideClassExtParam) {
                     // Don't throw error if the reference is inside a class that extends a param,
                     // because some members can't be linked in such a case. m_insideClassExtParam
                     // may be true only in the first stage of linking.
                     // Mark that the Dot statement can't be resolved.
-                    m_ds.m_unresolvedClass = true;
+                    m_ds.m_unresolvedClass = உண்மை;
                     // If the symbol was a scope name, it would be resolved.
                     m_ds.m_dotPos = DP_MEMBER;
-                } else {
+                } இல்லையெனில் {
                     // Cells/interfaces can't be implicit
-                    const bool checkImplicit
+                    மாறிலி தருக்க checkImplicit
                         = (!m_ds.m_dotp && m_ds.m_dotText == "" && !m_ds.m_disablep && !foundp);
-                    const bool err
+                    மாறிலி தருக்க err
                         = !(checkImplicit && m_statep->implicitOk(m_modp, nodep->name()));
-                    if (err) {
-                        if (foundp) {
+                    எனில் (err) {
+                        எனில் (foundp) {
                             nodep->v3error("Found definition of '"
                                            << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                            << nodep->prettyName() << "'" << " as a "
                                            << foundp->nodep()->typeName() << " but expected a "
                                            << expectWhat);
-                        } else if (m_ds.m_dotText == "") {
+                        } இல்லையெனில் எனில் (m_ds.m_dotText == "") {
                             UINFO(1, "   ErrParseRef curSymp=se" << cvtToHex(m_curSymp)
                                                                  << " ds=" << m_ds.ascii());
-                            const string suggest = m_statep->suggestSymFallback(
+                            மாறிலி string suggest = m_statep->suggestSymFallback(
                                 m_ds.m_dotSymp, nodep->name(), VNodeMatcher{});
                             nodep->v3error(
                                 "Can't find definition of "
                                 << expectWhat << ": " << nodep->prettyNameQ() << '\n'
                                 << (suggest.empty() ? "" : nodep->warnMore() + suggest));
-                        } else {
+                        } இல்லையெனில் {
                             nodep->v3error(
                                 "Can't find definition of "
-                                << (!baddot.empty() ? AstNode::prettyNameQ(baddot)
+                                << (!baddot.empty() ? Ast_முனை::prettyNameQ(baddot)
                                                     : nodep->prettyNameQ())
                                 << " in dotted " << expectWhat << ": '"
                                 << m_ds.m_dotText + "." + nodep->prettyName() << "'\n"
                                 << nodep->warnContextPrimary()
                                 << (okSymp ? okSymp->cellErrorScopes(
-                                                 nodep, AstNode::prettyName(m_ds.m_dotText))
+                                                 nodep, Ast_முனை::prettyName(m_ds.m_dotText))
                                            : ""));
                         }
-                        m_ds.m_dotErr = true;
+                        m_ds.m_dotErr = உண்மை;
                     }
-                    if (checkImplicit) {
+                    எனில் (checkImplicit) {
                         // Create if implicit, and also if error (so only complain once)
                         // Else if a scope is allowed, making a signal won't help error cascade
-                        AstVar* const varp
+                        AstVar* மாறிலி varp
                             = createImplicitVar(m_curSymp, nodep, m_modp, m_modSymp, err);
-                        AstVarRef* const newp
-                            = new AstVarRef{nodep->fileline(), varp, VAccess::READ};
+                        AstVarRef* மாறிலி newp
+                            = புதிய AstVarRef{nodep->fileline(), varp, VAccess::READ};
                         nodep->replaceWith(newp);
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     }
                 }
             }
         }
-        if (start) m_ds = lastStates;
+        எனில் (start) m_ds = lastStates;
     }
-    void visit(AstClassOrPackageRef* nodep) override {
+    வெறுமை visit(AstClassOrPackageRef* nodep) override {
         // Class: Recurse inside or cleanup not founds
         // checkNoDot not appropriate, can be under a dot
         LINKDOT_VISIT_START();
@@ -5115,25 +5115,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
             VL_RESTORER_COPY(m_ds);
             VL_RESTORER(m_pinSymp);
 
-            if (!nodep->classOrPackageSkipp() && !nodep->classOrPackageNodep()
+            எனில் (!nodep->classOrPackageSkipp() && !nodep->classOrPackageNodep()
                 && nodep->name() != "local::") {
-                const bool deferIfUnresolved = m_statep->forPrimary() && m_insideClassExtParam;
+                மாறிலி தருக்க deferIfUnresolved = m_statep->forPrimary() && m_insideClassExtParam;
                 m_statep->resolveClassOrPackage(m_ds.m_dotSymp, nodep, m_ds.m_dotPos != DP_PACKAGE,
-                                                false, ":: reference", deferIfUnresolved);
+                                                பொய், ":: reference", deferIfUnresolved);
             }
 
             // ClassRef's have pins, so track
-            if (nodep->classOrPackageSkipp()) {
-                m_pinSymp = m_statep->getNodeSym(nodep->classOrPackageSkipp());
-            } else if (nodep->name() != "local::") {
-                return;
+            எனில் (nodep->classOrPackageSkipp()) {
+                m_pinSymp = m_statep->get_முனை_Sym(nodep->classOrPackageSkipp());
+            } இல்லையெனில் எனில் (nodep->name() != "local::") {
+                திரும்பு;
             }
 
-            AstClass* const refClassp = VN_CAST(nodep->classOrPackageSkipp(), Class);
+            AstClass* மாறிலி refClassp = VN_CAST(nodep->classOrPackageSkipp(), Class);
             // Make sure any extends() are properly imported within referenced class
-            if (refClassp && !m_statep->forPrimary()) classExtendImport(refClassp);
+            எனில் (refClassp && !m_statep->forPrimary()) classExtendImport(refClassp);
 
-            if (m_statep->forPrimary() && refClassp && !nodep->paramsp()
+            எனில் (m_statep->forPrimary() && refClassp && !nodep->paramsp()
                 && nodep->classOrPackageSkipp()->hasGParam()
                 // Don't warn on typedefs, which are hard to know if there's a param somewhere
                 // buried
@@ -5148,8 +5148,8 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << nodep->classOrPackageNodep()->prettyName() << "#()'");
                 // As other simulators do, use the default specialization. Add the same
                 // placeholder pin V3LinkCells makes for '#()' so it is linked below.
-                AstPin* const pinp = new AstPin{nodep->fileline(), 1, "__paramNumber1", nullptr};
-                pinp->param(true);
+                AstPin* மாறிலி pinp = புதிய AstPin{nodep->fileline(), 1, "__paramNumber1", nullptr};
+                pinp->param(உண்மை);
                 nodep->addParamsp(pinp);
             }
 
@@ -5158,77 +5158,77 @@ class LinkDotResolveVisitor final : public VNVisitor {
             iterateChildren(nodep);
         }
 
-        if (nodep->name() == "local::") {
-            if (!m_randSymp && !m_randMethodCallp) {
+        எனில் (nodep->name() == "local::") {
+            எனில் (!m_randSymp && !m_randMethodCallp) {
                 nodep->v3error("Illegal 'local::' outside 'randomize() with'"
                                " (IEEE 1800-2023 18.7.1)");
-                m_ds.m_dotErr = true;
-                return;
+                m_ds.m_dotErr = உண்மை;
+                திரும்பு;
             }
         }
-        if (m_ds.m_dotPos == DP_PACKAGE && nodep->classOrPackageSkipp()) {
-            m_ds.m_dotSymp = m_statep->getNodeSym(nodep->classOrPackageSkipp());
+        எனில் (m_ds.m_dotPos == DP_PACKAGE && nodep->classOrPackageSkipp()) {
+            m_ds.m_dotSymp = m_statep->get_முனை_Sym(nodep->classOrPackageSkipp());
             UINFO(9, indent() << "set sym " << m_ds.ascii());
         }
     }
-    void visit(AstConstraint* nodep) override {
+    வெறுமை visit(AstConstraint* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (nodep->isExternDef()) {
-            if (const VSymEnt* const foundp
+        எனில் (nodep->isExternDef()) {
+            எனில் (மாறிலி VSymEnt* மாறிலி foundp
                 = m_curSymp->findIdFallback("extern " + nodep->name())) {
-                const AstConstraint* const protop = VN_AS(foundp->nodep(), Constraint);
+                மாறிலி AstConstraint* மாறிலி protop = VN_AS(foundp->nodep(), Constraint);
                 // Copy specifiers.
                 // External definition cannot have any specifiers, so no value will be overwritten.
                 nodep->isStatic(protop->isStatic());
-            } else {
+            } இல்லையெனில் {
                 nodep->v3error("extern not found that declares " + nodep->prettyNameQ());
             }
         }
-        if (nodep->isExternProto()) {
-            if (!m_curSymp->findIdFallback(nodep->name()) && nodep->isExternExplicit()) {
+        எனில் (nodep->isExternProto()) {
+            எனில் (!m_curSymp->findIdFallback(nodep->name()) && nodep->isExternExplicit()) {
                 nodep->v3warn(PROTOTYPEMIS, "Definition not found for extern prototype "
                                                 << nodep->prettyNameQ());
             }
         }
         VL_RESTORER(m_curSymp);
         VL_RESTORER_COPY(m_ds);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
         iterateChildren(nodep);
     }
-    void visit(AstConstraintRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstConstraintRef* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
         // No children defined
     }
-    void visit(AstVarRef* nodep) override {
+    வெறுமை visit(AstVarRef* nodep) override {
         // VarRef: Resolve its reference
         // ParseRefs are used the first pass (forPrimary) so we shouldn't get can't find
         // errors here now that we have a VarRef.
         // No checkNoDot; created and iterated from a parseRef
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
-        if (!nodep->varp()) {
+        எனில் (!nodep->varp()) {
             UINFO(9, indent() << "linkVarRef se" << cvtToHex(m_curSymp) << "  n=" << nodep);
             UASSERT_OBJ(m_curSymp, nodep, "nullptr lookup symbol table");
-            VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-            if (AstVar* const varp
+            VSymEnt* மாறிலி foundp = m_curSymp->findIdFallback(nodep->name());
+            எனில் (AstVar* மாறிலி varp
                 = foundp ? foundToVarp(foundp, nodep, nodep->access()) : nullptr) {
                 nodep->varp(varp);
                 updateVarUse(nodep->varp());
                 // Generally set by parse, but might be an import
                 nodep->classOrPackagep(foundp->classOrPackagep());
             }
-            if (VL_UNCOVERABLE(!nodep->varp())) {
+            எனில் (VL_UNCOVERABLE(!nodep->varp())) {
                 nodep->v3error("Can't find definition of signal, again: "  // LCOV_EXCL_LINE
                                << nodep->prettyNameQ());
             }
         }
         AstVarScope* vscp = nodep->varScopep();
-        if (vscp && vscp->user2p() != vscp && m_replaceWithAlias) {
+        எனில் (vscp && vscp->user2p() != vscp && m_replaceWithAlias) {
             vscp = LinkDotScopeVisitor::getAlias(vscp);
             nodep->varp(vscp->varp());
             nodep->varScopep(vscp);
@@ -5236,92 +5236,92 @@ class LinkDotResolveVisitor final : public VNVisitor {
             UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
         }
     }
-    void visit(AstVarXRef* nodep) override {
+    வெறுமை visit(AstVarXRef* nodep) override {
         // VarRef: Resolve its reference
         // We always link even if varp() is set, because the module we choose may change
         // due to creating new modules, flattening, etc.
-        if (nodep->user3SetOnce()) return;
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         // No checkNoDot; created and iterated from a parseRef
-        if (!m_modSymp) {
+        எனில் (!m_modSymp) {
             // Module that is not in hierarchy.  We'll be dead code eliminating it later.
             UINFO(9, "Dead module for " << nodep);
             nodep->varp(nullptr);
-        } else {
+        } இல்லையெனில் {
             VSymEnt* lookupSymp = m_curSymp;  // Start search at current scope
-            if (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
+            எனில் (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
                 lookupSymp = findInlinedDotsSym(nodep, nodep->inlinedDots());
             }
             string baddot;
             VSymEnt* okSymp;
-            bool modport;
-            VSymEnt* const dotSymp
+            தருக்க modport;
+            VSymEnt* மாறிலி dotSymp
                 = findDottedRefSymp(nodep, lookupSymp, nodep->dotted(), baddot, okSymp, &modport);
-            if (!dotSymp) return;
+            எனில் (!dotSymp) திரும்பு;
 
-            if (!m_statep->forScopeCreation()) {
+            எனில் (!m_statep->forScopeCreation()) {
                 VSymEnt* foundp = nullptr;
-                if (modport) {
+                எனில் (modport) {
                     // This is a copy of findSymPrefixed with few modifications.
                     // This searches without a fallback like findSymPrefixed but if lookup fails it
                     // will check one fallback (fallback of modport shall be interface) and take
                     // only L and G PARAMs since they should be visible from a modport always.
                     string prefix = dotSymp->symPrefix();
-                    while (!foundp) {
+                    போது (!foundp) {
                         foundp = dotSymp->findIdFlat(prefix + nodep->name());
-                        if (foundp) break;
+                        எனில் (foundp) நிறுத்து;
                         UASSERT_OBJ(dotSymp->fallbackp(), nodep, "Modports shall have fallback");
                         foundp = dotSymp->fallbackp()->findIdFlat(prefix + nodep->name());
-                        if (const AstVar* const varp
+                        எனில் (மாறிலி AstVar* மாறிலி varp
                             = foundToVarp(foundp, nodep, nodep->access())) {
-                            if (!varp->isParam()) foundp = nullptr;
+                            எனில் (!varp->isParam()) foundp = nullptr;
                         }
-                        if (prefix.empty()) break;
+                        எனில் (prefix.empty()) நிறுத்து;
                         string nextPrefix = LinkDotState::removeLastInlineScope(prefix);
-                        if (prefix == nextPrefix) break;
+                        எனில் (prefix == nextPrefix) நிறுத்து;
                         prefix = std::move(nextPrefix);
                     }
                     baddot = nodep->name();
-                } else {
-                    foundp = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
+                } இல்லையெனில் {
+                    foundp = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, உண்மை);
                 }
-                if (m_inSens && foundp) {
-                    if (AstClocking* const clockingp = sensClockingp(foundp->nodep())) {
+                எனில் (m_inSens && foundp) {
+                    எனில் (AstClocking* மாறிலி clockingp = sensClockingp(foundp->nodep())) {
                         foundp = getCreateClockingEventSymEnt(clockingp);
                     }
                 }
-                AstVar* const varp
+                AstVar* மாறிலி varp
                     = foundp ? foundToVarp(foundp, nodep, nodep->access()) : nullptr;
                 nodep->varp(varp);
                 updateVarUse(nodep->varp());
                 UINFO(7, indent() << "Resolved " << nodep);  // Also prints varp
                 // If found, check if it's ok to access in case it's in a hier_block
-                if (nodep->varp() && errorHierNonPort(nodep, nodep->varp(), dotSymp)) return;
-                if (!nodep->varp()) {
+                எனில் (nodep->varp() && errorHierNonPort(nodep, nodep->varp(), dotSymp)) திரும்பு;
+                எனில் (!nodep->varp()) {
                     nodep->v3error("Can't find definition of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted signal: '"
+                                   << Ast_முனை::prettyNameQ(baddot) << " in dotted signal: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << nodep->warnContextPrimary()
                                    << okSymp->cellErrorScopes(nodep));
-                    return;
+                    திரும்பு;
                 }
-            } else {
-                VSymEnt* const foundp
-                    = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
+            } இல்லையெனில் {
+                VSymEnt* மாறிலி foundp
+                    = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, உண்மை);
                 AstVarScope* vscp = foundp ? VN_CAST(foundp->nodep(), VarScope) : nullptr;
                 // Handle modport expression virtual ports
-                if (!vscp) vscp = findVirtualPortVarScope(dotSymp, nodep->name());
+                எனில் (!vscp) vscp = findVirtualPortVarScope(dotSymp, nodep->name());
                 // If found, check if it's ok to access in case it's in a hier_block
-                if (vscp && errorHierNonPort(nodep, vscp->varp(), dotSymp)) return;
-                if (!vscp) {
+                எனில் (vscp && errorHierNonPort(nodep, vscp->varp(), dotSymp)) திரும்பு;
+                எனில் (!vscp) {
                     nodep->v3error("Can't find varpin scope of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted signal: '"
+                                   << Ast_முனை::prettyNameQ(baddot) << " in dotted signal: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << nodep->warnContextPrimary()
                                    << okSymp->cellErrorScopes(nodep));
-                } else {
-                    if (vscp->user2p() && m_replaceWithAlias) {
+                } இல்லையெனில் {
+                    எனில் (vscp->user2p() && m_replaceWithAlias) {
                         vscp = LinkDotScopeVisitor::getAlias(vscp);
                     }
                     // Convert the VarXRef to a VarRef, so we don't need
@@ -5330,70 +5330,70 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     nodep->varScopep(vscp);
                     updateVarUse(nodep->varp());
                     UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
-                    AstVarRef* const newvscp
-                        = new AstVarRef{nodep->fileline(), vscp, nodep->access()};
+                    AstVarRef* மாறிலி newvscp
+                        = புதிய AstVarRef{nodep->fileline(), vscp, nodep->access()};
                     nodep->replaceWith(newvscp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                     UINFO(9, indent() << "new " << newvscp);  // Also prints taskp
                 }
             }
         }
     }
-    void visit(AstEnumDType* nodep) override {
+    வெறுமை visit(AstEnumDType* nodep) override {
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
-        AstRefDType* const refdtypep = VN_CAST(nodep->subDTypep(), RefDType);
-        if (refdtypep && (nodep == refdtypep->subDTypep())) {
+        AstRefDType* மாறிலி refdtypep = VN_CAST(nodep->subDTypep(), RefDType);
+        எனில் (refdtypep && (nodep == refdtypep->subDTypep())) {
             refdtypep->v3error("Self-referential enumerated type definition");
         }
     }
-    void visit(AstNodeUOrStructDType* nodep) override {
+    வெறுமை visit(Ast_முனை_UOr_Struct_DType* nodep) override {
         LINKDOT_VISIT_START();
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_முனை_Sym(nodep));
     }
-    void visit(AstEnumItemRef* nodep) override {
+    வெறுமை visit(AstEnumItemRef* nodep) override {
         // Resolve its reference
         // EnumItemRefs are created by the first pass, but V3Param may regenerate due to
         // a parameterized class/module, so we shouldn't get can't find errors.
         // No checkNoDot; created and iterated from a parseRef
-        if (nodep->user3SetOnce()) return;
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
-        if (m_statep->forParamed() && !nodep->dotted().empty() && m_modSymp) {
+        எனில் (m_statep->forParamed() && !nodep->dotted().empty() && m_modSymp) {
             // Hierarchical reference, relink as V3Param may have specialized the module
             string baddot;
             VSymEnt* okSymp = nullptr;
-            VSymEnt* const dotSymp
+            VSymEnt* மாறிலி dotSymp
                 = findDottedRefSymp(nodep, m_curSymp, nodep->dotted(), baddot, okSymp);
-            if (!dotSymp) return;
-            VSymEnt* const foundp
-                = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, true);
-            AstEnumItem* const itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
-            if (!itemp) {
+            எனில் (!dotSymp) திரும்பு;
+            VSymEnt* மாறிலி foundp
+                = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, உண்மை);
+            AstEnumItem* மாறிலி itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr;
+            எனில் (!itemp) {
                 nodep->v3error("Enum item " << nodep->prettyNameQ() << " not found in "
-                                            << AstNode::prettyNameQ(nodep->dotted()) << '\n'
+                                            << Ast_முனை::prettyNameQ(nodep->dotted()) << '\n'
                                             << nodep->warnContextPrimary());
-                return;
+                திரும்பு;
             }
             nodep->itemp(itemp);
             UINFO(9, indent() << " relinked " << nodep);
         }
-        if (!nodep->itemp()) {
+        எனில் (!nodep->itemp()) {
             UINFO(9, indent() << "linkEnumRef se" << cvtToHex(m_curSymp) << "  n=" << nodep);
             UASSERT_OBJ(m_curSymp, nodep, "nullptr lookup symbol table");
-            VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-            if (AstEnumItem* const itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr) {
+            VSymEnt* மாறிலி foundp = m_curSymp->findIdFallback(nodep->name());
+            எனில் (AstEnumItem* மாறிலி itemp = foundp ? VN_CAST(foundp->nodep(), EnumItem) : nullptr) {
                 nodep->itemp(itemp);
                 nodep->classOrPackagep(foundp->classOrPackagep());
                 UINFO(9, indent() << " resolved " << nodep);
             }
-            if (VL_UNCOVERABLE(!nodep->itemp())) {
+            எனில் (VL_UNCOVERABLE(!nodep->itemp())) {
                 nodep->v3error("Can't find definition of enum item, again: "  // LCOV_EXCL_LINE
                                << nodep->prettyNameQ());
             }
         }
         iterateChildren(nodep);
     }
-    void visit(AstMethodCall* nodep) override {
+    வெறுமை visit(AstMethodCall* nodep) override {
         // Created here so should already be resolved.
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
@@ -5402,264 +5402,264 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_randMethodCallp);
         {
             m_ds.init(m_curSymp);
-            if (nodep->name() == "randomize" && (nodep->argsp() || nodep->withp())) {
+            எனில் (nodep->name() == "randomize" && (nodep->argsp() || nodep->withp())) {
                 m_randMethodCallp = nodep;
-                const AstNodeDType* fromDtp = nodep->fromp()->dtypep();
-                if (!fromDtp) {
-                    if (const AstNodeVarRef* const varRefp = VN_CAST(nodep->fromp(), NodeVarRef)) {
+                மாறிலி Ast_முனை_DType* fromDtp = nodep->fromp()->dtypep();
+                எனில் (!fromDtp) {
+                    எனில் (மாறிலி Ast_முனை_Var_Ref* மாறிலி varRefp = VN_CAST(nodep->fromp(), முனை_Var_Ref)) {
                         fromDtp = varRefp->varp()->subDTypep();
-                    } else {
-                        fromDtp = getExprDTypep(nodep->fromp());
+                    } இல்லையெனில் {
+                        fromDtp = get_கோவை_DTypep(nodep->fromp());
                     }
-                    if (!fromDtp) {
-                        if (nodep->withp()) {
+                    எனில் (!fromDtp) {
+                        எனில் (nodep->withp()) {
                             nodep->v3warn(
                                 E_UNSUPPORTED,
                                 "Unsupported: 'randomize() with' on complex expressions");
-                        } else {
+                        } இல்லையெனில் {
                             nodep->v3warn(E_UNSUPPORTED,
                                           "Unsupported: Inline random variable control with "
                                           "'randomize()' called on complex expressions");
                         }
                     }
                 }
-                if (m_statep->forPrimary() && isParamedClassRefDType(fromDtp)) {
-                    m_ds.m_unresolvedClass = true;
-                } else if (fromDtp) {
-                    const AstClassRefDType* const classDtp
+                எனில் (m_statep->forPrimary() && isParamedClassRefDType(fromDtp)) {
+                    m_ds.m_unresolvedClass = உண்மை;
+                } இல்லையெனில் எனில் (fromDtp) {
+                    மாறிலி AstClassRefDType* மாறிலி classDtp
                         = VN_CAST(fromDtp->skipRefp(), ClassRefDType);
-                    if (!classDtp)
+                    எனில் (!classDtp)
                         nodep->v3error("'randomize() with' on a non-class-instance "
                                        << fromDtp->prettyNameQ());
-                    else if (m_statep->forPrimary() && m_extendsParam.count(classDtp->classp())) {
+                    இல்லையெனில் எனில் (m_statep->forPrimary() && m_extendsParam.மொத்தம்(classDtp->classp())) {
                         // Inherited members are unavailable until the base class is specialized.
                         // Defer lookup rather than incorrectly binding names in the caller.
-                        m_ds.m_unresolvedClass = true;
-                    } else {
-                        m_randSymp = m_statep->getNodeSym(classDtp->classp());
+                        m_ds.m_unresolvedClass = உண்மை;
+                    } இல்லையெனில் {
+                        m_randSymp = m_statep->get_முனை_Sym(classDtp->classp());
                     }
                 }
             }
             iterateChildren(nodep);
         }
     }
-    void visit(AstVar* nodep) override {
+    வெறுமை visit(AstVar* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         VL_RESTORER(m_isParam);
         m_isParam = nodep->varType().isParam();
         iterateChildren(nodep);
-        if (m_statep->forPrimary() && nodep->isIO() && !m_ftaskp && !nodep->user4()) {
+        எனில் (m_statep->forPrimary() && nodep->isIO() && !m_ftaskp && !nodep->user4()) {
             nodep->v3error(
                 "Input/output/inout does not appear in port list: " << nodep->prettyNameQ());
         }
     }
-    void visit(AstVarScope* nodep) override {
+    வெறுமை visit(AstVarScope* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         iterateChildren(nodep);
         AstVarScope* aliasp = LinkDotScopeVisitor::getAlias(nodep);
-        if (aliasp && aliasp != nodep && !nodep->varp()->isIfaceRef()) {
+        எனில் (aliasp && aliasp != nodep && !nodep->varp()->isIfaceRef()) {
             // Aliased variable might still be references from outside,
             // eg through the VPI, and is traced, so we need the value to propagate.
             // TODO: this means external writes to the LHS (e.g.: through the VPI) don't work
-            AstAssignW* const assignp = new AstAssignW{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                new AstVarRef{nodep->fileline(), aliasp, VAccess::READ}};
-            assignp->user2(true);
-            nodep->scopep()->addBlocksp(new AstAlways{assignp});
+            AstAssignW* மாறிலி assignp = புதிய AstAssignW{
+                nodep->fileline(), புதிய AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                புதிய AstVarRef{nodep->fileline(), aliasp, VAccess::READ}};
+            assignp->user2(உண்மை);
+            nodep->scopep()->addBlocksp(புதிய AstAlways{assignp});
             // Propagate attributes and lint state of the replaced variable,
             // because all references to it are replaced with references to the alias variable
             aliasp->varp()->propagateAttrFrom(nodep->varp());
             aliasp->varp()->fileline()->modifyStateInherit(nodep->varp()->fileline());
         }
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(Ast_முனை_FTask_Ref* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(8, indent() << "visit " << nodep);
         UINFO(8, indent() << m_ds.ascii());
-        if (m_ds.m_dotPos != DP_MEMBER || nodep->name() != "randomize") {
+        எனில் (m_ds.m_dotPos != DP_MEMBER || nodep->name() != "randomize") {
             // Visit arguments at the beginning.
             // They may be visitted even if the current node can't be linked now.
             symIterateChildren(nodep, m_curSymp);
         }
 
-        if (m_ds.m_super) {
-            if (AstFuncRef* const funcRefp = VN_CAST(nodep, FuncRef)) {
-                funcRefp->superReference(true);
-            } else if (AstTaskRef* const taskRefp = VN_CAST(nodep, TaskRef)) {
-                taskRefp->superReference(true);
+        எனில் (m_ds.m_super) {
+            எனில் (AstFuncRef* மாறிலி funcRefp = VN_CAST(nodep, FuncRef)) {
+                funcRefp->superReference(உண்மை);
+            } இல்லையெனில் எனில் (AstTaskRef* மாறிலி taskRefp = VN_CAST(nodep, TaskRef)) {
+                taskRefp->superReference(உண்மை);
             }
         }
 
         VL_RESTORER(m_randSymp);
 
-        bool first = !m_ds.m_dotp || m_ds.m_dotPos == DP_FIRST;
-        bool staticAccess = false;
-        if (m_ds.m_unresolvedClass) {
+        தருக்க first = !m_ds.m_dotp || m_ds.m_dotPos == DP_FIRST;
+        தருக்க staticAccess = பொய்;
+        எனில் (m_ds.m_unresolvedClass) {
             // Unable to link before V3Param
-            return;
-        } else if (m_ds.m_unresolvedCell && m_ds.m_dotPos == DP_FINAL && m_ds.m_unlinkedScopep) {
-            AstNodeFTaskRef* const newftaskp = nodep->cloneTree(false);
+            திரும்பு;
+        } இல்லையெனில் எனில் (m_ds.m_unresolvedCell && m_ds.m_dotPos == DP_FINAL && m_ds.m_unlinkedScopep) {
+            Ast_முனை_FTask_Ref* மாறிலி newftaskp = nodep->clone_மரம்(பொய்);
             newftaskp->dotted(m_ds.m_dotText);
-            AstNode* const newp = new AstUnlinkedRef{nodep->fileline(), newftaskp, nodep->name(),
+            Ast_முனை* மாறிலி newp = புதிய AstUnlinkedRef{nodep->fileline(), newftaskp, nodep->name(),
                                                      m_ds.m_unlinkedScopep->unlinkFrBack()};
             m_ds.m_unlinkedScopep = nullptr;
-            m_ds.m_unresolvedCell = false;
+            m_ds.m_unresolvedCell = பொய்;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_PACKAGE) {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (m_ds.m_dotp && m_ds.m_dotPos == DP_PACKAGE) {
             UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                         "Bad package link");
-            staticAccess = true;
-            AstClassOrPackageRef* const cpackagerefp
+            staticAccess = உண்மை;
+            AstClassOrPackageRef* மாறிலி cpackagerefp
                 = VN_AS(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
-            if (cpackagerefp->name() == "local::") {
+            எனில் (cpackagerefp->name() == "local::") {
                 m_randSymp = nullptr;
-                first = true;
-            } else if (!cpackagerefp->classOrPackageSkipp()) {
-                VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                    m_ds.m_dotSymp, cpackagerefp, true, false, ":: reference");
-                if (foundp) nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
-            } else {
+                first = உண்மை;
+            } இல்லையெனில் எனில் (!cpackagerefp->classOrPackageSkipp()) {
+                VSymEnt* மாறிலி foundp = m_statep->resolveClassOrPackage(
+                    m_ds.m_dotSymp, cpackagerefp, உண்மை, பொய், ":: reference");
+                எனில் (foundp) nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
+            } இல்லையெனில் {
                 nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
             }
             // Class/package :: HERE function() . method_called_on_function_return_value()
             m_ds.m_dotPos = DP_MEMBER;
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_FINAL) {
+        } இல்லையெனில் எனில் (m_ds.m_dotp && m_ds.m_dotPos == DP_FINAL) {
             nodep->dotted(m_ds.m_dotText);  // Maybe ""
             // Only flag FTaskRefs under generate-if/case blocks that may be
             // pruned.  GenFor and plain begin-blocks won't be pruned by V3Param.
             // A generate-case block's parent is the GenCaseItem, not the GenCase.
             // VarXRef uses the broader m_genBlk flag (set for all GenBlocks)
             // because genfor unrolling also removes variables.
-            if (m_ds.m_genBlk && m_ds.m_dotSymp) {
-                const AstNode* const blkp = m_ds.m_dotSymp->nodep();
-                if (VN_IS(blkp, GenBlock)
+            எனில் (m_ds.m_genBlk && m_ds.m_dotSymp) {
+                மாறிலி Ast_முனை* மாறிலி blkp = m_ds.m_dotSymp->nodep();
+                எனில் (VN_IS(blkp, GenBlock)
                     && (VN_IS(blkp->backp(), GenIf) || VN_IS(blkp->backp(), GenCaseItem))) {
-                    nodep->containsGenBlock(true);
+                    nodep->containsGenBlock(உண்மை);
                 }
             }
-        } else if (m_ds.m_dotp && m_ds.m_dotPos == DP_MEMBER) {
+        } இல்லையெனில் எனில் (m_ds.m_dotp && m_ds.m_dotPos == DP_MEMBER) {
             // Found a Var, everything following is method call.
             // {scope}.{var}.HERE {method} ( ARGS )
-            AstNodeExpr* const varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), NodeExpr);
-            AstArg* const argsp = nodep->argsp();
-            if (argsp) argsp->unlinkFrBackWithNext();
-            AstMethodCall* const newp = new AstMethodCall{nodep->fileline(), varEtcp,
+            Ast_முனை_கோவை* மாறிலி varEtcp = VN_AS(m_ds.m_dotp->lhsp()->unlinkFrBack(), முனை_கோவை);
+            AstArg* மாறிலி argsp = nodep->argsp();
+            எனில் (argsp) argsp->unlinkFrBackWithNext();
+            AstMethodCall* மாறிலி newp = புதிய AstMethodCall{nodep->fileline(), varEtcp,
                                                           VFlagChildDType{}, nodep->name(), argsp};
-            if (AstWith* const withp = nodep->withp()) newp->withp(withp->unlinkFrBack());
+            எனில் (AstWith* மாறிலி withp = nodep->withp()) newp->withp(withp->unlinkFrBack());
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_ds.m_dotp && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            திரும்பு;
+        } இல்லையெனில் எனில் (m_ds.m_dotp && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
             // HERE function() . method_called_on_function_return_value()
             m_ds.m_dotPos = DP_MEMBER;
             m_ds.m_dotText = "";
-        } else if (!m_ds.m_disablep) {
+        } இல்லையெனில் எனில் (!m_ds.m_disablep) {
             // visit(AstDisable*) setup the dot handling
             checkNoDot(nodep);
         }
-        if (nodep->classOrPackagep() && nodep->taskp()) {
+        எனில் (nodep->classOrPackagep() && nodep->taskp()) {
             // References into packages don't care about cell hierarchy.
-        } else if (!m_modSymp) {
+        } இல்லையெனில் எனில் (!m_modSymp) {
             // Module that is not in hierarchy.  We'll be dead code eliminating it later.
             UINFO(9, indent() << "Dead module for " << nodep);
             nodep->taskp(nullptr);
-        } else if (nodep->dotted() == "" && nodep->taskp()) {
+        } இல்லையெனில் எனில் (nodep->dotted() == "" && nodep->taskp()) {
             // Earlier should have setup the links
             // Might be under a BEGIN we're not processing, so don't relink it
-        } else {
+        } இல்லையெனில் {
             string baddot;
             VSymEnt* okSymp = nullptr;
             VSymEnt* dotSymp;
-            if (nodep->dotted().empty()) {
+            எனில் (nodep->dotted().empty()) {
                 // Non-'super.' dotted reference
                 dotSymp = m_ds.m_dotSymp;
-            } else {
+            } இல்லையெனில் {
                 // Start search at module, as a variable of same name under a subtask isn't a
                 // relevant hit however a function under a begin/end is.  So we want begins, but
                 // not the function
                 dotSymp = m_curSymp;
             }
-            if (nodep->classOrPackagep()) {  // Look only in specified package
-                dotSymp = m_statep->getNodeSym(nodep->classOrPackagep());
+            எனில் (nodep->classOrPackagep()) {  // Look only in specified package
+                dotSymp = m_statep->get_முனை_Sym(nodep->classOrPackagep());
                 UINFO(8, indent() << "Override classOrPackage " << dotSymp);
-            } else {
-                if (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
+            } இல்லையெனில் {
+                எனில் (nodep->inlinedDots() != "") {  // Correct for current post-inlined scope
                     dotSymp = findInlinedDotsSym(nodep, nodep->inlinedDots());
                 }
                 dotSymp = m_statep->findDotted(nodep->fileline(), dotSymp, nodep->dotted(), baddot,
-                                               okSymp, true);  // Maybe nullptr
+                                               okSymp, உண்மை);  // Maybe nullptr
             }
             // Restricted 'with (id_list)': only id_list names bind into target class.
-            if (m_randSymp
+            எனில் (m_randSymp
                 && (!m_currentWithp || m_currentWithp->nameResolvesToTarget(nodep->name()))) {
-                VSymEnt* const foundp = m_randSymp->findIdFlat(nodep->name());
-                if (foundp && m_currentWithp) {
-                    if (m_currentWithp->restricted()) {
-                        m_restrictedNamesUsed.insert(nodep->name());
+                VSymEnt* மாறிலி foundp = m_randSymp->findIdFlat(nodep->name());
+                எனில் (foundp && m_currentWithp) {
+                    எனில் (m_currentWithp->restricted()) {
+                        m_restrictedNamesUsed.செருகு(nodep->name());
                     }
                     UINFO(9, indent() << "randomize-with fromSym " << foundp->nodep());
                     AstArg* argsp = nullptr;
-                    if (nodep->argsp()) {
+                    எனில் (nodep->argsp()) {
                         iterateAndNextNull(nodep->argsp());
                         argsp = nodep->argsp()->unlinkFrBackWithNext();
                     }
-                    if (m_ds.m_dotPos != DP_NONE) m_ds.m_dotPos = DP_MEMBER;
-                    AstNode* const newp = new AstMethodCall{
+                    எனில் (m_ds.m_dotPos != DP_NONE) m_ds.m_dotPos = DP_MEMBER;
+                    Ast_முனை* மாறிலி newp = புதிய AstMethodCall{
                         nodep->fileline(),
-                        new AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", false},
+                        புதிய AstLambdaArgRef{nodep->fileline(), "__Vrandwith_obj", பொய்},
                         VFlagChildDType{}, nodep->name(), argsp};
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    திரும்பு;
                 }
             }
-            if (first && nodep->name() == "randomize" && VN_IS(m_modp, Class)
+            எனில் (first && nodep->name() == "randomize" && VN_IS(m_modp, Class)
                 && !VN_IS(nodep->classOrPackagep(), Package)) {
                 // need special handling to avoid falling back to std::randomize
                 // Skip if classOrPackagep is a Package (i.e. std::randomize resolved earlier)
                 VMemberMap memberMap;
-                AstFunc* const randFuncp = V3Randomize::newRandomizeFunc(
-                    memberMap, VN_AS(m_modp, Class), nodep->name(), true, true);
+                AstFunc* மாறிலி randFuncp = V3Randomize::newRandomizeFunc(
+                    memberMap, VN_AS(m_modp, Class), nodep->name(), உண்மை, உண்மை);
                 nodep->taskp(randFuncp);
                 nodep->classOrPackagep(VN_AS(m_modp, Class));
-                m_curSymp = m_statep->insertBlock(m_curSymp, nodep->name(), randFuncp, m_modp);
+                m_curSymp = m_statep->செருகு_Block(m_curSymp, nodep->name(), randFuncp, m_modp);
                 // Already linked to the class randomize function; skip findSymPrefixed
                 // which may find std::randomize and overwrite classOrPackagep
-                return;
+                திரும்பு;
             }
-            VSymEnt* const foundp
+            VSymEnt* மாறிலி foundp
                 = m_statep->findSymPrefixed(dotSymp, nodep->name(), baddot, first);
-            AstNodeFTask* const taskp = foundp ? VN_CAST(foundp->nodep(), NodeFTask) : nullptr;
-            AstNodeModule* const taskModulep = foundp ? foundp->classOrPackagep() : nullptr;
+            Ast_முனை_FTask* மாறிலி taskp = foundp ? VN_CAST(foundp->nodep(), முனை_FTask) : nullptr;
+            Ast_முனை_Module* மாறிலி taskModulep = foundp ? foundp->classOrPackagep() : nullptr;
             // Ignore deferring linking of functions inside params of classes extending
             // parametric classes if referenced function can be linked in the first pass.
-            if (!m_isParam || !taskp
+            எனில் (!m_isParam || !taskp
                 || (taskp->classMethod() && taskModulep && taskModulep->hasParameterList())) {
-                if (m_insideClassExtParam) {
+                எனில் (m_insideClassExtParam) {
                     // The reference may point to a method declared in a super class, which is
                     // proved by a parameter. In such a case, it can't be linked at the first
                     // stage. Must not do any linking, because e.g. might find an extends of an
                     // upper class because the current class (under parent) isn't yet importing
                     // it's extended class symbols.
-                    return;
+                    திரும்பு;
                 }
-                if (AstClass* const targetClassp = VN_CAST(dotSymp->nodep(), Class)) {
-                    if (m_extendsParam.count(targetClassp)) {
+                எனில் (AstClass* மாறிலி targetClassp = VN_CAST(dotSymp->nodep(), Class)) {
+                    எனில் (m_extendsParam.மொத்தம்(targetClassp)) {
                         // Target class has parameterized extends not yet resolved.
                         // Its inherited symbols (e.g. static functions from the base class)
                         // aren't imported yet - defer to linkDotParamed.
-                        return;
+                        திரும்பு;
                     }
                 }
             }
 
-            if (taskp) {
-                if (staticAccess && !taskp->isStatic()) {
+            எனில் (taskp) {
+                எனில் (staticAccess && !taskp->isStatic()) {
                     // TODO bug4077
                     // nodep->v3error("Static access to non-static task/function "
                     //                << taskp->prettyNameQ() << endl);
@@ -5667,99 +5667,99 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 nodep->taskp(taskp);
                 nodep->classOrPackagep(foundp->classOrPackagep());
                 UINFO(7, indent() << "Resolved " << nodep);  // Also prints taskp
-            } else {
+            } இல்லையெனில் {
                 // Note ParseRef has similar error handling/message output
                 UINFO(7, indent() << "   ErrFtask curSymp=se" << cvtToHex(m_curSymp)
                                   << " dotSymp=se" << cvtToHex(dotSymp));
-                if (foundp) {
-                    if (VN_IS(foundp->nodep(), Var) && m_ds.m_dotText == "" && m_ftaskp
+                எனில் (foundp) {
+                    எனில் (VN_IS(foundp->nodep(), Var) && m_ds.m_dotText == "" && m_ftaskp
                         && m_ftaskp->name() == foundp->nodep()->name()) {
                         // This is a recursive reference to the function itself, not to the var
                         nodep->taskp(m_ftaskp);
                         nodep->classOrPackagep(foundp->classOrPackagep());
                         UINFO(7, indent() << "Resolved recursive " << nodep);  // Also prints taskp
-                    } else {
+                    } இல்லையெனில் {
                         nodep->v3error("Found definition of '"
                                        << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                        << nodep->prettyName() << "'" << " as a "
                                        << foundp->nodep()->typeName()
                                        << " but expected a task/function");
                     }
-                } else if (VN_IS(nodep, New) && !m_statep->forScopeCreation()) {
+                } இல்லையெனில் எனில் (VN_IS(nodep, New) && !m_statep->forScopeCreation()) {
                     // Resolved in V3Width
-                } else if ((nodep->name() == "pre_randomize" || nodep->name() == "post_randomize")
+                } இல்லையெனில் எனில் ((nodep->name() == "pre_randomize" || nodep->name() == "post_randomize")
                            && VN_IS(dotSymp->nodep(), Class)) {
-                    AstClass* const classp = VN_AS(dotSymp->nodep(), Class);
+                    AstClass* மாறிலி classp = VN_AS(dotSymp->nodep(), Class);
                     // Functions that might be defined by user, but if not, they get empty
                     // definitions within referenced class.
                     // TODO perhaps cleaner to add to symbol table up-front with
                     // a lambda to construct them on a reference.
-                    AstFunc* const funcp
-                        = new AstFunc{nodep->fileline(), nodep->name(), nullptr, nullptr};
-                    funcp->classMethod(true);
+                    AstFunc* மாறிலி funcp
+                        = புதிய AstFunc{nodep->fileline(), nodep->name(), nullptr, nullptr};
+                    funcp->classMethod(உண்மை);
                     funcp->dtypep(funcp->findVoidDType());
                     classp->addMembersp(funcp);
-                    m_statep->insertBlock(dotSymp, nodep->name(), funcp, classp);
+                    m_statep->செருகு_Block(dotSymp, nodep->name(), funcp, classp);
                     nodep->taskp(funcp);
                     nodep->classOrPackagep(classp);
                     UINFO(9, indent() << " Auto-made " << funcp);
-                    return;
-                } else if (nodep->name() == "randomize" || nodep->name() == "srandom"
+                    திரும்பு;
+                } இல்லையெனில் எனில் (nodep->name() == "randomize" || nodep->name() == "srandom"
                            || nodep->name() == "get_randstate" || nodep->name() == "set_randstate"
                            || nodep->name() == "rand_mode" || nodep->name() == "constraint_mode") {
-                    if (AstClass* const classp = VN_CAST(m_modp, Class)) {
+                    எனில் (AstClass* மாறிலி classp = VN_CAST(m_modp, Class)) {
                         // Don't overwrite if already resolved to a package (e.g. std::randomize)
-                        if (!VN_IS(nodep->classOrPackagep(), Package))
+                        எனில் (!VN_IS(nodep->classOrPackagep(), Package))
                             nodep->classOrPackagep(classp);
-                    } else if (nodep->name() == "randomize") {
+                    } இல்லையெனில் எனில் (nodep->name() == "randomize") {
                         // A std::randomize resolved in V3Width
                         nodep->classOrPackagep(v3Global.rootp()->stdPackagep());
-                    } else {
+                    } இல்லையெனில் {
                         nodep->v3error("Calling implicit class method "
                                        << nodep->prettyNameQ() << " without being under class");
-                        nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                        return;
+                        nodep->replaceWith(புதிய AstConst{nodep->fileline(), 0});
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                        திரும்பு;
                     }
-                } else if (nodep->dotted() == "") {
-                    if (nodep->pli()) {
-                        if (v3Global.opt.bboxSys()) {
-                            AstNode* newp;
-                            if (VN_IS(nodep, FuncRef)) {
-                                newp = new AstConst{nodep->fileline(), AstConst::All0{}};
-                            } else {
-                                AstNodeExpr* outp = nullptr;
-                                while (AstArg* const argp = nodep->argsp()) {
-                                    outp = AstNode::addNext(outp, argp->exprp()->unlinkFrBack());
-                                    VL_DO_DANGLING(pushDeletep(argp->unlinkFrBack()), argp);
+                } இல்லையெனில் எனில் (nodep->dotted() == "") {
+                    எனில் (nodep->pli()) {
+                        எனில் (v3Global.opt.bboxSys()) {
+                            Ast_முனை* newp;
+                            எனில் (VN_IS(nodep, FuncRef)) {
+                                newp = புதிய AstConst{nodep->fileline(), AstConst::All0{}};
+                            } இல்லையெனில் {
+                                Ast_முனை_கோவை* outp = nullptr;
+                                போது (AstArg* மாறிலி argp = nodep->argsp()) {
+                                    outp = Ast_முனை::addNext(outp, argp->exprp()->unlinkFrBack());
+                                    VL_DO_DANGLING(தள்ளு_Deletep(argp->unlinkFrBack()), argp);
                                 }
-                                newp = new AstSysIgnore{nodep->fileline(), outp};
+                                newp = புதிய AstSysIgnore{nodep->fileline(), outp};
                                 newp->dtypep(nodep->dtypep());
                             }
                             nodep->replaceWith(newp);
-                            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                            return;
-                        } else {
+                            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                            திரும்பு;
+                        } இல்லையெனில் {
                             VSpellCheck speller;
                             V3Parse::candidatePli(&speller);
-                            const string suggest = speller.bestCandidateMsg(nodep->prettyName());
+                            மாறிலி string suggest = speller.best_Candidate_செய்தி(nodep->prettyName());
                             nodep->v3error(
                                 "Unsupported or unknown PLI call: "
                                 << nodep->prettyNameQ() << '\n'
                                 << (suggest.empty() ? "" : nodep->warnMore() + suggest));
                         }
-                    } else {
-                        const string suggest = m_statep->suggestSymFallback(
-                            dotSymp, nodep->name(), LinkNodeMatcherFTask{});
+                    } இல்லையெனில் {
+                        மாறிலி string suggest = m_statep->suggestSymFallback(
+                            dotSymp, nodep->name(), Link_முனை_Matcher_FTask{});
                         nodep->v3error("Can't find definition of task/function: "
                                        << nodep->prettyNameQ() << '\n'
                                        << (suggest.empty() ? "" : nodep->warnMore() + suggest));
                     }
-                } else {
-                    const string suggest = m_statep->suggestSymFallback(dotSymp, nodep->name(),
-                                                                        LinkNodeMatcherFTask{});
+                } இல்லையெனில் {
+                    மாறிலி string suggest = m_statep->suggestSymFallback(dotSymp, nodep->name(),
+                                                                        Link_முனை_Matcher_FTask{});
                     nodep->v3error("Can't find definition of "
-                                   << AstNode::prettyNameQ(baddot) << " in dotted task/function: '"
+                                   << Ast_முனை::prettyNameQ(baddot) << " in dotted task/function: '"
                                    << nodep->dotted() + "." + nodep->prettyName() << "'\n"
                                    << (suggest.empty() ? "" : nodep->warnMore() + suggest) << '\n'
                                    << nodep->warnContextPrimary()
@@ -5768,141 +5768,141 @@ class LinkDotResolveVisitor final : public VNVisitor {
             }
         }
     }
-    void visit(AstSelBit* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstSelBit* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         iterateAndNextNull(nodep->fromp());
-        if (m_ds.m_unresolvedClass) {
+        எனில் (m_ds.m_unresolvedClass) {
             UASSERT_OBJ(m_ds.m_dotPos != DP_SCOPE && m_ds.m_dotPos != DP_FIRST, nodep,
                         "Object of unresolved class on scope position in dotted reference");
             // The index does not depend on the class, and V3Param must see its class references
             symIterateNull(nodep->bitp(), m_curSymp);
             symIterateNull(nodep->attrp(), m_curSymp);
-            return;
+            திரும்பு;
         }
-        if (m_ds.m_dotPos == DP_SCOPE
+        எனில் (m_ds.m_dotPos == DP_SCOPE
             || m_ds.m_dotPos
                    == DP_FIRST) {  // Already under dot, so this is {modulepart} DOT {modulepart}
             UINFO(9, indent() << "deferring until after a V3Param pass: " << nodep);
             m_ds.m_dotText += "__BRA__??__KET__";
-            m_ds.m_unresolvedCell = true;
+            m_ds.m_unresolvedCell = உண்மை;
             // And pass up m_ds.m_dotText
         }
         // Pass dot state down to only fromp()
         iterateAndNextNull(nodep->fromp());
         symIterateNull(nodep->bitp(), m_curSymp);
         symIterateNull(nodep->attrp(), m_curSymp);
-        if (m_ds.m_unresolvedCell && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
-            AstNodeExpr* const exprp = nodep->bitp()->unlinkFrBack();
-            if (AstCellArrayRef* const fromArrRefp = VN_CAST(nodep->fromp(), CellArrayRef)) {
+        எனில் (m_ds.m_unresolvedCell && (m_ds.m_dotPos == DP_SCOPE || m_ds.m_dotPos == DP_FIRST)) {
+            Ast_முனை_கோவை* மாறிலி exprp = nodep->bitp()->unlinkFrBack();
+            எனில் (AstCellArrayRef* மாறிலி fromArrRefp = VN_CAST(nodep->fromp(), CellArrayRef)) {
                 // Multi-dim iface array access: append this select to the existing chain
                 fromArrRefp->addSelp(exprp);
-                AstCellArrayRef* const movedp = fromArrRefp->unlinkFrBack();
+                AstCellArrayRef* மாறிலி movedp = fromArrRefp->unlinkFrBack();
                 nodep->replaceWith(movedp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            } else {
-                AstCellArrayRef* const newp
-                    = new AstCellArrayRef{nodep->fileline(), nodep->fromp()->name(), exprp};
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+            } இல்லையெனில் {
+                AstCellArrayRef* மாறிலி newp
+                    = புதிய AstCellArrayRef{nodep->fileline(), nodep->fromp()->name(), exprp};
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
             }
         }
     }
-    void visit(AstNodePreSel* nodep) override {
+    வெறுமை visit(Ast_முனை_Pre_Sel* nodep) override {
         // Excludes simple AstSelBit, see above
-        if (nodep->user3SetOnce()) return;
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
-        if (m_ds.m_dotPos == DP_SCOPE
+        எனில் (m_ds.m_dotPos == DP_SCOPE
             || m_ds.m_dotPos
                    == DP_FIRST) {  // Already under dot, so this is {modulepart} DOT {modulepart}
             nodep->v3error("Syntax error: Range ':', '+:' etc are not allowed in the instance "
                            "part of a dotted reference");
-            m_ds.m_dotErr = true;
-            return;
+            m_ds.m_dotErr = உண்மை;
+            திரும்பு;
         }
-        AstNodeDType* packedArrayDtp = nullptr;  // Datatype reference for packed array
+        Ast_முனை_DType* packedArrayDtp = nullptr;  // Datatype reference for packed array
         {
             VL_RESTORER(m_packedArrayDtp);
             iterateAndNextNull(nodep->fromp());
             symIterateNull(nodep->rhsp(), m_curSymp);
             symIterateNull(nodep->thsp(), m_curSymp);
 
-            if (m_packedArrayDtp) {
-                AstRange* const newRangep
-                    = new AstRange(nodep->fileline(), nodep->rhsp()->unlinkFrBack(),
+            எனில் (m_packedArrayDtp) {
+                AstRange* மாறிலி newRangep
+                    = புதிய AstRange(nodep->fileline(), nodep->rhsp()->unlinkFrBack(),
                                    nodep->thsp()->unlinkFrBack());
                 AstPackArrayDType* newArrayTypep
-                    = new AstPackArrayDType(nodep->fileline(), m_packedArrayDtp, newRangep);
+                    = புதிய AstPackArrayDType(nodep->fileline(), m_packedArrayDtp, newRangep);
                 newArrayTypep->childDTypep(m_packedArrayDtp);
                 newArrayTypep->refDTypep(nullptr);
-                if (VN_IS(nodep->backp(), SelExtract)) {
+                எனில் (VN_IS(nodep->backp(), SelExtract)) {
                     packedArrayDtp = newArrayTypep;
-                } else {
+                } இல்லையெனில் {
                     replaceWithCheckBreak(nodep, newArrayTypep);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                 }
-            } else {
-                if (nodep->attrp()) {
-                    AstNode* const attrp = nodep->attrp()->unlinkFrBack();
-                    VL_DO_DANGLING(attrp->deleteTree(), attrp);
+            } இல்லையெனில் {
+                எனில் (nodep->attrp()) {
+                    Ast_முனை* மாறிலி attrp = nodep->attrp()->unlinkFrBack();
+                    VL_DO_DANGLING(attrp->delete_மரம்(), attrp);
                 }
-                AstNode* const basefromp = nodep->baseFromp(false);
-                if (VN_IS(basefromp, Replicate)) {
+                Ast_முனை* மாறிலி basefromp = nodep->baseFromp(பொய்);
+                எனில் (VN_IS(basefromp, Replicate)) {
                     // From {...}[...] syntax in IEEE 2017
-                    if (basefromp) UINFO(9, indent() << " Related node: " << basefromp);
-                } else {
-                    nodep->attrp(new AstAttrOf{nodep->fileline(), VAttrType::VAR_BASE,
-                                               basefromp->cloneTree(false)});
+                    எனில் (basefromp) UINFO(9, indent() << " Related node: " << basefromp);
+                } இல்லையெனில் {
+                    nodep->attrp(புதிய AstAttrOf{nodep->fileline(), VAttrType::VAR_BASE,
+                                               basefromp->clone_மரம்(பொய்)});
                 }
             }
         }
 
-        if (packedArrayDtp) m_packedArrayDtp = packedArrayDtp;
+        எனில் (packedArrayDtp) m_packedArrayDtp = packedArrayDtp;
     }
-    void visit(AstMemberSel* nodep) override {
+    வெறுமை visit(AstMemberSel* nodep) override {
         // checkNoDot not appropriate, can be under a dot
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    வெறுமை visit(AstGenBlock* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         {
             VL_RESTORER(m_curSymp);
             VL_RESTORER_COPY(m_ds);
-            if (nodep->name() != "") {
-                m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            எனில் (nodep->name() != "") {
+                m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
                 UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
             }
             iterateChildren(nodep);
         }
         UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
     }
-    void visit(AstNodeBlock* nodep) override {
+    வெறுமை visit(Ast_முனை_Block* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         {
             VL_RESTORER(m_curSymp);
             VL_RESTORER_COPY(m_ds);
-            if (nodep->name() != "") {
-                m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            எனில் (nodep->name() != "") {
+                m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
                 UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
             }
             iterateChildren(nodep);
         }
         UINFO(5, indent() << "cur=se" << cvtToHex(m_curSymp));
     }
-    void visit(AstNodeFTask* nodep) override {
+    வெறுமை visit(Ast_முனை_FTask* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (nodep->isExternDef() && !nodep->didProto()) {
-            nodep->didProto(true);
-            if (const VSymEnt* const foundp
+        எனில் (nodep->isExternDef() && !nodep->didProto()) {
+            nodep->didProto(உண்மை);
+            எனில் (மாறிலி VSymEnt* மாறிலி foundp
                 = m_curSymp->findIdFallback("extern " + nodep->name())) {
-                const AstNodeFTask* const protop = VN_AS(foundp->nodep(), NodeFTask);
+                மாறிலி Ast_முனை_FTask* மாறிலி protop = VN_AS(foundp->nodep(), முனை_FTask);
                 // Copy specifiers.
                 // External definition cannot have any specifiers, so no value will be overwritten.
                 nodep->isHideLocal(protop->isHideLocal());
@@ -5911,25 +5911,25 @@ class LinkDotResolveVisitor final : public VNVisitor {
                 nodep->isVirtual(protop->isVirtual());
                 nodep->lifetime(protop->lifetime());
                 // Always add an FUNC_RETURN_PROTO even if task, so we can locate the prototype
-                nodep->addStmtsp(new AstAttrOf{protop->fileline(), VAttrType::FUNC_RETURN_PROTO,
+                nodep->addStmtsp(புதிய AstAttrOf{protop->fileline(), VAttrType::FUNC_RETURN_PROTO,
                                                protop->fvarp()
-                                                   ? protop->fvarp()->cloneTree(false)
-                                                   : new AstVoidDType{protop->fileline()}});
-                for (AstNode* stmtp = protop->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    if (AstVar* const portp = VN_CAST(stmtp, Var)) {
-                        AstAttrOf* const attrp
-                            = new AstAttrOf{protop->fileline(), VAttrType::FUNC_ARG_PROTO,
-                                            portp->subDTypep()->cloneTree(false)};
+                                                   ? protop->fvarp()->clone_மரம்(பொய்)
+                                                   : புதிய AstVoidDType{protop->fileline()}});
+                க்கு (Ast_முனை* stmtp = protop->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    எனில் (AstVar* மாறிலி portp = VN_CAST(stmtp, Var)) {
+                        AstAttrOf* மாறிலி attrp
+                            = புதிய AstAttrOf{protop->fileline(), VAttrType::FUNC_ARG_PROTO,
+                                            portp->subDTypep()->clone_மரம்(பொய்)};
                         attrp->name(portp->name());
                         nodep->addStmtsp(attrp);
                     }
                 }
-            } else {
+            } இல்லையெனில் {
                 nodep->v3error("extern not found that declares " + nodep->prettyNameQ());
             }
         }
-        if (nodep->isExternProto()) {
-            if (!m_curSymp->findIdFallback(nodep->name())) {
+        எனில் (nodep->isExternProto()) {
+            எனில் (!m_curSymp->findIdFallback(nodep->name())) {
                 nodep->v3warn(PROTOTYPEMIS,
                               "Definition not found for extern prototype " + nodep->prettyNameQ());
             }
@@ -5939,13 +5939,13 @@ class LinkDotResolveVisitor final : public VNVisitor {
         VL_RESTORER(m_explicitSuperNewp);
         {
             m_ftaskp = nodep;
-            m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
-            const bool isNew = nodep->name() == "new";
-            if (isNew) m_explicitSuperNewp = nullptr;
+            m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
+            மாறிலி தருக்க isNew = nodep->name() == "new";
+            எனில் (isNew) m_explicitSuperNewp = nullptr;
             iterateChildren(nodep);
-            if (isNew) {
-                const AstClassExtends* const classExtendsp = VN_AS(m_modp, Class)->extendsp();
-                if (m_explicitSuperNewp && !m_explicitSuperNewp->isImplicit() && classExtendsp
+            எனில் (isNew) {
+                மாறிலி AstClassExtends* மாறிலி classExtendsp = VN_AS(m_modp, Class)->extendsp();
+                எனில் (m_explicitSuperNewp && !m_explicitSuperNewp->isImplicit() && classExtendsp
                     && classExtendsp->argsp()) {
                     m_explicitSuperNewp->v3error(
                         "Explicit super.new not allowed with class "
@@ -5956,12 +5956,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << "... Location of extends argument(s)\n"
                         << classExtendsp->argsp()->warnContextSecondary());
                 }
-                if (classExtendsp && classExtendsp->classOrNullp()) {
-                    if (!m_explicitSuperNewp && m_statep->forParamed()
+                எனில் (classExtendsp && classExtendsp->classOrNullp()) {
+                    எனில் (!m_explicitSuperNewp && m_statep->forParamed()
                         && !VN_AS(classExtendsp->childDTypep()->skipRefp(), ClassRefDType)
                                 ->classp()
                                 ->isInterfaceClass()) {
-                        AstNodeStmt* const superNewp
+                        Ast_முனை_Stmt* மாறிலி superNewp
                             = addImplicitSuperNewCall(VN_AS(nodep, Func), classExtendsp);
                         UINFO(9, "created super new " << superNewp);
                         iterate(superNewp);
@@ -5971,34 +5971,34 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
         m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
     }
-    void visit(AstNodeForeach* nodep) override {
+    வெறுமை visit(Ast_முனை_Foreach* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_முனை_Sym(nodep));
     }
-    void visit(AstRandSequence* nodep) override {
+    வெறுமை visit(AstRandSequence* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (!nodep->start().empty())
-            nodep->prodp(findProd(nodep, m_statep->getNodeSym(nodep), nodep->start()));
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        எனில் (!nodep->start().empty())
+            nodep->prodp(findProd(nodep, m_statep->get_முனை_Sym(nodep), nodep->start()));
+        symIterateChildren(nodep, m_statep->get_முனை_Sym(nodep));
     }
-    void visit(AstRSProd* nodep) override {
+    வெறுமை visit(AstRSProd* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        symIterateChildren(nodep, m_statep->getNodeSym(nodep));
+        symIterateChildren(nodep, m_statep->get_முனை_Sym(nodep));
     }
-    void visit(AstRSProdItem* nodep) override {
+    வெறுமை visit(AstRSProdItem* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
         nodep->prodp(findProd(nodep, m_curSymp, nodep->name()));
         iterateChildren(nodep);
     }
-    void visit(AstCoverWith* nodep) override {
+    வெறுமை visit(AstCoverWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -6006,12 +6006,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // The type of 'item' is that of the coverpoint expression, which may name 'item' too
         iterateAndNextNull(nodep->itemp()->childDTypep());
         VL_RESTORER(m_curSymp);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
         iterateAndNextNull(nodep->itemp());
         iterateAndNextNull(nodep->filterp());
         m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
     }
-    void visit(AstCoverCrossWith* nodep) override {
+    வெறுமை visit(AstCoverCrossWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -6020,47 +6020,47 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // The type of a cross item is that of its coverpoint's expression, which may name items
         iterateAndNextNull(nodep->varsp());
         VL_RESTORER(m_curSymp);
-        m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+        m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
         iterateAndNextNull(nodep->filterp());
         m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
     }
-    void visit(AstWith* nodep) override {
+    வெறுமை visit(AstWith* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
-        if (m_ds.m_unresolvedClass) return;
+        எனில் (m_ds.m_unresolvedClass) திரும்பு;
         VL_RESTORER(m_curSymp);
         VL_RESTORER(m_currentWithp);
         VL_RESTORER_COPY(m_restrictedNamesUsed);
         {
-            m_ds.m_dotSymp = m_curSymp = m_statep->getNodeSym(nodep);
+            m_ds.m_dotSymp = m_curSymp = m_statep->get_முனை_Sym(nodep);
             m_currentWithp = nodep;
             // Validate the identifier_list once per AstWith (m_validated travels
             // with cloneTree, so cloned witnesses skip the redundant check).
-            const bool firstVisit = !nodep->validated();
-            if (firstVisit) {
-                nodep->validated(true);
+            மாறிலி தருக்க firstVisit = !nodep->validated();
+            எனில் (firstVisit) {
+                nodep->validated(உண்மை);
                 m_restrictedNamesUsed.clear();
                 // IEEE 1800-2023 18.7: each name in the identifier_list must designate
                 // a member of the randomize() target class.
-                if (nodep->restricted() && m_randSymp) {
-                    for (const std::string& n : nodep->restrictedNames()) {
-                        if (!m_randSymp->findIdFlat(n)) {
+                எனில் (nodep->restricted() && m_randSymp) {
+                    க்கு (மாறிலி std::string& n : nodep->restrictedNames()) {
+                        எனில் (!m_randSymp->findIdFlat(n)) {
                             nodep->v3error("Identifier '"
                                            << n
                                            << "' in 'with (...)' identifier list is not a"
                                               " member of the randomize() target class"
                                               " (IEEE 1800-2023 18.7)");
-                            m_restrictedNamesUsed.insert(n);
+                            m_restrictedNamesUsed.செருகு(n);
                         }
                     }
                 }
             }
             iterateChildren(nodep);
             // Flag names that the user listed but never referenced in the constraint.
-            if (firstVisit && nodep->restricted()) {
-                for (const std::string& n : nodep->restrictedNames()) {
-                    if (!m_restrictedNamesUsed.count(n)) {
+            எனில் (firstVisit && nodep->restricted()) {
+                க்கு (மாறிலி std::string& n : nodep->restrictedNames()) {
+                    எனில் (!m_restrictedNamesUsed.மொத்தம்(n)) {
                         nodep->v3warn(UNUSED, "Identifier '"
                                                   << n
                                                   << "' in 'with (...)' identifier list is"
@@ -6072,129 +6072,129 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
         m_ds.m_dotSymp = VL_RESTORER_PREV(m_curSymp);
     }
-    void visit(AstLambdaArgRef* nodep) override {
+    வெறுமை visit(AstLambdaArgRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // No checknodot(nodep), visit(AstScope) will check for LambdaArgRef
         iterateChildren(nodep);
     }
-    void visit(AstClassExtends* nodep) override {
+    வெறுமை visit(AstClassExtends* nodep) override {
         // Resolve the symbol and get the class.
         // If it is a parameterized case, the class will be resolved after V3Param.cpp
-        if (nodep->user3SetOnce()) return;
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         // If the class is resolved, there is nothing more to do
-        if (nodep->classOrNullp()) return;
+        எனில் (nodep->classOrNullp()) திரும்பு;
         LINKDOT_VISIT_START();
-        if (m_statep->forPrimary()) {
-            if (nodep->childDTypep()) return;
-            AstNode* cprp = nodep->classOrPkgsp();
+        எனில் (m_statep->forPrimary()) {
+            எனில் (nodep->childDTypep()) திரும்பு;
+            Ast_முனை* cprp = nodep->classOrPkgsp();
             VSymEnt* lookSymp = m_curSymp;
-            if (AstDot* const dotp = VN_CAST(cprp, Dot)) {
-                dotp->user3(true);
-                if (AstClassOrPackageRef* lookNodep = VN_CAST(dotp->lhsp(), ClassOrPackageRef)) {
+            எனில் (AstDot* மாறிலி dotp = VN_CAST(cprp, Dot)) {
+                dotp->user3(உண்மை);
+                எனில் (AstClassOrPackageRef* lookNodep = VN_CAST(dotp->lhsp(), ClassOrPackageRef)) {
                     iterate(lookNodep);
                     cprp = dotp->rhsp();
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        lookSymp, lookNodep, true, false, nodep->verilogKwd());
-                    if (!foundp) {
-                        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                        return;
+                    VSymEnt* மாறிலி foundp = m_statep->resolveClassOrPackage(
+                        lookSymp, lookNodep, உண்மை, பொய், nodep->verilogKwd());
+                    எனில் (!foundp) {
+                        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                        திரும்பு;
                     }
                     UASSERT_OBJ(lookNodep->classOrPackageSkipp(), nodep, "Bad package link");
-                    lookSymp = m_statep->getNodeSym(lookNodep->classOrPackageSkipp());
-                } else {
+                    lookSymp = m_statep->get_முனை_Sym(lookNodep->classOrPackageSkipp());
+                } இல்லையெனில் {
                     dotp->lhsp()->v3error("Attempting to extend"  // LCOV_EXCL_LINE
                                           " using non-class under dot");
                 }
             }
-            AstClassOrPackageRef* const cpackagerefp = VN_CAST(cprp, ClassOrPackageRef);
-            if (VL_UNCOVERABLE(!cpackagerefp)) {
+            AstClassOrPackageRef* மாறிலி cpackagerefp = VN_CAST(cprp, ClassOrPackageRef);
+            எனில் (VL_UNCOVERABLE(!cpackagerefp)) {
                 // Linking the extend gives an error before this is hit
                 nodep->v3error("Attempting to extend using non-class");  // LCOV_EXCL_LINE
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                திரும்பு;
             }
-            VSymEnt* const foundp = m_statep->resolveClassOrPackage(lookSymp, cpackagerefp, true,
-                                                                    true, nodep->verilogKwd());
-            if (!foundp) {
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+            VSymEnt* மாறிலி foundp = m_statep->resolveClassOrPackage(lookSymp, cpackagerefp, உண்மை,
+                                                                    உண்மை, nodep->verilogKwd());
+            எனில் (!foundp) {
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                திரும்பு;
             }
-            if (AstClass* const classp = VN_CAST(foundp->nodep(), Class)) {
+            எனில் (AstClass* மாறிலி classp = VN_CAST(foundp->nodep(), Class)) {
                 AstPin* paramsp = cpackagerefp->paramsp();
-                if (paramsp) {
-                    paramsp = paramsp->cloneTree(true);
-                    nodep->parameterized(true);
+                எனில் (paramsp) {
+                    paramsp = paramsp->clone_மரம்(உண்மை);
+                    nodep->parameterized(உண்மை);
                 }
-                nodep->childDTypep(new AstClassRefDType{nodep->fileline(), classp, paramsp});
+                nodep->childDTypep(புதிய AstClassRefDType{nodep->fileline(), classp, paramsp});
                 // Link pins
                 iterate(nodep->childDTypep());
-            } else if (AstParamTypeDType* const paramp
+            } இல்லையெனில் எனில் (AstParamTypeDType* மாறிலி paramp
                        = VN_CAST(foundp->nodep(), ParamTypeDType)) {
-                AstRefDType* const refParamp = new AstRefDType{nodep->fileline(), paramp->name()};
+                AstRefDType* மாறிலி refParamp = புதிய AstRefDType{nodep->fileline(), paramp->name()};
                 refParamp->refDTypep(paramp);
                 nodep->childDTypep(refParamp);
-                nodep->parameterized(true);
-            } else if (AstTypedef* const typedefp = VN_CAST(foundp->nodep(), Typedef)) {
-                AstNodeDType* const unwrappedp = typedefp->subDTypep()->skipRefp();
-                if (AstClassRefDType* const classRefp = VN_CAST(unwrappedp, ClassRefDType)) {
+                nodep->parameterized(உண்மை);
+            } இல்லையெனில் எனில் (AstTypedef* மாறிலி typedefp = VN_CAST(foundp->nodep(), Typedef)) {
+                Ast_முனை_DType* மாறிலி unwrappedp = typedefp->subDTypep()->skipRefp();
+                எனில் (AstClassRefDType* மாறிலி classRefp = VN_CAST(unwrappedp, ClassRefDType)) {
                     AstPin* paramsp = cpackagerefp->paramsp();
-                    if (!paramsp && classRefp->paramsp()) {
+                    எனில் (!paramsp && classRefp->paramsp()) {
                         // No explicit #(...) on extends clause; carry over the
                         // typedef's type-parameter pins so V3Param sees them.
-                        paramsp = classRefp->paramsp()->cloneTree(true);
-                        nodep->parameterized(true);
-                    } else if (paramsp) {
-                        paramsp = paramsp->cloneTree(true);
-                        nodep->parameterized(true);
+                        paramsp = classRefp->paramsp()->clone_மரம்(உண்மை);
+                        nodep->parameterized(உண்மை);
+                    } இல்லையெனில் எனில் (paramsp) {
+                        paramsp = paramsp->clone_மரம்(உண்மை);
+                        nodep->parameterized(உண்மை);
                     }
                     nodep->childDTypep(
-                        new AstClassRefDType{nodep->fileline(), classRefp->classp(), paramsp});
+                        புதிய AstClassRefDType{nodep->fileline(), classRefp->classp(), paramsp});
                     iterate(nodep->childDTypep());
-                } else {
+                } இல்லையெனில் {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: " << foundp->nodep()->prettyTypeName()
                                                   << " in 'class extends'");
-                    return;
+                    திரும்பு;
                 }
-            } else {
+            } இல்லையெனில் {
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: " << foundp->nodep()->prettyTypeName()
                                                              << " in 'class extends'");
-                return;
+                திரும்பு;
             }
-            if (!nodep->childDTypep()) nodep->v3error("Attempting to extend using non-class");
-            nodep->classOrPkgsp()->unlinkFrBack()->deleteTree();
-        } else {
+            எனில் (!nodep->childDTypep()) nodep->v3error("Attempting to extend using non-class");
+            nodep->classOrPkgsp()->unlinkFrBack()->delete_மரம்();
+        } இல்லையெனில் {
             // Probably a parameter
-            if (AstRefDType* const refp = VN_CAST(nodep->childDTypep(), RefDType)) {
-                if (AstClassRefDType* classRefp = VN_CAST(refp->skipRefp(), ClassRefDType)) {
+            எனில் (AstRefDType* மாறிலி refp = VN_CAST(nodep->childDTypep(), RefDType)) {
+                எனில் (AstClassRefDType* classRefp = VN_CAST(refp->skipRefp(), ClassRefDType)) {
                     // Resolved to a class reference.
-                    refp->replaceWith(classRefp->cloneTree(false));
-                    VL_DO_DANGLING(pushDeletep(refp), refp);
-                } else {
+                    refp->replaceWith(classRefp->clone_மரம்(பொய்));
+                    VL_DO_DANGLING(தள்ளு_Deletep(refp), refp);
+                } இல்லையெனில் {
                     // Unable to resolve the ref type to a class reference.
                     // Get the value of type parameter passed to the class instance,
                     // to print the helpful error message.
-                    const AstNodeDType* typep = refp->refDTypep();
-                    while (true) {
-                        if (const AstParamTypeDType* const atypep
+                    மாறிலி Ast_முனை_DType* typep = refp->refDTypep();
+                    போது (உண்மை) {
+                        எனில் (மாறிலி AstParamTypeDType* மாறிலி atypep
                             = VN_CAST(typep, ParamTypeDType)) {
                             typep = atypep->subDTypep();
-                            continue;
+                            தொடர்;
                         }
-                        if (const AstRequireDType* const atypep = VN_CAST(typep, RequireDType)) {
+                        எனில் (மாறிலி AstRequireDType* மாறிலி atypep = VN_CAST(typep, RequireDType)) {
                             typep = atypep->subDTypep();
-                            continue;
+                            தொடர்;
                         }
-                        break;
+                        நிறுத்து;
                     }
                     typep->v3error("Attempting to extend using non-class");
                 }
             }
         }
     }
-    void visit(AstClass* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstClass* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         checkNoDot(nodep);
@@ -6211,75 +6211,75 @@ class LinkDotResolveVisitor final : public VNVisitor {
                                     && m_extendsParam.find(nodep->covergroupEnclosingClassp())
                                            != m_extendsParam.end();
             // Until overridden by a SCOPE
-            m_ds.m_dotSymp = m_curSymp = m_modSymp = m_statep->getNodeSym(nodep);
+            m_ds.m_dotSymp = m_curSymp = m_modSymp = m_statep->get_முனை_Sym(nodep);
             m_modp = nodep;
-            int next = 0;
-            for (AstClassExtends* cextp = nodep->extendsp(); cextp;
+            முழு next = 0;
+            க்கு (AstClassExtends* cextp = nodep->extendsp(); cextp;
                  cextp = VN_AS(cextp->nextp(), ClassExtends)) {
                 // Replace abstract reference with hard pointer
                 // Will need later resolution when deal with parameters
-                if (++next == 2 && !nodep->isInterfaceClass() && !cextp->isImplements()) {
+                எனில் (++next == 2 && !nodep->isInterfaceClass() && !cextp->isImplements()) {
                     cextp->v3error("Multiple inheritance illegal on non-interface classes"
                                    " (IEEE 1800-2023 8.13)");
                 }
                 iterate(cextp);
-                if (m_statep->forPrimary()) {
-                    if (cextp->parameterized()) {
+                எனில் (m_statep->forPrimary()) {
+                    எனில் (cextp->parameterized()) {
                         // Parameters in extends statement.
                         // The class can't be resolved in the current pass.
-                        m_extendsParam.insert(nodep);
-                        m_insideClassExtParam = true;
+                        m_extendsParam.செருகு(nodep);
+                        m_insideClassExtParam = உண்மை;
                     }
-                    if (AstClassRefDType* const classRefp
+                    எனில் (AstClassRefDType* மாறிலி classRefp
                         = VN_CAST(cextp->childDTypep(), ClassRefDType)) {
-                        AstClass* const classp = classRefp->classp();
-                        if (classp != nodep) iterate(classp);
-                        if (m_extendsParam.find(classp) != m_extendsParam.end()) {
+                        AstClass* மாறிலி classp = classRefp->classp();
+                        எனில் (classp != nodep) iterate(classp);
+                        எனில் (m_extendsParam.find(classp) != m_extendsParam.end()) {
                             // One of its super classes has parameters in extends statement.
                             // Some links may not be resolved in the first pass.
-                            m_extendsParam.insert(nodep);
-                            m_insideClassExtParam = true;
+                            m_extendsParam.செருகு(nodep);
+                            m_insideClassExtParam = உண்மை;
                         }
                     }
                 }
 
-                if (AstClass* const baseClassp = cextp->classOrNullp()) {
+                எனில் (AstClass* மாறிலி baseClassp = cextp->classOrNullp()) {
                     // Already converted. Update symbol table to link unlinked members.
                     // Base class has to be visited in a case if its extends statement
                     // needs to be handled. Recursive inheritance was already checked.
                     // Must be here instead of in LinkDotParam to handle
                     // "class (type T) extends T".
-                    if (baseClassp == nodep) {
+                    எனில் (baseClassp == nodep) {
                         cextp->v3error("Attempting to extend class " << nodep->prettyNameQ()
                                                                      << " from itself");
-                    } else if (extendsClass(baseClassp, nodep)) {
+                    } இல்லையெனில் எனில் (extendsClass(baseClassp, nodep)) {
                         cextp->v3error("Attempting to extend class "
                                        << nodep->prettyNameQ() << " from "
                                        << baseClassp->prettyNameQ()
                                        << ", which circularly inherits from it");
-                    } else if (cextp->isImplements() && !baseClassp->isInterfaceClass()) {
+                    } இல்லையெனில் எனில் (cextp->isImplements() && !baseClassp->isInterfaceClass()) {
                         cextp->v3error("Attempting to implement from non-interface class "
                                        << baseClassp->prettyNameQ() << '\n'
                                        << "... Suggest use 'extends'");
-                    } else if (!cextp->isImplements() && !nodep->isInterfaceClass()
+                    } இல்லையெனில் எனில் (!cextp->isImplements() && !nodep->isInterfaceClass()
                                && baseClassp->isInterfaceClass()) {
                         cextp->v3error("Attempting to extend from interface class "
                                        << baseClassp->prettyNameQ() << '\n'
                                        << "... Suggest use 'implements'");
                     }
-                    baseClassp->isExtended(true);
-                    nodep->isExtended(true);
+                    baseClassp->isExtended(உண்மை);
+                    nodep->isExtended(உண்மை);
                     iterate(baseClassp);
                     importSymbolsFromExtended(nodep, cextp);
-                    continue;
+                    தொடர்;
                 }
             }
             m_ds.m_dotSymp = m_curSymp;
 
             iterateChildren(nodep);
-            for (const auto& itr : m_ifForwards) {
-                const VSymEnt* const implSymp = itr.second;
-                addInterfaceForward(nodep, VN_AS(implSymp->nodep(), NodeFTask),
+            க்கு (மாறிலி auto& itr : m_ifForwards) {
+                மாறிலி VSymEnt* மாறிலி implSymp = itr.second;
+                addInterfaceForward(nodep, VN_AS(implSymp->nodep(), முனை_FTask),
                                     VN_AS(implSymp->parentp()->nodep(), Class));
             }
         }
@@ -6287,16 +6287,16 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // so add members pointing to appropriate enum values
         {
             VMemberMap memberMap;
-            for (VSymEnt::const_iterator it = m_curSymp->begin(); it != m_curSymp->end(); ++it) {
-                AstNode* const itemp = it->second->nodep();
-                if (!memberMap.findMember(nodep, it->first)) {
-                    if (AstEnumItem* const aitemp = VN_CAST(itemp, EnumItem)) {
-                        AstEnumItemRef* const newp = new AstEnumItemRef{
+            க்கு (VSymEnt::const_iterator it = m_curSymp->begin(); it != m_curSymp->end(); ++it) {
+                Ast_முனை* மாறிலி itemp = it->second->nodep();
+                எனில் (!memberMap.findMember(nodep, it->first)) {
+                    எனில் (AstEnumItem* மாறிலி aitemp = VN_CAST(itemp, EnumItem)) {
+                        AstEnumItemRef* மாறிலி newp = புதிய AstEnumItemRef{
                             aitemp->fileline(), aitemp, it->second->classOrPackagep()};
                         UINFO(8, indent()
                                      << "Class import noderef '" << it->first << "' " << newp);
                         nodep->addMembersp(newp);
-                        memberMap.insert(nodep, newp);
+                        memberMap.செருகு(nodep, newp);
                     }
                 }
             }
@@ -6307,12 +6307,12 @@ class LinkDotResolveVisitor final : public VNVisitor {
     // Collect the ClassOrPackageRefs in a chained scope operand in source order.
     // The grammar builds a scope operand only from packageClassScopeItem, which
     // always yields a ClassOrPackageRef, nested in Dots, so nothing else appears.
-    static void collectScopeRefs(AstNode* nodep, std::vector<AstClassOrPackageRef*>& refps) {
-        if (AstClassOrPackageRef* const refp = VN_CAST(nodep, ClassOrPackageRef)) {
-            refps.push_back(refp);
-            return;
+    நிலையான வெறுமை collectScopeRefs(Ast_முனை* nodep, std::vector<AstClassOrPackageRef*>& refps) {
+        எனில் (AstClassOrPackageRef* மாறிலி refp = VN_CAST(nodep, ClassOrPackageRef)) {
+            refps.தள்ளு_back(refp);
+            திரும்பு;
         }
-        AstDot* const dotp = VN_CAST(nodep, Dot);
+        AstDot* மாறிலி dotp = VN_CAST(nodep, Dot);
         UASSERT_OBJ(dotp, nodep, "Non-scope node in package/class scope operand");
         collectScopeRefs(dotp->lhsp(), refps);
         collectScopeRefs(dotp->rhsp(), refps);
@@ -6321,58 +6321,58 @@ class LinkDotResolveVisitor final : public VNVisitor {
     // Resolve a chained class-scope operand (`pkg::outer::inner` in
     // `pkg::outer::inner::t`) and reduce it to its innermost ClassOrPackageRef.
     // Returns false, having reported, if a segment could not be resolved.
-    bool reduceScopeDot(AstRefDType* nodep, AstDot* scopeDotp) {
+    தருக்க reduceScopeDot(AstRefDType* nodep, AstDot* scopeDotp) {
         std::vector<AstClassOrPackageRef*> refps;
         collectScopeRefs(scopeDotp, refps);
 
         VSymEnt* scopeSymp = m_ds.m_dotSymp;
-        for (size_t i = 0; i < refps.size(); ++i) {
-            AstClassOrPackageRef* const refp = refps[i];
-            if (!refp->classOrPackageSkipp() && !refp->classOrPackageNodep()
-                && !m_statep->resolveClassOrPackage(scopeSymp, refp, i == 0, false,
+        க்கு (size_t i = 0; i < refps.size(); ++i) {
+            AstClassOrPackageRef* மாறிலி refp = refps[i];
+            எனில் (!refp->classOrPackageSkipp() && !refp->classOrPackageNodep()
+                && !m_statep->resolveClassOrPackage(scopeSymp, refp, i == 0, பொய்,
                                                     "class/package reference")) {
-                return false;  // Error already reported
+                திரும்பு பொய்;  // Error already reported
             }
-            if (i + 1 == refps.size()) break;
+            எனில் (i + 1 == refps.size()) நிறுத்து;
             // A middle segment that resolved to a node with no reachable module
             // (e.g. a typedef alias of a not-yet-specialized parameterized class)
             // gives nothing to look the next segment up in.
-            AstNodeModule* const modp = refp->classOrPackageSkipp();
-            if (!modp) {
+            Ast_முனை_Module* மாறிலி modp = refp->classOrPackageSkipp();
+            எனில் (!modp) {
                 refp->v3warn(E_UNSUPPORTED, "Unsupported: Multiple '::' package/class reference");
-                return false;
+                திரும்பு பொய்;
             }
-            scopeSymp = m_statep->getNodeSym(modp);
+            scopeSymp = m_statep->get_முனை_Sym(modp);
         }
-        AstClassOrPackageRef* const innerp = refps.back();
+        AstClassOrPackageRef* மாறிலி innerp = refps.back();
         innerp->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(scopeDotp->unlinkFrBack()), scopeDotp);
+        VL_DO_DANGLING(தள்ளு_Deletep(scopeDotp->unlinkFrBack()), scopeDotp);
         nodep->classOrPackageOpp(innerp);
-        return true;
+        திரும்பு உண்மை;
     }
 
-    void visit(AstRefDType* nodep) override {
+    வெறுமை visit(AstRefDType* nodep) override {
 
-        if (auto* const typeOfp = nodep->typeofp()) {
+        எனில் (auto* மாறிலி typeOfp = nodep->typeofp()) {
             iterate(typeOfp);
             // After iteration, typeofp() may have been replaced with a resolved type
             // (e.g., DOT expression like if0.rq_t resolved to REFDTYPE)
             // If it's now a NodeDType, replace this RefDType with it
-            if (AstNodeDType* const resolvedDTypep = VN_CAST(nodep->typeofp(), NodeDType)) {
+            எனில் (Ast_முனை_DType* மாறிலி resolvedDTypep = VN_CAST(nodep->typeofp(), முனை_DType)) {
                 UINFO(9,
                       indent() << "iface capture typeofp resolved to dtype, replacing RefDType\n");
                 resolvedDTypep->unlinkFrBack();
                 nodep->replaceWith(resolvedDTypep);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
                 // Originally (PR #6637) this block re-captured a resolved
                 // RefDType into the iface-capture ledger when user2p held a
                 // Cell, to ensure re-resolution during the paramed pass.
                 // In practice, the typeofp-resolved RefDType never carries a
                 // Cell in user2p: the capture happens earlier when the
                 // typedef is first linked.
-                if (V3LinkDotIfaceCapture::enabled()) {
-                    if (AstRefDType* const resolvedRefp = VN_CAST(resolvedDTypep, RefDType)) {
-                        if (VL_UNCOVERABLE(
+                எனில் (V3LinkDotIfaceCapture::enabled()) {
+                    எனில் (AstRefDType* மாறிலி resolvedRefp = VN_CAST(resolvedDTypep, RefDType)) {
+                        எனில் (VL_UNCOVERABLE(
                                 VN_IS(resolvedRefp->user2p(), Cell))) {  // LCOV_EXCL_LINE
                             resolvedRefp->v3fatalSrc(  // LCOV_EXCL_LINE
                                 "typeofp resolved RefDType has Cell in user2p;"
@@ -6381,19 +6381,19 @@ class LinkDotResolveVisitor final : public VNVisitor {
                     }
                 }
             }
-            return;
+            திரும்பு;
         }
 
         // Resolve its reference
-        if (m_statep->forParamed() && nodep->user3()) {
-            if (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
+        எனில் (m_statep->forParamed() && nodep->user3()) {
+            எனில் (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
                 UINFO(9, indent() << "iface capture clear user3 for captured typedef name="
                                   << nodep->name() << " cell=" << nodep->user2p());
             }
-            nodep->user3(false);
+            nodep->user3(பொய்);
         }
-        if (nodep->user3SetOnce()) {
-            if (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
+        எனில் (nodep->user3SetOnce()) {
+            எனில் (V3LinkDotIfaceCapture::enabled() && nodep->user2p()) {
                 UINFO(9, indent() << "iface capture skip revisit name=" << nodep->name()
                                   << " already user3 and captured cell=" << nodep->user2p());
             }
@@ -6405,56 +6405,56 @@ class LinkDotResolveVisitor final : public VNVisitor {
             // user3-revisit never carry a classOrPackageOpp in the paramed
             // pass: the class/package is resolved in the primary pass and
             // the skip pointer persists.
-            if (VL_UNCOVERABLE(m_statep->forParamed() && nodep->classOrPackageOpp())) {
+            எனில் (VL_UNCOVERABLE(m_statep->forParamed() && nodep->classOrPackageOpp())) {
                 nodep->v3fatalSrc(  // LCOV_EXCL_LINE
                     "RefDType user3 revisit with classOrPackageOpp in paramed pass");
             }
-            return;
+            திரும்பு;
         }
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
-        if (nodep->classOrPackageOpp()) {
+        எனில் (nodep->classOrPackageOpp()) {
             // Resolve a chained scope (`pkg::cls::t`, `pkg::cls#(P)::t`) from outside in.
             // On failure reduceScopeDot has reported, so stop before using the operand.
-            if (AstDot* const scopeDotp = VN_CAST(nodep->classOrPackageOpp(), Dot)) {
-                if (!reduceScopeDot(nodep, scopeDotp)) return;
+            எனில் (AstDot* மாறிலி scopeDotp = VN_CAST(nodep->classOrPackageOpp(), Dot)) {
+                எனில் (!reduceScopeDot(nodep, scopeDotp)) திரும்பு;
             }
             // Re-read: reduceScopeDot may have replaced the operand
-            AstNode* const cpackagep = nodep->classOrPackageOpp();
+            Ast_முனை* மாறிலி cpackagep = nodep->classOrPackageOpp();
             UASSERT_OBJ(!VN_IS(cpackagep, Dot), cpackagep,
                         "Package/class scope operand should be reduced by now");
-            if (AstClassOrPackageRef* const cpackagerefp = VN_CAST(cpackagep, ClassOrPackageRef)) {
+            எனில் (AstClassOrPackageRef* மாறிலி cpackagerefp = VN_CAST(cpackagep, ClassOrPackageRef)) {
                 iterate(cpackagerefp);
-                const AstClass* const clsp = VN_CAST(cpackagerefp->classOrPackageNodep(), Class);
-                if (clsp && clsp->hasGParam()) {
+                மாறிலி AstClass* மாறிலி clsp = VN_CAST(cpackagerefp->classOrPackageNodep(), Class);
+                எனில் (clsp && clsp->hasGParam()) {
                     // Unable to link before the instantiation of parameter classes.
                     // The class reference node still has to be visited now to later link
                     // parameters.
                     iterate(cpackagep);
-                    return;
+                    திரும்பு;
                 }
                 // Defer non-typedef references through typedef aliases of parameterized classes.
-                if (m_statep->forPrimary() && !VN_IS(nodep->backp(), Typedef)
+                எனில் (m_statep->forPrimary() && !VN_IS(nodep->backp(), Typedef)
                     && isParamedClassRef(cpackagerefp)) {
                     iterate(cpackagep);
-                    return;
+                    திரும்பு;
                 }
 
-                const bool doDefaultTypedef = !(m_resolvingTypedef && m_statep->forPrimary());
-                if (!cpackagerefp->classOrPackageSkipp(doDefaultTypedef)
+                மாறிலி தருக்க doDefaultTypedef = !(m_resolvingTypedef && m_statep->forPrimary());
+                எனில் (!cpackagerefp->classOrPackageSkipp(doDefaultTypedef)
                     && !cpackagerefp->classOrPackageNodep()) {
-                    VSymEnt* const foundp = m_statep->resolveClassOrPackage(
-                        m_ds.m_dotSymp, cpackagerefp, true, false, "class/package reference");
-                    if (!foundp) return;
+                    VSymEnt* மாறிலி foundp = m_statep->resolveClassOrPackage(
+                        m_ds.m_dotSymp, cpackagerefp, உண்மை, பொய், "class/package reference");
+                    எனில் (!foundp) திரும்பு;
                 }
                 nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp(doDefaultTypedef));
-                if (!VN_IS(nodep->classOrPackagep(), Class)
+                எனில் (!VN_IS(nodep->classOrPackagep(), Class)
                     && !VN_IS(nodep->classOrPackagep(), Package)) {
-                    if (m_statep->forPrimary()) {
+                    எனில் (m_statep->forPrimary()) {
                         // It may be a type that comes from parameter class that is not
                         // instantioned yet
                         iterate(cpackagep);
-                        return;
+                        திரும்பு;
                     }
                     // Likely impossible, as error thrown earlier
                     cpackagerefp->v3error(  // LCOV_EXCL_LINE
@@ -6465,101 +6465,101 @@ class LinkDotResolveVisitor final : public VNVisitor {
                         << cpackagerefp->warnMore() + "... Suggest '.' instead of '::'");
                 }
             }
-            VL_DO_DANGLING(pushDeletep(cpackagep->unlinkFrBack()), cpackagep);
+            VL_DO_DANGLING(தள்ளு_Deletep(cpackagep->unlinkFrBack()), cpackagep);
         }
 
-        if (m_ds.m_dotp && (m_ds.m_dotPos == DP_PACKAGE || m_ds.m_dotPos == DP_SCOPE)) {
+        எனில் (m_ds.m_dotp && (m_ds.m_dotPos == DP_PACKAGE || m_ds.m_dotPos == DP_SCOPE)) {
             UASSERT_OBJ(VN_IS(m_ds.m_dotp->lhsp(), ClassOrPackageRef), m_ds.m_dotp->lhsp(),
                         "Bad package link");
-            auto* const cpackagerefp = VN_CAST(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
+            auto* மாறிலி cpackagerefp = VN_CAST(m_ds.m_dotp->lhsp(), ClassOrPackageRef);
             UASSERT_OBJ(cpackagerefp->classOrPackageSkipp(), m_ds.m_dotp->lhsp(),
                         "Bad package link");
             nodep->classOrPackagep(cpackagerefp->classOrPackageSkipp());
             m_ds.m_dotPos = DP_SCOPE;
-        } else {
+        } இல்லையெனில் {
             // Allow REFDTYPE under DOT when referencing interface typedefs
             // This is needed for patterns like: typedef iface.a_t a_t;
             // The dependency graph handles resolution when IfaceCapture is disabled
-            const bool ifaceFinalSegmentAllowed
+            மாறிலி தருக்க ifaceFinalSegmentAllowed
                 = (m_ds.m_dotPos == DP_FINAL) && m_ds.m_dotSymp
                   && VN_IS(m_ds.m_dotSymp->nodep(), Cell)
                   && VN_CAST(m_ds.m_dotSymp->nodep(), Cell)->modp()
                   && VN_IS(VN_CAST(m_ds.m_dotSymp->nodep(), Cell)->modp(), Iface);
-            if (!ifaceFinalSegmentAllowed) {
+            எனில் (!ifaceFinalSegmentAllowed) {
                 checkNoDot(nodep);
-            } else {
+            } இல்லையெனில் {
                 UINFO(9, indent() << "allow REFDTYPE under DOT for iface typedef name="
                                   << nodep->prettyNameQ() << " dotSym=" << m_ds.m_dotSymp);
                 // Clear the dot state so we don't propagate errors
                 m_ds.m_dotPos = DP_SCOPE;
             }
         }
-        if (!nodep->typedefp() && !nodep->subDTypep()) {
-            const VSymEnt* foundp;
-            if (nodep->classOrPackagep()) {
-                foundp = m_statep->getNodeSym(nodep->classOrPackagep())->findIdFlat(nodep->name());
-            } else if (m_ds.m_dotPos == DP_FIRST || m_ds.m_dotPos == DP_NONE) {
+        எனில் (!nodep->typedefp() && !nodep->subDTypep()) {
+            மாறிலி VSymEnt* foundp;
+            எனில் (nodep->classOrPackagep()) {
+                foundp = m_statep->get_முனை_Sym(nodep->classOrPackagep())->findIdFlat(nodep->name());
+            } இல்லையெனில் எனில் (m_ds.m_dotPos == DP_FIRST || m_ds.m_dotPos == DP_NONE) {
                 foundp = findIdFallbackSkipMemberDType(m_curSymp, nodep->name());
-            } else {
+            } இல்லையெனில் {
                 // Defensive: dotPos should be DP_FIRST/DP_NONE or classOrPackagep set.
                 v3fatalSrc("Unexpected dotPos="
-                           << static_cast<int>(m_ds.m_dotPos)  // LCOV_EXCL_LINE
+                           << static_cast<முழு>(m_ds.m_dotPos)  // LCOV_EXCL_LINE
                            << " in RefDType lookup for "
                            << nodep->prettyNameQ());  // LCOV_EXCL_LINE
                 foundp = nullptr;  // LCOV_EXCL_LINE
             }
             {
-                if (AstTypedef* const defp
+                எனில் (AstTypedef* மாறிலி defp
                     = foundp ? VN_CAST(foundp->nodep(), Typedef) : nullptr) {
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (!nodep->classOrPackagep() && !defp->isUnderClass())
+                    எனில் (!nodep->classOrPackagep() && !defp->isUnderClass())
                         checkDeclOrder(nodep, defp);
                     nodep->typedefp(defp);
                     nodep->classOrPackagep(foundp->classOrPackagep());
 
-                } else if (AstParamTypeDType* const defp
+                } இல்லையெனில் எனில் (AstParamTypeDType* மாறிலி defp
                            = foundp ? VN_CAST(foundp->nodep(), ParamTypeDType) : nullptr) {
                     // A PARAMTYPEDTYPE's child REFDTYPE referencing itself is the normal
                     // AST structure for type parameters (e.g., "type T = base" has a child
                     // REFDTYPE for the default type). Only error on true recursion where
                     // a TYPEDEF contains a reference back to itself.
-                    const bool isParamTypeChild = (defp == nodep->backp());
-                    const bool isTypedefRecursion
+                    மாறிலி தருக்க isParamTypeChild = (defp == nodep->backp());
+                    மாறிலி தருக்க isTypedefRecursion
                         = isParamTypeChild && VN_IS(defp->backp(), Typedef);
-                    if (isTypedefRecursion) {
+                    எனில் (isTypedefRecursion) {
                         nodep->v3error("Reference to '"
                                        << m_ds.m_dotText << (m_ds.m_dotText == "" ? "" : ".")
                                        << nodep->prettyName() << "'"
                                        << " type would form a recursive definition");
                         nodep->refDTypep(nodep->findVoidDType());  // Try to reduce later errors
-                    } else {
+                    } இல்லையெனில் {
                         nodep->refDTypep(defp);
                         nodep->classOrPackagep(foundp->classOrPackagep());
                         captureIfaceParamType(nodep, defp);
                     }
-                } else if (AstClass* const defp
+                } இல்லையெனில் எனில் (AstClass* மாறிலி defp
                            = foundp ? VN_CAST(foundp->nodep(), Class) : nullptr) {
                     // Don't check if typedef is to a <type T>::<reference> as might not be
                     // resolved yet
-                    if (!nodep->classOrPackagep()) checkDeclOrder(nodep, defp);
-                    AstPin* const paramsp = nodep->paramsp();
-                    if (paramsp) paramsp->unlinkFrBackWithNext();
-                    AstClassRefDType* const newp
-                        = new AstClassRefDType{nodep->fileline(), defp, paramsp};
+                    எனில் (!nodep->classOrPackagep()) checkDeclOrder(nodep, defp);
+                    AstPin* மாறிலி paramsp = nodep->paramsp();
+                    எனில் (paramsp) paramsp->unlinkFrBackWithNext();
+                    AstClassRefDType* மாறிலி newp
+                        = புதிய AstClassRefDType{nodep->fileline(), defp, paramsp};
                     newp->classOrPackagep(foundp->classOrPackagep());
                     nodep->replaceWith(newp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    return;
-                } else if (m_insideClassExtParam) {
-                    return;
-                } else {
-                    if (foundp) {
+                    VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
+                    திரும்பு;
+                } இல்லையெனில் எனில் (m_insideClassExtParam) {
+                    திரும்பு;
+                } இல்லையெனில் {
+                    எனில் (foundp) {
                         UINFO(1, "Found sym node: " << foundp->nodep());
                         nodep->v3error("Expecting a data type: "
                                        << nodep->prettyNameQ()
                                        << ", found: " << foundp->nodep()->prettyTypeName());
-                    } else {
+                    } இல்லையெனில் {
                         nodep->v3error("Can't find typedef/interface: " << nodep->prettyNameQ());
                     }
                 }
@@ -6567,7 +6567,7 @@ class LinkDotResolveVisitor final : public VNVisitor {
         }
         iterateChildren(nodep);
     }
-    void visit(AstRequireDType* nodep) override {
+    வெறுமை visit(AstRequireDType* nodep) override {
         // Handle type validation for localparam type assignments
         // Iterate child to resolve any ParseRef nodes
         iterateChildren(nodep);
@@ -6575,109 +6575,109 @@ class LinkDotResolveVisitor final : public VNVisitor {
         // Do NOT unwrap valid types here - leave that to V3Width.
         // Unwrapping here breaks type parameter resolution during cloning.
         // Allow Dot through to defer the handling until the dot expression is resolved.
-        if (nodep->lhsp() && !VN_IS(nodep->lhsp(), NodeDType) && !VN_IS(nodep->lhsp(), Dot)) {
+        எனில் (nodep->lhsp() && !VN_IS(nodep->lhsp(), முனை_DType) && !VN_IS(nodep->lhsp(), Dot)) {
             // Not a type - emit error
-            if (VN_IS(nodep->lhsp(), Const)) {
+            எனில் (VN_IS(nodep->lhsp(), Const)) {
                 nodep->lhsp()->v3error("Expecting a data type, not a constant");
-            } else {
+            } இல்லையெனில் {
                 nodep->lhsp()->v3error("Expecting a data type, not "
                                        << nodep->lhsp()->typeName() << ": '"
                                        << nodep->lhsp()->prettyName() << "'");
             }
             // Replace with void to keep AST valid and allow clean exit
-            nodep->replaceWith(new AstVoidDType{nodep->fileline()});
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            nodep->replaceWith(புதிய AstVoidDType{nodep->fileline()});
+            VL_DO_DANGLING(தள்ளு_Deletep(nodep), nodep);
         }
     }
-    void visit(AstDpiExport* nodep) override {
+    வெறுமை visit(AstDpiExport* nodep) override {
         // AstDpiExport: Make sure the function referenced exists, then dump it
         LINKDOT_VISIT_START();
         iterateChildren(nodep);
         checkNoDot(nodep);
-        VSymEnt* const foundp = m_curSymp->findIdFallback(nodep->name());
-        AstNodeFTask* const taskp = foundp ? VN_AS(foundp->nodep(), NodeFTask) : nullptr;
-        if (!taskp) {
+        VSymEnt* மாறிலி foundp = m_curSymp->findIdFallback(nodep->name());
+        Ast_முனை_FTask* மாறிலி taskp = foundp ? VN_AS(foundp->nodep(), முனை_FTask) : nullptr;
+        எனில் (!taskp) {
             nodep->v3error(
                 "Can't find definition of exported task/function: " << nodep->prettyNameQ());
-        } else if (taskp->dpiExport()) {
+        } இல்லையெனில் எனில் (taskp->dpiExport()) {
             nodep->v3error("Function was already DPI Exported, duplicate not allowed: "
                            << nodep->prettyNameQ());
-        } else {
-            taskp->dpiExport(true);
-            if (nodep->cname() != "") taskp->cname(nodep->cname());
+        } இல்லையெனில் {
+            taskp->dpiExport(உண்மை);
+            எனில் (nodep->cname() != "") taskp->cname(nodep->cname());
         }
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstDisable* nodep) override {
+    வெறுமை visit(AstDisable* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
-        bool hasPartSelect = false;
-        const string targetPath
+        தருக்க hasPartSelect = பொய்;
+        மாறிலி string targetPath
             = nodep->targetRefp() ? extractDottedPath(nodep->targetRefp(), hasPartSelect) : "";
         VL_RESTORER_COPY(m_ds);
         m_ds.init(m_curSymp);
         m_ds.m_dotPos = DP_FIRST;
         m_ds.m_disablep = nodep;
         iterateChildren(nodep);
-        if (nodep->targetRefp()) {
-            if (AstTaskRef* const taskRefp = VN_CAST(nodep->targetRefp(), TaskRef)) {
+        எனில் (nodep->targetRefp()) {
+            எனில் (AstTaskRef* மாறிலி taskRefp = VN_CAST(nodep->targetRefp(), TaskRef)) {
                 nodep->targetp(taskRefp->taskp());
-            } else if (!VN_IS(nodep->targetRefp(), ParseRef)) {
+            } இல்லையெனில் எனில் (!VN_IS(nodep->targetRefp(), ParseRef)) {
                 // If it is a ParseRef, either it couldn't be linked or it is linked to a block
                 nodep->v3warn(E_UNSUPPORTED, "Node of type "
                                                  << nodep->targetRefp()->prettyTypeName()
                                                  << " referenced by disable");
-                VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-                return;
+                VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
+                திரும்பு;
             }
-            if (nodep->targetp()) {
-                nodep->targetRefp()->unlinkFrBack()->deleteTree();
-                if (!hasPartSelect) {
-                    const string instancePath = targetInstancePath(nodep->targetp(), targetPath);
-                    if (!instancePath.empty()) {
+            எனில் (nodep->targetp()) {
+                nodep->targetRefp()->unlinkFrBack()->delete_மரம்();
+                எனில் (!hasPartSelect) {
+                    மாறிலி string instancePath = targetInstancePath(nodep->targetp(), targetPath);
+                    எனில் (!instancePath.empty()) {
                         // Keep only the instance prefix so V3LinkJump can reference the selected
                         // instance's process queue without reparsing the disable target.
                         nodep->targetRefp(
-                            new AstVarXRef{nodep->fileline(), "", instancePath, VAccess::READ});
+                            புதிய AstVarXRef{nodep->fileline(), "", instancePath, VAccess::READ});
                     }
                 }
             }
         }
     }
-    void visitPackageImportOrExport(AstNode* nodep) {
+    வெறுமை visitPackageImportOrExport(Ast_முனை* nodep) {
         // No longer needed
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
-        if (m_statep->forParamed()) VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        எனில் (m_statep->forParamed()) VL_DO_DANGLING(தள்ளு_Deletep(nodep->unlinkFrBack()), nodep);
     }
-    void visit(AstPackageImport* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstPackageExport* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstPackageExportStarStar* nodep) override { visitPackageImportOrExport(nodep); }
-    void visit(AstCellRef* nodep) override {
+    வெறுமை visit(AstPackageImport* nodep) override { visitPackageImportOrExport(nodep); }
+    வெறுமை visit(AstPackageExport* nodep) override { visitPackageImportOrExport(nodep); }
+    வெறுமை visit(AstPackageExportStarStar* nodep) override { visitPackageImportOrExport(nodep); }
+    வெறுமை visit(AstCellRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         iterateChildren(nodep);
     }
-    void visit(AstCellArrayRef* nodep) override {
+    வெறுமை visit(AstCellArrayRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // Expression already iterated
     }
-    void visit(AstUnlinkedRef* nodep) override {
+    வெறுமை visit(AstUnlinkedRef* nodep) override {
         LINKDOT_VISIT_START();
         UINFO(5, indent() << "visit " << nodep);
         // No need to iterate, if we have a UnlinkedVarXRef, we're already done
     }
-    void visit(AstStmtExpr* nodep) override {
+    வெறுமை visit(Ast_Stmt_கோவை* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         // Check if nodep represents a super.new call;
-        if (AstNew* const newExprp = VN_CAST(nodep->exprp(), New)) {
+        எனில் (AstNew* மாறிலி newExprp = VN_CAST(nodep->exprp(), New)) {
             // in this case it was already linked, so it doesn't have a super reference
             m_explicitSuperNewp = newExprp;
-        } else if (const AstDot* const dotp = VN_CAST(nodep->exprp(), Dot)) {
-            if (dotp->lhsp()->name() == "super") {
-                if (AstNew* const newExprp = VN_CAST(dotp->rhsp(), New)) {
+        } இல்லையெனில் எனில் (மாறிலி AstDot* மாறிலி dotp = VN_CAST(nodep->exprp(), Dot)) {
+            எனில் (dotp->lhsp()->name() == "super") {
+                எனில் (AstNew* மாறிலி newExprp = VN_CAST(dotp->rhsp(), New)) {
                     m_explicitSuperNewp = newExprp;
                 }
             }
@@ -6685,64 +6685,64 @@ class LinkDotResolveVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-    void visit(AstIfaceRefDType* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstIfaceRefDType* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
-        if (nodep->paramsp()) {
+        எனில் (nodep->paramsp()) {
             // If there is no parameters, there is no need to visit this node.
-            AstIface* const ifacep = nodep->ifacep();
+            AstIface* மாறிலி ifacep = nodep->ifacep();
             UASSERT_OBJ(ifacep, nodep, "Port parameters of AstIfaceRefDType without ifacep()");
-            if (ifacep->dead()) return;
+            எனில் (ifacep->dead()) திரும்பு;
             checkNoDot(nodep);
             VL_RESTORER_CLEAR(m_usedPins);
             VL_RESTORER_CLEAR(m_usedDefParamPins);
             VL_RESTORER(m_pinSymp);
-            m_pinSymp = m_statep->getNodeSym(ifacep);
+            m_pinSymp = m_statep->get_முனை_Sym(ifacep);
             iterateAndNextNull(nodep->paramsp());
         }
     }
 
-    void visit(AstAttrOf* nodep) override { iterateChildren(nodep); }
-    void visit(AstCastParse* nodep) override {
-        if (nodep->user3SetOnce()) return;
+    வெறுமை visit(AstAttrOf* nodep) override { iterateChildren(nodep); }
+    வெறுமை visit(AstCastParse* nodep) override {
+        எனில் (nodep->user3SetOnce()) திரும்பு;
         LINKDOT_VISIT_START();
         // A cast may start a dotted expression: HERE type'(expr) . member_or_method
-        const bool dotLhs = m_ds.m_dotPos == DP_FIRST;
-        if (!dotLhs) checkNoDot(nodep);
+        மாறிலி தருக்க dotLhs = m_ds.m_dotPos == DP_FIRST;
+        எனில் (!dotLhs) checkNoDot(nodep);
         {
             VL_RESTORER_COPY(m_ds);
             m_ds.init(m_curSymp);
             iterateChildren(nodep);
         }
-        if (dotLhs) m_ds.m_dotPos = DP_MEMBER;
+        எனில் (dotLhs) m_ds.m_dotPos = DP_MEMBER;
     }
 
-    void visit(AstAssignW* nodep) override {
+    வெறுமை visit(AstAssignW* nodep) override {
         LINKDOT_VISIT_START();
         checkNoDot(nodep);
         VL_RESTORER(m_replaceWithAlias);
-        if (nodep->user2()) m_replaceWithAlias = false;
+        எனில் (nodep->user2()) m_replaceWithAlias = பொய்;
         iterateChildren(nodep);
     }
 
-    void visit(AstTypedef* nodep) override {
+    வெறுமை visit(AstTypedef* nodep) override {
         VL_RESTORER(m_resolvingTypedef)
-        m_resolvingTypedef = true;
+        m_resolvingTypedef = உண்மை;
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override {
+    வெறுமை visit(Ast_முனை* nodep) override {
         VL_RESTORER(m_inPackedArray);
-        if (VN_IS(nodep, PackArrayDType)) {
-            m_inPackedArray = true;
-        } else if (!m_inPackedArray) {
+        எனில் (VN_IS(nodep, PackArrayDType)) {
+            m_inPackedArray = உண்மை;
+        } இல்லையெனில் எனில் (!m_inPackedArray) {
             LINKDOT_VISIT_START();
             checkNoDot(nodep);
         }
         iterateChildren(nodep);
     }
 
-public:
+பொது:
     // CONSTRUCTORS
     LinkDotResolveVisitor(AstNetlist* rootp, LinkDotState* statep)
         : m_statep{statep} {
@@ -6754,31 +6754,31 @@ public:
         // refp pointers to deleted AST nodes, so iterating it is unsafe.
 
         iterate(rootp);
-        const std::map<std::string, AstNodeModule*> modulesToRevisit
+        மாறிலி std::map<std::string, Ast_முனை_Module*> modulesToRevisit
             = std::move(m_modulesToRevisit);
         m_lastDeferredp = nullptr;
-        for (auto& p : modulesToRevisit) {
-            AstNodeModule* const modp = p.second;
-            modp->foreach([](AstNode* const nodep) { nodep->user3(false); });
+        க்கு (auto& p : modulesToRevisit) {
+            Ast_முனை_Module* மாறிலி modp = p.second;
+            modp->foreach([](Ast_முனை* மாறிலி nodep) { nodep->user3(பொய்); });
             iterate(modp);
         }
     }
-    ~LinkDotResolveVisitor() override = default;
+    ~LinkDotResolveVisitor() override = இயல்பு;
 };
 
 //######################################################################
 // Link class functions
 
-void V3LinkDot::dumpSubstep(const string& name) {
-    if (dumpTreeEitherLevel() >= 9) {
-        V3Global::dumpCheckGlobalTree(name);
-    } else if (debug() >= 5) {  // on high dbg level, dump even if not explicitly told to
-        v3Global.rootp()->dumpTreeFile(v3Global.debugFilename(name + ".tree"));
+வெறுமை V3LinkDot::dumpSubstep(மாறிலி string& name) {
+    எனில் (dump_மரம்_Either_Level() >= 9) {
+        V3Global::dump_Check_Global_மரம்(name);
+    } இல்லையெனில் எனில் (debug() >= 5) {  // on high dbg level, dump even if not explicitly told to
+        v3Global.rootp()->dump_மரம்_File(v3Global.debugFilename(name + ".tree"));
     }
 }
 
-void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
-    VIsCached::clearCacheTree();  // Avoid using any stale isPure
+வெறுமை V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
+    VIsCached::clear_Cache_மரம்();  // Avoid using any stale isPure
     dumpSubstep("prelinkdot");
     LinkDotState state{rootp, step};
 
@@ -6788,13 +6788,13 @@ void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
     { LinkDotFindIfaceVisitor{rootp, &state}; }
     dumpSubstep("prelinkdot-findiface");
 
-    if (step == LDS_SCOPED) {
+    எனில் (step == LDS_SCOPED) {
         // Well after the initial link when we're ready to operate on the flat design,
         // process AstScope's.  This needs to be separate pass after whole hierarchy graph created.
         { LinkDotScopeVisitor{rootp, &state}; }
-        v3Global.assertScoped(true);
+        v3Global.assertScoped(உண்மை);
         dumpSubstep("prelinkdot-scoped");
-    } else {
+    } இல்லையெனில் {
         // Initial link stage, resolve parameters and interfaces
         { LinkDotParamVisitor{rootp, &state}; }
         dumpSubstep("prelinkdot-param");
@@ -6804,24 +6804,24 @@ void V3LinkDot::linkDotGuts(AstNetlist* rootp, VLinkDotStep step) {
     state.computeIfaceVarSyms();
     state.computeScopeAliases();
     state.dumpSelf("linkdot-preresolve");
-    const LinkDotResolveVisitor visitor{rootp, &state};
+    மாறிலி LinkDotResolveVisitor visitor{rootp, &state};
     state.dumpSelf("linkdot-done");
 }
 
-void V3LinkDot::linkDotPrimary(AstNetlist* nodep) {
+வெறுமை V3LinkDot::linkDotPrimary(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_PRIMARY);
-    V3Global::dumpCheckGlobalTree("linkdot", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_மரம்("linkdot", 0, dump_மரம்_Either_Level() >= 6);
 }
 
-void V3LinkDot::linkDotParamed(AstNetlist* nodep) {
+வெறுமை V3LinkDot::linkDotParamed(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_PARAMED);
-    V3Global::dumpCheckGlobalTree("linkdotparam", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("linkdotparam", 0, dump_மரம்_Either_Level() >= 3);
 }
 
-void V3LinkDot::linkDotScope(AstNetlist* nodep) {
+வெறுமை V3LinkDot::linkDotScope(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     linkDotGuts(nodep, LDS_SCOPED);
-    V3Global::dumpCheckGlobalTree("linkdot", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("linkdot", 0, dump_மரம்_Either_Level() >= 3);
 }

@@ -18,11 +18,11 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMoveGraph.h"
+#அந்தர்பாவ "V3OrderMoveGraph.h"
 
-#include "V3Graph.h"
+#அந்தர்பாவ "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -35,7 +35,7 @@ OrderMoveDomScope::DomScopeMap OrderMoveDomScope::s_dsMap;
 // OrderMoveVertex implementation
 
 OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                                 const OrderDomain* domainp) VL_MT_DISABLED
+                                 மாறிலி OrderDomain* domainp) VL_MT_DISABLED
     : V3GraphVertex{&graph},
       m_logicp{lVtxp},
       m_domScope{OrderMoveDomScope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : nullptr)} {
@@ -45,14 +45,14 @@ OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
 //======================================================================
 // OrderMoveGraphBuilder - for OrderMoveGraph::build
 
-class OrderMoveGraphBuilder final {
+வகுப்பு OrderMoveGraphBuilder final {
     // TYPES
-    using DomainMap = std::map<const OrderDomain*, OrderMoveVertex*>;
+    using DomainMap = std::map<மாறிலி OrderDomain*, OrderMoveVertex*>;
 
     // MEMBERS
     OrderGraph& m_orderGraph;  // Input OrderGraph
     // Output OrderMoveGraph
-    std::unique_ptr<OrderMoveGraph> m_moveGraphp{new OrderMoveGraph{m_orderGraph}};
+    std::unique_ptr<OrderMoveGraph> m_moveGraphp{புதிய OrderMoveGraph{m_orderGraph}};
     // Storage for domain -> OrderMoveVertex, maps held in OrderVarVertex::userp()
     std::deque<DomainMap> m_domainMaps;
 
@@ -71,31 +71,31 @@ class OrderMoveGraphBuilder final {
 
         // For each logic vertex, make a OrderMoveVertex, for each variable vertex, allocate
         // storage
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                lvtxp->userp(new OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
-            } else {
+        க்கு (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            எனில் (OrderLogicVertex* மாறிலி lvtxp = vtx.cast<OrderLogicVertex>()) {
+                lvtxp->userp(புதிய OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
+            } இல்லையெனில் {
                 // This is an OrderVarVertex
                 m_domainMaps.emplace_back();
                 vtx.userp(&m_domainMaps.back());
             }
         }
         // Build edges between logic vertices
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
+        க்கு (V3GraphVertex& vtx : m_orderGraph.vertices()) {
+            எனில் (OrderLogicVertex* மாறிலி lvtxp = vtx.cast<OrderLogicVertex>()) {
                 iterateLogicVertex(lvtxp);
             }
         }
         m_moveGraphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
         m_moveGraphp->userClearVertices();
     }
-    virtual ~OrderMoveGraphBuilder() = default;
+    மெய்நிகர் ~OrderMoveGraphBuilder() = இயல்பு;
     VL_UNCOPYABLE(OrderMoveGraphBuilder);
     VL_UNMOVABLE(OrderMoveGraphBuilder);
 
     // METHODS
 
-    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* top) {
+    தருக்க domainsExclusive(மாறிலி OrderDomain* fromp, மாறிலி OrderDomain* உச்சி) {
         // Return 'true' if we can prove that both 'from' and 'to' cannot both
         // be active on the same evaluation, or false if we can't prove this.
         //
@@ -109,53 +109,53 @@ class OrderMoveGraphBuilder final {
         //
         // ... unless you know more about A and B, which sounds hard.
 
-        const std::set<uint32_t>& fromTriggers = fromp->triggers();
-        const std::set<uint32_t>& toTriggers = top->triggers();
-        if (fromTriggers.size() != 1) return false;
-        if (toTriggers.size() != 1) return false;
-        const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
-        if (!fromSenItemp) return false;
-        const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
-        if (!toSenItemp) return false;
+        மாறிலி std::set<uint32_t>& fromTriggers = fromp->triggers();
+        மாறிலி std::set<uint32_t>& toTriggers = உச்சி->triggers();
+        எனில் (fromTriggers.size() != 1) திரும்பு பொய்;
+        எனில் (toTriggers.size() != 1) திரும்பு பொய்;
+        மாறிலி AstSenItem* மாறிலி fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
+        எனில் (!fromSenItemp) திரும்பு பொய்;
+        மாறிலி AstSenItem* மாறிலி toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
+        எனில் (!toSenItemp) திரும்பு பொய்;
 
-        const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
-        if (!fromVarrefp) return false;
-        const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
-        if (!toVarrefp) return false;
+        மாறிலி Ast_முனை_Var_Ref* மாறிலி fromVarrefp = fromSenItemp->varrefp();
+        எனில் (!fromVarrefp) திரும்பு பொய்;
+        மாறிலி Ast_முனை_Var_Ref* மாறிலி toVarrefp = toSenItemp->varrefp();
+        எனில் (!toVarrefp) திரும்பு பொய்;
 
         // We know nothing about the relationship between different clocks here,
         // so only proceed if strictly the same clock.
-        if (fromVarrefp->varScopep() != toVarrefp->varScopep()) return false;
+        எனில் (fromVarrefp->varScopep() != toVarrefp->varScopep()) திரும்பு பொய்;
 
-        return fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
+        திரும்பு fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
     }
 
-    void addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
-        new V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
+    வெறுமை addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
+        புதிய V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
     }
 
-    void iterateLogicVertex(const OrderLogicVertex* lvtxp) {
-        const OrderDomain* const domainp = lvtxp->domainp();
-        OrderMoveVertex* const lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
+    வெறுமை iterateLogicVertex(மாறிலி OrderLogicVertex* lvtxp) {
+        மாறிலி OrderDomain* மாறிலி domainp = lvtxp->domainp();
+        OrderMoveVertex* மாறிலி lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
         // Search forward from lvtxp, making new edges from lMoveVtxp forward
-        for (const V3GraphEdge& edge : lvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        க்கு (மாறிலி V3GraphEdge& edge : lvtxp->outEdges()) {
+            எனில் (edge.weight() == 0) தொடர்;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
-            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
+            மாறிலி OrderVarVertex* மாறிலி vvtxp = static_cast<மாறிலி OrderVarVertex*>(edge.உச்சி());
 
             // Look up OrderMoveVertex for this domain on this variable
             DomainMap& mapp = *static_cast<DomainMap*>(vvtxp->userp());
-            const auto pair = mapp.emplace(domainp, nullptr);
+            மாறிலி auto pair = mapp.emplace(domainp, nullptr);
             // Reference to the mapped OrderMoveVertex
             OrderMoveVertex*& vMoveVtxp = pair.first->second;
 
             // On first encounter, visit downstream logic dependent on this (var, domain)
-            if (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
+            எனில் (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
 
             // If no downstream dependents from this variable, then there is no need to add this
             // variable as a dependent.
-            if (!vMoveVtxp) continue;
+            எனில் (!vMoveVtxp) தொடர்;
 
             // Add this (variable, domain) as dependent of the logic that writes it.
             addEdge(lMoveVtxp, vMoveVtxp);
@@ -164,29 +164,29 @@ class OrderMoveGraphBuilder final {
 
     // Return the OrderMoveVertex for this (var, domain) pair, iff it has downstream dependencies,
     // otherwise return nullptr.
-    OrderMoveVertex* iterateVarVertex(const OrderVarVertex* vvtxp, const OrderDomain* domainp) {
+    OrderMoveVertex* iterateVarVertex(மாறிலி OrderVarVertex* vvtxp, மாறிலி OrderDomain* domainp) {
         OrderMoveVertex* vMoveVtxp = nullptr;
         // Search forward from vvtxp, making new edges from vMoveVtxp forward
-        for (const V3GraphEdge& edge : vvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        க்கு (மாறிலி V3GraphEdge& edge : vvtxp->outEdges()) {
+            எனில் (edge.weight() == 0) தொடர்;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
-            const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
+            மாறிலி OrderLogicVertex* மாறிலி lVtxp = edge.உச்சி()->as<OrderLogicVertex>();
 
             // Do not construct dependencies across exclusive domains.
-            if (domainsExclusive(domainp, lVtxp->domainp())) continue;
+            எனில் (domainsExclusive(domainp, lVtxp->domainp())) தொடர்;
 
             // there is a path from this vvtx to a logic vertex. Add the new edge.
-            if (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
-            OrderMoveVertex* const lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
+            எனில் (!vMoveVtxp) vMoveVtxp = புதிய OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
+            OrderMoveVertex* மாறிலி lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
             addEdge(vMoveVtxp, lMoveVxp);
         }
-        return vMoveVtxp;
+        திரும்பு vMoveVtxp;
     }
 
-public:
-    static std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
-        return std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
+பொது:
+    நிலையான std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
+        திரும்பு std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
     }
 };
 
@@ -194,5 +194,5 @@ public:
 // OrderMoveGraph implementation
 
 std::unique_ptr<OrderMoveGraph> OrderMoveGraph::build(OrderGraph& orderGraph) {
-    return OrderMoveGraphBuilder::apply(orderGraph);
+    திரும்பு OrderMoveGraphBuilder::apply(orderGraph);
 }

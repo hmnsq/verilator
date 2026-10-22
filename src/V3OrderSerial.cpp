@@ -18,19 +18,19 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderCFuncEmitter.h"
-#include "V3OrderInternal.h"
+#அந்தர்பாவ "V3OrderCFuncEmitter.h"
+#அந்தர்பாவ "V3OrderInternal.h"
 
-#include <memory>
+#அந்தர்பாவ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // OrderSerial class
 
-AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
+Ast_முனை_Stmt* V3Order::createSerial(OrderMoveGraph& moveGraph, மாறிலி std::string& tag, தருக்க slow) {
 
     UINFO(2, "  Constructing serial code for '" + tag + "'");
 
@@ -38,19 +38,19 @@ AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string&
     OrderMoveGraphSerializer serializer{moveGraph};
 
     // Add initially ready vertices (those with no dependencies) to the serializer as seeds
-    for (V3GraphVertex& vtx : moveGraph.vertices()) {
-        if (vtx.inEmpty()) serializer.addSeed(vtx.as<OrderMoveVertex>());
+    க்கு (V3GraphVertex& vtx : moveGraph.vertices()) {
+        எனில் (vtx.inEmpty()) serializer.addSeed(vtx.as<OrderMoveVertex>());
     }
 
     // Emit all logic as they become ready
     V3OrderCFuncEmitter emitter{moveGraph.orderGraph().trigVscp(), tag, slow};
     OrderMoveDomScope* prevDomScopep = nullptr;
-    while (OrderMoveVertex* const mVtxp = serializer.getNext()) {
+    போது (OrderMoveVertex* மாறிலி mVtxp = serializer.getNext()) {
         // We only really care about logic vertices
-        if (OrderLogicVertex* const logicp = mVtxp->logicp()) {
+        எனில் (OrderLogicVertex* மாறிலி logicp = mVtxp->logicp()) {
             // Force a new function if the domain or scope changed, for better combining.
-            OrderMoveDomScope* const domScopep = &mVtxp->domScope();
-            if (domScopep != prevDomScopep) emitter.forceNewFunction();
+            OrderMoveDomScope* மாறிலி domScopep = &mVtxp->domScope();
+            எனில் (domScopep != prevDomScopep) emitter.forceNewFunction();
             prevDomScopep = domScopep;
             // Emit the logic under this vertex
             emitter.emitLogic(logicp);
@@ -60,11 +60,11 @@ AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string&
     }
 
     // Delete the remaining variable vertices
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
-        if (!vtxp->as<OrderMoveVertex>()->logicp()) {
+    க்கு (V3GraphVertex* மாறிலி vtxp : moveGraph.vertices().unlinkable()) {
+        எனில் (!vtxp->as<OrderMoveVertex>()->logicp()) {
             VL_DO_DANGLING(vtxp->unlinkDelete(&moveGraph), vtxp);
         }
     }
 
-    return emitter.getStmts();
+    திரும்பு emitter.getStmts();
 }

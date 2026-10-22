@@ -17,53 +17,53 @@
 #ifndef VERILATOR_V3CONTAINER_H_
 #define VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#அந்தர்பாவ <unordered_map>
+#அந்தர்பாவ <unordered_set>
+#அந்தர்பாவ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
+template <typename T_சாவி>
 class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+    std::vector<T_சாவி> m_சாவிகள்;  // Elements by insertion order
+    std::unordered_set<T_சாவி> m_சாவி_Set;  // Elements by key
+பொது:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool செருகு(மாறிலி T_சாவி& சாவி) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        மாறிலி auto itFoundPair = m_சாவி_Set.செருகு(சாவி);
+        எனில் (itFoundPair.second) m_சாவிகள்.தள்ளு_back(சாவி);
+        திரும்பு itFoundPair.second;
     }
     template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    வெறுமை செருகு(T begin, மாறிலி T end) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::மதிப்பு_type, T_சாவி>::மதிப்பு,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        போது (begin != end) {
+            எனில் (m_சாவி_Set.செருகு(*begin).second) m_சாவிகள்.தள்ளு_back(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    வெறுமை clear() {
+        m_சாவிகள்.clear();
+        m_சாவி_Set.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool empty() மாறிலி { திரும்பு m_சாவிகள்.empty(); }
+    size_t size() மாறிலி { திரும்பு m_சாவிகள்.size(); }
+    bool exists(மாறிலி T_சாவி& சாவி) மாறிலி { திரும்பு m_சாவி_Set.find(சாவி) != m_சாவி_Set.end(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::vector<T_சாவி>::const_iterator;
+    const_iterator begin() மாறிலி { திரும்பு m_சாவிகள்.begin(); }
+    const_iterator end() மாறிலி { திரும்பு m_சாவிகள்.end(); }
 };
 
 //============================================================================

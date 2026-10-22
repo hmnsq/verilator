@@ -16,22 +16,22 @@
 
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3GraphAlg.h"
+#அந்தர்பாவ "V3GraphAlg.h"
 
-#include "V3Global.h"
-#include "V3GraphPathChecker.h"
-#include "V3GraphStream.h"
-#include "V3Stats.h"
+#அந்தர்பாவ "V3Global.h"
+#அந்தர்பாவ "V3GraphPathChecker.h"
+#அந்தர்பாவ "V3GraphStream.h"
+#அந்தர்பாவ "V3Stats.h"
 
-#include <algorithm>
-#include <limits>
-#include <list>
-#include <map>
-#include <numeric>
-#include <vector>
+#அந்தர்பாவ <algorithm>
+#அந்தர்பாவ <limits>
+#அந்தர்பாவ <list>
+#அந்தர்பாவ <map>
+#அந்தர்பாவ <numeric>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -40,42 +40,42 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Algorithms - Remove redundancies
 // Changes user() and weight()
 
-class GraphRemoveRedundant final : GraphAlg<> {
-    const bool m_sumWeights;  // Sum, rather then maximize weights
-private:
-    void main() {
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
+வகுப்பு GraphRemoveRedundant final : GraphAlg<> {
+    மாறிலி தருக்க m_sumWeights;  // Sum, rather then maximize weights
+தனிப்பட்ட:
+    வெறுமை முதன்மை() {
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) vertexIterate(&vertex);
     }
-    void vertexIterate(V3GraphVertex* vertexp) {
+    வெறுமை vertexIterate(V3GraphVertex* vertexp) {
         // Clear marks
-        for (V3GraphEdge& edge : vertexp->outEdges()) edge.top()->userp(nullptr);
+        க்கு (V3GraphEdge& edge : vertexp->outEdges()) edge.உச்சி()->userp(nullptr);
 
         // Mark edges and detect duplications
 
-        for (V3GraphEdge* const edgep : vertexp->outEdges().unlinkable()) {
-            if (followEdge(edgep)) {
-                V3GraphVertex* outVertexp = edgep->top();
+        க்கு (V3GraphEdge* மாறிலி edgep : vertexp->outEdges().unlinkable()) {
+            எனில் (followEdge(edgep)) {
+                V3GraphVertex* outVertexp = edgep->உச்சி();
                 V3GraphEdge* prevEdgep = static_cast<V3GraphEdge*>(outVertexp->userp());
-                if (!prevEdgep) {  // No previous assignment
+                எனில் (!prevEdgep) {  // No previous assignment
                     outVertexp->userp(edgep);
-                } else {  // Duplicate
-                    bool saveOld = true;
-                    if (prevEdgep->cutable() && !edgep->cutable()) {
-                        saveOld = false;  // new !cutable more important than old
-                    } else if (!prevEdgep->cutable() && edgep->cutable()) {
-                        saveOld = true;  // old !cutable more important than new
-                    } else {
-                        saveOld = true;
-                        if (!m_sumWeights
+                } இல்லையெனில் {  // Duplicate
+                    தருக்க saveOld = உண்மை;
+                    எனில் (prevEdgep->cutable() && !edgep->cutable()) {
+                        saveOld = பொய்;  // new !cutable more important than old
+                    } இல்லையெனில் எனில் (!prevEdgep->cutable() && edgep->cutable()) {
+                        saveOld = உண்மை;  // old !cutable more important than new
+                    } இல்லையெனில் {
+                        saveOld = உண்மை;
+                        எனில் (!m_sumWeights
                             && (prevEdgep->weight() < edgep->weight())) {  // Keep max weight
                             prevEdgep->weight(edgep->weight());
                         }
                     }
-                    if (saveOld) {
-                        if (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
+                    எனில் (saveOld) {
+                        எனில் (m_sumWeights) prevEdgep->weight(prevEdgep->weight() + edgep->weight());
                         VL_DO_DANGLING(edgep->unlinkDelete(), edgep);
-                    } else {
-                        if (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
+                    } இல்லையெனில் {
+                        எனில் (m_sumWeights) edgep->weight(prevEdgep->weight() + edgep->weight());
                         VL_DO_DANGLING(prevEdgep->unlinkDelete(), prevEdgep);
                         outVertexp->userp(edgep);
                     }
@@ -84,97 +84,97 @@ private:
         }
     }
 
-public:
-    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, bool sumWeights)
+பொது:
+    GraphRemoveRedundant(V3Graph* graphp, V3EdgeFuncP edgeFuncp, தருக்க sumWeights)
         : GraphAlg<>{graphp, edgeFuncp}
         , m_sumWeights{sumWeights} {
-        main();
+        முதன்மை();
     }
-    ~GraphRemoveRedundant() = default;
+    ~GraphRemoveRedundant() = இயல்பு;
 };
 
-void V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, false};
+வெறுமை V3Graph::removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) {
+    GraphRemoveRedundant{இது, edgeFuncp, பொய்};
 }
-void V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
-    GraphRemoveRedundant{this, edgeFuncp, true};
+வெறுமை V3Graph::removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) {
+    GraphRemoveRedundant{இது, edgeFuncp, உண்மை};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - remove transitive
 
-class GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
-public:
+வகுப்பு GraphAlgRemoveTransitiveEdges final : GraphAlg<> {
+பொது:
     explicit GraphAlgRemoveTransitiveEdges(V3Graph* graphp)
         : GraphAlg<>(graphp, nullptr) {}
-    void go() {
+    வெறுமை go() {
         GraphPathChecker checker{m_graphp};
-        for (V3GraphVertex& vtx : m_graphp->vertices()) {
+        க்கு (V3GraphVertex& vtx : m_graphp->vertices()) {
             V3GraphEdge* deletep = nullptr;
-            for (V3GraphEdge& edge : vtx.outEdges()) {
-                if (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
+            க்கு (V3GraphEdge& edge : vtx.outEdges()) {
+                எனில் (deletep) VL_DO_CLEAR(deletep->unlinkDelete(), deletep = nullptr);
                 // It should be safe to modify the graph, despite using
                 // the GraphPathChecker, as none of the modifications will
                 // change what can be reached from what, nor should they
                 // change the rank or CP of any node.
-                if (checker.isTransitiveEdge(&edge)) deletep = &edge;
+                எனில் (checker.isTransitiveEdge(&edge)) deletep = &edge;
             }
-            if (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
+            எனில் (deletep) VL_DO_DANGLING(deletep->unlinkDelete(), deletep);
         }
     }
 
-private:
+தனிப்பட்ட:
     VL_UNCOPYABLE(GraphAlgRemoveTransitiveEdges);
 };
 
-void V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{this}.go(); }
+வெறுமை V3Graph::removeTransitiveEdges() { GraphAlgRemoveTransitiveEdges{இது}.go(); }
 
 //######################################################################
 //######################################################################
 // Algorithms - weakly connected components
 // Changes color()
 
-class GraphAlgWeakly final : GraphAlg<> {
+வகுப்பு GraphAlgWeakly final : GraphAlg<> {
     // Sentinel color, meaning not colored yet. Colors themselves are 0 .. m_numColors-1.
-    static constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
+    நிலையான constexpr uint32_t UNCOLORED = std::numeric_limits<uint32_t>::max();
 
-    uint32_t m_numColors = 0;  // Number of colors assigned
+    uint32_t m_இலக்கம்_Colors = 0;  // Number of colors assigned
 
-    void main() {
+    வெறுமை முதன்மை() {
         // Initialize state
-        for (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) vertex.color(UNCOLORED);
         // Color graph, without gaps
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_numColors++);
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
+            எனில் (vertex.color() == UNCOLORED) vertexIterate(&vertex, m_இலக்கம்_Colors++);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
+    வெறுமை vertexIterate(V3GraphVertex* vertexp, uint32_t currentColor) {
         // Assign new color to each unvisited node
         // then visit each of its edges, giving them the same color
-        if (vertexp->color() != UNCOLORED) return;  // Already colored it
+        எனில் (vertexp->color() != UNCOLORED) திரும்பு;  // Already colored it
         vertexp->color(currentColor);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentColor);
+        க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+            எனில் (followEdge(&edge)) vertexIterate(edge.உச்சி(), currentColor);
         }
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
+        க்கு (V3GraphEdge& edge : vertexp->inEdges()) {
+            எனில் (followEdge(&edge)) vertexIterate(edge.fromp(), currentColor);
         }
     }
 
-public:
+பொது:
     GraphAlgWeakly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>(graphp, edgeFuncp) {
-        main();
+        முதன்மை();
     }
-    ~GraphAlgWeakly() = default;
+    ~GraphAlgWeakly() = இயல்பு;
 
-    uint32_t numColors() const { return m_numColors; }
+    uint32_t இலக்கம்_Colors() மாறிலி { திரும்பு m_இலக்கம்_Colors; }
 };
 
 uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
-    return GraphAlgWeakly{this, edgeFuncp}.numColors();
+    திரும்பு GraphAlgWeakly{இது, edgeFuncp}.இலக்கம்_Colors();
 }
 
 //######################################################################
@@ -182,11 +182,11 @@ uint32_t V3Graph::weaklyConnected(V3EdgeFuncP edgeFuncp) {
 // Algorithms - strongly connected components
 // Changes user() and color()
 
-class GraphAlgStrongly final : GraphAlg<> {
+வகுப்பு GraphAlgStrongly final : GraphAlg<> {
     uint32_t m_currentDfs = 0;  // DFS count
     std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
 
-    void main() {
+    வெறுமை முதன்மை() {
         // Use Pearce's algorithm to color the strongly connected components. For reference see
         // "An Improved Algorithm for Finding the Strongly Connected Components of a Directed
         // Graph", David J.Pearce, 2005
@@ -196,185 +196,185 @@ class GraphAlgStrongly final : GraphAlg<> {
         //     Vertex::color    // Output subtree number (fully processed)
 
         // Clear info
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.color(0);
             vertex.user(0);
         }
         // Color graph
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) {
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
+            எனில் (!vertex.user()) {
                 m_currentDfs++;
                 vertexIterate(&vertex);
             }
         }
         // If there's a single vertex of a color, it doesn't need a subgraph
         // This simplifies the consumer's code, and reduces graph debugging clutter
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            bool onecolor = true;
-            for (V3GraphEdge& edge : vertex.outEdges()) {
-                if (followEdge(&edge)) {
-                    if (vertex.color() == edge.top()->color()) {
-                        onecolor = false;
-                        break;
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
+            தருக்க onecolor = உண்மை;
+            க்கு (V3GraphEdge& edge : vertex.outEdges()) {
+                எனில் (followEdge(&edge)) {
+                    எனில் (vertex.color() == edge.உச்சி()->color()) {
+                        onecolor = பொய்;
+                        நிறுத்து;
                     }
                 }
             }
-            if (onecolor) vertex.color(0);
+            எனில் (onecolor) vertex.color(0);
         }
     }
 
-    void vertexIterate(V3GraphVertex* vertexp) {
-        const uint32_t thisDfsNum = m_currentDfs++;
-        vertexp->user(thisDfsNum);
+    வெறுமை vertexIterate(V3GraphVertex* vertexp) {
+        மாறிலி uint32_t this_Dfs_இலக்கம் = m_currentDfs++;
+        vertexp->user(this_Dfs_இலக்கம்);
         vertexp->color(0);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) {
-                V3GraphVertex* top = edge.top();
-                if (!top->user()) {  // Dest not computed yet
-                    vertexIterate(top);
+        க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+            எனில் (followEdge(&edge)) {
+                V3GraphVertex* உச்சி = edge.உச்சி();
+                எனில் (!உச்சி->user()) {  // Dest not computed yet
+                    vertexIterate(உச்சி);
                 }
-                if (!top->color()) {  // Dest not in a component
-                    if (vertexp->user() > top->user()) vertexp->user(top->user());
+                எனில் (!உச்சி->color()) {  // Dest not in a component
+                    எனில் (vertexp->user() > உச்சி->user()) vertexp->user(உச்சி->user());
                 }
             }
         }
-        if (vertexp->user() == thisDfsNum) {  // New head of subtree
-            vertexp->color(thisDfsNum);  // Mark as component
-            while (!m_callTrace.empty()) {
-                V3GraphVertex* popVertexp = m_callTrace.back();
-                if (popVertexp->user() >= thisDfsNum) {  // Lower node is part of this subtree
-                    m_callTrace.pop_back();
-                    popVertexp->color(thisDfsNum);
-                } else {
-                    break;
+        எனில் (vertexp->user() == this_Dfs_இலக்கம்) {  // New head of subtree
+            vertexp->color(this_Dfs_இலக்கம்);  // Mark as component
+            போது (!m_callTrace.empty()) {
+                V3GraphVertex* எடு_Vertexp = m_callTrace.back();
+                எனில் (எடு_Vertexp->user() >= this_Dfs_இலக்கம்) {  // Lower node is part of this subtree
+                    m_callTrace.எடு_back();
+                    எடு_Vertexp->color(this_Dfs_இலக்கம்);
+                } இல்லையெனில் {
+                    நிறுத்து;
                 }
             }
-        } else {  // In another subtree (maybe...)
-            m_callTrace.push_back(vertexp);
+        } இல்லையெனில் {  // In another subtree (maybe...)
+            m_callTrace.தள்ளு_back(vertexp);
         }
     }
 
-public:
+பொது:
     GraphAlgStrongly(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+        முதன்மை();
     }
-    ~GraphAlgStrongly() = default;
+    ~GraphAlgStrongly() = இயல்பு;
 };
 
-void V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{this, edgeFuncp}; }
+வெறுமை V3Graph::stronglyConnected(V3EdgeFuncP edgeFuncp) { GraphAlgStrongly{இது, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking
 // Changes user() and rank()
 
-class GraphAlgRank final : GraphAlg<> {
-    void main() {
+வகுப்பு GraphAlgRank final : GraphAlg<> {
+    வெறுமை முதன்மை() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.rank(0);
             vertex.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex, 1);
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
+            எனில் (!vertex.user()) vertexIterate(&vertex, 1);
         }
     }
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    வெறுமை vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // If larger rank is found, assign it and loop back through
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
+        எனில் (vertexp->user() == 1) {
             m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
+            திரும்பு;  // LCOV_EXCL_LINE  // gcc gprof bug misses this return
         }
-        if (vertexp->rank() >= currentRank) return;  // Already processed it
+        எனில் (vertexp->rank() >= currentRank) திரும்பு;  // Already processed it
         vertexp->user(1);
         vertexp->rank(currentRank);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank + vertexp->rankAdder());
+        க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+            எனில் (followEdge(&edge)) vertexIterate(edge.உச்சி(), currentRank + vertexp->rankAdder());
         }
         vertexp->user(2);
     }
 
-public:
+பொது:
     GraphAlgRank(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+        முதன்மை();
     }
-    ~GraphAlgRank() = default;
+    ~GraphAlgRank() = இயல்பு;
 };
 
-void V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{this, edgeFuncp}; }
+வெறுமை V3Graph::rank() { rank(&V3GraphEdge::followAlwaysTrue); }
+வெறுமை V3Graph::rank(V3EdgeFuncP edgeFuncp) { GraphAlgRank{இது, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - ranking min
 // Changes user() and rank()
 
-class GraphAlgRankMin final : GraphAlg<> {
-    void main() {
+வகுப்பு GraphAlgRankMin final : GraphAlg<> {
+    வெறுமை முதன்மை() {
         // Rank each vertex, ignoring cutable edges
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
             vertex.rank(0);
             vertex.user(0);
         }
-        for (V3GraphVertex& vertex : m_graphp->vertices()) {
-            if (!vertex.user()) vertexIterate(&vertex);
+        க்கு (V3GraphVertex& vertex : m_graphp->vertices()) {
+            எனில் (!vertex.user()) vertexIterate(&vertex);
         }
     }
     uint32_t vertexIterate(V3GraphVertex* vertexp) {
         // Assign rank to each unvisited node
         // If we hit a back node make a list of all loops
-        if (vertexp->user() == 1) {
+        எனில் (vertexp->user() == 1) {
             m_graphp->loopsMessageCb(vertexp, m_edgeFuncp);
-            return vertexp->rank();
+            திரும்பு vertexp->rank();
         }
-        if (vertexp->user()) return vertexp->rank();  // Done earlier
+        எனில் (vertexp->user()) திரும்பு vertexp->rank();  // Done earlier
         vertexp->user(1);
         vertexp->rank(1);  // In case loop
         // If no input edges, then rank 1 (+ adder)
         // Otherwise, get minimum from following all inputs.
         uint32_t minrank = ~0U;
-        for (V3GraphEdge& edge : vertexp->inEdges()) {
-            if (followEdge(&edge)) {
-                const uint32_t nrank = vertexIterate(edge.fromp());
+        க்கு (V3GraphEdge& edge : vertexp->inEdges()) {
+            எனில் (followEdge(&edge)) {
+                மாறிலி uint32_t nrank = vertexIterate(edge.fromp());
                 minrank = std::min(minrank, nrank);
             }
         }
-        if (minrank == ~0U) minrank = 0;
+        எனில் (minrank == ~0U) minrank = 0;
         vertexp->rank(minrank + vertexp->rankAdder());
         vertexp->user(2);
-        return vertexp->rank();
+        திரும்பு vertexp->rank();
     }
 
-public:
+பொது:
     GraphAlgRankMin(V3Graph* graphp, V3EdgeFuncP edgeFuncp)
         : GraphAlg<>{graphp, edgeFuncp} {
-        main();
+        முதன்மை();
     }
-    ~GraphAlgRankMin() = default;
+    ~GraphAlgRankMin() = இயல்பு;
 };
 
-void V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
-void V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{this, edgeFuncp}; }
+வெறுமை V3Graph::rankMin() { rankMin(&V3GraphEdge::followAlwaysTrue); }
+வெறுமை V3Graph::rankMin(V3EdgeFuncP edgeFuncp) { GraphAlgRankMin{இது, edgeFuncp}; }
 
 //######################################################################
 //######################################################################
 // Algorithms - report loops
 // Changes user()
 
-class GraphAlgRLoops final : GraphAlg<> {
+வகுப்பு GraphAlgRLoops final : GraphAlg<> {
     std::vector<V3GraphVertex*> m_callTrace;  // List of everything we hit processing so far
     std::vector<string> m_msgs;  // Output messages
-    bool m_done = false;  // Exit algorithm
+    தருக்க m_done = பொய்;  // Exit algorithm
 
-    void main(V3GraphVertex* vertexp) {
+    வெறுமை முதன்மை(V3GraphVertex* vertexp) {
         // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
         // Clear existing ranks
         m_graphp->userClearVertices();
@@ -382,42 +382,42 @@ class GraphAlgRLoops final : GraphAlg<> {
         vertexIterate(vertexp, 0);
     }
 
-    void vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
+    வெறுமை vertexIterate(V3GraphVertex* vertexp, uint32_t currentRank) {
         // Assign rank to each unvisited node
         // When we hit ourself again, return the list of all loops
-        if (m_done) return;
+        எனில் (m_done) திரும்பு;
 
         // Can't just reserve(), unless we modify size() before setting array directly
-        while (m_callTrace.size() <= currentRank) m_callTrace.push_back(vertexp);
+        போது (m_callTrace.size() <= currentRank) m_callTrace.தள்ளு_back(vertexp);
         m_callTrace[currentRank++] = vertexp;
 
-        if (vertexp->user() == 1) {
-            for (unsigned i = 0; i < currentRank; i++)
+        எனில் (vertexp->user() == 1) {
+            க்கு (unsigned i = 0; i < currentRank; i++)
                 m_msgs.emplace_back(m_graphp->loopsVertexCb(m_callTrace[i]));
-            m_done = true;
-            return;
+            m_done = உண்மை;
+            திரும்பு;
         }
-        if (vertexp->user() == 2) return;  // Already processed it
+        எனில் (vertexp->user() == 2) திரும்பு;  // Already processed it
         vertexp->user(1);
-        for (V3GraphEdge& edge : vertexp->outEdges()) {
-            if (followEdge(&edge)) vertexIterate(edge.top(), currentRank);
+        க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+            எனில் (followEdge(&edge)) vertexIterate(edge.உச்சி(), currentRank);
         }
         vertexp->user(2);
     }
 
-public:
+பொது:
     GraphAlgRLoops(V3Graph* graphp, V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp)
         : GraphAlg<>{graphp, edgeFuncp} {
-        main(vertexp);
+        முதன்மை(vertexp);
     }
-    ~GraphAlgRLoops() = default;
-    string message() const {
-        return std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
+    ~GraphAlgRLoops() = இயல்பு;
+    string message() மாறிலி {
+        திரும்பு std::accumulate(m_msgs.begin(), m_msgs.end(), std::string{""});
     }
 };
 
 string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
-    return GraphAlgRLoops{this, edgeFuncp, vertexp}.message();
+    திரும்பு GraphAlgRLoops{இது, edgeFuncp, vertexp}.message();
 }
 
 //######################################################################
@@ -425,32 +425,32 @@ string V3Graph::reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) {
 // Algorithms - subtrees
 // Changes user()
 
-class GraphAlgSubtrees final : GraphAlg<> {
-    V3Graph* const m_loopGraphp;
+வகுப்பு GraphAlgSubtrees final : GraphAlg<> {
+    V3Graph* மாறிலி m_loopGraphp;
 
     //! Iterate through all connected nodes of a graph with a loop or loops.
     V3GraphVertex* vertexIterateAll(V3GraphVertex* vertexp) {
-        if (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
-            return newVertexp;
-        } else {
+        எனில் (V3GraphVertex* newVertexp = static_cast<V3GraphVertex*>(vertexp->userp())) {
+            திரும்பு newVertexp;
+        } இல்லையெனில் {
             newVertexp = vertexp->clone(m_loopGraphp);
             vertexp->userp(newVertexp);
 
-            for (V3GraphEdge& edge : vertexp->outEdges()) {
-                if (followEdge(&edge)) {
+            க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+                எனில் (followEdge(&edge)) {
                     V3GraphEdge* newEdgep = static_cast<V3GraphEdge*>(edge.userp());
-                    if (!newEdgep) {
-                        V3GraphVertex* newTop = vertexIterateAll(edge.top());
-                        newEdgep = edge.clone(m_loopGraphp, newVertexp, newTop);
+                    எனில் (!newEdgep) {
+                        V3GraphVertex* new_உச்சி = vertexIterateAll(edge.உச்சி());
+                        newEdgep = edge.clone(m_loopGraphp, newVertexp, new_உச்சி);
                         edge.userp(newEdgep);
                     }
                 }
             }
-            return newVertexp;
+            திரும்பு newVertexp;
         }
     }
 
-public:
+பொது:
     GraphAlgSubtrees(V3Graph* graphp, V3Graph* loopGraphp, V3EdgeFuncP edgeFuncp,
                      V3GraphVertex* vertexp)
         : GraphAlg<>{graphp, edgeFuncp}
@@ -459,48 +459,48 @@ public:
         // Edge::m_userp - New edge if we have seen this edge already
         m_graphp->userClearVertices();
         m_graphp->userClearEdges();
-        (void)vertexIterateAll(vertexp);
+        (வெறுமை)vertexIterateAll(vertexp);
     }
-    ~GraphAlgSubtrees() = default;
+    ~GraphAlgSubtrees() = இயல்பு;
 };
 
 //! Report the entire connected graph with a loop or loops
-void V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
-    GraphAlgSubtrees{this, loopGraphp, edgeFuncp, vertexp};
+வெறுமை V3Graph::subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp, V3Graph* loopGraphp) {
+    GraphAlgSubtrees{இது, loopGraphp, edgeFuncp, vertexp};
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - sorting
 
-void V3Graph::sortVertices() {
+வெறுமை V3Graph::sortVertices() {
     // Sort list of vertices by rank, then fanout
     std::vector<V3GraphVertex*> vertexps;
-    for (V3GraphVertex& vertex : m_vertices) vertexps.push_back(&vertex);
+    க்கு (V3GraphVertex& vertex : m_vertices) vertexps.தள்ளு_back(&vertex);
     std::stable_sort(vertexps.begin(), vertexps.end(),
-                     [](const V3GraphVertex* lhsp, const V3GraphVertex* rhsp) {  //
-                         return lhsp->sortCmp(rhsp) < 0;
+                     [](மாறிலி V3GraphVertex* lhsp, மாறிலி V3GraphVertex* rhsp) {  //
+                         திரும்பு lhsp->sortCmp(rhsp) < 0;
                      });
     // Re-insert in sorted order
-    for (V3GraphVertex* const vertexp : vertexps) {
+    க்கு (V3GraphVertex* மாறிலி vertexp : vertexps) {
         m_vertices.unlink(vertexp);
         m_vertices.linkBack(vertexp);
     }
 }
 
-void V3Graph::sortEdges() {
+வெறுமை V3Graph::sortEdges() {
     // Sort edges by rank then fanout of node they point to
     std::vector<V3GraphEdge*> edges;
-    for (V3GraphVertex& vertex : vertices()) {
+    க்கு (V3GraphVertex& vertex : vertices()) {
         // Make a vector
-        for (V3GraphEdge& edge : vertex.outEdges()) edges.push_back(&edge);
+        க்கு (V3GraphEdge& edge : vertex.outEdges()) edges.தள்ளு_back(&edge);
         // Sort
         std::stable_sort(edges.begin(), edges.end(),
-                         [](const V3GraphEdge* lhsp, const V3GraphEdge* rhsp) {  //
-                             return lhsp->sortCmp(rhsp) < 0;
+                         [](மாறிலி V3GraphEdge* lhsp, மாறிலி V3GraphEdge* rhsp) {  //
+                             திரும்பு lhsp->sortCmp(rhsp) < 0;
                          });
         // Relink edges in specified order
-        for (V3GraphEdge* const edgep : edges) edgep->relinkFromp(&vertex);
+        க்கு (V3GraphEdge* மாறிலி edgep : edges) edgep->relinkFromp(&vertex);
         // Prep for next
         edges.clear();
     }
@@ -514,7 +514,7 @@ void V3Graph::sortEdges() {
 //          Visit edges and assign ranks to keep minimal crossings
 //              (Results in better dcache packing.)
 
-void V3Graph::order() {
+வெறுமை V3Graph::order() {
     UINFO(2, "Order:");
 
     // Compute rankings again
@@ -522,12 +522,12 @@ void V3Graph::order() {
     orderPreRanked();
 }
 
-void V3Graph::orderPreRanked() {
+வெறுமை V3Graph::orderPreRanked() {
     // Compute fanouts
     // Vertex::m_user begin: 1 indicates processing, 2 indicates completed
     userClearVertices();
-    for (V3GraphVertex& vertex : vertices()) {
-        if (!vertex.user()) orderDFSIterate(&vertex);
+    க்கு (V3GraphVertex& vertex : vertices()) {
+        எனில் (!vertex.user()) orderDFSIterate(&vertex);
     }
 
     // Sort list of vertices by rank, then fanout. Fanout is a bit of a
@@ -538,49 +538,49 @@ void V3Graph::orderPreRanked() {
     sortEdges();
 }
 
-double V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
+இரட்டை V3Graph::orderDFSIterate(V3GraphVertex* vertexp) {
     // Compute fanouts of each node
     // If forward edge, don't double count that fanout
-    if (vertexp->user() == 2) return vertexp->fanout();  // Already processed it
+    எனில் (vertexp->user() == 2) திரும்பு vertexp->fanout();  // Already processed it
     UASSERT_OBJ(vertexp->user() != 1, vertexp, "Loop found, backward edges should be dead");
     vertexp->user(1);
-    double fanout = 0;
-    for (V3GraphEdge& edge : vertexp->outEdges()) {
-        if (edge.weight()) fanout += orderDFSIterate(edge.top());
+    இரட்டை fanout = 0;
+    க்கு (V3GraphEdge& edge : vertexp->outEdges()) {
+        எனில் (edge.weight()) fanout += orderDFSIterate(edge.உச்சி());
     }
     // Just count inbound edges
-    for (V3GraphEdge& edge : vertexp->inEdges()) {
-        if (edge.weight()) ++fanout;
+    க்கு (V3GraphEdge& edge : vertexp->inEdges()) {
+        எனில் (edge.weight()) ++fanout;
     }
     vertexp->fanout(fanout);
     vertexp->user(2);
-    return vertexp->fanout();
+    திரும்பு vertexp->fanout();
 }
 
 //######################################################################
 //######################################################################
 // Algorithms - parallelism report
 
-class GraphAlgParallelismReport final {
+வகுப்பு GraphAlgParallelismReport final {
     // MEMBERS
     V3Graph& m_graph;  // The graph
-    const std::function<uint64_t(const V3GraphVertex*)> m_vertexCost;  // vertex cost function
+    மாறிலி std::function<uint64_t(மாறிலி V3GraphVertex*)> m_vertexCost;  // vertex cost function
     V3Graph::ParallelismReport m_report;  // The result report
 
     // CONSTRUCTORS
     explicit GraphAlgParallelismReport(V3Graph& graph,
-                                       std::function<uint64_t(const V3GraphVertex*)> vertexCost)
+                                       std::function<uint64_t(மாறிலி V3GraphVertex*)> vertexCost)
         : m_graph{graph}
         , m_vertexCost{vertexCost} {
         // For each node, record the critical path cost from the start
         // of the graph through the end of the node.
-        std::unordered_map<const V3GraphVertex*, uint64_t> critPaths;
+        std::unordered_map<மாறிலி V3GraphVertex*, uint64_t> critPaths;
         GraphStreamUnordered serialize{&m_graph};
-        for (const V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
-            ++m_report.m_vertexCount;
+        க்கு (மாறிலி V3GraphVertex* vertexp; (vertexp = serialize.nextp());) {
+            ++m_report.m_vertex_மொத்தம்;
             uint64_t cpCostToHere = 0;
-            for (const V3GraphEdge& edge : vertexp->inEdges()) {
-                ++m_report.m_edgeCount;
+            க்கு (மாறிலி V3GraphEdge& edge : vertexp->inEdges()) {
+                ++m_report.m_edge_மொத்தம்;
                 // For each upstream item, add its critical path cost to
                 // the cost of this edge, to form a new candidate critical
                 // path cost to the current node. Whichever is largest is
@@ -597,18 +597,18 @@ class GraphAlgParallelismReport final {
             m_report.m_totalGraphCost += m_vertexCost(vertexp);
         }
     }
-    ~GraphAlgParallelismReport() = default;
+    ~GraphAlgParallelismReport() = இயல்பு;
     VL_UNCOPYABLE(GraphAlgParallelismReport);
     VL_UNMOVABLE(GraphAlgParallelismReport);
 
-public:
-    static V3Graph::ParallelismReport
-    apply(V3Graph& graph, std::function<uint32_t(const V3GraphVertex*)> vertexCost) {
-        return GraphAlgParallelismReport(graph, vertexCost).m_report;
+பொது:
+    நிலையான V3Graph::ParallelismReport
+    apply(V3Graph& graph, std::function<uint32_t(மாறிலி V3GraphVertex*)> vertexCost) {
+        திரும்பு GraphAlgParallelismReport(graph, vertexCost).m_report;
     }
 };
 
 V3Graph::ParallelismReport
-V3Graph::parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) {
-    return GraphAlgParallelismReport::apply(*this, vertexCost);
+V3Graph::parallelismReport(std::function<uint64_t(மாறிலி V3GraphVertex*)> vertexCost) {
+    திரும்பு GraphAlgParallelismReport::apply(*இது, vertexCost);
 }

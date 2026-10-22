@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3SLICE_H_
 #define VERILATOR_V3SLICE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Slice final {
-public:
-    static void sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை sliceAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

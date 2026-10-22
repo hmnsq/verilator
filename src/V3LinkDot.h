@@ -17,24 +17,24 @@
 #ifndef VERILATOR_V3LINKDOT_H_
 #define VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+எண்ணிக்கை VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    நிலையான வெறுமை dumpSubstep(மாறிலி string& name) VL_MT_DISABLED;
+    நிலையான வெறுமை linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    நிலையான வெறுமை linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    நிலையான வெறுமை linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

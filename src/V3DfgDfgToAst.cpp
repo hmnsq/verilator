@@ -26,268 +26,268 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3UniqueNames.h"
+#அந்தர்பாவ "V3Dfg.h"
+#அந்தர்பாவ "V3DfgPasses.h"
+#அந்தர்பாவ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-namespace {
+நாமாகாஶ {
 
 // Create an AstNodeExpr out of a DfgVertex. For most AstNodeExpr subtypes, this can be done
 // automatically. For the few special cases, we provide specializations below
-template <typename T_Node, typename T_Vertex, typename... Ops>
-T_Node* makeNode(const T_Vertex* vtxp, Ops... ops) {
-    T_Node* const nodep = new T_Node{vtxp->fileline(), ops...};
-    UASSERT_OBJ(nodep->width() == static_cast<int>(vtxp->width()), vtxp,
+template <typename T_முனை, typename T_Vertex, typename... Ops>
+T_முனை* make_முனை(மாறிலி T_Vertex* vtxp, Ops... ops) {
+    T_முனை* மாறிலி nodep = புதிய T_முனை{vtxp->fileline(), ops...};
+    UASSERT_OBJ(nodep->width() == static_cast<முழு>(vtxp->width()), vtxp,
                 "Incorrect width in AstNode created from DfgVertex "
                     << vtxp->typeName() << ": " << nodep->width() << " vs " << vtxp->width());
-    return nodep;
+    திரும்பு nodep;
 }
 
 //======================================================================
 // Vertices needing special conversion
 
 template <>
-AstCountOnes* makeNode<AstCountOnes, DfgCountOnes, AstNodeExpr*>(  //
-    const DfgCountOnes* vtxp, AstNodeExpr* op1) {
-    AstCountOnes* const nodep = new AstCountOnes{vtxp->fileline(), op1};
-    return nodep;
+Ast_மொத்தம்_Ones* make_முனை<Ast_மொத்தம்_Ones, Dfg_மொத்தம்_Ones, Ast_முனை_கோவை*>(  //
+    மாறிலி Dfg_மொத்தம்_Ones* vtxp, Ast_முனை_கோவை* op1) {
+    Ast_மொத்தம்_Ones* மாறிலி nodep = புதிய Ast_மொத்தம்_Ones{vtxp->fileline(), op1};
+    திரும்பு nodep;
 }
 
 template <>
-AstExtend* makeNode<AstExtend, DfgExtend, AstNodeExpr*>(  //
-    const DfgExtend* vtxp, AstNodeExpr* op1) {
-    return new AstExtend{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+AstExtend* make_முனை<AstExtend, DfgExtend, Ast_முனை_கோவை*>(  //
+    மாறிலி DfgExtend* vtxp, Ast_முனை_கோவை* op1) {
+    திரும்பு புதிய AstExtend{vtxp->fileline(), op1, static_cast<முழு>(vtxp->width())};
 }
 
 template <>
-AstExtendS* makeNode<AstExtendS, DfgExtendS, AstNodeExpr*>(  //
-    const DfgExtendS* vtxp, AstNodeExpr* op1) {
-    return new AstExtendS{vtxp->fileline(), op1, static_cast<int>(vtxp->width())};
+AstExtendS* make_முனை<AstExtendS, DfgExtendS, Ast_முனை_கோவை*>(  //
+    மாறிலி DfgExtendS* vtxp, Ast_முனை_கோவை* op1) {
+    திரும்பு புதிய AstExtendS{vtxp->fileline(), op1, static_cast<முழு>(vtxp->width())};
 }
 
 template <>
-AstShiftL* makeNode<AstShiftL, DfgShiftL, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftL* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftL{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftL* make_முனை<AstShiftL, DfgShiftL, Ast_முனை_கோவை*, Ast_முனை_கோவை*>(  //
+    மாறிலி DfgShiftL* vtxp, Ast_முனை_கோவை* op1, Ast_முனை_கோவை* op2) {
+    திரும்பு புதிய AstShiftL{vtxp->fileline(), op1, op2, static_cast<முழு>(vtxp->width())};
 }
 
 template <>
-AstShiftR* makeNode<AstShiftR, DfgShiftR, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftR* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftR{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftR* make_முனை<AstShiftR, DfgShiftR, Ast_முனை_கோவை*, Ast_முனை_கோவை*>(  //
+    மாறிலி DfgShiftR* vtxp, Ast_முனை_கோவை* op1, Ast_முனை_கோவை* op2) {
+    திரும்பு புதிய AstShiftR{vtxp->fileline(), op1, op2, static_cast<முழு>(vtxp->width())};
 }
 
 template <>
-AstShiftRS* makeNode<AstShiftRS, DfgShiftRS, AstNodeExpr*, AstNodeExpr*>(  //
-    const DfgShiftRS* vtxp, AstNodeExpr* op1, AstNodeExpr* op2) {
-    return new AstShiftRS{vtxp->fileline(), op1, op2, static_cast<int>(vtxp->width())};
+AstShiftRS* make_முனை<AstShiftRS, DfgShiftRS, Ast_முனை_கோவை*, Ast_முனை_கோவை*>(  //
+    மாறிலி DfgShiftRS* vtxp, Ast_முனை_கோவை* op1, Ast_முனை_கோவை* op2) {
+    திரும்பு புதிய AstShiftRS{vtxp->fileline(), op1, op2, static_cast<முழு>(vtxp->width())};
 }
 
 }  // namespace
 
-class DfgToAstVisitor final : DfgVisitor {
+வகுப்பு DfgToAstVisitor final : DfgVisitor {
     // NODE STATE
 
     // AstScope::user2p  // The combinational AstActive under this scope
-    const VNUser2InUse m_user2InUse;
+    மாறிலி VNUser2InUse m_user2InUse;
 
     // STATE
     V3DfgDfgToAstContext& m_ctx;  // The context for stats
-    AstNodeExpr* m_resultp = nullptr;  // The result node of the current traversal
+    Ast_முனை_கோவை* m_resultp = nullptr;  // The result node of the current traversal
     AstAlways* m_alwaysp = nullptr;  // Process to add assignments to, if have a default driver
     AstActive* m_activep = nullptr;  // The AstNodeModule or AstActive to insert assigns into
 
     // METHODS
-    static AstActive* getCombActive(AstScope* scopep) {
-        if (!scopep->user2p()) {
+    நிலையான AstActive* getCombActive(AstScope* scopep) {
+        எனில் (!scopep->user2p()) {
             // Try to find the existing combinational AstActive
-            for (AstNode* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
-                AstActive* const activep = VN_CAST(nodep, Active);
-                if (!activep) continue;
-                if (activep->hasCombo()) {
+            க்கு (Ast_முனை* nodep = scopep->blocksp(); nodep; nodep = nodep->nextp()) {
+                AstActive* மாறிலி activep = VN_CAST(nodep, Active);
+                எனில் (!activep) தொடர்;
+                எனில் (activep->hasCombo()) {
                     scopep->user2p(activep);
-                    break;
+                    நிறுத்து;
                 }
             }
             // If there isn't one, create a new one
-            if (!scopep->user2p()) {
-                FileLine* const flp = scopep->fileline();
-                AstSenTree* const senTreep
-                    = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-                AstActive* const activep = new AstActive{flp, "", senTreep};
-                activep->senTreeStorep(senTreep);
+            எனில் (!scopep->user2p()) {
+                File_வரி* மாறிலி flp = scopep->fileline();
+                Ast_Sen_மரம்* மாறிலி senTreep
+                    = புதிய Ast_Sen_மரம்{flp, புதிய AstSenItem{flp, AstSenItem::Combo{}}};
+                AstActive* மாறிலி activep = புதிய AstActive{flp, "", senTreep};
+                activep->sen_மரம்_Storep(senTreep);
                 scopep->addBlocksp(activep);
                 scopep->user2p(activep);
             }
         }
-        return VN_AS(scopep->user2p(), Active);
+        திரும்பு VN_AS(scopep->user2p(), Active);
     }
 
-    AstNodeExpr* convertDfgVertexToAstNodeExpr(DfgVertex* vtxp) {
+    Ast_முனை_கோவை* convert_Dfg_Vertex_To_Ast_முனை_கோவை(DfgVertex* vtxp) {
         UASSERT_OBJ(!m_resultp, vtxp, "Result already computed");
         UASSERT_OBJ(vtxp->is<DfgVertexVar>() || vtxp->is<DfgConst>()  //
                         || !vtxp->hasMultipleSinks() || vtxp->isCheaperThanLoad(),  //
                     vtxp, "Intermediate DFG value with multiple uses");
         iterate(vtxp);
         UASSERT_OBJ(m_resultp, vtxp, "Missing result");
-        AstNodeExpr* const resultp = m_resultp;
+        Ast_முனை_கோவை* மாறிலி resultp = m_resultp;
         m_resultp = nullptr;
-        return resultp;
+        திரும்பு resultp;
     }
 
-    void createAssignment(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
+    வெறுமை createAssignment(File_வரி* flp, Ast_முனை_கோவை* lhsp, DfgVertex* driverp) {
         // Keep track of statisticss
         ++m_ctx.m_resultEquations;
         // Render the driver
-        AstNodeExpr* const rhsp = convertDfgVertexToAstNodeExpr(driverp);
+        Ast_முனை_கோவை* மாறிலி rhsp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(driverp);
         // Update LHS locations to reflect the location of the original driver
-        lhsp->foreach([&](AstNode* nodep) { nodep->fileline(flp); });
+        lhsp->foreach([&](Ast_முனை* nodep) { nodep->fileline(flp); });
 
         // If using a process, add Assign there
-        if (m_alwaysp) {
-            m_alwaysp->addStmtsp(new AstAssign{flp, lhsp, rhsp});
-            return;
+        எனில் (m_alwaysp) {
+            m_alwaysp->addStmtsp(புதிய AstAssign{flp, lhsp, rhsp});
+            திரும்பு;
         }
 
         // Otherwise create an AssignW
-        AstAssignW* const ap = new AstAssignW{flp, lhsp, rhsp};
-        m_activep->addStmtsp(new AstAlways{ap});
+        AstAssignW* மாறிலி ap = புதிய AstAssignW{flp, lhsp, rhsp};
+        m_activep->addStmtsp(புதிய AstAlways{ap});
     }
 
-    void convertDriver(FileLine* flp, AstNodeExpr* lhsp, DfgVertex* driverp) {
-        if (DfgSplicePacked* const sPackedp = driverp->cast<DfgSplicePacked>()) {
+    வெறுமை convertDriver(File_வரி* flp, Ast_முனை_கோவை* lhsp, DfgVertex* driverp) {
+        எனில் (DfgSplicePacked* மாறிலி sPackedp = driverp->cast<DfgSplicePacked>()) {
             // Partial assignment of packed value
-            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sPackedp->foreachDriver([&](DfgVertex& src, uint32_t lo, File_வரி* dflp) {
                 // Create Sel
-                AstConst* const lsbp = new AstConst{dflp, lo};
-                const int width = static_cast<int>(src.width());
-                AstSel* const nLhsp = new AstSel{dflp, lhsp->cloneTreePure(false), lsbp, width};
+                AstConst* மாறிலி lsbp = புதிய AstConst{dflp, lo};
+                மாறிலி முழு width = static_cast<முழு>(src.width());
+                AstSel* மாறிலி nLhsp = புதிய AstSel{dflp, lhsp->clone_மரம்_Pure(பொய்), lsbp, width};
                 // Convert source
                 convertDriver(dflp, nLhsp, &src);
                 // Delete Sel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_மரம்(), nLhsp);
+                திரும்பு பொய்;
             });
-            return;
+            திரும்பு;
         }
 
-        if (DfgSpliceArray* const sArrayp = driverp->cast<DfgSpliceArray>()) {
+        எனில் (DfgSpliceArray* மாறிலி sArrayp = driverp->cast<DfgSpliceArray>()) {
             // Partial assignment of array variable
-            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, FileLine* dflp) {
+            sArrayp->foreachDriver([&](DfgVertex& src, uint32_t lo, File_வரி* dflp) {
                 UASSERT_OBJ(src.size() == 1, &src, "We only handle single elements");
                 // Create ArraySel
-                AstConst* const idxp = new AstConst{dflp, lo};
-                AstArraySel* const nLhsp = new AstArraySel{dflp, lhsp->cloneTreePure(false), idxp};
+                AstConst* மாறிலி idxp = புதிய AstConst{dflp, lo};
+                AstArraySel* மாறிலி nLhsp = புதிய AstArraySel{dflp, lhsp->clone_மரம்_Pure(பொய்), idxp};
                 // Convert source
-                if (const DfgUnitArray* const uap = src.cast<DfgUnitArray>()) {
+                எனில் (மாறிலி DfgUnitArray* மாறிலி uap = src.cast<DfgUnitArray>()) {
                     convertDriver(dflp, nLhsp, uap->srcp());
-                } else {
+                } இல்லையெனில் {
                     convertDriver(dflp, nLhsp, &src);
                 }
                 // Delete ArraySel - was cloned
-                VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-                return false;
+                VL_DO_DANGLING(nLhsp->delete_மரம்(), nLhsp);
+                திரும்பு பொய்;
             });
-            return;
+            திரும்பு;
         }
 
-        if (const DfgUnitArray* const uap = driverp->cast<DfgUnitArray>()) {
+        எனில் (மாறிலி DfgUnitArray* மாறிலி uap = driverp->cast<DfgUnitArray>()) {
             // Single element array being assigned a unit array. Needs an ArraySel.
-            AstConst* const idxp = new AstConst{flp, 0};
-            AstArraySel* const nLhsp = new AstArraySel{flp, lhsp->cloneTreePure(false), idxp};
+            AstConst* மாறிலி idxp = புதிய AstConst{flp, 0};
+            AstArraySel* மாறிலி nLhsp = புதிய AstArraySel{flp, lhsp->clone_மரம்_Pure(பொய்), idxp};
             // Convert source
             convertDriver(flp, nLhsp, uap->srcp());
             // Delete ArraySel - was cloned
-            VL_DO_DANGLING(nLhsp->deleteTree(), nLhsp);
-            return;
+            VL_DO_DANGLING(nLhsp->delete_மரம்(), nLhsp);
+            திரும்பு;
         }
 
         // Base case: assign vertex to current lhs
-        createAssignment(flp, lhsp->cloneTreePure(false), driverp);
+        createAssignment(flp, lhsp->clone_மரம்_Pure(பொய்), driverp);
     }
 
     // VISITORS
-    void visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
+    வெறுமை visit(DfgVertex* vtxp) override {  // LCOV_EXCL_START
         vtxp->v3fatalSrc("Unhandled DfgVertex: " << vtxp->typeName());
     }  // LCOV_EXCL_STOP
 
-    void visit(DfgVarPacked* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    வெறுமை visit(DfgVarPacked* vtxp) override {
+        m_resultp = புதிய AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgVarArray* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    வெறுமை visit(DfgVarArray* vtxp) override {
+        m_resultp = புதிய AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgPrev* vtxp) override {
-        m_resultp = new AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
+    வெறுமை visit(DfgPrev* vtxp) override {
+        m_resultp = புதிய AstVarRef{vtxp->fileline(), vtxp->vscp(), VAccess::READ};
     }
 
-    void visit(DfgConst* vtxp) override {  //
-        m_resultp = new AstConst{vtxp->fileline(), vtxp->num()};
+    வெறுமை visit(DfgConst* vtxp) override {  //
+        m_resultp = புதிய AstConst{vtxp->fileline(), vtxp->இலக்கம்()};
     }
-    void visit(DfgCReset* vtxp) override {
-        DfgVertex* const sinkp = vtxp->singleSink();
+    வெறுமை visit(DfgCReset* vtxp) override {
+        DfgVertex* மாறிலி sinkp = vtxp->singleSink();
         UASSERT_OBJ(sinkp, vtxp, "CReset should only have one sink");
         UASSERT_OBJ(sinkp->is<DfgVertexVar>(), sinkp, "CReset should drive a variable");
-        AstVar* const varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
-        m_resultp = new AstCReset{vtxp->fileline(), varp, false};
+        AstVar* மாறிலி varp = sinkp->as<DfgVertexVar>()->vscp()->varp();
+        m_resultp = புதிய AstCReset{vtxp->fileline(), varp, பொய்};
     }
-    void visit(DfgMatchMasked* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const lhsp = convertDfgVertexToAstNodeExpr(vtxp->lhsp());
-        AstVarScope* const matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
-        m_resultp = new AstMatchMasked{flp, lhsp, new AstVarRef{flp, matchp, VAccess::READ}};
-    }
-
-    void visit(DfgRep* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const srcp = convertDfgVertexToAstNodeExpr(vtxp->srcp());
-        m_resultp = new AstReplicate{flp, srcp, vtxp->count()};
+    வெறுமை visit(DfgMatchMasked* vtxp) override {
+        File_வரி* மாறிலி flp = vtxp->fileline();
+        Ast_முனை_கோவை* மாறிலி lhsp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(vtxp->lhsp());
+        AstVarScope* மாறிலி matchp = vtxp->matchp()->as<DfgVertexVar>()->vscp();
+        m_resultp = புதிய AstMatchMasked{flp, lhsp, புதிய AstVarRef{flp, matchp, VAccess::READ}};
     }
 
-    void visit(DfgSel* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstConst* const lsbp = new AstConst{flp, vtxp->lsb()};
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    வெறுமை visit(DfgRep* vtxp) override {
+        File_வரி* மாறிலி flp = vtxp->fileline();
+        Ast_முனை_கோவை* மாறிலி srcp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(vtxp->srcp());
+        m_resultp = புதிய AstReplicate{flp, srcp, vtxp->மொத்தம்()};
     }
 
-    void visit(DfgMux* vtxp) override {
-        FileLine* const flp = vtxp->fileline();
-        AstNodeExpr* const fromp = convertDfgVertexToAstNodeExpr(vtxp->fromp());
-        AstNodeExpr* const lsbp = convertDfgVertexToAstNodeExpr(vtxp->lsbp());
-        m_resultp = new AstSel{flp, fromp, lsbp, static_cast<int>(vtxp->width())};
+    வெறுமை visit(DfgSel* vtxp) override {
+        File_வரி* மாறிலி flp = vtxp->fileline();
+        Ast_முனை_கோவை* மாறிலி fromp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(vtxp->fromp());
+        AstConst* மாறிலி lsbp = புதிய AstConst{flp, vtxp->lsb()};
+        m_resultp = புதிய AstSel{flp, fromp, lsbp, static_cast<முழு>(vtxp->width())};
+    }
+
+    வெறுமை visit(DfgMux* vtxp) override {
+        File_வரி* மாறிலி flp = vtxp->fileline();
+        Ast_முனை_கோவை* மாறிலி fromp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(vtxp->fromp());
+        Ast_முனை_கோவை* மாறிலி lsbp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(vtxp->lsbp());
+        m_resultp = புதிய AstSel{flp, fromp, lsbp, static_cast<முழு>(vtxp->width())};
     }
 
     // The rest of the 'visit' methods are generated by 'astgen'
-#include "V3Dfg__gen_dfg_to_ast.h"
+#அந்தர்பாவ "V3Dfg__gen_dfg_to_ast.h"
 
     // Constructor
     DfgToAstVisitor(DfgGraph& dfg, V3DfgDfgToAstContext& ctx)
         : m_ctx{ctx} {
-        if (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
+        எனில் (v3Global.opt.debugCheck()) V3DfgPasses::typeCheck(dfg);
 
         // Convert the graph back to combinational assignments. The graph must have been
         // regularized, so we only need to render variable assignments and update Ast references.
 
         // Render variable assignments
-        for (DfgVertexVar& vtx : dfg.varVertices()) {
+        க்கு (DfgVertexVar& vtx : dfg.varVertices()) {
             // If there is no driver (this vertex is an input to the graph), then nothing to do.
-            if (!vtx.srcp()) {
+            எனில் (!vtx.srcp()) {
                 UASSERT_OBJ(!vtx.defaultp(), &vtx, "Only default driver on variable");
-                continue;
+                தொடர்;
             }
 
             ++m_ctx.m_outputVariables;
 
             // Render variable assignments
-            FileLine* const flp = vtx.driverFileLine() ? vtx.driverFileLine() : vtx.fileline();
-            AstVarRef* const lhsp = new AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
+            File_வரி* மாறிலி flp = vtx.driver_File_வரி() ? vtx.driver_File_வரி() : vtx.fileline();
+            AstVarRef* மாறிலி lhsp = புதிய AstVarRef{flp, vtx.vscp(), VAccess::WRITE};
 
             // Add it to the scope holding the target variable
             VL_RESTORER(m_activep);
@@ -295,49 +295,49 @@ class DfgToAstVisitor final : DfgVisitor {
 
             // If there is a default value, render all drivers under an AstAlways
             VL_RESTORER(m_alwaysp);
-            if (DfgVertex* const defaultp = vtx.defaultp()) {
+            எனில் (DfgVertex* மாறிலி defaultp = vtx.defaultp()) {
                 ++m_ctx.m_outputVariablesWithDefault;
-                m_alwaysp = new AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
+                m_alwaysp = புதிய AstAlways{vtx.fileline(), VAlwaysKwd::ALWAYS_COMB, nullptr};
                 m_activep->addStmtsp(m_alwaysp);
                 // The default assignment needs to go first
-                createAssignment(vtx.fileline(), lhsp->cloneTreePure(false), defaultp);
+                createAssignment(vtx.fileline(), lhsp->clone_மரம்_Pure(பொய்), defaultp);
             }
 
             // Render the drivers
             convertDriver(flp, lhsp, vtx.srcp());
 
             // convetDriver always clones lhsp
-            VL_DO_DANGLING(lhsp->deleteTree(), lhsp);
+            VL_DO_DANGLING(lhsp->delete_மரம்(), lhsp);
         }
 
         // Update Ast References
-        for (DfgVertexAst& vtx : dfg.astVertices()) {
-            if (DfgAstRd* const rVtxp = vtx.cast<DfgAstRd>()) {
+        க்கு (DfgVertexAst& vtx : dfg.astVertices()) {
+            எனில் (DfgAstRd* மாறிலி rVtxp = vtx.cast<DfgAstRd>()) {
                 // Render the driver
-                AstNodeExpr* const exprp = convertDfgVertexToAstNodeExpr(rVtxp->srcp());
+                Ast_முனை_கோவை* மாறிலி exprp = convert_Dfg_Vertex_To_Ast_முனை_கோவை(rVtxp->srcp());
                 // If it's the same as the reference, do not replace it so FileLines are preserved
-                if (exprp->sameTree(rVtxp->exprp())) {
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
-                    continue;
+                எனில் (exprp->same_மரம்(rVtxp->exprp())) {
+                    VL_DO_DANGLING(exprp->delete_மரம்(), exprp);
+                    தொடர்;
                 }
                 // Replace the reference with the expression
-                if (VN_IS(exprp, VarRef)) {
+                எனில் (VN_IS(exprp, VarRef)) {
                     exprp->fileline(rVtxp->exprp()->fileline());
                     ++m_ctx.m_varRefsSubstituted;
-                } else {
+                } இல்லையெனில் {
                     ++m_ctx.m_expressionsInlined;
                 }
                 rVtxp->exprp()->replaceWith(exprp);
-                rVtxp->exprp()->deleteTree();
+                rVtxp->exprp()->delete_மரம்();
                 rVtxp->exprp(exprp);
             }
         }
     }
 
-public:
-    static void apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
+பொது:
+    நிலையான வெறுமை apply(DfgGraph& dfg, V3DfgDfgToAstContext& ctx) { DfgToAstVisitor{dfg, ctx}; }
 };
 
-void V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
+வெறுமை V3DfgPasses::dfgToAst(DfgGraph& dfg, V3DfgContext& ctx) {
     DfgToAstVisitor::apply(dfg, ctx.m_dfg2AstContext);
 }

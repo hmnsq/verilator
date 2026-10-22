@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3CAST_H_
 #define VERILATOR_V3CAST_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Cast final {
-public:
-    static void castAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை castAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

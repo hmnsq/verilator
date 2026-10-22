@@ -22,21 +22,21 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#அந்தர்பாவ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Localize.h"
+#அந்தர்பாவ "V3Localize.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Stats.h"
+#அந்தர்பாவ "V3AstUserAllocator.h"
+#அந்தர்பாவ "V3Stats.h"
 
-#include <vector>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // LocalizeVisitor
 
-class LocalizeVisitor final : public VNVisitor {
+வகுப்பு LocalizeVisitor final : பொது VNVisitor {
     // NODE STATE
     //  AstVarScope::user1()    ->  bool.  VarScope is not optimizable
     //  AstCFunc::user1()       ->  bool.  CFunc is not a leaf function
@@ -44,12 +44,12 @@ class LocalizeVisitor final : public VNVisitor {
     //  AstVarScope::user3p()   ->  Set of CFuncs referencing this VarScope. (via m_accessors)
     //  AstCFunc::user4p()      ->  Multimap of 'VarScope -> VarRefs that reference that VarScope'
     //                              in this function. (via m_references)
-    const VNUser1InUse m_user1InUse;
-    const VNUser3InUse m_user3InUse;
-    const VNUser4InUse m_user4InUse;
+    மாறிலி VNUser1InUse m_user1InUse;
+    மாறிலி VNUser3InUse m_user3InUse;
+    மாறிலி VNUser4InUse m_user4InUse;
 
     AstUser3Allocator<AstVarScope, std::unordered_set<AstCFunc*>> m_accessors;
-    AstUser4Allocator<AstCFunc, std::unordered_multimap<const AstVarScope*, AstVarRef*>>
+    AstUser4Allocator<AstCFunc, std::unordered_multimap<மாறிலி AstVarScope*, AstVarRef*>>
         m_references;
 
     // STATE - across all visitors
@@ -58,20 +58,20 @@ class LocalizeVisitor final : public VNVisitor {
 
     // STATE - for current visit position (use VL_RESTORER)
     AstCFunc* m_cfuncp = nullptr;  // Current active function
-    uint32_t m_nodeDepth = 0;  // Node depth under m_cfuncp
+    uint32_t m_முனை_Depth = 0;  // Node depth under m_cfuncp
 
     // METHODS
-    bool isOptimizable(AstVarScope* nodep) {
+    தருக்க isOptimizable(AstVarScope* nodep) {
         // Don't want to malloc/free the backing store all the time
-        if (VN_IS(nodep->dtypep(), NBACommitQueueDType)) return false;
+        எனில் (VN_IS(nodep->dtypep(), NBACommitQueueDType)) திரும்பு பொய்;
         // Do not localize strings. They result in unnecessary initialization
         // and bloated code size due to destructor calls when unused.
         // TODO: Local variables should be pushed into the narrowest scope rather
         // than emitted at the top of the function. See discussion in #6969.
-        if (nodep->dtypep()->skipRefp()->isString()) return false;
+        எனில் (nodep->dtypep()->skipRefp()->isString()) திரும்பு பொய்;
         // Variables used in super constructor call can't be localized, because
         // in C++ there is no way to declare them before base class constructor call
-        return ((!nodep->user1()  // Not marked as not optimizable, or ...
+        திரும்பு ((!nodep->user1()  // Not marked as not optimizable, or ...
                                   // .. a block temp used in a single CFunc
                  || (nodep->varp()->varType() == VVarType::BLOCKTEMP
                      && m_accessors(nodep).size() == 1))
@@ -79,52 +79,52 @@ class LocalizeVisitor final : public VNVisitor {
                 && nodep->varp()->dtypep()->widthTotalBytes() <= v3Global.opt.localizeMaxSize());
     }
 
-    static bool existsNonLeaf(const std::unordered_set<AstCFunc*>& funcps) {
-        for (const AstCFunc* const funcp : funcps) {
-            if (funcp->user1()) return true;
+    நிலையான தருக்க existsNonLeaf(மாறிலி std::unordered_set<AstCFunc*>& funcps) {
+        க்கு (மாறிலி AstCFunc* மாறிலி funcp : funcps) {
+            எனில் (funcp->user1()) திரும்பு உண்மை;
         }
-        return false;
+        திரும்பு பொய்;
     }
 
-    void moveVarScopes() {
-        for (AstVarScope* const nodep : m_varScopeps) {
-            if (!isOptimizable(nodep)) continue;  // Not optimizable
+    வெறுமை moveVarScopes() {
+        க்கு (AstVarScope* மாறிலி nodep : m_varScopeps) {
+            எனில் (!isOptimizable(nodep)) தொடர்;  // Not optimizable
 
-            const std::unordered_set<AstCFunc*>& funcps = m_accessors(nodep);
-            if (funcps.empty()) continue;  // No referencing functions at all
+            மாறிலி std::unordered_set<AstCFunc*>& funcps = m_accessors(nodep);
+            எனில் (funcps.empty()) தொடர்;  // No referencing functions at all
 
             // If more than one referencing function, but not all are leaf
             // functions, then don't localize, as one of the referencing
             // functions might be calling another, which the current analysis
             // cannot cope with. This should be rare (introduced by V3Depth).
-            if (funcps.size() > 1 && existsNonLeaf(funcps)) continue;
+            எனில் (funcps.size() > 1 && existsNonLeaf(funcps)) தொடர்;
 
             UINFO(4, "Localizing " << nodep);
             ++m_statLocVars;
 
             // Yank the VarScope from it's parent and schedule them for deletion. Leave the Var
             // for now, as not all VarScopes referencing this Var might be localized.
-            pushDeletep(nodep->unlinkFrBack());  // TODO nodep used past here
+            தள்ளு_Deletep(nodep->unlinkFrBack());  // TODO nodep used past here
 
             // In each referencing function, create a replacement local variable
-            AstVar* const oldVarp = nodep->varp();
-            for (AstCFunc* const funcp : funcps) {
+            AstVar* மாறிலி oldVarp = nodep->varp();
+            க்கு (AstCFunc* மாறிலி funcp : funcps) {
                 // Create the new local variable.
-                const string newName
+                மாறிலி string newName
                     = nodep->scopep() == funcp->scopep()
                           ? oldVarp->name()
                           : nodep->scopep()->nameDotless() + "__DOT__" + oldVarp->name();
-                AstVar* const newVarp
-                    = new AstVar{oldVarp->fileline(), oldVarp->varType(), newName, oldVarp};
-                newVarp->funcLocal(true);
+                AstVar* மாறிலி newVarp
+                    = புதிய AstVar{oldVarp->fileline(), oldVarp->varType(), newName, oldVarp};
+                newVarp->funcLocal(உண்மை);
                 newVarp->noReset(oldVarp->noReset());
                 newVarp->noSubst(oldVarp->noSubst());
                 funcp->addVarsp(newVarp);
 
                 // Fix up all the references within this function
-                const auto er = m_references(funcp).equal_range(nodep);
-                for (auto it = er.first; it != er.second; ++it) {
-                    AstVarRef* const refp = it->second;
+                மாறிலி auto er = m_references(funcp).equal_range(nodep);
+                க்கு (auto it = er.first; it != er.second; ++it) {
+                    AstVarRef* மாறிலி refp = it->second;
                     refp->varScopep(nullptr);
                     refp->varp(newVarp);
                 }
@@ -134,46 +134,46 @@ class LocalizeVisitor final : public VNVisitor {
     }
 
     // VISITORS
-    void visit(AstNetlist* nodep) override {
+    வெறுமை visit(AstNetlist* nodep) override {
         iterateChildrenConst(nodep);
         moveVarScopes();
     }
 
-    void visit(AstCAwait* nodep) override {
-        m_cfuncp->user1(true);  // Mark caller as not a leaf function
+    வெறுமை visit(AstCAwait* nodep) override {
+        m_cfuncp->user1(உண்மை);  // Mark caller as not a leaf function
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    வெறுமை visit(AstCFunc* nodep) override {
         UINFO(4, "  CFUNC " << nodep);
         VL_RESTORER(m_cfuncp);
-        VL_RESTORER(m_nodeDepth);
+        VL_RESTORER(m_முனை_Depth);
         m_cfuncp = nodep;
-        m_nodeDepth = 0;
-        const VNUser2InUse user2InUse;
+        m_முனை_Depth = 0;
+        மாறிலி VNUser2InUse user2InUse;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstCNew* nodep) override {
-        m_cfuncp->user1(true);  // Mark caller as not a leaf function
+    வெறுமை visit(AstCNew* nodep) override {
+        m_cfuncp->user1(உண்மை);  // Mark caller as not a leaf function
         iterateChildren(nodep);
     }
 
-    void visit(AstCCall* nodep) override {
-        m_cfuncp->user1(true);  // Mark caller as not a leaf function
+    வெறுமை visit(AstCCall* nodep) override {
+        m_cfuncp->user1(உண்மை);  // Mark caller as not a leaf function
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeAssign* nodep) override {
+    வெறுமை visit(Ast_முனை_Assign* nodep) override {
         // Analyze RHS first so "a = a + 1" is detected as a read before write
         iterate(nodep->rhsp());
         // For now we only consider an assignment that is directly under the function, (in
         // particular: not under an AstIf, or other kind of branch). This could be improved with
         // proper data flow analysis.
-        if (m_nodeDepth == 0) {
+        எனில் (m_முனை_Depth == 0) {
             // Check if simple "VARREF = ..." assignment, i.e.: this assignment sets the whole
             // variable (and in particular, it is not assigned only in part).
-            if (const AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
+            எனில் (மாறிலி AstVarRef* மாறிலி refp = VN_CAST(nodep->lhsp(), VarRef)) {
                 // Mark this VarScope as assigned in this function
                 refp->varScopep()->user2(1);
             }
@@ -182,8 +182,8 @@ class LocalizeVisitor final : public VNVisitor {
         iterate(nodep->lhsp());
     }
 
-    void visit(AstVarScope* nodep) override {
-        if (!nodep->varp()->isPrimaryIO()  // Not an IO the user wants to interact with
+    வெறுமை visit(AstVarScope* nodep) override {
+        எனில் (!nodep->varp()->isPrimaryIO()  // Not an IO the user wants to interact with
             && !nodep->varp()->isSigPublic()  // Not something the user wants to interact with
             && !nodep->varp()->isFuncLocal()  // Not already a function local (e.g.: argument)
             && !nodep->varp()->isClassMember()  // Statically exists in design hierarchy
@@ -193,25 +193,25 @@ class LocalizeVisitor final : public VNVisitor {
             && !nodep->varp()->valuep()  // Does not have an initializer
         ) {
             UINFO(4, "Consider for localization: " << nodep);
-            m_varScopeps.push_back(nodep);
+            m_varScopeps.தள்ளு_back(nodep);
         }
         // No iterate; Don't want varrefs under it (e.g.: in child dtype?)
     }
 
-    void visit(AstVarRef* nodep) override {
+    வெறுமை visit(AstVarRef* nodep) override {
         UASSERT_OBJ(m_cfuncp, nodep, "AstVarRef not under function");
 
-        AstVarScope* const varScopep = nodep->varScopep();
+        AstVarScope* மாறிலி varScopep = nodep->varScopep();
         // Remember this function accesses this VarScope (we always need this as we might optimize
         // this VarScope into a local, even if it's not assigned. See 'isOptimizable')
-        m_accessors(varScopep).insert(m_cfuncp);  // emplace performs a temporary malloc
+        m_accessors(varScopep).செருகு(m_cfuncp);  // emplace performs a temporary malloc
         // Remember the reference so we can fix it up later (we always need this as well)
         m_references(m_cfuncp).emplace(varScopep, nodep);
 
-        if (!varScopep->user1()) {  // Check if already marked as not optimizable
+        எனில் (!varScopep->user1()) {  // Check if already marked as not optimizable
             // Note: we only check read variables, as it's ok to localize (and in fact discard)
             // any variables that are only written but never read.
-            if (nodep->access().isReadOrRW() && !varScopep->user2()) {
+            எனில் (nodep->access().isReadOrRW() && !varScopep->user2()) {
                 // Variable is read, but is not known to have been assigned in this function. Mark
                 // as not optimizable.
                 UINFO(4, "Not optimizable (not written): " << nodep);
@@ -221,13 +221,13 @@ class LocalizeVisitor final : public VNVisitor {
         // No iterate; Don't want varrefs under it  (e.g.: in child dtype?)
     }
 
-    void visit(AstNode* nodep) override {
-        VL_RESTORER(m_nodeDepth);
-        ++m_nodeDepth;
+    வெறுமை visit(Ast_முனை* nodep) override {
+        VL_RESTORER(m_முனை_Depth);
+        ++m_முனை_Depth;
         iterateChildrenConst(nodep);
     }
 
-public:
+பொது:
     // CONSTRUCTORS
     explicit LocalizeVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~LocalizeVisitor() override {
@@ -238,8 +238,8 @@ public:
 //######################################################################
 // Localize class functions
 
-void V3Localize::localizeAll(AstNetlist* nodep) {
+வெறுமை V3Localize::localizeAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { LocalizeVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("localize", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_மரம்("localize", 0, dump_மரம்_Either_Level() >= 6);
 }

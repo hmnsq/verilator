@@ -17,10 +17,10 @@
 #ifndef VERILATOR_V3PAIRINGHEAP_H_
 #define VERILATOR_V3PAIRINGHEAP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Error.h"
+#அந்தர்பாவ "V3Error.h"
 
 //=============================================================================
 // Pairing heap (max-heap) with increase key and delete.
@@ -34,85 +34,85 @@
 // the order of operations performed on the heap.
 //=============================================================================
 
-template <typename T_Key>
+template <typename T_சாவி>
 class PairingHeap final {
-public:
-    struct Node;
+பொது:
+    கட்டமைப்பு முனை_2;
 
     // Just a pointer to a heap Node, but with special accessors to help keep back pointers
     // consistent.
-    struct Link final {
-        Node* m_ptr = nullptr;  // The managed pointer
+    கட்டமைப்பு Link final {
+        முனை_2* m_ptr = nullptr;  // The managed pointer
 
-        Link() = default;
+        Link() = இயல்பு;
         VL_UNCOPYABLE(Link);
 
         // Make the pointer point to the target, and the target's owner pointer to this pointer
-        VL_ATTR_ALWINLINE void link(Node* targetp) {
+        VL_ATTR_ALWINLINE வெறுமை link(முனை_2* targetp) {
             m_ptr = targetp;
-            if (!targetp) return;
-#if VL_DEBUG
+            எனில் (!targetp) திரும்பு;
+#எனில் VL_DEBUG
             UASSERT(!targetp->m_ownerpp, "Already linked");
 #endif
             targetp->m_ownerpp = &m_ptr;
         }
 
         // Make the pointer point to the target, and the target's owner pointer to this pointer
-        VL_ATTR_ALWINLINE void linkNonNull(Node* targetp) {
+        VL_ATTR_ALWINLINE வெறுமை linkNonNull(முனை_2* targetp) {
             m_ptr = targetp;
-#if VL_DEBUG
+#எனில் VL_DEBUG
             UASSERT(!targetp->m_ownerpp, "Already linked");
 #endif
             targetp->m_ownerpp = &m_ptr;
         }
 
         // Clear the pointer and return it's previous value
-        VL_ATTR_ALWINLINE Node* unlink() {
-            Node* const result = m_ptr;
-#if VL_DEBUG
-            if (result) {
+        VL_ATTR_ALWINLINE முனை_2* unlink() {
+            முனை_2* மாறிலி result = m_ptr;
+#எனில் VL_DEBUG
+            எனில் (result) {
                 UASSERT(m_ptr->m_ownerpp == &m_ptr, "Bad back link");
                 // Not strictly necessary to clear this, but helps debugging
                 m_ptr->m_ownerpp = nullptr;
             }
 #endif
             m_ptr = nullptr;
-            return result;
+            திரும்பு result;
         }
 
         // Minimal convenience accessors and operators
-        VL_ATTR_ALWINLINE Node* ptr() const { return m_ptr; }
-        VL_ATTR_ALWINLINE operator bool() const { return m_ptr; }
-        VL_ATTR_ALWINLINE bool operator!() const { return !m_ptr; }
-        VL_ATTR_ALWINLINE Node* operator->() const { return m_ptr; }
-        VL_ATTR_ALWINLINE Node& operator*() const { return *m_ptr; }
+        VL_ATTR_ALWINLINE முனை_2* ptr() மாறிலி { திரும்பு m_ptr; }
+        VL_ATTR_ALWINLINE operator bool() மாறிலி { திரும்பு m_ptr; }
+        VL_ATTR_ALWINLINE bool operator!() மாறிலி { திரும்பு !m_ptr; }
+        VL_ATTR_ALWINLINE முனை_2* operator->() மாறிலி { திரும்பு m_ptr; }
+        VL_ATTR_ALWINLINE முனை_2& operator*() மாறிலி { திரும்பு *m_ptr; }
     };
 
     // A single node in the pairing heap tree
-    struct Node VL_NOT_FINAL {
+    கட்டமைப்பு முனை_2 VL_NOT_FINAL {
         Link m_next;  // Next in list of sibling heaps
         Link m_kids;  // Head of list of child heaps
-        Node** m_ownerpp = nullptr;  // Pointer to the Link pointer pointing to this heap
-        T_Key m_key{};  // The key in the heap
+        முனை_2** m_ownerpp = nullptr;  // Pointer to the Link pointer pointing to this heap
+        T_சாவி m_சாவி{};  // The key in the heap
 
         // CONSTRUCTOR
-        explicit Node() = default;
-        VL_UNCOPYABLE(Node);
+        explicit முனை_2() = இயல்பு;
+        VL_UNCOPYABLE(முனை_2);
 
         // METHODS
-        VL_ATTR_ALWINLINE const T_Key& key() const { return m_key; }
-        VL_ATTR_ALWINLINE bool operator<(const Node& that) const { return m_key < that.m_key; }
-        VL_ATTR_ALWINLINE bool operator>(const Node& that) const { return that.m_key < m_key; }
+        VL_ATTR_ALWINLINE மாறிலி T_சாவி& சாவி() மாறிலி { திரும்பு m_சாவி; }
+        VL_ATTR_ALWINLINE bool operator<(மாறிலி முனை_2& that) மாறிலி { திரும்பு m_சாவி < that.m_சாவி; }
+        VL_ATTR_ALWINLINE bool operator>(மாறிலி முனை_2& that) மாறிலி { திரும்பு that.m_சாவி < m_சாவி; }
 
         // Make newp take the place of this in the tree
-        VL_ATTR_ALWINLINE void replaceWith(Node* newp) {
+        VL_ATTR_ALWINLINE வெறுமை replaceWith(முனை_2* newp) {
             *m_ownerpp = newp;  // The owner pointer needs to point to the new node
-            if (newp) newp->m_ownerpp = m_ownerpp;  // The new node needs to point to its owner
+            எனில் (newp) newp->m_ownerpp = m_ownerpp;  // The new node needs to point to its owner
             m_ownerpp = nullptr;  // This node has no owner anymore
         }
 
         // Make newp take the place of this in the tree
-        VL_ATTR_ALWINLINE void replaceWithNonNull(Node* newp) {
+        VL_ATTR_ALWINLINE வெறுமை replaceWithNonNull(முனை_2* newp) {
             *m_ownerpp = newp;  // The owner pointer needs to point to the new node
             newp->m_ownerpp = m_ownerpp;  // The new node needs to point to its owner
             m_ownerpp = nullptr;  // This node has no owner anymore
@@ -122,181 +122,181 @@ public:
         // into another heap. Note that this leaves the heap the node is currently under in an
         // inconsistent state, so you cannot access it anymore. Still this can save a remove if we
         // don't care about the state of the source heap.
-        VL_ATTR_ALWINLINE void yank() {
+        VL_ATTR_ALWINLINE வெறுமை yank() {
             m_next.link(nullptr);
             m_kids.link(nullptr);
             m_ownerpp = nullptr;
         }
     };
 
-private:
+தனிப்பட்ட:
     // MEMBERS
 
     // The root of the heap. Note: We do not reduce lists during insertion/removal etc, unless we
     // absolutely have to. This means the root can become a list. This is ok, we will reduce
     // lazily when requesting the minimum element.
-    mutable Link m_root;
+    mutable Link m_வேர்;
 
     // CONSTRUCTORS
     VL_UNCOPYABLE(PairingHeap);
 
-public:
-    explicit PairingHeap() = default;
+பொது:
+    explicit PairingHeap() = இயல்பு;
 
     // METHODS
-    bool empty() const { return !m_root; }
+    bool empty() மாறிலி { திரும்பு !m_வேர்; }
 
     // Insert given node into this heap with given key.
-    void insert(Node* nodep, T_Key key) {
+    வெறுமை செருகு(முனை_2* nodep, T_சாவி சாவி) {
         // Update key of node
-        nodep->m_key = key;
-        insert(nodep);
+        nodep->m_சாவி = சாவி;
+        செருகு(nodep);
     }
 
     // Insert given node into this heap with key already set in the node
-    void insert(Node* nodep) {
-#if VL_DEBUG
+    வெறுமை செருகு(முனை_2* nodep) {
+#எனில் VL_DEBUG
         UASSERT(!nodep->m_ownerpp && !nodep->m_next && !nodep->m_kids, "Already linked");
 #endif
         // Just stick it at the front of the root list
-        nodep->m_next.link(m_root.unlink());
-        m_root.linkNonNull(nodep);
+        nodep->m_next.link(m_வேர்.unlink());
+        m_வேர்.linkNonNull(nodep);
     }
 
     // Remove given node only from the heap it is contained in
-    void remove(Node* nodep) {
-        if (!nodep->m_next) {
+    வெறுமை remove(முனை_2* nodep) {
+        எனில் (!nodep->m_next) {
             // If the node does not have siblings, replace it with its children (might be empty).
             nodep->replaceWith(nodep->m_kids.unlink());
-        } else if (!nodep->m_kids) {
+        } இல்லையெனில் எனில் (!nodep->m_kids) {
             // If it has siblings but no children, replace it with the siblings.
             nodep->replaceWithNonNull(nodep->m_next.unlink());
-        } else {
+        } இல்லையெனில் {
             // If it has both siblings and children, reduce the children and splice that
             // reduced heap in place of this node
-            Node* const reducedKidsp = reduce(nodep->m_kids.unlink());
+            முனை_2* மாறிலி reducedKidsp = reduce(nodep->m_kids.unlink());
             reducedKidsp->m_next.linkNonNull(nodep->m_next.unlink());
             nodep->replaceWithNonNull(reducedKidsp);
         }
     }
 
     // Returns the largest element in the heap
-    Node* max() const {
+    முனை_2* max() மாறிலி {
         // Heap might be empty
-        if (!m_root) return nullptr;
+        எனில் (!m_வேர்) திரும்பு nullptr;
         // If the root have siblings reduce them
-        if (m_root->m_next) m_root.linkNonNull(reduce(m_root.unlink()));
+        எனில் (m_வேர்->m_next) m_வேர்.linkNonNull(reduce(m_வேர்.unlink()));
         // The root element is the largest
-        return m_root.ptr();
+        திரும்பு m_வேர்.ptr();
     }
 
     // Returns the second-largest element in the heap.
     // This is only valid to call if 'max' returned a valid element.
-    Node* secondMax() const {
-#if VL_DEBUG
-        UASSERT(m_root, "'max' would have returned nullptr");
-        UASSERT(!m_root->m_next, "'max' would have reduced");
+    முனை_2* secondMax() மாறிலி {
+#எனில் VL_DEBUG
+        UASSERT(m_வேர், "'max' would have returned nullptr");
+        UASSERT(!m_வேர்->m_next, "'max' would have reduced");
 #endif
         // If there are no children, there is no second element
-        if (!m_root->m_kids) return nullptr;
+        எனில் (!m_வேர்->m_kids) திரும்பு nullptr;
         // If there are multiple children, reduce them
-        if (m_root->m_kids->m_next) m_root->m_kids.linkNonNull(reduce(m_root->m_kids.unlink()));
+        எனில் (m_வேர்->m_kids->m_next) m_வேர்->m_kids.linkNonNull(reduce(m_வேர்->m_kids.unlink()));
         // Return the now singular child, which is the second-largest element
-        return m_root->m_kids.ptr();
+        திரும்பு m_வேர்->m_kids.ptr();
     }
 
     // Increase the key of the given node to the given new value
     template <typename T_Update>
-    void increaseKey(Node* nodep, T_Update value) {
+    வெறுமை increase_சாவி(முனை_2* nodep, T_Update மதிப்பு) {
         // Update the key
-        nodep->m_key.increase(value);
+        nodep->m_சாவி.increase(மதிப்பு);
         // Increasing the key of the root is easy
-        if (nodep == m_root.ptr()) return;
+        எனில் (nodep == m_வேர்.ptr()) திரும்பு;
         // Otherwise we do have a little work to do
-        if (!nodep->m_kids) {
+        எனில் (!nodep->m_kids) {
             // If the node has no children, replace it with its siblings (might be null)
             nodep->replaceWith(nodep->m_next.unlink());
-        } else if (!nodep->m_next) {
+        } இல்லையெனில் எனில் (!nodep->m_next) {
             // If the node has no siblings, replace it with its children
             nodep->replaceWithNonNull(nodep->m_kids.unlink());
-        } else {
+        } இல்லையெனில் {
             // The node has both children and siblings. Splice the first child in the place of the
             // node, and extract the rest of the children with the node
-            Node* const kidsp = nodep->m_kids.unlink();
+            முனை_2* மாறிலி kidsp = nodep->m_kids.unlink();
             nodep->m_kids.link(kidsp->m_next.unlink());
             kidsp->m_next.linkNonNull(nodep->m_next.unlink());
             nodep->replaceWithNonNull(kidsp);
         }
         // Just stick the increased node at the front of the root list
-        nodep->m_next.linkNonNull(m_root.unlink());
-        m_root.linkNonNull(nodep);
+        nodep->m_next.linkNonNull(m_வேர்.unlink());
+        m_வேர்.linkNonNull(nodep);
     }
 
-private:
+தனிப்பட்ட:
     // Meld (merge) two heaps rooted at the given nodes, return the root of the new heap
-    VL_ATTR_ALWINLINE static Node* merge(Node* ap, Node* bp) {
-#if VL_DEBUG
+    VL_ATTR_ALWINLINE நிலையான முனை_2* merge(முனை_2* ap, முனை_2* bp) {
+#எனில் VL_DEBUG
         UASSERT(!ap->m_ownerpp && !ap->m_next, "Not root a");
         UASSERT(!bp->m_ownerpp && !bp->m_next, "Not root b");
 #endif
-        if (*ap > *bp) {  // bp goes under ap
+        எனில் (*ap > *bp) {  // bp goes under ap
             bp->m_next.link(ap->m_kids.unlink());
             ap->m_kids.linkNonNull(bp);
-            return ap;
+            திரும்பு ap;
         }  // else ap goes under bp
         ap->m_next.link(bp->m_kids.unlink());
         bp->m_kids.linkNonNull(ap);
-        return bp;
+        திரும்பு bp;
     }
 
     // Reduces the list of nodes starting at the given node into a single node that is returned
-    VL_ATTR_NOINLINE static Node* reduce(Node* nodep) {
-#if VL_DEBUG
+    VL_ATTR_NOINLINE நிலையான முனை_2* reduce(முனை_2* nodep) {
+#எனில் VL_DEBUG
         UASSERT(!nodep->m_ownerpp, "Node is linked");
 #endif
         // If there is only one node in the list, then there is nothing to do
-        if (!nodep->m_next) return nodep;
+        எனில் (!nodep->m_next) திரும்பு nodep;
         // The result node
-        Node* resultp = nullptr;
+        முனை_2* resultp = nullptr;
         // Pairwise merge the child nodes
-        while (nodep) {
+        போது (nodep) {
             // Pop off the first nodes
-            Node* const ap = nodep;
+            முனை_2* மாறிலி ap = nodep;
             // If we have an odd number of nodes, prepend the unpaired one onto the result list
-            if (!nodep->m_next) {
+            எனில் (!nodep->m_next) {
                 ap->m_next.link(resultp);
                 resultp = ap;
-                break;
+                நிறுத்து;
             }
             // Pop off the second nodes
-            Node* const bp = nodep->m_next.unlink();
+            முனை_2* மாறிலி bp = nodep->m_next.unlink();
             // Keep hold of the rest of the list
             nodep = bp->m_next.unlink();
             // Merge the current pair
-            Node* const mergedp = merge(ap, bp);
+            முனை_2* மாறிலி mergedp = merge(ap, bp);
             // Prepend the merged pair to the result list
             mergedp->m_next.link(resultp);
             resultp = mergedp;
         }
         // Now merge-reduce the merged pairs
-        while (resultp->m_next) {
+        போது (resultp->m_next) {
             // Pop first two results
-            Node* const ap = resultp;
-            Node* const bp = resultp->m_next.unlink();
+            முனை_2* மாறிலி ap = resultp;
+            முனை_2* மாறிலி bp = resultp->m_next.unlink();
             // Keep hold of the rest of the list
             resultp = bp->m_next.unlink();
             // Merge the current pair
-            Node* const mergedp = merge(ap, bp);
+            முனை_2* மாறிலி mergedp = merge(ap, bp);
             // Prepend the merged pair to the result list
             mergedp->m_next.link(resultp);
             resultp = mergedp;
         }
         // Done
-        return resultp;
+        திரும்பு resultp;
     }
 };
 
 // The PairingHeap itself should be a simple pointer and nothing more
-static_assert(sizeof(PairingHeap<int>) == sizeof(PairingHeap<int>::Node*), "Should be a pointer");
+static_assert(அளவு(PairingHeap<முழு>) == அளவு(PairingHeap<முழு>::முனை_2*), "Should be a pointer");
 
 #endif  // Guard

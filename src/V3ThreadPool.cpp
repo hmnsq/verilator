@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#include "V3ThreadPool.h"
+#அந்தர்பாவ "V3ThreadPool.h"
 
-#include "V3Error.h"
-#include "V3Global.h"
-#include "V3Mutex.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3Global.h"
+#அந்தர்பாவ "V3Mutex.h"
 
-V3ThreadPool::V3ThreadPool(int numThreads) {
-    numThreads = std::max(numThreads, 1);
-    if (numThreads == 1) return;
-    for (int i = 0; i < numThreads; ++i) {
-        m_workers.emplace_back(&V3ThreadPool::startWorker, this);
+V3ThreadPool::V3ThreadPool(முழு இலக்கம்_Threads) {
+    இலக்கம்_Threads = std::max(இலக்கம்_Threads, 1);
+    எனில் (இலக்கம்_Threads == 1) திரும்பு;
+    க்கு (முழு i = 0; i < இலக்கம்_Threads; ++i) {
+        m_workers.emplace_back(&V3ThreadPool::startWorker, இது);
     }
 }
 
 V3ThreadPool::~V3ThreadPool() {
     {
-        const V3LockGuard lock{m_mutex};
-        m_shutdown = true;
+        மாறிலி V3LockGuard lock{m_mutex};
+        m_shutdown = உண்மை;
     }
     m_cv.notify_all();
     wait();
 }
 
-void V3ThreadPool::enqueue(std::function<void()>&& f) {
-    if (m_workers.empty()) {
+வெறுமை V3ThreadPool::enqueue(std::function<வெறுமை()>&& f) {
+    எனில் (m_workers.empty()) {
         f();
-    } else {
+    } இல்லையெனில் {
         {
-            const V3LockGuard lock{m_mutex};
-            m_queue.push(std::move(f));
+            மாறிலி V3LockGuard lock{m_mutex};
+            m_queue.தள்ளு(std::move(f));
         }
         m_pendingJobs.fetch_add(1, std::memory_order_release);
         m_cv.notify_one();
     }
 }
 
-void V3ThreadPool::wait() {
-    while (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
+வெறுமை V3ThreadPool::wait() {
+    போது (m_pendingJobs.load(std::memory_order_acquire) > 0 && !m_shutdown) {
         std::this_thread::yield();
     }
-    if (m_shutdown) {
-        for (auto& worker : m_workers) worker.join();
+    எனில் (m_shutdown) {
+        க்கு (auto& worker : m_workers) worker.join();
     }
 }
 
-void V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
+வெறுமை V3ThreadPool::startWorker(V3ThreadPool* selfThreadp) { selfThreadp->workerJobLoop(); }
 
-void V3ThreadPool::workerJobLoop() {
-    while (true) {
-        std::function<void()> job;
+வெறுமை V3ThreadPool::workerJobLoop() {
+    போது (உண்மை) {
+        std::function<வெறுமை()> job;
         {
             // Locking before `condition_variable::wait` is required to ensure that the
             // `m_cv` condition will be executed under a lock. Taking a lock
@@ -72,50 +72,50 @@ void V3ThreadPool::workerJobLoop() {
             // before) but, according to C++ standard, the `condition_variable::wait` first checks
             // the condition and then waits for the notification, thus even when notification is
             // missed, the condition still will be checked.
-            const V3LockGuard lock{m_mutex};
+            மாறிலி V3LockGuard lock{m_mutex};
             m_cv.wait(m_mutex,
-                      [&]() VL_REQUIRES(m_mutex) { return !m_queue.empty() || m_shutdown; });
-            if (m_shutdown) return;  // Terminate if requested
+                      [&]() VL_REQUIRES(m_mutex) { திரும்பு !m_queue.empty() || m_shutdown; });
+            எனில் (m_shutdown) திரும்பு;  // Terminate if requested
             UASSERT(!m_queue.empty(), "Job should be available");
-            if (m_queue.empty()) continue;
+            எனில் (m_queue.empty()) தொடர்;
             job = std::move(m_queue.front());
-            m_queue.pop();
+            m_queue.எடு();
         }
         job();
         m_pendingJobs.fetch_sub(1, std::memory_order_release);
     }
 }
 
-void V3ThreadPool::selfTestMtDisabled() {
+வெறுமை V3ThreadPool::selfTestMtDisabled() {
     // empty
 }
 
-void V3ThreadPool::selfTest() {
+வெறுமை V3ThreadPool::selfTest() {
     V3Mutex commonMutex;
-    int commonValue{0};
+    முழு common_மதிப்பு{0};
 
-    auto firstJob = [&](int sleep) -> void {
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        const V3LockGuard lock{commonMutex};
-        commonValue = 10;
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep + 10});
-        UASSERT(commonValue == 10, "unexpected commonValue = " << commonValue);
+    auto firstJob = [&](முழு ஸுஷுப்தி) -> வெறுமை {
+        std::this_thread::sleep_for(std::chrono::milliseconds{ஸுஷுப்தி});
+        மாறிலி V3LockGuard lock{commonMutex};
+        common_மதிப்பு = 10;
+        std::this_thread::sleep_for(std::chrono::milliseconds{ஸுஷுப்தி + 10});
+        UASSERT(common_மதிப்பு == 10, "unexpected commonValue = " << common_மதிப்பு);
     };
-    auto secondJob = [&](int sleep) -> void {
+    auto secondJob = [&](முழு ஸுஷுப்தி) -> வெறுமை {
         commonMutex.lock();
         commonMutex.unlock();
-        const V3LockGuard lock{commonMutex};
-        std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
-        commonValue = 1000;
+        மாறிலி V3LockGuard lock{commonMutex};
+        std::this_thread::sleep_for(std::chrono::milliseconds{ஸுஷுப்தி});
+        common_மதிப்பு = 1000;
     };
-    auto thirdJob = [&](int sleep) -> void {
+    auto thirdJob = [&](முழு ஸுஷுப்தி) -> வெறுமை {
         {
-            const V3LockGuard lock{commonMutex};
-            std::this_thread::sleep_for(std::chrono::milliseconds{sleep});
+            மாறிலி V3LockGuard lock{commonMutex};
+            std::this_thread::sleep_for(std::chrono::milliseconds{ஸுஷுப்தி});
         }
-        firstJob(sleep);
-        const V3LockGuard lock{commonMutex};
-        commonValue = 100;
+        firstJob(ஸுஷுப்தி);
+        மாறிலி V3LockGuard lock{commonMutex};
+        common_மதிப்பு = 100;
     };
     {
         V3ThreadScope scope;
@@ -129,25 +129,25 @@ void V3ThreadPool::selfTest() {
         scope.enqueue(std::bind(firstJob, 300));
         scope.wait();
 
-        UASSERT(commonValue == 1000 || commonValue == 10,
-                "unexpected common value = " << commonValue);
+        UASSERT(common_மதிப்பு == 1000 || common_மதிப்பு == 10,
+                "unexpected common value = " << common_மதிப்பு);
 
         scope.enqueue(std::bind(thirdJob, 100));
         scope.enqueue(std::bind(thirdJob, 100));
     }
 
-    UASSERT(commonValue == 100, "unexpected common value = " << commonValue);
+    UASSERT(common_மதிப்பு == 100, "unexpected common value = " << common_மதிப்பு);
 
     {
         V3ThreadScope scope;
         scope.enqueue(std::bind(firstJob, 100));
     }
 
-    UASSERT(commonValue == 10, "unexpected common value = " << commonValue);
+    UASSERT(common_மதிப்பு == 10, "unexpected common value = " << common_மதிப்பு);
 
     {
-        int result = 0;
-        auto forthJob = [&]() -> void { result = 1234; };
+        முழு result = 0;
+        auto forthJob = [&]() -> வெறுமை { result = 1234; };
 
         V3ThreadScope scope;
         scope.enqueue(forthJob);
@@ -163,6 +163,6 @@ V3ThreadScope::V3ThreadScope() {
     wait();
 }
 
-void V3ThreadScope::enqueue(std::function<void()>&& f) { m_pool->enqueue(std::move(f)); }
+வெறுமை V3ThreadScope::enqueue(std::function<வெறுமை()>&& f) { m_pool->enqueue(std::move(f)); }
 
-void V3ThreadScope::wait() { m_pool->wait(); }
+வெறுமை V3ThreadScope::wait() { m_pool->wait(); }

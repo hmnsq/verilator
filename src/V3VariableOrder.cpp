@@ -31,146 +31,146 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#அந்தர்பாவ "V3PchAstMT.h"
 
-#include "V3VariableOrder.h"
+#அந்தர்பாவ "V3VariableOrder.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3ExecGraph.h"
-#include "V3Stats.h"
+#அந்தர்பாவ "V3AstUserAllocator.h"
+#அந்தர்பாவ "V3ExecGraph.h"
+#அந்தர்பாவ "V3Stats.h"
 
-#include <algorithm>
-#include <cstdint>
-#include <vector>
+#அந்தர்பாவ <algorithm>
+#அந்தர்பாவ <cstdint>
+#அந்தர்பாவ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-using MTaskIdVec = std::vector<bool>;  // Used as a bit-set indexed by MTask ID
+using MTaskIdVec = std::vector<தருக்க>;  // Used as a bit-set indexed by MTask ID
 // Writing MTasks of each variable accessed by any MTask
-using MTaskWritersMap = std::unordered_map<const AstVar*, MTaskIdVec>;
+using MTaskWritersMap = std::unordered_map<மாறிலி AstVar*, MTaskIdVec>;
 
 // Trace through code reachable from an MTask and record the writers of referenced variables
-class GatherMTaskWriters final : VNVisitorConst {
+வகுப்பு GatherMTaskWriters final : VNVisitorConst {
     // NODE STATE
     //  AstCFunc::user1()  // bool: Already traced this function
     //  AstVar::user1()  // bool: Already traced this variable
-    const VNUser1InUse m_user1InUse;
+    மாறிலி VNUser1InUse m_user1InUse;
 
     // STATE
     MTaskWritersMap& m_results;  // The result map being built;
-    const uint32_t m_id;  // Id of mtask being analysed
-    const size_t m_usedIds = ExecMTask::numUsedIds();  // Value of max id + 1
+    மாறிலி uint32_t m_id;  // Id of mtask being analysed
+    மாறிலி size_t m_usedIds = ExecMTask::இலக்கம்_Used_Ids();  // Value of max id + 1
 
     // CONSTRUCTOR
-    GatherMTaskWriters(const ExecMTask* mTaskp, MTaskWritersMap& results)
+    GatherMTaskWriters(மாறிலி ExecMTask* mTaskp, MTaskWritersMap& results)
         : m_results{results}
         , m_id{mTaskp->id()} {
         iterateConst(mTaskp->funcp());
     }
-    ~GatherMTaskWriters() = default;
+    ~GatherMTaskWriters() = இயல்பு;
     VL_UNMOVABLE(GatherMTaskWriters);
 
     // VISIT
-    void visit(AstNodeVarRef* nodep) override {
+    வெறுமை visit(Ast_முனை_Var_Ref* nodep) override {
         // Cheaper than relying on emplace().second
-        if (nodep->user1SetOnce()) return;
-        AstVar* const varp = nodep->varp();
+        எனில் (nodep->user1SetOnce()) திரும்பு;
+        AstVar* மாறிலி varp = nodep->varp();
         // Record the access, and the writer bit if written
         MTaskIdVec& writers = m_results
                                   .emplace(std::piecewise_construct,  //
                                            std::forward_as_tuple(varp),  //
                                            std::forward_as_tuple(m_usedIds))
                                   .first->second;
-        if (nodep->access().isWriteOrRW()) writers[m_id] = true;
+        எனில் (nodep->access().isWriteOrRW()) writers[m_id] = உண்மை;
     }
 
-    void visit(AstCFunc* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Prevent repeat traversals/recursion
+    வெறுமை visit(AstCFunc* nodep) override {
+        எனில் (nodep->user1SetOnce()) திரும்பு;  // Prevent repeat traversals/recursion
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeCCall* nodep) override {
+    வெறுமை visit(Ast_முனை_CCall* nodep) override {
         iterateChildrenConst(nodep);  // Arguments
         iterateConst(nodep->funcp());  // Callee
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    வெறுமை visit(Ast_முனை* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    static void apply(const ExecMTask* mTaskp, MTaskWritersMap& results) {
+பொது:
+    நிலையான வெறுமை apply(மாறிலி ExecMTask* mTaskp, MTaskWritersMap& results) {
         GatherMTaskWriters{mTaskp, results};
     }
 };
 
-class VariableOrder final {
+வகுப்பு VariableOrder final {
     // NODE STATE
     //  AstVar::user1()   ->   uint64_t: Stratum, roughly equivalent to alignment
     //                                   requirement, to avoid padding
-    const VNUser1InUse m_user1InUse;
+    மாறிலி VNUser1InUse m_user1InUse;
 
-    const MTaskWritersMap& m_mTaskWriters;
+    மாறிலி MTaskWritersMap& m_mTaskWriters;
 
-    VariableOrder(AstNodeModule* modp, const MTaskWritersMap& mTaskWriters)
+    VariableOrder(Ast_முனை_Module* modp, மாறிலி MTaskWritersMap& mTaskWriters)
         : m_mTaskWriters{mTaskWriters} {
         orderModuleVars(modp);
     }
-    ~VariableOrder() = default;
+    ~VariableOrder() = இயல்பு;
     VL_UNCOPYABLE(VariableOrder);
 
     //######################################################################
 
     // Simple sort by stratum
-    void simpleSortVars(std::vector<AstVar*>& varps) {
-        stable_sort(varps.begin(), varps.end(), [](const AstVar* ap, const AstVar* bp) -> bool {
-            return ap->user1() < bp->user1();
+    வெறுமை simpleSortVars(std::vector<AstVar*>& varps) {
+        stable_sort(varps.begin(), varps.end(), [](மாறிலி AstVar* ap, மாறிலி AstVar* bp) -> தருக்க {
+            திரும்பு ap->user1() < bp->user1();
         });
     }
 
     // Sort by writing MTasks first, then the same as simpleSortVars
-    void mtaskSortVars(std::vector<AstVar*>& varps) {
+    வெறுமை mtaskSortVars(std::vector<AstVar*>& varps) {
         // Map from "writing MTasks" -> "variable list", for variables accessed by MTasks
         std::map<MTaskIdVec, std::vector<AstVar*>> m2v;
         // Variables not accessed by any MTask
         std::vector<AstVar*> noAffinityVarps;
-        for (AstVar* const varp : varps) {
-            const auto it = m_mTaskWriters.find(varp);
-            if (it == m_mTaskWriters.end()) {
-                noAffinityVarps.push_back(varp);
-            } else {
-                m2v[it->second].push_back(varp);
+        க்கு (AstVar* மாறிலி varp : varps) {
+            மாறிலி auto it = m_mTaskWriters.find(varp);
+            எனில் (it == m_mTaskWriters.end()) {
+                noAffinityVarps.தள்ளு_back(varp);
+            } இல்லையெனில் {
+                m2v[it->second].தள்ளு_back(varp);
             }
         }
 
         varps.clear();
 
         // Helper function to sort given vector, then append to 'varps'
-        const auto sortAndAppend
-            = [this, &varps](std::vector<AstVar*>& subVarps, bool alignFirst) {
+        மாறிலி auto sortAndAppend
+            = [இது, &varps](std::vector<AstVar*>& subVarps, தருக்க alignFirst) {
                   simpleSortVars(subVarps);
-                  bool aligned = !alignFirst;
-                  for (AstVar* const varp : subVarps) {
+                  தருக்க aligned = !alignFirst;
+                  க்கு (AstVar* மாறிலி varp : subVarps) {
                       // Align the first variable with instance storage
-                      if (!aligned && varp->isModelState()) {
-                          varp->mtaskCacheLineAlign(true);
+                      எனில் (!aligned && varp->isModelState()) {
+                          varp->mtask_Cache_வரி_Align(உண்மை);
                           V3Stats::addStatSum("VariableOrder, MTask aligned group starts", 1);
-                          aligned = true;
+                          aligned = உண்மை;
                       }
-                      varps.push_back(varp);
+                      varps.தள்ளு_back(varp);
                   }
               };
 
         // Add the groups in the map's deterministic key order
-        for (auto& pair : m2v) sortAndAppend(pair.second, true);
+        க்கு (auto& pair : m2v) sortAndAppend(pair.second, உண்மை);
 
         // Finally add the variables with no known MTask affinity
-        sortAndAppend(noAffinityVarps, false);
+        sortAndAppend(noAffinityVarps, பொய்);
 
         V3Stats::addStatSum("VariableOrder, MTask affinity groups", m2v.size());
         V3Stats::addStatSum("VariableOrder, no-affinity variables", noAffinityVarps.size());
     }
 
     // cppcheck-suppress constParameterPointer
-    void orderModuleVars(AstNodeModule* modp) {
+    வெறுமை orderModuleVars(Ast_முனை_Module* modp) {
         // Top level ports stay first, in source order (--lib-create wrapper must match original)
         std::vector<AstVar*> portps;
         // Followed by trivially constructible variables
@@ -181,27 +181,27 @@ class VariableOrder final {
         std::vector<AstVar*> restps;
 
         // Gather variables, compute stratum
-        for (AstNode *nodep = modp->stmtsp(), *nextp; nodep; nodep = nextp) {
+        க்கு (Ast_முனை *nodep = modp->stmtsp(), *nextp; nodep; nodep = nextp) {
             nextp = nodep->nextp();
-            if (AstVar* const varp = VN_CAST(nodep, Var)) {
-                if (varp->isPrimaryIO()) {
-                    portps.push_back(varp);
-                    continue;
+            எனில் (AstVar* மாறிலி varp = VN_CAST(nodep, Var)) {
+                எனில் (varp->isPrimaryIO()) {
+                    portps.தள்ளு_back(varp);
+                    தொடர்;
                 }
-                if (!varp->isModelState()) {
-                    restps.push_back(varp);
-                    continue;
-                }
-
-                if (varp->isTriviallyConstructible()) {
-                    trivps.push_back(varp);
-                } else {
-                    nontps.push_back(varp);
+                எனில் (!varp->isModelState()) {
+                    restps.தள்ளு_back(varp);
+                    தொடர்;
                 }
 
-                AstNodeDType* const dtypep = varp->dtypeSkipRefp();
-                const int sigbytes = dtypep->widthAlignBytes();
-                const uint64_t stratum = VN_IS(dtypep, UnpackArrayDType)                  ? 9
+                எனில் (varp->isTriviallyConstructible()) {
+                    trivps.தள்ளு_back(varp);
+                } இல்லையெனில் {
+                    nontps.தள்ளு_back(varp);
+                }
+
+                Ast_முனை_DType* மாறிலி dtypep = varp->dtypeSkipRefp();
+                மாறிலி முழு sigbytes = dtypep->widthAlignBytes();
+                மாறிலி uint64_t stratum = VN_IS(dtypep, UnpackArrayDType)                  ? 9
                                          : (varp->basicp() && varp->basicp()->isString()) ? 4
                                          : (varp->basicp() && varp->basicp()->isOpaque()) ? 8
                                          : (sigbytes == 8)                                ? 3
@@ -214,28 +214,28 @@ class VariableOrder final {
         }
 
         // Sort them
-        for (std::vector<AstVar*>* const varpsp : {&trivps, &nontps}) {
-            if (varpsp->empty()) continue;
-            if (!v3Global.opt.mtasks()) {
+        க்கு (std::vector<AstVar*>* மாறிலி varpsp : {&trivps, &nontps}) {
+            எனில் (varpsp->empty()) தொடர்;
+            எனில் (!v3Global.opt.mtasks()) {
                 simpleSortVars(*varpsp);
-            } else {
+            } இல்லையெனில் {
                 mtaskSortVars(*varpsp);
             }
         }
 
         // Insert them back under the module, in the new order, but at
         // the front of the list so they come out first in dumps/JSON.
-        AstNode* nodesp = nullptr;
-        for (const std::vector<AstVar*>* const varpsp : {&portps, &trivps, &nontps, &restps}) {
-            for (AstVar* const varp : *varpsp) {
-                nodesp = AstNode::addNextNull(nodesp, varp->unlinkFrBack());
+        Ast_முனை* nodesp = nullptr;
+        க்கு (மாறிலி std::vector<AstVar*>* மாறிலி varpsp : {&portps, &trivps, &nontps, &restps}) {
+            க்கு (AstVar* மாறிலி varp : *varpsp) {
+                nodesp = Ast_முனை::addNextNull(nodesp, varp->unlinkFrBack());
             }
         }
         modp->prependStmtsp(nodesp);
     }
 
-public:
-    static void apply(AstNodeModule* modp, const MTaskWritersMap& mTaskWriters) {
+பொது:
+    நிலையான வெறுமை apply(Ast_முனை_Module* modp, மாறிலி MTaskWritersMap& mTaskWriters) {
         VariableOrder{modp, mTaskWriters};
     }
 };
@@ -243,26 +243,26 @@ public:
 //######################################################################
 // V3VariableOrder static functions
 
-void V3VariableOrder::orderAll(AstNetlist* netlistp) {
+வெறுமை V3VariableOrder::orderAll(AstNetlist* netlistp) {
     UINFO(2, __FUNCTION__ << ":");
 
     MTaskWritersMap mTaskWriters;
 
     // Gather writing MTasks
-    if (v3Global.opt.mtasks()) {
-        netlistp->topModulep()->foreach([&](AstExecGraph* execGraphp) {
-            for (const V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
-                GatherMTaskWriters::apply(vtx.as<const ExecMTask>(), mTaskWriters);
+    எனில் (v3Global.opt.mtasks()) {
+        netlistp->உச்சி_Modulep()->foreach([&](AstExecGraph* execGraphp) {
+            க்கு (மாறிலி V3GraphVertex& vtx : execGraphp->depGraphp()->vertices()) {
+                GatherMTaskWriters::apply(vtx.as<மாறிலி ExecMTask>(), mTaskWriters);
             }
         });
     }
 
     // Sort variables of each module
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (modp->isConstPool()) continue;
+    க்கு (Ast_முனை_Module* modp = v3Global.rootp()->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), முனை_Module)) {
+        எனில் (modp->isConstPool()) தொடர்;
         VariableOrder::apply(modp, mTaskWriters);
     }
 
-    V3Global::dumpCheckGlobalTree("variableorder", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_மரம்("variableorder", 0, dump_மரம்_Either_Level() >= 3);
 }

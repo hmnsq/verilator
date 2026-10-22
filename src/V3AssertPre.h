@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3ASSERTPRE_H_
 #define VERILATOR_V3ASSERTPRE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3AssertPre final {
-public:
-    static void assertPreAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை assertPreAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

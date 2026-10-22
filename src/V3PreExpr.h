@@ -17,66 +17,66 @@
 #ifndef VERILATOR_V3PREEXPR_H_
 #define VERILATOR_V3PREEXPR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3FileLine.h"
-#include "V3Global.h"
+#அந்தர்பாவ "V3FileLine.h"
+#அந்தர்பாவ "V3Global.h"
 
-#include <deque>
+#அந்தர்பாவ <deque>
 
-class V3PreExprToken final {
-public:
+class V3_Pre_கோவை_Token final {
+பொது:
     // TYPES
     // Order of enum must match token table
-    enum token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
+    எண்ணிக்கை token_t : uint8_t { ZERO, ONE, END, BRA, KET, LNOT, LAND, LOR, IMP, EQV, MAX };
 
-private:
+தனிப்பட்ட:
     // MEMBERS
-    FileLine* const m_fileline;  // Token fileline
-    token_t const m_token;  // Token value
-public:
+    File_வரி* மாறிலி m_fileline;  // Token fileline
+    token_t மாறிலி m_token;  // Token value
+பொது:
     // METHODS
-    V3PreExprToken(FileLine* fileline, token_t token)
+    V3_Pre_கோவை_Token(File_வரி* fileline, token_t token)
         : m_fileline{fileline}
         , m_token{token} {}
-    V3PreExprToken(FileLine* fileline, bool value)
+    V3_Pre_கோவை_Token(File_வரி* fileline, bool மதிப்பு)
         : m_fileline{fileline}
-        , m_token{value ? ONE : ZERO} {}
-    ~V3PreExprToken() = default;
-    const char* ascii() const {
-        static const char* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
-        return names[m_token];
+        , m_token{மதிப்பு ? ONE : ZERO} {}
+    ~V3_Pre_கோவை_Token() = இயல்பு;
+    மாறிலி எழுத்து* ascii() மாறிலி {
+        நிலையான மாறிலி எழுத்து* names[] = {"0", "1", "$", "(", ")", "!", "&&", "||", "->", "<->"};
+        திரும்பு names[m_token];
     }
-    FileLine* fileline() const { return m_fileline; }
-    token_t token() const { return m_token; }
-    bool isValue() const { return m_token == ZERO || m_token == ONE; }
-    bool value() const {
-        UASSERT(isValue(), "preproc expr fetch of non-value");
-        return m_token == ONE;
+    File_வரி* fileline() மாறிலி { திரும்பு m_fileline; }
+    token_t token() மாறிலி { திரும்பு m_token; }
+    bool is_மதிப்பு() மாறிலி { திரும்பு m_token == ZERO || m_token == ONE; }
+    bool மதிப்பு() மாறிலி {
+        UASSERT(is_மதிப்பு(), "preproc expr fetch of non-value");
+        திரும்பு m_token == ONE;
     }
 };
 
-class V3PreExpr final {
+class V3_Pre_கோவை final {
     // MEMBERS
-    std::deque<V3PreExprToken> m_inputs;  // Input stack
-    std::deque<V3PreExprToken> m_values;  // Value stack
-    std::deque<V3PreExprToken> m_ops;  // Operator stack
-    FileLine* m_firstFileline = nullptr;
+    std::deque<V3_Pre_கோவை_Token> m_inputs;  // Input stack
+    std::deque<V3_Pre_கோவை_Token> m_மதிப்புகள்;  // Value stack
+    std::deque<V3_Pre_கோவை_Token> m_ops;  // Operator stack
+    File_வரி* m_firstFileline = nullptr;
 
     VL_DEFINE_DEBUG_FUNCTIONS;
 
     // PARSER DEFINITION
-    enum action_t : uint8_t {
-        VV,  // Value
+    எண்ணிக்கை action_t : uint8_t {
+        VV,  //மதிப்பு
         AA,  // Accept
         RR,  // Reduce
         SS,  // Shift
         EE  // Error
     };
-    static const char* actionAscii(action_t en) {
-        static constexpr const char* names[] = {"VV", "AA", "RR", "SS", "EE"};
-        return names[en];
+    நிலையான மாறிலி எழுத்து* actionAscii(action_t en) {
+        நிலையான constexpr மாறிலி எழுத்து* names[] = {"VV", "AA", "RR", "SS", "EE"};
+        திரும்பு names[en];
     }
 
     //  Operators  Associativity  Precedence
@@ -90,7 +90,7 @@ class V3PreExpr final {
     //  If different op precedence, shift for higher to input, else reduce for lower
     //  If same op precedence, shift for right assoc, reduce for left assoc
 
-    action_t parseTable[V3PreExprToken::MAX][V3PreExprToken::MAX] = {
+    action_t parseTable[V3_Pre_கோவை_Token::MAX][V3_Pre_கோவை_Token::MAX] = {
         // stack   ------------- inputs ------------------
         //         0   1   $   (   )   !   &&  ||  ->  <->
         /* 0   */ {EE, EE, EE, EE, EE, EE, EE, EE, EE, EE},  // 0 never on op stack
@@ -104,7 +104,7 @@ class V3PreExpr final {
         /* ->  */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR},
         /* <-> */ {VV, VV, RR, SS, RR, SS, SS, SS, RR, RR}};
 
-    static void selfTestImp() {
+    நிலையான வெறுமை selfTestImp() {
         selfTestOne("0", false);
         selfTestOne("1", true);
         selfTestOne("! 0", true);
@@ -131,161 +131,161 @@ class V3PreExpr final {
         selfTestOne("! 0 && ! 0", true);
     }
 
-    static void selfTestOne(const string& expr, bool expect) {
+    நிலையான வெறுமை selfTestOne(மாறிலி string& கோவை, bool expect) {
         // This hacky self-test parser just looks at first character of
         // operator, and requires space separation of operators/values
-        UINFO(9, "V3PreExpr selfTestOne " << expr);
-        FileLine* const flp = nullptr;
-        V3PreExpr parser;
+        UINFO(9, "V3PreExpr selfTestOne " << கோவை);
+        File_வரி* மாறிலி flp = nullptr;
+        V3_Pre_கோவை parser;
         parser.reset(flp);
         bool tstart = true;
-        for (const char* cp = expr.c_str(); *cp; ++cp) {
-            if (tstart) {
+        க்கு (மாறிலி எழுத்து* cp = கோவை.c_str(); *cp; ++cp) {
+            எனில் (tstart) {
                 tstart = false;
-                switch (*cp) {
-                case '0': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ZERO}); break;
-                case '1': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::ONE}); break;
-                case '!': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LNOT}); break;
-                case '|': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LOR}); break;
-                case '&': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::LAND}); break;
-                case '-': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::IMP}); break;
-                case '<': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::EQV}); break;
-                case '(': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::BRA}); break;
-                case ')': parser.pushInput(V3PreExprToken{flp, V3PreExprToken::KET}); break;
-                default: break;
+                தேர்வு (*cp) {
+                நிலை '0': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::ZERO}); நிறுத்து;
+                நிலை '1': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::ONE}); நிறுத்து;
+                நிலை '!': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::LNOT}); நிறுத்து;
+                நிலை '|': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::LOR}); நிறுத்து;
+                நிலை '&': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::LAND}); நிறுத்து;
+                நிலை '-': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::IMP}); நிறுத்து;
+                நிலை '<': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::EQV}); நிறுத்து;
+                நிலை '(': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::BRA}); நிறுத்து;
+                நிலை ')': parser.தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::KET}); நிறுத்து;
+                இயல்பு: நிறுத்து;
                 }
-            } else if (*cp == ' ') {
+            } இல்லையெனில் எனில் (*cp == ' ') {
                 tstart = true;
             }
         }
-        const bool got = parser.result();
+        மாறிலி bool got = parser.result();
         UASSERT_SELFTEST(got, expect);
     }
 
     // METHODS
-    void pushOp(const V3PreExprToken& token) {
+    வெறுமை தள்ளு_Op(மாறிலி V3_Pre_கோவை_Token& token) {
         // UINFO(9, "  pushOp " << token.ascii());
-        m_ops.push_back(token);
+        m_ops.தள்ளு_back(token);
     }
-    void pushValue(const V3PreExprToken& token) {
+    வெறுமை தள்ளு_மதிப்பு(மாறிலி V3_Pre_கோவை_Token& token) {
         // UINFO(9, "  pushValue " << token.ascii());
-        m_values.push_back(token);
+        m_மதிப்புகள்.தள்ளு_back(token);
     }
-    V3PreExprToken popValue() {
-        if (m_values.empty()) {
+    V3_Pre_கோவை_Token எடு_மதிப்பு() {
+        எனில் (m_மதிப்புகள்.empty()) {
             m_firstFileline->v3error("Syntax error in `ifdef () expression");
-            return V3PreExprToken{m_firstFileline, false};
+            திரும்பு V3_Pre_கோவை_Token{m_firstFileline, false};
         }
-        const V3PreExprToken tok = m_values.back();
-        m_values.pop_back();
+        மாறிலி V3_Pre_கோவை_Token tok = m_மதிப்புகள்.back();
+        m_மதிப்புகள்.எடு_back();
         // UINFO(9, "  popValue " << tok.ascii());
-        return tok;
+        திரும்பு tok;
     }
-    void reduce() {
+    வெறுமை reduce() {
         UASSERT(!m_ops.empty(), "lost op stack beginning END");
-        const V3PreExprToken tok = m_ops.back();
+        மாறிலி V3_Pre_கோவை_Token tok = m_ops.back();
         // UINFO(9, "Reduce " << tok.ascii());
-        m_ops.pop_back();
-        switch (tok.token()) {
-        case V3PreExprToken::KET: {
-            while (m_ops.back().token() != V3PreExprToken::END
-                   && m_ops.back().token() != V3PreExprToken::BRA)
+        m_ops.எடு_back();
+        தேர்வு (tok.token()) {
+        நிலை V3_Pre_கோவை_Token::KET: {
+            போது (m_ops.back().token() != V3_Pre_கோவை_Token::END
+                   && m_ops.back().token() != V3_Pre_கோவை_Token::BRA)
                 reduce();
-            if (m_ops.back().token() == V3PreExprToken::BRA) {
-                m_ops.pop_back();
-            } else {
+            எனில் (m_ops.back().token() == V3_Pre_கோவை_Token::BRA) {
+                m_ops.எடு_back();
+            } இல்லையெனில் {
                 tok.fileline()->v3error("Syntax error in `ifdef () expression:"  // LCOV_EXCL_LINE
                                         " ) without matching )");
-                return;
+                திரும்பு;
             }
-            break;
+            நிறுத்து;
         }
-        case V3PreExprToken::LNOT: {
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value()});
-            break;
+        நிலை V3_Pre_கோவை_Token::LNOT: {
+            மாறிலி V3_Pre_கோவை_Token lhs = எடு_மதிப்பு();
+            தள்ளு_மதிப்பு(V3_Pre_கோவை_Token{tok.fileline(), !lhs.மதிப்பு()});
+            நிறுத்து;
         }
-        case V3PreExprToken::LAND: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() && rhs.value()});
-            break;
+        நிலை V3_Pre_கோவை_Token::LAND: {
+            மாறிலி V3_Pre_கோவை_Token rhs = எடு_மதிப்பு();
+            மாறிலி V3_Pre_கோவை_Token lhs = எடு_மதிப்பு();
+            தள்ளு_மதிப்பு(V3_Pre_கோவை_Token{tok.fileline(), lhs.மதிப்பு() && rhs.மதிப்பு()});
+            நிறுத்து;
         }
-        case V3PreExprToken::LOR: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() || rhs.value()});
-            break;
+        நிலை V3_Pre_கோவை_Token::LOR: {
+            மாறிலி V3_Pre_கோவை_Token rhs = எடு_மதிப்பு();
+            மாறிலி V3_Pre_கோவை_Token lhs = எடு_மதிப்பு();
+            தள்ளு_மதிப்பு(V3_Pre_கோவை_Token{tok.fileline(), lhs.மதிப்பு() || rhs.மதிப்பு()});
+            நிறுத்து;
         }
-        case V3PreExprToken::IMP: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), !lhs.value() || rhs.value()});
-            break;
+        நிலை V3_Pre_கோவை_Token::IMP: {
+            மாறிலி V3_Pre_கோவை_Token rhs = எடு_மதிப்பு();
+            மாறிலி V3_Pre_கோவை_Token lhs = எடு_மதிப்பு();
+            தள்ளு_மதிப்பு(V3_Pre_கோவை_Token{tok.fileline(), !lhs.மதிப்பு() || rhs.மதிப்பு()});
+            நிறுத்து;
         }
-        case V3PreExprToken::EQV: {
-            const V3PreExprToken rhs = popValue();
-            const V3PreExprToken lhs = popValue();
-            pushValue(V3PreExprToken{tok.fileline(), lhs.value() == rhs.value()});
-            break;
+        நிலை V3_Pre_கோவை_Token::EQV: {
+            மாறிலி V3_Pre_கோவை_Token rhs = எடு_மதிப்பு();
+            மாறிலி V3_Pre_கோவை_Token lhs = எடு_மதிப்பு();
+            தள்ளு_மதிப்பு(V3_Pre_கோவை_Token{tok.fileline(), lhs.மதிப்பு() == rhs.மதிப்பு()});
+            நிறுத்து;
         }
-        default: {
+        இயல்பு: {
             v3fatalSrc("bad case on operand stack");
-            break;
+            நிறுத்து;
         }
         }
     }
-    void parse() {
-        while (!m_inputs.empty()) {
-            const V3PreExprToken tok = m_inputs.front();
-            m_inputs.pop_front();
+    வெறுமை parse() {
+        போது (!m_inputs.empty()) {
+            மாறிலி V3_Pre_கோவை_Token tok = m_inputs.front();
+            m_inputs.எடு_front();
             UINFO(9, "input read " << tok.ascii());
-            if (tok.isValue()) {
-                pushValue(tok);
-                continue;
+            எனில் (tok.is_மதிப்பு()) {
+                தள்ளு_மதிப்பு(tok);
+                தொடர்;
             }
 
             UASSERT(!m_ops.empty(), "lost op stack beginning END");
-            const V3PreExprToken topTok = m_ops.back();
-            auto action = parseTable[topTok.token()][tok.token()];
-            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << topTok.ascii()
+            மாறிலி V3_Pre_கோவை_Token உச்சி_Tok = m_ops.back();
+            auto action = parseTable[உச்சி_Tok.token()][tok.token()];
+            UINFO(9, "pop action " << actionAscii(action) << " from parseTable[" << உச்சி_Tok.ascii()
                                    << "][" << tok.ascii() << "]");
-            switch (action) {
-            case RR:  // Reduce
+            தேர்வு (action) {
+            நிலை RR:  // Reduce
                 reduce();
-                break;
-            case SS:  // Shift
-                m_ops.push_back(tok);
-                break;
-            case AA:  // Accept
-                break;
-            default: tok.fileline()->v3error("Syntax error in `ifdef () expression"); return;
+                நிறுத்து;
+            நிலை SS:  // Shift
+                m_ops.தள்ளு_back(tok);
+                நிறுத்து;
+            நிலை AA:  // Accept
+                நிறுத்து;
+            இயல்பு: tok.fileline()->v3error("Syntax error in `ifdef () expression"); திரும்பு;
             }
         }
     }
 
-public:
+பொது:
     // METHODS
-    V3PreExpr() = default;
-    ~V3PreExpr() = default;
-    void reset(FileLine* flp) {
+    V3_Pre_கோவை() = இயல்பு;
+    ~V3_Pre_கோவை() = இயல்பு;
+    வெறுமை reset(File_வரி* flp) {
         m_inputs.clear();
-        m_values.clear();
+        m_மதிப்புகள்.clear();
         m_ops.clear();
         m_firstFileline = flp;
-        pushOp(V3PreExprToken{flp, V3PreExprToken::END});
+        தள்ளு_Op(V3_Pre_கோவை_Token{flp, V3_Pre_கோவை_Token::END});
     }
-    void pushInput(const V3PreExprToken& token) {
-        if (!m_firstFileline) m_firstFileline = token.fileline();
+    வெறுமை தள்ளு_உள்ளீடு(மாறிலி V3_Pre_கோவை_Token& token) {
+        எனில் (!m_firstFileline) m_firstFileline = token.fileline();
         UINFO(9, "pushInput " << token.ascii());
-        m_inputs.push_back(token);
+        m_inputs.தள்ளு_back(token);
     }
     bool result() {
-        pushInput(V3PreExprToken{m_firstFileline, V3PreExprToken::END});
+        தள்ளு_உள்ளீடு(V3_Pre_கோவை_Token{m_firstFileline, V3_Pre_கோவை_Token::END});
         parse();
-        return popValue().value();
+        திரும்பு எடு_மதிப்பு().மதிப்பு();
     }
-    static void selfTest() VL_MT_DISABLED { selfTestImp(); }
+    நிலையான வெறுமை selfTest() VL_MT_DISABLED { selfTestImp(); }
 };
 
 #endif  // Guard

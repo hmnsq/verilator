@@ -24,33 +24,33 @@
 
 #ifndef VERILATOR_V3AST_H_
 #error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
+#அந்தர்பாவ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h
 #define VL_NOT_FINAL  // This #define fixes broken code folding in the CLion IDE
 #endif
 
-#include <unordered_map>
+#அந்தர்பாவ <unordered_map>
 
 // === Abstract base node types (AstNode*) =====================================
 
-class AstNodeConsItem VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Cons_Item VL_NOT_FINAL : பொது Ast_முனை {
     // An item of an AstNodeCons,
     // op1 used by some subclasses
     // @astgen op2 := valuep : AstNodeExpr
-    friend class AstNodeExpr;  // For m_knownConstantTree
-    mutable bool m_knownConstantTree = false;  // Known to be a tree of constants
+    friend class Ast_முனை_கோவை;  // For m_knownConstantTree
+    mutable bool m_known_Constant_மரம் = false;  // Known to be a tree of constants
 
-protected:
-    AstNodeConsItem(VNType t, FileLine* fl, AstNodeExpr* valuep)
-        : AstNode{t, fl} {
+பாதுகாக்கப்பட்ட:
+    Ast_முனை_Cons_Item(VNType t, File_வரி* fl, Ast_முனை_கோவை* valuep)
+        : Ast_முனை{t, fl} {
         this->valuep(valuep);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeConsItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+பொது:
+    ASTGEN_MEMBERS_Ast_முனை_Cons_Item;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstNodeCoverDecl VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Cover_Decl VL_NOT_FINAL : பொது Ast_முனை {
     // Coverage analysis point declaration
     //
     // [After V3CoverageJoin] Duplicate declaration to get data from instead
@@ -58,54 +58,54 @@ class AstNodeCoverDecl VL_NOT_FINAL : public AstNode {
     string m_page;  // Coverage point's page tag
     string m_text;  // Coverage point's text
     string m_hier;  // Coverage point's hierarchy
-    int m_binNum = 0;  // Global coverage bin offset in the symbol table coverage array
+    முழு m_bin_இலக்கம் = 0;  // Global coverage bin offset in the symbol table coverage array
     // Coverage counters are emitted in each module object, so duplicate
     // no-inline instances can keep independent counts for forcePerInstance.
-    int m_localBinNum = 0;  // Per-module coverage bin offset
+    முழு m_local_Bin_இலக்கம் = 0;  // Per-module coverage bin offset
     bool m_perInstance = false;  // Don't clone during inlining, already per instance
-public:
-    AstNodeCoverDecl(VNType t, FileLine* fl, const string& page, const string& comment)
-        : AstNode(t, fl)
+பொது:
+    Ast_முனை_Cover_Decl(VNType t, File_வரி* fl, மாறிலி string& page, மாறிலி string& comment)
+        : Ast_முனை(t, fl)
         , m_page{page}
         , m_text{comment} {}
-    ASTGEN_MEMBERS_AstNodeCoverDecl;
-    const char* broken() const override {
-        if (m_dataDeclp
+    ASTGEN_MEMBERS_Ast_முனை_Cover_Decl;
+    மாறிலி எழுத்து* broken() மாறிலி override {
+        எனில் (m_dataDeclp
             && (m_dataDeclp == this || m_dataDeclp->m_dataDeclp)) {  // Avoid O(n^2) accessing
             v3fatalSrc("dataDeclp should point to real data, not be a list: " << cvtToHex(this));
         }
-        return nullptr;
+        திரும்பு nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int instrCount() const override { return 1 + 2 * INSTR_COUNT_LD; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    int binNum() const { return m_binNum; }
-    void binNum(int flag) { m_binNum = flag; }
-    int localBinNum() const { return m_localBinNum; }
-    void localBinNum(int flag) { m_localBinNum = flag; }
-    bool perInstance() const { return m_perInstance; }
-    void perInstance(bool flag) { m_perInstance = flag; }
-    virtual int size() const = 0;
-    const string& comment() const { return m_text; }  // text to insert in code
-    const string& page() const { return m_page; }
-    const string& hier() const { return m_hier; }
-    void hier(const string& flag) { m_hier = flag; }
-    void comment(const string& flag) { m_text = flag; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstNodeCoverDecl* const asamep = VN_DBG_AS(samep, NodeCoverDecl);
-        return (fileline() == asamep->fileline() && hier() == asamep->hier()
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    முழு instr_மொத்தம்() மாறிலி override { திரும்பு 1 + 2 * INSTR_மொத்தம்_LD; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    முழு bin_இலக்கம்() மாறிலி { திரும்பு m_bin_இலக்கம்; }
+    வெறுமை bin_இலக்கம்(முழு flag) { m_bin_இலக்கம் = flag; }
+    முழு local_Bin_இலக்கம்() மாறிலி { திரும்பு m_local_Bin_இலக்கம்; }
+    வெறுமை local_Bin_இலக்கம்(முழு flag) { m_local_Bin_இலக்கம் = flag; }
+    bool perInstance() மாறிலி { திரும்பு m_perInstance; }
+    வெறுமை perInstance(bool flag) { m_perInstance = flag; }
+    மெய்நிகர் முழு size() மாறிலி = 0;
+    மாறிலி string& comment() மாறிலி { திரும்பு m_text; }  // text to insert in code
+    மாறிலி string& page() மாறிலி { திரும்பு m_page; }
+    மாறிலி string& hier() மாறிலி { திரும்பு m_hier; }
+    வெறுமை hier(மாறிலி string& flag) { m_hier = flag; }
+    வெறுமை comment(மாறிலி string& flag) { m_text = flag; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        மாறிலி Ast_முனை_Cover_Decl* மாறிலி asamep = VN_DBG_AS(samep, முனை_Cover_Decl);
+        திரும்பு (fileline() == asamep->fileline() && hier() == asamep->hier()
                 && comment() == asamep->comment() && page() == asamep->page()
                 && perInstance() == asamep->perInstance());
     }
-    bool isPredictOptimizable() const override { return false; }
-    void dataDeclp(AstNodeCoverDecl* nodep) { m_dataDeclp = nodep; }
+    bool isPredictOptimizable() மாறிலி override { திரும்பு false; }
+    வெறுமை dataDeclp(Ast_முனை_Cover_Decl* nodep) { m_dataDeclp = nodep; }
     // dataDecl nullptr means "use this one", but often you want "this" to
     // indicate to get data from here
-    AstNodeCoverDecl* dataDeclNullp() const { return m_dataDeclp; }
-    AstNodeCoverDecl* dataDeclThisp() { return dataDeclNullp() ? dataDeclNullp() : this; }
+    Ast_முனை_Cover_Decl* dataDeclNullp() மாறிலி { திரும்பு m_dataDeclp; }
+    Ast_முனை_Cover_Decl* dataDeclThisp() { திரும்பு dataDeclNullp() ? dataDeclNullp() : this; }
 };
-class AstNodeFTask VL_NOT_FINAL : public AstNode {
+class Ast_முனை_FTask VL_NOT_FINAL : பொது Ast_முனை {
     // Output variable in functions, nullptr in tasks
     // @astgen op1 := fvarp : Optional[AstNode]
     // Class/package scope
@@ -150,9 +150,9 @@ class AstNodeFTask VL_NOT_FINAL : public AstNode {
     VLifetime m_lifetime;  // Default lifetime of local vars
     VIsCached m_purity;  // Pure state
 
-protected:
-    AstNodeFTask(VNType t, FileLine* fl, const string& name, AstNode* stmtsp)
-        : AstNode{t, fl}
+பாதுகாக்கப்பட்ட:
+    Ast_முனை_FTask(VNType t, File_வரி* fl, மாறிலி string& name, Ast_முனை* stmtsp)
+        : Ast_முனை{t, fl}
         , m_name{name}
         , m_taskPublic{false}
         , m_classMethod{false}
@@ -184,89 +184,89 @@ protected:
         cname(name);  // Might be overridden by dpi import/export
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeFTask;
-    virtual AstNodeFTask* cloneType(const string& name) = 0;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool isGateOptimizable() const override {
-        return !((m_dpiExport || m_dpiImport) && !m_dpiPure);
+பொது:
+    ASTGEN_MEMBERS_Ast_முனை_FTask;
+    மெய்நிகர் Ast_முனை_FTask* cloneType(மாறிலி string& name) = 0;
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Var name
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    bool isGateOptimizable() மாறிலி override {
+        திரும்பு !((m_dpiExport || m_dpiImport) && !m_dpiPure);
     }
     // {AstFunc only} op1 = Range output variable
-    void name(const string& name) override { m_name = name; }
-    string cname() const { return m_cname; }
-    void cname(const string& cname) { m_cname = cname; }
-    bool isFunction() const { return fvarp() != nullptr; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string cname() மாறிலி { திரும்பு m_cname; }
+    வெறுமை cname(மாறிலி string& cname) { m_cname = cname; }
+    bool isFunction() மாறிலி { திரும்பு fvarp() != nullptr; }
     // MORE ACCESSORS
-    void dpiOpenParentInc() { ++m_dpiOpenParent; }
-    void dpiOpenParentClear() { m_dpiOpenParent = 0; }
-    uint64_t dpiOpenParent() const { return m_dpiOpenParent; }
-    bool taskPublic() const { return m_taskPublic; }
-    void taskPublic(bool flag) { m_taskPublic = flag; }
-    bool classMethod() const { return m_classMethod; }
-    void classMethod(bool flag) { m_classMethod = flag; }
-    bool didProto() const { return m_didProto; }
-    void didProto(bool flag) { m_didProto = flag; }
-    bool isExternProto() const { return m_isExternProto; }
-    void isExternProto(bool flag) { m_isExternProto = flag; }
-    bool isExternDef() const { return m_isExternDef; }
-    void isExternDef(bool flag) { m_isExternDef = flag; }
-    const string& ifacePortName() const { return m_ifacePortName; }
-    void ifacePortName(const string& name) { m_ifacePortName = name; }
-    bool prototype() const { return m_prototype; }
-    void prototype(bool flag) { m_prototype = flag; }
-    bool dpiExport() const { return m_dpiExport; }
-    void dpiExport(bool flag) { m_dpiExport = flag; }
-    bool dpiImport() const { return m_dpiImport; }
-    void dpiImport(bool flag) { m_dpiImport = flag; }
-    bool dpiContext() const { return m_dpiContext; }
-    void dpiContext(bool flag) { m_dpiContext = flag; }
-    bool dpiOpenChild() const { return m_dpiOpenChild; }
-    void dpiOpenChild(bool flag) { m_dpiOpenChild = flag; }
-    bool dpiTask() const { return m_dpiTask; }
-    void dpiTask(bool flag) { m_dpiTask = flag; }
-    bool dpiCDeclOverride() const { return !m_dpiCDecl.empty(); }
-    const string& dpiCDecl() const { return m_dpiCDecl; }
-    void dpiCDecl(const string& cDecl) { m_dpiCDecl = cDecl; }
-    bool isConstructor() const { return m_isConstructor; }
-    void isConstructor(bool flag) { m_isConstructor = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool dpiPure() const { return m_dpiPure; }
-    void dpiPure(bool flag) { m_dpiPure = flag; }
-    bool keepAlive() const { return m_keepAlive; }
-    void keepAlive(bool flag) { m_keepAlive = flag; }
-    bool needsSyms() const { return m_needsSyms; }
-    void needsSyms(bool flag) { m_needsSyms = flag; }
-    bool pureVirtual() const { return m_pureVirtual; }
-    void pureVirtual(bool flag) { m_pureVirtual = flag; }
-    bool recursive() const { return m_recursive; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool isStatic() const { return m_static; }
-    void isStatic(bool flag) { m_static = flag; }
-    bool underGenerate() const { return m_underGenerate; }
-    void underGenerate(bool flag) { m_underGenerate = flag; }
-    bool verilogFunction() const { return m_verilogFunction; }
-    void verilogFunction(bool flag) { m_verilogFunction = flag; }
-    bool verilogTask() const { return m_verilogTask; }
-    void verilogTask(bool flag) { m_verilogTask = flag; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) { m_virtual = flag; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
-    bool isCovergroupSample() const { return m_isCovergroupSample; }
-    void isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VLifetime lifetime() const { return m_lifetime; }
+    வெறுமை dpiOpenParentInc() { ++m_dpiOpenParent; }
+    வெறுமை dpiOpenParentClear() { m_dpiOpenParent = 0; }
+    uint64_t dpiOpenParent() மாறிலி { திரும்பு m_dpiOpenParent; }
+    bool taskPublic() மாறிலி { திரும்பு m_taskPublic; }
+    வெறுமை taskPublic(bool flag) { m_taskPublic = flag; }
+    bool classMethod() மாறிலி { திரும்பு m_classMethod; }
+    வெறுமை classMethod(bool flag) { m_classMethod = flag; }
+    bool didProto() மாறிலி { திரும்பு m_didProto; }
+    வெறுமை didProto(bool flag) { m_didProto = flag; }
+    bool isExternProto() மாறிலி { திரும்பு m_isExternProto; }
+    வெறுமை isExternProto(bool flag) { m_isExternProto = flag; }
+    bool isExternDef() மாறிலி { திரும்பு m_isExternDef; }
+    வெறுமை isExternDef(bool flag) { m_isExternDef = flag; }
+    மாறிலி string& ifacePortName() மாறிலி { திரும்பு m_ifacePortName; }
+    வெறுமை ifacePortName(மாறிலி string& name) { m_ifacePortName = name; }
+    bool prototype() மாறிலி { திரும்பு m_prototype; }
+    வெறுமை prototype(bool flag) { m_prototype = flag; }
+    bool dpiExport() மாறிலி { திரும்பு m_dpiExport; }
+    வெறுமை dpiExport(bool flag) { m_dpiExport = flag; }
+    bool dpiImport() மாறிலி { திரும்பு m_dpiImport; }
+    வெறுமை dpiImport(bool flag) { m_dpiImport = flag; }
+    bool dpiContext() மாறிலி { திரும்பு m_dpiContext; }
+    வெறுமை dpiContext(bool flag) { m_dpiContext = flag; }
+    bool dpiOpenChild() மாறிலி { திரும்பு m_dpiOpenChild; }
+    வெறுமை dpiOpenChild(bool flag) { m_dpiOpenChild = flag; }
+    bool dpiTask() மாறிலி { திரும்பு m_dpiTask; }
+    வெறுமை dpiTask(bool flag) { m_dpiTask = flag; }
+    bool dpiCDeclOverride() மாறிலி { திரும்பு !m_dpiCDecl.empty(); }
+    மாறிலி string& dpiCDecl() மாறிலி { திரும்பு m_dpiCDecl; }
+    வெறுமை dpiCDecl(மாறிலி string& cDecl) { m_dpiCDecl = cDecl; }
+    bool isConstructor() மாறிலி { திரும்பு m_isConstructor; }
+    வெறுமை isConstructor(bool flag) { m_isConstructor = flag; }
+    bool isHideLocal() மாறிலி { திரும்பு m_isHideLocal; }
+    வெறுமை isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() மாறிலி { திரும்பு m_isHideProtected; }
+    வெறுமை isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool dpiPure() மாறிலி { திரும்பு m_dpiPure; }
+    வெறுமை dpiPure(bool flag) { m_dpiPure = flag; }
+    bool keepAlive() மாறிலி { திரும்பு m_keepAlive; }
+    வெறுமை keepAlive(bool flag) { m_keepAlive = flag; }
+    bool needsSyms() மாறிலி { திரும்பு m_needsSyms; }
+    வெறுமை needsSyms(bool flag) { m_needsSyms = flag; }
+    bool pureVirtual() மாறிலி { திரும்பு m_pureVirtual; }
+    வெறுமை pureVirtual(bool flag) { m_pureVirtual = flag; }
+    bool recursive() மாறிலி { திரும்பு m_recursive; }
+    வெறுமை recursive(bool flag) { m_recursive = flag; }
+    bool isStatic() மாறிலி { திரும்பு m_static; }
+    வெறுமை isStatic(bool flag) { m_static = flag; }
+    bool underGenerate() மாறிலி { திரும்பு m_underGenerate; }
+    வெறுமை underGenerate(bool flag) { m_underGenerate = flag; }
+    bool verilogFunction() மாறிலி { திரும்பு m_verilogFunction; }
+    வெறுமை verilogFunction(bool flag) { m_verilogFunction = flag; }
+    bool verilogTask() மாறிலி { திரும்பு m_verilogTask; }
+    வெறுமை verilogTask(bool flag) { m_verilogTask = flag; }
+    bool isVirtual() மாறிலி { திரும்பு m_virtual; }
+    வெறுமை isVirtual(bool flag) { m_virtual = flag; }
+    bool needProcess() மாறிலி { திரும்பு m_needProcess; }
+    வெறுமை setNeedProcess() { m_needProcess = true; }
+    bool isCovergroupSample() மாறிலி { திரும்பு m_isCovergroupSample; }
+    வெறுமை isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
+    வெறுமை baseOverride(மாறிலி VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() மாறிலி { திரும்பு m_baseOverride; }
+    வெறுமை lifetime(மாறிலி VLifetime& flag) { m_lifetime = flag; }
+    VLifetime lifetime() மாறிலி { திரும்பு m_lifetime; }
     bool isPure() override;
-    const char* broken() const override;
-    void propagateAttrFrom(const AstNodeFTask* fromp) {
+    மாறிலி எழுத்து* broken() மாறிலி override;
+    வெறுமை propagateAttrFrom(மாறிலி Ast_முனை_FTask* fromp) {
         // Creating a wrapper with e.g. cloneType(); preserve some attributes
         classMethod(fromp->classMethod());
         isHideLocal(fromp->isHideLocal());
@@ -277,46 +277,46 @@ public:
         underGenerate(fromp->underGenerate());
     }
 
-private:
-    bool getPurityRecurse() const;
+தனிப்பட்ட:
+    bool getPurityRecurse() மாறிலி;
 };
-class AstNodeFile VL_NOT_FINAL : public AstNode {
+class Ast_முனை_File VL_NOT_FINAL : பொது Ast_முனை {
     // Emitted Output file
     // Parents:  NETLIST
     // @astgen op1 := tblockp : Optional[AstTextBlock]
     string m_name;  ///< Filename
-public:
-    AstNodeFile(VNType t, FileLine* fl, const string& name)
-        : AstNode{t, fl}
+பொது:
+    Ast_முனை_File(VNType t, File_வரி* fl, மாறிலி string& name)
+        : Ast_முனை{t, fl}
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstNodeFile;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    ASTGEN_MEMBERS_Ast_முனை_File;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
 };
-class AstNodeFuncCovItem VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Func_Cov_Item VL_NOT_FINAL : பொது Ast_முனை {
     // Base class for functional coverage items (coverpoints, crosses)
-protected:
+பாதுகாக்கப்பட்ட:
     string m_name;  // Item name
 
-public:
-    AstNodeFuncCovItem(VNType t, FileLine* fl, const string& name)
-        : AstNode{t, fl}
+பொது:
+    Ast_முனை_Func_Cov_Item(VNType t, File_வரி* fl, மாறிலி string& name)
+        : Ast_முனை{t, fl}
         , m_name{name} {}
-    ASTGEN_MEMBERS_AstNodeFuncCovItem;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool maybePointedTo() const override { return true; }
+    ASTGEN_MEMBERS_Ast_முனை_Func_Cov_Item;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    bool maybePointedTo() மாறிலி override { திரும்பு true; }
 };
-class AstNodeGen VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Gen VL_NOT_FINAL : பொது Ast_முனை {
     // Generate construct
-public:
-    AstNodeGen(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
-    ASTGEN_MEMBERS_AstNodeGen;
+பொது:
+    Ast_முனை_Gen(VNType t, File_வரி* fl)
+        : Ast_முனை{t, fl} {}
+    ASTGEN_MEMBERS_Ast_முனை_Gen;
 };
-class AstNodeModule VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Module VL_NOT_FINAL : பொது Ast_முனை {
     // A module, package, program or interface declaration;
     // something that can live directly under the TOP,
     // excluding $unit package stuff
@@ -324,12 +324,12 @@ class AstNodeModule VL_NOT_FINAL : public AstNode {
     // @astgen op2 := scSectionsp : List[AstSystemCSection]
     // op3: Reserved, do not use (including in subclasses)
     string m_name;  // Name of the module
-    const string m_origName;  // Name of the module, ignoring name() changes, for dot lookup
+    மாறிலி string m_origName;  // Name of the module, ignoring name() changes, for dot lookup
     // dist-ast-dump-suppress  // For some user errors messages only, visible where used
     string m_someInstanceName;  // Hierarchical name of some arbitrary instance of this module.
     string m_libname;  // Work library
-    int m_depth = 0;  // 1=top module, 2=cell off top, shared things low, for -depth options
-    int m_level = 0;  // 1=top module, 2=cell off top, shared things have high number
+    முழு m_depth = 0;  // 1=top module, 2=cell off top, shared things low, for -depth options
+    முழு m_level = 0;  // 1=top module, 2=cell off top, shared things have high number
     VLifetime m_lifetime;  // Lifetime
     VTimescale m_timeunit;  // Global time unit
     VOptionBool m_unconnectedDrive;  // State of `unconnected_drive
@@ -350,9 +350,9 @@ class AstNodeModule VL_NOT_FINAL : public AstNode {
                                        // set by V3Param::deepCloneModule. Suppresses
                                        // width/type errors on the unresolved template.
     bool m_verilatorLib : 1;  // Module is a stub for a Verilator produced --lib-create
-protected:
-    AstNodeModule(VNType t, FileLine* fl, const string& name, const string& libname)
-        : AstNode{t, fl}
+பாதுகாக்கப்பட்ட:
+    Ast_முனை_Module(VNType t, File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
+        : Ast_முனை{t, fl}
         , m_name{name}
         , m_origName{name}
         , m_libname{libname}
@@ -370,105 +370,105 @@ protected:
         , m_parameterizedTemplate{false}
         , m_verilatorLib{false} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeModule;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    virtual bool timescaleMatters() const = 0;
-    inline bool isDollarUnit() const;  // Is the $unit package
-    inline bool isConstPool() const;  // Is the constant pool package
+பொது:
+    ASTGEN_MEMBERS_Ast_முனை_Module;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    மெய்நிகர் bool timescaleMatters() மாறிலி = 0;
+    உள்வரி bool isDollarUnit() மாறிலி;  // Is the $unit package
+    உள்வரி bool isConstPool() மாறிலி;  // Is the constant pool package
     // Prefix of the names of the types declared within, as $typename names them, given 'outer',
     // the prefix for the scope declaring this, which names only a class, e.g. '$unit::',
     // 'ifc#(8).', '$unit::Cls#(8)::', or 'top.', see VDTypeNameScopes
-    string dtypeNameInnerScope(const string& outer) const;
+    string dtypeNameInnerScope(மாறிலி string& outer) மாறிலி;
     // ACCESSORS
-    void name(const string& name) override { m_name = name; }
-    string origName() const override { return m_origName; }
-    string someInstanceName() const VL_MT_SAFE { return m_someInstanceName; }
-    void someInstanceName(const string& name) { m_someInstanceName = name; }
-    AstDefaultDisable* defaultDisablep() const { return m_defaultDisablep; }
-    void defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
-    bool inLibrary() const { return m_inLibrary; }
-    void inLibrary(bool flag) { m_inLibrary = flag; }
-    void depth(int value) { m_depth = value; }
-    int depth() const VL_MT_SAFE { return m_depth; }
-    void level(int value) { m_level = value; }
-    int level() const VL_MT_SAFE { return m_level; }
-    string libname() const { return m_libname; }
-    bool isTop() const VL_MT_SAFE { return level() == 1; }
-    bool modPublic() const { return m_modPublic; }
-    void modPublic(bool flag) { m_modPublic = flag; }
-    bool modTrace() const { return m_modTrace; }
-    void modTrace(bool flag) { m_modTrace = flag; }
-    bool ctorVarReset() const { return m_ctorVarReset; }
-    void ctorVarReset(bool flag) { m_ctorVarReset = flag; }
-    bool dead() const { return m_dead; }
-    void dead(bool flag) { m_dead = flag; }
-    bool hasGParam() const { return m_hasGParam; }
-    void hasGParam(bool flag) { m_hasGParam = flag; }
-    bool hasParameterList() const { return m_hasParameterList; }
-    void hasParameterList(bool flag) { m_hasParameterList = flag; }
-    bool hierBlock() const { return m_hierBlock; }
-    void hierBlock(bool flag) { m_hierBlock = flag; }
-    bool hierParams() const { return m_hierParams; }
-    void hierParams(bool flag) { m_hierParams = flag; }
-    bool recursive() const { return m_recursive; }
-    void recursive(bool flag) { m_recursive = flag; }
-    void recursiveClone(bool flag) { m_recursiveClone = flag; }
-    bool recursiveClone() const { return m_recursiveClone; }
-    bool parameterizedTemplate() const { return m_parameterizedTemplate; }
-    void parameterizedTemplate(bool flag) { m_parameterizedTemplate = flag; }
-    void verilatorLib(bool flag) { m_verilatorLib = flag; }
-    bool verilatorLib() const { return m_verilatorLib; }
-    VLifetime lifetime() const { return m_lifetime; }
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& flag) { m_timeunit = flag; }
-    VOptionBool unconnectedDrive() const { return m_unconnectedDrive; }
-    void unconnectedDrive(const VOptionBool flag) { m_unconnectedDrive = flag; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string origName() மாறிலி override { திரும்பு m_origName; }
+    string someInstanceName() மாறிலி VL_MT_SAFE { திரும்பு m_someInstanceName; }
+    வெறுமை someInstanceName(மாறிலி string& name) { m_someInstanceName = name; }
+    AstDefaultDisable* defaultDisablep() மாறிலி { திரும்பு m_defaultDisablep; }
+    வெறுமை defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
+    bool inLibrary() மாறிலி { திரும்பு m_inLibrary; }
+    வெறுமை inLibrary(bool flag) { m_inLibrary = flag; }
+    வெறுமை depth(முழு மதிப்பு) { m_depth = மதிப்பு; }
+    முழு depth() மாறிலி VL_MT_SAFE { திரும்பு m_depth; }
+    வெறுமை level(முழு மதிப்பு) { m_level = மதிப்பு; }
+    முழு level() மாறிலி VL_MT_SAFE { திரும்பு m_level; }
+    string libname() மாறிலி { திரும்பு m_libname; }
+    bool is_உச்சி() மாறிலி VL_MT_SAFE { திரும்பு level() == 1; }
+    bool modPublic() மாறிலி { திரும்பு m_modPublic; }
+    வெறுமை modPublic(bool flag) { m_modPublic = flag; }
+    bool modTrace() மாறிலி { திரும்பு m_modTrace; }
+    வெறுமை modTrace(bool flag) { m_modTrace = flag; }
+    bool ctorVarReset() மாறிலி { திரும்பு m_ctorVarReset; }
+    வெறுமை ctorVarReset(bool flag) { m_ctorVarReset = flag; }
+    bool dead() மாறிலி { திரும்பு m_dead; }
+    வெறுமை dead(bool flag) { m_dead = flag; }
+    bool hasGParam() மாறிலி { திரும்பு m_hasGParam; }
+    வெறுமை hasGParam(bool flag) { m_hasGParam = flag; }
+    bool hasParameterList() மாறிலி { திரும்பு m_hasParameterList; }
+    வெறுமை hasParameterList(bool flag) { m_hasParameterList = flag; }
+    bool hierBlock() மாறிலி { திரும்பு m_hierBlock; }
+    வெறுமை hierBlock(bool flag) { m_hierBlock = flag; }
+    bool hierParams() மாறிலி { திரும்பு m_hierParams; }
+    வெறுமை hierParams(bool flag) { m_hierParams = flag; }
+    bool recursive() மாறிலி { திரும்பு m_recursive; }
+    வெறுமை recursive(bool flag) { m_recursive = flag; }
+    வெறுமை recursiveClone(bool flag) { m_recursiveClone = flag; }
+    bool recursiveClone() மாறிலி { திரும்பு m_recursiveClone; }
+    bool parameterizedTemplate() மாறிலி { திரும்பு m_parameterizedTemplate; }
+    வெறுமை parameterizedTemplate(bool flag) { m_parameterizedTemplate = flag; }
+    வெறுமை verilatorLib(bool flag) { m_verilatorLib = flag; }
+    bool verilatorLib() மாறிலி { திரும்பு m_verilatorLib; }
+    VLifetime lifetime() மாறிலி { திரும்பு m_lifetime; }
+    வெறுமை lifetime(மாறிலி VLifetime& flag) { m_lifetime = flag; }
+    VTimescale timeunit() மாறிலி { திரும்பு m_timeunit; }
+    வெறுமை timeunit(மாறிலி VTimescale& flag) { m_timeunit = flag; }
+    VOptionBool unconnectedDrive() மாறிலி { திரும்பு m_unconnectedDrive; }
+    வெறுமை unconnectedDrive(மாறிலி VOptionBool flag) { m_unconnectedDrive = flag; }
 };
-class AstNodeProcedure VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Procedure VL_NOT_FINAL : பொது Ast_முனை {
     // IEEE procedure: initial, final, always
     // @astgen op2 := stmtsp : List[AstNode] // Note: op1 is used in some sub-types only
     bool m_suspendable : 1;  // Is suspendable by a Delay, EventControl, etc.
     bool m_needProcess : 1;  // Uses VlProcess
-protected:
-    AstNodeProcedure(VNType t, FileLine* fl, AstNode* stmtsp)
-        : AstNode{t, fl} {
+பாதுகாக்கப்பட்ட:
+    Ast_முனை_Procedure(VNType t, File_வரி* fl, Ast_முனை* stmtsp)
+        : Ast_முனை{t, fl} {
         m_needProcess = false;
         m_suspendable = false;
         addStmtsp(stmtsp);
     }
 
-public:
-    ASTGEN_MEMBERS_AstNodeProcedure;
+பொது:
+    ASTGEN_MEMBERS_Ast_முனை_Procedure;
     // METHODS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isJustOneBodyStmt() const { return stmtsp() && !stmtsp()->nextp(); }
-    bool isSuspendable() const { return m_suspendable; }
-    void setSuspendable() { m_suspendable = true; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool isJustOneBodyStmt() மாறிலி { திரும்பு stmtsp() && !stmtsp()->nextp(); }
+    bool isSuspendable() மாறிலி { திரும்பு m_suspendable; }
+    வெறுமை setSuspendable() { m_suspendable = true; }
+    bool needProcess() மாறிலி { திரும்பு m_needProcess; }
+    வெறுமை setNeedProcess() { m_needProcess = true; }
 };
-class AstNodeRange VL_NOT_FINAL : public AstNode {
+class Ast_முனை_Range VL_NOT_FINAL : பொது Ast_முனை {
     // A range, sized or unsized
-protected:
-    AstNodeRange(VNType t, FileLine* fl)
-        : AstNode{t, fl} {}
+பாதுகாக்கப்பட்ட:
+    Ast_முனை_Range(VNType t, File_வரி* fl)
+        : Ast_முனை{t, fl} {}
 
-public:
-    ASTGEN_MEMBERS_AstNodeRange;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+பொது:
+    ASTGEN_MEMBERS_Ast_முனை_Range;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
 
 // === Concrete node types =====================================================
 
 // === AstNode ===
-class AstActive final : public AstNode {
+class AstActive final : பொது Ast_முனை {
     // Block of code with sensitivity activation
     // Parents:  MODULE | CFUNC
     // @astgen op1 := senTreeStorep : Optional[AstSenTree] // Moved into m_sensesp in V3Active
@@ -477,55 +477,55 @@ class AstActive final : public AstNode {
     // @astgen ptr := m_sentreep : Optional[AstSenTree]  // Sensitivity list for this process
     string m_name;
 
-public:
-    AstActive(FileLine* fl, const string& name, AstSenTree* sentreep)
+பொது:
+    AstActive(File_வரி* fl, மாறிலி string& name, Ast_Sen_மரம்* sentreep)
         : ASTGEN_SUPER_Active(fl)
         , m_name{name}
         , m_sentreep{sentreep} {
         UASSERT(sentreep, "Sentreep required arg");
     }
     ASTGEN_MEMBERS_AstActive;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
     // Statements are broken into pieces, as some must come before others.
-    void sentreep(AstSenTree* nodep) { m_sentreep = nodep; }
-    AstSenTree* sentreep() const { return m_sentreep; }
+    வெறுமை sentreep(Ast_Sen_மரம்* nodep) { m_sentreep = nodep; }
+    Ast_Sen_மரம்* sentreep() மாறிலி { திரும்பு m_sentreep; }
     // METHODS
-    inline bool hasClocked() const;
-    inline bool hasCombo() const;
-    inline bool hasInitial() const;
-    inline bool hasStatic() const;
+    உள்வரி bool hasClocked() மாறிலி;
+    உள்வரி bool hasCombo() மாறிலி;
+    உள்வரி bool hasInitial() மாறிலி;
+    உள்வரி bool hasStatic() மாறிலி;
 };
-class AstAlias final : public AstNode {
+class AstAlias final : பொது Ast_முனை {
     // Alias construct - Used for source level net alias, and also for variable aliases internally
     // @astgen op1 := itemsp : List[AstNodeExpr]  // Alias operands
-public:
-    AstAlias(FileLine* fl, AstNodeExpr* itemsp)
+பொது:
+    AstAlias(File_வரி* fl, Ast_முனை_கோவை* itemsp)
         : ASTGEN_SUPER_Alias(fl) {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstAlias;
 };
-class AstAliasScope final : public AstNode {
+class AstAliasScope final : பொது Ast_முனை {
     // Like AstAlias, but aliases two scopes instead of nets/variables
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := lhsp : AstNodeExpr
-public:
-    AstAliasScope(FileLine* fl, AstNodeExpr* lhsp, AstNodeExpr* rhsp)
+பொது:
+    AstAliasScope(File_வரி* fl, Ast_முனை_கோவை* lhsp, Ast_முனை_கோவை* rhsp)
         : ASTGEN_SUPER_AliasScope(fl) {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstAliasScope;
 };
-class AstBind final : public AstNode {
+class AstBind final : பொது Ast_முனை {
     // Parents: MODULE
     // Children: CELL
     // @astgen op1 := cellsp : List[AstNode]
     string m_name;  // Binding to name
-public:
-    AstBind(FileLine* fl, const string& name, AstNode* cellsp)
+பொது:
+    AstBind(File_வரி* fl, மாறிலி string& name, Ast_முனை* cellsp)
         : ASTGEN_SUPER_Bind(fl)
         , m_name{name} {
         UASSERT_OBJ(VN_IS(cellsp, Cell), cellsp, "Only instances allowed to be bound");
@@ -533,10 +533,10 @@ public:
     }
     ASTGEN_MEMBERS_AstBind;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Bind Target name
-    void name(const string& name) override { m_name = name; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Bind Target name
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
 };
-class AstCFunc final : public AstNode {
+class AstCFunc final : பொது Ast_முனை {
     // C++ function
     // Parents:  MODULE/SCOPE
     // If adding node accessors, see below emptyBody
@@ -582,9 +582,9 @@ class AstCFunc final : public AstNode {
                         // state
     bool m_isCovergroupSample : 1;  // Automatic covergroup sample() function
     bool m_voidSelf : 1;  // Loose method taking its 'self' pointer as 'void* vlVoidSelf'
-    int m_cost;  // Function call cost
-public:
-    AstCFunc(FileLine* fl, const string& name, AstScope* scopep, const string& rtnType = "")
+    முழு m_cost;  // Function call cost
+பொது:
+    AstCFunc(File_வரி* fl, மாறிலி string& name, AstScope* scopep, மாறிலி string& rtnType = "")
         : ASTGEN_SUPER_CFunc(fl) {
         m_isConst = VBoolOrUnknown::BU_UNKNOWN;  // Unknown until analyzed
         m_scopep = scopep;
@@ -615,116 +615,116 @@ public:
         m_noLife = false;
         m_isCovergroupSample = false;
         m_voidSelf = false;
-        m_cost = v3Global.opt.instrCountDpi();  // As proxy for unknown general DPI cost
+        m_cost = v3Global.opt.instr_மொத்தம்_Dpi();  // As proxy for unknown general DPI cost
     }
     ASTGEN_MEMBERS_AstCFunc;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool sameNode(const AstNode* samep) const override {
-        const AstCFunc* const asamep = VN_DBG_AS(samep, CFunc);
-        return ((isTrace() == asamep->isTrace()) && (rtnTypeVoid() == asamep->rtnTypeVoid())
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        மாறிலி AstCFunc* மாறிலி asamep = VN_DBG_AS(samep, CFunc);
+        திரும்பு ((isTrace() == asamep->isTrace()) && (rtnTypeVoid() == asamep->rtnTypeVoid())
                 && (argTypes() == asamep->argTypes()) && isLoose() == asamep->isLoose()
                 && voidSelf() == asamep->voidSelf()
                 && (!(dpiImportPrototype() || dpiExportImpl()) || name() == asamep->name()));
     }
     //
-    void name(const string& name) override { m_name = name; }
-    int instrCount() const override { return m_cost; }
-    VBoolOrUnknown isConst() const { return m_isConst; }
-    void isConst(bool flag) { m_isConst.setTrueOrFalse(flag); }
-    void isConst(VBoolOrUnknown flag) { m_isConst = flag; }
-    bool isStatic() const { return m_isStatic; }
-    void isStatic(bool flag) { m_isStatic = flag; }
-    bool isTrace() const VL_MT_SAFE { return m_isTrace; }
-    void isTrace(bool flag) { m_isTrace = flag; }
-    void cname(const string& name) { m_cname = name; }
-    string cname() const { return m_cname; }
-    AstScope* scopep() const { return m_scopep; }
-    void scopep(AstScope* nodep) { m_scopep = nodep; }
-    string rtnTypeVoid() const { return ((m_rtnType == "") ? "void" : m_rtnType); }
-    void rtnType(const string& rtnType) { m_rtnType = rtnType; }
-    bool dontCombine() const { return m_dontCombine || isTrace() || entryPoint(); }
-    void dontCombine(bool flag) { m_dontCombine = flag; }
-    bool declPrivate() const { return m_declPrivate; }
-    void declPrivate(bool flag) { m_declPrivate = flag; }
-    bool keepIfEmpty() const VL_MT_SAFE { return m_keepIfEmpty; }
-    void keepIfEmpty(bool flag) { m_keepIfEmpty = flag; }
-    bool slow() const VL_MT_SAFE { return m_slow; }
-    void slow(bool flag) { m_slow = flag; }
-    bool funcPublic() const { return m_funcPublic; }
-    void funcPublic(bool flag) { m_funcPublic = flag; }
-    void argTypes(const string& str) { m_argTypes = str; }
-    string argTypes() const { return m_argTypes; }
-    void ifdef(const string& str) { m_ifdef = str; }
-    string ifdef() const { return m_ifdef; }
-    bool isConstructor() const { return m_isConstructor; }
-    void isConstructor(bool flag) { m_isConstructor = flag; }
-    bool isDestructor() const { return m_isDestructor; }
-    void isDestructor(bool flag) { m_isDestructor = flag; }
-    bool isMethod() const { return m_isMethod; }
-    void isMethod(bool flag) { m_isMethod = flag; }
-    bool isLoose() const { return m_isLoose; }
-    void isLoose(bool flag) { m_isLoose = flag; }
-    bool isProperMethod() const { return isMethod() && !isLoose(); }
-    bool isVirtual() const { return m_isVirtual; }
-    void isVirtual(bool flag) { m_isVirtual = flag; }
-    bool needProcess() const { return m_needProcess; }
-    void setNeedProcess() { m_needProcess = true; }
-    bool entryPoint() const { return m_entryPoint; }
-    void entryPoint(bool flag) { m_entryPoint = flag; }
-    bool dpiPure() const { return m_dpiPure; }
-    void dpiPure(bool flag) { m_dpiPure = flag; }
-    bool dpiContext() const { return m_dpiContext; }
-    void dpiContext(bool flag) { m_dpiContext = flag; }
-    bool dpiExportDispatcher() const VL_MT_SAFE { return m_dpiExportDispatcher; }
-    void dpiExportDispatcher(bool flag) { m_dpiExportDispatcher = flag; }
-    bool dpiExportImpl() const { return m_dpiExportImpl; }
-    void dpiExportImpl(bool flag) { m_dpiExportImpl = flag; }
-    bool dpiImportPrototype() const VL_MT_SAFE { return m_dpiImportPrototype; }
-    void dpiImportPrototype(bool flag) { m_dpiImportPrototype = flag; }
-    bool dpiImportWrapper() const { return m_dpiImportWrapper; }
-    void dpiImportWrapper(bool flag) { m_dpiImportWrapper = flag; }
-    bool dpiCDeclOverride() const { return !m_dpiCDecl.empty(); }
-    const string& dpiCDecl() const { return m_dpiCDecl; }
-    void dpiCDecl(const string& cDecl) { m_dpiCDecl = cDecl; }
-    bool isCoroutine() const { return m_rtnType == "VlCoroutine"; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool recursive() const { return m_recursive; }
-    void unlikely(bool flag) { m_unlikely = flag; }
-    bool isUnlikely() const override { return m_unlikely; }  // Note virtual override
-    void noLife(bool flag) { m_noLife = flag; }
-    bool noLife() const { return m_noLife; }
-    bool isCovergroupSample() const { return m_isCovergroupSample; }
-    void isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
-    bool voidSelf() const { return m_voidSelf; }
-    void voidSelf(bool flag) { m_voidSelf = flag; }
-    void cost(int cost) { m_cost = cost; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    முழு instr_மொத்தம்() மாறிலி override { திரும்பு m_cost; }
+    VBoolOrUnknown isConst() மாறிலி { திரும்பு m_isConst; }
+    வெறுமை isConst(bool flag) { m_isConst.setTrueOrFalse(flag); }
+    வெறுமை isConst(VBoolOrUnknown flag) { m_isConst = flag; }
+    bool isStatic() மாறிலி { திரும்பு m_isStatic; }
+    வெறுமை isStatic(bool flag) { m_isStatic = flag; }
+    bool isTrace() மாறிலி VL_MT_SAFE { திரும்பு m_isTrace; }
+    வெறுமை isTrace(bool flag) { m_isTrace = flag; }
+    வெறுமை cname(மாறிலி string& name) { m_cname = name; }
+    string cname() மாறிலி { திரும்பு m_cname; }
+    AstScope* scopep() மாறிலி { திரும்பு m_scopep; }
+    வெறுமை scopep(AstScope* nodep) { m_scopep = nodep; }
+    string rtnTypeVoid() மாறிலி { திரும்பு ((m_rtnType == "") ? "void" : m_rtnType); }
+    வெறுமை rtnType(மாறிலி string& rtnType) { m_rtnType = rtnType; }
+    bool dontCombine() மாறிலி { திரும்பு m_dontCombine || isTrace() || entryPoint(); }
+    வெறுமை dontCombine(bool flag) { m_dontCombine = flag; }
+    bool declPrivate() மாறிலி { திரும்பு m_declPrivate; }
+    வெறுமை declPrivate(bool flag) { m_declPrivate = flag; }
+    bool keepIfEmpty() மாறிலி VL_MT_SAFE { திரும்பு m_keepIfEmpty; }
+    வெறுமை keepIfEmpty(bool flag) { m_keepIfEmpty = flag; }
+    bool slow() மாறிலி VL_MT_SAFE { திரும்பு m_slow; }
+    வெறுமை slow(bool flag) { m_slow = flag; }
+    bool funcPublic() மாறிலி { திரும்பு m_funcPublic; }
+    வெறுமை funcPublic(bool flag) { m_funcPublic = flag; }
+    வெறுமை argTypes(மாறிலி string& str) { m_argTypes = str; }
+    string argTypes() மாறிலி { திரும்பு m_argTypes; }
+    வெறுமை ifdef(மாறிலி string& str) { m_ifdef = str; }
+    string ifdef() மாறிலி { திரும்பு m_ifdef; }
+    bool isConstructor() மாறிலி { திரும்பு m_isConstructor; }
+    வெறுமை isConstructor(bool flag) { m_isConstructor = flag; }
+    bool isDestructor() மாறிலி { திரும்பு m_isDestructor; }
+    வெறுமை isDestructor(bool flag) { m_isDestructor = flag; }
+    bool isMethod() மாறிலி { திரும்பு m_isMethod; }
+    வெறுமை isMethod(bool flag) { m_isMethod = flag; }
+    bool isLoose() மாறிலி { திரும்பு m_isLoose; }
+    வெறுமை isLoose(bool flag) { m_isLoose = flag; }
+    bool isProperMethod() மாறிலி { திரும்பு isMethod() && !isLoose(); }
+    bool isVirtual() மாறிலி { திரும்பு m_isVirtual; }
+    வெறுமை isVirtual(bool flag) { m_isVirtual = flag; }
+    bool needProcess() மாறிலி { திரும்பு m_needProcess; }
+    வெறுமை setNeedProcess() { m_needProcess = true; }
+    bool entryPoint() மாறிலி { திரும்பு m_entryPoint; }
+    வெறுமை entryPoint(bool flag) { m_entryPoint = flag; }
+    bool dpiPure() மாறிலி { திரும்பு m_dpiPure; }
+    வெறுமை dpiPure(bool flag) { m_dpiPure = flag; }
+    bool dpiContext() மாறிலி { திரும்பு m_dpiContext; }
+    வெறுமை dpiContext(bool flag) { m_dpiContext = flag; }
+    bool dpiExportDispatcher() மாறிலி VL_MT_SAFE { திரும்பு m_dpiExportDispatcher; }
+    வெறுமை dpiExportDispatcher(bool flag) { m_dpiExportDispatcher = flag; }
+    bool dpiExportImpl() மாறிலி { திரும்பு m_dpiExportImpl; }
+    வெறுமை dpiExportImpl(bool flag) { m_dpiExportImpl = flag; }
+    bool dpiImportPrototype() மாறிலி VL_MT_SAFE { திரும்பு m_dpiImportPrototype; }
+    வெறுமை dpiImportPrototype(bool flag) { m_dpiImportPrototype = flag; }
+    bool dpiImportWrapper() மாறிலி { திரும்பு m_dpiImportWrapper; }
+    வெறுமை dpiImportWrapper(bool flag) { m_dpiImportWrapper = flag; }
+    bool dpiCDeclOverride() மாறிலி { திரும்பு !m_dpiCDecl.empty(); }
+    மாறிலி string& dpiCDecl() மாறிலி { திரும்பு m_dpiCDecl; }
+    வெறுமை dpiCDecl(மாறிலி string& cDecl) { m_dpiCDecl = cDecl; }
+    bool isCoroutine() மாறிலி { திரும்பு m_rtnType == "VlCoroutine"; }
+    வெறுமை recursive(bool flag) { m_recursive = flag; }
+    bool recursive() மாறிலி { திரும்பு m_recursive; }
+    வெறுமை unlikely(bool flag) { m_unlikely = flag; }
+    bool isUnlikely() மாறிலி override { திரும்பு m_unlikely; }  // Note virtual override
+    வெறுமை noLife(bool flag) { m_noLife = flag; }
+    bool noLife() மாறிலி { திரும்பு m_noLife; }
+    bool isCovergroupSample() மாறிலி { திரும்பு m_isCovergroupSample; }
+    வெறுமை isCovergroupSample(bool flag) { m_isCovergroupSample = flag; }
+    bool voidSelf() மாறிலி { திரும்பு m_voidSelf; }
+    வெறுமை voidSelf(bool flag) { m_voidSelf = flag; }
+    வெறுமை cost(முழு cost) { m_cost = cost; }
     // Special methods
-    bool emptyBody() const {
-        return !keepIfEmpty() && !argsp() && !varsp() && !stmtsp() && !scopeNamep() && !isVirtual()
+    bool emptyBody() மாறிலி {
+        திரும்பு !keepIfEmpty() && !argsp() && !varsp() && !stmtsp() && !scopeNamep() && !isVirtual()
                && !dpiImportPrototype();
     }
 };
-class AstCUse final : public AstNode {
+class AstCUse final : பொது Ast_முனை {
     // C++ use of a class or #include; indicates need of forward declaration
     // Parents:  NODEMODULE
-    const string m_name;
-    const VUseType m_useType;  // What sort of use this is
+    மாறிலி string m_name;
+    மாறிலி VUseType m_useType;  // What sort of use this is
 
-public:
-    AstCUse(FileLine* fl, VUseType useType, const string& name)
+பொது:
+    AstCUse(File_வரி* fl, VUseType useType, மாறிலி string& name)
         : ASTGEN_SUPER_CUse(fl)
         , m_name{name}
         , m_useType{useType} {}
     ASTGEN_MEMBERS_AstCUse;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VUseType useType() const { return m_useType; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    VUseType useType() மாறிலி { திரும்பு m_useType; }
 };
-class AstCell final : public AstNode {
+class AstCell final : பொது Ast_முனை {
     // A instantiation cell or interface call (don't know which until link)
     // @astgen op1 := pinsp : List[AstPin] // List of port assignments
     // @astgen op2 := paramsp : List[AstPin] // List of parameter assignments
@@ -735,16 +735,16 @@ class AstCell final : public AstNode {
     // @astgen op4 := intfRefsp : List[AstIntfRef] // List of interface references, for tracing/VPI
     //
     // @astgen ptr := m_modp : Optional[AstNodeModule]  // [AfterLink] Pointer to module instanced
-    FileLine* m_modNameFileline;  // Where module the cell instances token was
+    File_வரி* m_modNameFileline;  // Where module the cell instances token was
     string m_name;  // Cell name
     string m_origName;  // Original name before dot addition
     string m_modName;  // Module the cell instances
-    int m_arrayIdx = -1;  // Row-major position in instance array, from the left (V3Param-V3Width)
+    முழு m_arrayIdx = -1;  // Row-major position in instance array, from the left (V3Param-V3Width)
     bool m_hasIfaceVar : 1;  // True if a Var has been created for this cell
     bool m_recursive : 1;  // Self-recursive module
     bool m_trace : 1;  // Trace this cell
-public:
-    AstCell(FileLine* fl, FileLine* mfl, const string& instName, const string& modName,
+பொது:
+    AstCell(File_வரி* fl, File_வரி* mfl, மாறிலி string& instName, மாறிலி string& modName,
             AstPin* pinsp, AstPin* paramsp, AstRange* rangep)
         : ASTGEN_SUPER_Cell(fl)
         , m_modNameFileline{mfl}
@@ -760,77 +760,77 @@ public:
     }
     ASTGEN_MEMBERS_AstCell;
     // No cloneRelink, we presume cloneee's want the same module linkages
-    void cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    வெறுமை cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Cell name
-    void name(const string& name) override { m_name = name; }
-    string origName() const override { return m_origName; }  // * = Original name
-    void origName(const string& name) { m_origName = name; }
-    string modName() const { return m_modName; }  // * = Instance name
-    void modName(const string& name) { m_modName = name; }
-    FileLine* modNameFileline() const { return m_modNameFileline; }
-    AstNodeModule* modp() const { return m_modp; }  // [AfterLink] = Pointer to module instantiated
-    void modp(AstNodeModule* nodep) { m_modp = nodep; }
-    int arrayIdx() const { return m_arrayIdx; }
-    void arrayIdx(int idx) { m_arrayIdx = idx; }
-    bool hasIfaceVar() const { return m_hasIfaceVar; }
-    void hasIfaceVar(bool flag) { m_hasIfaceVar = flag; }
-    void trace(bool flag) { m_trace = flag; }
-    bool isTrace() const { return m_trace; }
-    void recursive(bool flag) { m_recursive = flag; }
-    bool recursive() const { return m_recursive; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Cell name
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string origName() மாறிலி override { திரும்பு m_origName; }  // * = Original name
+    வெறுமை origName(மாறிலி string& name) { m_origName = name; }
+    string modName() மாறிலி { திரும்பு m_modName; }  // * = Instance name
+    வெறுமை modName(மாறிலி string& name) { m_modName = name; }
+    File_வரி* modNameFileline() மாறிலி { திரும்பு m_modNameFileline; }
+    Ast_முனை_Module* modp() மாறிலி { திரும்பு m_modp; }  // [AfterLink] = Pointer to module instantiated
+    வெறுமை modp(Ast_முனை_Module* nodep) { m_modp = nodep; }
+    முழு arrayIdx() மாறிலி { திரும்பு m_arrayIdx; }
+    வெறுமை arrayIdx(முழு idx) { m_arrayIdx = idx; }
+    bool hasIfaceVar() மாறிலி { திரும்பு m_hasIfaceVar; }
+    வெறுமை hasIfaceVar(bool flag) { m_hasIfaceVar = flag; }
+    வெறுமை trace(bool flag) { m_trace = flag; }
+    bool isTrace() மாறிலி { திரும்பு m_trace; }
+    வெறுமை recursive(bool flag) { m_recursive = flag; }
+    bool recursive() மாறிலி { திரும்பு m_recursive; }
 };
-class AstCellInline final : public AstNode {
+class AstCellInline final : பொது Ast_முனை {
     // A named block flattened by V3Begin, for name resolution in V3LinkDot.
     // Deleted by V3LinkDot::linkDotScope, after V3Scope made AstCellInlineScope for VPI.
-    const std::string m_name;  // Block path within the module, possibly {a}__DOT__{b}...
-    const std::string m_origModName;  // __BEGIN__ or __FORK__
-public:
-    AstCellInline(FileLine* fl, const std::string& name, const std::string& origModName)
+    மாறிலி std::string m_name;  // Block path within the module, possibly {a}__DOT__{b}...
+    மாறிலி std::string m_origModName;  // __BEGIN__ or __FORK__
+பொது:
+    AstCellInline(File_வரி* fl, மாறிலி std::string& name, மாறிலி std::string& origModName)
         : ASTGEN_SUPER_CellInline(fl)
         , m_name{name}
         , m_origModName{origModName} {}
     ASTGEN_MEMBERS_AstCellInline;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
     // ACCESSORS
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    std::string origModName() const { return m_origModName; }
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    std::string origModName() மாறிலி { திரும்பு m_origModName; }
 };
-class AstCellInlineScope final : public AstNode {
+class AstCellInlineScope final : பொது Ast_முனை {
     // A named block or inlined cell flattened into a scope, kept so it can be
     // reported as a VPI scope. Only created with --vpi, by V3Scope for named
     // blocks, and by V3Inline for inlined cells.
     // Parents: Scope
     // Children: none
     std::string m_name;  // Flattened name relative to the containing scope
-    const std::string m_origModName;  // Original name of module, or __BEGIN__/__FORK__
-public:
-    AstCellInlineScope(FileLine* fl, const std::string& name, const std::string& origModName)
+    மாறிலி std::string m_origModName;  // Original name of module, or __BEGIN__/__FORK__
+பொது:
+    AstCellInlineScope(File_வரி* fl, மாறிலி std::string& name, மாறிலி std::string& origModName)
         : ASTGEN_SUPER_CellInlineScope(fl)
         , m_name{name}
         , m_origModName{origModName} {}
     ASTGEN_MEMBERS_AstCellInlineScope;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
     // ACCESSORS
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    std::string origModName() const { return m_origModName; }
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி std::string& name) override { m_name = name; }
+    std::string origModName() மாறிலி { திரும்பு m_origModName; }
 };
-class AstCgOptionAssign final : public AstNode {
+class AstCgOptionAssign final : பொது Ast_முனை {
     // A covergroup set of option
     // Parents: CLASS(covergroup) or cross
-    const VCoverOptionType m_optType;  // Option type
-    const string m_name;  // Original option name (for diagnostics on unknown options)
-    const bool m_typeOption;  // type_option vs option
+    மாறிலி VCoverOptionType m_optType;  // Option type
+    மாறிலி string m_name;  // Original option name (for diagnostics on unknown options)
+    மாறிலி bool m_typeOption;  // type_option vs option
     // @astgen op1 := valuep : AstNodeExpr
-public:
-    AstCgOptionAssign(FileLine* fl, bool typeOption, VCoverOptionType optType,
-                      const string& rawName, AstNodeExpr* valuep)
+பொது:
+    AstCgOptionAssign(File_வரி* fl, bool typeOption, VCoverOptionType optType,
+                      மாறிலி string& rawName, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_CgOptionAssign(fl)
         , m_optType{optType}
         , m_name{rawName}
@@ -839,41 +839,41 @@ public:
     }
     ASTGEN_MEMBERS_AstCgOptionAssign;
     // ACCESSORS
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VCoverOptionType optType() const { return m_optType; }
-    bool typeOption() const { return m_typeOption; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    VCoverOptionType optType() மாறிலி { திரும்பு m_optType; }
+    bool typeOption() மாறிலி { திரும்பு m_typeOption; }
 };
-class AstClassExtends final : public AstNode {
+class AstClassExtends final : பொது Ast_முனை {
     // class extends class name, or class implements class name
     // Children: List of AstParseRef for packages/classes
     // during early parse, then moves to dtype
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op2 := classOrPkgsp : Optional[AstNode]
     // @astgen op3 := argsp : List[AstArg]
-    const bool m_isImplements;  // class implements
+    மாறிலி bool m_isImplements;  // class implements
     bool m_parameterized = false;  // has parameters in its statement
 
-public:
-    AstClassExtends(FileLine* fl, AstNode* classOrPkgsp, bool isImplements)
+பொது:
+    AstClassExtends(File_வரி* fl, Ast_முனை* classOrPkgsp, bool isImplements)
         : ASTGEN_SUPER_ClassExtends(fl)
         , m_isImplements{isImplements} {
         this->classOrPkgsp(classOrPkgsp);  // Only for parser
     }
     ASTGEN_MEMBERS_AstClassExtends;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    string verilogKwd() const override { return isImplements() ? "implements" : "extends"; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    string verilogKwd() மாறிலி override { திரும்பு isImplements() ? "implements" : "extends"; }
     // Class being extended (after link and instantiation if needed)
-    AstClass* classOrNullp() const;
-    AstClass* classp() const;  // Like above, but throws error if nulll
-    bool isImplements() const { return m_isImplements; }
-    void parameterized(bool flag) { m_parameterized = flag; }
-    bool parameterized() const { return m_parameterized; }
+    AstClass* classOrNullp() மாறிலி;
+    AstClass* classp() மாறிலி;  // Like above, but throws error if nulll
+    bool isImplements() மாறிலி { திரும்பு m_isImplements; }
+    வெறுமை parameterized(bool flag) { m_parameterized = flag; }
+    bool parameterized() மாறிலி { திரும்பு m_parameterized; }
 };
-class AstClocking final : public AstNode {
+class AstClocking final : பொது Ast_முனை {
     // Parents:  MODULE
     // Children: SENTREE, CLOCKING ITEMs, VARs
     // @astgen op1 := sentreep : AstSenTree
@@ -881,10 +881,10 @@ class AstClocking final : public AstNode {
     // @astgen op3 := eventp : Optional[AstVar]
     std::string m_name;  // Clocking block name
     bool m_isDefault;  // True if default clocking
-    const bool m_isGlobal;  // True if global clocking
+    மாறிலி bool m_isGlobal;  // True if global clocking
 
-public:
-    AstClocking(FileLine* fl, const std::string& name, AstSenTree* sentreep, AstNode* itemsp,
+பொது:
+    AstClocking(File_வரி* fl, மாறிலி std::string& name, Ast_Sen_மரம்* sentreep, Ast_முனை* itemsp,
                 bool isDefault, bool isGlobal)
         : ASTGEN_SUPER_Clocking(fl)
         , m_name{name}
@@ -894,16 +894,16 @@ public:
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstClocking;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    bool isDefault() const { return m_isDefault; }
-    bool isGlobal() const { return m_isGlobal; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool isDefault() மாறிலி { திரும்பு m_isDefault; }
+    bool isGlobal() மாறிலி { திரும்பு m_isGlobal; }
     AstVar* ensureEventp(bool childDType = false);
-    void makeDefault() { m_isDefault = true; }
+    வெறுமை makeDefault() { m_isDefault = true; }
 };
-class AstClockingItem final : public AstNode {
+class AstClockingItem final : பொது Ast_முனை {
     // Parents:  CLOCKING
     // Children: EXPRs, ASSIGNs, VARs
     // @astgen op1 := skewp : Optional[AstNodeExpr]
@@ -913,86 +913,86 @@ class AstClockingItem final : public AstNode {
     // @astgen ptr := m_outputp : Optional[AstClockingItem]
     VDirection m_direction;
 
-public:
-    AstClockingItem(FileLine* fl, VDirection direction, AstNodeExpr* skewp, AstNode* clockingDeclp)
+பொது:
+    AstClockingItem(File_வரி* fl, VDirection direction, Ast_முனை_கோவை* skewp, Ast_முனை* clockingDeclp)
         : ASTGEN_SUPER_ClockingItem(fl) {
         m_direction = direction;
         this->skewp(skewp);
-        if (AstAssign* const clkAssignp = VN_CAST(clockingDeclp, Assign)) {
+        எனில் (AstAssign* மாறிலி clkAssignp = VN_CAST(clockingDeclp, Assign)) {
             this->assignp(clkAssignp);
-        } else {
-            exprp(VN_AS(clockingDeclp, NodeExpr));
+        } இல்லையெனில் {
+            exprp(VN_AS(clockingDeclp, முனை_கோவை));
         }
     }
     ASTGEN_MEMBERS_AstClockingItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VDirection direction() const { return m_direction; }
-    AstClockingItem* outputp() const { return m_outputp; }
-    void outputp(AstClockingItem* outputp) { m_outputp = outputp; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    VDirection direction() மாறிலி { திரும்பு m_direction; }
+    AstClockingItem* outputp() மாறிலி { திரும்பு m_outputp; }
+    வெறுமை outputp(AstClockingItem* outputp) { m_outputp = outputp; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
 };
-class AstConfig final : public AstNode {
+class AstConfig final : பொது Ast_முனை {
     // Parents: NETLIST
     // @astgen op1 := designp : List[AstConfigCell]
     // @astgen op2 := itemsp : List[AstNode]
     std::string m_libname;  // Config library, or ""
     std::string m_configname;  // Config name within library
 
-public:
-    AstConfig(FileLine* fl, const std::string& libname, const std::string& cellname)
+பொது:
+    AstConfig(File_வரி* fl, மாறிலி std::string& libname, மாறிலி std::string& cellname)
         : ASTGEN_SUPER_Config(fl)
         , m_libname{libname}
         , m_configname{cellname} {}
     ASTGEN_MEMBERS_AstConfig;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_configname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string configname() const VL_MT_STABLE { return m_configname; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_libname + "." + m_configname; }
+    std::string libname() மாறிலி VL_MT_STABLE { திரும்பு m_libname; }
+    std::string configname() மாறிலி VL_MT_STABLE { திரும்பு m_configname; }
 };
-class AstConfigCell final : public AstNode {
+class AstConfigCell final : பொது Ast_முனை {
     // Parents: CONFIGRULE
     std::string m_libname;  // Cell library, or ""
     std::string m_cellname;  // Cell name within library
 
-public:
-    AstConfigCell(FileLine* fl, const std::string& libname, const std::string& cellname)
+பொது:
+    AstConfigCell(File_வரி* fl, மாறிலி std::string& libname, மாறிலி std::string& cellname)
         : ASTGEN_SUPER_ConfigCell(fl)
         , m_libname{libname}
         , m_cellname{cellname} {}
     ASTGEN_MEMBERS_AstConfigCell;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_cellname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string cellname() const VL_MT_STABLE { return m_cellname; }
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_libname + "." + m_cellname; }
+    std::string libname() மாறிலி VL_MT_STABLE { திரும்பு m_libname; }
+    std::string cellname() மாறிலி VL_MT_STABLE { திரும்பு m_cellname; }
 };
-class AstConfigRule final : public AstNode {
+class AstConfigRule final : பொது Ast_முனை {
     // Parents: CONFIG
     // @astgen op1 := cellp : Optional[AstNode]  // Cells to apply to, or nullptr=default
     // @astgen op2 := usep : List[AstNode]  // Use or design to apply
-    const bool m_isCell;  // Declared as "cell" versus "instance"
+    மாறிலி bool m_isCell;  // Declared as "cell" versus "instance"
 
-public:
-    AstConfigRule(FileLine* fl, AstNode* cellp, AstNode* usep, bool isCell)
+பொது:
+    AstConfigRule(File_வரி* fl, Ast_முனை* cellp, Ast_முனை* usep, bool isCell)
         : ASTGEN_SUPER_ConfigRule(fl)
         , m_isCell{isCell} {
         this->cellp(cellp);
         addUsep(usep);
     }
     ASTGEN_MEMBERS_AstConfigRule;
-    bool isCell() const VL_MT_STABLE { return m_isCell; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool isCell() மாறிலி VL_MT_STABLE { திரும்பு m_isCell; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstConfigUse final : public AstNode {
+class AstConfigUse final : பொது Ast_முனை {
     // Parents: CONFIGRULE
     // @astgen op1 := paramsp : List[AstPin]
     std::string m_libname;  // Use library, or ""
     std::string m_cellname;  // Use name within library
-    const bool m_isConfig;  // ":config"; Config, not module/primitive name
+    மாறிலி bool m_isConfig;  // ":config"; Config, not module/primitive name
 
-public:
-    AstConfigUse(FileLine* fl, const std::string& libname, const std::string& cellname,
+பொது:
+    AstConfigUse(File_வரி* fl, மாறிலி std::string& libname, மாறிலி std::string& cellname,
                  AstPin* paramsp, bool isConfig)
         : ASTGEN_SUPER_ConfigUse(fl)
         , m_libname{libname}
@@ -1001,14 +1001,14 @@ public:
         addParamsp(paramsp);
     }
     ASTGEN_MEMBERS_AstConfigUse;
-    std::string name() const override VL_MT_STABLE { return m_libname + "." + m_cellname; }
-    std::string libname() const VL_MT_STABLE { return m_libname; }
-    std::string cellname() const VL_MT_STABLE { return m_cellname; }
-    bool isConfig() const VL_MT_STABLE { return m_isConfig; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_libname + "." + m_cellname; }
+    std::string libname() மாறிலி VL_MT_STABLE { திரும்பு m_libname; }
+    std::string cellname() மாறிலி VL_MT_STABLE { திரும்பு m_cellname; }
+    bool isConfig() மாறிலி VL_MT_STABLE { திரும்பு m_isConfig; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstConstraint final : public AstNode {
+class AstConstraint final : பொது Ast_முனை {
     // Constraint
     // @astgen op1 := itemsp : List[AstNode]
     // @astgen op2 := classOrPackagep : Optional[AstNode]
@@ -1019,49 +1019,49 @@ class AstConstraint final : public AstNode {
     bool m_isExternProto = false;  // Prototype declaration (implicit or explicit)
     bool m_isKwdPure = false;  // Pure constraint
     bool m_isStatic = false;  // Static constraint
-public:
-    AstConstraint(FileLine* fl, const string& name, AstNode* itemsp)
+பொது:
+    AstConstraint(File_வரி* fl, மாறிலி string& name, Ast_முனை* itemsp)
         : ASTGEN_SUPER_Constraint(fl)
         , m_name{name} {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstConstraint;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
-    void name(const string& name) override { m_name = name; }  // * = Scope name
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
-    bool isExternDef() const { return m_isExternDef; }
-    void isExternDef(bool flag) { m_isExternDef = flag; }
-    void isExternExplicit(bool flag) { m_isExternExplicit = flag; }
-    bool isExternExplicit() const { return m_isExternExplicit; }
-    void isExternProto(bool flag) { m_isExternProto = flag; }
-    bool isExternProto() const { return m_isExternProto; }
-    void isKwdPure(bool flag) { m_isKwdPure = flag; }
-    bool isKwdPure() const { return m_isKwdPure; }
-    void isStatic(bool flag) { m_isStatic = flag; }
-    bool isStatic() const { return m_isStatic; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Scope name
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }  // * = Scope name
+    bool isGateOptimizable() மாறிலி override { திரும்பு false; }
+    bool isPredictOptimizable() மாறிலி override { திரும்பு false; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
+    வெறுமை baseOverride(மாறிலி VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() மாறிலி { திரும்பு m_baseOverride; }
+    bool isExternDef() மாறிலி { திரும்பு m_isExternDef; }
+    வெறுமை isExternDef(bool flag) { m_isExternDef = flag; }
+    வெறுமை isExternExplicit(bool flag) { m_isExternExplicit = flag; }
+    bool isExternExplicit() மாறிலி { திரும்பு m_isExternExplicit; }
+    வெறுமை isExternProto(bool flag) { m_isExternProto = flag; }
+    bool isExternProto() மாறிலி { திரும்பு m_isExternProto; }
+    வெறுமை isKwdPure(bool flag) { m_isKwdPure = flag; }
+    bool isKwdPure() மாறிலி { திரும்பு m_isKwdPure; }
+    வெறுமை isStatic(bool flag) { m_isStatic = flag; }
+    bool isStatic() மாறிலி { திரும்பு m_isStatic; }
 };
-class AstCoverBin final : public AstNode {
+class AstCoverBin final : பொது Ast_முனை {
     // Captures data for a coverpoint 'bins' declaration
     // @astgen op1 := rangesp : List[AstNode]
     // @astgen op2 := iffp : Optional[AstNodeExpr]
     // @astgen op3 := arraySizep : Optional[AstNodeExpr]
     // @astgen op4 := transp : List[AstCoverTransSet]
-    const string m_name;  // Base name of the bin
-    const VCoverBinsType m_binsType;  // Bin type (eg AUTO, IGNORE, ILLEGAL)
+    மாறிலி string m_name;  // Base name of the bin
+    மாறிலி VCoverBinsType m_binsType;  // Bin type (eg AUTO, IGNORE, ILLEGAL)
     bool m_isArray = false;  // Bin is an array: of a bin per value or transition, or of
                              // arraySizep() bins
     bool m_isWildcard = false;  // Bin uses wildcard matching (independent of ignore/illegal)
 
-public:
-    AstCoverBin(FileLine* fl, const string& name, AstNode* rangesp, bool isIgnore, bool isIllegal,
-                bool isWildcard = false, AstNodeExpr* iffp = nullptr)
+பொது:
+    AstCoverBin(File_வரி* fl, மாறிலி string& name, Ast_முனை* rangesp, bool isIgnore, bool isIllegal,
+                bool isWildcard = false, Ast_முனை_கோவை* iffp = nullptr)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
         , m_binsType{isIllegal ? VCoverBinsType::BINS_ILLEGAL
@@ -1073,7 +1073,7 @@ public:
         this->iffp(iffp);
     }
     // Constructor for automatic bins
-    AstCoverBin(FileLine* fl, const string& name, AstNodeExpr* arraySizep,
+    AstCoverBin(File_வரி* fl, மாறிலி string& name, Ast_முனை_கோவை* arraySizep,
                 VCoverBinsType type = VCoverBinsType::BINS_AUTO)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
@@ -1082,12 +1082,12 @@ public:
         this->arraySizep(arraySizep);
     }
     // Constructor for default bins (catch-all)
-    AstCoverBin(FileLine* fl, const string& name, VCoverBinsType type)
+    AstCoverBin(File_வரி* fl, மாறிலி string& name, VCoverBinsType type)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
         , m_binsType{type} {}
     // Constructor for transition bins
-    AstCoverBin(FileLine* fl, const string& name, AstCoverTransSet* transp,
+    AstCoverBin(File_வரி* fl, மாறிலி string& name, AstCoverTransSet* transp,
                 VCoverBinsType type = VCoverBinsType::BINS_TRANSITION, bool isArrayBin = false)
         : ASTGEN_SUPER_CoverBin(fl)
         , m_name{name}
@@ -1097,50 +1097,50 @@ public:
         addTransp(transp);
     }
     ASTGEN_MEMBERS_AstCoverBin;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VCoverBinsType binsType() const { return m_binsType; }
-    bool isWildcard() const { return m_isWildcard; }
-    bool isArray() const { return m_isArray; }
-    void isArray(bool flag) { m_isArray = flag; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    VCoverBinsType binsType() மாறிலி { திரும்பு m_binsType; }
+    bool isWildcard() மாறிலி { திரும்பு m_isWildcard; }
+    bool isArray() மாறிலி { திரும்பு m_isArray; }
+    வெறுமை isArray(bool flag) { m_isArray = flag; }
 };
-class AstCoverBinsof final : public AstNode {
+class AstCoverBinsof final : பொது Ast_முனை {
     // A binsof selection of a coverpoint or one of its named bins
     // @astgen op1 := pointp : AstCoverpointRef
     // @astgen op2 := rangesp : List[AstNode]  // Optional intersect value ranges
     string m_name;  // Selected bin name, or empty for all bins of the coverpoint
-    const bool m_isNegated;  // Complement the selection within the cross product
+    மாறிலி bool m_isNegated;  // Complement the selection within the cross product
 
-public:
-    AstCoverBinsof(FileLine* fl, AstCoverpointRef* pointp, bool isNegated = false,
-                   AstNode* rangesp = nullptr)
+பொது:
+    AstCoverBinsof(File_வரி* fl, AstCoverpointRef* pointp, bool isNegated = false,
+                   Ast_முனை* rangesp = nullptr)
         : ASTGEN_SUPER_CoverBinsof(fl)
         , m_isNegated{isNegated} {
         this->pointp(pointp);
         addRangesp(rangesp);
     }
     ASTGEN_MEMBERS_AstCoverBinsof;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool isNegated() const { return m_isNegated; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverBinsof* const asamep = VN_DBG_AS(samep, CoverBinsof);
-        return m_name == asamep->m_name && m_isNegated == asamep->m_isNegated;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    bool isNegated() மாறிலி { திரும்பு m_isNegated; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {  // LCOV_EXCL_START
+        மாறிலி AstCoverBinsof* மாறிலி asamep = VN_DBG_AS(samep, CoverBinsof);
+        திரும்பு m_name == asamep->m_name && m_isNegated == asamep->m_isNegated;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossBin final : public AstNode {
+class AstCoverCrossBin final : பொது Ast_முனை {
     // A named cross bin and its selection expression
     // @astgen op1 := selectp : Optional[AstNode]  // Null for unsupported selections
     // @astgen op2 := iffp : Optional[AstNodeExpr]
-    const string m_name;  // Declared cross bin name
+    மாறிலி string m_name;  // Declared cross bin name
     // dist-ast-dump-suppress  // Bin kind is shown by verilogKwd() in emitted Verilog.
-    const VCoverBinsType m_binsType;  // Normal, ignore, or illegal bin
+    மாறிலி VCoverBinsType m_binsType;  // Normal, ignore, or illegal bin
 
-public:
-    AstCoverCrossBin(FileLine* fl, const string& name, AstNode* selectp, AstNodeExpr* iffp,
+பொது:
+    AstCoverCrossBin(File_வரி* fl, மாறிலி string& name, Ast_முனை* selectp, Ast_முனை_கோவை* iffp,
                      VCoverBinsType binsType = VCoverBinsType::BINS_USER)
         : ASTGEN_SUPER_CoverCrossBin(fl)
         , m_name{name}
@@ -1149,59 +1149,59 @@ public:
         this->iffp(iffp);
     }
     ASTGEN_MEMBERS_AstCoverCrossBin;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string verilogKwd() const override;
-    VCoverBinsType binsType() const { return m_binsType; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverCrossBin* const asamep = VN_DBG_AS(samep, CoverCrossBin);
-        return m_name == asamep->m_name && m_binsType.m_e == asamep->m_binsType.m_e;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    string verilogKwd() மாறிலி override;
+    VCoverBinsType binsType() மாறிலி { திரும்பு m_binsType; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {  // LCOV_EXCL_START
+        மாறிலி AstCoverCrossBin* மாறிலி asamep = VN_DBG_AS(samep, CoverCrossBin);
+        திரும்பு m_name == asamep->m_name && m_binsType.m_e == asamep->m_binsType.m_e;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossRef final : public AstNode {
+class AstCoverCrossRef final : பொது Ast_முனை {
     // The complete bin-tuple space of the enclosing cross
-    const string m_name;  // Referenced cross name
+    மாறிலி string m_name;  // Referenced cross name
 
-public:
-    AstCoverCrossRef(FileLine* fl, const string& name)
+பொது:
+    AstCoverCrossRef(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_CoverCrossRef(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstCoverCrossRef;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        return m_name == VN_DBG_AS(samep, CoverCrossRef)->m_name;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {  // LCOV_EXCL_START
+        திரும்பு m_name == VN_DBG_AS(samep, CoverCrossRef)->m_name;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossSelect final : public AstNode {
+class AstCoverCrossSelect final : பொது Ast_முனை {
     // Intersection or union of two cross-bin selections
     // @astgen op1 := lhsp : Optional[AstNode]  // Null for an unsupported selection
     // @astgen op2 := rhsp : Optional[AstNode]  // Null for an unsupported selection
-    const bool m_isOr;  // Union (||), rather than intersection (&&)
+    மாறிலி bool m_isOr;  // Union (||), rather than intersection (&&)
 
-public:
-    AstCoverCrossSelect(FileLine* fl, AstNode* lhsp, AstNode* rhsp, bool isOr)
+பொது:
+    AstCoverCrossSelect(File_வரி* fl, Ast_முனை* lhsp, Ast_முனை* rhsp, bool isOr)
         : ASTGEN_SUPER_CoverCrossSelect(fl)
         , m_isOr{isOr} {
         this->lhsp(lhsp);
         this->rhsp(rhsp);
     }
     ASTGEN_MEMBERS_AstCoverCrossSelect;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool isOr() const { return m_isOr; }
-    string verilogKwd() const override { return isOr() ? "||" : "&&"; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        return m_isOr == VN_DBG_AS(samep, CoverCrossSelect)->m_isOr;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool isOr() மாறிலி { திரும்பு m_isOr; }
+    string verilogKwd() மாறிலி override { திரும்பு isOr() ? "||" : "&&"; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {  // LCOV_EXCL_START
+        திரும்பு m_isOr == VN_DBG_AS(samep, CoverCrossSelect)->m_isOr;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverCrossWith final : public AstNode {
+class AstCoverCrossWith final : பொது Ast_முனை {
     // The bin tuples of a cross-bin selection with enough value tuples for which a 'with' filter
     // is true: one, or as many as a 'matches' clause gives (IEEE 1800-2023 19.6.1.2)
     // @astgen op1 := selectp : Optional[AstNode]  // Selection filtered; null if unsupported
     // @astgen op2 := filterp : AstNodeExpr
     // @astgen op3 := varsp : List[AstVar]  // Candidate value of each cross item, from V3LinkParse
     // @astgen op4 := countp : Optional[AstNodeExpr]  // Of 'matches', AstUnbounded for '$'
-public:
-    AstCoverCrossWith(FileLine* fl, AstNode* selectp, AstNodeExpr* filterp, AstNodeExpr* countp)
+பொது:
+    AstCoverCrossWith(File_வரி* fl, Ast_முனை* selectp, Ast_முனை_கோவை* filterp, Ast_முனை_கோவை* countp)
         : ASTGEN_SUPER_CoverCrossWith(fl) {
         this->selectp(selectp);
         this->filterp(filterp);
@@ -1209,95 +1209,95 @@ public:
     }
     ASTGEN_MEMBERS_AstCoverCrossWith;
 };
-class AstCoverOption final : public AstNode {
+class AstCoverOption final : பொது Ast_முனை {
     // Coverage-option assignment
     // @astgen op1 := valuep : AstNodeExpr
-    const VCoverOptionType m_optType;  // Option being assigned
-    const bool m_typeOption;  // type_option (vs option)
+    மாறிலி VCoverOptionType m_optType;  // Option being assigned
+    மாறிலி bool m_typeOption;  // type_option (vs option)
 
-public:
-    AstCoverOption(FileLine* fl, bool typeOption, VCoverOptionType optType, AstNodeExpr* valuep)
+பொது:
+    AstCoverOption(File_வரி* fl, bool typeOption, VCoverOptionType optType, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_CoverOption(fl)
         , m_optType{optType}
         , m_typeOption{typeOption} {
         this->valuep(valuep);
     }
     ASTGEN_MEMBERS_AstCoverOption;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VCoverOptionType optType() const { return m_optType; }
-    bool typeOption() const { return m_typeOption; }
-    bool sameNode(const AstNode* samep) const override {  // LCOV_EXCL_START
-        const AstCoverOption* const asamep = VN_DBG_AS(samep, CoverOption);
-        return m_optType.m_e == asamep->m_optType.m_e && m_typeOption == asamep->m_typeOption;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    VCoverOptionType optType() மாறிலி { திரும்பு m_optType; }
+    bool typeOption() மாறிலி { திரும்பு m_typeOption; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {  // LCOV_EXCL_START
+        மாறிலி AstCoverOption* மாறிலி asamep = VN_DBG_AS(samep, CoverOption);
+        திரும்பு m_optType.m_e == asamep->m_optType.m_e && m_typeOption == asamep->m_typeOption;
     }  // LCOV_EXCL_STOP
 };
-class AstCoverToggle final : public AstNode {
+class AstCoverToggle final : பொது Ast_முனை {
     // Toggle analysis of given signal
     // Parents:  MODULE
     // @astgen op1 := incp : AstCoverInc
     // @astgen op2 := origp : AstNodeExpr
     // @astgen op3 := changep : AstNodeExpr
-public:
-    AstCoverToggle(FileLine* fl, AstCoverInc* incp, AstNodeExpr* origp, AstNodeExpr* changep)
+பொது:
+    AstCoverToggle(File_வரி* fl, AstCoverInc* incp, Ast_முனை_கோவை* origp, Ast_முனை_கோவை* changep)
         : ASTGEN_SUPER_CoverToggle(fl) {
         this->incp(incp);
         this->origp(origp);
         this->changep(changep);
     }
     ASTGEN_MEMBERS_AstCoverToggle;
-    int instrCount() const override { return 3 + INSTR_COUNT_BRANCH + INSTR_COUNT_LD; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return true; }
+    முழு instr_மொத்தம்() மாறிலி override { திரும்பு 3 + INSTR_மொத்தம்_BRANCH + INSTR_மொத்தம்_LD; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
+    bool isGateOptimizable() மாறிலி override { திரும்பு false; }
+    bool isPredictOptimizable() மாறிலி override { திரும்பு true; }
     bool isOutputter() override {
-        return false;  // Though the AstCoverInc under this is an outputter
+        திரும்பு false;  // Though the AstCoverInc under this is an outputter
     }
 };
-class AstCoverTransItem final : public AstNode {
+class AstCoverTransItem final : பொது Ast_முனை {
     // Represents a single transition item: value or value[*N] or value[->N] or value[=N]
     // @astgen op1 := valuesp : List[AstNode]
     // @astgen op2 := repMinp : Optional[AstNodeExpr]
     // @astgen op3 := repMaxp : Optional[AstNodeExpr]
-    const VTransRepType m_repType;
+    மாறிலி VTransRepType m_repType;
 
-public:
-    AstCoverTransItem(FileLine* fl, AstNode* valuesp, VTransRepType repType = VTransRepType::NONE)
+பொது:
+    AstCoverTransItem(File_வரி* fl, Ast_முனை* valuesp, VTransRepType repType = VTransRepType::NONE)
         : ASTGEN_SUPER_CoverTransItem(fl)
         , m_repType{repType} {
         addValuesp(valuesp);
     }
     ASTGEN_MEMBERS_AstCoverTransItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstCoverTransSet final : public AstNode {
+class AstCoverTransSet final : பொது Ast_முனை {
     // Represents a transition set: value1 => value2 => value3
     // @astgen op1 := itemsp : List[AstCoverTransItem]
-public:
-    AstCoverTransSet(FileLine* fl, AstCoverTransItem* itemsp)
+பொது:
+    AstCoverTransSet(File_வரி* fl, AstCoverTransItem* itemsp)
         : ASTGEN_SUPER_CoverTransSet(fl) {
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstCoverTransSet;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstCoverWith final : public AstNode {
+class AstCoverWith final : பொது Ast_முனை {
     // The values of a coverpoint bin for which a 'with' filter is true (IEEE 1800-2023
     // 19.5.1.1), the only range list element of its AstCoverBin
     // @astgen op1 := subp : List[AstNode]  // Range list, or AstCoverpointRef for all values
     // @astgen op2 := filterp : AstNodeExpr
     // @astgen op3 := itemp : Optional[AstVar]  // Candidate value 'item', from V3LinkParse
-public:
-    AstCoverWith(FileLine* fl, AstNode* subp, AstNodeExpr* filterp)
+பொது:
+    AstCoverWith(File_வரி* fl, Ast_முனை* subp, Ast_முனை_கோவை* filterp)
         : ASTGEN_SUPER_CoverWith(fl) {
         addSubp(subp);
         this->filterp(filterp);
     }
     ASTGEN_MEMBERS_AstCoverWith;
 };
-class AstCovergroup final : public AstNode {
+class AstCovergroup final : பொது Ast_முனை {
     // Represents a covergroup declaration. V3LinkParse transforms this
     // into an AstClass with isCovergroup==true and attaches the clocking
     // event as a new AstCovergroup sentinel in class membersp.
@@ -1307,9 +1307,9 @@ class AstCovergroup final : public AstNode {
     // @astgen op4 := sampleArgsp : List[AstVar]
     string m_name;  // covergroup name
 
-public:
-    AstCovergroup(FileLine* fl, const string& name, AstVar* argsp, AstVar* sampleArgsp,
-                  AstNode* membersp, AstSenTree* eventp)
+பொது:
+    AstCovergroup(File_வரி* fl, மாறிலி string& name, AstVar* argsp, AstVar* sampleArgsp,
+                  Ast_முனை* membersp, Ast_Sen_மரம்* eventp)
         : ASTGEN_SUPER_Covergroup(fl)
         , m_name{name} {
         addArgsp(argsp);
@@ -1318,221 +1318,221 @@ public:
         this->eventp(eventp);
     }
     ASTGEN_MEMBERS_AstCovergroup;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    bool maybePointedTo() const override { return true; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    bool maybePointedTo() மாறிலி override { திரும்பு true; }
 };
-class AstCoverpointRef final : public AstNode {
+class AstCoverpointRef final : பொது Ast_முனை {
     // Reference to a coverpoint used in a cross
     // @astgen op1 := exprp : Optional[AstNodeExpr]  // Non-standard: hierarchical/dotted
     //                                               // reference (implicit coverpoint), e.g.
     //                                               // 'cross a.b'; nullptr for a plain coverpoint
     //                                               // name.  An AstDot at parse time, resolved
     //                                               // by the time V3Covergroup runs.
-    const string m_name;  // coverpoint name; empty when exprp() carries a hierarchical reference
+    மாறிலி string m_name;  // coverpoint name; empty when exprp() carries a hierarchical reference
 
-public:
-    AstCoverpointRef(FileLine* fl, const string& name)
+பொது:
+    AstCoverpointRef(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_CoverpointRef(fl)
         , m_name{name} {}
-    AstCoverpointRef(FileLine* fl, AstNodeExpr* exprp)
+    AstCoverpointRef(File_வரி* fl, Ast_முனை_கோவை* exprp)
         : ASTGEN_SUPER_CoverpointRef(fl) {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstCoverpointRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
 };
-class AstDefParam final : public AstNode {
+class AstDefParam final : பொது Ast_முனை {
     // A defparam assignment
     // Parents: MODULE
     // @astgen op1 := rhsp : AstNodeExpr
     // @astgen op2 := pathp : AstNodeExpr
     string m_name;  // Name of variable getting set
-public:
-    AstDefParam(FileLine* fl, AstNodeExpr* pathp, const string& name, AstNodeExpr* rhsp)
+பொது:
+    AstDefParam(File_வரி* fl, Ast_முனை_கோவை* pathp, மாறிலி string& name, Ast_முனை_கோவை* rhsp)
         : ASTGEN_SUPER_DefParam(fl)
         , m_name{name} {
         this->rhsp(rhsp);
         this->pathp(pathp);
     }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Scope name
     ASTGEN_MEMBERS_AstDefParam;
-    bool sameNode(const AstNode*) const override { return true; }
+    bool same_முனை(மாறிலி Ast_முனை*) மாறிலி override { திரும்பு true; }
 };
-class AstDefaultClocking final : public AstNode {
+class AstDefaultClocking final : பொது Ast_முனை {
     std::string m_name;  // Clocking block name
 
-public:
-    AstDefaultClocking(FileLine* fl, const std::string& name)
+பொது:
+    AstDefaultClocking(File_வரி* fl, மாறிலி std::string& name)
         : ASTGEN_SUPER_DefaultClocking(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstDefaultClocking;
-    std::string name() const override VL_MT_STABLE { return m_name; }
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
 };
-class AstDefaultDisable final : public AstNode {
+class AstDefaultDisable final : பொது Ast_முனை {
     // @astgen op1 := condp : AstNodeExpr
 
-public:
-    AstDefaultDisable(FileLine* fl, AstNodeExpr* condp)
+பொது:
+    AstDefaultDisable(File_வரி* fl, Ast_முனை_கோவை* condp)
         : ASTGEN_SUPER_DefaultDisable(fl) {
         this->condp(condp);
     }
     ASTGEN_MEMBERS_AstDefaultDisable;
 };
-class AstDpiExport final : public AstNode {
+class AstDpiExport final : பொது Ast_முனை {
     // We could put an AstNodeFTaskRef instead of the verilog function name,
     // however we're not *calling* it, so that seems somehow wrong.
     // (Probably AstNodeFTaskRef should be renamed AstNodeFTaskCall and have-a AstNodeFTaskRef)
     string m_name;  // Name of function
     string m_cname;  // Name of function on c side
-public:
-    AstDpiExport(FileLine* fl, const string& vname, const string& cname)
+பொது:
+    AstDpiExport(File_வரி* fl, மாறிலி string& vname, மாறிலி string& cname)
         : ASTGEN_SUPER_DpiExport(fl)
         , m_name{vname}
         , m_cname{cname} {}
     ASTGEN_MEMBERS_AstDpiExport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    void name(const string& name) override { m_name = name; }
-    string cname() const { return m_cname; }
-    void cname(const string& cname) { m_cname = cname; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string cname() மாறிலி { திரும்பு m_cname; }
+    வெறுமை cname(மாறிலி string& cname) { m_cname = cname; }
 };
-class AstElabDisplay final : public AstNode {
+class AstElabDisplay final : பொது Ast_முனை {
     // Parents: stmtlist
     // @astgen op1 := fmtp : List[AstSFormatF]
     VDisplayType m_displayType;
 
-public:
-    inline AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp);
+பொது:
+    உள்வரி AstElabDisplay(File_வரி* fl, VDisplayType dispType, Ast_முனை_கோவை* exprsp);
     ASTGEN_MEMBERS_AstElabDisplay;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         BROKEN_RTN(!fmtp());
-        return nullptr;
+        திரும்பு nullptr;
     }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string verilogKwd() const override { return "$"s + string{displayType().ascii()}; }
-    bool isGateOptimizable() const override { return false; }
-    bool isPredictOptimizable() const override { return false; }
-    bool isPure() override { return false; }  // SPECIAL: $display has 'visual' ordering
-    bool isOutputter() override { return true; }  // SPECIAL: $display makes output
-    bool isUnlikely() const override { return true; }
-    bool sameNode(const AstNode* samep) const override {
-        return displayType() == VN_DBG_AS(samep, ElabDisplay)->displayType();
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    string verilogKwd() மாறிலி override { திரும்பு "$"s + string{displayType().ascii()}; }
+    bool isGateOptimizable() மாறிலி override { திரும்பு false; }
+    bool isPredictOptimizable() மாறிலி override { திரும்பு false; }
+    bool isPure() override { திரும்பு false; }  // SPECIAL: $display has 'visual' ordering
+    bool isOutputter() override { திரும்பு true; }  // SPECIAL: $display makes output
+    bool isUnlikely() மாறிலி override { திரும்பு true; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு displayType() == VN_DBG_AS(samep, ElabDisplay)->displayType();
     }
-    int instrCount() const override { return INSTR_COUNT_PLI; }
-    VDisplayType displayType() const { return m_displayType; }
-    void displayType(VDisplayType type) { m_displayType = type; }
+    முழு instr_மொத்தம்() மாறிலி override { திரும்பு INSTR_மொத்தம்_PLI; }
+    VDisplayType displayType() மாறிலி { திரும்பு m_displayType; }
+    வெறுமை displayType(VDisplayType type) { m_displayType = type; }
 };
-class AstEmpty final : public AstNode {
+class AstEmpty final : பொது Ast_முனை {
     // Represents something missing, e.g. a missing argument in FOREACH
-public:
-    explicit AstEmpty(FileLine* fl)
+பொது:
+    explicit AstEmpty(File_வரி* fl)
         : ASTGEN_SUPER_Empty(fl) {}
     ASTGEN_MEMBERS_AstEmpty;
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
 };
-class AstGenCaseItem final : public AstNode {
+class AstGenCaseItem final : பொது Ast_முனை {
     // Single item of an AstGenCase
     // @astgen op1 := condsp : List[AstNodeExpr]
     // @astgen op2 := itemsp : List[AstNode]
-public:
-    AstGenCaseItem(FileLine* fl, AstNodeExpr* condsp, AstNode* itemsp)
+பொது:
+    AstGenCaseItem(File_வரி* fl, Ast_முனை_கோவை* condsp, Ast_முனை* itemsp)
         : ASTGEN_SUPER_GenCaseItem(fl) {
         addCondsp(condsp);
         addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenCaseItem;
-    bool isDefault() const { return condsp() == nullptr; }
+    bool isDefault() மாறிலி { திரும்பு condsp() == nullptr; }
 };
-class AstImplicit final : public AstNode {
+class AstImplicit final : பொது Ast_முனை {
     // Create implicit wires and do nothing else, for gates that are ignored
     // Parents: MODULE
     // @astgen op1 := exprsp : List[AstNode]
-public:
-    AstImplicit(FileLine* fl, AstNode* exprsp)
+பொது:
+    AstImplicit(File_வரி* fl, Ast_முனை* exprsp)
         : ASTGEN_SUPER_Implicit(fl) {
         addExprsp(exprsp);
     }
     ASTGEN_MEMBERS_AstImplicit;
 };
-class AstIntfRef final : public AstNode {
+class AstIntfRef final : பொது Ast_முனை {
     // An interface reference
     string m_name;  // Hierarchical path of the reference
     string m_parentName;  // Hierarchical path of the declaring module, before inlining
     string m_baseName;  // Final component of m_name, i.e. the reference port name
     string m_modportName;  // "" = no modport, else name of the modport referenced
-public:
-    AstIntfRef(FileLine* fl, const string& name, const string& parentName, const string& baseName,
-               const string& modportName)
+பொது:
+    AstIntfRef(File_வரி* fl, மாறிலி string& name, மாறிலி string& parentName, மாறிலி string& baseName,
+               மாறிலி string& modportName)
         : ASTGEN_SUPER_IntfRef(fl)
         , m_name{name}
         , m_parentName{parentName}
         , m_baseName{baseName}
         , m_modportName{modportName} {}
     ASTGEN_MEMBERS_AstIntfRef;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string parentName() const { return m_parentName; }
-    string baseName() const { return m_baseName; }
-    string modportName() const { return m_modportName; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    string parentName() மாறிலி { திரும்பு m_parentName; }
+    string baseName() மாறிலி { திரும்பு m_baseName; }
+    string modportName() மாறிலி { திரும்பு m_modportName; }
 };
-class AstLibrary final : public AstNode {
+class AstLibrary final : பொது Ast_முனை {
     // Parents: NETLIST
     // Library declaration from lib.map file
     // @astgen op1 := filesp : List[AstNodeExpr]
     // @astgen op2 := incdirsp : List[AstNodeExpr]
     std::string m_name;  // Library name
 
-public:
-    AstLibrary(FileLine* fl, const std::string& name, AstNodeExpr* filesp, AstNodeExpr* incdirsp)
+பொது:
+    AstLibrary(File_வரி* fl, மாறிலி std::string& name, Ast_முனை_கோவை* filesp, Ast_முனை_கோவை* incdirsp)
         : ASTGEN_SUPER_Library(fl)
         , m_name{name} {
         addFilesp(filesp);
         addIncdirsp(incdirsp);
     }
     ASTGEN_MEMBERS_AstLibrary;
-    std::string name() const override VL_MT_STABLE { return m_name; }
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
 };
-class AstModport final : public AstNode {
+class AstModport final : பொது Ast_முனை {
     // A modport in an interface
     // @astgen op1 := varsp : List[AstNode]
     string m_name;  // Name of the modport
-public:
-    AstModport(FileLine* fl, const string& name, AstNode* varsp)
+பொது:
+    AstModport(File_வரி* fl, மாறிலி string& name, Ast_முனை* varsp)
         : ASTGEN_SUPER_Modport(fl)
         , m_name{name} {
         addVarsp(varsp);
     }
-    string verilogKwd() const override { return "modport"; }
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    string verilogKwd() மாறிலி override { திரும்பு "modport"; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
     ASTGEN_MEMBERS_AstModport;
 };
-class AstModportClockingRef final : public AstNode {
+class AstModportClockingRef final : பொது Ast_முனை {
     // A clocking block referenced under a modport
     // The storage for the clocking block itself is inside the interface, thus this is a reference
     // PARENT: AstModport
     //
     // @astgen ptr := m_clockingp : Optional[AstClocking]  // Link to the actual clocking block
     string m_name;  // Name of the clocking block referenced
-public:
-    AstModportClockingRef(FileLine* fl, const string& name)
+பொது:
+    AstModportClockingRef(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_ModportClockingRef(fl)
         , m_name{name} {}
     ASTGEN_MEMBERS_AstModportClockingRef;
-    void dump(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    AstClocking* clockingp() const VL_MT_STABLE {
-        return m_clockingp;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    AstClocking* clockingp() மாறிலி VL_MT_STABLE {
+        திரும்பு m_clockingp;
     }  // [After Link] Pointer to clocking block
-    void clockingp(AstClocking* clockingp) { m_clockingp = clockingp; }
+    வெறுமை clockingp(AstClocking* clockingp) { m_clockingp = clockingp; }
 };
-class AstModportFTaskRef final : public AstNode {
+class AstModportFTaskRef final : பொது Ast_முனை {
     // An import/export referenced under a modport
     // The storage for the function itself is inside the
     // interface/instantiator, thus this is a reference
@@ -1541,21 +1541,21 @@ class AstModportFTaskRef final : public AstNode {
     // @astgen ptr := m_ftaskp : Optional[AstNodeFTask]  // Link to the function
     string m_name;  // Name of the variable referenced
     bool m_export;  // Type of the function (import/export)
-public:
-    AstModportFTaskRef(FileLine* fl, const string& name, bool isExport)
+பொது:
+    AstModportFTaskRef(File_வரி* fl, மாறிலி string& name, bool isExport)
         : ASTGEN_SUPER_ModportFTaskRef(fl)
         , m_name{name}
         , m_export{isExport} {}
     ASTGEN_MEMBERS_AstModportFTaskRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool isImport() const { return !m_export; }
-    bool isExport() const { return m_export; }
-    AstNodeFTask* ftaskp() const { return m_ftaskp; }  // [After Link] Pointer to variable
-    void ftaskp(AstNodeFTask* ftaskp) { m_ftaskp = ftaskp; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool isImport() மாறிலி { திரும்பு !m_export; }
+    bool isExport() மாறிலி { திரும்பு m_export; }
+    Ast_முனை_FTask* ftaskp() மாறிலி { திரும்பு m_ftaskp; }  // [After Link] Pointer to variable
+    வெறுமை ftaskp(Ast_முனை_FTask* ftaskp) { m_ftaskp = ftaskp; }
 };
-class AstModportVarRef final : public AstNode {
+class AstModportVarRef final : பொது Ast_முனை {
     // A input/output/etc variable referenced under a modport
     // The storage for the variable itself is inside the interface, thus this is a reference
     // PARENT: AstModport
@@ -1563,13 +1563,13 @@ class AstModportVarRef final : public AstNode {
     //
     // @astgen ptr := m_varp : Optional[AstVar]  // Link to the actual Var
     string m_name;  // Name of the variable referenced
-    const VDirection m_direction;  // Direction of the variable (in/out)
-public:
-    AstModportVarRef(FileLine* fl, const string& name, VDirection::en direction)
+    மாறிலி VDirection m_direction;  // Direction of the variable (in/out)
+பொது:
+    AstModportVarRef(File_வரி* fl, மாறிலி string& name, VDirection::en direction)
         : ASTGEN_SUPER_ModportVarRef(fl)
         , m_name{name}
         , m_direction{direction} {}
-    AstModportVarRef(FileLine* fl, const string& name, AstNodeExpr* exprp,
+    AstModportVarRef(File_வரி* fl, மாறிலி string& name, Ast_முனை_கோவை* exprp,
                      VDirection::en direction)
         : ASTGEN_SUPER_ModportVarRef(fl)
         , m_name{name}
@@ -1577,14 +1577,14 @@ public:
         this->exprp(exprp);
     };
     ASTGEN_MEMBERS_AstModportVarRef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    VDirection direction() const { return m_direction; }
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* varp) { m_varp = varp; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    VDirection direction() மாறிலி { திரும்பு m_direction; }
+    AstVar* varp() மாறிலி VL_MT_STABLE { திரும்பு m_varp; }  // [After Link] Pointer to variable
+    வெறுமை varp(AstVar* varp) { m_varp = varp; }
 };
-class AstNetlist final : public AstNode {
+class AstNetlist final : பொது Ast_முனை {
     // All modules are under this single top node.
     // Parents:   none
     // Children:  MODULEs & CFILEs
@@ -1605,7 +1605,7 @@ class AstNetlist final : public AstNode {
     // @astgen ptr := m_stlFirstIterationp: Optional[AstVarScope]  // Settle first iteration flag
     VTimescale m_timeunit;  // Global time unit
     VTimescale m_timeprecision;  // Global time precision
-    std::string m_resolvedTopModuleName;  // Selected design top before wrapping under $root
+    std::string m_resolved_உச்சி_Module_Name;  // Selected design top before wrapping under $root
     bool m_timescaleSpecified = false;  // Input HDL specified timescale
     uint32_t m_nTraceCodes = 0;  // Number of trace codes used by design
     // V3Param-deferred params awaiting V3LinkDot::linkDotParamed scope-resolution.
@@ -1613,114 +1613,114 @@ class AstNetlist final : public AstNode {
     // Sparse metadata for constants produced from named parameters/localparams. Keep this off
     // AstConst itself, as AstConst is a very common node and only a small fraction carry this
     // name.
-    std::unordered_map<const AstConst*, string> m_constOrigParamNames;
+    std::unordered_map<மாறிலி AstConst*, string> m_constOrigParamNames;
     // Module each node is in, only good while the tree holds still
-    std::unordered_map<const AstNode*, const AstNodeModule*> m_containingModules;
+    std::unordered_map<மாறிலி Ast_முனை*, மாறிலி Ast_முனை_Module*> m_containingModules;
     // The model's evaluation entry point functions
     std::array<AstCFunc*, VEval::_ENUM_END> m_evalFuncps{};
     // The trigger dump function of each region if exists, otherwise nullptr
     std::array<AstCFunc*, VEval::_ENUM_END> m_dumpTriggersFuncps{};
 
-public:
+பொது:
     AstNetlist();
     ASTGEN_MEMBERS_AstNetlist;
-    const char* broken() const override;
-    void pushDeferredParamVarp(AstVar* varp) { m_deferredParamVarps.insert(varp); }
-    const std::set<AstVar*>& deferredParamVarps() const { return m_deferredParamVarps; }
-    void clearDeferredParamVarps() { m_deferredParamVarps.clear(); }
-    void deleteContents();
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    string name() const override VL_MT_STABLE { return "$root"; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    AstNodeModule* topModulep() const VL_MT_STABLE {  // Top module in hierarchy
-        return modulesp();  // First one in the list, for now
+    மாறிலி எழுத்து* broken() மாறிலி override;
+    வெறுமை தள்ளு_Deferred_Param_Varp(AstVar* varp) { m_deferredParamVarps.செருகு(varp); }
+    மாறிலி std::set<AstVar*>& deferredParamVarps() மாறிலி { திரும்பு m_deferredParamVarps; }
+    வெறுமை clearDeferredParamVarps() { m_deferredParamVarps.clear(); }
+    வெறுமை deleteContents();
+    வெறுமை cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு "$root"; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    Ast_முனை_Module* உச்சி_Modulep() மாறிலி VL_MT_STABLE {  // Top module in hierarchy
+        திரும்பு modulesp();  // First one in the list, for now
     }
-    AstTypeTable* typeTablep() { return m_typeTablep; }
-    string astConstOrigParamName(const AstConst* nodep) const;
-    void astConstOrigParamName(const AstConst* nodep, const string& name);
-    void astConstOrigParamNameErase(const AstConst* nodep);
+    AstTypeTable* typeTablep() { திரும்பு m_typeTablep; }
+    string astConstOrigParamName(மாறிலி AstConst* nodep) மாறிலி;
+    வெறுமை astConstOrigParamName(மாறிலி AstConst* nodep, மாறிலி string& name);
+    வெறுமை astConstOrigParamNameErase(மாறிலி AstConst* nodep);
     // Find the module a node is in, remembering what it passed on the way.
-    const AstNodeModule* containingModule(const AstNode* nodep);
+    மாறிலி Ast_முனை_Module* containingModule(மாறிலி Ast_முனை* nodep);
     // Forget remembered modules, as the tree has moved.
-    void clearContainingModules() { m_containingModules.clear(); }
-    AstPackage* constPoolPkgp() const { return m_constPoolPkgp; }
-    AstPackage* dollarUnitPkgp() const { return m_dollarUnitPkgp; }
-    void dollarUnitPkgp(AstPackage* const packagep) { m_dollarUnitPkgp = packagep; }
+    வெறுமை clearContainingModules() { m_containingModules.clear(); }
+    AstPackage* constPoolPkgp() மாறிலி { திரும்பு m_constPoolPkgp; }
+    AstPackage* dollarUnitPkgp() மாறிலி { திரும்பு m_dollarUnitPkgp; }
+    வெறுமை dollarUnitPkgp(AstPackage* மாறிலி packagep) { m_dollarUnitPkgp = packagep; }
     // Returns the entry point eval function, lazy constructed on first call
     AstCFunc* evalFuncp(VEval eval);
     // Returns the trigger dump function of the given eval function, lazy constructed
     AstCFunc* dumpTriggersFuncp(VEval eval);
-    AstVarScope* dpiExportTriggerp() const { return m_dpiExportTriggerp; }
-    void dpiExportTriggerp(AstVarScope* varScopep) { m_dpiExportTriggerp = varScopep; }
-    AstVar* delaySchedulerp() const { return m_delaySchedulerp; }
-    void delaySchedulerp(AstVar* const varScopep) { m_delaySchedulerp = varScopep; }
-    AstVarScope* nbaEventp() const { return m_nbaEventp; }
-    void nbaEventp(AstVarScope* const varScopep) { m_nbaEventp = varScopep; }
-    AstVarScope* nbaEventTriggerp() const { return m_nbaEventTriggerp; }
-    void nbaEventTriggerp(AstVarScope* const varScopep) { m_nbaEventTriggerp = varScopep; }
-    void stdPackagep(AstPackage* const packagep) { m_stdPackagep = packagep; }
-    AstPackage* stdPackagep() const { return m_stdPackagep; }
-    void stdPackageProcessp(AstClass* const classp) { m_stdPackageProcessp = classp; }
-    AstClass* stdPackageProcessp() const { return m_stdPackageProcessp; }
-    AstFuncRef* stdPackageProcessSelfp(FileLine*) const;
-    AstTopScope* topScopep() const { return m_topScopep; }
-    void createTopScope(AstScope* scopep);
-    VTimescale timeunit() const { return m_timeunit; }
-    void timeunit(const VTimescale& value) { m_timeunit = value; }
-    VTimescale timeprecision() const { return m_timeprecision; }
-    void timeInit() {
+    AstVarScope* dpiExportTriggerp() மாறிலி { திரும்பு m_dpiExportTriggerp; }
+    வெறுமை dpiExportTriggerp(AstVarScope* varScopep) { m_dpiExportTriggerp = varScopep; }
+    AstVar* delaySchedulerp() மாறிலி { திரும்பு m_delaySchedulerp; }
+    வெறுமை delaySchedulerp(AstVar* மாறிலி varScopep) { m_delaySchedulerp = varScopep; }
+    AstVarScope* nbaEventp() மாறிலி { திரும்பு m_nbaEventp; }
+    வெறுமை nbaEventp(AstVarScope* மாறிலி varScopep) { m_nbaEventp = varScopep; }
+    AstVarScope* nbaEventTriggerp() மாறிலி { திரும்பு m_nbaEventTriggerp; }
+    வெறுமை nbaEventTriggerp(AstVarScope* மாறிலி varScopep) { m_nbaEventTriggerp = varScopep; }
+    வெறுமை stdPackagep(AstPackage* மாறிலி packagep) { m_stdPackagep = packagep; }
+    AstPackage* stdPackagep() மாறிலி { திரும்பு m_stdPackagep; }
+    வெறுமை stdPackageProcessp(AstClass* மாறிலி classp) { m_stdPackageProcessp = classp; }
+    AstClass* stdPackageProcessp() மாறிலி { திரும்பு m_stdPackageProcessp; }
+    AstFuncRef* stdPackageProcessSelfp(File_வரி*) மாறிலி;
+    Ast_உச்சி_Scope* உச்சி_Scopep() மாறிலி { திரும்பு m_உச்சி_Scopep; }
+    வெறுமை create_உச்சி_Scope(AstScope* scopep);
+    VTimescale timeunit() மாறிலி { திரும்பு m_timeunit; }
+    வெறுமை timeunit(மாறிலி VTimescale& மதிப்பு) { m_timeunit = மதிப்பு; }
+    VTimescale timeprecision() மாறிலி { திரும்பு m_timeprecision; }
+    வெறுமை timeInit() {
         m_timeunit = v3Global.opt.timeDefaultUnit();
         m_timeprecision = v3Global.opt.timeDefaultPrec();
     }
-    void timeprecisionMerge(FileLine*, const VTimescale& value);
-    void timescaleSpecified(bool specified) { m_timescaleSpecified = specified; }
-    bool timescaleSpecified() const { return m_timescaleSpecified; }
-    const std::string& resolvedTopModuleName() const { return m_resolvedTopModuleName; }
-    void resolvedTopModuleName(const std::string& value) { m_resolvedTopModuleName = value; }
-    uint32_t nTraceCodes() const { return m_nTraceCodes; }
-    void nTraceCodes(uint32_t value) { m_nTraceCodes = value; }
+    வெறுமை timeprecisionMerge(File_வரி*, மாறிலி VTimescale& மதிப்பு);
+    வெறுமை timescaleSpecified(bool specified) { m_timescaleSpecified = specified; }
+    bool timescaleSpecified() மாறிலி { திரும்பு m_timescaleSpecified; }
+    மாறிலி std::string& resolved_உச்சி_Module_Name() மாறிலி { திரும்பு m_resolved_உச்சி_Module_Name; }
+    வெறுமை resolved_உச்சி_Module_Name(மாறிலி std::string& மதிப்பு) { m_resolved_உச்சி_Module_Name = மதிப்பு; }
+    uint32_t nTraceCodes() மாறிலி { திரும்பு m_nTraceCodes; }
+    வெறுமை nTraceCodes(uint32_t மதிப்பு) { m_nTraceCodes = மதிப்பு; }
     AstVarScope* stlFirstIterationp();
-    void clearStlFirstIterationp() { m_stlFirstIterationp = nullptr; }
-    const std::string traceLibTopName() const {
-        const std::string& name = resolvedTopModuleName();
-        return prettyName(name.empty() ? v3Global.rootp()->topModulep()->name() : name);
+    வெறுமை clearStlFirstIterationp() { m_stlFirstIterationp = nullptr; }
+    மாறிலி std::string trace_Lib_உச்சி_Name() மாறிலி {
+        மாறிலி std::string& name = resolved_உச்சி_Module_Name();
+        திரும்பு prettyName(name.empty() ? v3Global.rootp()->உச்சி_Modulep()->name() : name);
     }
 
     // Record statistics for eval functions
-    void addEvalStats(const std::string& phase);
+    வெறுமை addEvalStats(மாறிலி std::string& phase);
 };
-class AstPackageExport final : public AstNode {
+class AstPackageExport final : பொது Ast_முனை {
     // A package export declaration
     //
     // @astgen ptr := m_packagep : Optional[AstPackage]  // Package hierarchy
     string m_name;  // What imported e.g. "*"
     string m_pkgName;  // Module the cell instances
 
-public:
-    AstPackageExport(FileLine* fl, const string& pkgName, const string& name)
+பொது:
+    AstPackageExport(File_வரி* fl, மாறிலி string& pkgName, மாறிலி string& name)
         : ASTGEN_SUPER_PackageExport(fl)
         , m_name{name}
         , m_pkgName{pkgName}
         , m_packagep{nullptr} {}
     ASTGEN_MEMBERS_AstPackageExport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string pkgName() const VL_MT_STABLE { return m_pkgName; }
-    string prettyPkgNameQ() const { return "'" + prettyName(pkgName()) + "'"; }
-    AstPackage* packagep() const { return m_packagep; }
-    void packagep(AstPackage* nodep) { m_packagep = nodep; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    string pkgName() மாறிலி VL_MT_STABLE { திரும்பு m_pkgName; }
+    string prettyPkgNameQ() மாறிலி { திரும்பு "'" + prettyName(pkgName()) + "'"; }
+    AstPackage* packagep() மாறிலி { திரும்பு m_packagep; }
+    வெறுமை packagep(AstPackage* nodep) { m_packagep = nodep; }
 };
-class AstPackageExportStarStar final : public AstNode {
+class AstPackageExportStarStar final : பொது Ast_முனை {
     // A package export *::* declaration
-public:
+பொது:
     // cppcheck-suppress noExplicitConstructor
-    AstPackageExportStarStar(FileLine* fl)
+    AstPackageExportStarStar(File_வரி* fl)
         : ASTGEN_SUPER_PackageExportStarStar(fl) {}
     ASTGEN_MEMBERS_AstPackageExportStarStar;
 };
-class AstPackageImport final : public AstNode {
+class AstPackageImport final : பொது Ast_முனை {
     // A package import declaration
     // @astgen op1 := resolvedClassp : Optional[AstClassOrPackageRef]
     //
@@ -1728,112 +1728,112 @@ class AstPackageImport final : public AstNode {
     string m_name;  // What imported e.g. "*"
     string m_pkgName;  // Module the cell instances
 
-public:
-    AstPackageImport(FileLine* fl, AstPackage* packagep, const string& name)
+பொது:
+    AstPackageImport(File_வரி* fl, AstPackage* packagep, மாறிலி string& name)
         : ASTGEN_SUPER_PackageImport(fl)
         , m_name{name}
         , m_packagep{packagep} {
         pkgNameFrom();
     }
-    AstPackageImport(FileLine* fl, const string& pkgName, const string& name)
+    AstPackageImport(File_வரி* fl, மாறிலி string& pkgName, மாறிலி string& name)
         : ASTGEN_SUPER_PackageImport(fl)
         , m_name{name}
         , m_pkgName{pkgName}
         , m_packagep{nullptr} {}
     ASTGEN_MEMBERS_AstPackageImport;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }
-    string pkgName() const VL_MT_STABLE { return m_pkgName; }
-    string prettyPkgNameQ() const { return "'" + prettyName(pkgName()) + "'"; }
-    AstPackage* packagep() const { return m_packagep; }
-    void packagep(AstPackage* nodep) { m_packagep = nodep; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    string pkgName() மாறிலி VL_MT_STABLE { திரும்பு m_pkgName; }
+    string prettyPkgNameQ() மாறிலி { திரும்பு "'" + prettyName(pkgName()) + "'"; }
+    AstPackage* packagep() மாறிலி { திரும்பு m_packagep; }
+    வெறுமை packagep(AstPackage* nodep) { m_packagep = nodep; }
 
-private:
-    void pkgNameFrom();
+தனிப்பட்ட:
+    வெறுமை pkgNameFrom();
 };
-class AstPin final : public AstNode {
+class AstPin final : பொது Ast_முனை {
     // A port or parameter assignment on an instantiation
     // @astgen op1 := exprp : Optional[AstNode<AstNodeExpr|AstNodeDType>]  // nullptr=unconnected
     //
     // @astgen ptr := m_modVarp : Optional[AstVar]  // Input/output connects to on submodule
     // @astgen ptr := m_modPTypep : Optional[AstParamTypeDType]  // Param type connects to on sub
-    int m_pinNum;  // Pin number
+    முழு m_pin_இலக்கம்;  // Pin number
     string m_name;  // Pin name, or "" for number based interconnect
     string m_paramPath;  // Original defparam cell path, if this pin came from a defparam
     bool m_param = false;  // Pin connects to parameter
     bool m_svDotName = false;  // Pin is SystemVerilog .name'ed
     bool m_svImplicit = false;  // Pin is SystemVerilog .name'ed, allow implicit
-public:
-    AstPin(FileLine* fl, int pinNum, const string& name, AstNode* exprp)
+பொது:
+    AstPin(File_வரி* fl, முழு pin_இலக்கம், மாறிலி string& name, Ast_முனை* exprp)
         : ASTGEN_SUPER_Pin(fl)
-        , m_pinNum{pinNum}
+        , m_pin_இலக்கம்{pin_இலக்கம்}
         , m_name{name} {
         this->exprp(exprp);
     }
     ASTGEN_MEMBERS_AstPin;
-    void cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Pin name, ""=go by number
-    void name(const string& name) override { m_name = name; }
-    string prettyOperatorName() const override;
-    bool dotStar() const { return name() == ".*"; }  // Fake name for .* connections until linked
-    int pinNum() const { return m_pinNum; }
-    AstVar* modVarp() const { return m_modVarp; }  // [After Link] Pointer to variable
-    void modVarp(AstVar* nodep) { m_modVarp = nodep; }
+    வெறுமை cloneRelink() override {}  // TODO V3Param shouldn't require avoiding cloneRelinkGen
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Pin name, ""=go by number
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string prettyOperatorName() மாறிலி override;
+    bool dotStar() மாறிலி { திரும்பு name() == ".*"; }  // Fake name for .* connections until linked
+    முழு pin_இலக்கம்() மாறிலி { திரும்பு m_pin_இலக்கம்; }
+    AstVar* modVarp() மாறிலி { திரும்பு m_modVarp; }  // [After Link] Pointer to variable
+    வெறுமை modVarp(AstVar* nodep) { m_modVarp = nodep; }
     // [After Link] Pointer to variable
-    AstParamTypeDType* modPTypep() const { return m_modPTypep; }
-    void modPTypep(AstParamTypeDType* nodep) { m_modPTypep = nodep; }
-    bool param() const { return m_param; }
-    void param(bool flag) { m_param = flag; }
-    const string& paramPath() const { return m_paramPath; }
-    void paramPath(const string& path) { m_paramPath = path; }
-    bool svDotName() const { return m_svDotName; }
-    void svDotName(bool flag) { m_svDotName = flag; }
-    bool svImplicit() const { return m_svImplicit; }
-    void svImplicit(bool flag) { m_svImplicit = flag; }
+    AstParamTypeDType* modPTypep() மாறிலி { திரும்பு m_modPTypep; }
+    வெறுமை modPTypep(AstParamTypeDType* nodep) { m_modPTypep = nodep; }
+    bool param() மாறிலி { திரும்பு m_param; }
+    வெறுமை param(bool flag) { m_param = flag; }
+    மாறிலி string& paramPath() மாறிலி { திரும்பு m_paramPath; }
+    வெறுமை paramPath(மாறிலி string& path) { m_paramPath = path; }
+    bool svDotName() மாறிலி { திரும்பு m_svDotName; }
+    வெறுமை svDotName(bool flag) { m_svDotName = flag; }
+    bool svImplicit() மாறிலி { திரும்பு m_svImplicit; }
+    வெறுமை svImplicit(bool flag) { m_svImplicit = flag; }
 };
-class AstPort final : public AstNode {
+class AstPort final : பொது Ast_முனை {
     // A port (in/out/inout) on a module
     // @astgen op1 := exprp : Optional[AstNodeExpr] // Expression connected to port
-    const int m_pinNum;  // Pin number
-    const string m_name;  // Name of pin
-public:
-    AstPort(FileLine* fl, int pinnum, const string& name)
+    மாறிலி முழு m_pin_இலக்கம்;  // Pin number
+    மாறிலி string m_name;  // Name of pin
+பொது:
+    AstPort(File_வரி* fl, முழு pinnum, மாறிலி string& name)
         : ASTGEN_SUPER_Port(fl)
-        , m_pinNum{pinnum}
+        , m_pin_இலக்கம்{pinnum}
         , m_name{name} {}
     ASTGEN_MEMBERS_AstPort;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Port name
-    int pinNum() const { return m_pinNum; }  // * = Pin number, for order based instantiation
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Port name
+    முழு pin_இலக்கம்() மாறிலி { திரும்பு m_pin_இலக்கம்; }  // * = Pin number, for order based instantiation
 };
-class AstPragma final : public AstNode {
-    const VPragmaType m_pragType;  // Type of pragma
-    const VTimescale m_timescale;  // For TIMEUNIT_SET
-public:
+class AstPragma final : பொது Ast_முனை {
+    மாறிலி VPragmaType m_pragType;  // Type of pragma
+    மாறிலி VTimescale m_timescale;  // For TIMEUNIT_SET
+பொது:
     // Pragmas don't result in any output code, they're just flags that affect
     // other processing in verilator.
-    AstPragma(FileLine* fl, VPragmaType pragType)
+    AstPragma(File_வரி* fl, VPragmaType pragType)
         : ASTGEN_SUPER_Pragma(fl)
         , m_pragType{pragType} {
         UASSERT_OBJ(pragType != VPragmaType::TIMEUNIT_SET, fl, "Should use other constructor");
     }
-    AstPragma(FileLine* fl, const VTimescale& timescale)
+    AstPragma(File_வரி* fl, மாறிலி VTimescale& timescale)
         : ASTGEN_SUPER_Pragma(fl)
         , m_pragType{VPragmaType::TIMEUNIT_SET}
         , m_timescale{timescale} {}
     ASTGEN_MEMBERS_AstPragma;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VPragmaType pragType() const { return m_pragType; }  // *=type of the pragma
-    bool isPredictOptimizable() const override { return false; }
-    bool sameNode(const AstNode* samep) const override {
-        return pragType() == VN_DBG_AS(samep, Pragma)->pragType();
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    VPragmaType pragType() மாறிலி { திரும்பு m_pragType; }  // *=type of the pragma
+    bool isPredictOptimizable() மாறிலி override { திரும்பு false; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு pragType() == VN_DBG_AS(samep, Pragma)->pragType();
     }
-    VTimescale timescale() const { return m_timescale; }
+    VTimescale timescale() மாறிலி { திரும்பு m_timescale; }
 };
-class AstPropSpec final : public AstNode {
+class AstPropSpec final : பொது Ast_முனை {
     // A clocked property
     // Parents:  ASSERT|COVER (property)
     // Children: SENITEM, Properties
@@ -1843,8 +1843,8 @@ class AstPropSpec final : public AstNode {
     // @astgen op4 := matchCountp : Optional[AstNodeExpr] // Cover sequence matches this tick
     VPropStrength m_propStrength = VPropStrength::DEFAULT;
 
-public:
-    AstPropSpec(FileLine* fl, AstSenItem* sensesp, AstNodeExpr* disablep, AstNode* propp,
+பொது:
+    AstPropSpec(File_வரி* fl, AstSenItem* sensesp, Ast_முனை_கோவை* disablep, Ast_முனை* propp,
                 VPropStrength propStrength = VPropStrength::DEFAULT)
         : ASTGEN_SUPER_PropSpec(fl)
         , m_propStrength{propStrength} {
@@ -1853,33 +1853,33 @@ public:
         this->propp(propp);
     }
     ASTGEN_MEMBERS_AstPropSpec;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE {
-        return true;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool hasDType() மாறிலி override VL_MT_SAFE {
+        திரும்பு true;
     }  // Used under Cover, which expects a bool child
-    VPropStrength propStrength() const { return m_propStrength; }
+    VPropStrength propStrength() மாறிலி { திரும்பு m_propStrength; }
 };
-class AstPull final : public AstNode {
+class AstPull final : பொது Ast_முனை {
     // @astgen op1 := lhsp : AstNodeExpr
 
-    const bool m_direction;
+    மாறிலி bool m_direction;
 
-public:
-    AstPull(FileLine* fl, AstNodeExpr* lhsp, bool direction)
+பொது:
+    AstPull(File_வரி* fl, Ast_முனை_கோவை* lhsp, bool direction)
         : ASTGEN_SUPER_Pull(fl)
         , m_direction{direction} {
         this->lhsp(lhsp);
     }
     ASTGEN_MEMBERS_AstPull;
-    bool sameNode(const AstNode* samep) const override {
-        return direction() == VN_DBG_AS(samep, Pull)->direction();
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு direction() == VN_DBG_AS(samep, Pull)->direction();
     }
-    bool direction() const { return m_direction; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool direction() மாறிலி { திரும்பு m_direction; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstScope final : public AstNode {
+class AstScope final : பொது Ast_முனை {
     // A particular usage of a cell
     // Parents: MODULE
     // Children: NODEBLOCK
@@ -1894,8 +1894,8 @@ class AstScope final : public AstNode {
 
     // An AstScope->name() is special: . indicates an uninlined scope, __DOT__ an inlined scope
     string m_name;  // Name
-public:
-    AstScope(FileLine* fl, AstNodeModule* modp, const string& name, AstScope* aboveScopep,
+பொது:
+    AstScope(File_வரி* fl, Ast_முனை_Module* modp, மாறிலி string& name, AstScope* aboveScopep,
              AstCell* aboveCellp)
         : ASTGEN_SUPER_Scope(fl)
         , m_name{name}
@@ -1903,191 +1903,191 @@ public:
         , m_aboveCellp{aboveCellp}
         , m_modp{modp} {}
     ASTGEN_MEMBERS_AstScope;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         BROKEN_RTN(!m_modp);
-        return nullptr;
+        திரும்பு nullptr;
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Scope name
-    void name(const string& name) override { m_name = name; }
-    string prettyNameMsg() const override;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override;
-    string nameDotless() const;
-    AstNodeModule* modp() const { return m_modp; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Scope name
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    string pretty_Name_செய்தி() மாறிலி override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override;
+    string nameDotless() மாறிலி;
+    Ast_முனை_Module* modp() மாறிலி { திரும்பு m_modp; }
     // The combinational AstActive of the scope. If none, create one if 'create', else nullptr
     AstActive* comboActivep(bool create);
     //
-    AstScope* aboveScopep() const VL_MT_SAFE { return m_aboveScopep; }
-    void aboveScopep(AstScope* nodep) { m_aboveScopep = nodep; }
-    AstCell* aboveCellp() const { return m_aboveCellp; }
-    void aboveCellp(AstCell* nodep) { m_aboveCellp = nodep; }
-    bool isTop() const VL_MT_SAFE { return aboveScopep() == nullptr; }  // At top of hierarchy
+    AstScope* aboveScopep() மாறிலி VL_MT_SAFE { திரும்பு m_aboveScopep; }
+    வெறுமை aboveScopep(AstScope* nodep) { m_aboveScopep = nodep; }
+    AstCell* aboveCellp() மாறிலி { திரும்பு m_aboveCellp; }
+    வெறுமை aboveCellp(AstCell* nodep) { m_aboveCellp = nodep; }
+    bool is_உச்சி() மாறிலி VL_MT_SAFE { திரும்பு aboveScopep() == nullptr; }  // At top of hierarchy
 };
-class AstSenItem final : public AstNode {
+class AstSenItem final : பொது Ast_முனை {
     // Parents:  SENTREE
     // @astgen op1 := sensp : Optional[AstNodeExpr] // Sensitivity expression
     // @astgen op2 := condp : Optional[AstNodeExpr] // Sensitivity condition
     VEdgeType m_edgeType;  // Edge type
-public:
+பொது:
     class Combo {};  // for constructor type-overload selection
     class Static {};  // for constructor type-overload selection
     class Initial {};  // for constructor type-overload selection
     class InitialNBA {};  // for constructor type-overload selection
     class Final {};  // for constructor type-overload selection
     class Never {};  // for constructor type-overload selection
-    AstSenItem(FileLine* fl, VEdgeType edgeType, AstNodeExpr* senp, AstNodeExpr* condp = nullptr)
+    AstSenItem(File_வரி* fl, VEdgeType edgeType, Ast_முனை_கோவை* senp, Ast_முனை_கோவை* condp = nullptr)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{edgeType} {
         this->sensp(senp);
         this->condp(condp);
     }
-    AstSenItem(FileLine* fl, Combo)
+    AstSenItem(File_வரி* fl, Combo)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_COMBO} {}
-    AstSenItem(FileLine* fl, Static)
+    AstSenItem(File_வரி* fl, Static)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_STATIC} {}
-    AstSenItem(FileLine* fl, Initial)
+    AstSenItem(File_வரி* fl, Initial)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_INITIAL} {}
-    AstSenItem(FileLine* fl, InitialNBA)
+    AstSenItem(File_வரி* fl, InitialNBA)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_INITIAL_NBA} {}
-    AstSenItem(FileLine* fl, Final)
+    AstSenItem(File_வரி* fl, Final)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_FINAL} {}
-    AstSenItem(FileLine* fl, Never)
+    AstSenItem(File_வரி* fl, Never)
         : ASTGEN_SUPER_SenItem(fl)
         , m_edgeType{VEdgeType::ET_NEVER} {}
     ASTGEN_MEMBERS_AstSenItem;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return edgeType() == VN_DBG_AS(samep, SenItem)->edgeType();
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு edgeType() == VN_DBG_AS(samep, SenItem)->edgeType();
     }
-    VEdgeType edgeType() const { return m_edgeType; }
-    void edgeType(VEdgeType type) {
+    VEdgeType edgeType() மாறிலி { திரும்பு m_edgeType; }
+    வெறுமை edgeType(VEdgeType type) {
         m_edgeType = type;
-        editCountInc();
+        edit_மொத்தம்_Inc();
     }
-    AstNodeVarRef* varrefp() const { return VN_CAST(sensp(), NodeVarRef); }
+    Ast_முனை_Var_Ref* varrefp() மாறிலி { திரும்பு VN_CAST(sensp(), முனை_Var_Ref); }
     //
-    bool isClocked() const { return edgeType().clockedStmt(); }
-    bool isComboOrStar() const {
-        return edgeType() == VEdgeType::ET_COMBO || edgeType() == VEdgeType::ET_COMBO_STAR;
+    bool isClocked() மாறிலி { திரும்பு edgeType().clockedStmt(); }
+    bool isComboOrStar() மாறிலி {
+        திரும்பு edgeType() == VEdgeType::ET_COMBO || edgeType() == VEdgeType::ET_COMBO_STAR;
     }
-    bool isComboStar() const { return edgeType() == VEdgeType::ET_COMBO_STAR; }
-    bool isHybrid() const { return edgeType() == VEdgeType::ET_HYBRID; }
-    bool isStatic() const { return edgeType() == VEdgeType::ET_STATIC; }
-    bool isInitial() const { return edgeType() == VEdgeType::ET_INITIAL; }
-    bool isFinal() const { return edgeType() == VEdgeType::ET_FINAL; }
-    bool isNever() const { return edgeType() == VEdgeType::ET_NEVER; }
+    bool isComboStar() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_COMBO_STAR; }
+    bool isHybrid() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_HYBRID; }
+    bool isStatic() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_STATIC; }
+    bool isInitial() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_INITIAL; }
+    bool isFinal() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_FINAL; }
+    bool isNever() மாறிலி { திரும்பு edgeType() == VEdgeType::ET_NEVER; }
 };
-class AstSenTree final : public AstNode {
+class Ast_Sen_மரம் final : பொது Ast_முனை {
     // A sensitivity list
     // @astgen op1 := sensesp : List[AstSenItem]
-public:
-    AstSenTree(FileLine* fl, AstSenItem* sensesp)
-        : ASTGEN_SUPER_SenTree(fl) {
+பொது:
+    Ast_Sen_மரம்(File_வரி* fl, AstSenItem* sensesp)
+        : ASTGEN_SUPER_Sen_மரம்(fl) {
         addSensesp(sensesp);
     }
-    ASTGEN_MEMBERS_AstSenTree;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+    ASTGEN_MEMBERS_Ast_Sen_மரம்;
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
     // METHODS
-    bool hasClocked() const;  // Includes a clocked statement
-    bool hasEdge() const;  // Includes a posedge/negedge/bothedge clocked statement
-    bool hasStatic() const;  // Includes a STATIC SenItem
-    bool hasInitial() const;  // Includes a INITIAL SenItem
-    bool hasFinal() const;  // Includes a FINAL SenItem
-    bool hasCombo() const;  // Includes a COMBO SenItem
-    bool hasHybrid() const;  // Includes a HYBRID SenItem
+    bool hasClocked() மாறிலி;  // Includes a clocked statement
+    bool hasEdge() மாறிலி;  // Includes a posedge/negedge/bothedge clocked statement
+    bool hasStatic() மாறிலி;  // Includes a STATIC SenItem
+    bool hasInitial() மாறிலி;  // Includes a INITIAL SenItem
+    bool hasFinal() மாறிலி;  // Includes a FINAL SenItem
+    bool hasCombo() மாறிலி;  // Includes a COMBO SenItem
+    bool hasHybrid() மாறிலி;  // Includes a HYBRID SenItem
 };
-class AstStrengthSpec final : public AstNode {
+class AstStrengthSpec final : பொது Ast_முனை {
     VStrength m_s0;  // Drive 0 strength
     VStrength m_s1;  // Drive 1 strength
 
-public:
-    AstStrengthSpec(FileLine* fl, VStrength s0, VStrength s1)
+பொது:
+    AstStrengthSpec(File_வரி* fl, VStrength s0, VStrength s1)
         : ASTGEN_SUPER_StrengthSpec(fl)
         , m_s0{s0}
         , m_s1{s1} {}
 
     ASTGEN_MEMBERS_AstStrengthSpec;
-    VStrength strength0() { return m_s0; }
-    VStrength strength1() { return m_s1; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    VStrength strength0() { திரும்பு m_s0; }
+    VStrength strength1() { திரும்பு m_s1; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstSystemCSection final : public AstNode {
+class AstSystemCSection final : பொது Ast_முனை {
     // Verilator specific "`systemc_* block". This is a "module item"
     // containing arbitrary text that is emitted to the C++ output in various
     // locations depending on the sectionType.
-    const VSystemCSectionType m_sectionType;  // The section type
+    மாறிலி VSystemCSectionType m_sectionType;  // The section type
     std::string m_text;  // The text content
 
-public:
-    AstSystemCSection(FileLine* fl, VSystemCSectionType sectionType, const std::string& text)
+பொது:
+    AstSystemCSection(File_வரி* fl, VSystemCSectionType sectionType, மாறிலி std::string& text)
         : ASTGEN_SUPER_SystemCSection(fl)
         , m_sectionType{sectionType}
         , m_text{text} {}
     ASTGEN_MEMBERS_AstSystemCSection;
-    VSystemCSectionType sectionType() const { return m_sectionType; }
-    const std::string& text() const { return m_text; }
-    void text(const std::string& value) { m_text = value; }
-    void dump(std::ostream&) const override;
-    void dumpJson(std::ostream&) const override;
-    bool sameNode(const AstNode*) const override { return false; }
-    bool isPure() override { return false; }
-    bool isOutputter() override { return true; }
+    VSystemCSectionType sectionType() மாறிலி { திரும்பு m_sectionType; }
+    மாறிலி std::string& text() மாறிலி { திரும்பு m_text; }
+    வெறுமை text(மாறிலி std::string& மதிப்பு) { m_text = மதிப்பு; }
+    வெறுமை dump(std::ostream&) மாறிலி override;
+    வெறுமை dumpJson(std::ostream&) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை*) மாறிலி override { திரும்பு false; }
+    bool isPure() override { திரும்பு false; }
+    bool isOutputter() override { திரும்பு true; }
 };
-class AstText final : public AstNode {
+class AstText final : பொது Ast_முனை {
     // Represents a piece of text to be emitted into the output
     //
     // Avoid using this directly, internally usually want
     // AstCStmt::add("text") or AstCExpr::add("text") instead
     //
-    const std::string m_text;  // The text to emit
-public:
-    AstText(FileLine* fl, const std::string& text)
+    மாறிலி std::string m_text;  // The text to emit
+பொது:
+    AstText(File_வரி* fl, மாறிலி std::string& text)
         : ASTGEN_SUPER_Text(fl)
         , m_text{text} {}
     ASTGEN_MEMBERS_AstText;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return text() == VN_DBG_AS(samep, Text)->text();
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு text() == VN_DBG_AS(samep, Text)->text();
     }
-    const std::string& text() const VL_MT_SAFE { return m_text; }
+    மாறிலி std::string& text() மாறிலி VL_MT_SAFE { திரும்பு m_text; }
 };
-class AstTextBlock final : public AstNode {
+class AstTextBlock final : பொது Ast_முனை {
     // Text block emitted into output, with some arbitrary nodes interspersed
     // @astgen op1 := nodesp : List[AstNode] // Nodes to print
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_prefix;  // Prefix to print before first element in 'nodesp'
+    மாறிலி std::string m_prefix;  // Prefix to print before first element in 'nodesp'
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_separator;  // Separator to print between each element in 'nodesp'
+    மாறிலி std::string m_separator;  // Separator to print between each element in 'nodesp'
     // dist-ast-dump-suppress  // Omitting text blocks due to verbosity
-    const std::string m_suffix;  // Suffix to pring after last element in 'nodesp'
-public:
-    explicit AstTextBlock(FileLine* fl,  //
-                          const std::string& prefix = "",  //
-                          const std::string& separator = "",  //
-                          const std::string& suffix = "")
+    மாறிலி std::string m_suffix;  // Suffix to pring after last element in 'nodesp'
+பொது:
+    explicit AstTextBlock(File_வரி* fl,  //
+                          மாறிலி std::string& prefix = "",  //
+                          மாறிலி std::string& separator = "",  //
+                          மாறிலி std::string& suffix = "")
         : ASTGEN_SUPER_TextBlock(fl)
         , m_prefix{prefix}
         , m_separator{separator}
         , m_suffix{suffix} {}
     ASTGEN_MEMBERS_AstTextBlock;
-    const std::string& prefix() const { return m_prefix; }
-    const std::string& separator() const { return m_separator; }
-    const std::string& suffix() const { return m_suffix; }
+    மாறிலி std::string& prefix() மாறிலி { திரும்பு m_prefix; }
+    மாறிலி std::string& separator() மாறிலி { திரும்பு m_separator; }
+    மாறிலி std::string& suffix() மாறிலி { திரும்பு m_suffix; }
     // Add some text, or a node to this block
-    void add(const string& text) { addNodesp(new AstText{fileline(), text}); }
-    void add(AstNode* nodep) { addNodesp(nodep); }
+    வெறுமை add(மாறிலி string& text) { addNodesp(new AstText{fileline(), text}); }
+    வெறுமை add(Ast_முனை* nodep) { addNodesp(nodep); }
 };
-class AstTopScope final : public AstNode {
+class Ast_உச்சி_Scope final : பொது Ast_முனை {
     // A singleton, held under the top level AstModule. Holds the top level
     // AstScope, and after V3ActiveTop, the global list of AstSenTrees (list of
     // unique sensitivity lists).
@@ -2096,19 +2096,19 @@ class AstTopScope final : public AstNode {
     // @astgen op2 := scopep : AstScope // The AstScope of the top-leveL
 
     friend class AstNetlist;  // Only the AstNetlist can create one
-    AstTopScope(FileLine* fl, AstScope* ascopep)
-        : ASTGEN_SUPER_TopScope(fl) {
+    Ast_உச்சி_Scope(File_வரி* fl, AstScope* ascopep)
+        : ASTGEN_SUPER_உச்சி_Scope(fl) {
         this->scopep(ascopep);
     }
 
-public:
-    ASTGEN_MEMBERS_AstTopScope;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
+பொது:
+    ASTGEN_MEMBERS_Ast_உச்சி_Scope;
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
     // Create new MODULETEMP variable in the top level scope. Name must start with '__V'
-    AstVarScope* createTemp(const string& name, unsigned width);
-    AstVarScope* createTemp(const string& name, AstNodeDType* dtypep);
+    AstVarScope* createTemp(மாறிலி string& name, unsigned width);
+    AstVarScope* createTemp(மாறிலி string& name, Ast_முனை_DType* dtypep);
 };
-class AstTypeTable final : public AstNode {
+class AstTypeTable final : பொது Ast_முனை {
     // Container for hash of standard data types
     // @astgen op1 := typesp : List[AstNodeDType]
     //
@@ -2119,50 +2119,50 @@ class AstTypeTable final : public AstNode {
     // @astgen ptr := m_voidp : Optional[AstVoidDType]
     AstBasicDType* m_basicps[VBasicDTypeKwd::_ENUM_MAX]{};
     //
-    using DetailedMap = std::map<VBasicTypeKey, AstBasicDType*>;
+    using DetailedMap = std::map<VBasic_Type_சாவி, AstBasicDType*>;
     // dist-ast-dump-suppress  // Link to other nodes
     DetailedMap m_detailedMap;
 
-public:
-    explicit AstTypeTable(FileLine* fl);
+பொது:
+    explicit AstTypeTable(File_வரி* fl);
     ASTGEN_MEMBERS_AstTypeTable;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void cloneRelink() override { V3ERROR_NA; }  // Not cloneable
-    AstBasicDType* findBasicDType(FileLine* fl, VBasicDTypeKwd kwd);
-    AstBasicDType* findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, int width, int widthMin,
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    வெறுமை cloneRelink() override { V3ERROR_NA; }  // Not cloneable
+    AstBasicDType* findBasicDType(File_வரி* fl, VBasicDTypeKwd kwd);
+    AstBasicDType* findLogicBitDType(File_வரி* fl, VBasicDTypeKwd kwd, முழு width, முழு widthMin,
                                      VSigning numeric);
-    AstBasicDType* findLogicBitDType(FileLine* fl, VBasicDTypeKwd kwd, const VNumRange& range,
-                                     int widthMin, VSigning numeric);
-    AstBasicDType* findCreateSameDType(AstBasicDType& node);
-    AstBasicDType* findInsertSameDType(AstBasicDType* nodep);
-    AstConstraintRefDType* findConstraintRefDType(FileLine* fl);
-    AstEmptyQueueDType* findEmptyQueueDType(FileLine* fl);
-    AstQueueDType* findQueueIndexDType(FileLine* fl);
-    AstStreamDType* findStreamDType(FileLine* fl);
-    AstVoidDType* findVoidDType(FileLine* fl);
-    void clearCache();
-    void repairCache();
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    AstBasicDType* findLogicBitDType(File_வரி* fl, VBasicDTypeKwd kwd, மாறிலி VNumRange& range,
+                                     முழு widthMin, VSigning numeric);
+    AstBasicDType* findCreateSameDType(AstBasicDType& முனை);
+    AstBasicDType* find_செருகு_Same_DType(AstBasicDType* nodep);
+    AstConstraintRefDType* findConstraintRefDType(File_வரி* fl);
+    AstEmptyQueueDType* findEmptyQueueDType(File_வரி* fl);
+    AstQueueDType* findQueueIndexDType(File_வரி* fl);
+    AstStreamDType* findStreamDType(File_வரி* fl);
+    AstVoidDType* findVoidDType(File_வரி* fl);
+    வெறுமை clearCache();
+    வெறுமை repairCache();
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
 };
-class AstTypedef final : public AstNode {
+class AstTypedef final : பொது Ast_முனை {
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
     // @astgen op4 := attrsp : List[AstNode] // Attributes during early parse
 
     string m_name;  // Name of the typedef
     string m_tag;  // Holds the string of the verilator tag -- used in JSON output.
-    uint32_t m_declTokenNum;  // Declaration token number
+    uint32_t m_decl_Token_இலக்கம்;  // Declaration token number
     bool m_attrPublic = false;  // Marked with public; keep even if unused
     bool m_isHideLocal : 1;  // Verilog local
     bool m_isHideProtected : 1;  // Verilog protected
     bool m_isUnderClass : 1;  // Underneath class
 
-public:
-    AstTypedef(FileLine* fl, const string& name, AstNode* attrsp, VFlagChildDType,
-               AstNodeDType* dtp)
+பொது:
+    AstTypedef(File_வரி* fl, மாறிலி string& name, Ast_முனை* attrsp, VFlagChildDType,
+               Ast_முனை_DType* dtp)
         : ASTGEN_SUPER_Typedef(fl)
         , m_name{name}
-        , m_declTokenNum{fl->tokenNum()}
+        , m_decl_Token_இலக்கம்{fl->token_இலக்கம்()}
         , m_isHideLocal{false}
         , m_isHideProtected{false}
         , m_isUnderClass{false} {
@@ -2170,115 +2170,115 @@ public:
         addAttrsp(attrsp);
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstTypedef(FileLine* fl, const string& name, AstNodeDType* dtp, bool underClass)
+    AstTypedef(File_வரி* fl, மாறிலி string& name, Ast_முனை_DType* dtp, bool underClass)
         : ASTGEN_SUPER_Typedef(fl)
         , m_name{name}
-        , m_declTokenNum{fl->tokenNum()}
+        , m_decl_Token_இலக்கம்{fl->token_இலக்கம்()}
         , m_isHideLocal{false}
         , m_isHideProtected{false}
         , m_isUnderClass{underClass} {
         dtypep(dtp);
     }
     ASTGEN_MEMBERS_AstTypedef;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
     // Name of the type it declares, with the scope declaring it, so with the values of the
     // parameters of the scope, e.g. '$unit::Cls#(8)::s_t'
-    string dtypeName() const;
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    string dtypeName() மாறிலி;
+    Ast_முனை_DType* getChildDTypep() மாறிலி override { திரும்பு childDTypep(); }
+    மெய்நிகர் Ast_முனை_DType* subDTypep() மாறிலி VL_MT_STABLE {
+        திரும்பு dtypep() ? dtypep() : childDTypep();
     }
     // METHODS
-    uint32_t declTokenNum() const override { return m_declTokenNum; }
-    void declTokenNumSetMin(uint32_t tokenNum) override {
-        m_declTokenNum = std::min(m_declTokenNum, tokenNum);
+    uint32_t decl_Token_இலக்கம்() மாறிலி override { திரும்பு m_decl_Token_இலக்கம்; }
+    வெறுமை decl_Token_இலக்கம்_Set_Min(uint32_t token_இலக்கம்) override {
+        m_decl_Token_இலக்கம் = std::min(m_decl_Token_இலக்கம், token_இலக்கம்);
     }
-    string name() const override VL_MT_STABLE { return m_name; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    void name(const string& flag) override { m_name = flag; }
-    bool attrPublic() const { return m_attrPublic; }
-    void attrPublic(bool flag) { m_attrPublic = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool isUnderClass() const { return m_isUnderClass; }
-    void isUnderClass(bool flag) { m_isUnderClass = flag; }
-    void tag(const string& text) override { m_tag = text; }
-    string tag() const override { return m_tag; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    வெறுமை name(மாறிலி string& flag) override { m_name = flag; }
+    bool attrPublic() மாறிலி { திரும்பு m_attrPublic; }
+    வெறுமை attrPublic(bool flag) { m_attrPublic = flag; }
+    bool isHideLocal() மாறிலி { திரும்பு m_isHideLocal; }
+    வெறுமை isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() மாறிலி { திரும்பு m_isHideProtected; }
+    வெறுமை isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool isUnderClass() மாறிலி { திரும்பு m_isUnderClass; }
+    வெறுமை isUnderClass(bool flag) { m_isUnderClass = flag; }
+    வெறுமை tag(மாறிலி string& text) override { m_tag = text; }
+    string tag() மாறிலி override { திரும்பு m_tag; }
 };
-class AstTypedefFwd final : public AstNode {
+class AstTypedefFwd final : பொது Ast_முனை {
     // Forward declaration of a type; stripped after netlist parsing is complete
     string m_name;
-    const VFwdType m_fwdType;  // Forward type for lint check
+    மாறிலி VFwdType m_fwdType;  // Forward type for lint check
 
-public:
-    AstTypedefFwd(FileLine* fl, const string& name, const VFwdType& fwdType)
+பொது:
+    AstTypedefFwd(File_வரி* fl, மாறிலி string& name, மாறிலி VFwdType& fwdType)
         : ASTGEN_SUPER_TypedefFwd(fl)
         , m_name{name}
         , m_fwdType{fwdType} {}
     ASTGEN_MEMBERS_AstTypedefFwd;
     // METHODS
-    string name() const override VL_MT_STABLE { return m_name; }
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    VFwdType fwdType() const { return m_fwdType; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    VFwdType fwdType() மாறிலி { திரும்பு m_fwdType; }
 };
-class AstUdpTable final : public AstNode {
+class AstUdpTable final : பொது Ast_முனை {
     // @astgen op1 := linesp : List[AstUdpTableLine]
-public:
-    AstUdpTable(FileLine* fl, AstUdpTableLine* linesp)
+பொது:
+    AstUdpTable(File_வரி* fl, Ast_Udp_Table_வரி* linesp)
         : ASTGEN_SUPER_UdpTable(fl) {
         this->addLinesp(linesp);
-        if (!v3Global.hasTable()) v3Global.setHasTable();
+        எனில் (!v3Global.hasTable()) v3Global.setHasTable();
     }
     ASTGEN_MEMBERS_AstUdpTable;
 };
-class AstUdpTableLine final : public AstNode {
+class Ast_Udp_Table_வரி final : பொது Ast_முனை {
     // @astgen op1 := iFieldsp : List[AstUdpTableLineVal]  // Input fields
     // @astgen op2 := oFieldsp : List[AstUdpTableLineVal]  // Output fields
-private:
-    const bool m_udpIsCombo;  // Combinational or sequential UDP
+தனிப்பட்ட:
+    மாறிலி bool m_udpIsCombo;  // Combinational or sequential UDP
 
-public:
+பொது:
     class UdpCombo {};
-    AstUdpTableLine(UdpCombo, FileLine* fl, AstUdpTableLineVal* iFieldsp,
-                    AstUdpTableLineVal* oFieldsp)
-        : ASTGEN_SUPER_UdpTableLine(fl)
+    Ast_Udp_Table_வரி(UdpCombo, File_வரி* fl, Ast_Udp_Table_வரி_Val* iFieldsp,
+                    Ast_Udp_Table_வரி_Val* oFieldsp)
+        : ASTGEN_SUPER_Udp_Table_வரி(fl)
         , m_udpIsCombo{true} {
         addIFieldsp(iFieldsp);
         addOFieldsp(oFieldsp);
     }
     class UdpSequential {};
-    AstUdpTableLine(UdpSequential, FileLine* fl, AstUdpTableLineVal* iFieldsp,
-                    AstUdpTableLineVal* oFieldsp1, AstUdpTableLineVal* oFieldsp2)
-        : ASTGEN_SUPER_UdpTableLine(fl)
+    Ast_Udp_Table_வரி(UdpSequential, File_வரி* fl, Ast_Udp_Table_வரி_Val* iFieldsp,
+                    Ast_Udp_Table_வரி_Val* oFieldsp1, Ast_Udp_Table_வரி_Val* oFieldsp2)
+        : ASTGEN_SUPER_Udp_Table_வரி(fl)
         , m_udpIsCombo{false} {
         addIFieldsp(iFieldsp);
         addOFieldsp(oFieldsp1);
         addOFieldsp(oFieldsp2);
     }
-    ASTGEN_MEMBERS_AstUdpTableLine;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int udpIsCombo() const { return m_udpIsCombo; }
+    ASTGEN_MEMBERS_Ast_Udp_Table_வரி;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    முழு udpIsCombo() மாறிலி { திரும்பு m_udpIsCombo; }
 };
-class AstUdpTableLineVal final : public AstNode {
+class Ast_Udp_Table_வரி_Val final : பொது Ast_முனை {
     string m_text;  // Value character
 
-public:
-    AstUdpTableLineVal(FileLine* fl, const string& text)
-        : ASTGEN_SUPER_UdpTableLineVal(fl)
+பொது:
+    Ast_Udp_Table_வரி_Val(File_வரி* fl, மாறிலி string& text)
+        : ASTGEN_SUPER_Udp_Table_வரி_Val(fl)
         , m_text{text} {}
-    ASTGEN_MEMBERS_AstUdpTableLineVal;
-    string name() const override VL_MT_STABLE { return m_text; }
-    void name(std::string const& text) override VL_MT_STABLE { m_text = text; }
-    string text() const VL_MT_SAFE { return m_text; }
+    ASTGEN_MEMBERS_Ast_Udp_Table_வரி_Val;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_text; }
+    வெறுமை name(std::string மாறிலி& text) override VL_MT_STABLE { m_text = text; }
+    string text() மாறிலி VL_MT_SAFE { திரும்பு m_text; }
 };
-class AstVar final : public AstNode {
+class AstVar final : பொது Ast_முனை {
     // A variable (in/out/wire/reg/param) inside a module
     //
     // @astgen op1 := childDTypep : Optional[AstNodeDType]
@@ -2299,8 +2299,8 @@ class AstVar final : public AstNode {
     VDirection m_declDirection;  // Declared direction input/output etc
     VLifetime m_lifetime;  // Lifetime
     VRandAttr m_rand;  // Randomizability of this variable (rand, randc, etc)
-    int m_pinNum = 0;  // For JSON, if non-zero the connection pin number
-    int m_libInoutId = 0;  // Identifies the three ports of a lowered library inout
+    முழு m_pin_இலக்கம் = 0;  // For JSON, if non-zero the connection pin number
+    முழு m_libInoutId = 0;  // Identifies the three ports of a lowered library inout
     bool m_libInoutEnable : 1;  // Port is the lowered library inout's enable
     bool m_ansi : 1;  // Params or pins declared in the module header, rather than the body
     bool m_declTyped : 1;  // Declared as type (for dedup check)
@@ -2368,8 +2368,8 @@ class AstVar final : public AstNode {
     bool m_globalConstrained : 1;  // Global constraint per IEEE 1800-2023 18.5.8
     bool m_isStdRandomizeArg : 1;  // Argument variable created for std::randomize (__Varg*)
     bool m_processQueue : 1;  // Process queue variable
-    bool m_mtaskCacheLineAlign : 1;  // Start MTask affinity group on a cache line
-    void init() {
+    bool m_mtask_Cache_வரி_Align : 1;  // Start MTask affinity group on a cache line
+    வெறுமை init() {
         m_libInoutEnable = false;
         m_ansi = false;
         m_declTyped = false;
@@ -2436,11 +2436,11 @@ class AstVar final : public AstNode {
         m_globalConstrained = false;
         m_isStdRandomizeArg = false;
         m_processQueue = false;
-        m_mtaskCacheLineAlign = false;
+        m_mtask_Cache_வரி_Align = false;
     }
 
-public:
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagChildDType, AstNodeDType* dtp)
+பொது:
+    AstVar(File_வரி* fl, VVarType type, மாறிலி string& name, VFlagChildDType, Ast_முனை_DType* dtp)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2449,7 +2449,7 @@ public:
         childDTypep(dtp);  // Only for parser
         dtypep(nullptr);  // V3Width will resolve
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, AstNodeDType* dtp)
+    AstVar(File_வரி* fl, VVarType type, மாறிலி string& name, Ast_முனை_DType* dtp)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2458,7 +2458,7 @@ public:
         UASSERT(dtp, "AstVar created with no dtype");
         dtypep(dtp);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagLogicPacked, int wantwidth)
+    AstVar(File_வரி* fl, VVarType type, மாறிலி string& name, VFlagLogicPacked, முழு wantwidth)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2466,7 +2466,7 @@ public:
         combineType(type);
         dtypeSetLogicSized(wantwidth, VSigning::UNSIGNED);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, VFlagBitPacked, int wantwidth)
+    AstVar(File_வரி* fl, VVarType type, மாறிலி string& name, VFlagBitPacked, முழு wantwidth)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
@@ -2474,285 +2474,285 @@ public:
         combineType(type);
         dtypeSetBitSized(wantwidth, VSigning::UNSIGNED);
     }
-    AstVar(FileLine* fl, VVarType type, const string& name, const AstVar* examplep)
+    AstVar(File_வரி* fl, VVarType type, மாறிலி string& name, மாறிலி AstVar* examplep)
         : ASTGEN_SUPER_Var(fl)
         , m_name{name}
         , m_origName{name} {
         init();
         combineType(type);
-        if (examplep->childDTypep()) childDTypep(examplep->childDTypep()->cloneTree(true));
+        எனில் (examplep->childDTypep()) childDTypep(examplep->childDTypep()->clone_மரம்(true));
         dtypeFrom(examplep);
     }
     ASTGEN_MEMBERS_AstVar;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    inline bool sameNode(const AstNode* samep) const override;
-    string name() const override VL_MT_STABLE { return m_name; }  // * = Var name
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string origName() const override { return m_origName; }  // * = Original name
-    void origName(const string& name) { m_origName = name; }
-    VVarType varType() const VL_MT_SAFE { return m_varType; }  // * = Type of variable
-    void direction(const VDirection& flag) {
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    உள்வரி bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override;
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }  // * = Var name
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    string origName() மாறிலி override { திரும்பு m_origName; }  // * = Original name
+    வெறுமை origName(மாறிலி string& name) { m_origName = name; }
+    VVarType varType() மாறிலி VL_MT_SAFE { திரும்பு m_varType; }  // * = Type of variable
+    வெறுமை direction(மாறிலி VDirection& flag) {
         m_direction = flag;
-        if (m_direction == VDirection::INOUT) m_tristate = true;
+        எனில் (m_direction == VDirection::INOUT) m_tristate = true;
     }
-    VDirection direction() const VL_MT_SAFE { return m_direction; }
-    bool isIO() const VL_MT_SAFE { return m_direction != VDirection::NONE; }
-    bool isVLIO() const {
-        const AstBasicDType* const bdtypep = basicp();
-        return isPrimaryIO() && bdtypep && !bdtypep->isOpaque()
+    VDirection direction() மாறிலி VL_MT_SAFE { திரும்பு m_direction; }
+    bool isIO() மாறிலி VL_MT_SAFE { திரும்பு m_direction != VDirection::NONE; }
+    bool isVLIO() மாறிலி {
+        மாறிலி AstBasicDType* மாறிலி bdtypep = basicp();
+        திரும்பு isPrimaryIO() && bdtypep && !bdtypep->isOpaque()
                && !dtypep()->skipRefp()->isCompound()
                && !VN_IS(dtypep()->skipRefp(), UnpackArrayDType);
     }
-    void declDirection(const VDirection& flag) { m_declDirection = flag; }
-    VDirection declDirection() const { return m_declDirection; }
-    int libInoutId() const { return m_libInoutId; }
-    void libInoutId(int id) { m_libInoutId = id; }
-    bool libInoutEnable() const { return m_libInoutEnable; }
-    void libInoutEnable(bool flag) { m_libInoutEnable = flag; }
-    void varType(VVarType type) { m_varType = type; }
-    void varType2Out() {
+    வெறுமை declDirection(மாறிலி VDirection& flag) { m_declDirection = flag; }
+    VDirection declDirection() மாறிலி { திரும்பு m_declDirection; }
+    முழு libInoutId() மாறிலி { திரும்பு m_libInoutId; }
+    வெறுமை libInoutId(முழு id) { m_libInoutId = id; }
+    bool libInoutEnable() மாறிலி { திரும்பு m_libInoutEnable; }
+    வெறுமை libInoutEnable(bool flag) { m_libInoutEnable = flag; }
+    வெறுமை varType(VVarType type) { m_varType = type; }
+    வெறுமை varType2Out() {
         m_tristate = false;
         m_direction = VDirection::OUTPUT;
     }
-    void varType2In() {
+    வெறுமை varType2In() {
         m_tristate = false;
-        m_direction = VDirection::INPUT;
+        m_direction = VDirection::உள்ளீடு;
     }
-    string scType() const;  // Return SysC type: bool, uint32_t, uint64_t, sc_bv
+    string scType() மாறிலி;  // Return SysC type: bool, uint32_t, uint64_t, sc_bv
     // Return C /*public*/ type for argument: bool, uint32_t, uint64_t, etc.
-    string cPubArgType(bool named, bool forReturn) const;
+    string cPubArgType(bool named, bool forReturn) மாறிலி;
     // Return DPI-C type for argument; if 'cpp', C structures are qualified for C++ class scopes
-    string dpiArgType(bool named, bool forReturn, bool cpp = false) const;
-    string dpiTmpVarType(const string& varName) const;
+    string dpiArgType(bool named, bool forReturn, bool cpp = false) மாறிலி;
+    string dpiTmpVarType(மாறிலி string& varName) மாறிலி;
     // Return Verilator internal type for argument: CData, SData, IData, WData
     string vlArgType(bool named, bool forReturn, bool forFunc, bool asRef = false,
-                     bool constRef = false) const;
-    string vlEnumType() const;  // Return VerilatorVarType: VLVT_UINT32, etc
-    string vlEnumDir(bool forMember = false) const;  // Return VerilatorVarDir: VLVD_INOUT, etc
-    string vlPropDecl(const string& propName) const;  // Return VerilatorVarProps declaration
-    void combineType(VVarType type);
-    AstNodeDType* getChildDTypep() const override { return childDTypep(); }
-    AstNodeDType* dtypeSkipRefp() const VL_MT_STABLE { return subDTypep()->skipRefp(); }
+                     bool constRef = false) மாறிலி;
+    string vlEnumType() மாறிலி;  // Return VerilatorVarType: VLVT_UINT32, etc
+    string vlEnumDir(bool forMember = false) மாறிலி;  // Return VerilatorVarDir: VLVD_INOUT, etc
+    string vlPropDecl(மாறிலி string& propName) மாறிலி;  // Return VerilatorVarProps declaration
+    வெறுமை combineType(VVarType type);
+    Ast_முனை_DType* getChildDTypep() மாறிலி override { திரும்பு childDTypep(); }
+    Ast_முனை_DType* dtypeSkipRefp() மாறிலி VL_MT_STABLE { திரும்பு subDTypep()->skipRefp(); }
     // (Slow) recurse down to find basic data type (Note don't need virtual -
     // AstVar isn't a NodeDType)
-    AstBasicDType* basicp() const VL_MT_STABLE { return subDTypep()->basicp(); }
-    virtual AstNodeDType* subDTypep() const VL_MT_STABLE {
-        return dtypep() ? dtypep() : childDTypep();
+    AstBasicDType* basicp() மாறிலி VL_MT_STABLE { திரும்பு subDTypep()->basicp(); }
+    மெய்நிகர் Ast_முனை_DType* subDTypep() மாறிலி VL_MT_STABLE {
+        திரும்பு dtypep() ? dtypep() : childDTypep();
     }
-    void ansi(bool flag) { m_ansi = flag; }
-    void declTyped(bool flag) { m_declTyped = flag; }
-    void sensIfacep(AstIface* nodep) { m_sensIfacep = nodep; }
-    void attrFileDescr(bool flag) { m_attrFileDescr = flag; }
-    void attrScBv(bool flag) { m_attrScBv = flag; }
-    void attrScBigUint(bool flag) { m_attrScBigUint = flag; }
-    void attrSFormat(bool flag) { m_attrSFormat = flag; }
-    void attrSplitVar(bool flag) { m_attrSplitVar = flag; }
-    void attrFsmState(bool flag) { m_attrFsmState = flag; }
-    void attrFsmArcInclCond(bool flag) { m_attrFsmArcInclCond = flag; }
-    void attrFsmStateExpand(const VFsmExpandType flag) {
+    வெறுமை ansi(bool flag) { m_ansi = flag; }
+    வெறுமை declTyped(bool flag) { m_declTyped = flag; }
+    வெறுமை sensIfacep(AstIface* nodep) { m_sensIfacep = nodep; }
+    வெறுமை attrFileDescr(bool flag) { m_attrFileDescr = flag; }
+    வெறுமை attrScBv(bool flag) { m_attrScBv = flag; }
+    வெறுமை attrScBigUint(bool flag) { m_attrScBigUint = flag; }
+    வெறுமை attrSFormat(bool flag) { m_attrSFormat = flag; }
+    வெறுமை attrSplitVar(bool flag) { m_attrSplitVar = flag; }
+    வெறுமை attrFsmState(bool flag) { m_attrFsmState = flag; }
+    வெறுமை attrFsmArcInclCond(bool flag) { m_attrFsmArcInclCond = flag; }
+    வெறுமை attrFsmStateExpand(மாறிலி VFsmExpandType flag) {
         UASSERT_OBJ(flag < 4, this, "Expand mode value should be in range [0;3]");
         m_attrFsmStateExpand = flag;
     }
-    bool constPoolEntry() const { return m_constPoolEntry; }
-    void setConstPoolEntry() { m_constPoolEntry = true; }
-    bool covergroupRefMember() const { return m_covergroupRefMember; }
-    void covergroupRefMember(bool flag) { m_covergroupRefMember = flag; }
+    bool constPoolEntry() மாறிலி { திரும்பு m_constPoolEntry; }
+    வெறுமை setConstPoolEntry() { m_constPoolEntry = true; }
+    bool covergroupRefMember() மாறிலி { திரும்பு m_covergroupRefMember; }
+    வெறுமை covergroupRefMember(bool flag) { m_covergroupRefMember = flag; }
     // Instance variable an embedded covergroup declares, of the covergroup's anonymous type
     // (IEEE 1800-2023 19.4)
-    bool embeddedCovergroup() const { return m_embeddedCovergroup; }
-    void embeddedCovergroup(bool flag) { m_embeddedCovergroup = flag; }
-    void rand(const VRandAttr flag) { m_rand = flag; }
-    void usedParam(bool flag) { m_usedParam = flag; }
-    void usedLoopIdx(bool flag) { m_usedLoopIdx = flag; }
-    void sigPublic(bool flag) { m_sigPublic = flag; }
-    void sigModPublic(bool flag) { m_sigModPublic = flag; }
-    void sigUserRdPublic(bool flag) {
+    bool embeddedCovergroup() மாறிலி { திரும்பு m_embeddedCovergroup; }
+    வெறுமை embeddedCovergroup(bool flag) { m_embeddedCovergroup = flag; }
+    வெறுமை rand(மாறிலி VRandAttr flag) { m_rand = flag; }
+    வெறுமை usedParam(bool flag) { m_usedParam = flag; }
+    வெறுமை usedLoopIdx(bool flag) { m_usedLoopIdx = flag; }
+    வெறுமை sigPublic(bool flag) { m_sigPublic = flag; }
+    வெறுமை sigModPublic(bool flag) { m_sigModPublic = flag; }
+    வெறுமை sigUserRdPublic(bool flag) {
         m_sigUserRdPublic = flag;
-        if (flag) sigPublic(true);
+        எனில் (flag) sigPublic(true);
     }
-    void sigUserRWPublic(bool flag) {
+    வெறுமை sigUserRWPublic(bool flag) {
         m_sigUserRWPublic = flag;
-        if (flag) sigUserRdPublic(true);
+        எனில் (flag) sigUserRdPublic(true);
     }
-    void sc(bool flag) { m_sc = flag; }
-    void scSensitive(bool flag) { m_scSensitive = flag; }
-    void primaryIO(bool flag) { m_primaryIO = flag; }
-    void isConst(bool flag) { m_isConst = flag; }
-    void isContinuously(bool flag) { m_isContinuously = flag; }
-    void isIfaceParent(bool flag) { m_isIfaceParent = flag; }
-    void isIfaceArraySplit(bool flag) { m_isIfaceArraySplit = flag; }
-    void isInternal(bool flag) { m_isInternal = flag; }
-    void isIfaceParam(bool flag) { m_isIfaceParam = flag; }
-    void funcLocal(bool flag) {
+    வெறுமை sc(bool flag) { m_sc = flag; }
+    வெறுமை scSensitive(bool flag) { m_scSensitive = flag; }
+    வெறுமை primaryIO(bool flag) { m_primaryIO = flag; }
+    வெறுமை isConst(bool flag) { m_isConst = flag; }
+    வெறுமை isContinuously(bool flag) { m_isContinuously = flag; }
+    வெறுமை isIfaceParent(bool flag) { m_isIfaceParent = flag; }
+    வெறுமை isIfaceArraySplit(bool flag) { m_isIfaceArraySplit = flag; }
+    வெறுமை isInternal(bool flag) { m_isInternal = flag; }
+    வெறுமை isIfaceParam(bool flag) { m_isIfaceParam = flag; }
+    வெறுமை funcLocal(bool flag) {
         m_funcLocal = flag;
-        if (flag) m_funcLocalSticky = true;
+        எனில் (flag) m_funcLocalSticky = true;
     }
-    void funcReturn(bool flag) { m_funcReturn = flag; }
-    bool gotNansiType() const { return m_gotNansiType; }
-    void gotNansiType(bool flag) { m_gotNansiType = flag; }
-    bool hasStrengthAssignment() const { return m_hasStrengthAssignment; }
-    void hasStrengthAssignment(bool flag) { m_hasStrengthAssignment = flag; }
-    bool hasUserInit() const { return m_hasUserInit; }
-    void hasUserInit(bool flag) { m_hasUserInit = flag; }
-    void icoMaybeWritten(bool flag) { m_icoMaybeWritten = flag; }
-    bool icoMaybeWritten() const { return m_icoMaybeWritten; }
-    void isClockingDriven(bool flag) { m_isClockingDriven = flag; }
-    bool isClockingDriven() const { return m_isClockingDriven; }
-    bool isDpiOpenArray() const VL_MT_SAFE { return m_isDpiOpenArray; }
-    void isDpiOpenArray(bool flag) { m_isDpiOpenArray = flag; }
-    bool isHideLocal() const { return m_isHideLocal; }
-    void isHideLocal(bool flag) { m_isHideLocal = flag; }
-    bool isHideProtected() const { return m_isHideProtected; }
-    void isHideProtected(bool flag) { m_isHideProtected = flag; }
-    bool noCReset() const { return m_noCReset; }
-    void noCReset(bool flag) { m_noCReset = flag; }
-    bool noReset() const { return m_noReset; }
-    void noReset(bool flag) { m_noReset = flag; }
-    bool noSubst() const { return m_noSubst; }
-    void noSubst(bool flag) { m_noSubst = flag; }
-    bool processQueue() const { return m_processQueue; }
-    void processQueue(bool flag) { m_processQueue = flag; }
-    bool sampled() const { return m_sampled; }
-    void sampled(bool flag) { m_sampled = flag; }
-    bool substConstOnly() const { return m_substConstOnly; }
-    void substConstOnly(bool flag) { m_substConstOnly = flag; }
-    bool overriddenParam() const { return m_overriddenParam; }
-    void overriddenParam(bool flag) { m_overriddenParam = flag; }
-    bool untypedParam() const { return m_untypedParam; }
-    void untypedParam(bool flag) { m_untypedParam = flag; }
-    void trace(bool flag) { m_trace = flag; }
-    void isLatched(bool flag) { m_isLatched = flag; }
-    bool isForceable() const { return m_isForceable; }
-    void setForceable() { m_isForceable = true; }
-    void setForcedByCode() { m_isForcedByCode = true; }
-    bool isForced() const { return m_isForceable || m_isForcedByCode; }
-    bool isReadByDpi() const { return m_isReadByDpi; }
-    void setReadByDpi() { m_isReadByDpi = true; }
-    bool isWrittenByDpi() const { return m_isWrittenByDpi; }
-    void setWrittenByDpi() { m_isWrittenByDpi = true; }
-    bool isWrittenBySuspendable() const { return m_isWrittenBySuspendable; }
-    void setWrittenBySuspendable() { m_isWrittenBySuspendable = true; }
-    bool ignorePostRead() const { return m_ignorePostRead; }
-    void setIgnorePostRead() { m_ignorePostRead = true; }
-    bool ignorePostWrite() const { return m_ignorePostWrite; }
-    void setIgnorePostWrite() { m_ignorePostWrite = true; }
-    bool ignoreSchedWrite() const { return m_ignoreSchedWrite; }
-    void setIgnoreSchedWrite() { m_ignoreSchedWrite = true; }
-    bool dfgTriLowered() const { return m_dfgTriLowered; }
-    void setDfgTriLowered() { m_dfgTriLowered = true; }
-    bool dfgAllowMultidriveTri() const { return m_dfgAllowMultidriveTri; }
-    void setDfgAllowMultidriveTri() { m_dfgAllowMultidriveTri = true; }
-    void globalConstrained(bool flag) { m_globalConstrained = flag; }
-    bool globalConstrained() const { return m_globalConstrained; }
-    bool isStdRandomizeArg() const { return m_isStdRandomizeArg; }
-    void setStdRandomizeArg() { m_isStdRandomizeArg = true; }
+    வெறுமை funcReturn(bool flag) { m_funcReturn = flag; }
+    bool gotNansiType() மாறிலி { திரும்பு m_gotNansiType; }
+    வெறுமை gotNansiType(bool flag) { m_gotNansiType = flag; }
+    bool hasStrengthAssignment() மாறிலி { திரும்பு m_hasStrengthAssignment; }
+    வெறுமை hasStrengthAssignment(bool flag) { m_hasStrengthAssignment = flag; }
+    bool hasUserInit() மாறிலி { திரும்பு m_hasUserInit; }
+    வெறுமை hasUserInit(bool flag) { m_hasUserInit = flag; }
+    வெறுமை icoMaybeWritten(bool flag) { m_icoMaybeWritten = flag; }
+    bool icoMaybeWritten() மாறிலி { திரும்பு m_icoMaybeWritten; }
+    வெறுமை isClockingDriven(bool flag) { m_isClockingDriven = flag; }
+    bool isClockingDriven() மாறிலி { திரும்பு m_isClockingDriven; }
+    bool isDpiOpenArray() மாறிலி VL_MT_SAFE { திரும்பு m_isDpiOpenArray; }
+    வெறுமை isDpiOpenArray(bool flag) { m_isDpiOpenArray = flag; }
+    bool isHideLocal() மாறிலி { திரும்பு m_isHideLocal; }
+    வெறுமை isHideLocal(bool flag) { m_isHideLocal = flag; }
+    bool isHideProtected() மாறிலி { திரும்பு m_isHideProtected; }
+    வெறுமை isHideProtected(bool flag) { m_isHideProtected = flag; }
+    bool noCReset() மாறிலி { திரும்பு m_noCReset; }
+    வெறுமை noCReset(bool flag) { m_noCReset = flag; }
+    bool noReset() மாறிலி { திரும்பு m_noReset; }
+    வெறுமை noReset(bool flag) { m_noReset = flag; }
+    bool noSubst() மாறிலி { திரும்பு m_noSubst; }
+    வெறுமை noSubst(bool flag) { m_noSubst = flag; }
+    bool processQueue() மாறிலி { திரும்பு m_processQueue; }
+    வெறுமை processQueue(bool flag) { m_processQueue = flag; }
+    bool sampled() மாறிலி { திரும்பு m_sampled; }
+    வெறுமை sampled(bool flag) { m_sampled = flag; }
+    bool substConstOnly() மாறிலி { திரும்பு m_substConstOnly; }
+    வெறுமை substConstOnly(bool flag) { m_substConstOnly = flag; }
+    bool overriddenParam() மாறிலி { திரும்பு m_overriddenParam; }
+    வெறுமை overriddenParam(bool flag) { m_overriddenParam = flag; }
+    bool untypedParam() மாறிலி { திரும்பு m_untypedParam; }
+    வெறுமை untypedParam(bool flag) { m_untypedParam = flag; }
+    வெறுமை trace(bool flag) { m_trace = flag; }
+    வெறுமை isLatched(bool flag) { m_isLatched = flag; }
+    bool isForceable() மாறிலி { திரும்பு m_isForceable; }
+    வெறுமை setForceable() { m_isForceable = true; }
+    வெறுமை setForcedByCode() { m_isForcedByCode = true; }
+    bool isForced() மாறிலி { திரும்பு m_isForceable || m_isForcedByCode; }
+    bool isReadByDpi() மாறிலி { திரும்பு m_isReadByDpi; }
+    வெறுமை setReadByDpi() { m_isReadByDpi = true; }
+    bool isWrittenByDpi() மாறிலி { திரும்பு m_isWrittenByDpi; }
+    வெறுமை setWrittenByDpi() { m_isWrittenByDpi = true; }
+    bool isWrittenBySuspendable() மாறிலி { திரும்பு m_isWrittenBySuspendable; }
+    வெறுமை setWrittenBySuspendable() { m_isWrittenBySuspendable = true; }
+    bool ignorePostRead() மாறிலி { திரும்பு m_ignorePostRead; }
+    வெறுமை setIgnorePostRead() { m_ignorePostRead = true; }
+    bool ignorePostWrite() மாறிலி { திரும்பு m_ignorePostWrite; }
+    வெறுமை setIgnorePostWrite() { m_ignorePostWrite = true; }
+    bool ignoreSchedWrite() மாறிலி { திரும்பு m_ignoreSchedWrite; }
+    வெறுமை setIgnoreSchedWrite() { m_ignoreSchedWrite = true; }
+    bool dfgTriLowered() மாறிலி { திரும்பு m_dfgTriLowered; }
+    வெறுமை setDfgTriLowered() { m_dfgTriLowered = true; }
+    bool dfgAllowMultidriveTri() மாறிலி { திரும்பு m_dfgAllowMultidriveTri; }
+    வெறுமை setDfgAllowMultidriveTri() { m_dfgAllowMultidriveTri = true; }
+    வெறுமை globalConstrained(bool flag) { m_globalConstrained = flag; }
+    bool globalConstrained() மாறிலி { திரும்பு m_globalConstrained; }
+    bool isStdRandomizeArg() மாறிலி { திரும்பு m_isStdRandomizeArg; }
+    வெறுமை setStdRandomizeArg() { m_isStdRandomizeArg = true; }
     // METHODS
-    void name(const string& name) override { m_name = name; }
-    void tag(const string& text) override { m_tag = text; }
-    string tag() const override { return m_tag; }
-    bool isAnsi() const { return m_ansi; }
-    bool isContinuously() const { return m_isContinuously; }
-    bool isDeclTyped() const { return m_declTyped; }
-    bool isInout() const { return m_direction.isInout(); }
-    bool isInoutOrRef() const { return m_direction.isInoutOrRef(); }
-    bool isInput() const { return m_direction.isInput(); }
-    bool isNonOutput() const { return m_direction.isNonOutput(); }
-    bool isReadOnly() const VL_MT_SAFE { return m_direction.isReadOnly(); }
-    bool isConstRef() const VL_MT_SAFE { return m_direction.isConstRef(); }
-    bool isRef() const VL_MT_SAFE { return m_direction.isRef(); }
-    bool isWritable() const VL_MT_SAFE { return m_direction.isWritable(); }
-    bool isTristate() const { return m_tristate; }
-    bool isPrimaryIO() const VL_MT_SAFE { return m_primaryIO; }
-    bool isPrimaryInish() const { return isPrimaryIO() && isNonOutput(); }
-    bool isPrimaryClock() const VL_MT_SAFE { return m_primaryClock; }
-    void setPrimaryClock() { m_primaryClock = true; }
-    bool isIfaceRef() const { return varType() == VVarType::IFACEREF; }
-    void setIfaceRef() {
+    வெறுமை name(மாறிலி string& name) override { m_name = name; }
+    வெறுமை tag(மாறிலி string& text) override { m_tag = text; }
+    string tag() மாறிலி override { திரும்பு m_tag; }
+    bool isAnsi() மாறிலி { திரும்பு m_ansi; }
+    bool isContinuously() மாறிலி { திரும்பு m_isContinuously; }
+    bool isDeclTyped() மாறிலி { திரும்பு m_declTyped; }
+    bool isInout() மாறிலி { திரும்பு m_direction.isInout(); }
+    bool isInoutOrRef() மாறிலி { திரும்பு m_direction.isInoutOrRef(); }
+    bool is_உள்ளீடு() மாறிலி { திரும்பு m_direction.is_உள்ளீடு(); }
+    bool isNonOutput() மாறிலி { திரும்பு m_direction.isNonOutput(); }
+    bool isReadOnly() மாறிலி VL_MT_SAFE { திரும்பு m_direction.isReadOnly(); }
+    bool isConstRef() மாறிலி VL_MT_SAFE { திரும்பு m_direction.isConstRef(); }
+    bool isRef() மாறிலி VL_MT_SAFE { திரும்பு m_direction.isRef(); }
+    bool isWritable() மாறிலி VL_MT_SAFE { திரும்பு m_direction.isWritable(); }
+    bool isTristate() மாறிலி { திரும்பு m_tristate; }
+    bool isPrimaryIO() மாறிலி VL_MT_SAFE { திரும்பு m_primaryIO; }
+    bool isPrimaryInish() மாறிலி { திரும்பு isPrimaryIO() && isNonOutput(); }
+    bool isPrimaryClock() மாறிலி VL_MT_SAFE { திரும்பு m_primaryClock; }
+    வெறுமை setPrimaryClock() { m_primaryClock = true; }
+    bool isIfaceRef() மாறிலி { திரும்பு varType() == VVarType::IFACEREF; }
+    வெறுமை setIfaceRef() {
         m_direction = VDirection::NONE;
         m_varType = VVarType::IFACEREF;
     }
-    bool isIfaceParent() const { return m_isIfaceParent; }
-    bool isIfaceArraySplit() const { return m_isIfaceArraySplit; }
-    bool isInternal() const { return m_isInternal; }
-    bool isIfaceParam() const { return m_isIfaceParam; }
-    bool isSignal() const { return varType().isSignal(); }
-    bool isNet() const { return varType().isNet(); }
-    bool isWor() const { return varType().isWor(); }
-    bool isWiredNet() const { return varType().isWiredNet(); }
-    bool isTemp() const { return varType().isTemp(); }
-    bool isClassMember() const { return varType() == VVarType::MEMBER; }
-    bool isVirtIface() const {
-        if (AstIfaceRefDType* const dtp = VN_CAST(dtypep(), IfaceRefDType)) {
-            return dtp->isVirtual();
+    bool isIfaceParent() மாறிலி { திரும்பு m_isIfaceParent; }
+    bool isIfaceArraySplit() மாறிலி { திரும்பு m_isIfaceArraySplit; }
+    bool isInternal() மாறிலி { திரும்பு m_isInternal; }
+    bool isIfaceParam() மாறிலி { திரும்பு m_isIfaceParam; }
+    bool isSignal() மாறிலி { திரும்பு varType().isSignal(); }
+    bool isNet() மாறிலி { திரும்பு varType().isNet(); }
+    bool isWor() மாறிலி { திரும்பு varType().isWor(); }
+    bool isWiredNet() மாறிலி { திரும்பு varType().isWiredNet(); }
+    bool isTemp() மாறிலி { திரும்பு varType().isTemp(); }
+    bool isClassMember() மாறிலி { திரும்பு varType() == VVarType::MEMBER; }
+    bool isVirtIface() மாறிலி {
+        எனில் (AstIfaceRefDType* மாறிலி dtp = VN_CAST(dtypep(), IfaceRefDType)) {
+            திரும்பு dtp->isVirtual();
         }
-        return false;
+        திரும்பு false;
     }
-    bool isStatementTemp() const { return varType() == VVarType::STMTTEMP; }
-    bool isXTemp() const { return varType() == VVarType::XTEMP; }
-    bool isParam() const { return varType().isParam(); }
-    bool isGParam() const { return varType() == VVarType::GPARAM; }
-    bool isGenVar() const { return varType() == VVarType::GENVAR; }
+    bool isStatementTemp() மாறிலி { திரும்பு varType() == VVarType::STMTTEMP; }
+    bool isXTemp() மாறிலி { திரும்பு varType() == VVarType::XTEMP; }
+    bool isParam() மாறிலி { திரும்பு varType().isParam(); }
+    bool isGParam() மாறிலி { திரும்பு varType() == VVarType::GPARAM; }
+    bool isGenVar() மாறிலி { திரும்பு varType() == VVarType::GENVAR; }
     // Return whether this variable is emitted as a member of its module's C++ class
-    bool isModelState() const {
-        return isIO() || isSignal() || isClassMember() || isTemp() || isGenVar();
+    bool isModelState() மாறிலி {
+        திரும்பு isIO() || isSignal() || isClassMember() || isTemp() || isGenVar();
     }
     // Variable needs no C++ constructor/destructor function run when default initialized/deleted
-    bool isTriviallyConstructible() const {
-        return !isSc() && dtypep()->isTriviallyConstructible();
+    bool isTriviallyConstructible() மாறிலி {
+        திரும்பு !isSc() && dtypep()->isTriviallyConstructible();
     }
-    bool isBitLogic() const {
-        const AstBasicDType* const bdtypep = basicp();
-        return bdtypep && bdtypep->isBitLogic();
+    bool isBitLogic() மாறிலி {
+        மாறிலி AstBasicDType* மாறிலி bdtypep = basicp();
+        திரும்பு bdtypep && bdtypep->isBitLogic();
     }
-    bool isUsedParam() const { return m_usedParam; }
-    bool isUsedLoopIdx() const { return m_usedLoopIdx; }
-    bool mtaskCacheLineAlign() const { return m_mtaskCacheLineAlign; }
-    void mtaskCacheLineAlign(bool flag) { m_mtaskCacheLineAlign = flag; }
-    bool isSc() const VL_MT_SAFE { return m_sc; }
-    bool isScQuad() const;
-    bool isScBv() const VL_MT_STABLE;
-    bool isScUint() const;
-    bool isScUintBool() const;
-    bool isScBigUint() const VL_MT_STABLE;
-    bool isScSensitive() const { return m_scSensitive; }
-    bool isSigPublic() const;
-    bool isSigModPublic() const { return m_sigModPublic && !isIfaceRef(); }
-    bool isSigUserRdPublic() const { return m_sigUserRdPublic && !isIfaceRef(); }
-    bool isSigUserRWPublic() const { return m_sigUserRWPublic && !isIfaceRef(); }
-    bool isTrace() const { return m_trace; }
-    bool isRand() const { return m_rand.isRand(); }
-    bool isRandC() const { return m_rand.isRandC(); }
-    bool isConst() const VL_MT_SAFE { return m_isConst; }
-    bool isLatched() const { return m_isLatched; }
-    bool isFuncLocal() const { return m_funcLocal; }
-    bool isFuncLocalSticky() const { return m_funcLocalSticky; }
-    bool isFuncReturn() const { return m_funcReturn; }
-    bool isPullup() const { return m_isPullup; }
-    bool isPulldown() const { return m_isPulldown; }
-    bool attrScBv() const { return m_attrScBv; }
-    bool attrScBigUint() const { return m_attrScBigUint; }
-    bool attrFileDescr() const { return m_attrFileDescr; }
-    bool attrSFormat() const { return m_attrSFormat; }
-    bool attrSplitVar() const { return m_attrSplitVar; }
-    bool attrFsmState() const { return m_attrFsmState; }
-    bool attrFsmArcInclCond() const { return m_attrFsmArcInclCond; }
-    VFsmExpandType attrFsmStateExpand() const { return m_attrFsmStateExpand; }
-    AstIface* sensIfacep() const { return m_sensIfacep; }
-    VRandAttr rand() const { return m_rand; }
-    string verilogKwd() const override;
-    void lifetime(const VLifetime& flag) { m_lifetime = flag; }
-    VLifetime lifetime() const { return m_lifetime; }
-    void pinNum(int id) { m_pinNum = id; }
-    int pinNum() const { return m_pinNum; }
-    void propagateAttrFrom(const AstVar* fromp) {
+    bool isUsedParam() மாறிலி { திரும்பு m_usedParam; }
+    bool isUsedLoopIdx() மாறிலி { திரும்பு m_usedLoopIdx; }
+    bool mtask_Cache_வரி_Align() மாறிலி { திரும்பு m_mtask_Cache_வரி_Align; }
+    வெறுமை mtask_Cache_வரி_Align(bool flag) { m_mtask_Cache_வரி_Align = flag; }
+    bool isSc() மாறிலி VL_MT_SAFE { திரும்பு m_sc; }
+    bool isScQuad() மாறிலி;
+    bool isScBv() மாறிலி VL_MT_STABLE;
+    bool isScUint() மாறிலி;
+    bool isScUintBool() மாறிலி;
+    bool isScBigUint() மாறிலி VL_MT_STABLE;
+    bool isScSensitive() மாறிலி { திரும்பு m_scSensitive; }
+    bool isSigPublic() மாறிலி;
+    bool isSigModPublic() மாறிலி { திரும்பு m_sigModPublic && !isIfaceRef(); }
+    bool isSigUserRdPublic() மாறிலி { திரும்பு m_sigUserRdPublic && !isIfaceRef(); }
+    bool isSigUserRWPublic() மாறிலி { திரும்பு m_sigUserRWPublic && !isIfaceRef(); }
+    bool isTrace() மாறிலி { திரும்பு m_trace; }
+    bool isRand() மாறிலி { திரும்பு m_rand.isRand(); }
+    bool isRandC() மாறிலி { திரும்பு m_rand.isRandC(); }
+    bool isConst() மாறிலி VL_MT_SAFE { திரும்பு m_isConst; }
+    bool isLatched() மாறிலி { திரும்பு m_isLatched; }
+    bool isFuncLocal() மாறிலி { திரும்பு m_funcLocal; }
+    bool isFuncLocalSticky() மாறிலி { திரும்பு m_funcLocalSticky; }
+    bool isFuncReturn() மாறிலி { திரும்பு m_funcReturn; }
+    bool isPullup() மாறிலி { திரும்பு m_isPullup; }
+    bool isPulldown() மாறிலி { திரும்பு m_isPulldown; }
+    bool attrScBv() மாறிலி { திரும்பு m_attrScBv; }
+    bool attrScBigUint() மாறிலி { திரும்பு m_attrScBigUint; }
+    bool attrFileDescr() மாறிலி { திரும்பு m_attrFileDescr; }
+    bool attrSFormat() மாறிலி { திரும்பு m_attrSFormat; }
+    bool attrSplitVar() மாறிலி { திரும்பு m_attrSplitVar; }
+    bool attrFsmState() மாறிலி { திரும்பு m_attrFsmState; }
+    bool attrFsmArcInclCond() மாறிலி { திரும்பு m_attrFsmArcInclCond; }
+    VFsmExpandType attrFsmStateExpand() மாறிலி { திரும்பு m_attrFsmStateExpand; }
+    AstIface* sensIfacep() மாறிலி { திரும்பு m_sensIfacep; }
+    VRandAttr rand() மாறிலி { திரும்பு m_rand; }
+    string verilogKwd() மாறிலி override;
+    வெறுமை lifetime(மாறிலி VLifetime& flag) { m_lifetime = flag; }
+    VLifetime lifetime() மாறிலி { திரும்பு m_lifetime; }
+    வெறுமை pin_இலக்கம்(முழு id) { m_pin_இலக்கம் = id; }
+    முழு pin_இலக்கம்() மாறிலி { திரும்பு m_pin_இலக்கம்; }
+    வெறுமை propagateAttrFrom(மாறிலி AstVar* fromp) {
         // This is getting connected to fromp; keep attributes
         // Note the method below too
-        if (fromp->attrFileDescr()) attrFileDescr(true);
-        if (fromp->isContinuously()) isContinuously(true);
+        எனில் (fromp->attrFileDescr()) attrFileDescr(true);
+        எனில் (fromp->isContinuously()) isContinuously(true);
     }
-    void propagateSplitAttrFrom(const AstVar* fromp) {
+    வெறுமை propagateSplitAttrFrom(மாறிலி AstVar* fromp) {
         // Splitting a variable (element/member/fragment); keep attributes
         propagateAttrFrom(fromp);
         lifetime(fromp->lifetime());
@@ -2762,22 +2762,22 @@ public:
         attrSplitVar(fromp->attrSplitVar());
     }
     // Reason why the properties of the variable prevent splitting it, nullptr if none
-    const char* cannotSplitKindReason() const;
-    void propagateWrapAttrFrom(const AstVar* fromp) {
+    மாறிலி எழுத்து* cannotSplitKindReason() மாறிலி;
+    வெறுமை propagateWrapAttrFrom(மாறிலி AstVar* fromp) {
         // Creating a function wrapper; keep attributes
         propagateAttrFrom(fromp);
         direction(fromp->direction());
         declDirection(fromp->declDirection());
         lifetime(fromp->lifetime());
     }
-    void combineType(const AstVar* otherp);
-    bool needsCReset() const {
-        return !isIfaceParent() && !isIfaceRef() && !noReset() && !isParam() && !isStatementTemp()
+    வெறுமை combineType(மாறிலி AstVar* otherp);
+    bool needsCReset() மாறிலி {
+        திரும்பு !isIfaceParent() && !isIfaceRef() && !noReset() && !isParam() && !isStatementTemp()
                && !noCReset() && !(basicp() && basicp()->isEvent());
     }
-    static AstVar* scVarRecurse(AstNode* nodep);
+    நிலையான AstVar* scVarRecurse(Ast_முனை* nodep);
 };
-class AstVarScope final : public AstNode {
+class AstVarScope final : பொது Ast_முனை {
     // A particular scoped usage of a variable
     // That is, as a module is used under multiple cells, we get a different
     // varscope for each var in the module
@@ -2788,9 +2788,9 @@ class AstVarScope final : public AstNode {
     // @astgen ptr := m_varp : Optional[AstVar]  // [AfterLink] Pointer to variable itself
     bool m_trace : 1;  // Tracing is turned on for this scope
     bool m_optimizeLifePost : 1;  // One half of an NBA pair using ShadowVariable scheme. Optimize.
-    bool m_forkByValue : 1;  // Set before a fork, whose processes get it by value
-public:
-    AstVarScope(FileLine* fl, AstScope* scopep, AstVar* varp)
+    bool m_fork_By_மதிப்பு : 1;  // Set before a fork, whose processes get it by value
+பொது:
+    AstVarScope(File_வரி* fl, AstScope* scopep, AstVar* varp)
         : ASTGEN_SUPER_VarScope(fl)
         , m_scopep{scopep}
         , m_varp{varp} {
@@ -2798,141 +2798,141 @@ public:
         UASSERT_OBJ(varp, fl, "Var must be non-null");
         m_trace = true;
         m_optimizeLifePost = false;
-        m_forkByValue = false;
+        m_fork_By_மதிப்பு = false;
         dtypeFrom(varp);
     }
     ASTGEN_MEMBERS_AstVarScope;
-    void cloneRelink() override {
-        if (m_varp && m_varp->clonep()) {
+    வெறுமை cloneRelink() override {
+        எனில் (m_varp && m_varp->clonep()) {
             UASSERT(m_scopep->clonep(), "No clone cross link: " << this);
         }
         cloneRelinkGen();
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    string name() const override VL_MT_STABLE { return scopep()->name() + "->" + varp()->name(); }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstVar* varp() const VL_MT_STABLE { return m_varp; }  // [After Link] Pointer to variable
-    void varp(AstVar* nodep) { m_varp = nodep; }
-    AstScope* scopep() const VL_MT_STABLE { return m_scopep; }  // Pointer to scope it's under
-    void scopep(AstScope* nodep) { m_scopep = nodep; }
-    bool isTrace() const { return m_trace; }
-    void trace(bool flag) { m_trace = flag; }
-    bool optimizeLifePost() const { return m_optimizeLifePost; }
-    void optimizeLifePost(bool flag) { m_optimizeLifePost = flag; }
-    bool forkByValue() const { return m_forkByValue; }
-    void forkByValue(bool flag) { m_forkByValue = flag; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    string name() மாறிலி override VL_MT_STABLE { திரும்பு scopep()->name() + "->" + varp()->name(); }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override;
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    AstVar* varp() மாறிலி VL_MT_STABLE { திரும்பு m_varp; }  // [After Link] Pointer to variable
+    வெறுமை varp(AstVar* nodep) { m_varp = nodep; }
+    AstScope* scopep() மாறிலி VL_MT_STABLE { திரும்பு m_scopep; }  // Pointer to scope it's under
+    வெறுமை scopep(AstScope* nodep) { m_scopep = nodep; }
+    bool isTrace() மாறிலி { திரும்பு m_trace; }
+    வெறுமை trace(bool flag) { m_trace = flag; }
+    bool optimizeLifePost() மாறிலி { திரும்பு m_optimizeLifePost; }
+    வெறுமை optimizeLifePost(bool flag) { m_optimizeLifePost = flag; }
+    bool fork_By_மதிப்பு() மாறிலி { திரும்பு m_fork_By_மதிப்பு; }
+    வெறுமை fork_By_மதிப்பு(bool flag) { m_fork_By_மதிப்பு = flag; }
 };
 
 // === AstNodeConsItem ===
-class AstConsArrayItem final : public AstNodeConsItem {
+class AstConsArrayItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsArray, setting the element at the index to the value
     // Parents: CONSARRAY
-    const uint64_t m_index;  // Index of the element, with the array's lo() at 0
-public:
-    AstConsArrayItem(FileLine* fl, uint64_t index, AstNodeExpr* valuep)
+    மாறிலி uint64_t m_index;  // Index of the element, with the array's lo() at 0
+பொது:
+    AstConsArrayItem(File_வரி* fl, uint64_t index, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsArrayItem(fl, valuep)
         , m_index{index} {}
     ASTGEN_MEMBERS_AstConsArrayItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsArray) && !VN_IS(backp(), ConsArrayItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool sameNode(const AstNode* samep) const override {
-        return m_index == VN_DBG_AS(samep, ConsArrayItem)->m_index;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        திரும்பு m_index == VN_DBG_AS(samep, ConsArrayItem)->m_index;
     }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }  // By AstConsArray's map
-    uint64_t index() const { return m_index; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }  // By AstConsArray's map
+    uint64_t index() மாறிலி { திரும்பு m_index; }
 };
-class AstConsAssocItem final : public AstNodeConsItem {
+class AstConsAssocItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsAssoc, setting the key to the value
     // Parents: CONSASSOC
     // @astgen op1 := keyp : AstNodeExpr // Const, or Cons for an aggregate key type
-public:
-    AstConsAssocItem(FileLine* fl, AstNodeExpr* keyp, AstNodeExpr* valuep)
+பொது:
+    AstConsAssocItem(File_வரி* fl, Ast_முனை_கோவை* keyp, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsAssocItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsAssocItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsAssoc) && !VN_IS(backp(), ConsAssocItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
 };
-class AstConsDynArrayItem final : public AstNodeConsItem {
+class AstConsDynArrayItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsDynArray: a value, an array to splice, or with sizep, the
     // value at index 'keyp'
     // Parents: CONSDYNARRAY
     // @astgen op1 := keyp : Optional[AstConst]
-public:
-    AstConsDynArrayItem(FileLine* fl, AstNodeExpr* valuep)
+பொது:
+    AstConsDynArrayItem(File_வரி* fl, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsDynArrayItem(fl, valuep) {}
-    AstConsDynArrayItem(FileLine* fl, AstConst* keyp, AstNodeExpr* valuep)
+    AstConsDynArrayItem(File_வரி* fl, AstConst* keyp, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsDynArrayItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsDynArrayItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsDynArray) && !VN_IS(backp(), ConsDynArrayItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
 };
-class AstConsQueueItem final : public AstNodeConsItem {
+class AstConsQueueItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsQueue, a value or an array to splice
     // Parents: CONSQUEUE
-public:
-    AstConsQueueItem(FileLine* fl, AstNodeExpr* valuep)
+பொது:
+    AstConsQueueItem(File_வரி* fl, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsQueueItem(fl, valuep) {}
     ASTGEN_MEMBERS_AstConsQueueItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsQueue) && !VN_IS(backp(), ConsQueueItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
 };
-class AstConsStructItem final : public AstNodeConsItem {
+class AstConsStructItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsStruct, the value of a member
     // Parents: CONSSTRUCT
     // @astgen ptr := m_memberp : AstMemberDType  // The member set
-public:
-    AstConsStructItem(FileLine* fl, AstMemberDType* memberp, AstNodeExpr* valuep)
+பொது:
+    AstConsStructItem(File_வரி* fl, AstMemberDType* memberp, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsStructItem(fl, valuep)
         , m_memberp{memberp} {}
     ASTGEN_MEMBERS_AstConsStructItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsStruct) && !VN_IS(backp(), ConsStructItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
-    void dump(std::ostream& str) const override;
-    AstMemberDType* memberp() const { return m_memberp; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    AstMemberDType* memberp() மாறிலி { திரும்பு m_memberp; }
 };
-class AstConsWildcardItem final : public AstNodeConsItem {
+class AstConsWildcardItem final : பொது Ast_முனை_Cons_Item {
     // An element of an AstConsWildcard, setting the key to the value
     // Parents: CONSWILDCARD
     // @astgen op1 := keyp : AstConst
-public:
-    AstConsWildcardItem(FileLine* fl, AstConst* keyp, AstNodeExpr* valuep)
+பொது:
+    AstConsWildcardItem(File_வரி* fl, AstConst* keyp, Ast_முனை_கோவை* valuep)
         : ASTGEN_SUPER_ConsWildcardItem(fl, valuep) {
         this->keyp(keyp);
     }
     ASTGEN_MEMBERS_AstConsWildcardItem;
-    const char* broken() const override {
+    மாறிலி எழுத்து* broken() மாறிலி override {
         // backp is the cons node or the previous element
         BROKEN_RTN(!VN_IS(backp(), ConsWildcard) && !VN_IS(backp(), ConsWildcardItem));
-        return nullptr;
+        திரும்பு nullptr;
     }
 };
 
 // === AstNodeCoverDecl ===
-class AstCoverOtherDecl final : public AstNodeCoverDecl {
+class AstCoverOtherDecl final : பொது Ast_முனை_Cover_Decl {
     // Coverage analysis point declaration
     // Used for other than toggle types of coverage
     string m_linescov;
@@ -2940,12 +2940,12 @@ class AstCoverOtherDecl final : public AstNodeCoverDecl {
     string m_fsmFrom;  // FSM source state label
     string m_fsmTo;  // FSM destination state label
     string m_fsmTag;  // FSM arc kind tag (e.g. reset, reset_include, default)
-    int m_offset;  // Offset column numbers to uniq-ify IFs
-public:
-    AstCoverOtherDecl(FileLine* fl, const string& page, const string& comment,
-                      const string& linescov, int offset, const string& fsmVar = "",
-                      const string& fsmFrom = "", const string& fsmTo = "",
-                      const string& fsmTag = "")
+    முழு m_offset;  // Offset column numbers to uniq-ify IFs
+பொது:
+    AstCoverOtherDecl(File_வரி* fl, மாறிலி string& page, மாறிலி string& comment,
+                      மாறிலி string& linescov, முழு offset, மாறிலி string& fsmVar = "",
+                      மாறிலி string& fsmFrom = "", மாறிலி string& fsmTo = "",
+                      மாறிலி string& fsmTag = "")
         : ASTGEN_SUPER_CoverOtherDecl(fl, page, comment)
         , m_linescov{linescov}
         , m_fsmVar{fsmVar}
@@ -2954,203 +2954,203 @@ public:
         , m_fsmTag{fsmTag}
         , m_offset{offset} {}
     ASTGEN_MEMBERS_AstCoverOtherDecl;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int offset() const { return m_offset; }
-    int size() const override { return 1; }
-    const string& linescov() const { return m_linescov; }
-    const string& fsmVar() const { return m_fsmVar; }
-    const string& fsmFrom() const { return m_fsmFrom; }
-    const string& fsmTo() const { return m_fsmTo; }
-    const string& fsmTag() const { return m_fsmTag; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverOtherDecl* const asamep = VN_DBG_AS(samep, CoverOtherDecl);
-        return Super::sameNode(samep) && linescov() == asamep->linescov();
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    முழு offset() மாறிலி { திரும்பு m_offset; }
+    முழு size() மாறிலி override { திரும்பு 1; }
+    மாறிலி string& linescov() மாறிலி { திரும்பு m_linescov; }
+    மாறிலி string& fsmVar() மாறிலி { திரும்பு m_fsmVar; }
+    மாறிலி string& fsmFrom() மாறிலி { திரும்பு m_fsmFrom; }
+    மாறிலி string& fsmTo() மாறிலி { திரும்பு m_fsmTo; }
+    மாறிலி string& fsmTag() மாறிலி { திரும்பு m_fsmTag; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        மாறிலி AstCoverOtherDecl* மாறிலி asamep = VN_DBG_AS(samep, CoverOtherDecl);
+        திரும்பு Super::same_முனை(samep) && linescov() == asamep->linescov();
     }
 };
-class AstCoverToggleDecl final : public AstNodeCoverDecl {
+class AstCoverToggleDecl final : பொது Ast_முனை_Cover_Decl {
     // Coverage analysis point declaration
     // Used for toggle coverage
-    const VNumRange m_range;  // Packed array range covering each toggle bit
-public:
-    AstCoverToggleDecl(FileLine* fl, const string& page, const string& comment,
-                       const VNumRange& range)
+    மாறிலி VNumRange m_range;  // Packed array range covering each toggle bit
+பொது:
+    AstCoverToggleDecl(File_வரி* fl, மாறிலி string& page, மாறிலி string& comment,
+                       மாறிலி VNumRange& range)
         : ASTGEN_SUPER_CoverToggleDecl(fl, page, comment)
         , m_range{range} {}
     ASTGEN_MEMBERS_AstCoverToggleDecl;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    int size() const override {
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    முழு size() மாறிலி override {
         // Changes 0 -> 1 and 1 -> 0 are counted separately
-        return 2 * m_range.elements();
+        திரும்பு 2 * m_range.elements();
     }
-    const VNumRange& range() const { return m_range; }
-    bool sameNode(const AstNode* samep) const override {
-        const AstCoverToggleDecl* const asamep = VN_DBG_AS(samep, CoverToggleDecl);
-        return Super::sameNode(samep) && range() == asamep->range();
+    மாறிலி VNumRange& range() மாறிலி { திரும்பு m_range; }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        மாறிலி AstCoverToggleDecl* மாறிலி asamep = VN_DBG_AS(samep, CoverToggleDecl);
+        திரும்பு Super::same_முனை(samep) && range() == asamep->range();
     }
 };
 
 // === AstNodeFTask ===
-class AstFunc final : public AstNodeFTask {
+class AstFunc final : பொது Ast_முனை_FTask {
     // A function inside a module
-public:
-    AstFunc(FileLine* fl, const string& name, AstNode* stmtp, AstNode* fvarp)
+பொது:
+    AstFunc(File_வரி* fl, மாறிலி string& name, Ast_முனை* stmtp, Ast_முனை* fvarp)
         : ASTGEN_SUPER_Func(fl, name, stmtp) {
         this->fvarp(fvarp);
     }
     ASTGEN_MEMBERS_AstFunc;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstFunc{fileline(), name, nullptr, nullptr};
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    Ast_முனை_FTask* cloneType(மாறிலி string& name) override {
+        திரும்பு new AstFunc{fileline(), name, nullptr, nullptr};
     }
-    string verilogKwd() const override { return "function"; }
+    string verilogKwd() மாறிலி override { திரும்பு "function"; }
 };
-class AstLet final : public AstNodeFTask {
+class AstLet final : பொது Ast_முனை_FTask {
     // Verilog "let" statement
     // Parents: MODULE
     // stmtp list first item is returned StmtExpr, as Let always returns AstNodeExpr
-public:
-    AstLet(FileLine* fl, const string& name)
+பொது:
+    AstLet(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_Let(fl, name, nullptr) {}
     ASTGEN_MEMBERS_AstLet;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    const char* broken() const override {
-        BROKEN_RTN(!VN_IS(stmtsp(), StmtExpr));
-        return nullptr;
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    மாறிலி எழுத்து* broken() மாறிலி override {
+        BROKEN_RTN(!VN_IS(stmtsp(), Stmt_கோவை));
+        திரும்பு nullptr;
     }
-    AstNodeFTask* cloneType(const string& name) override { return new AstLet{fileline(), name}; }
-    string verilogKwd() const override { return "let"; }
+    Ast_முனை_FTask* cloneType(மாறிலி string& name) override { திரும்பு new AstLet{fileline(), name}; }
+    string verilogKwd() மாறிலி override { திரும்பு "let"; }
 };
-class AstProperty final : public AstNodeFTask {
+class AstProperty final : பொது Ast_முனை_FTask {
     // A property inside a module
-public:
-    AstProperty(FileLine* fl, const string& name, AstNode* stmtp)
+பொது:
+    AstProperty(File_வரி* fl, மாறிலி string& name, Ast_முனை* stmtp)
         : ASTGEN_SUPER_Property(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstProperty;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstProperty{fileline(), name, nullptr};
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    Ast_முனை_FTask* cloneType(மாறிலி string& name) override {
+        திரும்பு new AstProperty{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "property"; }
+    string verilogKwd() மாறிலி override { திரும்பு "property"; }
 };
-class AstSequence final : public AstNodeFTask {
+class AstSequence final : பொது Ast_முனை_FTask {
     // A sequence inside a module
     // TODO when supported might not want to be a NodeFTask
     bool m_referenced = false;  // Set by V3LinkResolve when referenced; cleared by
                                 // V3AssertPre after inlining; if still set after
                                 // V3AssertPre, the reference is in an unsupported context
-public:
-    AstSequence(FileLine* fl, const string& name, AstNode* stmtp)
+பொது:
+    AstSequence(File_வரி* fl, மாறிலி string& name, Ast_முனை* stmtp)
         : ASTGEN_SUPER_Sequence(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstSequence;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool hasDType() const override VL_MT_SAFE { return true; }
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstSequence{fileline(), name, nullptr};
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool hasDType() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    Ast_முனை_FTask* cloneType(மாறிலி string& name) override {
+        திரும்பு new AstSequence{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "sequence"; }
-    bool isReferenced() const { return m_referenced; }
-    void isReferenced(bool flag) { m_referenced = flag; }
+    string verilogKwd() மாறிலி override { திரும்பு "sequence"; }
+    bool isReferenced() மாறிலி { திரும்பு m_referenced; }
+    வெறுமை isReferenced(bool flag) { m_referenced = flag; }
 };
-class AstTask final : public AstNodeFTask {
+class AstTask final : பொது Ast_முனை_FTask {
     // A task inside a module
-public:
-    AstTask(FileLine* fl, const string& name, AstNode* stmtp)
+பொது:
+    AstTask(File_வரி* fl, மாறிலி string& name, Ast_முனை* stmtp)
         : ASTGEN_SUPER_Task(fl, name, stmtp) {}
     ASTGEN_MEMBERS_AstTask;
-    AstNodeFTask* cloneType(const string& name) override {
-        return new AstTask{fileline(), name, nullptr};
+    Ast_முனை_FTask* cloneType(மாறிலி string& name) override {
+        திரும்பு new AstTask{fileline(), name, nullptr};
     }
-    string verilogKwd() const override { return "task"; }
+    string verilogKwd() மாறிலி override { திரும்பு "task"; }
 };
 
 // === AstNodeFile ===
-class AstCFile final : public AstNodeFile {
+class AstCFile final : பொது Ast_முனை_File {
     // C++ output file
     // Parents:  NETLIST
     uint64_t m_complexityScore = 0;
     bool m_slow : 1;  ///< Compile w/o optimization
     bool m_source : 1;  ///< Source file (vs header file)
     bool m_support : 1;  ///< Support file (non systemc)
-public:
-    AstCFile(FileLine* fl, const string& name)
+பொது:
+    AstCFile(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_CFile(fl, name)
         , m_slow{false}
         , m_source{false}
         , m_support{false} {}
     ASTGEN_MEMBERS_AstCFile;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
-    uint64_t complexityScore() const { return m_complexityScore; }
-    void complexityScore(uint64_t newScore) { m_complexityScore = newScore; }
-    bool slow() const { return m_slow; }
-    void slow(bool flag) { m_slow = flag; }
-    bool source() const { return m_source; }
-    void source(bool flag) { m_source = flag; }
-    bool support() const { return m_support; }
-    void support(bool flag) VL_MT_SAFE { m_support = flag; }
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
+    uint64_t complexityScore() மாறிலி { திரும்பு m_complexityScore; }
+    வெறுமை complexityScore(uint64_t newScore) { m_complexityScore = newScore; }
+    bool slow() மாறிலி { திரும்பு m_slow; }
+    வெறுமை slow(bool flag) { m_slow = flag; }
+    bool source() மாறிலி { திரும்பு m_source; }
+    வெறுமை source(bool flag) { m_source = flag; }
+    bool support() மாறிலி { திரும்பு m_support; }
+    வெறுமை support(bool flag) VL_MT_SAFE { m_support = flag; }
 };
-class AstVFile final : public AstNodeFile {
+class AstVFile final : பொது Ast_முனை_File {
     // Verilog output file
     // Parents:  NETLIST
-public:
-    AstVFile(FileLine* fl, const string& name)
+பொது:
+    AstVFile(File_வரி* fl, மாறிலி string& name)
         : ASTGEN_SUPER_VFile(fl, name) {}
     ASTGEN_MEMBERS_AstVFile;
-    void dump(std::ostream& str = std::cout) const override;
-    void dumpJson(std::ostream& str = std::cout) const override;
+    வெறுமை dump(std::ostream& str = std::cout) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str = std::cout) மாறிலி override;
 };
-class AstCoverCross final : public AstNodeFuncCovItem {
+class AstCoverCross final : பொது Ast_முனை_Func_Cov_Item {
     // @astgen op1 := itemsp   : List[AstCoverpointRef]
     // @astgen op2 := optionsp : List[AstCoverOption]     // post-LinkParse only
     // @astgen op3 := binsp    : List[AstNode]  // Parse: mixed cross bins/options;
     //                                          // post-LinkParse: AstCoverCrossBin only
     // @astgen op4 := iffp     : Optional[AstNodeExpr]  // Conditional sampling guard
-public:
-    AstCoverCross(FileLine* fl, const string& name, AstCoverpointRef* itemsp,
-                  AstNodeExpr* iffp = nullptr)
+பொது:
+    AstCoverCross(File_வரி* fl, மாறிலி string& name, AstCoverpointRef* itemsp,
+                  Ast_முனை_கோவை* iffp = nullptr)
         : ASTGEN_SUPER_CoverCross(fl, name) {
         UASSERT(itemsp, "AstCoverCross requires at least one coverpoint reference");
         addItemsp(itemsp);
         this->iffp(iffp);
     }
     ASTGEN_MEMBERS_AstCoverCross;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstCoverpoint final : public AstNodeFuncCovItem {
+class AstCoverpoint final : பொது Ast_முனை_Func_Cov_Item {
     // @astgen op1 := exprp : AstNodeExpr
     // @astgen op2 := binsp : List[AstNode]  // Parse: mixed AstCoverBin/AstCgOptionAssign;
     // post-LinkParse: AstCoverBin only
     // @astgen op3 := iffp : Optional[AstNodeExpr]
     // @astgen op4 := optionsp : List[AstCoverOption]
-public:
-    AstCoverpoint(FileLine* fl, const string& name, AstNodeExpr* exprp,
-                  AstNodeExpr* iffp = nullptr, AstNode* binsp = nullptr)
+பொது:
+    AstCoverpoint(File_வரி* fl, மாறிலி string& name, Ast_முனை_கோவை* exprp,
+                  Ast_முனை_கோவை* iffp = nullptr, Ast_முனை* binsp = nullptr)
         : ASTGEN_SUPER_Coverpoint(fl, name) {
         this->exprp(exprp);
         this->iffp(iffp);
         addBinsp(binsp);
     }
     ASTGEN_MEMBERS_AstCoverpoint;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
 
 // === AstNodeGen ===
-class AstGenBlock final : public AstNodeGen {
+class AstGenBlock final : பொது Ast_முனை_Gen {
     // Generate 'begin'
     // @astgen op1 := genforp : Optional[AstNode]
     // @astgen op2 := itemsp : List[AstNode]
     std::string m_name;  // Name of block
-    const bool m_unnamed;  // Originally unnamed (name change does not affect this)
-    const bool m_implied;  // Not inserted by user
+    மாறிலி bool m_unnamed;  // Originally unnamed (name change does not affect this)
+    மாறிலி bool m_implied;  // Not inserted by user
     AstDefaultDisable* m_defaultDisablep = nullptr;  // Default disable iff in this scope
 
-public:
-    AstGenBlock(FileLine* fl, const string& name, AstNode* itemsp, bool implied)
+பொது:
+    AstGenBlock(File_வரி* fl, மாறிலி string& name, Ast_முனை* itemsp, bool implied)
         : ASTGEN_SUPER_GenBlock(fl)
         , m_name{name}
         , m_unnamed{name.empty()}
@@ -3158,37 +3158,37 @@ public:
         this->addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenBlock;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    std::string name() const override VL_MT_STABLE { return m_name; }
-    void name(const std::string& name) override { m_name = name; }
-    bool unnamed() const { return m_unnamed; }
-    bool implied() const { return m_implied; }
-    AstDefaultDisable* defaultDisablep() const { return m_defaultDisablep; }
-    void defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    std::string name() மாறிலி override VL_MT_STABLE { திரும்பு m_name; }
+    வெறுமை name(மாறிலி std::string& name) override { m_name = name; }
+    bool unnamed() மாறிலி { திரும்பு m_unnamed; }
+    bool implied() மாறிலி { திரும்பு m_implied; }
+    AstDefaultDisable* defaultDisablep() மாறிலி { திரும்பு m_defaultDisablep; }
+    வெறுமை defaultDisablep(AstDefaultDisable* nodep) { m_defaultDisablep = nodep; }
     // As AstNodeModule::dtypeNameInnerScope(), e.g. 'top.gen[0].'
-    string dtypeNameInnerScope(const string& outer) const;
+    string dtypeNameInnerScope(மாறிலி string& outer) மாறிலி;
 };
-class AstGenCase final : public AstNodeGen {
+class AstGenCase final : பொது Ast_முனை_Gen {
     // Generate 'case'
     // @astgen op1 := exprp : AstNodeExpr // Condition (scurtinee) expression
     // @astgen op2 := itemsp : List[AstGenCaseItem]
-public:
-    AstGenCase(FileLine* fl, AstNodeExpr* exprp, AstGenCaseItem* itemsp)
+பொது:
+    AstGenCase(File_வரி* fl, Ast_முனை_கோவை* exprp, AstGenCaseItem* itemsp)
         : ASTGEN_SUPER_GenCase(fl) {
         this->exprp(exprp);
         this->addItemsp(itemsp);
     }
     ASTGEN_MEMBERS_AstGenCase;
 };
-class AstGenFor final : public AstNodeGen {
+class AstGenFor final : பொது Ast_முனை_Gen {
     // Generate 'for'
     // @astgen op1 := initsp : List[AstNode]
     // @astgen op2 := condp : AstNodeExpr
     // @astgen op3 := incsp : List[AstNode]
     // @astgen op4 := itemsp : List[AstNode]
-public:
-    AstGenFor(FileLine* fl, AstNode* initsp, AstNodeExpr* condp, AstNode* incsp, AstNode* itemsp)
+பொது:
+    AstGenFor(File_வரி* fl, Ast_முனை* initsp, Ast_முனை_கோவை* condp, Ast_முனை* incsp, Ast_முனை* itemsp)
         : ASTGEN_SUPER_GenFor(fl) {
         this->addInitsp(initsp);
         this->condp(condp);
@@ -3197,13 +3197,13 @@ public:
     }
     ASTGEN_MEMBERS_AstGenFor;
 };
-class AstGenIf final : public AstNodeGen {
+class AstGenIf final : பொது Ast_முனை_Gen {
     // Generate 'if'
     // @astgen op1 := condp : AstNodeExpr
     // @astgen op2 := thensp : List[AstNode]
     // @astgen op3 := elsesp : List[AstNode]
-public:
-    AstGenIf(FileLine* fl, AstNodeExpr* condp, AstNode* thensp, AstNode* elsesp)
+பொது:
+    AstGenIf(File_வரி* fl, Ast_முனை_கோவை* condp, Ast_முனை* thensp, Ast_முனை* elsesp)
         : ASTGEN_SUPER_GenIf(fl) {
         this->condp(condp);
         this->addThensp(thensp);
@@ -3213,14 +3213,14 @@ public:
 };
 
 // === AstNodeModule ===
-class AstClass final : public AstNodeModule {
+class AstClass final : பொது Ast_முனை_Module {
     // @astgen op4 := extendsp : List[AstClassExtends]
     // MEMBERS
     // @astgen ptr := m_classOrPackagep : Optional[AstClassPackage]  // Package to be emitted with
     // @astgen ptr := m_covergroupEnclosingClassp : Optional[AstClass]  // Lexical enclosing class
     string m_dtypeNameFull;  // dtypeName(true) once frozen, as parameters may then be gone
     string m_dtypeNameShort;  // dtypeName(false) once frozen, as parameters may then be gone
-    uint32_t m_declTokenNum;  // Declaration token number
+    uint32_t m_decl_Token_இலக்கம்;  // Declaration token number
     VBaseOverride m_baseOverride;  // BaseOverride (inital/final/extends)
     bool m_hasRandVarsUpdate = false;  // Has updateRandVars method,
                                        // which updates pointers to rand variables in clone()
@@ -3234,391 +3234,391 @@ class AstClass final : public AstNodeModule {
     // Mutable, as only a recursion guard of the const dtypeName(), so also not dumped
     mutable bool m_dtypeNameBusy = false;  // In dtypeName(), which a parameter may lead back to
     // Covergroup options (when m_covergroup is true)
-    int m_cgAutoBinMax = -1;  // option.auto_bin_max value (-1 = not set, use default 64)
+    முழு m_cgAutoBinMax = -1;  // option.auto_bin_max value (-1 = not set, use default 64)
 
     // dtypeName() as computed from the tree, with 'scope', the prefix for the scope declaring the
     // class
-    string dtypeNameCalc(bool full, const string& scope) const;
-    string dtypeNameScope() const;  // Prefix of dtypeName(true) for the scope declaring the class
+    string dtypeNameCalc(bool full, மாறிலி string& scope) மாறிலி;
+    string dtypeNameScope() மாறிலி;  // Prefix of dtypeName(true) for the scope declaring the class
 
-public:
-    AstClass(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstClass(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_Class(fl, name, libname)
-        , m_declTokenNum{fl->tokenNum()} {}
+        , m_decl_Token_இலக்கம்{fl->token_இலக்கம்()} {}
     ASTGEN_MEMBERS_AstClass;
-    string verilogKwd() const override { return isCovergroup() ? "covergroup" : "class"; }
-    bool maybePointedTo() const override VL_MT_SAFE { return true; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    bool timescaleMatters() const override { return false; }
-    AstClassPackage* classOrPackagep() const VL_MT_STABLE { return m_classOrPackagep; }
-    void classOrPackagep(AstClassPackage* classpackagep) { m_classOrPackagep = classpackagep; }
-    AstClass* covergroupEnclosingClassp() const VL_MT_STABLE {
-        return m_covergroupEnclosingClassp;
+    string verilogKwd() மாறிலி override { திரும்பு isCovergroup() ? "covergroup" : "class"; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு true; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    bool timescaleMatters() மாறிலி override { திரும்பு false; }
+    AstClassPackage* classOrPackagep() மாறிலி VL_MT_STABLE { திரும்பு m_classOrPackagep; }
+    வெறுமை classOrPackagep(AstClassPackage* classpackagep) { m_classOrPackagep = classpackagep; }
+    AstClass* covergroupEnclosingClassp() மாறிலி VL_MT_STABLE {
+        திரும்பு m_covergroupEnclosingClassp;
     }
-    void covergroupEnclosingClassp(AstClass* classp) { m_covergroupEnclosingClassp = classp; }
-    AstNode* membersp() const VL_MT_STABLE { return stmtsp(); }
-    void addMembersp(AstNode* nodep) { addStmtsp(nodep); }
-    bool hasRandVarsUpdate() const { return m_hasRandVarsUpdate; }
-    void hasRandVarsUpdate(bool flag) { m_hasRandVarsUpdate = flag; }
-    bool isCovergroup() const { return m_covergroup; }
-    void isCovergroup(bool flag) { m_covergroup = flag; }
-    bool isExtended() const { return m_extended; }
-    void isExtended(bool flag) { m_extended = flag; }
-    bool isInterfaceClass() const { return m_interfaceClass; }
-    void isInterfaceClass(bool flag) { m_interfaceClass = flag; }
-    bool isVirtual() const { return m_virtual; }
-    void isVirtual(bool flag) { m_virtual = flag; }
-    bool needRNG() const { return m_needRNG; }
-    void needRNG(bool flag) { m_needRNG = flag; }
-    bool useVirtualPublic() const { return m_useVirtualPublic; }
-    void useVirtualPublic(bool flag) { m_useVirtualPublic = flag; }
-    void markPrintedFrom() { m_printedFrom = true; }
-    bool isPrintedFrom() const { return m_printedFrom; }
+    வெறுமை covergroupEnclosingClassp(AstClass* classp) { m_covergroupEnclosingClassp = classp; }
+    Ast_முனை* membersp() மாறிலி VL_MT_STABLE { திரும்பு stmtsp(); }
+    வெறுமை addMembersp(Ast_முனை* nodep) { addStmtsp(nodep); }
+    bool hasRandVarsUpdate() மாறிலி { திரும்பு m_hasRandVarsUpdate; }
+    வெறுமை hasRandVarsUpdate(bool flag) { m_hasRandVarsUpdate = flag; }
+    bool isCovergroup() மாறிலி { திரும்பு m_covergroup; }
+    வெறுமை isCovergroup(bool flag) { m_covergroup = flag; }
+    bool isExtended() மாறிலி { திரும்பு m_extended; }
+    வெறுமை isExtended(bool flag) { m_extended = flag; }
+    bool isInterfaceClass() மாறிலி { திரும்பு m_interfaceClass; }
+    வெறுமை isInterfaceClass(bool flag) { m_interfaceClass = flag; }
+    bool isVirtual() மாறிலி { திரும்பு m_virtual; }
+    வெறுமை isVirtual(bool flag) { m_virtual = flag; }
+    bool needRNG() மாறிலி { திரும்பு m_needRNG; }
+    வெறுமை needRNG(bool flag) { m_needRNG = flag; }
+    bool useVirtualPublic() மாறிலி { திரும்பு m_useVirtualPublic; }
+    வெறுமை useVirtualPublic(bool flag) { m_useVirtualPublic = flag; }
+    வெறுமை markPrintedFrom() { m_printedFrom = true; }
+    bool isPrintedFrom() மாறிலி { திரும்பு m_printedFrom; }
     // Name of the class as a data type, with the values of its parameters, e.g. 'Cls#(int,5)'.
     // With 'full', as for $typename (IEEE 1800-2023 20.6.1), prefixed with the scope declaring
     // the class, e.g. '$unit::Cls#(int,5)', and with the types of parameters in full.
-    string dtypeName(bool full) const;
+    string dtypeName(bool full) மாறிலி;
     // dtypeName(true), given 'scope', the prefix for the scope declaring the class, see
     // AstNodeModule::dtypeNameInnerScope()
-    string dtypeNameIn(const string& scope) const;
+    string dtypeNameIn(மாறிலி string& scope) மாறிலி;
     // Fix dtypeName(), as V3WidthCommit moves parameter types to the type table
-    void dtypeNameFreeze();
+    வெறுமை dtypeNameFreeze();
     // Whether dtypeName() is fixed, as for a class elaborated from the design
-    bool dtypeNameFrozen() const { return !m_dtypeNameFull.empty(); }
+    bool dtypeNameFrozen() மாறிலி { திரும்பு !m_dtypeNameFull.empty(); }
     // Named by dtypeName(), as name() is internal for a specialization, unless still a template
-    string prettyNameMsg() const override { return hasGParam() ? prettyName() : dtypeName(false); }
+    string pretty_Name_செய்தி() மாறிலி override { திரும்பு hasGParam() ? prettyName() : dtypeName(false); }
     // Name of the anonymous type of embedded covergroup 'name', whose instance variable has the
     // covergroup's name (IEEE 1800-2023 19.4), see covergroupEnclosingClassp()
-    static string embeddedCovergroupTypeName(const string& name) { return "__vlAnonCG_" + name; }
+    நிலையான string embeddedCovergroupTypeName(மாறிலி string& name) { திரும்பு "__vlAnonCG_" + name; }
     // Name of the covergroup that this, an embedded covergroup's type, is of
-    string embeddedCovergroupName() const;
+    string embeddedCovergroupName() மாறிலி;
     // Covergroup options accessors
-    int cgAutoBinMax() const { return m_cgAutoBinMax; }
-    void cgAutoBinMax(int value) { m_cgAutoBinMax = value; }
+    முழு cgAutoBinMax() மாறிலி { திரும்பு m_cgAutoBinMax; }
+    வெறுமை cgAutoBinMax(முழு மதிப்பு) { m_cgAutoBinMax = மதிப்பு; }
     // Return true if this class is an extension of base class (SLOW)
     // Accepts nullptrs
-    static bool isClassExtendedFrom(const AstClass* refClassp, const AstClass* baseClassp);
-    uint32_t declTokenNum() const override { return m_declTokenNum; }
-    void declTokenNumSetMin(uint32_t tokenNum) override {
-        m_declTokenNum = std::min(m_declTokenNum, tokenNum);
+    நிலையான bool isClassExtendedFrom(மாறிலி AstClass* refClassp, மாறிலி AstClass* baseClassp);
+    uint32_t decl_Token_இலக்கம்() மாறிலி override { திரும்பு m_decl_Token_இலக்கம்; }
+    வெறுமை decl_Token_இலக்கம்_Set_Min(uint32_t token_இலக்கம்) override {
+        m_decl_Token_இலக்கம் = std::min(m_decl_Token_இலக்கம், token_இலக்கம்);
     }
-    void baseOverride(const VBaseOverride& flag) { m_baseOverride = flag; }
-    VBaseOverride baseOverride() const { return m_baseOverride; }
+    வெறுமை baseOverride(மாறிலி VBaseOverride& flag) { m_baseOverride = flag; }
+    VBaseOverride baseOverride() மாறிலி { திரும்பு m_baseOverride; }
     // Return the lowest class extended from, or this class
     AstClass* baseMostClassp();
-    static bool isCacheableChild(const AstNode* nodep);
+    நிலையான bool isCacheableChild(மாறிலி Ast_முனை* nodep);
     // Iterates top level members of the class, taking into account inheritance (starting from the
     // root superclass). Note: after V3Scope, several children are moved under an AstScope and will
     // not be found by this.
     template <typename T_Callable>
-    void foreachMember(const T_Callable& f) {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
+    வெறுமை foreachMember(மாறிலி T_Callable& f) {
+        using T_முனை = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
         static_assert(
-            vlstd::is_invocable<T_Callable, AstClass*, T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable<T_Callable, AstClass*, T_முனை*>::மதிப்பு
+                && std::is_base_of<Ast_முனை, T_முனை>::மதிப்பு,
             "T_Callable 'f' must have a signature compatible with 'void(AstClass*, T_Node*)', "
             "with 'T_Node' being a subtype of 'AstNode'");
-        if (const AstClassExtends* const cextendsp = this->extendsp()) {
+        எனில் (மாறிலி AstClassExtends* மாறிலி cextendsp = this->extendsp()) {
             cextendsp->classp()->foreachMember(f);
         }
-        for (AstNode* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNode::privateTypeTest<T_Node>(stmtp)) f(this, static_cast<T_Node*>(stmtp));
+        க்கு (Ast_முனை* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            எனில் (Ast_முனை::privateTypeTest<T_முனை>(stmtp)) f(this, static_cast<T_முனை*>(stmtp));
         }
     }
     // Same as above, but stops after first match
     template <typename T_Callable>
-    bool existsMember(const T_Callable& p) const {
-        using T_Node = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
+    bool existsMember(மாறிலி T_Callable& p) மாறிலி {
+        using T_முனை = typename FunctionArgNoPointerNoCV<T_Callable, 1>::type;
         static_assert(
-            vlstd::is_invocable_r<bool, T_Callable, const AstClass*, const T_Node*>::value
-                && std::is_base_of<AstNode, T_Node>::value,
+            vlstd::is_invocable_r<bool, T_Callable, மாறிலி AstClass*, மாறிலி T_முனை*>::மதிப்பு
+                && std::is_base_of<Ast_முனை, T_முனை>::மதிப்பு,
             "Predicate 'p' must have a signature compatible with 'bool(const AstClass*, "
             "const T_Node*)', with 'T_Node' being a subtype of 'AstNode'");
-        if (const AstClassExtends* const cextendsp = this->extendsp()) {
-            if (cextendsp->classp()->existsMember(p)) return true;
+        எனில் (மாறிலி AstClassExtends* மாறிலி cextendsp = this->extendsp()) {
+            எனில் (cextendsp->classp()->existsMember(p)) திரும்பு true;
         }
-        for (AstNode* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (AstNode::privateTypeTest<T_Node>(stmtp)) {
-                if (p(this, static_cast<T_Node*>(stmtp))) return true;
+        க்கு (Ast_முனை* stmtp = stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            எனில் (Ast_முனை::privateTypeTest<T_முனை>(stmtp)) {
+                எனில் (p(this, static_cast<T_முனை*>(stmtp))) திரும்பு true;
             }
         }
-        return false;
+        திரும்பு false;
     }
 };
-class AstClassPackage final : public AstNodeModule {
+class AstClassPackage final : பொது Ast_முனை_Module {
     // The static information portion of a class (treated similarly to a package)
     //
     // @astgen ptr := m_classp : Optional[AstClass]  // Class package this is under
     //                                     // (weak pointer, hard link is other way)
-public:
-    AstClassPackage(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstClassPackage(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_ClassPackage(fl, name, libname) {}
     ASTGEN_MEMBERS_AstClassPackage;
-    string verilogKwd() const override { return "classpackage"; }
-    bool timescaleMatters() const override { return false; }
-    AstClass* classp() const VL_MT_SAFE { return m_classp; }
-    void classp(AstClass* classp) { m_classp = classp; }
+    string verilogKwd() மாறிலி override { திரும்பு "classpackage"; }
+    bool timescaleMatters() மாறிலி override { திரும்பு false; }
+    AstClass* classp() மாறிலி VL_MT_SAFE { திரும்பு m_classp; }
+    வெறுமை classp(AstClass* classp) { m_classp = classp; }
 };
-class AstIface final : public AstNodeModule {
+class AstIface final : பொது Ast_முனை_Module {
     // An interface declaration
     string m_dtypeNameFull;  // dtypeName(true) once frozen, as parameter types may then be gone
     string m_dtypeNameShort;  // dtypeName(false) once frozen, as parameter types may then be gone
     bool m_hasVirtualRef = false;  // There exists a virtual interface reference for this interface
-public:
-    AstIface(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstIface(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_Iface(fl, name, libname) {}
     ASTGEN_MEMBERS_AstIface;
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    string verilogKwd() const override { return "interface"; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    string verilogKwd() மாறிலி override { திரும்பு "interface"; }
     // Interfaces have `timescale applicability but lots of code seems to
     // get false warnings if we enable this
-    bool timescaleMatters() const override { return false; }
-    bool hasVirtualRef() const { return m_hasVirtualRef; }
-    void setHasVirtualRef() { m_hasVirtualRef = true; }
+    bool timescaleMatters() மாறிலி override { திரும்பு false; }
+    bool hasVirtualRef() மாறிலி { திரும்பு m_hasVirtualRef; }
+    வெறுமை setHasVirtualRef() { m_hasVirtualRef = true; }
     // Name of the interface as a data type, with the values of its parameters, e.g. 'ifc#(8)'
-    string dtypeName(bool full) const;
+    string dtypeName(bool full) மாறிலி;
     // Fix dtypeName(), as V3WidthCommit moves parameter types to the type table
-    void dtypeNameFreeze();
+    வெறுமை dtypeNameFreeze();
 };
-class AstModule final : public AstNodeModule {
+class AstModule final : பொது Ast_முனை_Module {
     // A module declaration
-    const bool m_isChecker;  // Module represents a checker
-    const bool m_isProgram;  // Module represents a program
+    மாறிலி bool m_isChecker;  // Module represents a checker
+    மாறிலி bool m_isProgram;  // Module represents a program
     bool m_hasGenericIface = false;  // Module contains a generic interface
 
-public:
+பொது:
     class Checker {};  // for constructor type-overload selection
     class Program {};  // for constructor type-overload selection
-    AstModule(FileLine* fl, const string& name, const string& libname)
+    AstModule(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{false}
         , m_isProgram{false} {}
-    AstModule(FileLine* fl, const string& name, const string& libname, Checker)
+    AstModule(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname, Checker)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{true}
         , m_isProgram{false} {}
-    AstModule(FileLine* fl, const string& name, const string& libname, Program)
+    AstModule(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname, Program)
         : ASTGEN_SUPER_Module(fl, name, libname)
         , m_isChecker{false}
         , m_isProgram{true} {}
     ASTGEN_MEMBERS_AstModule;
-    string verilogKwd() const override {
-        return m_isChecker ? "checker" : m_isProgram ? "program" : "module";
+    string verilogKwd() மாறிலி override {
+        திரும்பு m_isChecker ? "checker" : m_isProgram ? "program" : "module";
     }
-    bool timescaleMatters() const override { return true; }
-    bool isChecker() const { return m_isChecker; }
-    bool isProgram() const { return m_isProgram; }
-    bool hasGenericIface() const { return m_hasGenericIface; }
-    void hasGenericIface(bool hasGenericIface) { m_hasGenericIface = hasGenericIface; }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
+    bool timescaleMatters() மாறிலி override { திரும்பு true; }
+    bool isChecker() மாறிலி { திரும்பு m_isChecker; }
+    bool isProgram() மாறிலி { திரும்பு m_isProgram; }
+    bool hasGenericIface() மாறிலி { திரும்பு m_hasGenericIface; }
+    வெறுமை hasGenericIface(bool hasGenericIface) { m_hasGenericIface = hasGenericIface; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
 };
-class AstNotFoundModule final : public AstNodeModule {
+class AstNotFoundModule final : பொது Ast_முனை_Module {
     // A missing module declaration
-public:
-    AstNotFoundModule(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstNotFoundModule(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_NotFoundModule(fl, name, libname) {}
     ASTGEN_MEMBERS_AstNotFoundModule;
-    string verilogKwd() const override { return "/*not-found-*/ module"; }
-    bool timescaleMatters() const override { return false; }
+    string verilogKwd() மாறிலி override { திரும்பு "/*not-found-*/ module"; }
+    bool timescaleMatters() மாறிலி override { திரும்பு false; }
 };
-class AstPackage final : public AstNodeModule {
+class AstPackage final : பொது Ast_முனை_Module {
     // A package declaration
-public:
-    AstPackage(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstPackage(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_Package(fl, name, libname) {}
     ASTGEN_MEMBERS_AstPackage;
-    string verilogKwd() const override { return "package"; }
-    bool timescaleMatters() const override { return !isDollarUnit() && !isConstPool(); }
+    string verilogKwd() மாறிலி override { திரும்பு "package"; }
+    bool timescaleMatters() மாறிலி override { திரும்பு !isDollarUnit() && !isConstPool(); }
 };
-class AstPrimitive final : public AstNodeModule {
+class AstPrimitive final : பொது Ast_முனை_Module {
     // A primitive declaration
-public:
-    AstPrimitive(FileLine* fl, const string& name, const string& libname)
+பொது:
+    AstPrimitive(File_வரி* fl, மாறிலி string& name, மாறிலி string& libname)
         : ASTGEN_SUPER_Primitive(fl, name, libname) {}
     ASTGEN_MEMBERS_AstPrimitive;
-    string verilogKwd() const override { return "primitive"; }
-    bool timescaleMatters() const override { return false; }
+    string verilogKwd() மாறிலி override { திரும்பு "primitive"; }
+    bool timescaleMatters() மாறிலி override { திரும்பு false; }
 };
 
 // === AstNodeProcedure ===
-class AstAlways final : public AstNodeProcedure {
+class AstAlways final : பொது Ast_முனை_Procedure {
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list iff clocked
-    const VAlwaysKwd m_keyword;
+    மாறிலி VAlwaysKwd m_keyword;
 
-public:
-    AstAlways(FileLine* fl, VAlwaysKwd keyword, AstSenTree* sentreep, AstNode* stmtsp = nullptr)
+பொது:
+    AstAlways(File_வரி* fl, VAlwaysKwd keyword, Ast_Sen_மரம்* sentreep, Ast_முனை* stmtsp = nullptr)
         : ASTGEN_SUPER_Always(fl, stmtsp)
         , m_keyword{keyword} {
         this->sentreep(sentreep);
     }
-    explicit inline AstAlways(AstAssignW* assignp);
+    explicit உள்வரி AstAlways(AstAssignW* assignp);
     ASTGEN_MEMBERS_AstAlways;
     //
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    VAlwaysKwd keyword() const { return m_keyword; }
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    VAlwaysKwd keyword() மாறிலி { திரும்பு m_keyword; }
 };
-class AstAlwaysObserved final : public AstNodeProcedure {
+class AstAlwaysObserved final : பொது Ast_முனை_Procedure {
     // Like always but Observed scheduling region
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list, removed in V3Active
 
-public:
-    AstAlwaysObserved(FileLine* fl, AstSenTree* sentreep, AstNode* bodysp)
+பொது:
+    AstAlwaysObserved(File_வரி* fl, Ast_Sen_மரம்* sentreep, Ast_முனை* bodysp)
         : ASTGEN_SUPER_AlwaysObserved(fl, bodysp) {
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstAlwaysObserved;
 };
-class AstAlwaysPost final : public AstNodeProcedure {
+class AstAlwaysPost final : பொது Ast_முனை_Procedure {
     // Like always but 'post' scheduled, e.g. for array NBA commits
 
-public:
-    explicit AstAlwaysPost(FileLine* fl)
+பொது:
+    explicit AstAlwaysPost(File_வரி* fl)
         : ASTGEN_SUPER_AlwaysPost(fl, nullptr) {}
     ASTGEN_MEMBERS_AstAlwaysPost;
 };
-class AstAlwaysPostponed final : public AstNodeProcedure {
+class AstAlwaysPostponed final : பொது Ast_முனை_Procedure {
     // Like always but Postponed scheduling region
 
-public:
-    AstAlwaysPostponed(FileLine* fl, AstNode* stmtsp)
+பொது:
+    AstAlwaysPostponed(File_வரி* fl, Ast_முனை* stmtsp)
         : ASTGEN_SUPER_AlwaysPostponed(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstAlwaysPostponed;
 };
-class AstAlwaysPre final : public AstNodeProcedure {
+class AstAlwaysPre final : பொது Ast_முனை_Procedure {
     // Like always but 'pre' scheduled, e.g. for implementing NBAs
 
-public:
-    explicit AstAlwaysPre(FileLine* fl)
+பொது:
+    explicit AstAlwaysPre(File_வரி* fl)
         : ASTGEN_SUPER_AlwaysPre(fl, nullptr) {}
     ASTGEN_MEMBERS_AstAlwaysPre;
 };
-class AstAlwaysReactive final : public AstNodeProcedure {
+class AstAlwaysReactive final : பொது Ast_முனை_Procedure {
     // Like always but Reactive scheduling region
     // @astgen op1 := sentreep : Optional[AstSenTree] // Sensitivity list, removed in V3Active
 
-public:
-    AstAlwaysReactive(FileLine* fl, AstSenTree* sentreep, AstNode* bodysp)
+பொது:
+    AstAlwaysReactive(File_வரி* fl, Ast_Sen_மரம்* sentreep, Ast_முனை* bodysp)
         : ASTGEN_SUPER_AlwaysReactive(fl, bodysp) {
         this->sentreep(sentreep);
     }
     ASTGEN_MEMBERS_AstAlwaysReactive;
 };
-class AstFinal final : public AstNodeProcedure {
-public:
-    AstFinal(FileLine* fl, AstNode* stmtsp)
+class AstFinal final : பொது Ast_முனை_Procedure {
+பொது:
+    AstFinal(File_வரி* fl, Ast_முனை* stmtsp)
         : ASTGEN_SUPER_Final(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstFinal;
 };
-class AstInitial final : public AstNodeProcedure {
-public:
-    AstInitial(FileLine* fl, AstNode* stmtsp)
+class AstInitial final : பொது Ast_முனை_Procedure {
+பொது:
+    AstInitial(File_வரி* fl, Ast_முனை* stmtsp)
         : ASTGEN_SUPER_Initial(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitial;
 };
-class AstInitialAutomatic final : public AstNodeProcedure {
+class AstInitialAutomatic final : பொது Ast_முனை_Procedure {
     // Automatic variable initialization
     // That is, it runs every function start, or class construction
-public:
-    AstInitialAutomatic(FileLine* fl, AstNode* stmtsp)
+பொது:
+    AstInitialAutomatic(File_வரி* fl, Ast_முனை* stmtsp)
         : ASTGEN_SUPER_InitialAutomatic(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitialAutomatic;
 };
-class AstInitialStatic final : public AstNodeProcedure {
+class AstInitialStatic final : பொது Ast_முனை_Procedure {
     // Static variable initialization
     // That is, it runs at the beginning of simulation, before 'initial' blocks
-public:
-    AstInitialStatic(FileLine* fl, AstNode* stmtsp)
+பொது:
+    AstInitialStatic(File_வரி* fl, Ast_முனை* stmtsp)
         : ASTGEN_SUPER_InitialStatic(fl, stmtsp) {}
     ASTGEN_MEMBERS_AstInitialStatic;
 };
 
 // === AstNodeRange ===
-class AstBracketRange final : public AstNodeRange {
+class AstBracketRange final : பொது Ast_முனை_Range {
     // Parser only concept C-style "[lhsp]", an AstUnknownRange, QueueRange or Range,
     // unknown until lhsp type is determined
     // @astgen op1 := elementsp : AstNode<AstNodeExpr|AstNodeDType>
-public:
-    AstBracketRange(FileLine* fl, AstNode* elementsp)
+பொது:
+    AstBracketRange(File_வரி* fl, Ast_முனை* elementsp)
         : ASTGEN_SUPER_BracketRange(fl) {
         this->elementsp(elementsp);
     }
     ASTGEN_MEMBERS_AstBracketRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { V3ERROR_NA_RETURN(""); }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    மெய்நிகர் string emitC() { V3ERROR_NA_RETURN(""); }
+    மெய்நிகர் string emitVerilog() { V3ERROR_NA_RETURN(""); }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
     // Will be removed in V3Width, which relies on this
     // being a child not a dtype pointed node
-    bool maybePointedTo() const override VL_MT_SAFE { return false; }
+    bool maybePointedTo() மாறிலி override VL_MT_SAFE { திரும்பு false; }
 };
-class AstRange final : public AstNodeRange {
+class AstRange final : பொது Ast_முனை_Range {
     // Range specification, for use under variables and cells
     // @astgen op1 := leftp : AstNodeExpr
     // @astgen op2 := rightp : AstNodeExpr
-    const bool m_fromBracket = false;  // From C-style '[x]' declaration
-public:
-    AstRange(FileLine* fl, AstNodeExpr* leftp, AstNodeExpr* rightp, bool fromBracket = false)
+    மாறிலி bool m_fromBracket = false;  // From C-style '[x]' declaration
+பொது:
+    AstRange(File_வரி* fl, Ast_முனை_கோவை* leftp, Ast_முனை_கோவை* rightp, bool fromBracket = false)
         : ASTGEN_SUPER_Range(fl)
         , m_fromBracket{fromBracket} {
         this->leftp(leftp);
         this->rightp(rightp);
     }
-    inline AstRange(FileLine* fl, int left, int right);
-    inline AstRange(FileLine* fl, const VNumRange& range);
+    உள்வரி AstRange(File_வரி* fl, முழு இடது, முழு வலது);
+    உள்வரி AstRange(File_வரி* fl, மாறிலி VNumRange& range);
     ASTGEN_MEMBERS_AstRange;
-    inline int leftConst() const VL_MT_STABLE;
-    inline int rightConst() const VL_MT_STABLE;
-    int hiConst() const VL_MT_STABLE {
-        const int l = leftConst();
-        const int r = rightConst();
-        return l > r ? l : r;
+    உள்வரி முழு இடது_Const() மாறிலி VL_MT_STABLE;
+    உள்வரி முழு வலது_Const() மாறிலி VL_MT_STABLE;
+    முழு hiConst() மாறிலி VL_MT_STABLE {
+        மாறிலி முழு l = இடது_Const();
+        மாறிலி முழு r = வலது_Const();
+        திரும்பு l > r ? l : r;
     }
-    int loConst() const VL_MT_STABLE {
-        const int l = leftConst();
-        const int r = rightConst();
-        return l > r ? r : l;
+    முழு loConst() மாறிலி VL_MT_STABLE {
+        மாறிலி முழு l = இடது_Const();
+        மாறிலி முழு r = வலது_Const();
+        திரும்பு l > r ? r : l;
     }
-    int elementsConst() const VL_MT_STABLE { return hiConst() - loConst() + 1; }
-    bool ascending() const { return leftConst() < rightConst(); }
+    முழு elementsConst() மாறிலி VL_MT_STABLE { திரும்பு hiConst() - loConst() + 1; }
+    bool ascending() மாறிலி { திரும்பு இடது_Const() < வலது_Const(); }
     // Iterate indices from left to right inclusive, see VNumRange::seqLeftToRight()
-    VNumRange::Sequence seqLeftToRight() const {
-        return VNumRange{leftConst(), rightConst()}.seqLeftToRight();
+    VNumRange::Sequence seq_இடது_To_வலது() மாறிலி {
+        திரும்பு VNumRange{இடது_Const(), வலது_Const()}.seq_இடது_To_வலது();
     }
     // Iterate indices from right to left inclusive, see VNumRange::seqRightToLeft()
-    VNumRange::Sequence seqRightToLeft() const {
-        return VNumRange{leftConst(), rightConst()}.seqRightToLeft();
+    VNumRange::Sequence seq_வலது_To_இடது() மாறிலி {
+        திரும்பு VNumRange{இடது_Const(), வலது_Const()}.seq_வலது_To_இடது();
     }
-    void dump(std::ostream& str) const override;
-    void dumpJson(std::ostream& str) const override;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    bool sameNode(const AstNode* samep) const override {
-        const AstRange* const asamep = VN_DBG_AS(samep, Range);
-        return fromBracket() == asamep->fromBracket();
+    வெறுமை dump(std::ostream& str) மாறிலி override;
+    வெறுமை dumpJson(std::ostream& str) மாறிலி override;
+    மெய்நிகர் string emitC() { V3ERROR_NA_RETURN(""); }
+    bool same_முனை(மாறிலி Ast_முனை* samep) மாறிலி override {
+        மாறிலி AstRange* மாறிலி asamep = VN_DBG_AS(samep, Range);
+        திரும்பு fromBracket() == asamep->fromBracket();
     }
-    bool fromBracket() const { return m_fromBracket; }
+    bool fromBracket() மாறிலி { திரும்பு m_fromBracket; }
 };
-class AstUnsizedRange final : public AstNodeRange {
+class AstUnsizedRange final : பொது Ast_முனை_Range {
     // Unsized range specification, for open arrays
-public:
-    explicit AstUnsizedRange(FileLine* fl)
+பொது:
+    explicit AstUnsizedRange(File_வரி* fl)
         : ASTGEN_SUPER_UnsizedRange(fl) {}
     ASTGEN_MEMBERS_AstUnsizedRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { return "[]"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    மெய்நிகர் string emitC() { V3ERROR_NA_RETURN(""); }
+    மெய்நிகர் string emitVerilog() { திரும்பு "[]"; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
 };
-class AstWildcardRange final : public AstNodeRange {
+class AstWildcardRange final : பொது Ast_முனை_Range {
     // Wildcard range specification, for wildcard index type associative arrays
-public:
-    explicit AstWildcardRange(FileLine* fl)
+பொது:
+    explicit AstWildcardRange(File_வரி* fl)
         : ASTGEN_SUPER_WildcardRange(fl) {}
     ASTGEN_MEMBERS_AstWildcardRange;
-    virtual string emitC() { V3ERROR_NA_RETURN(""); }
-    virtual string emitVerilog() { return "[*]"; }
-    bool sameNode(const AstNode* /*samep*/) const override { return true; }
+    மெய்நிகர் string emitC() { V3ERROR_NA_RETURN(""); }
+    மெய்நிகர் string emitVerilog() { திரும்பு "[*]"; }
+    bool same_முனை(மாறிலி Ast_முனை* /*samep*/) மாறிலி override { திரும்பு true; }
 };
 
 #endif  // Guard

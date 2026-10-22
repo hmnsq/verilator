@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3MERGECOND_H_
 #define VERILATOR_V3MERGECOND_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3MergeCond final {
-public:
-    static void mergeAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை mergeAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard

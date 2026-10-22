@@ -20,42 +20,42 @@
 
 #ifndef VERILATOR_V3DUPFINDER_H_
 #define VERILATOR_V3DUPFINDER_H_
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
-#include "V3Hasher.h"
+#அந்தர்பாவ "V3Ast.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3Hasher.h"
 
-#include <map>
-#include <memory>
+#அந்தர்பாவ <map>
+#அந்தர்பாவ <memory>
 
 //============================================================================
 
-struct V3DupFinderUserSame VL_NOT_FINAL {
+கட்டமைப்பு V3DupFinderUserSame VL_NOT_FINAL {
     // Functor for V3DupFinder::findDuplicate
-    virtual bool isSame(AstNode*, AstNode*) = 0;
-    V3DupFinderUserSame() = default;
-    virtual ~V3DupFinderUserSame() = default;
+    மெய்நிகர் bool isSame(Ast_முனை*, Ast_முனை*) = 0;
+    V3DupFinderUserSame() = இயல்பு;
+    மெய்நிகர் ~V3DupFinderUserSame() = இயல்பு;
 };
 
 // This really is just a multimap from 'node hash' to 'node pointer', with some minor extensions.
-class V3DupFinder final : private std::multimap<V3Hash, AstNode*> {
-    using Super = std::multimap<V3Hash, AstNode*>;
+class V3DupFinder final : தனிப்பட்ட std::multimap<V3Hash, Ast_முனை*> {
+    using Super = std::multimap<V3Hash, Ast_முனை*>;
 
     // MEMBERS
-    const V3Hasher* const m_hasherOwnedp = nullptr;  // Pointer to owned hasher
-    const V3Hasher& m_hasher;  // Reference to hasher
+    மாறிலி V3Hasher* மாறிலி m_hasherOwnedp = nullptr;  // Pointer to owned hasher
+    மாறிலி V3Hasher& m_hasher;  // Reference to hasher
 
-public:
+பொது:
     // CONSTRUCTORS
     V3DupFinder()
         : m_hasherOwnedp{new V3Hasher}
         , m_hasher{*m_hasherOwnedp} {}
-    explicit V3DupFinder(const V3Hasher& hasher)
+    explicit V3DupFinder(மாறிலி V3Hasher& hasher)
         : m_hasher{hasher} {}
     ~V3DupFinder() {
-        if (m_hasherOwnedp) delete m_hasherOwnedp;
+        எனில் (m_hasherOwnedp) delete m_hasherOwnedp;
     }
 
     // METHODS
@@ -73,17 +73,17 @@ public:
     using Super::size_type;
 
     // Insert node into data structure
-    iterator insert(AstNode* nodep) { return emplace(m_hasher(nodep), nodep); }
+    iterator செருகு(Ast_முனை* nodep) { திரும்பு emplace(m_hasher(nodep), nodep); }
 
     // Erase node from data structure
-    size_type erase(AstNode* nodep) VL_MT_DISABLED;
+    size_type erase(Ast_முனை* nodep) VL_MT_DISABLED;
 
     // Return duplicate, if one was inserted, with optional user check for sameness
-    iterator findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
+    iterator findDuplicate(Ast_முனை* nodep, V3DupFinderUserSame* checkp = nullptr) VL_MT_DISABLED;
 
     // Dump for debug
-    void dumpFile(const string& filename, bool tree) VL_MT_DISABLED;
-    void dumpFilePrefixed(const string& nameComment, bool tree = false) VL_MT_DISABLED;
+    வெறுமை dumpFile(மாறிலி string& filename, bool மரம்) VL_MT_DISABLED;
+    வெறுமை dumpFilePrefixed(மாறிலி string& nameComment, bool மரம் = false) VL_MT_DISABLED;
 };
 
 #endif  // Guard

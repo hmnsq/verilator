@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3DIAGSARIF_H_
 #define VERILATOR_V3DIAGSARIF_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include <V3Error.h>
+#அந்தர்பாவ <V3Error.h>
 
 //============================================================================
 
 class V3DiagSarif final {
-public:
-    static void pushMessage(const VErrorMessage& msg) VL_MT_DISABLED;
-    static void output(bool success) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை தள்ளு_Message(மாறிலி VErrorMessage& செய்தி) VL_MT_DISABLED;
+    நிலையான வெறுமை output(bool success) VL_MT_DISABLED;
 };
 
 #endif  // Guard

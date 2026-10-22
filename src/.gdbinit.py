@@ -4,28 +4,28 @@
 # SPDX-License-Identifier: LGPL-3.0-only OR Artistic-2.0
 ######################################################################
 
-import tempfile
-import gdb  # pylint: disable=import-error
+இறக்குமதி tempfile
+இறக்குமதி gdb  # pylint: disable=import-error
 
 
-def _vltgdb_get_dump(node):
+def _vltgdb_get_dump(முனை):
     gdb.execute(f'set $_gdb_dump_json_str = AstNode::dumpTreeJsonGdb({node})')
-    dump = gdb.execute('printf "%s", $_gdb_dump_json_str', to_string=True)
+    dump = gdb.execute('printf "%s", $_gdb_dump_json_str', to_string=உண்மை)
     gdb.execute('call (void)free($_gdb_dump_json_str)')
-    return dump
+    திரும்பு dump
 
 
 def _vltgdb_tmpfile():
-    return tempfile.NamedTemporaryFile(mode="wt")  # write, text mode
+    திரும்பு tempfile.NamedTemporaryFile(mode="wt")  # write, text mode
 
 
 def _vltgdb_fwrite(file, s):
     """Write to file and flush buffer before passing the file to astsee"""
-    file.write(s)
+    file.லிக(s)
     file.flush()
 
 
-class AstseeCmd(gdb.Command):
+வகுப்பு AstseeCmd(gdb.Command):
     """Verilator: Pretty print or diff nodes using `astsee`. A node can be:
     * an pointer identifier,
     * an address literal,
@@ -38,40 +38,40 @@ class AstseeCmd(gdb.Command):
     """
 
     def __init__(self):
-        super().__init__("jtree", gdb.COMMAND_USER, gdb.COMPLETE_EXPRESSION)
+        மேல்().__init__("jtree", gdb.COMMAND_USER, gdb.COMPLETE_EXPRESSION)
 
-    def _null_check(self, old, new):
+    def _null_check(self, old, புதிய):
         err = ""
-        if old == "<nullptr>\n":
+        எனில் old == "<nullptr>\n":
             err += "old == <nullptr>\n"
-        if new == "<nullptr>\n":
+        எனில் புதிய == "<nullptr>\n":
             err += "new == <nullptr>"
-        if err:
-            raise gdb.GdbError(err.strip("\n"))
+        எனில் err:
+            எழுப்பு gdb.GdbError(err.strip("\n"))
 
     def invoke(self, arg_str, from_tty):
-        from astsee import verilator_cli as astsee  # pylint: disable=import-error,import-outside-toplevel
+        தஃ astsee இறக்குமதி verilator_cli இவ astsee  # pylint: disable=import-error,import-outside-toplevel
         # we import it here so "no module X" error would occur on typing `jtree` rather than on every gdb start
 
         # We hack `astsee_verilator`'s arg parser to find arguments with nodes
         # After finding them, we replace them with proper files
         astsee_args = astsee.parser.parse_args(gdb.string_to_argv(arg_str))
-        with _vltgdb_tmpfile() as oldfile, _vltgdb_tmpfile() as newfile, _vltgdb_tmpfile(
-        ) as metafile:
-            if astsee_args.file:
+        with _vltgdb_tmpfile() இவ oldfile, _vltgdb_tmpfile() இவ newfile, _vltgdb_tmpfile(
+        ) இவ metafile:
+            எனில் astsee_args.file:
                 _vltgdb_fwrite(oldfile, _vltgdb_get_dump(astsee_args.file))
                 astsee_args.file = oldfile.name
-            if astsee_args.newfile:
+            எனில் astsee_args.newfile:
                 _vltgdb_fwrite(newfile, _vltgdb_get_dump(astsee_args.newfile))
                 astsee_args.newfile = newfile.name
-            if astsee_args.meta is None:
+            எனில் astsee_args.meta is None:
                 # pass
                 gdb.execute(f'call AstNode::dumpJsonMetaFileGdb("{metafile.name}")')
                 astsee_args.meta = metafile.name
-            try:
-                astsee.main(astsee_args)
-            except SystemExit as e:  # astsee prints nice errmsgs on exit(), so rethrow it as GdbError to suppress cryptic python trace
-                raise gdb.GdbError("astsee exited with non-zero code") from e
+            முயல்:
+                astsee.முதன்மை(astsee_args)
+            விதிவிலக்கு SystemExit இவ e:  # astsee prints nice errmsgs on exit(), so rethrow it as GdbError to suppress cryptic python trace
+                எழுப்பு gdb.GdbError("astsee exited with non-zero code") தஃ e
 
 
 AstseeCmd()

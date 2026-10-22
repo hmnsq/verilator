@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3VARIABLEORDER_H_
 #define VERILATOR_V3VARIABLEORDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3VariableOrder final {
-public:
-    static void orderAll(AstNetlist*);
+பொது:
+    நிலையான வெறுமை orderAll(AstNetlist*);
 };
 
 #endif  // Guard

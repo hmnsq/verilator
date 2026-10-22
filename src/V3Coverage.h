@@ -17,17 +17,17 @@
 #ifndef VERILATOR_V3COVERAGE_H_
 #define VERILATOR_V3COVERAGE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3Coverage final {
-public:
+பொது:
     // CONSTRUCTORS
-    static void coverage(AstNetlist* rootp) VL_MT_DISABLED;
+    நிலையான வெறுமை coverage(AstNetlist* rootp) VL_MT_DISABLED;
 };
 
 #endif  // Guard

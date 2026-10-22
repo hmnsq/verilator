@@ -17,15 +17,15 @@
 #ifndef VERILATOR_V3ORDERINTERNAL_H_
 #define VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#அந்தர்பாவ "V3Order.h"
+#அந்தர்பாவ "V3OrderGraph.h"
+#அந்தர்பாவ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#அந்தர்பாவ <string>
+#அந்தர்பாவ <vector>
 
 class AstVarScope;
 
@@ -37,21 +37,21 @@ class LogicByScope;
 
 namespace V3Order {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<OrderGraph> buildOrderGraph(மாறிலி V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            மாறிலி std::vector<V3Sched::LogicByScope*>& coll,  //
+                                            மாறிலி V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+வெறுமை orderOrderGraph(OrderGraph& graph, மாறிலி std::string& tag);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+வெறுமை processDomains(OrderGraph& graph,  //
+                    மாறிலி std::string& tag,  //
+                    மாறிலி ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_முனை_Stmt* createSerial(OrderMoveGraph& moveGraph, மாறிலி std::string& tag, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_முனை_Stmt* createParallel(OrderMoveGraph& moveGraph, மாறிலி std::string& tag, bool slow);
 
 };  // namespace V3Order
 

@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3PREPROC_H_
 #define VERILATOR_V3PREPROC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3FileLine.h"
+#அந்தர்பாவ "V3Global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
+#அந்தர்பாவ <iostream>
+#அந்தர்பாவ <list>
+#அந்தர்பாவ <map>
 
 class VInFilter;
 class VSpellCheck;
@@ -35,12 +35,12 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+பாதுகாக்கப்பட்ட:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+பொது:
     // CONSTANTS
-    enum MiscConsts : int {
+    எண்ணிக்கை MiscConsts : முழு {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
         INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
@@ -51,51 +51,51 @@ public:
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
-    virtual string getline() = 0;  // Return next line/lines. (Null if done.)
-    virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    மெய்நிகர் வெறுமை openFile(File_வரி* fileline, VInFilter* filterp, மாறிலி string& filename) = 0;
+    மெய்நிகர் string getline() = 0;  // Return next line/lines. (Null if done.)
+    மெய்நிகர் bool isEof() மாறிலி = 0;  // Return true on EOF.
+    மெய்நிகர் வெறுமை செருகு_Unreadback(மாறிலி string& text) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_வரி* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    நிலையான முழு keepComments() { திரும்பு 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    நிலையான bool keepWhitespace() { திரும்பு false; }
+    நிலையான bool வரி_Directives() {  // Insert `line directives
+        திரும்பு !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_வரி());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    நிலையான bool pedantic() { திரும்பு false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
-    virtual void comment(const string& cmt) = 0;  // Comment detected (if keepComments==2)
-    virtual void include(const string& filename) = 0;  // Request a include file be processed
+    மெய்நிகர் வெறுமை comment(மாறிலி string& cmt) = 0;  // Comment detected (if keepComments==2)
+    மெய்நிகர் வெறுமை include(மாறிலி string& filename) = 0;  // Request a include file be processed
 
-    virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
-                        const string& params = "",
+    மெய்நிகர் வெறுமை undef(மாறிலி string& name) = 0;  // Remove a definition
+    மெய்நிகர் வெறுமை define(File_வரி* fileline, மாறிலி string& name, மாறிலி string& மதிப்பு,
+                        மாறிலி string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    மெய்நிகர் வெறுமை define_Cmd_வரி(File_வரி* fileline, மாறிலி string& name,
+                               மாறிலி string& மதிப்பு) {  // `define without any parameters
+        define(fileline, name, மதிப்பு, "", true);
     }
-    virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
+    மெய்நிகர் string removeDefines(மாறிலி string& text) = 0;  // Remove defines in a text string
 
     // UTILITIES
-    virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
-    virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
+    மெய்நிகர் வெறுமை dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
+    மெய்நிகர் வெறுமை candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+பாதுகாக்கப்பட்ட:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    வெறுமை configure(File_வரி* fl);
 
-public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
-    virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
-    static void selfTest() VL_MT_DISABLED;
+பொது:
+    நிலையான V3PreProc* createPreProc(File_வரி* fl) VL_MT_DISABLED;
+    மெய்நிகர் ~V3PreProc() = இயல்பு;  // LCOV_EXCL_LINE  // Persistent
+    நிலையான வெறுமை selfTest() VL_MT_DISABLED;
 };
 
 #endif  // Guard

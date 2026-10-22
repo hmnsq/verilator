@@ -17,51 +17,51 @@
 #ifndef VERILATOR_VLCTOP_H_
 #define VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#அந்தர்பாவ "VlcOptions.h"
+#அந்தர்பாவ "VlcPoint.h"
+#அந்தர்பாவ "VlcSource.h"
+#அந்தர்பாவ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_உச்சி final {
+பொது:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+தனிப்பட்ட:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    வெறுமை annotateCalc();
+    வெறுமை annotateCalcNeeded();
+    வெறுமை annotateOutputFiles(மாறிலி string& dirname);
 
-public:
+பொது:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_உச்சி() = இயல்பு;
+    ~Vlc_உச்சி() = இயல்பு;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { திரும்பு m_tests; }
+    VlcPoints& points() { திரும்பு m_points; }
+    VlcSources& sources() { திரும்பு m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    வெறுமை annotate(மாறிலி string& dirname);
+    வெறுமை printHierarchyReport();
+    வெறுமை printTypeSummary();
+    வெறுமை readCoverage(மாறிலி string& filename, bool nonfatal = false);
+    வெறுமை writeCoverage(மாறிலி string& filename);
+    வெறுமை writeInfo(மாறிலி string& filename);
 
-    void rank();
+    வெறுமை rank();
 };
 
 //######################################################################

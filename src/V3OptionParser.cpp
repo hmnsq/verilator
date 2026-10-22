@@ -17,65 +17,65 @@
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 #define VL_MT_DISABLED_CODE_UNIT 1
 
-#include "V3Global.h"
-#include "V3Options.h"
+#அந்தர்பாவ "V3Global.h"
+#அந்தர்பாவ "V3Options.h"
 #endif
-#include "V3Error.h"
-#include "V3OptionParser.h"
-#include "V3String.h"
+#அந்தர்பாவ "V3Error.h"
+#அந்தர்பாவ "V3OptionParser.h"
+#அந்தர்பாவ "V3String.h"
 
 //######################################################################
 // V3OptionParser::Impl
-struct V3OptionParser::Impl final {
+கட்டமைப்பு V3OptionParser::Impl final {
     // TYPES
 
     // Setting for isOnOffAllowed() and isPartialMatchAllowed()
-    enum class en : uint8_t {
+    எண்ணிக்கை வகுப்பு en : uint8_t {
         NONE,  // "-opt"
         FONOFF,  // "-fopt" and "-fno-opt"
         ONOFF,  // "-opt" and "-no-opt"
-        VALUE  // "-opt val"
+        மதிப்பு_3  // "-opt val"
     };
     // Base class of actual action classes
-    template <en N_Mode, bool N_Allow_Partial_Match = false>
-    class ActionBase VL_NOT_FINAL : public ActionIfs {
-        bool m_notForRerun = false;  // This option is not needed for rerun with --dump-inputs
-        bool m_undocumented = false;  // This option is not documented
-    public:
-        bool isValueNeeded() const override final { return N_Mode == en::VALUE; }
-        bool isFOnOffAllowed() const override final { return N_Mode == en::FONOFF; }
-        bool isNotForRerun() const override final { return m_notForRerun; }
-        bool isOnOffAllowed() const override final { return N_Mode == en::ONOFF; }
-        bool isPartialMatchAllowed() const override final { return N_Allow_Partial_Match; }
-        bool isUndocumented() const override { return m_undocumented; }
+    template <en N_Mode, தருக்க N_Allow_Partial_Match = பொய்>
+    வகுப்பு ActionBase VL_NOT_FINAL : பொது ActionIfs {
+        தருக்க m_notForRerun = பொய்;  // This option is not needed for rerun with --dump-inputs
+        தருக்க m_undocumented = பொய்;  // This option is not documented
+    பொது:
+        தருக்க is_மதிப்பு_Needed() மாறிலி override final { திரும்பு N_Mode == en::மதிப்பு_3; }
+        தருக்க isFOnOffAllowed() மாறிலி override final { திரும்பு N_Mode == en::FONOFF; }
+        தருக்க isNotForRerun() மாறிலி override final { திரும்பு m_notForRerun; }
+        தருக்க isOnOffAllowed() மாறிலி override final { திரும்பு N_Mode == en::ONOFF; }
+        தருக்க isPartialMatchAllowed() மாறிலி override final { திரும்பு N_Allow_Partial_Match; }
+        தருக்க isUndocumented() மாறிலி override { திரும்பு m_undocumented; }
         ActionIfs& undocumented() override {
-            m_undocumented = true;
-            return *this;
+            m_undocumented = உண்மை;
+            திரும்பு *இது;
         }
         ActionIfs& notForRerun() override {
-            m_notForRerun = true;
-            return *this;
+            m_notForRerun = உண்மை;
+            திரும்பு *இது;
         }
     };
 
     // Actual action classes
     template <typename T>
-    class ActionSet;  // "-opt" for bool-ish, "-opt val" for int and string
+    வகுப்பு ActionSet;  // "-opt" for bool-ish, "-opt val" for int and string
     template <typename N_Bool>
-    class ActionFOnOff;  // "-fopt" and "-fno-opt" for bool-ish
+    வகுப்பு ActionFOnOff;  // "-fopt" and "-fno-opt" for bool-ish
     template <typename N_Bool>
-    class ActionOnOff;  // "-opt" and "-no-opt" for bool-ish
-    class ActionCbCall;  // Callback without argument for "-opt"
-    class ActionCbFOnOff;  // Callback for "-fopt" and "-fno-opt"
-    class ActionCbOnOff;  // Callback for "-opt" and "-no-opt"
+    வகுப்பு ActionOnOff;  // "-opt" and "-no-opt" for bool-ish
+    வகுப்பு ActionCbCall;  // Callback without argument for "-opt"
+    வகுப்பு ActionCbFOnOff;  // Callback for "-fopt" and "-fno-opt"
+    வகுப்பு ActionCbOnOff;  // Callback for "-opt" and "-no-opt"
     template <typename T>
-    class ActionCbVal;  // Callback for "-opt val"
-    class ActionCbPartialMatch;  // Callback "-O3" for "-O"
-    class ActionCbPartialMatchVal;  // Callback "-debugi-V3Options 3" for "-debugi-"
+    வகுப்பு ActionCbVal;  // Callback for "-opt val"
+    வகுப்பு ActionCbPartialMatch;  // Callback "-O3" for "-O"
+    வகுப்பு ActionCbPartialMatchVal;  // Callback "-debugi-V3Options 3" for "-debugi-"
 
     // MEMBERS
-    std::map<const string, std::unique_ptr<ActionIfs>> m_options;  // All actions for option
-    bool m_isFinalized{false};  // Becomes after finalize() is called
+    std::map<மாறிலி string, std::unique_ptr<ActionIfs>> m_options;  // All actions for option
+    தருக்க m_isFinalized{பொய்};  // Becomes after finalize() is called
     VSpellCheck m_spellCheck;  // Suggests closest option when not found
 };
 
@@ -84,24 +84,24 @@ struct V3OptionParser::Impl final {
 
 #define V3OPTION_PARSER_DEF_ACT_CLASS(className, type, body, enType) \
     template <> \
-    class V3OptionParser::Impl::className<type> final : public ActionBase<enType> { \
-        type* const m_valp; /* Pointer to an option variable*/ \
+    வகுப்பு V3OptionParser::Impl::className<type> final : பொது ActionBase<enType> { \
+        type* மாறிலி m_valp; /* Pointer to an option variable*/ \
 \
-    public: \
+    பொது: \
         explicit className(type* valp) \
             : m_valp(valp) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        வெறுமை exec(மாறிலி எழுத்து* optp, மாறிலி எழுத்து* argp) override { body; } \
     }
 
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, bool, *m_valp = true, en::NONE);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, தருக்க, *m_valp = உண்மை, en::NONE);
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, VOptionBool, m_valp->setTrueOrFalse(true), en::NONE);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, VOptionBool, m_valp->setTrueOrFalse(உண்மை), en::NONE);
 #endif
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, int, *m_valp = std::atoi(argp), en::VALUE);
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::VALUE);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, முழு, *m_valp = std::atoi(argp), en::மதிப்பு_3);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionSet, string, *m_valp = argp, en::மதிப்பு_3);
 
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, bool, *m_valp = !hasPrefixFNo(optp), en::FONOFF);
-V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, bool, *m_valp = !hasPrefixNo(optp), en::ONOFF);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionFOnOff, தருக்க, *m_valp = !hasPrefixFNo(optp), en::FONOFF);
+V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, தருக்க, *m_valp = !hasPrefixNo(optp), en::ONOFF);
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, VOptionBool, m_valp->setTrueOrFalse(!hasPrefixNo(optp)),
                               en::ONOFF);
@@ -109,45 +109,45 @@ V3OPTION_PARSER_DEF_ACT_CLASS(ActionOnOff, VOptionBool, m_valp->setTrueOrFalse(!
 #undef V3OPTION_PARSER_DEF_ACT_CLASS
 
 #define V3OPTION_PARSER_DEF_ACT_CB_CLASS(className, funcType, body, ...) \
-    class V3OptionParser::Impl::className final : public ActionBase<__VA_ARGS__> { \
+    வகுப்பு V3OptionParser::Impl::className final : பொது ActionBase<__VA_ARGS__> { \
         std::function<funcType> m_cb; /* Callback function */ \
 \
-    public: \
+    பொது: \
         using CbType = std::function<funcType>; \
         explicit className(CbType cb) \
             : m_cb(std::move(cb)) {} \
-        void exec(const char* optp, const char* argp) override { body; } \
+        வெறுமை exec(மாறிலி எழுத்து* optp, மாறிலி எழுத்து* argp) override { body; } \
     }
 
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbCall, void(void), m_cb(), en::NONE);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbFOnOff, void(bool), m_cb(!hasPrefixFNo(optp)),
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbCall, வெறுமை(வெறுமை), m_cb(), en::NONE);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbFOnOff, வெறுமை(தருக்க), m_cb(!hasPrefixFNo(optp)),
                                  en::FONOFF);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, void(bool), m_cb(!hasPrefixNo(optp)), en::ONOFF);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, void(const char*), m_cb(optp), en::NONE,
-                                 true);
-V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, void(const char*, const char*),
-                                 m_cb(optp, argp), en::VALUE, true);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbOnOff, வெறுமை(தருக்க), m_cb(!hasPrefixNo(optp)), en::ONOFF);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatch, வெறுமை(மாறிலி எழுத்து*), m_cb(optp), en::NONE,
+                                 உண்மை);
+V3OPTION_PARSER_DEF_ACT_CB_CLASS(ActionCbPartialMatchVal, வெறுமை(மாறிலி எழுத்து*, மாறிலி எழுத்து*),
+                                 m_cb(optp, argp), en::மதிப்பு_3, உண்மை);
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<int> final : public ActionBase<en::VALUE> {
-    std::function<void(int)> m_cb;  // Callback function
+வகுப்பு V3OptionParser::Impl::ActionCbVal<முழு> final : பொது ActionBase<en::மதிப்பு_3> {
+    std::function<வெறுமை(முழு)> m_cb;  // Callback function
 
-public:
-    using CbType = std::function<void(int)>;
+பொது:
+    using CbType = std::function<வெறுமை(முழு)>;
     explicit ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(std::atoi(argp)); }
+    வெறுமை exec(மாறிலி எழுத்து* optp, மாறிலி எழுத்து* argp) override { m_cb(std::atoi(argp)); }
 };
 
 template <>
-class V3OptionParser::Impl::ActionCbVal<const char*> final : public ActionBase<en::VALUE> {
-    std::function<void(const char*)> m_cb;
+வகுப்பு V3OptionParser::Impl::ActionCbVal<மாறிலி எழுத்து*> final : பொது ActionBase<en::மதிப்பு_3> {
+    std::function<வெறுமை(மாறிலி எழுத்து*)> m_cb;
 
-public:
-    using CbType = std::function<void(const char*)>;
+பொது:
+    using CbType = std::function<வெறுமை(மாறிலி எழுத்து*)>;
     explicit ActionCbVal(CbType cb)
         : m_cb{std::move(cb)} {}
-    void exec(const char* optp, const char* argp) override { m_cb(argp); }
+    வெறுமை exec(மாறிலி எழுத்து* optp, மாறிலி எழுத்து* argp) override { m_cb(argp); }
 };
 
 #undef V3OPTION_PARSER_DEF_ACT_CB_CLASS
@@ -155,144 +155,144 @@ public:
 //######################################################################
 // Member functions of V3OptionParser
 
-V3OptionParser::ActionIfs* V3OptionParser::find(const char* optp) {
-    const auto it = m_pimpl->m_options.find(optp);
-    if (it != m_pimpl->m_options.end()) return it->second.get();  // Exact match
-    for (auto&& act : m_pimpl->m_options) {
-        if (act.second->isFOnOffAllowed()) {  // Find starts with "-fno"
-            if (const char* const nop
+V3OptionParser::ActionIfs* V3OptionParser::find(மாறிலி எழுத்து* optp) {
+    மாறிலி auto it = m_pimpl->m_options.find(optp);
+    எனில் (it != m_pimpl->m_options.end()) திரும்பு it->second.get();  // Exact match
+    க்கு (auto&& act : m_pimpl->m_options) {
+        எனில் (act.second->isFOnOffAllowed()) {  // Find starts with "-fno"
+            எனில் (மாறிலி எழுத்து* மாறிலி nop
                 = VString::startsWith(optp, "-fno-") ? (optp + std::strlen("-fno-")) : nullptr) {
-                if (act.first.substr(std::strlen("-f"), std::string::npos)
+                எனில் (act.first.substr(std::strlen("-f"), std::string::npos)
                     == nop) {  // [-f]opt = [-fno-]opt
-                    return act.second.get();
+                    திரும்பு act.second.get();
                 }
             }
         }
-        if (act.second->isOnOffAllowed()) {  // Find starts with "-no"
-            if (const char* const nop
+        எனில் (act.second->isOnOffAllowed()) {  // Find starts with "-no"
+            எனில் (மாறிலி எழுத்து* மாறிலி nop
                 = VString::startsWith(optp, "-no") ? (optp + std::strlen("-no")) : nullptr) {
-                if (act.first == nop || act.first == ("-"s + nop)) return act.second.get();
+                எனில் (act.first == nop || act.first == ("-"s + nop)) திரும்பு act.second.get();
             }
-        } else if (act.second->isPartialMatchAllowed()) {
-            if (VString::startsWith(optp, act.first)) return act.second.get();
+        } இல்லையெனில் எனில் (act.second->isPartialMatchAllowed()) {
+            எனில் (VString::startsWith(optp, act.first)) திரும்பு act.second.get();
         }
     }
-    return nullptr;
+    திரும்பு nullptr;
 }
 
 template <typename T_Act, typename T_Arg>
-V3OptionParser::ActionIfs& V3OptionParser::add(const std::string& opt, T_Arg arg) {
+V3OptionParser::ActionIfs& V3OptionParser::add(மாறிலி std::string& opt, T_Arg arg) {
     UASSERT(!m_pimpl->m_isFinalized, "Cannot add after finalize() is called");
-    std::unique_ptr<T_Act> act{new T_Act{std::move(arg)}};
+    std::unique_ptr<T_Act> act{புதிய T_Act{std::move(arg)}};
     UASSERT(opt.size() >= 2, opt << " is too short");
     UASSERT(opt[0] == '-' || opt[0] == '+', opt << " does not start with either '-' or '+'");
     UASSERT(!(opt[0] == '-' && opt[1] == '-'), "Option must have single '-', but " << opt);
-    const auto insertedResult = m_pimpl->m_options.emplace(opt, std::move(act));
+    மாறிலி auto insertedResult = m_pimpl->m_options.emplace(opt, std::move(act));
     UASSERT(insertedResult.second, opt << " is already registered");
-    return *insertedResult.first->second;
+    திரும்பு *insertedResult.first->second;
 }
 
-bool V3OptionParser::hasPrefixFNo(const char* strp) {
+தருக்க V3OptionParser::hasPrefixFNo(மாறிலி எழுத்து* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-fno");
+    எனில் (strp[1] == '-') ++strp;
+    திரும்பு VString::startsWith(strp, "-fno");
 }
 
-bool V3OptionParser::hasPrefixNo(const char* strp) {
+தருக்க V3OptionParser::hasPrefixNo(மாறிலி எழுத்து* strp) {
     UASSERT(strp[0] == '-', strp << " does not start with '-'");
-    if (strp[1] == '-') ++strp;
-    return VString::startsWith(strp, "-no");
+    எனில் (strp[1] == '-') ++strp;
+    திரும்பு VString::startsWith(strp, "-no");
 }
 
-std::pair<int, bool> V3OptionParser::parse(int idx, int argc, char* argv[]) {
+std::pair<முழு, தருக்க> V3OptionParser::parse(முழு idx, முழு argc, எழுத்து* argv[]) {
     UASSERT(m_pimpl->m_isFinalized, "finalize() must be called before parse()");
-    const char* optp = argv[idx];
-    if (optp[0] == '-' && optp[1] == '-') ++optp;
-    ActionIfs* const actp = find(optp);
-    if (!actp) return {0, false};
-    if (!actp->isValueNeeded()) {
+    மாறிலி எழுத்து* optp = argv[idx];
+    எனில் (optp[0] == '-' && optp[1] == '-') ++optp;
+    ActionIfs* மாறிலி actp = find(optp);
+    எனில் (!actp) திரும்பு {0, பொய்};
+    எனில் (!actp->is_மதிப்பு_Needed()) {
         actp->exec(optp, nullptr);
-        return {1, !actp->isNotForRerun()};
+        திரும்பு {1, !actp->isNotForRerun()};
     }
-    if (idx + 1 < argc) {
+    எனில் (idx + 1 < argc) {
         actp->exec(optp, argv[idx + 1]);
-        return {2, !actp->isNotForRerun()};
+        திரும்பு {2, !actp->isNotForRerun()};
     }
-    return {0, false};
+    திரும்பு {0, பொய்};
 }
 
-string V3OptionParser::getSuggestion(const char* str) const {
-    return m_pimpl->m_spellCheck.bestCandidateMsg(str);
+string V3OptionParser::getSuggestion(மாறிலி எழுத்து* str) மாறிலி {
+    திரும்பு m_pimpl->m_spellCheck.best_Candidate_செய்தி(str);
 }
 
-void V3OptionParser::addSuggestionCandidate(const string& s) {
-    m_pimpl->m_spellCheck.pushCandidate(s);
+வெறுமை V3OptionParser::addSuggestionCandidate(மாறிலி string& s) {
+    m_pimpl->m_spellCheck.தள்ளு_Candidate(s);
 }
 
-void V3OptionParser::finalize() {
+வெறுமை V3OptionParser::finalize() {
     UASSERT(!m_pimpl->m_isFinalized, "finalize() must not be called twice");
-    for (auto&& opt : m_pimpl->m_options) {
-        if (opt.second->isUndocumented()) continue;
-        m_pimpl->m_spellCheck.pushCandidate(opt.first);
-        if (opt.second->isFOnOffAllowed()) {
-            m_pimpl->m_spellCheck.pushCandidate(
+    க்கு (auto&& opt : m_pimpl->m_options) {
+        எனில் (opt.second->isUndocumented()) தொடர்;
+        m_pimpl->m_spellCheck.தள்ளு_Candidate(opt.first);
+        எனில் (opt.second->isFOnOffAllowed()) {
+            m_pimpl->m_spellCheck.தள்ளு_Candidate(
                 "-fno-" + opt.first.substr(std::strlen("-f"), std::string::npos));
         }
-        if (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.pushCandidate("-no" + opt.first);
+        எனில் (opt.second->isOnOffAllowed()) m_pimpl->m_spellCheck.தள்ளு_Candidate("-no" + opt.first);
     }
-    m_pimpl->m_isFinalized = true;
+    m_pimpl->m_isFinalized = உண்மை;
 }
 
-void V3OptionParser::dumpOptions() {
-    for (const auto& opt : m_pimpl->m_spellCheck.candidates()) {
+வெறுமை V3OptionParser::dumpOptions() {
+    க்கு (மாறிலி auto& opt : m_pimpl->m_spellCheck.candidates()) {
         std::cout << "OPTION: \"" + opt + "\"\n";
     }
 }
 
 V3OptionParser::V3OptionParser()
-    : m_pimpl{new Impl{}} {}
+    : m_pimpl{புதிய Impl{}} {}
 
-V3OptionParser::~V3OptionParser() = default;
+V3OptionParser::~V3OptionParser() = இயல்பு;
 
 //######################################################################
 // Member functions of V3OptionParser::AppendHelper
 
 #define V3OPTION_PARSER_DEF_OP(actKind, argType, actType) \
     V3OptionParser::ActionIfs& V3OptionParser::AppendHelper::operator()( \
-        const char* optp, actKind, argType arg) const { \
-        return m_parser.add<Impl::actType>(optp, arg); \
+        மாறிலி எழுத்து* optp, actKind, argType arg) மாறிலி { \
+        திரும்பு m_parser.add<Impl::actType>(optp, arg); \
     }
-V3OPTION_PARSER_DEF_OP(Set, bool*, ActionSet<bool>)
+V3OPTION_PARSER_DEF_OP(Set, தருக்க*, ActionSet<தருக்க>)
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_OP(Set, VOptionBool*, ActionSet<VOptionBool>)
 #endif
-V3OPTION_PARSER_DEF_OP(Set, int*, ActionSet<int>)
+V3OPTION_PARSER_DEF_OP(Set, முழு*, ActionSet<முழு>)
 V3OPTION_PARSER_DEF_OP(Set, string*, ActionSet<string>)
-V3OPTION_PARSER_DEF_OP(FOnOff, bool*, ActionFOnOff<bool>)
-V3OPTION_PARSER_DEF_OP(OnOff, bool*, ActionOnOff<bool>)
+V3OPTION_PARSER_DEF_OP(FOnOff, தருக்க*, ActionFOnOff<தருக்க>)
+V3OPTION_PARSER_DEF_OP(OnOff, தருக்க*, ActionOnOff<தருக்க>)
 #ifndef V3OPTION_PARSER_NO_VOPTION_BOOL
 V3OPTION_PARSER_DEF_OP(OnOff, VOptionBool*, ActionOnOff<VOptionBool>)
 #endif
 V3OPTION_PARSER_DEF_OP(CbCall, Impl::ActionCbCall::CbType, ActionCbCall)
 V3OPTION_PARSER_DEF_OP(CbFOnOff, Impl::ActionCbFOnOff::CbType, ActionCbFOnOff)
 V3OPTION_PARSER_DEF_OP(CbOnOff, Impl::ActionCbOnOff::CbType, ActionCbOnOff)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<int>::CbType, ActionCbVal<int>)
-V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<const char*>::CbType, ActionCbVal<const char*>)
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<முழு>::CbType, ActionCbVal<முழு>)
+V3OPTION_PARSER_DEF_OP(CbVal, Impl::ActionCbVal<மாறிலி எழுத்து*>::CbType, ActionCbVal<மாறிலி எழுத்து*>)
 #undef V3OPTION_PARSER_DEF_OP
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatch,
-                                         Impl::ActionCbPartialMatch::CbType cb) const {
-    const size_t prefixLen = std::strlen(optp);
-    const auto wrap = [prefixLen, cb](const char* optp) { cb(optp + prefixLen); };
-    return m_parser.add<Impl::ActionCbPartialMatch>(optp, std::move(wrap));
+V3OptionParser::AppendHelper::operator()(மாறிலி எழுத்து* optp, CbPartialMatch,
+                                         Impl::ActionCbPartialMatch::CbType cb) மாறிலி {
+    மாறிலி size_t prefixLen = std::strlen(optp);
+    மாறிலி auto wrap = [prefixLen, cb](மாறிலி எழுத்து* optp) { cb(optp + prefixLen); };
+    திரும்பு m_parser.add<Impl::ActionCbPartialMatch>(optp, std::move(wrap));
 }
 
 V3OptionParser::ActionIfs&
-V3OptionParser::AppendHelper::operator()(const char* optp, CbPartialMatchVal,
-                                         Impl::ActionCbPartialMatchVal::CbType cb) const {
-    const size_t prefixLen = std::strlen(optp);
-    const auto wrap
-        = [prefixLen, cb](const char* optp, const char* argp) { cb(optp + prefixLen, argp); };
-    return m_parser.add<Impl::ActionCbPartialMatchVal>(optp, std::move(wrap));
+V3OptionParser::AppendHelper::operator()(மாறிலி எழுத்து* optp, CbPartialMatchVal,
+                                         Impl::ActionCbPartialMatchVal::CbType cb) மாறிலி {
+    மாறிலி size_t prefixLen = std::strlen(optp);
+    மாறிலி auto wrap
+        = [prefixLen, cb](மாறிலி எழுத்து* optp, மாறிலி எழுத்து* argp) { cb(optp + prefixLen, argp); };
+    திரும்பு m_parser.add<Impl::ActionCbPartialMatchVal>(optp, std::move(wrap));
 }

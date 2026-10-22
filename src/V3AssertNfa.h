@@ -17,16 +17,16 @@
 #ifndef VERILATOR_V3ASSERTNFA_H_
 #define VERILATOR_V3ASSERTNFA_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#அந்தர்பாவ "config_build.h"
+#அந்தர்பாவ "verilatedos.h"
 
 class AstNetlist;
 
 //============================================================================
 
 class V3AssertNfa final {
-public:
-    static void assertNfaAll(AstNetlist* nodep) VL_MT_DISABLED;
+பொது:
+    நிலையான வெறுமை assertNfaAll(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
 #endif  // Guard
