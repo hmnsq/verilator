@@ -14,81 +14,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DupFinder.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3DupFinder.h"
 
-#include "V3File.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3File.h"
 
-#include <iomanip>
-#include <memory>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // V3DupFinder class functions
 
-V3DupFinder::size_type V3DupFinder::erase(AstNode* nodep) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        if (nodep == it->second) {
+V3DupFinder::ਮਾਪ_type V3DupFinder::erase(Ast_ਗੰਢ* nodep) {
+    ਅਚਲ ਸਵੈਚਾਲਿਤ& er = equal_range(m_hasher(nodep));
+    ਲਈ (iterator it = er.ਪਹਿਲਾ; it != er.ਦੂਜਾ; ++it) {
+        ਜੇ (nodep == it->ਦੂਜਾ) {
             erase(it);
-            return 1;
+            ਵਾਪਸ 1;
         }
     }
-    return 0;
+    ਵਾਪਸ 0;
 }
 
-V3DupFinder::iterator V3DupFinder::findDuplicate(AstNode* nodep, V3DupFinderUserSame* checkp) {
-    const auto& er = equal_range(m_hasher(nodep));
-    for (iterator it = er.first; it != er.second; ++it) {
-        AstNode* const node2p = it->second;
-        if (nodep == node2p) continue;  // Same node is not a duplicate
-        if (checkp && !checkp->isSame(nodep, node2p)) continue;  // User says it is not a duplicate
-        if (!nodep->sameTree(node2p)) continue;  // Not the same trees
+V3DupFinder::iterator V3DupFinder::ਲੱਭੋ_Duplicate(Ast_ਗੰਢ* nodep, V3DupFinderUserSame* checkp) {
+    ਅਚਲ ਸਵੈਚਾਲਿਤ& er = equal_range(m_hasher(nodep));
+    ਲਈ (iterator it = er.ਪਹਿਲਾ; it != er.ਦੂਜਾ; ++it) {
+        Ast_ਗੰਢ* ਅਚਲ node2p = it->ਦੂਜਾ;
+        ਜੇ (nodep == node2p) ਜਾਰੀ;  // Same node is not a duplicate
+        ਜੇ (checkp && !checkp->isSame(nodep, node2p)) ਜਾਰੀ;  // User says it is not a duplicate
+        ਜੇ (!nodep->same_ਰੁੱਖ(node2p)) ਜਾਰੀ;  // Not the same trees
         // Found duplicate
-        return it;
+        ਵਾਪਸ it;
     }
-    return end();
+    ਵਾਪਸ ਸਿਰਾ();
 }
 
-void V3DupFinder::dumpFile(const string& filename, bool tree) {
+ਖਾਲੀ V3DupFinder::dumpFile(ਅਚਲ string& filename, ਤਾਰਕਿਕ ਰੁੱਖ) {
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
-    if (logp->fail()) v3fatal("Can't write file: " << filename);
+    ਅਚਲ std::unique_ptr<std::ofstream> logp{V3File::new_ofstream(filename)};
+    ਜੇ (logp->fail()) v3fatal("Can't write file: " << filename);
 
-    std::unordered_map<int, int> dist;
+    std::unordered_map<ਪੂਰਨ, ਪੂਰਨ> dist;
 
     V3Hash lasthash;
-    int num_in_bucket = 0;
-    for (auto it = cbegin(); true; ++it) {
-        if (it == cend() || lasthash != it->first) {
-            if (it != cend()) lasthash = it->first;
-            if (num_in_bucket) ++dist[num_in_bucket];
-            num_in_bucket = 0;
+    ਪੂਰਨ ਅੰਕ_ਵਿੱਚ_ਬਾਲਟੀ = 0;
+    ਲਈ (ਸਵੈਚਾਲਿਤ it = cbegin(); ਸੱਚ; ++it) {
+        ਜੇ (it == cend() || lasthash != it->ਪਹਿਲਾ) {
+            ਜੇ (it != cend()) lasthash = it->ਪਹਿਲਾ;
+            ਜੇ (ਅੰਕ_ਵਿੱਚ_ਬਾਲਟੀ) ++dist[ਅੰਕ_ਵਿੱਚ_ਬਾਲਟੀ];
+            ਅੰਕ_ਵਿੱਚ_ਬਾਲਟੀ = 0;
         }
-        if (it == cend()) break;
-        num_in_bucket++;
+        ਜੇ (it == cend()) ਰੋਕੋ;
+        ਅੰਕ_ਵਿੱਚ_ਬਾਲਟੀ++;
     }
     *logp << "\n*** STATS:\n\n";
     *logp << "    #InBucket   Occurrences\n";
-    for (const auto& i : dist) {
-        *logp << "    " << std::setw(9) << i.first << "  " << std::setw(12) << i.second << '\n';
+    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& i : dist) {
+        *logp << "    " << std::setw(9) << i.ਪਹਿਲਾ << "  " << std::setw(12) << i.ਦੂਜਾ << '\n';
     }
 
     *logp << "\n*** Dump:\n\n";
-    for (const auto& it : *this) {
-        if (lasthash != it.first) {
-            lasthash = it.first;
-            *logp << "    " << it.first << '\n';
+    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& it : *ਇਹ) {
+        ਜੇ (lasthash != it.ਪਹਿਲਾ) {
+            lasthash = it.ਪਹਿਲਾ;
+            *logp << "    " << it.ਪਹਿਲਾ << '\n';
         }
-        *logp << "\t" << it.second << '\n';
+        *logp << "\t" << it.ਦੂਜਾ << '\n';
         // Dumping the entire tree may make nearly N^2 sized dumps,
         // because the nodes under this one may also be in the hash table!
-        if (tree) it.second->dumpTree(*logp, "    ");
+        ਜੇ (ਰੁੱਖ) it.ਦੂਜਾ->dump_ਰੁੱਖ(*logp, "    ");
     }
 }
 
-void V3DupFinder::dumpFilePrefixed(const string& nameComment, bool tree) {
-    if (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", tree);
+ਖਾਲੀ V3DupFinder::dumpFilePrefixed(ਅਚਲ string& nameComment, ਤਾਰਕਿਕ ਰੁੱਖ) {
+    ਜੇ (dumpLevel()) dumpFile(v3Global.debugFilename(nameComment) + ".hash", ਰੁੱਖ);
 }

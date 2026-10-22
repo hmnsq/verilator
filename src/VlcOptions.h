@@ -14,35 +14,35 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCOPTIONS_H_
-#define VERILATOR_VLCOPTIONS_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_VLCOPTIONS_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_VLCOPTIONS_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "VlcPoint.h"
-#include "config_rev.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "VlcPoint.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_rev.h"
 
-#include <map>
-#include <set>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 //######################################################################
 // V3Options - Command line options
 
-using VlStringSet = std::set<std::string>;
+using Vl_String_ਸੈੱਟ = std::ਸੈੱਟ<std::string>;
 
 class VlcOptions final {
     // MEMBERS (general options)
     // clang-format off
-    string m_annotateOut;       // main switch: --annotate I<output_directory>
+    string m_annotate_ਬਾਹਰਲਾ;       // main switch: --annotate I<output_directory>
     bool m_annotateAll = false;  // main switch: --annotate-all
-    int m_annotateMin = 10;     // main switch: --annotate-min I<count>
+    ਪੂਰਨ m_annotateMin = 10;     // main switch: --annotate-min I<count>
     bool m_annotatePoints = false;  // main switch: --annotate-points
     bool m_includeResetArcs = false;  // main switch: --include-reset-arcs
     string m_filterType = "*";  // main switch: --filter-type
-    VlStringSet m_readFiles;    // main switch: --read
-    int m_reportLevels = -1;    // main switch: --levels, negative means all depths
+    Vl_String_ਸੈੱਟ m_readFiles;    // main switch: --read
+    ਪੂਰਨ m_report_ਪੱਧਰ = -1;    // main switch: --levels, negative means all depths
     string m_report;            // main switch: --report
     bool m_reportSummary = false;  // main switch: --report summary
     bool m_reportHierarchy = false;  // main switch: --report hier or hierarchy
@@ -52,44 +52,44 @@ class VlcOptions final {
     string m_writeInfoFile;     // main switch: --write-info
     // clang-format on
 
-private:
+ਨਿਜੀ:
     // METHODS
-    void parseReportOption() VL_MT_DISABLED;
-    static void showVersion(bool verbose) VL_MT_DISABLED;
+    ਖਾਲੀ parseReportOption() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ show_ਸੰਸਕਰਣ(bool verbose) VL_MT_DISABLED;
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    VlcOptions() = default;
-    ~VlcOptions() = default;
+    VlcOptions() = ਮੂਲ;
+    ~VlcOptions() = ਮੂਲ;
 
     // METHODS
-    void parseOptsList(int argc, char** argv) VL_MT_DISABLED;
-    void addReadFile(const string& filename) VL_MT_DISABLED;
+    ਖਾਲੀ parseOptsList(ਪੂਰਨ argc, ਅੱਖਰ** argv) VL_MT_DISABLED;
+    ਖਾਲੀ ਜੋੜੋ_Read_File(ਅਚਲ string& filename) VL_MT_DISABLED;
 
     // ACCESSORS (options)
-    const VlStringSet& readFiles() const { return m_readFiles; }
-    string annotateOut() const { return m_annotateOut; }
-    bool annotateAll() const { return m_annotateAll; }
-    int annotateMin() const { return m_annotateMin; }
-    bool countOk(uint64_t count) const { return count >= static_cast<uint64_t>(m_annotateMin); }
-    bool annotatePoints() const { return m_annotatePoints; }
-    bool includeResetArcs() const { return m_includeResetArcs; }
-    int reportLevels() const { return m_reportLevels; }
-    bool reportSpecified() const { return !m_report.empty(); }
-    bool reportSummary() const { return m_reportSummary; }
-    bool reportHierarchy() const { return m_reportHierarchy; }
-    bool rank() const { return m_rank; }
-    bool unlink() const { return m_unlink; }
-    string writeFile() const { return m_writeFile; }
-    string writeInfoFile() const { return m_writeInfoFile; }
-    bool isTypeMatch(const char* name) const {
-        return VString::wildmatch(VlcPoint::typeExtract(name), m_filterType);
+    ਅਚਲ Vl_String_ਸੈੱਟ& readFiles() ਅਚਲ { ਵਾਪਸ m_readFiles; }
+    string annotate_ਬਾਹਰਲਾ() ਅਚਲ { ਵਾਪਸ m_annotate_ਬਾਹਰਲਾ; }
+    bool annotateAll() ਅਚਲ { ਵਾਪਸ m_annotateAll; }
+    ਪੂਰਨ annotateMin() ਅਚਲ { ਵਾਪਸ m_annotateMin; }
+    bool ਗਿਣਤੀ_Ok(uint64_t ਗਿਣਤੀ_2) ਅਚਲ { ਵਾਪਸ ਗਿਣਤੀ_2 >= static_cast<uint64_t>(m_annotateMin); }
+    bool annotatePoints() ਅਚਲ { ਵਾਪਸ m_annotatePoints; }
+    bool includeResetArcs() ਅਚਲ { ਵਾਪਸ m_includeResetArcs; }
+    ਪੂਰਨ report_ਪੱਧਰ() ਅਚਲ { ਵਾਪਸ m_report_ਪੱਧਰ; }
+    bool reportSpecified() ਅਚਲ { ਵਾਪਸ !m_report.ਖਾਲੀ_ਥਾਵਾਂ(); }
+    bool reportSummary() ਅਚਲ { ਵਾਪਸ m_reportSummary; }
+    bool reportHierarchy() ਅਚਲ { ਵਾਪਸ m_reportHierarchy; }
+    bool rank() ਅਚਲ { ਵਾਪਸ m_rank; }
+    bool unlink() ਅਚਲ { ਵਾਪਸ m_unlink; }
+    string writeFile() ਅਚਲ { ਵਾਪਸ m_writeFile; }
+    string writeInfoFile() ਅਚਲ { ਵਾਪਸ m_writeInfoFile; }
+    bool is_Type_ਮੇਲ(ਅਚਲ ਅੱਖਰ* name) ਅਚਲ {
+        ਵਾਪਸ VString::wildmatch(Vlc_ਬਿੰਦੂ::type_ਕੱਢੋ(name), m_filterType);
     }
 
     // METHODS (from main)
-    static string version() VL_MT_DISABLED;
+    ਸਥਿਰ string ਸੰਸਕਰਣ() VL_MT_DISABLED;
 };
 
 //######################################################################
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard

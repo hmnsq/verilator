@@ -15,12 +15,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3InstrCount.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3InstrCount.h"
 
-#include <iomanip>
-#include <unordered_map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,64 +30,64 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// we'll count instructions from either the 'if' or the 'else' branch,
 /// whichever is larger. We know we won't run both.
 
-class InstrCountVisitor final : public VNVisitorConst {
+ਵਰਗ Instr_ਗਿਣਤੀ_Visitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()        -> bool. Processed if assertNoDups
     //  AstNode::user2()        -> uint64_t.  Path cost + 1, 0 means don't dump
-    const VNUser2InUse m_inuser2;
+    ਅਚਲ VNUser2_ਵਿੱਚ_Use m_inuser2;
 
     // MEMBERS
-    uint32_t m_instrCount = 0;  // Running count of instructions
-    const AstNode* const m_startNodep;  // Start node of count
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    bool m_inCFunc = false;  // Inside AstCFunc
-    bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    const bool m_assertNoDups;  // Check for duplicates
-    const std::ostream* const m_osp;  // Dump file
-    std::unordered_map<const AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
+    uint32_t m_instr_ਗਿਣਤੀ = 0;  // Running count of instructions
+    ਅਚਲ Ast_ਗੰਢ* ਅਚਲ m_ਸ਼ੁਰੂ_Nodep;  // Start node of count
+    ਤਾਰਕਿਕ m_tracingCall = ਝੂਠ;  // Iterating into a CCall to a CFunc
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_CFunc = ਝੂਠ;  // Inside AstCFunc
+    ਤਾਰਕਿਕ m_ignore_ਬਚਿਆ = ਝੂਠ;  // Ignore remaining statements in the block
+    ਅਚਲ ਤਾਰਕਿਕ m_assertNoDups;  // Check for duplicates
+    ਅਚਲ std::ostream* ਅਚਲ m_osp;  // Dump file
+    std::unordered_map<ਅਚਲ AstCFunc*, uint32_t> m_funcCosts;  // Cost of each function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    ਵਰਗ ਦੇਖੋ_ਅਧਾਰ final {
         // MEMBERS
-        uint32_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node helper is visiting
-        InstrCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint32_t m_saved_ਗਿਣਤੀ;  // Count before visit applied
+        Ast_ਗੰਢ* ਅਚਲ m_nodep;  // Node helper is visiting
+        Instr_ਗਿਣਤੀ_Visitor* ਅਚਲ m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    ਜਨਤਕ:
         // CONSTRUCTORS
-        VisitBase(InstrCountVisitor* visitor, AstNode* nodep)
+        ਦੇਖੋ_ਅਧਾਰ(Instr_ਗਿਣਤੀ_Visitor* visitor, Ast_ਗੰਢ* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_ਗਿਣਤੀ = m_visitor->ਸ਼ੁਰੂ_ਦੇਖੋ_ਅਧਾਰ(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~ਦੇਖੋ_ਅਧਾਰ() { m_visitor->ਸਿਰਾ_ਦੇਖੋ_ਅਧਾਰ(m_saved_ਗਿਣਤੀ, m_nodep); }
 
-    private:
-        VL_UNCOPYABLE(VisitBase);
+    ਨਿਜੀ:
+        VL_UNCOPYABLE(ਦੇਖੋ_ਅਧਾਰ);
     };
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    InstrCountVisitor(AstNode* nodep, bool assertNoDups, std::ostream* osp)
-        : m_startNodep{nodep}
+    Instr_ਗਿਣਤੀ_Visitor(Ast_ਗੰਢ* nodep, ਤਾਰਕਿਕ assertNoDups, std::ostream* osp)
+        : m_ਸ਼ੁਰੂ_Nodep{nodep}
         , m_assertNoDups{assertNoDups}
         , m_osp{osp} {
         iterateConstNull(nodep);
     }
-    ~InstrCountVisitor() override = default;
+    ~Instr_ਗਿਣਤੀ_Visitor() override = ਮੂਲ;
 
     // METHODS
-    uint32_t instrCount() const { return m_instrCount; }
+    uint32_t instr_ਗਿਣਤੀ() ਅਚਲ { ਵਾਪਸ m_instr_ਗਿਣਤੀ; }
 
-private:
-    void reset() {
-        m_instrCount = 0;
-        m_ignoreRemaining = false;
+ਨਿਜੀ:
+    ਖਾਲੀ reset() {
+        m_instr_ਗਿਣਤੀ = 0;
+        m_ignore_ਬਚਿਆ = ਝੂਠ;
     }
-    uint32_t startVisitBase(AstNode* nodep) {
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
-        if (m_assertNoDups && !m_inCFunc) {
+    uint32_t ਸ਼ੁਰੂ_ਦੇਖੋ_ਅਧਾਰ(Ast_ਗੰਢ* nodep) {
+        UASSERT_OBJ(!m_ignore_ਬਚਿਆ, nodep, "Should not reach here if ignoring");
+        ਜੇ (m_assertNoDups && !m_ਵਿੱਚ_CFunc) {
             // Ensure we don't count the same node twice
             //
             // We only enable this assert for the initial LogicMTask counts
@@ -101,29 +101,29 @@ private:
             // collisions in CFuncs.
             UASSERT_OBJ(!nodep->user1p(), nodep,
                         "Node originally inserted below logic vertex "
-                            << static_cast<AstNode*>(nodep->user1p()));
-            nodep->user1p(const_cast<void*>(reinterpret_cast<const void*>(m_startNodep)));
+                            << static_cast<Ast_ਗੰਢ*>(nodep->user1p()));
+            nodep->user1p(const_cast<ਖਾਲੀ*>(reinterpret_cast<ਅਚਲ ਖਾਲੀ*>(m_ਸ਼ੁਰੂ_Nodep)));
         }
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint32_t savedCount = m_instrCount;
-        m_instrCount = nodep->instrCount();
-        return savedCount;
+        ਅਚਲ uint32_t saved_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
+        m_instr_ਗਿਣਤੀ = nodep->instr_ਗਿਣਤੀ();
+        ਵਾਪਸ saved_ਗਿਣਤੀ;
     }
-    void endVisitBase(uint32_t savedCount, AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_instrCount << "  " << nodep);
-        markCost(nodep);
-        if (!m_ignoreRemaining) m_instrCount += savedCount;
+    ਖਾਲੀ ਸਿਰਾ_ਦੇਖੋ_ਅਧਾਰ(uint32_t saved_ਗਿਣਤੀ, Ast_ਗੰਢ* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::ਖੱਬੇ << m_instr_ਗਿਣਤੀ << "  " << nodep);
+        mark_ਲਾਗਤ(nodep);
+        ਜੇ (!m_ignore_ਬਚਿਆ) m_instr_ਗਿਣਤੀ += saved_ਗਿਣਤੀ;
     }
-    void markCost(AstNode* nodep) {
-        if (m_osp) nodep->user2(m_instrCount + 1);  // Else don't mark to avoid writeback
+    ਖਾਲੀ mark_ਲਾਗਤ(Ast_ਗੰਢ* nodep) {
+        ਜੇ (m_osp) nodep->user2(m_instr_ਗਿਣਤੀ + 1);  // Else don't mark to avoid writeback
     }
 
     // VISITORS
-    void visit(AstNodeSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Sel* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         // This covers both AstArraySel and AstWordSel
         //
         // If some vector is a bazillion dwords long, and we're selecting 1
@@ -131,20 +131,20 @@ private:
         //
         // Hence, exclude the child of the AstWordSel from the computation,
         // whose cost scales with the size of the entire (maybe large) vector.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->bitp());
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->bitp());
     }
-    void visit(AstSel* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(AstSel* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         // Similar to AstNodeSel above, a small select into a large vector
         // is not expensive. Count the cost of the AstSel itself (scales with
         // its width) and the cost of the lsbp() and widthp() nodes, but not
         // the fromp() node which could be disproportionately large.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->lsbp());
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->lsbp());
     }
-    void visit(AstConcat* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(AstConcat* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         // Ignore the cost of the concat node itself. The problem with
         // counting concat is that when we have many things concatted
         // together, it's not a single operation, but this:
@@ -161,83 +161,83 @@ private:
         // in the width of the destination (which we count) and the sum of
         // the cost of the operands.
         iterateChildrenConst(nodep);
-        markCost(nodep);
+        mark_ਲਾਗਤ(nodep);
     }
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_If* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->condp());
+        ਅਚਲ uint32_t saved_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
 
         UINFO(8, "thensp:");
         reset();
-        iterateAndNextConstNull(nodep->thensp());
-        uint32_t ifCount = m_instrCount;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->thensp());
+        uint32_t if_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
+        ਜੇ (nodep->branchPred().unlikely()) if_ਗਿਣਤੀ = 0;
 
         UINFO(8, "elsesp:");
         reset();
-        iterateAndNextConstNull(nodep->elsesp());
-        uint32_t elseCount = m_instrCount;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->elsesp());
+        uint32_t else_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
+        ਜੇ (nodep->branchPred().likely()) else_ਗਿਣਤੀ = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        ਜੇ (if_ਗਿਣਤੀ >= else_ਗਿਣਤੀ) {
+            m_instr_ਗਿਣਤੀ = saved_ਗਿਣਤੀ + if_ਗਿਣਤੀ;
+            ਜੇ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } ਨਹੀਂਤਾਂ {
+            m_instr_ਗਿਣਤੀ = saved_ਗਿਣਤੀ + else_ਗਿਣਤੀ;
+            ਜੇ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(AstCond* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint32_t savedCount = m_instrCount;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->condp());
+        ਅਚਲ uint32_t saved_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
 
         UINFO(8, "?");
         reset();
-        iterateAndNextConstNull(nodep->thenp());
-        const uint32_t ifCount = m_instrCount;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->thenp());
+        ਅਚਲ uint32_t if_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
 
         UINFO(8, ":");
         reset();
-        iterateAndNextConstNull(nodep->elsep());
-        const uint32_t elseCount = m_instrCount;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->elsep());
+        ਅਚਲ uint32_t else_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_instrCount = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_instrCount = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        ਜੇ (if_ਗਿਣਤੀ >= else_ਗਿਣਤੀ) {
+            m_instr_ਗਿਣਤੀ = saved_ਗਿਣਤੀ + if_ਗਿਣਤੀ;
+            ਜੇ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } ਨਹੀਂਤਾਂ {
+            m_instr_ਗਿਣਤੀ = saved_ਗਿਣਤੀ + else_ਗਿਣਤੀ;
+            ਜੇ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCAwait* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(AstCAwait* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         iterateChildrenConst(nodep);
         // Anything past a co_await is irrelevant
-        m_ignoreRemaining = true;
+        m_ignore_ਬਚਿਆ = ਸੱਚ;
     }
-    void visit(AstFork* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->stmtsp());
-        uint32_t totalCount = m_instrCount;
+    ਖਾਲੀ ਦੇਖੋ(AstFork* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->stmtsp());
+        uint32_t ਕੁੱਲ_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
         // Sum counts in each statement until the first await
-        for (AstNode* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
+        ਲਈ (Ast_ਗੰਢ* stmtp = nodep->forksp(); stmtp; stmtp = stmtp->nextp()) {
             reset();
             iterateConst(stmtp);
-            totalCount += m_instrCount;
+            ਕੁੱਲ_ਗਿਣਤੀ += m_instr_ਗਿਣਤੀ;
         }
-        m_instrCount = totalCount;
-        m_ignoreRemaining = false;
+        m_instr_ਗਿਣਤੀ = ਕੁੱਲ_ਗਿਣਤੀ;
+        m_ignore_ਬਚਿਆ = ਝੂਠ;
     }
-    void visit(AstActive* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸਰਗਰਮ* nodep) override {
         // You'd think that the OrderLogicVertex's would be disjoint trees
         // of stuff in the AST, but it isn't so: V3Order makes an
         // OrderLogicVertex for each ACTIVE, and then also makes an
@@ -250,99 +250,99 @@ private:
         // search; there should be no actives beneath the root, as there
         // are no actives-under-actives.  In any case, check that we're at
         // root:
-        markCost(nodep);
-        UASSERT_OBJ(nodep == m_startNodep, nodep, "Multiple actives, or not start node");
+        mark_ਲਾਗਤ(nodep);
+        UASSERT_OBJ(nodep == m_ਸ਼ੁਰੂ_Nodep, nodep, "Multiple actives, or not start node");
     }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_CCall* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
         iterateChildrenConst(nodep);
-        const auto it = m_funcCosts.find(nodep->funcp());
-        if (it == m_funcCosts.end()) {
-            m_tracingCall = true;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_funcCosts.ਲੱਭੋ(nodep->funcp());
+        ਜੇ (it == m_funcCosts.ਸਿਰਾ()) {
+            m_tracingCall = ਸੱਚ;
             iterateConst(nodep->funcp());
             UASSERT_OBJ(!m_tracingCall, nodep,
                         "visit(AstCFunc) should have cleared m_tracingCall.");
-        } else {
-            m_instrCount += it->second;  // This guards and adds zero cost on recursive calls
+        } ਨਹੀਂਤਾਂ {
+            m_instr_ਗਿਣਤੀ += it->ਦੂਜਾ;  // This guards and adds zero cost on recursive calls
         }
     }
-    void visit(AstCFunc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
-        UASSERT_OBJ(m_tracingCall || nodep == m_startNodep, nodep,
+        UASSERT_OBJ(m_tracingCall || nodep == m_ਸ਼ੁਰੂ_Nodep, nodep,
                     "AstCFunc not under AstCCall, or not start node");
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not be ignoring at the start of a CFunc");
-        const auto emplacePair = m_funcCosts.emplace(nodep, 0);
-        UASSERT_OBJ(emplacePair.second, nodep, "Should visit every CFunc at most once");
-        uint32_t& funcCostr = emplacePair.first->second;
-        m_tracingCall = false;
+        UASSERT_OBJ(!m_ignore_ਬਚਿਆ, nodep, "Should not be ignoring at the start of a CFunc");
+        ਅਚਲ ਸਵੈਚਾਲਿਤ emplacePair = m_funcCosts.emplace(nodep, 0);
+        UASSERT_OBJ(emplacePair.ਦੂਜਾ, nodep, "Should visit every CFunc at most once");
+        uint32_t& funcCostr = emplacePair.ਪਹਿਲਾ->ਦੂਜਾ;
+        m_tracingCall = ਝੂਠ;
 
-        const uint32_t savedCount = m_instrCount;
+        ਅਚਲ uint32_t saved_ਗਿਣਤੀ = m_instr_ਗਿਣਤੀ;
         reset();
         {
-            VL_RESTORER(m_inCFunc);
-            m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            VL_RESTORER(m_ਵਿੱਚ_CFunc);
+            m_ਵਿੱਚ_CFunc = ਸੱਚ;
+            ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
             iterateChildrenConst(nodep);
         }
-        funcCostr = m_instrCount;
-        m_instrCount += savedCount;
+        funcCostr = m_instr_ਗਿਣਤੀ;
+        m_instr_ਗਿਣਤੀ += saved_ਗਿਣਤੀ;
 
-        m_ignoreRemaining = false;
+        m_ignore_ਬਚਿਆ = ਝੂਠ;
     }
-    void visit(AstNodeCons* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Cons* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
         // A constant value is not built at run time, so its parts cost nothing
-        if (!nodep->isConstantTree()) iterateChildrenConst(nodep);
+        ਜੇ (!nodep->is_Constant_ਰੁੱਖ()) iterateChildrenConst(nodep);
     }
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(InstrCountVisitor);
+    VL_UNCOPYABLE(Instr_ਗਿਣਤੀ_Visitor);
 };
 
 // Iterate the graph printing the critical path marked by previous visitation
-class InstrCountDumpVisitor final : public VNVisitorConst {
+ਵਰਗ Instr_ਗਿਣਤੀ_Dump_Visitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> int.  Path cost, 0 means don't dump
 
     // MEMBERS
-    std::ostream* const m_osp;  // Dump file
-    unsigned m_depth = 0;  // Current tree depth for printing indent
+    std::ostream* ਅਚਲ m_osp;  // Dump file
+    ਬਿਨਾਨਿਸ਼ਾਨੀ m_ਡੂੰਘਾਈ = 0;  // Current tree depth for printing indent
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    InstrCountDumpVisitor(AstNode* nodep, std::ostream* osp)
+    Instr_ਗਿਣਤੀ_Dump_Visitor(Ast_ਗੰਢ* nodep, std::ostream* osp)
         : m_osp{osp} {
         // No check for nullptr output, so...
         UASSERT_OBJ(osp, nodep, "Don't call if not dumping");
-        if (nodep) iterateConst(nodep);
+        ਜੇ (nodep) iterateConst(nodep);
     }
-    ~InstrCountDumpVisitor() override = default;
+    ~Instr_ਗਿਣਤੀ_Dump_Visitor() override = ਮੂਲ;
 
-private:
+ਨਿਜੀ:
     // METHODS
-    string indent() const { return string(m_depth, ':') + " "; }
-    void visit(AstNode* nodep) override {
-        ++m_depth;
-        if (const unsigned costPlus1 = nodep->user2()) {
-            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::left << (costPlus1 - 1)
+    string indent() ਅਚਲ { ਵਾਪਸ string(m_ਡੂੰਘਾਈ, ':') + " "; }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ++m_ਡੂੰਘਾਈ;
+        ਜੇ (ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ ਲਾਗਤ_Plus1 = nodep->user2()) {
+            *m_osp << "  " << indent() << "cost " << std::setw(6) << std::ਖੱਬੇ << (ਲਾਗਤ_Plus1 - 1)
                    << "  " << nodep << '\n';
             iterateChildrenConst(nodep);
         }
-        --m_depth;
+        --m_ਡੂੰਘਾਈ;
     }
 
-    VL_UNCOPYABLE(InstrCountDumpVisitor);
+    VL_UNCOPYABLE(Instr_ਗਿਣਤੀ_Dump_Visitor);
 };
 
-uint32_t V3InstrCount::count(AstNode* nodep, bool assertNoDups, std::ostream* osp) {
-    const InstrCountVisitor visitor{nodep, assertNoDups, osp};
-    if (osp) const InstrCountDumpVisitor dumper{nodep, osp};
-    return visitor.instrCount();
+uint32_t V3_Instr_ਗਿਣਤੀ::ਗਿਣਤੀ_2(Ast_ਗੰਢ* nodep, ਤਾਰਕਿਕ assertNoDups, std::ostream* osp) {
+    ਅਚਲ Instr_ਗਿਣਤੀ_Visitor visitor{nodep, assertNoDups, osp};
+    ਜੇ (osp) ਅਚਲ Instr_ਗਿਣਤੀ_Dump_Visitor dumper{nodep, osp};
+    ਵਾਪਸ visitor.instr_ਗਿਣਤੀ();
 }

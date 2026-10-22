@@ -19,7 +19,7 @@
 //**********************************************************************
 //**** Version and host name
 
-#include "config_package.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_package.h"
 
 //**********************************************************************
 //**** Functions
@@ -35,36 +35,36 @@
 // to set them at Verilator runtime.
 
 // clang-format off
-#ifndef DEFENV_SYSTEMC
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_SYSTEMC
 # define DEFENV_SYSTEMC ""
-#endif
-#ifndef DEFENV_SYSTEMC_ARCH
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_SYSTEMC_ARCH
 # define DEFENV_SYSTEMC_ARCH ""
-#endif
-#ifndef DEFENV_SYSTEMC_INCLUDE
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_SYSTEMC_INCLUDE
 # define DEFENV_SYSTEMC_INCLUDE ""
-#endif
-#ifndef DEFENV_SYSTEMC_LIBDIR
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_SYSTEMC_LIBDIR
 # define DEFENV_SYSTEMC_LIBDIR ""
-#endif
-#ifndef DEFENV_VERILATOR_ROOT
-# define DEFENV_VERILATOR_ROOT ""
-#endif
-#ifndef DEFENV_VERILATOR_SOLVER
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_VERILATOR_ਜੜ੍ਹ
+# define DEFENV_VERILATOR_ਜੜ੍ਹ ""
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ DEFENV_VERILATOR_SOLVER
 # define DEFENV_VERILATOR_SOLVER ""
-#endif
+#ਜੇ_ਅੰਤ
 // clang-format on
 
 //**********************************************************************
 //**** Compile options
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstdio>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstdlib>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstring>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iostream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
 
-#include <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
 
 // Avoid needing std:: prefixes on some very common items
 using string = std::string;
@@ -75,4 +75,4 @@ using namespace std::literals;  // "<std::string literal>"s; see SF.7 core guide
 //**********************************************************************
 //**** OS and compiler specifics
 
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"

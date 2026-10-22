@@ -14,19 +14,19 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PREPROC_H_
-#define VERILATOR_V3PREPROC_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3PREPROC_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3PREPROC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3FileLine.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
 
-#include <iostream>
-#include <list>
-#include <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iostream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <list>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
 
 class VInFilter;
 class VSpellCheck;
@@ -35,67 +35,67 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+ਸੁਰੱਖਿਅਤ:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-public:
+ਜਨਤਕ:
     // CONSTANTS
-    enum MiscConsts : int {
+    ਗਿਣਤੀ MiscConsts : ਪੂਰਨ {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
-        INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
+        INCLUDE_ਡੂੰਘਾਈ_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
         // Set more than DEFINE_RECURSION_LEVEL_MAX or INCLUDE_DEPTH_MAX.
-        STREAM_DEPTH_LEVEL_MAX = 2000,
+        ਧਾਰਾ_ਡੂੰਘਾਈ_LEVEL_MAX = 2000,
         NEWLINES_VS_TICKLINE = 20  // Use `line in place of this many newlines
     };
 
     // ACCESSORS
     // Insert given file into this point in input stream
-    virtual void openFile(FileLine* fileline, VInFilter* filterp, const string& filename) = 0;
-    virtual string getline() = 0;  // Return next line/lines. (Null if done.)
-    virtual bool isEof() const = 0;  // Return true on EOF.
-    virtual void insertUnreadback(const string& text) = 0;
+    ਆਭਾਸੀ ਖਾਲੀ openFile(File_ਸਤਰ* fileline, VInFilter* filterp, ਅਚਲ string& filename) = 0;
+    ਆਭਾਸੀ string getline() = 0;  // Return next line/lines. (Null if done.)
+    ਆਭਾਸੀ bool isEof() ਅਚਲ = 0;  // Return true on EOF.
+    ਆਭਾਸੀ ਖਾਲੀ ਪਾਓ_Unreadback(ਅਚਲ string& ਪਾਠ) = 0;
 
-    FileLine* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
+    File_ਸਤਰ* fileline() VL_MT_DISABLED;  ///< File/Line number for last getline call
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
-    static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+    ਸਥਿਰ ਪੂਰਨ keepComments() { ਵਾਪਸ 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    ਸਥਿਰ bool keepWhitespace() { ਵਾਪਸ false; }
+    ਸਥਿਰ bool ਸਤਰ_Directives() {  // Insert `line directives
+        ਵਾਪਸ !(v3Global.opt.preprocOnly() && v3Global.opt.preproc_No_ਸਤਰ());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    ਸਥਿਰ bool pedantic() { ਵਾਪਸ false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
-    virtual void comment(const string& cmt) = 0;  // Comment detected (if keepComments==2)
-    virtual void include(const string& filename) = 0;  // Request a include file be processed
+    ਆਭਾਸੀ ਖਾਲੀ comment(ਅਚਲ string& cmt) = 0;  // Comment detected (if keepComments==2)
+    ਆਭਾਸੀ ਖਾਲੀ include(ਅਚਲ string& filename) = 0;  // Request a include file be processed
 
-    virtual void undef(const string& name) = 0;  // Remove a definition
-    virtual void define(FileLine* fileline, const string& name, const string& value,
-                        const string& params = "",
+    ਆਭਾਸੀ ਖਾਲੀ undef(ਅਚਲ string& name) = 0;  // Remove a definition
+    ਆਭਾਸੀ ਖਾਲੀ define(File_ਸਤਰ* fileline, ਅਚਲ string& name, ਅਚਲ string& ਮੁੱਲ,
+                        ਅਚਲ string& params = "",
                         bool cmdline = false)
         = 0;  // `define without any parameters
-    virtual void defineCmdLine(FileLine* fileline, const string& name,
-                               const string& value) {  // `define without any parameters
-        define(fileline, name, value, "", true);
+    ਆਭਾਸੀ ਖਾਲੀ define_Cmd_ਸਤਰ(File_ਸਤਰ* fileline, ਅਚਲ string& name,
+                               ਅਚਲ string& ਮੁੱਲ) {  // `define without any parameters
+        define(fileline, name, ਮੁੱਲ, "", true);
     }
-    virtual string removeDefines(const string& text) = 0;  // Remove defines in a text string
+    ਆਭਾਸੀ string remove_ਨਿਰਧਾਰਤ_ਕਰਦਾ(ਅਚਲ string& ਪਾਠ) = 0;  // Remove defines in a text string
 
     // UTILITIES
-    virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
-    virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
+    ਆਭਾਸੀ ਖਾਲੀ dump_ਨਿਰਧਾਰਤ_ਕਰਦਾ(std::ostream& os) = 0;  ///< Print list of `defines
+    ਆਭਾਸੀ ਖਾਲੀ candidate_ਨਿਰਧਾਰਤ_ਕਰਦਾ(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+ਸੁਰੱਖਿਅਤ:
     // CONSTRUCTORS
     V3PreProc() {}
-    void configure(FileLine* fl);
+    ਖਾਲੀ configure(File_ਸਤਰ* fl);
 
-public:
-    static V3PreProc* createPreProc(FileLine* fl) VL_MT_DISABLED;
-    virtual ~V3PreProc() = default;  // LCOV_EXCL_LINE  // Persistent
-    static void selfTest() VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ V3PreProc* createPreProc(File_ਸਤਰ* fl) VL_MT_DISABLED;
+    ਆਭਾਸੀ ~V3PreProc() = ਮੂਲ;  // LCOV_EXCL_LINE  // Persistent
+    ਸਥਿਰ ਖਾਲੀ selfTest() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

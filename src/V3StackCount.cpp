@@ -14,9 +14,9 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3StackCount.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3StackCount.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -24,171 +24,171 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 /// given AST node. This is very rough, only for warning when stack is too
 /// small.
 
-class StackCountVisitor final : public VNVisitorConst {
+ਵਰਗ ਢੇਰ_ਗਿਣਤੀ_Visitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     //  AstNode::user2()        -> uint64_t.  Path cost + 1,
-    const VNUser2InUse m_inuser2;
+    ਅਚਲ VNUser2_ਵਿੱਚ_Use m_inuser2;
 
     // MEMBERS
-    uint64_t m_stackSize = 0;  // Running count of local bytes in the current function
+    uint64_t m_ਢੇਰ_ਮਾਪ = 0;  // Running count of local bytes in the current function
     uint64_t m_callMax = 0;  // Largest callee cost called from the current function
-    bool m_tracingCall = false;  // Iterating into a CCall to a CFunc
-    bool m_ignoreRemaining = false;  // Ignore remaining statements in the block
-    bool m_inCFunc = false;  // Inside function
+    ਤਾਰਕਿਕ m_tracingCall = ਝੂਠ;  // Iterating into a CCall to a CFunc
+    ਤਾਰਕਿਕ m_ignore_ਬਚਿਆ = ਝੂਠ;  // Ignore remaining statements in the block
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_CFunc = ਝੂਠ;  // Inside function
 
     // TYPES
     // Little class to cleanly call startVisitBase/endVisitBase
-    class VisitBase final {
+    ਵਰਗ ਦੇਖੋ_ਅਧਾਰ final {
         // MEMBERS
-        uint64_t m_savedCount;  // Count before visit applied
-        AstNode* const m_nodep;  // Node this RAII helper is visiting
-        StackCountVisitor* const m_visitor;  // Visitor whose start/endVisitBase are called
+        uint64_t m_saved_ਗਿਣਤੀ;  // Count before visit applied
+        Ast_ਗੰਢ* ਅਚਲ m_nodep;  // Node this RAII helper is visiting
+        ਢੇਰ_ਗਿਣਤੀ_Visitor* ਅਚਲ m_visitor;  // Visitor whose start/endVisitBase are called
 
-    public:
+    ਜਨਤਕ:
         // CONSTRUCTORS
-        VisitBase(StackCountVisitor* visitor, AstNode* nodep)
+        ਦੇਖੋ_ਅਧਾਰ(ਢੇਰ_ਗਿਣਤੀ_Visitor* visitor, Ast_ਗੰਢ* nodep)
             : m_nodep{nodep}
             , m_visitor{visitor} {
-            m_savedCount = m_visitor->startVisitBase(nodep);
+            m_saved_ਗਿਣਤੀ = m_visitor->ਸ਼ੁਰੂ_ਦੇਖੋ_ਅਧਾਰ(nodep);
         }
-        ~VisitBase() { m_visitor->endVisitBase(m_savedCount, m_nodep); }
+        ~ਦੇਖੋ_ਅਧਾਰ() { m_visitor->ਸਿਰਾ_ਦੇਖੋ_ਅਧਾਰ(m_saved_ਗਿਣਤੀ, m_nodep); }
 
-    private:
-        VL_UNCOPYABLE(VisitBase);
+    ਨਿਜੀ:
+        VL_UNCOPYABLE(ਦੇਖੋ_ਅਧਾਰ);
     };
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit StackCountVisitor(AstNode* nodep) { iterateConstNull(nodep); }
-    ~StackCountVisitor() override = default;
+    ਸਪਸ਼ਟ ਢੇਰ_ਗਿਣਤੀ_Visitor(Ast_ਗੰਢ* nodep) { iterateConstNull(nodep); }
+    ~ਢੇਰ_ਗਿਣਤੀ_Visitor() override = ਮੂਲ;
 
     // METHODS
-    uint64_t stackSize() const { return m_stackSize + m_callMax; }
+    uint64_t ਢੇਰ_ਮਾਪ() ਅਚਲ { ਵਾਪਸ m_ਢੇਰ_ਮਾਪ + m_callMax; }
 
-private:
-    void reset() {
-        m_stackSize = 0;
-        m_ignoreRemaining = false;
+ਨਿਜੀ:
+    ਖਾਲੀ reset() {
+        m_ਢੇਰ_ਮਾਪ = 0;
+        m_ignore_ਬਚਿਆ = ਝੂਠ;
     }
-    uint64_t startVisitBase(AstNode* nodep) {
-        UASSERT_OBJ(!m_ignoreRemaining, nodep, "Should not reach here if ignoring");
+    uint64_t ਸ਼ੁਰੂ_ਦੇਖੋ_ਅਧਾਰ(Ast_ਗੰਢ* nodep) {
+        UASSERT_OBJ(!m_ignore_ਬਚਿਆ, nodep, "Should not reach here if ignoring");
 
         // Save the count, and add it back in during ~VisitBase This allows
         // debug prints to show local cost of each subtree, so we can see a
         // hierarchical view of the cost when in debug mode.
-        const uint64_t savedCount = m_stackSize;
-        m_stackSize = 0;
-        return savedCount;
+        ਅਚਲ uint64_t saved_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
+        m_ਢੇਰ_ਮਾਪ = 0;
+        ਵਾਪਸ saved_ਗਿਣਤੀ;
     }
-    void endVisitBase(uint64_t savedCount, const AstNode* nodep) {
-        UINFO(8, "cost " << std::setw(6) << std::left << m_stackSize << "  " << nodep);
-        if (!m_ignoreRemaining) m_stackSize += savedCount;
+    ਖਾਲੀ ਸਿਰਾ_ਦੇਖੋ_ਅਧਾਰ(uint64_t saved_ਗਿਣਤੀ, ਅਚਲ Ast_ਗੰਢ* nodep) {
+        UINFO(8, "cost " << std::setw(6) << std::ਖੱਬੇ << m_ਢੇਰ_ਮਾਪ << "  " << nodep);
+        ਜੇ (!m_ignore_ਬਚਿਆ) m_ਢੇਰ_ਮਾਪ += saved_ਗਿਣਤੀ;
     }
 
     // VISITORS
-    void visit(AstNodeIf* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_If* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->condp());
+        ਅਚਲ uint64_t saved_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
 
         UINFO(8, "thensp:");
         reset();
-        iterateAndNextConstNull(nodep->thensp());
-        uint64_t ifCount = m_stackSize;
-        if (nodep->branchPred().unlikely()) ifCount = 0;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->thensp());
+        uint64_t if_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
+        ਜੇ (nodep->branchPred().unlikely()) if_ਗਿਣਤੀ = 0;
 
         UINFO(8, "elsesp:");
         reset();
-        iterateAndNextConstNull(nodep->elsesp());
-        uint64_t elseCount = m_stackSize;
-        if (nodep->branchPred().likely()) elseCount = 0;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->elsesp());
+        uint64_t else_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
+        ਜੇ (nodep->branchPred().likely()) else_ਗਿਣਤੀ = 0;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
-            if (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
-        } else {
-            m_stackSize = savedCount + elseCount;
-            if (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
+        ਜੇ (if_ਗਿਣਤੀ >= else_ਗਿਣਤੀ) {
+            m_ਢੇਰ_ਮਾਪ = saved_ਗਿਣਤੀ + if_ਗਿਣਤੀ;
+            ਜੇ (nodep->elsesp()) nodep->elsesp()->user2(0);  // Don't dump it
+        } ਨਹੀਂਤਾਂ {
+            m_ਢੇਰ_ਮਾਪ = saved_ਗਿਣਤੀ + else_ਗਿਣਤੀ;
+            ਜੇ (nodep->thensp()) nodep->thensp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstCond* nodep) override {
-        if (m_ignoreRemaining) return;
+    ਖਾਲੀ ਦੇਖੋ(AstCond* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
         // Just like if/else above, the ternary operator only evaluates
         // one of the two expressions, so only count the max.
-        const VisitBase vb{this, nodep};
-        iterateAndNextConstNull(nodep->condp());
-        const uint64_t savedCount = m_stackSize;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->condp());
+        ਅਚਲ uint64_t saved_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
 
         UINFO(8, "?");
         reset();
-        iterateAndNextConstNull(nodep->thenp());
-        const uint64_t ifCount = m_stackSize;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->thenp());
+        ਅਚਲ uint64_t if_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
 
         UINFO(8, ":");
         reset();
-        iterateAndNextConstNull(nodep->elsep());
-        const uint64_t elseCount = m_stackSize;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->elsep());
+        ਅਚਲ uint64_t else_ਗਿਣਤੀ = m_ਢੇਰ_ਮਾਪ;
 
         reset();
-        if (ifCount >= elseCount) {
-            m_stackSize = savedCount + ifCount;
-            if (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
-        } else {
-            m_stackSize = savedCount + elseCount;
-            if (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
+        ਜੇ (if_ਗਿਣਤੀ >= else_ਗਿਣਤੀ) {
+            m_ਢੇਰ_ਮਾਪ = saved_ਗਿਣਤੀ + if_ਗਿਣਤੀ;
+            ਜੇ (nodep->elsep()) nodep->elsep()->user2(0);  // Don't dump it
+        } ਨਹੀਂਤਾਂ {
+            m_ਢੇਰ_ਮਾਪ = saved_ਗਿਣਤੀ + else_ਗਿਣਤੀ;
+            ਜੇ (nodep->thenp()) nodep->thenp()->user2(0);  // Don't dump it
         }
     }
-    void visit(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
-    void visit(AstNodeCCall* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ਖਾਲੀ ਦੇਖੋ(AstFork* nodep) override { nodep->v3fatalSrc("Fork removed earlier"); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_CCall* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
         iterateChildrenConst(nodep);
-        m_tracingCall = true;
+        m_tracingCall = ਸੱਚ;
         iterateConst(nodep->funcp());
         UASSERT_OBJ(!m_tracingCall, nodep, "visit(AstCFunc) should have cleared m_tracingCall.");
     }
-    void visit(AstCFunc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
         // Don't count a CFunc other than by tracing a call or counting it
         // from the root
-        if (!m_tracingCall && !nodep->entryPoint()) return;
-        m_tracingCall = false;
-        if (nodep->recursive()) return;
-        if (!nodep->user2()) {  // Short circuit
-            VL_RESTORER(m_ignoreRemaining);
-            VL_RESTORER(m_stackSize);
+        ਜੇ (!m_tracingCall && !nodep->ਇੰਦਰਾਜ_ਬਿੰਦੂ()) ਵਾਪਸ;
+        m_tracingCall = ਝੂਠ;
+        ਜੇ (nodep->recursive()) ਵਾਪਸ;
+        ਜੇ (!nodep->user2()) {  // Short circuit
+            VL_RESTORER(m_ignore_ਬਚਿਆ);
+            VL_RESTORER(m_ਢੇਰ_ਮਾਪ);
             VL_RESTORER(m_callMax);
-            VL_RESTORER(m_inCFunc);
-            m_tracingCall = false;
-            m_stackSize = 0;
+            VL_RESTORER(m_ਵਿੱਚ_CFunc);
+            m_tracingCall = ਝੂਠ;
+            m_ਢੇਰ_ਮਾਪ = 0;
             m_callMax = 0;
-            m_inCFunc = true;
-            const VisitBase vb{this, nodep};
+            m_ਵਿੱਚ_CFunc = ਸੱਚ;
+            ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
             iterateChildrenConst(nodep);
-            nodep->user2(m_stackSize + m_callMax + 1);
+            nodep->user2(m_ਢੇਰ_ਮਾਪ + m_callMax + 1);
         }
         // Sequential calls reuse the same stack, so only the deepest counts
         m_callMax = std::max(m_callMax, nodep->user2() - 1);
-        m_tracingCall = false;
+        m_tracingCall = ਝੂਠ;
     }
-    void visit(AstVar* nodep) override {
-        if (!m_inCFunc) return;
-        m_stackSize += nodep->isRef() ? sizeof(void*) : nodep->dtypep()->widthTotalBytes();
+    ਖਾਲੀ ਦੇਖੋ(AstVar* nodep) override {
+        ਜੇ (!m_ਵਿੱਚ_CFunc) ਵਾਪਸ;
+        m_ਢੇਰ_ਮਾਪ += nodep->isRef() ? ਆਕਾਰ(ਖਾਲੀ*) : nodep->dtypep()->ਚੌੜਾਈ_ਕੁੱਲ_ਬਾਈਟਾਂ();
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeExpr* nodep) override {}  // Short-circuit
-    void visit(AstNode* nodep) override {
-        if (m_ignoreRemaining) return;
-        const VisitBase vb{this, nodep};
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) override {}  // Short-circuit
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ਜੇ (m_ignore_ਬਚਿਆ) ਵਾਪਸ;
+        ਅਚਲ ਦੇਖੋ_ਅਧਾਰ vb{ਇਹ, nodep};
         iterateChildrenConst(nodep);
     }
 
-    VL_UNCOPYABLE(StackCountVisitor);
+    VL_UNCOPYABLE(ਢੇਰ_ਗਿਣਤੀ_Visitor);
 };
 
-uint64_t V3StackCount::count(AstNode* nodep) {
-    const StackCountVisitor visitor{nodep};
-    return visitor.stackSize();
+uint64_t V3_ਢੇਰ_ਗਿਣਤੀ::ਗਿਣਤੀ_2(Ast_ਗੰਢ* nodep) {
+    ਅਚਲ ਢੇਰ_ਗਿਣਤੀ_Visitor visitor{nodep};
+    ਵਾਪਸ visitor.ਢੇਰ_ਮਾਪ();
 }

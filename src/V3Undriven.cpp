@@ -23,414 +23,414 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Undriven.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Undriven.h"
 
-#include "V3Stats.h"
-#include "V3UndrivenCapture.h"
-#include "V3Width.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3UndrivenCapture.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Width.h"
 
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Class for every variable we may process
 
-class UndrivenVarEntry final {
+ਵਰਗ Undriven_Var_ਇੰਦਰਾਜ final {
     // MEMBERS
-    AstVar* const m_varp;  // Variable this tracks
-    std::vector<bool> m_wholeFlags;  // Used/Driven on whole vector
-    std::vector<bool> m_bitFlags;  // Used/Driven on each subbit
-    const AstNode* m_usedNotDrivenp = nullptr;  // First read before any write
-    const AstAlways* m_alwCombp
-        = nullptr;  // always_comb of var if driven within always_comb, else nullptr
-    const AstAlways* m_alwFFp = nullptr;  // always_ff of var if driven within always_ff
-    const AstAlways* m_alwPlainp = nullptr;  // plain always of var if driven within plain always
-    const AstClocking* m_clockingp = nullptr;  // clocking block of var if driven as output
-    const AstNodeVarRef* m_nodep = nullptr;  // varref if driven, else nullptr
-    const AstNode* m_initStaticp = nullptr;  // varref if in InitialStatic driven
-    const AstNode* m_initialp = nullptr;  // varref if driven in an explicit initial block
-    const AstNode* m_contAssignp = nullptr;  // varref if in continuous assignment driven
-    const AstNode* m_procWritep = nullptr;  // varref if written in process
-    bool m_underGen = false;  // Under a generate
-    bool m_ftaskDriven = false;  // Last driven by function or task
+    AstVar* ਅਚਲ m_varp;  // Variable this tracks
+    std::ਸਦਿਸ਼<ਤਾਰਕਿਕ> m_ਸਾਰਾ_Flags;  // Used/Driven on whole vector
+    std::ਸਦਿਸ਼<ਤਾਰਕਿਕ> m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags;  // Used/Driven on each subbit
+    ਅਚਲ Ast_ਗੰਢ* m_ਵਰਤਿਆ_Not_Drivenp = ਖਾਲੀ_ਸੂਚਕ;  // First read before any write
+    ਅਚਲ AstAlways* m_alwCombp
+        = ਖਾਲੀ_ਸੂਚਕ;  // always_comb of var if driven within always_comb, else nullptr
+    ਅਚਲ AstAlways* m_alwFFp = ਖਾਲੀ_ਸੂਚਕ;  // always_ff of var if driven within always_ff
+    ਅਚਲ AstAlways* m_alwPlainp = ਖਾਲੀ_ਸੂਚਕ;  // plain always of var if driven within plain always
+    ਅਚਲ AstClocking* m_clockingp = ਖਾਲੀ_ਸੂਚਕ;  // clocking block of var if driven as output
+    ਅਚਲ Ast_ਗੰਢ_Var_Ref* m_nodep = ਖਾਲੀ_ਸੂਚਕ;  // varref if driven, else nullptr
+    ਅਚਲ Ast_ਗੰਢ* m_initStaticp = ਖਾਲੀ_ਸੂਚਕ;  // varref if in InitialStatic driven
+    ਅਚਲ Ast_ਗੰਢ* m_initialp = ਖਾਲੀ_ਸੂਚਕ;  // varref if driven in an explicit initial block
+    ਅਚਲ Ast_ਗੰਢ* m_contAssignp = ਖਾਲੀ_ਸੂਚਕ;  // varref if in continuous assignment driven
+    ਅਚਲ Ast_ਗੰਢ* m_procWritep = ਖਾਲੀ_ਸੂਚਕ;  // varref if written in process
+    ਤਾਰਕਿਕ m_underGen = ਝੂਠ;  // Under a generate
+    ਤਾਰਕਿਕ m_ftaskDriven = ਝੂਠ;  // Last driven by function or task
 
-    const AstNodeFTaskRef* m_callNodep = nullptr;  // Call node if driven via writeSummary
+    ਅਚਲ Ast_ਗੰਢ_FTask_Ref* m_callNodep = ਖਾਲੀ_ਸੂਚਕ;  // Call node if driven via writeSummary
 
-    enum : uint8_t {
-        FLAG_USED = 0,  // Signal or bit has been read/observed
+    ਗਿਣਤੀ : uint8_t {
+        FLAG_ਵਰਤਿਆ = 0,  // Signal or bit has been read/observed
         FLAG_DRIVEN = 1,  // Signal or bit has been written/driven
         FLAG_DRIVEN_ALWCOMB = 2,  // Whole signal has been driven from always_comb
         FLAG_DRIVEN_ALWFF = 3,  // Whole signal has been driven from always_ff
         FLAG_DRIVEN_ALWPLAIN = 4,  // Whole signal has been driven from a plain always
         FLAG_DRIVEN_CLOCKING = 5,  // Whole signal has been driven as a clocking block output
-        FLAGS_PER_BIT = 6  // Number of flags stored for each tracked bit
+        FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ = 6  // Number of flags stored for each tracked bit
     };
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit UndrivenVarEntry(AstVar* varp)
+    ਸਪਸ਼ਟ Undriven_Var_ਇੰਦਰਾਜ(AstVar* varp)
         : m_varp{varp} {  // Construction for when a var is used
         UINFO(9, "create " << varp);
-        m_wholeFlags.resize(FLAGS_PER_BIT);
-        for (int i = 0; i < FLAGS_PER_BIT; i++) m_wholeFlags[i] = false;
-        m_bitFlags.resize(varp->width() * FLAGS_PER_BIT);
-        for (int i = 0; i < varp->width() * FLAGS_PER_BIT; i++) m_bitFlags[i] = false;
+        m_ਸਾਰਾ_Flags.resize(FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ);
+        ਲਈ (ਪੂਰਨ i = 0; i < FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ; i++) m_ਸਾਰਾ_Flags[i] = ਝੂਠ;
+        m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.resize(varp->ਚੌੜਾਈ() * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ);
+        ਲਈ (ਪੂਰਨ i = 0; i < varp->ਚੌੜਾਈ() * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ; i++) m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[i] = ਝੂਠ;
     }
-    ~UndrivenVarEntry() = default;
+    ~Undriven_Var_ਇੰਦਰਾਜ() = ਮੂਲ;
 
-private:
+ਨਿਜੀ:
     // METHODS
-    bool bitNumOk(int bit) const {
-        return bit >= 0 && (bit * FLAGS_PER_BIT < static_cast<int>(m_bitFlags.size()));
+    ਤਾਰਕਿਕ ਦੋਆਧਾਰੀ_ਅੰਕ_ਅੰਕ_Ok(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2) ਅਚਲ {
+        ਵਾਪਸ ਦੋਆਧਾਰੀ_ਅੰਕ_2 >= 0 && (ਦੋਆਧਾਰੀ_ਅੰਕ_2 * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ < static_cast<ਪੂਰਨ>(m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.ਮਾਪ()));
     }
-    bool usedFlag(int bit) const {
-        return m_wholeFlags[FLAG_USED] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_USED];
+    ਤਾਰਕਿਕ ਵਰਤਿਆ_Flag(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2) ਅਚਲ {
+        ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_ਵਰਤਿਆ] || m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[ਦੋਆਧਾਰੀ_ਅੰਕ_2 * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_ਵਰਤਿਆ];
     }
-    bool drivenFlag(int bit) const {
-        return m_wholeFlags[FLAG_DRIVEN] || m_bitFlags[bit * FLAGS_PER_BIT + FLAG_DRIVEN];
+    ਤਾਰਕਿਕ drivenFlag(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2) ਅਚਲ {
+        ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN] || m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[ਦੋਆਧਾਰੀ_ਅੰਕ_2 * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_DRIVEN];
     }
-    int bitCount() const { return m_bitFlags.size() / FLAGS_PER_BIT; }
-    void recordUsedNotDriven(const AstNode* nodep) {
-        if (!m_usedNotDrivenp) m_usedNotDrivenp = nodep;
+    ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_ਗਿਣਤੀ() ਅਚਲ { ਵਾਪਸ m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.ਮਾਪ() / FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ; }
+    ਖਾਲੀ ਰਿਕਾਰਡ_ਵਰਤਿਆ_Not_Driven(ਅਚਲ Ast_ਗੰਢ* nodep) {
+        ਜੇ (!m_ਵਰਤਿਆ_Not_Drivenp) m_ਵਰਤਿਆ_Not_Drivenp = nodep;
     }
-    enum BitNamesWhich : uint8_t { BN_UNUSED, BN_UNDRIVEN, BN_BOTH };
-    string bitNames(BitNamesWhich which) {
-        string bits;
-        bool prev = false;
-        int msb = 0;
+    ਗਿਣਤੀ ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ_Which : uint8_t { BN_ਅਣਵਰਤਿਆ, BN_UNDRIVEN, BN_BOTH };
+    string ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ(ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ_Which which) {
+        string ਬਿੱਟ;
+        ਤਾਰਕਿਕ prev = ਝੂਠ;
+        ਪੂਰਨ msb = 0;
         // bit==-1 loops below; we do one extra iteration so end with prev=false
-        for (int bit = (m_bitFlags.size() / FLAGS_PER_BIT) - 1; bit >= -1; --bit) {
-            if (bit >= 0
-                && ((which == BN_UNUSED && !usedFlag(bit) && drivenFlag(bit))
-                    || (which == BN_UNDRIVEN && usedFlag(bit) && !drivenFlag(bit))
-                    || (which == BN_BOTH && !usedFlag(bit) && !drivenFlag(bit)))) {
-                if (!prev) {
-                    prev = true;
-                    msb = bit;
+        ਲਈ (ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2 = (m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.ਮਾਪ() / FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ) - 1; ਦੋਆਧਾਰੀ_ਅੰਕ_2 >= -1; --ਦੋਆਧਾਰੀ_ਅੰਕ_2) {
+            ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ_2 >= 0
+                && ((which == BN_ਅਣਵਰਤਿਆ && !ਵਰਤਿਆ_Flag(ਦੋਆਧਾਰੀ_ਅੰਕ_2) && drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2))
+                    || (which == BN_UNDRIVEN && ਵਰਤਿਆ_Flag(ਦੋਆਧਾਰੀ_ਅੰਕ_2) && !drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2))
+                    || (which == BN_BOTH && !ਵਰਤਿਆ_Flag(ਦੋਆਧਾਰੀ_ਅੰਕ_2) && !drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2)))) {
+                ਜੇ (!prev) {
+                    prev = ਸੱਚ;
+                    msb = ਦੋਆਧਾਰੀ_ਅੰਕ_2;
                 }
-            } else if (prev) {
-                const AstBasicDType* const bdtypep = m_varp->basicp();
-                const int lsb = bit + 1;
-                if (bits != "") bits += ",";
-                if (lsb == msb) {
-                    bits += cvtToStr(lsb + bdtypep->lo());
-                } else {
-                    if (bdtypep->ascending()) {
-                        bits
-                            += cvtToStr(lsb + bdtypep->lo()) + ":" + cvtToStr(msb + bdtypep->lo());
-                    } else {
-                        bits
-                            += cvtToStr(msb + bdtypep->lo()) + ":" + cvtToStr(lsb + bdtypep->lo());
+            } ਨਹੀਂਤਾਂ ਜੇ (prev) {
+                ਅਚਲ AstBasicDType* ਅਚਲ bdtypep = m_varp->basicp();
+                ਅਚਲ ਪੂਰਨ lsb = ਦੋਆਧਾਰੀ_ਅੰਕ_2 + 1;
+                ਜੇ (ਬਿੱਟ != "") ਬਿੱਟ += ",";
+                ਜੇ (lsb == msb) {
+                    ਬਿੱਟ += cvt_ਮੰਜ਼ਿਲ_Str(lsb + bdtypep->lo());
+                } ਨਹੀਂਤਾਂ {
+                    ਜੇ (bdtypep->ascending()) {
+                        ਬਿੱਟ
+                            += cvt_ਮੰਜ਼ਿਲ_Str(lsb + bdtypep->lo()) + ":" + cvt_ਮੰਜ਼ਿਲ_Str(msb + bdtypep->lo());
+                    } ਨਹੀਂਤਾਂ {
+                        ਬਿੱਟ
+                            += cvt_ਮੰਜ਼ਿਲ_Str(msb + bdtypep->lo()) + ":" + cvt_ਮੰਜ਼ਿਲ_Str(lsb + bdtypep->lo());
                     }
                 }
-                prev = false;
+                prev = ਝੂਠ;
             }
         }
-        return "[" + bits + "]";
+        ਵਾਪਸ "[" + ਬਿੱਟ + "]";
     }
 
-public:
-    void usedWhole(const AstNode* nodep) {
+ਜਨਤਕ:
+    ਖਾਲੀ ਵਰਤਿਆ_ਸਾਰਾ(ਅਚਲ Ast_ਗੰਢ* nodep) {
         UINFO(9, "set u[*] " << m_varp->name() << " " << nodep);
-        if (!m_wholeFlags[FLAG_DRIVEN]) {
-            for (int bit = 0; bit < bitCount(); ++bit) {
-                if (!drivenFlag(bit)) {
-                    recordUsedNotDriven(nodep);
-                    break;
+        ਜੇ (!m_ਸਾਰਾ_Flags[FLAG_DRIVEN]) {
+            ਲਈ (ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2 = 0; ਦੋਆਧਾਰੀ_ਅੰਕ_2 < ਦੋਆਧਾਰੀ_ਅੰਕ_ਗਿਣਤੀ(); ++ਦੋਆਧਾਰੀ_ਅੰਕ_2) {
+                ਜੇ (!drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2)) {
+                    ਰਿਕਾਰਡ_ਵਰਤਿਆ_Not_Driven(nodep);
+                    ਰੋਕੋ;
                 }
             }
         }
-        m_wholeFlags[FLAG_USED] = true;
+        m_ਸਾਰਾ_Flags[FLAG_ਵਰਤਿਆ] = ਸੱਚ;
     }
-    void drivenWhole(const AstNode* nodep) {
+    ਖਾਲੀ driven_ਸਾਰਾ(ਅਚਲ Ast_ਗੰਢ* nodep) {
         UINFO(9, "set d[*] " << m_varp->name() << " " << nodep);
-        m_wholeFlags[FLAG_DRIVEN] = true;
+        m_ਸਾਰਾ_Flags[FLAG_DRIVEN] = ਸੱਚ;
     }
-    void drivenWhole(const AstNodeVarRef* nodep, bool ftaskDef) {
-        const bool wasDriven = isDrivenWhole();
-        drivenWhole(nodep);
+    ਖਾਲੀ driven_ਸਾਰਾ(ਅਚਲ Ast_ਗੰਢ_Var_Ref* nodep, ਤਾਰਕਿਕ ftaskDef) {
+        ਅਚਲ ਤਾਰਕਿਕ wasDriven = is_Driven_ਸਾਰਾ();
+        driven_ਸਾਰਾ(nodep);
         // A write in a task/function definition is not an executed process, so it must not
         // displace an already recorded write, nor clear the flag that keeps such a write
         // from being reported as the other write of a MULTIDRIVEN
-        if (ftaskDef && wasDriven) return;
+        ਜੇ (ftaskDef && wasDriven) ਵਾਪਸ;
         m_ftaskDriven = ftaskDef;
         m_nodep = nodep;
     }
-    void drivenAlwaysCombWhole(const AstAlways* alwCombp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWCOMB] = true;
+    ਖਾਲੀ driven_Always_Comb_ਸਾਰਾ(ਅਚਲ AstAlways* alwCombp) {
+        m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWCOMB] = ਸੱਚ;
         m_alwCombp = alwCombp;
     }
-    void drivenAlwaysFFWhole(const AstAlways* alwFFp, const AstVar* varp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWFF] = true;
+    ਖਾਲੀ drivenAlwaysFFWhole(ਅਚਲ AstAlways* alwFFp, ਅਚਲ AstVar* varp) {
+        m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWFF] = ਸੱਚ;
         m_alwFFp = alwFFp;
     }
-    void drivenAlwaysPlainWhole(const AstAlways* alwPlainp) {
-        m_wholeFlags[FLAG_DRIVEN_ALWPLAIN] = true;
+    ਖਾਲੀ driven_Always_Plain_ਸਾਰਾ(ਅਚਲ AstAlways* alwPlainp) {
+        m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWPLAIN] = ਸੱਚ;
         m_alwPlainp = alwPlainp;
     }
-    void drivenClockingWhole(const AstClocking* clockingp) {
-        m_wholeFlags[FLAG_DRIVEN_CLOCKING] = true;
+    ਖਾਲੀ driven_Clocking_ਸਾਰਾ(ਅਚਲ AstClocking* clockingp) {
+        m_ਸਾਰਾ_Flags[FLAG_DRIVEN_CLOCKING] = ਸੱਚ;
         m_clockingp = clockingp;
     }
 
-    const AstNode* initStaticp() const { return m_initStaticp; }
-    void initStaticp(const AstNode* nodep) { m_initStaticp = nodep; }
-    const AstNode* initialp() const { return m_initialp; }
-    void initialp(const AstNode* nodep) { m_initialp = nodep; }
-    const AstNode* contAssignp() const { return m_contAssignp; }
-    void contAssignp(const AstNode* nodep) { m_contAssignp = nodep; }
-    const AstNode* procWritep() const { return m_procWritep; }
-    void procWritep(const AstNode* nodep) { m_procWritep = nodep; }
-    void underGenerate() { m_underGen = true; }
-    bool isUnderGen() const { return m_underGen; }
-    bool isDrivenWhole() const { return m_wholeFlags[FLAG_DRIVEN]; }
-    bool isDrivenAlwaysCombWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWCOMB]; }
-    bool isDrivenAlwaysFFWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWFF]; }
-    bool isDrivenAlwaysPlainWhole() const { return m_wholeFlags[FLAG_DRIVEN_ALWPLAIN]; }
-    bool isDrivenClockingWhole() const { return m_wholeFlags[FLAG_DRIVEN_CLOCKING]; }
-    bool isFtaskDriven() const { return m_ftaskDriven; }
-    const AstNodeVarRef* getNodep() const { return m_nodep; }
-    const AstAlways* getAlwCombp() const { return m_alwCombp; }
-    const AstAlways* getAlwFFp() const { return m_alwFFp; }
-    const AstAlways* getAlwPlainp() const { return m_alwPlainp; }
-    const AstClocking* getClockingp() const { return m_clockingp; }
-    void usedBit(int bit, int width, const AstNode* nodep) {
-        UINFO(9, "set u[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) {
-                if (!drivenFlag(bit + i)) recordUsedNotDriven(nodep);
-                m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED] = true;
+    ਅਚਲ Ast_ਗੰਢ* initStaticp() ਅਚਲ { ਵਾਪਸ m_initStaticp; }
+    ਖਾਲੀ initStaticp(ਅਚਲ Ast_ਗੰਢ* nodep) { m_initStaticp = nodep; }
+    ਅਚਲ Ast_ਗੰਢ* initialp() ਅਚਲ { ਵਾਪਸ m_initialp; }
+    ਖਾਲੀ initialp(ਅਚਲ Ast_ਗੰਢ* nodep) { m_initialp = nodep; }
+    ਅਚਲ Ast_ਗੰਢ* contAssignp() ਅਚਲ { ਵਾਪਸ m_contAssignp; }
+    ਖਾਲੀ contAssignp(ਅਚਲ Ast_ਗੰਢ* nodep) { m_contAssignp = nodep; }
+    ਅਚਲ Ast_ਗੰਢ* procWritep() ਅਚਲ { ਵਾਪਸ m_procWritep; }
+    ਖਾਲੀ procWritep(ਅਚਲ Ast_ਗੰਢ* nodep) { m_procWritep = nodep; }
+    ਖਾਲੀ underGenerate() { m_underGen = ਸੱਚ; }
+    ਤਾਰਕਿਕ isUnderGen() ਅਚਲ { ਵਾਪਸ m_underGen; }
+    ਤਾਰਕਿਕ is_Driven_ਸਾਰਾ() ਅਚਲ { ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN]; }
+    ਤਾਰਕਿਕ is_Driven_Always_Comb_ਸਾਰਾ() ਅਚਲ { ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWCOMB]; }
+    ਤਾਰਕਿਕ isDrivenAlwaysFFWhole() ਅਚਲ { ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWFF]; }
+    ਤਾਰਕਿਕ is_Driven_Always_Plain_ਸਾਰਾ() ਅਚਲ { ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN_ALWPLAIN]; }
+    ਤਾਰਕਿਕ is_Driven_Clocking_ਸਾਰਾ() ਅਚਲ { ਵਾਪਸ m_ਸਾਰਾ_Flags[FLAG_DRIVEN_CLOCKING]; }
+    ਤਾਰਕਿਕ isFtaskDriven() ਅਚਲ { ਵਾਪਸ m_ftaskDriven; }
+    ਅਚਲ Ast_ਗੰਢ_Var_Ref* getNodep() ਅਚਲ { ਵਾਪਸ m_nodep; }
+    ਅਚਲ AstAlways* getAlwCombp() ਅਚਲ { ਵਾਪਸ m_alwCombp; }
+    ਅਚਲ AstAlways* getAlwFFp() ਅਚਲ { ਵਾਪਸ m_alwFFp; }
+    ਅਚਲ AstAlways* getAlwPlainp() ਅਚਲ { ਵਾਪਸ m_alwPlainp; }
+    ਅਚਲ AstClocking* getClockingp() ਅਚਲ { ਵਾਪਸ m_clockingp; }
+    ਖਾਲੀ ਵਰਤਿਆ_ਦੋਆਧਾਰੀ_ਅੰਕ_2(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2, ਪੂਰਨ ਚੌੜਾਈ, ਅਚਲ Ast_ਗੰਢ* nodep) {
+        UINFO(9, "set u[" << (ਦੋਆਧਾਰੀ_ਅੰਕ_2 + ਚੌੜਾਈ - 1) << ":" << ਦੋਆਧਾਰੀ_ਅੰਕ_2 << "] " << m_varp->name());
+        ਲਈ (ਪੂਰਨ i = 0; i < ਚੌੜਾਈ; i++) {
+            ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ_ਅੰਕ_Ok(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i)) {
+                ਜੇ (!drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i)) ਰਿਕਾਰਡ_ਵਰਤਿਆ_Not_Driven(nodep);
+                m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i) * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_ਵਰਤਿਆ] = ਸੱਚ;
             }
         }
     }
-    void drivenBit(int bit, int width) {
-        UINFO(9, "set d[" << (bit + width - 1) << ":" << bit << "] " << m_varp->name());
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)) m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN] = true;
+    ਖਾਲੀ driven_ਦੋਆਧਾਰੀ_ਅੰਕ(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2, ਪੂਰਨ ਚੌੜਾਈ) {
+        UINFO(9, "set d[" << (ਦੋਆਧਾਰੀ_ਅੰਕ_2 + ਚੌੜਾਈ - 1) << ":" << ਦੋਆਧਾਰੀ_ਅੰਕ_2 << "] " << m_varp->name());
+        ਲਈ (ਪੂਰਨ i = 0; i < ਚੌੜਾਈ; i++) {
+            ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ_ਅੰਕ_Ok(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i)) m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i) * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_DRIVEN] = ਸੱਚ;
         }
     }
-    bool isUsedNotDrivenBit(int bit, int width) const {
-        for (int i = 0; i < width; i++) {
-            if (bitNumOk(bit + i)
-                && (m_wholeFlags[FLAG_USED] || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_USED])
-                && !(m_wholeFlags[FLAG_DRIVEN]
-                     || m_bitFlags[(bit + i) * FLAGS_PER_BIT + FLAG_DRIVEN]))
-                return true;
+    ਤਾਰਕਿਕ is_ਵਰਤਿਆ_Not_Driven_ਦੋਆਧਾਰੀ_ਅੰਕ(ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2, ਪੂਰਨ ਚੌੜਾਈ) ਅਚਲ {
+        ਲਈ (ਪੂਰਨ i = 0; i < ਚੌੜਾਈ; i++) {
+            ਜੇ (ਦੋਆਧਾਰੀ_ਅੰਕ_ਅੰਕ_Ok(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i)
+                && (m_ਸਾਰਾ_Flags[FLAG_ਵਰਤਿਆ] || m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i) * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_ਵਰਤਿਆ])
+                && !(m_ਸਾਰਾ_Flags[FLAG_DRIVEN]
+                     || m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags[(ਦੋਆਧਾਰੀ_ਅੰਕ_2 + i) * FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ + FLAG_DRIVEN]))
+                ਵਾਪਸ ਸੱਚ;
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
-    bool isUsedNotDrivenAny() const {
-        return isUsedNotDrivenBit(0, m_bitFlags.size() / FLAGS_PER_BIT);
+    ਤਾਰਕਿਕ is_ਵਰਤਿਆ_Not_Driven_Any() ਅਚਲ {
+        ਵਾਪਸ is_ਵਰਤਿਆ_Not_Driven_ਦੋਆਧਾਰੀ_ਅੰਕ(0, m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.ਮਾਪ() / FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ);
     }
-    const AstNode* firstUsedNotDrivenp() const { return m_usedNotDrivenp; }
-    static bool unusedMatch(AstVar* nodep) {
-        const string regexp = v3Global.opt.unusedRegexp();
-        if (regexp == "") return false;
-        const string prettyName = nodep->prettyName();
-        return VString::wildmatch(prettyName.c_str(), regexp.c_str());
+    ਅਚਲ Ast_ਗੰਢ* ਪਹਿਲਾ_ਵਰਤਿਆ_Not_Drivenp() ਅਚਲ { ਵਾਪਸ m_ਵਰਤਿਆ_Not_Drivenp; }
+    ਸਥਿਰ ਤਾਰਕਿਕ ਅਣਵਰਤਿਆ_ਮੇਲ(AstVar* nodep) {
+        ਅਚਲ string regexp = v3Global.opt.ਅਣਵਰਤਿਆ_Regexp();
+        ਜੇ (regexp == "") ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ string prettyName = nodep->prettyName();
+        ਵਾਪਸ VString::wildmatch(prettyName.c_str(), regexp.c_str());
     }
-    void reportViolations() {
+    ਖਾਲੀ reportViolations() {
         // Combine bits into overall state
-        AstVar* const nodep = m_varp;
+        AstVar* ਅਚਲ nodep = m_varp;
 
-        if (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
+        ਜੇ (initStaticp() && procWritep() && nodep->hasUserInit() && !nodep->isClassMember()
             && !nodep->isFuncLocal()) {
             initStaticp()->v3warn(
                 PROCASSINIT,
                 "Procedural assignment to declaration with initial value: "
                     << nodep->prettyNameQ() << '\n'
-                    << initStaticp()->warnMore() << "... Location of variable initialization\n"
+                    << initStaticp()->warn_ਹੋਰ() << "... Location of variable initialization\n"
                     << initStaticp()->warnContextPrimary() << '\n'
                     << procWritep()->warnOther() << "... Location of variable process write\n"
-                    << procWritep()->warnMore()
+                    << procWritep()->warn_ਹੋਰ()
                     << "... Perhaps should initialize instead using a reset in this process\n"
                     << procWritep()->warnContextSecondary());
         }
-        const AstNode* const initp = nodep->hasUserInit() ? initStaticp() : initialp();
-        if (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
+        ਅਚਲ Ast_ਗੰਢ* ਅਚਲ initp = nodep->hasUserInit() ? initStaticp() : initialp();
+        ਜੇ (initp && contAssignp() && !nodep->isClassMember() && !nodep->isFuncLocal()) {
             initp->v3warn(E_CONTASSINIT, "Continuous assignment to variable with initial value: "
                                              << nodep->prettyNameQ() << '\n'
-                                             << initp->warnMore()
+                                             << initp->warn_ਹੋਰ()
                                              << "... Location of variable initialization\n"
                                              << initp->warnContextPrimary() << '\n'
                                              << contAssignp()->warnOther()
                                              << "... Location of continuous assignment\n"
                                              << contAssignp()->warnContextSecondary());
         }
-        if (nodep->isGenVar()) {  // Genvar
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        ਜੇ (nodep->isGenVar()) {  // Genvar
+            ਜੇ (!nodep->isIfaceRef() && !nodep->is_ਵਰਤਿਆ_Param() && !ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
                 nodep->v3warn(UNUSEDGENVAR, "Genvar is not used: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDGENVAR,
-                                                 true);  // Warn only once
+                nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNUSEDGENVAR,
+                                                 ਸੱਚ);  // Warn only once
             }
-        } else if (nodep->isParam()) {  // Parameter
-            if (!nodep->isIfaceRef() && !nodep->isUsedParam() && !unusedMatch(nodep)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (nodep->isParam()) {  // Parameter
+            ਜੇ (!nodep->isIfaceRef() && !nodep->is_ਵਰਤਿਆ_Param() && !ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
                 nodep->v3warn(UNUSEDPARAM, "Parameter is not used: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDPARAM,
-                                                 true);  // Warn only once
+                nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNUSEDPARAM,
+                                                 ਸੱਚ);  // Warn only once
             }
-        } else {  // Signal
-            const string varType{nodep->isFuncLocal() ? "Function variable" : "Signal"};
-            const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
-            bool allU = true;
-            bool allD = true;
-            bool anyU = m_wholeFlags[FLAG_USED];
-            bool anyD = m_wholeFlags[FLAG_DRIVEN];
-            bool anyUnotD = false;
-            bool anyDnotU = false;
-            bool anynotDU = false;
-            for (unsigned bit = 0; bit < m_bitFlags.size() / FLAGS_PER_BIT; bit++) {
-                const bool used = usedFlag(bit);
-                const bool driv = drivenFlag(bit);
-                allU &= used;
-                anyU |= used;
+        } ਨਹੀਂਤਾਂ {  // Signal
+            ਅਚਲ string varType{nodep->isFuncLocal() ? "Function variable" : "Signal"};
+            ਅਚਲ ਤਾਰਕਿਕ funcInout = nodep->isFuncLocal() && nodep->isInout();
+            ਤਾਰਕਿਕ allU = ਸੱਚ;
+            ਤਾਰਕਿਕ allD = ਸੱਚ;
+            ਤਾਰਕਿਕ anyU = m_ਸਾਰਾ_Flags[FLAG_ਵਰਤਿਆ];
+            ਤਾਰਕਿਕ anyD = m_ਸਾਰਾ_Flags[FLAG_DRIVEN];
+            ਤਾਰਕਿਕ anyUnotD = ਝੂਠ;
+            ਤਾਰਕਿਕ anyDnotU = ਝੂਠ;
+            ਤਾਰਕਿਕ anynotDU = ਝੂਠ;
+            ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ ਦੋਆਧਾਰੀ_ਅੰਕ_2 = 0; ਦੋਆਧਾਰੀ_ਅੰਕ_2 < m_ਦੋਆਧਾਰੀ_ਅੰਕ_Flags.ਮਾਪ() / FLAGS_ਪ੍ਰਤੀ_ਦੋਆਧਾਰੀ_ਅੰਕ; ਦੋਆਧਾਰੀ_ਅੰਕ_2++) {
+                ਅਚਲ ਤਾਰਕਿਕ ਵਰਤਿਆ = ਵਰਤਿਆ_Flag(ਦੋਆਧਾਰੀ_ਅੰਕ_2);
+                ਅਚਲ ਤਾਰਕਿਕ driv = drivenFlag(ਦੋਆਧਾਰੀ_ਅੰਕ_2);
+                allU &= ਵਰਤਿਆ;
+                anyU |= ਵਰਤਿਆ;
                 allD &= driv;
                 anyD |= driv;
-                anyUnotD |= used && !driv;
-                anyDnotU |= !used && driv;
-                anynotDU |= !used && !driv;
+                anyUnotD |= ਵਰਤਿਆ && !driv;
+                anyDnotU |= !ਵਰਤਿਆ && driv;
+                anynotDU |= !ਵਰਤਿਆ && !driv;
             }
-            if (funcInout) {
-                if (anyD) allU = true;
-                allD = true;
+            ਜੇ (funcInout) {
+                ਜੇ (anyD) allU = ਸੱਚ;
+                allD = ਸੱਚ;
             }
-            if (allU) m_wholeFlags[FLAG_USED] = true;
-            if (allD) m_wholeFlags[FLAG_DRIVEN] = true;
+            ਜੇ (allU) m_ਸਾਰਾ_Flags[FLAG_ਵਰਤਿਆ] = ਸੱਚ;
+            ਜੇ (allD) m_ਸਾਰਾ_Flags[FLAG_DRIVEN] = ਸੱਚ;
             // Test results
-            if (nodep->isIfaceRef()) {
+            ਜੇ (nodep->isIfaceRef()) {
                 // For interface top level we don't do any tracking
                 // Ideally we'd report unused instance cells, but presumably a signal inside one
                 // would get reported as unused
-            } else if (allU && allD) {
+            } ਨਹੀਂਤਾਂ ਜੇ (allU && allD) {
                 // It's fine
-            } else if (!anyD && !anyU) {
+            } ਨਹੀਂਤਾਂ ਜੇ (!anyD && !anyU) {
                 // UNDRIVEN is considered more serious - as is more likely a bug,
                 // thus undriven+unused bits get UNUSED warnings, as they're not as buggy.
-                if (!unusedMatch(nodep)) {
+                ਜੇ (!ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not driven, nor used: " << nodep->prettyNameQ());
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
-                                                     true);  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNUSEDSIGNAL,
+                                                     ਸੱਚ);  // Warn only once
                 }
-            } else if (allD && !anyU) {
-                if (!unusedMatch(nodep)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (allD && !anyU) {
+                ਜੇ (!ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
                                   varType << " is not used: " << nodep->prettyNameQ());
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL,
-                                                     true);  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNUSEDSIGNAL,
+                                                     ਸੱਚ);  // Warn only once
                 }
-            } else if (!anyD && allU) {
+            } ਨਹੀਂਤਾਂ ਜੇ (!anyD && allU) {
                 nodep->v3warn(UNDRIVEN, varType << " is not driven: " << nodep->prettyNameQ());
-                nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);  // Warn only once
-            } else if (!funcInout) {
+                nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNDRIVEN, ਸੱਚ);  // Warn only once
+            } ਨਹੀਂਤਾਂ ਜੇ (!funcInout) {
                 // Bits have different dispositions
-                const std::string varTypeLower = [&varType]() {
+                ਅਚਲ std::string var_Type_ਹੇਠਲਾ = [&varType]() {
                     std::string str = varType;
-                    str[0] = std::tolower(static_cast<unsigned char>(str[0]));
-                    return str;
+                    str[0] = std::tolower(static_cast<ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੱਖਰ>(str[0]));
+                    ਵਾਪਸ str;
                 }();
-                bool setU = false;
-                bool setD = false;
-                if (anynotDU && !unusedMatch(nodep)) {
+                ਤਾਰਕਿਕ ਸੈੱਟ_U = ਝੂਠ;
+                ਤਾਰਕਿਕ ਸੈੱਟ_D = ਝੂਠ;
+                ਜੇ (anynotDU && !ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
                     nodep->v3warn(UNUSEDSIGNAL,
-                                  "Bits of " << varTypeLower << " are not driven, nor used: "
-                                             << nodep->prettyNameQ() << bitNames(BN_BOTH));
-                    setU = true;
+                                  "Bits of " << var_Type_ਹੇਠਲਾ << " are not driven, nor used: "
+                                             << nodep->prettyNameQ() << ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ(BN_BOTH));
+                    ਸੈੱਟ_U = ਸੱਚ;
                 }
-                if (anyDnotU && !unusedMatch(nodep)) {
-                    nodep->v3warn(UNUSEDSIGNAL, "Bits of " << varTypeLower << " are not used: "
+                ਜੇ (anyDnotU && !ਅਣਵਰਤਿਆ_ਮੇਲ(nodep)) {
+                    nodep->v3warn(UNUSEDSIGNAL, "Bits of " << var_Type_ਹੇਠਲਾ << " are not used: "
                                                            << nodep->prettyNameQ()
-                                                           << bitNames(BN_UNUSED));
-                    setU = true;
+                                                           << ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ(BN_ਅਣਵਰਤਿਆ));
+                    ਸੈੱਟ_U = ਸੱਚ;
                 }
-                if (anyUnotD) {
-                    nodep->v3warn(UNDRIVEN, "Bits of " << varTypeLower << " are not driven: "
+                ਜੇ (anyUnotD) {
+                    nodep->v3warn(UNDRIVEN, "Bits of " << var_Type_ਹੇਠਲਾ << " are not driven: "
                                                        << nodep->prettyNameQ()
-                                                       << bitNames(BN_UNDRIVEN));
-                    setD = true;
+                                                       << ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਾਂ(BN_UNDRIVEN));
+                    ਸੈੱਟ_D = ਸੱਚ;
                 }
-                if (setU) {  // Warn only once
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDSIGNAL, true);
+                ਜੇ (ਸੈੱਟ_U) {  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNUSEDSIGNAL, ਸੱਚ);
                 }
-                if (setD) {  // Warn only once
-                    nodep->fileline()->modifyWarnOff(V3ErrorCode::UNDRIVEN, true);
+                ਜੇ (ਸੈੱਟ_D) {  // Warn only once
+                    nodep->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNDRIVEN, ਸੱਚ);
                 }
             }
         }
     }
 
-    void drivenViaCall(const AstNodeFTaskRef* nodep) {
-        drivenWhole(nodep);
-        if (!m_callNodep) m_callNodep = nodep;
+    ਖਾਲੀ driven_ਰਾਹੀਂ_Call(ਅਚਲ Ast_ਗੰਢ_FTask_Ref* nodep) {
+        driven_ਸਾਰਾ(nodep);
+        ਜੇ (!m_callNodep) m_callNodep = nodep;
     }
-    const AstNodeFTaskRef* callNodep() const { return m_callNodep; }
+    ਅਚਲ Ast_ਗੰਢ_FTask_Ref* callNodep() ਅਚਲ { ਵਾਪਸ m_callNodep; }
 };
 
 //######################################################################
 // Undriven state, as a visitor of each AstNode
 
-class UndrivenVisitor final : public VNVisitorConst {
+ਵਰਗ UndrivenVisitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     // Netlist:
     //  AstVar::user1p          -> UndrivenVar* for usage var, 0=not set yet
-    const VNUser1InUse m_inuser1;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
     // Each always:
     //  AstNode::user2p         -> UndrivenVar* for usage var, 0=not set yet
-    const VNUser2InUse m_inuser2;
+    ਅਚਲ VNUser2_ਵਿੱਚ_Use m_inuser2;
 
     // STATE
-    std::array<std::vector<UndrivenVarEntry*>, 3> m_entryps = {};  // Nodes to delete when finished
-    bool m_inBBox = false;  // In black box; mark as driven+used
-    bool m_inContAssign = false;  // In continuous assignment
-    bool m_inInitial = false;  // In explicit initial block
-    bool m_inInitialSetup = false;  // In InitialAutomatic*/InitialStatic* assignment LHS
-    bool m_inInitialStatic = false;  // In InitialStatic
-    bool m_inProcAssign = false;  // In procedural assignment
-    bool m_inFTaskRef = false;  // In function or task call
-    bool m_inInoutOrRefPin = false;  // Connected to pin that is inout
-    bool m_inSelLhs = false;  // Iterating the fromp of an AstSel (a partial-bit write target)
-    const AstNodeFTask* m_taskp = nullptr;  // Current task
-    const AstAlways* m_alwaysp = nullptr;  // Current always of either type
-    const AstAlways* m_alwaysCombp = nullptr;  // Current always if combo, otherwise nullptr
-    const AstAlways* m_alwaysFFp = nullptr;  // Current always if ff, otherwise nullptr
-    const AstAlways* m_alwaysPlainp = nullptr;  // Current always if plain (not comb/ff/latch)
-    const AstClocking* m_clockingp = nullptr;  // Current clocking block, otherwise nullptr
+    std::array<std::ਸਦਿਸ਼<Undriven_Var_ਇੰਦਰਾਜ*>, 3> m_entryps = {};  // Nodes to delete when finished
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_BBox = ਝੂਠ;  // In black box; mark as driven+used
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Cont_ਸੌਂਪੋ = ਝੂਠ;  // In continuous assignment
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Initial = ਝੂਠ;  // In explicit initial block
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਝੂਠ;  // In InitialAutomatic*/InitialStatic* assignment LHS
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Initial_Static = ਝੂਠ;  // In InitialStatic
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Proc_ਸੌਂਪੋ = ਝੂਠ;  // In procedural assignment
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_FTask_Ref = ਝੂਠ;  // In function or task call
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Inout_Or_Ref_Pin = ਝੂਠ;  // Connected to pin that is inout
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Sel_Lhs = ਝੂਠ;  // Iterating the fromp of an AstSel (a partial-bit write target)
+    ਅਚਲ Ast_ਗੰਢ_FTask* m_taskp = ਖਾਲੀ_ਸੂਚਕ;  // Current task
+    ਅਚਲ AstAlways* m_alwaysp = ਖਾਲੀ_ਸੂਚਕ;  // Current always of either type
+    ਅਚਲ AstAlways* m_alwaysCombp = ਖਾਲੀ_ਸੂਚਕ;  // Current always if combo, otherwise nullptr
+    ਅਚਲ AstAlways* m_alwaysFFp = ਖਾਲੀ_ਸੂਚਕ;  // Current always if ff, otherwise nullptr
+    ਅਚਲ AstAlways* m_alwaysPlainp = ਖਾਲੀ_ਸੂਚਕ;  // Current always if plain (not comb/ff/latch)
+    ਅਚਲ AstClocking* m_clockingp = ਖਾਲੀ_ਸੂਚਕ;  // Current clocking block, otherwise nullptr
 
-    V3UndrivenCapture* const m_capturep = nullptr;  // Capture object.  'nullptr' if disabled.
+    V3UndrivenCapture* ਅਚਲ m_capturep = ਖਾਲੀ_ਸੂਚਕ;  // Capture object.  'nullptr' if disabled.
 
     // METHODS
 
-    UndrivenVarEntry* getEntryp(AstVar* nodep, int which_user) {
-        if (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
-            UndrivenVarEntry* const entryp = new UndrivenVarEntry{nodep};
+    Undriven_Var_ਇੰਦਰਾਜ* getEntryp(AstVar* nodep, ਪੂਰਨ which_user) {
+        ਜੇ (!(which_user == 1 ? nodep->user1p() : nodep->user2p())) {
+            Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = ਨਵਾਂ Undriven_Var_ਇੰਦਰਾਜ{nodep};
             // UINFO(9," Associate u="<<which_user<<" "<<cvtToHex(this)<<" "<<nodep->name()<<endl);
-            m_entryps[which_user].push_back(entryp);
-            if (which_user == 1) {
+            m_entryps[which_user].ਧੱਕੋ_ਪਿੱਠ(entryp);
+            ਜੇ (which_user == 1) {
                 nodep->user1p(entryp);
-            } else if (which_user == 2) {
+            } ਨਹੀਂਤਾਂ ਜੇ (which_user == 2) {
                 nodep->user2p(entryp);
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 nodep->v3fatalSrc("Bad case");
             }
-            return entryp;
-        } else {
-            UndrivenVarEntry* const entryp = reinterpret_cast<UndrivenVarEntry*>(
+            ਵਾਪਸ entryp;
+        } ਨਹੀਂਤਾਂ {
+            Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = reinterpret_cast<Undriven_Var_ਇੰਦਰਾਜ*>(
                 which_user == 1 ? nodep->user1p() : nodep->user2p());
-            return entryp;
+            ਵਾਪਸ entryp;
         }
     }
 
-    void warnAlwCombOrder(AstNodeVarRef* nodep, const AstNode* readp) {
-        AstVar* const varp = nodep->varp();
-        if (!varp->isParam() && !varp->isGenVar() && !varp->isUsedLoopIdx()
+    ਖਾਲੀ warn_Alw_Comb_ਕ੍ਰਮ(Ast_ਗੰਢ_Var_Ref* nodep, ਅਚਲ Ast_ਗੰਢ* readp) {
+        AstVar* ਅਚਲ varp = nodep->varp();
+        ਜੇ (!varp->isParam() && !varp->isGenVar() && !varp->is_ਵਰਤਿਆ_Loop_Idx()
             && !varp->ignoreSchedWrite()
-            && !m_inBBox  // We may have falsely considered a SysIgnore as a driver
+            && !m_ਵਿੱਚ_BBox  // We may have falsely considered a SysIgnore as a driver
             && !VN_IS(nodep, VarXRef)  // Xrefs might point at two different instances
             && !varp->fileline()->warnIsOff(
-                V3ErrorCode::ALWCOMBORDER)) {  // Warn only once per variable
+                V3_Error_ਕੋਡ::ALWCOMBORDER)) {  // Warn only once per variable
             nodep->v3warn(ALWCOMBORDER,
                           "always_comb reads "
                               << nodep->prettyNameQ()
@@ -441,28 +441,28 @@ class UndrivenVisitor final : public VNVisitorConst {
                                               + "... Location of earlier read\n"
                                               + readp->warnContextSecondary()
                                         : ""));
-            varp->fileline()->modifyWarnOff(V3ErrorCode::ALWCOMBORDER,
-                                            true);  // Complain just once for any usage
+            varp->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::ALWCOMBORDER,
+                                            ਸੱਚ);  // Complain just once for any usage
         }
     }
     // A clocking block 'output' is an additional driver of the signal it names.
     // The conflict is found from whichever driver is reached second.
-    bool clockingDrivesOther(const UndrivenVarEntry* entryp, bool otherWriteIsStaticInit) const {
-        const bool otherIsExplicitProc
-            = entryp->isDrivenAlwaysCombWhole() || entryp->isDrivenAlwaysFFWhole();
-        return m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
+    ਤਾਰਕਿਕ clockingDrivesOther(ਅਚਲ Undriven_Var_ਇੰਦਰਾਜ* entryp, ਤਾਰਕਿਕ otherWriteIsStaticInit) ਅਚਲ {
+        ਅਚਲ ਤਾਰਕਿਕ otherIsExplicitProc
+            = entryp->is_Driven_Always_Comb_ਸਾਰਾ() || entryp->isDrivenAlwaysFFWhole();
+        ਵਾਪਸ m_clockingp && !otherIsExplicitProc && !otherWriteIsStaticInit
                && m_clockingp != entryp->getClockingp();
     }
-    bool otherDrivesClocking(const UndrivenVarEntry* entryp) const {
-        return !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_inInitialStatic
-               && entryp->isDrivenClockingWhole();
+    ਤਾਰਕਿਕ otherDrivesClocking(ਅਚਲ Undriven_Var_ਇੰਦਰਾਜ* entryp) ਅਚਲ {
+        ਵਾਪਸ !m_clockingp && !m_alwaysCombp && !m_alwaysFFp && !m_ਵਿੱਚ_Initial_Static
+               && entryp->is_Driven_Clocking_ਸਾਰਾ();
     }
     // A continuous assignment contending with a clocking block 'output' is an
     // unambiguous driver conflict. Multiple clocking blocks may drive the same
     // signal, the last drive wins (IEEE 1800-2023 14.16.2).
-    void warnClockingDriven(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
-                            const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit)
+    ਖਾਲੀ warnClockingDriven(Ast_ਗੰਢ_Var_Ref* nodep, ਅਚਲ Undriven_Var_ਇੰਦਰਾਜ* entryp,
+                            ਅਚਲ Ast_ਗੰਢ* otherWritep, ਤਾਰਕਿਕ otherWriteIsStaticInit) {
+        ਜੇ (clockingDrivesOther(entryp, otherWriteIsStaticInit)
             && otherWritep == entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable written to in clocking block also driven by continuous "
@@ -474,7 +474,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << "... Location of continuous assignment\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && m_inContAssign) {
+        ਜੇ (otherDrivesClocking(entryp) && m_ਵਿੱਚ_Cont_ਸੌਂਪੋ) {
             nodep->v3warn(MULTIDRIVEN,
                           "Variable driven by continuous assignment also written to in "
                           "clocking block"
@@ -488,9 +488,9 @@ class UndrivenVisitor final : public VNVisitorConst {
     }
     // Driving a signal from both a clocking block and a plain process is a deliberate
     // idiom in some testbenches, as with the plain always conflicts above.
-    void warnClockingDrivenProc(AstNodeVarRef* nodep, const UndrivenVarEntry* entryp,
-                                const AstNode* otherWritep, bool otherWriteIsStaticInit) {
-        if (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
+    ਖਾਲੀ warnClockingDrivenProc(Ast_ਗੰਢ_Var_Ref* nodep, ਅਚਲ Undriven_Var_ਇੰਦਰਾਜ* entryp,
+                                ਅਚਲ Ast_ਗੰਢ* otherWritep, ਤਾਰਕਿਕ otherWriteIsStaticInit) {
+        ਜੇ (clockingDrivesOther(entryp, otherWriteIsStaticInit) && !entryp->getClockingp()
             && otherWritep != entryp->contAssignp()) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in clocking block also written by another "
@@ -501,7 +501,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                               << otherWritep->warnOther() << "... Location of other write\n"
                               << otherWritep->warnContextSecondary());
         }
-        if (otherDrivesClocking(entryp) && !m_inContAssign) {
+        ਜੇ (otherDrivesClocking(entryp) && !m_ਵਿੱਚ_Cont_ਸੌਂਪੋ) {
             nodep->v3warn(MULTIDRIVENPROC,
                           "Variable written to in process also written to in clocking block"
                               << " (IEEE 1800-2023 14.3): " << nodep->prettyNameQ() << '\n'
@@ -514,82 +514,82 @@ class UndrivenVisitor final : public VNVisitorConst {
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        const bool funcInout = nodep->isFuncLocal() && nodep->isInout();
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+    ਖਾਲੀ ਦੇਖੋ(AstVar* nodep) override {
+        ਅਚਲ ਤਾਰਕਿਕ funcInout = nodep->isFuncLocal() && nodep->isInout();
+        ਲਈ (ਪੂਰਨ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
             // For assigns and non-combo always, do just usr==1, to look
             // for module-wide undriven etc.
             // For combo always, run both usr==1 for above, and also
             // usr==2 for always-only checks.
-            UndrivenVarEntry* const entryp = getEntryp(nodep, usr);
-            if ((nodep->isNonOutput() && !funcInout) || nodep->isSigPublic()
+            Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = getEntryp(nodep, usr);
+            ਜੇ ((nodep->isNonOutput() && !funcInout) || nodep->is_Sig_ਜਨਤਕ()
                 || nodep->hasUserInit() || nodep->isSigUserRWPublic()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
-                entryp->drivenWhole(nodep);
+                entryp->driven_ਸਾਰਾ(nodep);
             }
-            if ((nodep->isWritable() && !funcInout) || nodep->isSigPublic()
-                || nodep->isSigUserRWPublic() || nodep->isSigUserRdPublic()
+            ਜੇ ((nodep->isWritable() && !funcInout) || nodep->is_Sig_ਜਨਤਕ()
+                || nodep->isSigUserRWPublic() || nodep->is_Sig_User_Rd_ਜਨਤਕ()
                 || (m_taskp && (m_taskp->dpiImport() || m_taskp->dpiExport()))) {
-                entryp->usedWhole(nodep);
+                entryp->ਵਰਤਿਆ_ਸਾਰਾ(nodep);
             }
-            if (nodep->valuep()) entryp->drivenWhole(nodep->valuep());
+            ਜੇ (nodep->valuep()) entryp->driven_ਸਾਰਾ(nodep->valuep());
         }
         // Discover variables used in bit definitions, etc
         iterateChildrenConst(nodep);
     }
-    void visit(AstArraySel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstArraySel* nodep) override {
         // Arrays are rarely constant assigned, so for now we punt and do all entries
         iterateChildrenConst(nodep);
     }
-    void visit(AstSliceSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਟੁਕੜਾ_Sel* nodep) override {
         // Arrays are rarely constant assigned, so for now we punt and do all entries
         iterateChildrenConst(nodep);
     }
-    void visit(AstSel* nodep) override {
-        AstNodeVarRef* const varrefp = VN_CAST(nodep->fromp(), NodeVarRef);
-        AstConst* const constp = VN_CAST(nodep->lsbp(), Const);
-        if (varrefp && constp && !constp->num().isFourState()) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-                UndrivenVarEntry* const entryp = getEntryp(varrefp->varp(), usr);
-                const int lsb = constp->toUInt();
-                if (m_inBBox || varrefp->access().isWriteOrRW()) {
+    ਖਾਲੀ ਦੇਖੋ(AstSel* nodep) override {
+        Ast_ਗੰਢ_Var_Ref* ਅਚਲ varrefp = VN_CAST(nodep->fromp(), ਗੰਢ_Var_Ref);
+        AstConst* ਅਚਲ constp = VN_CAST(nodep->lsbp(), Const);
+        ਜੇ (varrefp && constp && !constp->ਅੰਕ().isFourState()) {
+            ਲਈ (ਪੂਰਨ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+                Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = getEntryp(varrefp->varp(), usr);
+                ਅਚਲ ਪੂਰਨ lsb = constp->ਮੰਜ਼ਿਲ_UInt();
+                ਜੇ (m_ਵਿੱਚ_BBox || varrefp->access().isWriteOrRW()) {
                     // Don't warn if already driven earlier as "a=0; if(a) a=1;" is fine.
-                    if (usr == 2 && m_alwaysCombp
-                        && entryp->isUsedNotDrivenBit(lsb, nodep->width())) {
-                        UINFO(9, " Select.  Entryp=" << cvtToHex(entryp));
-                        warnAlwCombOrder(varrefp, entryp->firstUsedNotDrivenp());
+                    ਜੇ (usr == 2 && m_alwaysCombp
+                        && entryp->is_ਵਰਤਿਆ_Not_Driven_ਦੋਆਧਾਰੀ_ਅੰਕ(lsb, nodep->ਚੌੜਾਈ())) {
+                        UINFO(9, " Select.  Entryp=" << cvt_ਮੰਜ਼ਿਲ_Hex(entryp));
+                        warn_Alw_Comb_ਕ੍ਰਮ(varrefp, entryp->ਪਹਿਲਾ_ਵਰਤਿਆ_Not_Drivenp());
                     }
-                    entryp->drivenBit(lsb, nodep->width());
+                    entryp->driven_ਦੋਆਧਾਰੀ_ਅੰਕ(lsb, nodep->ਚੌੜਾਈ());
                 }
-                if (m_inBBox || !varrefp->access().isWriteOrRW())
-                    entryp->usedBit(lsb, nodep->width(), varrefp);
+                ਜੇ (m_ਵਿੱਚ_BBox || !varrefp->access().isWriteOrRW())
+                    entryp->ਵਰਤਿਆ_ਦੋਆਧਾਰੀ_ਅੰਕ_2(lsb, nodep->ਚੌੜਾਈ(), varrefp);
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // skip over static longest static prefix
             iterateConst(nodep->lsbp());
-            VL_RESTORER(m_inSelLhs);
-            m_inSelLhs = !V3Width::selectNonConstantRecurse(nodep->lsbp(), /*inSel=*/true);
+            VL_RESTORER(m_ਵਿੱਚ_Sel_Lhs);
+            m_ਵਿੱਚ_Sel_Lhs = !V3_ਚੌੜਾਈ::selectNonConstantRecurse(nodep->lsbp(), /*inSel=*/ਸੱਚ);
             iterateConst(nodep->fromp());
         }
     }
-    void visit(AstNodeVarRef* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Var_Ref* nodep) override {
         // Any variable
-        if (nodep->access().isWriteOrRW()
+        ਜੇ (nodep->access().isWriteOrRW()
             && !VN_IS(nodep, VarXRef)) {  // Ignore interface variables and similar ugly items
-            if (m_inProcAssign && !nodep->varp()->varType().isProcAssignable()
+            ਜੇ (m_ਵਿੱਚ_Proc_ਸੌਂਪੋ && !nodep->varp()->varType().isProcAssignable()
                 && !nodep->varp()->isDeclTyped()  //
                 && !nodep->varp()->isClassMember() && !nodep->varp()->isFuncLocal()) {
                 nodep->v3warn(PROCASSWIRE, "Procedural assignment to wire, perhaps intended var"
                                                << " (IEEE 1800-2023 6.5): "
                                                << nodep->prettyNameQ());
-            } else if (m_inContAssign && !nodep->varp()->varType().isContAssignable()
+            } ਨਹੀਂਤਾਂ ਜੇ (m_ਵਿੱਚ_Cont_ਸੌਂਪੋ && !nodep->varp()->varType().isContAssignable()
                        && !nodep->fileline()->language().systemVerilog()) {
                 nodep->v3warn(CONTASSREG,
                               "Continuous assignment to reg, perhaps intended wire"
                                   << " (IEEE 1364-2005 6.1; Verilog only, legal in SV): "
                                   << nodep->prettyNameQ());
             }
-            if (m_inFTaskRef && nodep->varp()->varType().isNet()) {
+            ਜੇ (m_ਵਿੱਚ_FTask_Ref && nodep->varp()->varType().isNet()) {
                 nodep->v3warn(
                     PROCASSWIRE,
                     "Passed wire on output or inout subroutine argument, expected expression that "
@@ -600,44 +600,44 @@ class UndrivenVisitor final : public VNVisitorConst {
 
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Remember that anything driven here doesn't count toward MULTIDRIVEN.
-        bool ftaskDef = false;
-        if (m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
+        ਤਾਰਕਿਕ ftaskDef = ਝੂਠ;
+        ਜੇ (m_taskp && !m_alwaysp && !m_ਵਿੱਚ_Cont_ਸੌਂਪੋ && !m_ਵਿੱਚ_Initial_Static && !m_ਵਿੱਚ_BBox
             && !m_taskp->dpiExport()) {
-            AstVar* const retVarp = VN_CAST(m_taskp->fvarp(), Var);
-            if (!retVarp || nodep->varp() != retVarp) ftaskDef = true;
+            AstVar* ਅਚਲ retVarp = VN_CAST(m_taskp->fvarp(), Var);
+            ਜੇ (!retVarp || nodep->varp() != retVarp) ftaskDef = ਸੱਚ;
         }
 
-        for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-            UndrivenVarEntry* const entryp = getEntryp(nodep->varp(), usr);
-            const bool fdrv = nodep->access().isWriteOrRW()
+        ਲਈ (ਪੂਰਨ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+            Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = getEntryp(nodep->varp(), usr);
+            ਅਚਲ ਤਾਰਕਿਕ fdrv = nodep->access().isWriteOrRW()
                               && nodep->varp()->attrFileDescr();  // FD's are also being read from
-            if (m_inBBox || nodep->access().isWriteOrRW()) {
-                if (usr == 2 && m_alwaysCombp && entryp->isUsedNotDrivenAny()) {
-                    UINFO(9, " Full bus.  Entryp=" << cvtToHex(entryp));
-                    warnAlwCombOrder(nodep, entryp->firstUsedNotDrivenp());
+            ਜੇ (m_ਵਿੱਚ_BBox || nodep->access().isWriteOrRW()) {
+                ਜੇ (usr == 2 && m_alwaysCombp && entryp->is_ਵਰਤਿਆ_Not_Driven_Any()) {
+                    UINFO(9, " Full bus.  Entryp=" << cvt_ਮੰਜ਼ਿਲ_Hex(entryp));
+                    warn_Alw_Comb_ਕ੍ਰਮ(nodep, entryp->ਪਹਿਲਾ_ਵਰਤਿਆ_Not_Drivenp());
                 }
-                const AstNodeVarRef* const otherVarRefp = entryp->getNodep();
-                const AstNode* const otherWritep = otherVarRefp
-                                                       ? static_cast<const AstNode*>(otherVarRefp)
+                ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ otherVarRefp = entryp->getNodep();
+                ਅਚਲ Ast_ਗੰਢ* ਅਚਲ otherWritep = otherVarRefp
+                                                       ? static_cast<ਅਚਲ Ast_ਗੰਢ*>(otherVarRefp)
                                                        : entryp->callNodep();
-                const bool sameFileLine
+                ਅਚਲ ਤਾਰਕਿਕ same_File_ਸਤਰ
                     = otherVarRefp && nodep->fileline() == otherVarRefp->fileline();
                 // Preconditions shared by MULTIDRIVEN and MULTIDRIVENPROC.
-                const bool multidrivenCommon
-                    = entryp->isDrivenWhole() && !m_inBBox && !VN_IS(nodep, VarXRef)
-                      && !VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType) && !sameFileLine
+                ਅਚਲ ਤਾਰਕਿਕ multidrivenCommon
+                    = entryp->is_Driven_ਸਾਰਾ() && !m_ਵਿੱਚ_BBox && !VN_IS(nodep, VarXRef)
+                      && !VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType) && !same_File_ਸਤਰ
                       && !entryp->isUnderGen() && otherWritep && !entryp->isFtaskDriven()
-                      && !ftaskDef && !m_inSelLhs;
+                      && !ftaskDef && !m_ਵਿੱਚ_Sel_Lhs;
                 // The two warnings are gated independently on the variable
                 // declaration's fileline, as v3warn suppression will check
                 // the driving fileline and still warn even if the warning
                 // was suppressed with lint_off at the declaration.
-                const bool otherWriteIsStaticInit
+                ਅਚਲ ਤਾਰਕਿਕ otherWriteIsStaticInit
                     = nodep->varp()->hasUserInit() && otherWritep == entryp->initStaticp();
-                if (multidrivenCommon
-                    && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVEN)) {
-                    if (m_alwaysCombp
-                        && (!entryp->isDrivenAlwaysCombWhole()
+                ਜੇ (multidrivenCommon
+                    && !nodep->varp()->fileline()->warnIsOff(V3_Error_ਕੋਡ::MULTIDRIVEN)) {
+                    ਜੇ (m_alwaysCombp
+                        && (!entryp->is_Driven_Always_Comb_ਸਾਰਾ()
                             || (m_alwaysCombp != entryp->getAlwCombp()
                                 && m_alwaysCombp->fileline()
                                        != entryp->getAlwCombp()->fileline()))) {
@@ -650,7 +650,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()) {
+                    ਜੇ (!m_alwaysCombp && entryp->is_Driven_Always_Comb_ਸਾਰਾ()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_comb"
                                                        << " (IEEE 1800-2023 9.2.2.2): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -660,7 +660,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                                        << "... Location of always_comb write\n"
                                                        << otherWritep->warnContextSecondary());
                     }
-                    if (m_alwaysFFp && !otherWriteIsStaticInit
+                    ਜੇ (m_alwaysFFp && !otherWriteIsStaticInit
                         && (!entryp->isDrivenAlwaysFFWhole()
                             || (m_alwaysFFp != entryp->getAlwFFp()
                                 && m_alwaysFFp->fileline() != entryp->getAlwFFp()->fileline()))) {
@@ -673,7 +673,7 @@ class UndrivenVisitor final : public VNVisitorConst {
                                 << otherWritep->warnOther() << "... Location of other write\n"
                                 << otherWritep->warnContextSecondary());
                     }
-                    if (!m_alwaysFFp && !m_inInitialStatic && entryp->isDrivenAlwaysFFWhole()) {
+                    ਜੇ (!m_alwaysFFp && !m_ਵਿੱਚ_Initial_Static && entryp->isDrivenAlwaysFFWhole()) {
                         nodep->v3warn(MULTIDRIVEN, "Variable also written to in always_ff"
                                                        << " (IEEE 1800-2023 9.2.2.4): "
                                                        << nodep->prettyNameQ() << '\n'
@@ -685,8 +685,8 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDriven(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (multidrivenCommon && !nodep->varp()->isUsedLoopIdx()
-                    && !nodep->varp()->fileline()->warnIsOff(V3ErrorCode::MULTIDRIVENPROC)) {
+                ਜੇ (multidrivenCommon && !nodep->varp()->is_ਵਰਤਿਆ_Loop_Idx()
+                    && !nodep->varp()->fileline()->warnIsOff(V3_Error_ਕੋਡ::MULTIDRIVENPROC)) {
                     // Two plain always blocks driving the whole signal: legal
                     // SystemVerilog, but a driver conflict for synthesis. The
                     // always_ff/always_comb cases above already cover mixes with
@@ -694,15 +694,15 @@ class UndrivenVisitor final : public VNVisitorConst {
                     // When the two blocks are clocked differently, the
                     // (on-by-default) MULTIDRIVEN check in V3Delayed already reports
                     // the conflict, so don't also emit MULTIDRIVENPROC for that case.
-                    const AstAlways* const otherAlwaysp = entryp->getAlwPlainp();
-                    const AstSenTree* const senp
-                        = m_alwaysPlainp ? m_alwaysPlainp->sentreep() : nullptr;
-                    const AstSenTree* const otherSenp
-                        = otherAlwaysp ? otherAlwaysp->sentreep() : nullptr;
-                    const bool differentClocking = senp && otherSenp && senp->hasClocked()
+                    ਅਚਲ AstAlways* ਅਚਲ otherAlwaysp = entryp->getAlwPlainp();
+                    ਅਚਲ Ast_Sen_ਰੁੱਖ* ਅਚਲ senp
+                        = m_alwaysPlainp ? m_alwaysPlainp->sentreep() : ਖਾਲੀ_ਸੂਚਕ;
+                    ਅਚਲ Ast_Sen_ਰੁੱਖ* ਅਚਲ otherSenp
+                        = otherAlwaysp ? otherAlwaysp->sentreep() : ਖਾਲੀ_ਸੂਚਕ;
+                    ਅਚਲ ਤਾਰਕਿਕ differentClocking = senp && otherSenp && senp->hasClocked()
                                                    && otherSenp->hasClocked()
-                                                   && !senp->sameTree(otherSenp);
-                    if (m_alwaysPlainp && entryp->isDrivenAlwaysPlainWhole()
+                                                   && !senp->same_ਰੁੱਖ(otherSenp);
+                    ਜੇ (m_alwaysPlainp && entryp->is_Driven_Always_Plain_ਸਾਰਾ()
                         && m_alwaysPlainp != otherAlwaysp
                         && m_alwaysPlainp->fileline() != otherAlwaysp->fileline()
                         && !differentClocking) {
@@ -718,196 +718,196 @@ class UndrivenVisitor final : public VNVisitorConst {
                     }
                     warnClockingDrivenProc(nodep, entryp, otherWritep, otherWriteIsStaticInit);
                 }
-                if (!m_inInitialSetup || nodep->varp()->hasUserInit()) {
+                ਜੇ (!m_ਵਿੱਚ_Initial_ਤਿਆਰੀ || nodep->varp()->hasUserInit()) {
                     // Else don't count default initialization as a driver to a net/variable
-                    entryp->drivenWhole(nodep, ftaskDef);
+                    entryp->driven_ਸਾਰਾ(nodep, ftaskDef);
                 }
-                if (m_alwaysCombp && entryp->isDrivenAlwaysCombWhole()
+                ਜੇ (m_alwaysCombp && entryp->is_Driven_Always_Comb_ਸਾਰਾ()
                     && m_alwaysCombp != entryp->getAlwCombp()
                     && m_alwaysCombp->fileline() == entryp->getAlwCombp()->fileline())
                     entryp->underGenerate();
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
-                if (m_alwaysPlainp) entryp->drivenAlwaysPlainWhole(m_alwaysPlainp);
-                if (m_clockingp) entryp->drivenClockingWhole(m_clockingp);
+                ਜੇ (m_alwaysCombp) entryp->driven_Always_Comb_ਸਾਰਾ(m_alwaysCombp);
+                ਜੇ (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, nodep->varp());
+                ਜੇ (m_alwaysPlainp) entryp->driven_Always_Plain_ਸਾਰਾ(m_alwaysPlainp);
+                ਜੇ (m_clockingp) entryp->driven_Clocking_ਸਾਰਾ(m_clockingp);
             }
-            if (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
+            ਜੇ (nodep->access().isWriteOrRW() && !VN_IS(nodep, VarXRef)) {
                 // Ignoring xrefs as the initial and assignment to track might refer to two
                 // different instances.  Ideally all of V3Undriven would move after V3Scope,
                 // then could use VarScope tracking instead.
-                if (m_inInitialStatic && !entryp->initStaticp()) entryp->initStaticp(nodep);
-                if (m_inInitial && !entryp->initialp()) entryp->initialp(nodep);
-                if (m_inContAssign && !entryp->contAssignp()) entryp->contAssignp(nodep);
-                if (m_alwaysp && m_inProcAssign && !entryp->procWritep())
+                ਜੇ (m_ਵਿੱਚ_Initial_Static && !entryp->initStaticp()) entryp->initStaticp(nodep);
+                ਜੇ (m_ਵਿੱਚ_Initial && !entryp->initialp()) entryp->initialp(nodep);
+                ਜੇ (m_ਵਿੱਚ_Cont_ਸੌਂਪੋ && !entryp->contAssignp()) entryp->contAssignp(nodep);
+                ਜੇ (m_alwaysp && m_ਵਿੱਚ_Proc_ਸੌਂਪੋ && !entryp->procWritep())
                     entryp->procWritep(nodep);
             }
-            if ((!m_inInitialSetup || nodep->varp()->hasUserInit())
-                && (m_inBBox || nodep->access().isReadOrRW()
+            ਜੇ ((!m_ਵਿੱਚ_Initial_ਤਿਆਰੀ || nodep->varp()->hasUserInit())
+                && (m_ਵਿੱਚ_BBox || nodep->access().isReadOrRW()
                     || fdrv
                     // Inouts have only isWrite set, as we don't have more
                     // information and operating on module boundary, treat as
                     // both read and writing
-                    || m_inInoutOrRefPin))
-                entryp->usedWhole(nodep);
+                    || m_ਵਿੱਚ_Inout_Or_Ref_Pin))
+                entryp->ਵਰਤਿਆ_ਸਾਰਾ(nodep);
         }
     }
 
     // Don't know what black boxed calls do, assume in+out
-    void visit(AstSysIgnore* nodep) override {
-        VL_RESTORER(m_inBBox);
-        m_inBBox = true;
+    ਖਾਲੀ ਦੇਖੋ(AstSysIgnore* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_BBox);
+        m_ਵਿੱਚ_BBox = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstAssign* nodep) override {
-        VL_RESTORER(m_inProcAssign);
-        m_inProcAssign = true;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Proc_ਸੌਂਪੋ);
+        m_ਵਿੱਚ_Proc_ਸੌਂਪੋ = ਸੱਚ;
         {
-            VL_RESTORER(m_inInitialSetup);
-            m_inInitialSetup = false;
+            VL_RESTORER(m_ਵਿੱਚ_Initial_ਤਿਆਰੀ);
+            m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਝੂਠ;
             iterateConst(nodep->rhsp());
         }
         iterateConst(nodep->lhsp());
     }
-    void visit(AstAssignDly* nodep) override {
-        VL_RESTORER(m_inProcAssign);
-        m_inProcAssign = true;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Dly* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Proc_ਸੌਂਪੋ);
+        m_ਵਿੱਚ_Proc_ਸੌਂਪੋ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAssignForce* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Force* nodep) override {
         iterateConst(nodep->rhsp());
-        VL_RESTORER(m_inInitial);
-        m_inInitial = false;
+        VL_RESTORER(m_ਵਿੱਚ_Initial);
+        m_ਵਿੱਚ_Initial = ਝੂਠ;
         iterateConst(nodep->lhsp());
     }
-    void visit(AstAssignW* nodep) override {
-        VL_RESTORER(m_inContAssign);
-        m_inContAssign = true;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_W* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Cont_ਸੌਂਪੋ);
+        m_ਵਿੱਚ_Cont_ਸੌਂਪੋ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstRelease* nodep) override {
-        VL_RESTORER(m_inInitial);
-        m_inInitial = false;
+    ਖਾਲੀ ਦੇਖੋ(AstRelease* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial);
+        m_ਵਿੱਚ_Initial = ਝੂਠ;
         iterateConst(nodep->lhsp());
     }
-    void visit(AstInitial* nodep) override {
-        VL_RESTORER(m_inInitial);
-        m_inInitial = true;
+    ਖਾਲੀ ਦੇਖੋ(AstInitial* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial);
+        m_ਵਿੱਚ_Initial = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomatic* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ਖਾਲੀ ਦੇਖੋ(AstInitialAutomatic* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial_ਤਿਆਰੀ);
+        m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialAutomaticStmt* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ਖਾਲੀ ਦੇਖੋ(AstInitialAutomaticStmt* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial_ਤਿਆਰੀ);
+        m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStatic* nodep) override {
-        VL_RESTORER(m_inInitialStatic);
-        m_inInitialStatic = true;
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ਖਾਲੀ ਦੇਖੋ(AstInitialStatic* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial_Static);
+        m_ਵਿੱਚ_Initial_Static = ਸੱਚ;
+        VL_RESTORER(m_ਵਿੱਚ_Initial_ਤਿਆਰੀ);
+        m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstInitialStaticStmt* nodep) override {
-        VL_RESTORER(m_inInitialSetup);
-        m_inInitialSetup = true;
+    ਖਾਲੀ ਦੇਖੋ(AstInitialStaticStmt* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Initial_ਤਿਆਰੀ);
+        m_ਵਿੱਚ_Initial_ਤਿਆਰੀ = ਸੱਚ;
         iterateChildrenConst(nodep);
     }
-    void visit(AstAlways* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstAlways* nodep) override {
         VL_RESTORER(m_alwaysp);
         VL_RESTORER(m_alwaysCombp);
         VL_RESTORER(m_alwaysFFp);
         VL_RESTORER(m_alwaysPlainp);
-        AstNode::user2ClearTree();
+        Ast_ਗੰਢ::user2_Clear_ਰੁੱਖ();
         m_alwaysp = nodep;
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
+        ਜੇ (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) {
             UINFO(9, "   " << nodep);
             m_alwaysCombp = nodep;
-        } else {
-            m_alwaysCombp = nullptr;
+        } ਨਹੀਂਤਾਂ {
+            m_alwaysCombp = ਖਾਲੀ_ਸੂਚਕ;
         }
-        m_alwaysFFp = nodep->keyword() == VAlwaysKwd::ALWAYS_FF ? nodep : nullptr;
-        m_alwaysPlainp = nodep->keyword() == VAlwaysKwd::ALWAYS ? nodep : nullptr;
+        m_alwaysFFp = nodep->keyword() == VAlwaysKwd::ALWAYS_FF ? nodep : ਖਾਲੀ_ਸੂਚਕ;
+        m_alwaysPlainp = nodep->keyword() == VAlwaysKwd::ALWAYS ? nodep : ਖਾਲੀ_ਸੂਚਕ;
         iterateChildrenConst(nodep);
-        if (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
+        ਜੇ (nodep->keyword() == VAlwaysKwd::ALWAYS_COMB) UINFO(9, "   Done " << nodep);
     }
-    void visit(AstClocking* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstClocking* nodep) override {
         VL_RESTORER(m_clockingp);
         m_clockingp = nodep;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNodeFTaskRef* nodep) override {
-        VL_RESTORER(m_inFTaskRef);
-        m_inFTaskRef = true;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask_Ref* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_FTask_Ref);
+        m_ਵਿੱਚ_FTask_Ref = ਸੱਚ;
 
         iterateChildrenConst(nodep);
 
-        if (!m_capturep) return;
+        ਜੇ (!m_capturep) ਵਾਪਸ;
 
         // If writeSummary is enabled, task/function definitions are treated as non-executed.
         // Do not apply writeSummary at calls inside a task definition, or they will look like
         // independent drivers (phantom MULTIDRIVEN).
-        const bool inExecutedContext
-            = !(m_taskp && !m_alwaysp && !m_inContAssign && !m_inInitialStatic && !m_inBBox
+        ਅਚਲ ਤਾਰਕਿਕ ਵਿੱਚ_Executed_Context
+            = !(m_taskp && !m_alwaysp && !m_ਵਿੱਚ_Cont_ਸੌਂਪੋ && !m_ਵਿੱਚ_Initial_Static && !m_ਵਿੱਚ_BBox
                 && !m_taskp->dpiExport());
 
-        if (!inExecutedContext) return;
+        ਜੇ (!ਵਿੱਚ_Executed_Context) ਵਾਪਸ;
 
-        AstNodeFTask* const calleep = nodep->taskp();
-        if (!calleep) return;
+        Ast_ਗੰਢ_FTask* ਅਚਲ calleep = nodep->taskp();
+        ਜੇ (!calleep) ਵਾਪਸ;
 
-        const auto& vars = m_capturep->writeSummary(calleep);
-        for (AstVar* const varp : vars) {
-            for (int usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
-                UndrivenVarEntry* const entryp = getEntryp(varp, usr);
-                entryp->drivenViaCall(nodep);
-                if (m_alwaysCombp) entryp->drivenAlwaysCombWhole(m_alwaysCombp);
-                if (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
+        ਅਚਲ ਸਵੈਚਾਲਿਤ& vars = m_capturep->writeSummary(calleep);
+        ਲਈ (AstVar* ਅਚਲ varp : vars) {
+            ਲਈ (ਪੂਰਨ usr = 1; usr < (m_alwaysCombp ? 3 : 2); ++usr) {
+                Undriven_Var_ਇੰਦਰਾਜ* ਅਚਲ entryp = getEntryp(varp, usr);
+                entryp->driven_ਰਾਹੀਂ_Call(nodep);
+                ਜੇ (m_alwaysCombp) entryp->driven_Always_Comb_ਸਾਰਾ(m_alwaysCombp);
+                ਜੇ (m_alwaysFFp) entryp->drivenAlwaysFFWhole(m_alwaysFFp, varp);
             }
         }
     }
 
-    void visit(AstNodeFTask* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask* nodep) override {
         VL_RESTORER(m_taskp);
         m_taskp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstPin* nodep) override {
-        VL_RESTORER(m_inInoutOrRefPin);
-        m_inInoutOrRefPin = nodep->modVarp()->isInoutOrRef();
+    ਖਾਲੀ ਦੇਖੋ(AstPin* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Inout_Or_Ref_Pin);
+        m_ਵਿੱਚ_Inout_Or_Ref_Pin = nodep->modVarp()->isInoutOrRef();
         iterateChildrenConst(nodep);
     }
 
     // Until we support tables, primitives will have undriven and unused I/Os
-    void visit(AstPrimitive*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstPrimitive*) override {}
 
     // Coverage artifacts etc shouldn't count as a sink
-    void visit(AstNodeCoverDecl*) override {}
-    void visit(AstCoverInc*) override {}
-    void visit(AstCoverToggle*) override {}
-    void visit(AstTraceDecl* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
-    void visit(AstTraceInc* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Cover_Decl*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstCoverInc*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstCoverToggle*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstTraceDecl* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
+    ਖਾਲੀ ਦੇਖੋ(AstTraceInc* nodep) override { nodep->v3fatalSrc("Should not exist yet"); }
 
     // iterate
-    void visit(AstConst* nodep) override {}
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstConst* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit UndrivenVisitor(AstNetlist* nodep, V3UndrivenCapture* capturep)
+    ਸਪਸ਼ਟ UndrivenVisitor(AstNetlist* nodep, V3UndrivenCapture* capturep)
         : m_capturep{capturep} {
         iterateConst(nodep);
     }
 
     ~UndrivenVisitor() override {
-        for (UndrivenVarEntry* ip : m_entryps[1]) ip->reportViolations();
-        for (int usr = 1; usr < 3; ++usr) {
-            for (UndrivenVarEntry* ip : m_entryps[usr]) delete ip;
+        ਲਈ (Undriven_Var_ਇੰਦਰਾਜ* ip : m_entryps[1]) ip->reportViolations();
+        ਲਈ (ਪੂਰਨ usr = 1; usr < 3; ++usr) {
+            ਲਈ (Undriven_Var_ਇੰਦਰਾਜ* ip : m_entryps[usr]) ਮਿਟਾਓ ip;
         }
     }
 };
@@ -915,11 +915,11 @@ public:
 //######################################################################
 // Undriven class functions
 
-void V3Undriven::undrivenAll(AstNetlist* nodep) {
+ਖਾਲੀ V3Undriven::undrivenAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
 
     V3UndrivenCapture capture{nodep};
     { UndrivenVisitor{nodep, &capture}; }
 
-    if (v3Global.opt.stats()) V3Stats::statsStage("undriven");
+    ਜੇ (v3Global.opt.stats()) V3Stats::statsStage("undriven");
 }

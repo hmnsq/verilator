@@ -14,25 +14,25 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITC_H_
-#define VERILATOR_V3EMITC_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3EMITC_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3EMITC_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
 //============================================================================
 
 class V3EmitC final {
-public:
-    static void emitcConstPool() VL_MT_DISABLED;
-    static void emitcExecGraph() VL_MT_DISABLED;
-    static void emitcFiles() VL_MT_DISABLED;
-    static void emitcHeaders() VL_MT_DISABLED;
-    static void emitcImp();
-    static void emitcInlines() VL_MT_DISABLED;
-    static void emitcModel() VL_MT_DISABLED;
-    static void emitcPch() VL_MT_DISABLED;
-    static void emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ emitcConstPool() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitc_Exec_ਗ੍ਰਾਫ() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitcFiles() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitc_ਸਿਰਲੇਖਾਂ() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitcImp();
+    ਸਥਿਰ ਖਾਲੀ emitcInlines() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitcModel() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitcPch() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ emitcSyms(bool dpiHdrOnly = false) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPH_H_
-#define VERILATOR_V3GRAPH_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3_ਗ੍ਰਾਫ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3_ਗ੍ਰਾਫ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3List.h"
-#include "V3Rtti.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3List.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Rtti.h"
 
-#include <algorithm>
-#include <functional>
+#ਅਨ੍ਤਰ੍ਭਾਵ <algorithm>
+#ਅਨ੍ਤਰ੍ਭਾਵ <functional>
 
-class FileLine;
-class V3Graph;
-class V3GraphVertex;
-class V3GraphEdge;
-class GraphAcycEdge;
-class OrderEitherVertex;
-class OrderLogicVertex;
+class File_ਸਤਰ;
+class V3_ਗ੍ਰਾਫ;
+class V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼;
+class V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ;
+class ਗ੍ਰਾਫ_Acyc_ਕਿਨਾਰਾ;
+class ਕ੍ਰਮ_Either_ਸ਼ੀਰਸ਼;
+class ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼;
 
 //=============================================================================
 // Most graph algorithms accept an arbitrary function that returns
 // True for those edges we should honor.
 
-using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
+using V3_ਕਿਨਾਰਾ_Func_P = bool (*)(ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* edgep);
 
 //=============================================================================
 // When the Graph represents a directional acyclical graph (DAG), following
@@ -47,446 +47,446 @@ using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
 // it's useful to have algorithms that can walk in either direction, hence
 // some methods take GraphWay to programmatically select the direction.
 
-class GraphWay final {
-public:
-    enum en : uint8_t {
+class ਗ੍ਰਾਫ_Way final {
+ਜਨਤਕ:
+    ਗਿਣਤੀ en : uint8_t {
         FORWARD = 0,
-        REVERSE = 1,
-        NUM_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
+        ਉਲਟ_2 = 1,
+        ਅੰਕ_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
         //          // an array dimension or loop bound.
     };
-    enum en m_e;
-    GraphWay()
+    ਗਿਣਤੀ en m_e;
+    ਗ੍ਰਾਫ_Way()
         : m_e{FORWARD} {}
     // cppcheck-suppress noExplicitConstructor
-    constexpr GraphWay(en _e)
+    constexpr ਗ੍ਰਾਫ_Way(en _e)
         : m_e{_e} {}
-    explicit constexpr GraphWay(int _e)
+    explicit constexpr ਗ੍ਰਾਫ_Way(ਪੂਰਨ _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FORWARD", "REVERSE"};
-        return names[m_e];
+    constexpr ਸੰਚਾਲਕ en() ਅਚਲ { ਵਾਪਸ m_e; }
+    ਅਚਲ ਅੱਖਰ* ascii() ਅਚਲ {
+        ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* ਅਚਲ ਨਾਂ[] = {"FORWARD", "REVERSE"};
+        ਵਾਪਸ ਨਾਂ[m_e];
     }
     // METHODS unique to this class
-    constexpr GraphWay invert() const { return GraphWay{m_e ^ 1}; }
-    constexpr bool forward() const { return m_e == FORWARD; }
-    constexpr bool reverse() const { return m_e != FORWARD; }
+    constexpr ਗ੍ਰਾਫ_Way invert() ਅਚਲ { ਵਾਪਸ ਗ੍ਰਾਫ_Way{m_e ^ 1}; }
+    constexpr bool forward() ਅਚਲ { ਵਾਪਸ m_e == FORWARD; }
+    constexpr bool ਉਲਟ() ਅਚਲ { ਵਾਪਸ m_e != FORWARD; }
 };
-constexpr bool operator==(const GraphWay& lhs, const GraphWay& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const GraphWay& lhs, GraphWay::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { return lhs == rhs.m_e; }
+constexpr bool ਸੰਚਾਲਕ==(ਅਚਲ ਗ੍ਰਾਫ_Way& lhs, ਅਚਲ ਗ੍ਰਾਫ_Way& rhs) { ਵਾਪਸ lhs.m_e == rhs.m_e; }
+constexpr bool ਸੰਚਾਲਕ==(ਅਚਲ ਗ੍ਰਾਫ_Way& lhs, ਗ੍ਰਾਫ_Way::en rhs) { ਵਾਪਸ lhs.m_e == rhs; }
+constexpr bool ਸੰਚਾਲਕ==(ਗ੍ਰਾਫ_Way::en lhs, ਅਚਲ ਗ੍ਰਾਫ_Way& rhs) { ਵਾਪਸ lhs == rhs.m_e; }
 
 //============================================================================
 // TODO should we have a smaller edge structure when we don't need weight etc?
 
-class V3GraphEdge VL_NOT_FINAL {
-    VL_RTTI_IMPL_BASE(V3GraphEdge)
+class V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ VL_NOT_FINAL {
+    VL_RTTI_IMPL_ਅਧਾਰ(V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ)
     // Wires/variables aren't edges.  Edges have only a single to/from vertex
-public:
+ਜਨਤਕ:
     // ENUMS
-    enum Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
-protected:
-    friend class V3Graph;
-    friend class V3GraphVertex;
-    friend class GraphAcyc;
-    friend class GraphAcycEdge;
+    ਗਿਣਤੀ Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
+ਸੁਰੱਖਿਅਤ:
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ;
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Acyc;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Acyc_ਕਿਨਾਰਾ;
 
-    V3ListLinks<V3GraphEdge> m_oLinks;  // List links to store instances of this class (out edges)
-    V3ListLinks<V3GraphEdge> m_iLinks;  // List links to store instances of this class (in edges)
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ> m_oLinks;  // List links to store instances of this class (out edges)
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ> m_iLinks;  // List links to store instances of this class (in edges)
     //
-    V3GraphVertex* m_fromp;  // Vertices pointing to this edge
-    V3GraphVertex* m_top;  // Vertices this edge points to
-    int m_weight;  // Weight of the connection
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* m_fromp;  // Vertices pointing to this edge
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* m_ਸਿਖਰ;  // Vertices this edge points to
+    ਪੂਰਨ m_ਭਾਰ;  // Weight of the connection
     bool m_cutable;  // Interconnect may be broken in order sorting
-    union {
-        void* m_userp;  // Marker for some algorithms
+    ਸੰਘ {
+        ਖਾਲੀ* m_userp;  // Marker for some algorithms
         uint64_t m_user;  // Marker for some algorithms
     };
     // METHODS
-    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    ਖਾਲੀ init(V3_ਗ੍ਰਾਫ* graphp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ, ਪੂਰਨ ਭਾਰ_2,
               bool cutable = false) VL_MT_DISABLED;
-    void cut() { m_weight = 0; }  // 0 weight is same as disconnected
+    ਖਾਲੀ cut() { m_ਭਾਰ = 0; }  // 0 weight is same as disconnected
     // CONSTRUCTORS
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top,
-                const V3GraphEdge& old) VL_MT_DISABLED {
-        init(graphp, fromp, top, old.m_weight, old.m_cutable);
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ(V3_ਗ੍ਰਾਫ* graphp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ,
+                ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& old) VL_MT_DISABLED {
+        init(graphp, fromp, ਸਿਖਰ, old.m_ਭਾਰ, old.m_cutable);
     }
 
-private:
-    V3ListLinks<V3GraphEdge>& oLinks() { return m_oLinks; }
-    V3ListLinks<V3GraphEdge>& iLinks() { return m_iLinks; }
+ਨਿਜੀ:
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ>& oLinks() { ਵਾਪਸ m_oLinks; }
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ>& iLinks() { ਵਾਪਸ m_iLinks; }
 
-public:
+ਜਨਤਕ:
     // List types to store instances of this class
-    using OList = V3List<V3GraphEdge, &V3GraphEdge::oLinks>;
-    using IList = V3List<V3GraphEdge, &V3GraphEdge::iLinks>;
+    using OList = V3List<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ, &V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::oLinks>;
+    using IList = V3List<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ, &V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::iLinks>;
 
     //! Add DAG from one node to the specified node
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ(V3_ਗ੍ਰਾਫ* graphp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ, ਪੂਰਨ ਭਾਰ_2,
                 bool cutable = false) VL_MT_DISABLED {
-        init(graphp, fromp, top, weight, cutable);
+        init(graphp, fromp, ਸਿਖਰ, ਭਾਰ_2, cutable);
     }
     //! Clone copy constructor.  Doesn't copy existing vertices or user/userp.
-    virtual V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
-                               V3GraphVertex* top) const VL_MT_DISABLED {
-        return new V3GraphEdge{graphp, fromp, top, *this};
+    ਆਭਾਸੀ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* clone(V3_ਗ੍ਰਾਫ* graphp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp,
+                               V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ) ਅਚਲ VL_MT_DISABLED {
+        ਵਾਪਸ new V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{graphp, fromp, ਸਿਖਰ, *this};
     }
-    virtual ~V3GraphEdge() = default;
+    ਆਭਾਸੀ ~V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ() = ਮੂਲ;
     // METHODS
     // Return true iff of type T
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphEdge, T>::value,
+    ਸਾਂਚਾ <typename T>
+    bool is() ਅਚਲ {
+        static_assert(std::is_ਅਧਾਰ_ਦਾ<V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ, T>::ਮੁੱਲ,
                       "'T' must be a subtype of V3GraphEdge");
-        return V3Rtti::isInstanceOf<T>(this);
+        ਵਾਪਸ V3Rtti::is_Instance_ਦਾ<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
-    template <typename T>
+    ਸਾਂਚਾ <typename T>
     T* as() {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<T*>(this);
+        ਵਾਪਸ static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    ਸਾਂਚਾ <typename T>
+    ਅਚਲ T* as() ਅਚਲ {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<const T*>(this);
+        ਵਾਪਸ static_cast<ਅਚਲ T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
-    template <typename T>
+    ਸਾਂਚਾ <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ਵਾਪਸ is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    ਸਾਂਚਾ <typename T>
+    ਅਚਲ T* cast() ਅਚਲ {
+        ਵਾਪਸ is<T>() ? static_cast<ਅਚਲ T*>(this) : nullptr;
     }
 
-    virtual string name() const VL_MT_DISABLED;
-    virtual string dotLabel() const { return ""; }
-    virtual string dotColor() const { return cutable() ? "yellowGreen" : "red"; }
-    virtual string dotStyle() const { return cutable() ? "dashed" : ""; }
-    virtual int sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
-    void unlinkDelete() VL_MT_DISABLED;
-    void relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
-    void relinkTop(V3GraphVertex* newTop) VL_MT_DISABLED;
+    ਆਭਾਸੀ string name() ਅਚਲ VL_MT_DISABLED;
+    ਆਭਾਸੀ string dotLabel() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ string dotColor() ਅਚਲ { ਵਾਪਸ cutable() ? "yellowGreen" : "red"; }
+    ਆਭਾਸੀ string dotStyle() ਅਚਲ { ਵਾਪਸ cutable() ? "dashed" : ""; }
+    ਆਭਾਸੀ ਪੂਰਨ ਛਾਂਟੋ_Cmp(ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* rhsp) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ unlinkDelete() VL_MT_DISABLED;
+    ਖਾਲੀ relinkFromp(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* newFromp) VL_MT_DISABLED;
+    ਖਾਲੀ relink_ਸਿਖਰ(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* new_ਸਿਖਰ) VL_MT_DISABLED;
     // ACCESSORS
-    int weight() const { return m_weight; }
-    void weight(int weight) { m_weight = weight; }
-    bool cutable() const { return m_cutable; }
-    void cutable(bool cutable) { m_cutable = cutable; }
-    void userp(void* user) { m_userp = user; }
-    void* userp() const { return m_userp; }
-    void user(uint64_t user) { m_user = user; }
-    uint64_t user() const { return m_user; }
-    V3GraphVertex* fromp() const { return m_fromp; }
-    V3GraphVertex* top() const { return m_top; }
-    template <GraphWay::en N_Way>
-    V3GraphVertex* furtherp() const {
-        return N_Way == GraphWay::FORWARD ? top() : fromp();
+    ਪੂਰਨ ਭਾਰ_2() ਅਚਲ { ਵਾਪਸ m_ਭਾਰ; }
+    ਖਾਲੀ ਭਾਰ_2(ਪੂਰਨ ਭਾਰ_2) { m_ਭਾਰ = ਭਾਰ_2; }
+    bool cutable() ਅਚਲ { ਵਾਪਸ m_cutable; }
+    ਖਾਲੀ cutable(bool cutable) { m_cutable = cutable; }
+    ਖਾਲੀ userp(ਖਾਲੀ* user) { m_userp = user; }
+    ਖਾਲੀ* userp() ਅਚਲ { ਵਾਪਸ m_userp; }
+    ਖਾਲੀ user(uint64_t user) { m_user = user; }
+    uint64_t user() ਅਚਲ { ਵਾਪਸ m_user; }
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp() ਅਚਲ { ਵਾਪਸ m_fromp; }
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ() ਅਚਲ { ਵਾਪਸ m_ਸਿਖਰ; }
+    ਸਾਂਚਾ <ਗ੍ਰਾਫ_Way::en N_Way>
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* furtherp() ਅਚਲ {
+        ਵਾਪਸ N_Way == ਗ੍ਰਾਫ_Way::FORWARD ? ਸਿਖਰ() : fromp();
     }
     // STATIC ACCESSORS
-    static bool followNotCutable(const V3GraphEdge* edgep) { return !edgep->m_cutable; }
-    static bool followAlwaysTrue(const V3GraphEdge*) { return true; }
+    ਸਥਿਰ bool followNotCutable(ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* edgep) { ਵਾਪਸ !edgep->m_cutable; }
+    ਸਥਿਰ bool followAlwaysTrue(ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ*) { ਵਾਪਸ true; }
 };
 
 //============================================================================
 
-class V3GraphVertex VL_NOT_FINAL {
-    VL_RTTI_IMPL_BASE(V3GraphVertex)
-    friend class V3Graph;
-    friend class V3GraphEdge;
-    friend class GraphAcyc;
-    friend class GraphAlgRank;
-    friend class GraphAlgRankDepth;
-    V3ListLinks<V3GraphVertex> m_links;  // List links to store instances of this class
-    V3GraphEdge::OList m_outs;  // List of outbound edges
-    V3GraphEdge::IList m_ins;  // List of inbound edges
-    double m_fanout;  // Order fanout
+class V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼ VL_NOT_FINAL {
+    VL_RTTI_IMPL_ਅਧਾਰ(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼)
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ;
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Acyc;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Alg_Rank;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Alg_Rank_ਡੂੰਘਾਈ;
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼> m_links;  // List links to store instances of this class
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::OList m_outs;  // List of outbound edges
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::IList m_ins;  // List of inbound edges
+    ਦੁੱਗਣਾ m_fanout;  // Order fanout
     uint32_t m_color;  // Color of the node
     uint32_t m_rank;  // Rank of edge
-    union {
-        void* m_userp;  // Marker for some algorithms
+    ਸੰਘ {
+        ਖਾਲੀ* m_userp;  // Marker for some algorithms
         uint32_t m_user;  // Marker for some algorithms
     };
     // ACCESSORS
-    void fanout(double fanout) { m_fanout = fanout; }
+    ਖਾਲੀ fanout(ਦੁੱਗਣਾ fanout) { m_fanout = fanout; }
 
-protected:
+ਸੁਰੱਖਿਅਤ:
     // CONSTRUCTORS
-    V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old) VL_MT_DISABLED;
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& old) VL_MT_DISABLED;
 
-private:
-    V3ListLinks<V3GraphVertex>& links() { return m_links; }
+ਨਿਜੀ:
+    V3ListLinks<V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼>& links() { ਵਾਪਸ m_links; }
 
-public:
+ਜਨਤਕ:
     // List types to store instances of this class
-    using List = V3List<V3GraphVertex, &V3GraphVertex::links>;
+    using List = V3List<V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼, &V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::links>;
 
-    explicit V3GraphVertex(V3Graph* graphp) VL_MT_DISABLED;
+    explicit V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp) VL_MT_DISABLED;
     //! Clone copy constructor. Doesn't copy edges or user/userp.
-    virtual V3GraphVertex* clone(V3Graph* graphp) const VL_MT_DISABLED {
-        return new V3GraphVertex{graphp, *this};
+    ਆਭਾਸੀ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* clone(V3_ਗ੍ਰਾਫ* graphp) ਅਚਲ VL_MT_DISABLED {
+        ਵਾਪਸ new V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{graphp, *this};
     }
-    virtual ~V3GraphVertex() = default;
-    void unlinkEdges(V3Graph* graphp) VL_MT_DISABLED;
-    void unlinkDelete(V3Graph* graphp) VL_MT_DISABLED;
+    ਆਭਾਸੀ ~V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼() = ਮੂਲ;
+    ਖਾਲੀ unlink_ਕਿਨਾਰੇ(V3_ਗ੍ਰਾਫ* graphp) VL_MT_DISABLED;
+    ਖਾਲੀ unlinkDelete(V3_ਗ੍ਰਾਫ* graphp) VL_MT_DISABLED;
 
     // METHODS
     // Return true iff of type T
-    template <typename T>
-    bool is() const {
-        static_assert(std::is_base_of<V3GraphVertex, T>::value,
+    ਸਾਂਚਾ <typename T>
+    bool is() ਅਚਲ {
+        static_assert(std::is_ਅਧਾਰ_ਦਾ<V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼, T>::ਮੁੱਲ,
                       "'T' must be a subtype of V3GraphVertex");
-        return V3Rtti::isInstanceOf<T>(this);
+        ਵਾਪਸ V3Rtti::is_Instance_ਦਾ<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
-    template <typename T>
+    ਸਾਂਚਾ <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<T*>(this);
+        ਵਾਪਸ static_cast<T*>(this);
     }
-    template <typename T>
-    const T* as() const {
+    ਸਾਂਚਾ <typename T>
+    ਅਚਲ T* as() ਅਚਲ {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<const T*>(this);
+        ਵਾਪਸ static_cast<ਅਚਲ T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
-    template <typename T>
+    ਸਾਂਚਾ <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ਵਾਪਸ is<T>() ? static_cast<T*>(this) : nullptr;
     }
-    template <typename T>
-    const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+    ਸਾਂਚਾ <typename T>
+    ਅਚਲ T* cast() ਅਚਲ {
+        ਵਾਪਸ is<T>() ? static_cast<ਅਚਲ T*>(this) : nullptr;
     }
 
     // ACCESSORS
-    virtual string name() const { return ""; }
-    virtual string dotColor() const { return "black"; }
-    virtual string dotShape() const { return ""; }
-    virtual string dotStyle() const { return ""; }
-    virtual string dotName() const { return ""; }
-    virtual string dotRank() const { return ""; }
-    virtual uint32_t rankAdder() const { return 1; }
-    virtual FileLine* fileline() const { return nullptr; }  // nullptr for unknown
-    virtual int sortCmp(const V3GraphVertex* rhsp) const {
+    ਆਭਾਸੀ string name() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ string dotColor() ਅਚਲ { ਵਾਪਸ "black"; }
+    ਆਭਾਸੀ string dotShape() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ string dotStyle() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ string dotName() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ string dotRank() ਅਚਲ { ਵਾਪਸ ""; }
+    ਆਭਾਸੀ uint32_t rankAdder() ਅਚਲ { ਵਾਪਸ 1; }
+    ਆਭਾਸੀ File_ਸਤਰ* fileline() ਅਚਲ { ਵਾਪਸ nullptr; }  // nullptr for unknown
+    ਆਭਾਸੀ ਪੂਰਨ ਛਾਂਟੋ_Cmp(ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* rhsp) ਅਚਲ {
         // LHS goes first if of lower rank, or lower fanout
-        if (m_rank < rhsp->m_rank) return -1;
-        if (m_rank > rhsp->m_rank) return 1;
-        if (m_fanout < rhsp->m_fanout) return -1;
-        if (m_fanout > rhsp->m_fanout) return 1;
-        return 0;
+        ਜੇ (m_rank < rhsp->m_rank) ਵਾਪਸ -1;
+        ਜੇ (m_rank > rhsp->m_rank) ਵਾਪਸ 1;
+        ਜੇ (m_fanout < rhsp->m_fanout) ਵਾਪਸ -1;
+        ਜੇ (m_fanout > rhsp->m_fanout) ਵਾਪਸ 1;
+        ਵਾਪਸ 0;
     }
-    uint32_t color() const { return m_color; }
-    void color(uint32_t color) { m_color = color; }
-    uint32_t rank() const { return m_rank; }
-    void rank(uint32_t rank) { m_rank = rank; }
-    double fanout() const { return m_fanout; }
-    void user(uint32_t user) { m_user = user; }
-    uint32_t user() const VL_MT_STABLE { return m_user; }
-    void userp(void* userp) { m_userp = userp; }
-    void* userp() const VL_MT_STABLE { return m_userp; }
-    V3GraphEdge::IList& inEdges() { return m_ins; }
-    const V3GraphEdge::IList& inEdges() const { return m_ins; }
-    template <GraphWay::en N_Way>
-    inline auto& edges();
-    template <GraphWay::en N_Way>
-    inline const auto& edges() const;
-    bool inEmpty() const { return m_ins.empty(); }
-    bool inSize1() const { return m_ins.hasSingleElement(); }
-    V3GraphEdge::OList& outEdges() { return m_outs; }
-    const V3GraphEdge::OList& outEdges() const { return m_outs; }
-    bool outEmpty() const { return m_outs.empty(); }
-    bool outSize1() const { return m_outs.hasSingleElement(); }
+    uint32_t color() ਅਚਲ { ਵਾਪਸ m_color; }
+    ਖਾਲੀ color(uint32_t color) { m_color = color; }
+    uint32_t rank() ਅਚਲ { ਵਾਪਸ m_rank; }
+    ਖਾਲੀ rank(uint32_t rank) { m_rank = rank; }
+    ਦੁੱਗਣਾ fanout() ਅਚਲ { ਵਾਪਸ m_fanout; }
+    ਖਾਲੀ user(uint32_t user) { m_user = user; }
+    uint32_t user() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ m_user; }
+    ਖਾਲੀ userp(ਖਾਲੀ* userp) { m_userp = userp; }
+    ਖਾਲੀ* userp() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ m_userp; }
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::IList& ਵਿੱਚ_ਕਿਨਾਰੇ() { ਵਾਪਸ m_ins; }
+    ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::IList& ਵਿੱਚ_ਕਿਨਾਰੇ() ਅਚਲ { ਵਾਪਸ m_ins; }
+    ਸਾਂਚਾ <ਗ੍ਰਾਫ_Way::en N_Way>
+    ਸਤਰਅੰਦਰ ਸਵੈਚਾਲਿਤ& ਕਿਨਾਰੇ();
+    ਸਾਂਚਾ <ਗ੍ਰਾਫ_Way::en N_Way>
+    ਸਤਰਅੰਦਰ ਅਚਲ ਸਵੈਚਾਲਿਤ& ਕਿਨਾਰੇ() ਅਚਲ;
+    bool ਵਿੱਚ_ਖਾਲੀ_ਥਾਵਾਂ() ਅਚਲ { ਵਾਪਸ m_ins.ਖਾਲੀ_ਥਾਵਾਂ(); }
+    bool ਵਿੱਚ_Size1() ਅਚਲ { ਵਾਪਸ m_ins.hasSingleElement(); }
+    V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::OList& ਬਾਹਰਲਾ_ਕਿਨਾਰੇ() { ਵਾਪਸ m_outs; }
+    ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::OList& ਬਾਹਰਲਾ_ਕਿਨਾਰੇ() ਅਚਲ { ਵਾਪਸ m_outs; }
+    bool ਬਾਹਰਲਾ_ਖਾਲੀ_ਥਾਵਾਂ() ਅਚਲ { ਵਾਪਸ m_outs.ਖਾਲੀ_ਥਾਵਾਂ(); }
+    bool ਬਾਹਰਲਾ_Size1() ਅਚਲ { ਵਾਪਸ m_outs.hasSingleElement(); }
     // METHODS
     /// Error reporting
-    void v3errorEnd(const std::ostringstream& str) const
+    ਖਾਲੀ v3error_ਸਿਰਾ(ਅਚਲ std::ostringstream& str) ਅਚਲ
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
-    void v3errorEndFatal(const std::ostringstream& str) const
+    ਖਾਲੀ v3error_ਸਿਰਾ_Fatal(ਅਚਲ std::ostringstream& str) ਅਚਲ
         VL_RELEASE(V3Error::s().m_mutex) VL_MT_DISABLED;
     /// Edges are routed around this vertex to point from "from" directly to "to"
-    void rerouteEdges(V3Graph* graphp) VL_MT_DISABLED;
+    ਖਾਲੀ reroute_ਕਿਨਾਰੇ(V3_ਗ੍ਰਾਫ* graphp) VL_MT_DISABLED;
 };
 
-std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) VL_MT_DISABLED;
+std::ostream& ਸੰਚਾਲਕ<<(std::ostream& os, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp) VL_MT_DISABLED;
 
-template <>
-inline auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
-    return m_outs;
+ਸਾਂਚਾ <>
+ਸਤਰਅੰਦਰ ਸਵੈਚਾਲਿਤ& V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::ਕਿਨਾਰੇ<ਗ੍ਰਾਫ_Way::FORWARD>() {
+    ਵਾਪਸ m_outs;
 }
 
-template <>
-inline auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
-    return m_ins;
+ਸਾਂਚਾ <>
+ਸਤਰਅੰਦਰ ਸਵੈਚਾਲਿਤ& V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::ਕਿਨਾਰੇ<ਗ੍ਰਾਫ_Way::ਉਲਟ_2>() {
+    ਵਾਪਸ m_ins;
 }
 
-template <>
-inline const auto& V3GraphVertex::edges<GraphWay::FORWARD>() const {
-    return m_outs;
+ਸਾਂਚਾ <>
+ਸਤਰਅੰਦਰ ਅਚਲ ਸਵੈਚਾਲਿਤ& V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::ਕਿਨਾਰੇ<ਗ੍ਰਾਫ_Way::FORWARD>() ਅਚਲ {
+    ਵਾਪਸ m_outs;
 }
 
-template <>
-inline const auto& V3GraphVertex::edges<GraphWay::REVERSE>() const {
-    return m_ins;
+ਸਾਂਚਾ <>
+ਸਤਰਅੰਦਰ ਅਚਲ ਸਵੈਚਾਲਿਤ& V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::ਕਿਨਾਰੇ<ਗ੍ਰਾਫ_Way::ਉਲਟ_2>() ਅਚਲ {
+    ਵਾਪਸ m_ins;
 }
 
 //============================================================================
 
-class V3Graph VL_NOT_FINAL {
+class V3_ਗ੍ਰਾਫ VL_NOT_FINAL {
     // MEMBERS
-    V3GraphVertex::List m_vertices;  // All vertices
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::List m_vertices;  // All vertices
 
-protected:
-    friend class V3GraphVertex;
-    friend class V3GraphEdge;
-    friend class GraphAcyc;
+ਸੁਰੱਖਿਅਤ:
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼;
+    ਮਿੱਤਰ class V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ;
+    ਮਿੱਤਰ class ਗ੍ਰਾਫ_Acyc;
     // METHODS
-    double orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
-    void dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
-                  const V3GraphEdge& edge) const VL_MT_DISABLED;
+    ਦੁੱਗਣਾ ਕ੍ਰਮ_DFSIterate(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp) VL_MT_DISABLED;
+    ਖਾਲੀ dump_ਕਿਨਾਰਾ(std::ostream& os, ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& ਸ਼ੀਰਸ਼,
+                  ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ) ਅਚਲ VL_MT_DISABLED;
     // ACCESSORS
 
-public:
-    V3Graph() VL_MT_DISABLED;
-    virtual ~V3Graph() VL_MT_DISABLED;
-    virtual string dotRankDir() const { return "TB"; }  // rankdir for dot plotting
+ਜਨਤਕ:
+    V3_ਗ੍ਰਾਫ() VL_MT_DISABLED;
+    ਆਭਾਸੀ ~V3_ਗ੍ਰਾਫ() VL_MT_DISABLED;
+    ਆਭਾਸੀ string dotRankDir() ਅਚਲ { ਵਾਪਸ "TB"; }  // rankdir for dot plotting
 
     // METHODS
-    void clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
-    bool empty() const { return m_vertices.empty(); }
-    V3GraphVertex::List& vertices() { return m_vertices; }
-    const V3GraphVertex::List& vertices() const { return m_vertices; }
+    ਖਾਲੀ clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
+    bool ਖਾਲੀ_ਥਾਵਾਂ() ਅਚਲ { ਵਾਪਸ m_vertices.ਖਾਲੀ_ਥਾਵਾਂ(); }
+    V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::List& vertices() { ਵਾਪਸ m_vertices; }
+    ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼::List& vertices() ਅਚਲ { ਵਾਪਸ m_vertices; }
 
     // METHODS - ALGORITHMS
 
     /// Assign same color to all vertices in the same weakly connected component
     /// Thus different color if there's no edges between the two subgraphs
     /// Colors are assigned densely, as 0 .. n-1, and 'n' is returned
-    uint32_t weaklyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    uint32_t weaklyConnected(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
 
     /// Assign same color to all vertices that are strongly connected
     /// Thus different color if there's no directional circuit within the subgraphs.
     /// (I.E. all loops will occur within each color, not between them.)
     /// Side-effect: changes user()
-    void stronglyConnected(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    ਖਾਲੀ stronglyConnected(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the maximum of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rank(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rank() VL_MT_DISABLED;
+    ਖਾਲੀ rank(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
+    ਖਾਲੀ rank() VL_MT_DISABLED;
 
     /// Assign an ordering number to all vertexes in a tree.
     /// For multiple usages of a vertex, get the minimu of all inbound ranks + 1
     /// All nodes with no inputs will get rank 1
     /// Side-effect: changes user()
-    void rankMin(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    void rankMin() VL_MT_DISABLED;
+    ਖਾਲੀ rankMin(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
+    ਖਾਲੀ rankMin() VL_MT_DISABLED;
 
     /// Sort all vertices and edges using the V3GraphVertex::sortCmp() function
-    void sortVertices() VL_MT_DISABLED;
+    ਖਾਲੀ ਛਾਂਟੋ_Vertices() VL_MT_DISABLED;
     /// Sort all edges and edges using the V3GraphEdge::sortCmp() function
-    void sortEdges() VL_MT_DISABLED;
+    ਖਾਲੀ ਛਾਂਟੋ_ਕਿਨਾਰੇ() VL_MT_DISABLED;
 
     /// Order all vertices by rank and fanout, lowest first
     /// Sort all vertices by rank and fanout, lowest first
     /// Sort all edges by weight, lowest first
     /// Side-effect: assigns ranks to every node, and changes user()
-    void order() VL_MT_DISABLED;
+    ਖਾਲੀ ਕ੍ਰਮ() VL_MT_DISABLED;
 
     /// Similar to order() but does not assign ranks. Caller must
     /// ensure that the graph has been ranked ahead of the call.
     /// Side-effect: assigns ranks to every node, and changes user()
-    void orderPreRanked() VL_MT_DISABLED;
+    ਖਾਲੀ ਕ੍ਰਮ_Pre_Ranked() VL_MT_DISABLED;
 
     /// Make acyclical (into a tree) by breaking a minimal subset of cutable edges.
     /// Side-effect: changes rank(), changes user()
-    void acyclic(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    ਖਾਲੀ acyclic(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become MAX of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesMax(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    ਖਾਲੀ remove_Redundant_ਕਿਨਾਰੇ_Max(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
 
     /// Remove any redundant edges, weights become SUM of any other weight
     /// Side-effect: changes user()
-    void removeRedundantEdgesSum(V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
+    ਖਾਲੀ remove_Redundant_ਕਿਨਾਰੇ_ਜੋੜ(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
 
     /// Remove any transitive edges.  E.g. if have edges A->B, B->C, and A->C
     /// then A->C is a "transitive" edge; it's implied by the first two
     /// (assuming the DAG is a dependency graph.)
     /// This algorithm can be expensive.
-    void removeTransitiveEdges() VL_MT_DISABLED;
+    ਖਾਲੀ remove_ਸੰਕ੍ਰਾਮਕ_ਕਿਨਾਰੇ() VL_MT_DISABLED;
 
     /// Call loopsVertexCb on any one loop starting where specified
     /// Side-effect: changes user()
-    string reportLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp) VL_MT_DISABLED;
+    string reportLoops(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp) VL_MT_DISABLED;
 
     /// Build a subgraph of all loops starting where specified
     /// Side-effect: changes user()
-    void subtreeLoops(V3EdgeFuncP edgeFuncp, V3GraphVertex* vertexp,
-                      V3Graph* loopGraphp) VL_MT_DISABLED;
+    ਖਾਲੀ subtreeLoops(V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp,
+                      V3_ਗ੍ਰਾਫ* loopGraphp) VL_MT_DISABLED;
 
     /// Clear user()
-    void userClearVertices() VL_MT_DISABLED;
-    void userClearEdges() VL_MT_DISABLED;
+    ਖਾਲੀ userClearVertices() VL_MT_DISABLED;
+    ਖਾਲੀ user_Clear_ਕਿਨਾਰੇ() VL_MT_DISABLED;
 
     /// Debugging
-    void dump(std::ostream& os = std::cout) const VL_MT_DISABLED;
-    void dumpDotFile(const string& filename, bool colorAsSubgraph) const VL_MT_DISABLED;
-    void dumpDotFilePrefixed(const string& nameComment,
-                             bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpDotFilePrefixedAlways(const string& nameComment,
-                                   bool colorAsSubgraph = false) const VL_MT_DISABLED;
-    void dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const VL_MT_DISABLED;
+    ਖਾਲੀ dump(std::ostream& os = std::cout) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ dumpDotFile(ਅਚਲ string& filename, bool colorAsSubgraph) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ dumpDotFilePrefixed(ਅਚਲ string& nameComment,
+                             bool colorAsSubgraph = false) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ dumpDotFilePrefixedAlways(ਅਚਲ string& nameComment,
+                                   bool colorAsSubgraph = false) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ dump_ਕਿਨਾਰੇ(std::ostream& os, ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& ਸ਼ੀਰਸ਼) ਅਚਲ VL_MT_DISABLED;
     // Print a hash of the shape of graphp. When debugging nondeterminism, this can help
     // pinpoint where it's coming from.
-    void hashGraphDebug(const char* debugName) const VL_MT_DISABLED;
+    ਖਾਲੀ hash_ਗ੍ਰਾਫ_Debug(ਅਚਲ ਅੱਖਰ* debugName) ਅਚਲ VL_MT_DISABLED;
 
-    static void selfTest() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ selfTest() VL_MT_DISABLED;
 
     class ParallelismReport final {
-        friend class GraphAlgParallelismReport;
+        ਮਿੱਤਰ class ਗ੍ਰਾਫ_Alg_Parallelism_Report;
         // Total cost of evaluating the whole graph. The ratio of m_totalGraphCost to
         // m_criticalPathCost gives us an estimate of the parallelizability of this graph which is
         // only as good as the guess returned by vertexCost.
-        uint64_t m_totalGraphCost = 0;
+        uint64_t m_ਕੁੱਲ_ਗ੍ਰਾਫ_ਲਾਗਤ = 0;
 
         // Cost of the critical path, in abstract units (the same units returned by the vertexCost)
-        uint64_t m_criticalPathCost = 0;
+        uint64_t m_critical_ਰਸਤਾ_ਲਾਗਤ = 0;
 
-        uint64_t m_vertexCount = 0;  // Number of vertexes in the graph
-        uint64_t m_edgeCount = 0;  // Number of edges in the grap
+        uint64_t m_ਸ਼ੀਰਸ਼_ਗਿਣਤੀ = 0;  // Number of vertexes in the graph
+        uint64_t m_ਕਿਨਾਰਾ_ਗਿਣਤੀ = 0;  // Number of edges in the grap
 
-        ParallelismReport() = default;
+        ParallelismReport() = ਮੂਲ;
 
-    public:
-        ~ParallelismReport() = default;
-        ParallelismReport(const ParallelismReport&) = default;
-        ParallelismReport& operator=(const ParallelismReport&) = default;
+    ਜਨਤਕ:
+        ~ParallelismReport() = ਮੂਲ;
+        ParallelismReport(ਅਚਲ ParallelismReport&) = ਮੂਲ;
+        ParallelismReport& ਸੰਚਾਲਕ=(ਅਚਲ ParallelismReport&) = ਮੂਲ;
 
-        uint64_t totalGraphCost() const { return m_totalGraphCost; }
-        uint64_t criticalPathCost() const { return m_criticalPathCost; }
-        uint64_t vertexCount() const { return m_vertexCount; }
-        uint64_t edgeCount() const { return m_edgeCount; }
-        double parallelismFactor() const {
-            return (static_cast<double>(m_totalGraphCost) / m_criticalPathCost);
+        uint64_t ਕੁੱਲ_ਗ੍ਰਾਫ_ਲਾਗਤ() ਅਚਲ { ਵਾਪਸ m_ਕੁੱਲ_ਗ੍ਰਾਫ_ਲਾਗਤ; }
+        uint64_t critical_ਰਸਤਾ_ਲਾਗਤ() ਅਚਲ { ਵਾਪਸ m_critical_ਰਸਤਾ_ਲਾਗਤ; }
+        uint64_t ਸ਼ੀਰਸ਼_ਗਿਣਤੀ() ਅਚਲ { ਵਾਪਸ m_ਸ਼ੀਰਸ਼_ਗਿਣਤੀ; }
+        uint64_t ਕਿਨਾਰਾ_ਗਿਣਤੀ() ਅਚਲ { ਵਾਪਸ m_ਕਿਨਾਰਾ_ਗਿਣਤੀ; }
+        ਦੁੱਗਣਾ parallelism_ਗੁਣਕ() ਅਚਲ {
+            ਵਾਪਸ (static_cast<ਦੁੱਗਣਾ>(m_ਕੁੱਲ_ਗ੍ਰਾਫ_ਲਾਗਤ) / m_critical_ਰਸਤਾ_ਲਾਗਤ);
         }
     };
 
     ParallelismReport
-    parallelismReport(std::function<uint64_t(const V3GraphVertex*)> vertexCost) VL_MT_DISABLED;
+    parallelismReport(std::function<uint64_t(ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼*)> ਸ਼ੀਰਸ਼_ਲਾਗਤ) VL_MT_DISABLED;
 
     // CALLBACKS
-    virtual void loopsMessageCb(V3GraphVertex* vertexp, V3EdgeFuncP edgeFuncp) VL_MT_DISABLED;
-    virtual string loopsVertexCb(V3GraphVertex* vertexp) VL_MT_DISABLED;
+    ਆਭਾਸੀ ਖਾਲੀ loops_ਸੁਨੇਹਾ_Cb(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp, V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp) VL_MT_DISABLED;
+    ਆਭਾਸੀ string loops_ਸ਼ੀਰਸ਼_Cb(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* vertexp) VL_MT_DISABLED;
 };
 
 //============================================================================
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

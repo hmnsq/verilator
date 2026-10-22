@@ -14,339 +14,339 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3SENEXPRBUILDER_H_
-#define VERILATOR_V3SENEXPRBUILDER_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3SENEXPRBUILDER_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3SENEXPRBUILDER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3UniqueNames.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3UniqueNames.h"
 
 //######################################################################
 // SenExprBuilder constructs the expressions used to compute if an
 // AstSenTree have triggered
 
-class SenExprBuilder final {
-public:
+class Sen_ਵਿਅੰਜਕ_Builder final {
+ਜਨਤਕ:
     // TYPES
-    struct Results final {
-        std::vector<AstNodeStmt*> m_inits;  // Initialization statements for previous values
-        std::vector<AstNodeStmt*> m_preUpdates;  // Pre update assignments
-        std::vector<AstNodeStmt*> m_postUpdates;  // Post update assignments
+    ਬਣਤਰ Results final {
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*> m_inits;  // Initialization statements for previous values
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*> m_preUpdates;  // Pre update assignments
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*> m_postUpdates;  // Post update assignments
         // Aliases of destructive post updates (for example event clearFired) that may need
         // to run once before entering a fresh dynamic wait loop.
-        std::vector<AstNodeStmt*> m_destructivePostUpdates;
-        std::vector<AstVar*> m_vars;  // Created temporary variables
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*> m_destructivePostUpdates;
+        std::ਸਦਿਸ਼<AstVar*> m_vars;  // Created temporary variables
     };
 
-private:
+ਨਿਜੀ:
     // STATE
-    AstScope* const m_scopep;  // The scope
+    AstScope* ਅਚਲ m_scopep;  // The scope
 
     Results m_results;  // The builder result
 
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_prev;  // The 'previous value' signals
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_curr;  // The 'current value' signals
-    std::unordered_set<VNRef<AstNode>> m_hasPreUpdate;  // Whether the given sen expression already
+    std::unordered_map<VNRef<Ast_ਗੰਢ>, AstVarScope*> m_prev;  // The 'previous value' signals
+    std::unordered_map<VNRef<Ast_ਗੰਢ>, AstVarScope*> m_curr;  // The 'current value' signals
+    std::unordered_ਸੈੱਟ<VNRef<Ast_ਗੰਢ>> m_hasPreUpdate;  // Whether the given sen expression already
                                                         // has an update statement in m_preUpdates
-    std::unordered_set<VNRef<AstNode>> m_hasPostUpdate;  // Likewise for m_postUpdates
+    std::unordered_ਸੈੱਟ<VNRef<Ast_ਗੰਢ>> m_hasPostUpdate;  // Likewise for m_postUpdates
 
-    V3UniqueNames m_prevNames{"__Vtrigprevexpr"};  // For generating unique temporary names
+    V3_Unique_ਨਾਂ m_prev_ਨਾਂ{"__Vtrigprevexpr"};  // For generating unique temporary names
 
-    static bool isSupportedDType(AstNodeDType* dtypep) {
+    ਸਥਿਰ bool isSupportedDType(Ast_ਗੰਢ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (VN_IS(dtypep, BasicDType)) return true;
-        if (VN_IS(dtypep, PackArrayDType)) return true;
-        if (VN_IS(dtypep, UnpackArrayDType)) return isSupportedDType(dtypep->subDTypep());
-        if (VN_IS(dtypep, NodeUOrStructDType)) return true;  // All are packed at the moment
+        ਜੇ (VN_IS(dtypep, BasicDType)) ਵਾਪਸ true;
+        ਜੇ (VN_IS(dtypep, PackArrayDType)) ਵਾਪਸ true;
+        ਜੇ (VN_IS(dtypep, UnpackArrayDType)) ਵਾਪਸ isSupportedDType(dtypep->subDTypep());
+        ਜੇ (VN_IS(dtypep, ਗੰਢ_UOr_Struct_DType)) ਵਾਪਸ true;  // All are packed at the moment
         // Per IEEE, detects reference object pointer changes, not contents of the class changes
-        if (VN_IS(dtypep, ClassRefDType)) return true;
-        return false;
+        ਜੇ (VN_IS(dtypep, ClassRefDType)) ਵਾਪਸ true;
+        ਵਾਪਸ false;
     }
 
-    static bool isSimpleExpr(const AstNode* const exprp) {
-        return exprp->forall([](const AstNode* const nodep) {
-            return VN_IS(nodep, Const) || VN_IS(nodep, NodeVarRef) || VN_IS(nodep, Sel)
-                   || VN_IS(nodep, NodeSel) || VN_IS(nodep, MemberSel)
+    ਸਥਿਰ bool is_Simple_ਵਿਅੰਜਕ(ਅਚਲ Ast_ਗੰਢ* ਅਚਲ exprp) {
+        ਵਾਪਸ exprp->forall([](ਅਚਲ Ast_ਗੰਢ* ਅਚਲ nodep) {
+            ਵਾਪਸ VN_IS(nodep, Const) || VN_IS(nodep, ਗੰਢ_Var_Ref) || VN_IS(nodep, Sel)
+                   || VN_IS(nodep, ਗੰਢ_Sel) || VN_IS(nodep, MemberSel)
                    || VN_IS(nodep, CMethodHard);
         });
     }
 
     // Whether a reference may be null: a class reference or a virtual interface
-    static bool isNullableRef(const AstNodeExpr* const refp) {
-        if (!refp->dtypep()) return false;
-        const AstNodeDType* const dtypep = refp->dtypep()->skipRefp();
-        const AstIfaceRefDType* const ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
-        return VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
+    ਸਥਿਰ bool isNullableRef(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ refp) {
+        ਜੇ (!refp->dtypep()) ਵਾਪਸ false;
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = refp->dtypep()->skipRefp();
+        ਅਚਲ AstIfaceRefDType* ਅਚਲ ifaceDtypep = VN_CAST(dtypep, IfaceRefDType);
+        ਵਾਪਸ VN_IS(dtypep, ClassRefDType) || (ifaceDtypep && ifaceDtypep->isVirtual());
     }
 
     // Check if expression contains a member access through a reference that could be null
     // (e.g., accessing an event through a class reference that may not be initialized)
-    static bool hasNullableMemberAccess(const AstNode* const exprp) {
-        return exprp && exprp->exists([](const AstNode* const nodep) {
-            const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel);
-            return mselp && isNullableRef(mselp->fromp());
+    ਸਥਿਰ bool hasNullableMemberAccess(ਅਚਲ Ast_ਗੰਢ* ਅਚਲ exprp) {
+        ਵਾਪਸ exprp && exprp->exists([](ਅਚਲ Ast_ਗੰਢ* ਅਚਲ nodep) {
+            ਅਚਲ AstMemberSel* ਅਚਲ mselp = VN_CAST(nodep, MemberSel);
+            ਵਾਪਸ mselp && isNullableRef(mselp->fromp());
         });
     }
 
     // Get the base reference expression from a member selection chain
     // Returns the outermost reference that needs to be null-checked
     // Note: Returns a pointer into the original tree - caller must clone if needed
-    static const AstNodeExpr* getBaseNullableRef(const AstNodeExpr* exprp) {
-        while (exprp) {
-            if (const AstMemberSel* const mselp = VN_CAST(exprp, MemberSel)) {
-                const AstNodeExpr* const fromp = mselp->fromp();
-                if (isNullableRef(fromp)) {
+    ਸਥਿਰ ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* get_ਅਧਾਰ_Nullable_Ref(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        ਜਦੋਂ (exprp) {
+            ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mselp = VN_CAST(exprp, MemberSel)) {
+                ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = mselp->fromp();
+                ਜੇ (isNullableRef(fromp)) {
                     // Check if the base itself has a member access through a nullable reference
-                    if (hasNullableMemberAccess(fromp)) {
+                    ਜੇ (hasNullableMemberAccess(fromp)) {
                         exprp = fromp;
-                        continue;
+                        ਜਾਰੀ;
                     }
-                    return fromp;
+                    ਵਾਪਸ fromp;
                 }
                 exprp = fromp;
-            } else {
-                return nullptr;
+            } ਨਹੀਂਤਾਂ {
+                ਵਾਪਸ nullptr;
             }
         }
-        return nullptr;
+        ਵਾਪਸ nullptr;
     }
 
     // METHODS
-    AstVarScope* crateTemp(AstNodeExpr* exprp) {
+    AstVarScope* crate_ਆਰਜ਼ੀ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
         // For readability, use the scoped signal name if the trigger is a simple AstVarRef
         string name;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) {
-            AstVarScope* const vscp = refp->varScopep();
+        ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(exprp, VarRef)) {
+            AstVarScope* ਅਚਲ vscp = refp->varScopep();
             name = "__" + vscp->scopep()->nameDotless() + "__" + vscp->varp()->name();
-            name = m_prevNames.get(name);
-        } else {
-            name = m_prevNames.get(exprp);
+            name = m_prev_ਨਾਂ.get(name);
+        } ਨਹੀਂਤਾਂ {
+            name = m_prev_ਨਾਂ.get(exprp);
         }
         // Not shared between instances, as the users might move the variables into processes
-        FileLine* const flp = m_scopep->fileline();
-        AstVar* const varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
-        varp->isInternal(true);
-        m_scopep->modp()->addStmtsp(varp);
-        AstVarScope* const vscp = new AstVarScope{flp, m_scopep, varp};
-        m_scopep->addVarsp(vscp);
-        m_results.m_vars.push_back(varp);
-        return vscp;
+        File_ਸਤਰ* ਅਚਲ flp = m_scopep->fileline();
+        AstVar* ਅਚਲ varp = new AstVar{flp, VVarType::MODULETEMP, name, exprp->dtypep()};
+        varp->is_ਅੰਦਰੂਨੀ(true);
+        m_scopep->modp()->ਜੋੜੋ_Stmtsp(varp);
+        AstVarScope* ਅਚਲ vscp = new AstVarScope{flp, m_scopep, varp};
+        m_scopep->ਜੋੜੋ_Varsp(vscp);
+        m_results.m_vars.ਧੱਕੋ_ਪਿੱਠ(varp);
+        ਵਾਪਸ vscp;
     }
 
     // Helper to wrap a statement with a null check: if (baseRef != null) stmt
-    AstNodeStmt* wrapStmtWithNullCheck(FileLine* flp, AstNodeStmt* stmtp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return stmtp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ਗੰਢ_Stmt* wrapStmtWithNullCheck(File_ਸਤਰ* flp, Ast_ਗੰਢ_Stmt* stmtp,
+                                       ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਧਾਰ_Refp) {
+        ਜੇ (!ਅਧਾਰ_Refp) ਵਾਪਸ stmtp;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        return new AstIf{flp, checkp, stmtp};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ checkp
+            = new AstNeq{flp, const_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਅਧਾਰ_Refp)->clone_ਰੁੱਖ(false), nullp};
+        ਵਾਪਸ new AstIf{flp, checkp, stmtp};
     }
 
     // Helper to wrap a trigger expression with a null check if needed
     // Returns the expression wrapped in: (baseRef != null) ? expr : 0
-    AstNodeExpr* wrapExprWithNullCheck(FileLine* flp, AstNodeExpr* exprp,
-                                       const AstNodeExpr* baseRefp) {
-        if (!baseRefp) return exprp;
-        AstNodeExpr* const nullp = new AstConst{flp, AstConst::Null{}};
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* wrap_ਵਿਅੰਜਕ_With_Null_Check(File_ਸਤਰ* flp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp,
+                                       ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਧਾਰ_Refp) {
+        ਜੇ (!ਅਧਾਰ_Refp) ਵਾਪਸ exprp;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nullp = new AstConst{flp, AstConst::Null{}};
         // const_cast safe: cloneTree doesn't modify the source
-        AstNodeExpr* const checkp
-            = new AstNeq{flp, const_cast<AstNodeExpr*>(baseRefp)->cloneTree(false), nullp};
-        AstNodeExpr* const falsep = new AstConst{flp, AstConst::BitFalse{}};
-        AstNodeExpr* const condp = new AstCond{flp, checkp, exprp, falsep};
-        condp->dtypeSetBit();
-        return condp;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ checkp
+            = new AstNeq{flp, const_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਅਧਾਰ_Refp)->clone_ਰੁੱਖ(false), nullp};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ falsep = new AstConst{flp, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_False{}};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp = new AstCond{flp, checkp, exprp, falsep};
+        condp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+        ਵਾਪਸ condp;
     }
 
-    AstNodeExpr* getCurr(AstNodeExpr* exprp) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* getCurr(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
         // For simple expressions like varrefs or selects, just use them directly
-        if (isSimpleExpr(exprp)) return exprp->cloneTree(false);
+        ਜੇ (is_Simple_ਵਿਅੰਜਕ(exprp)) ਵਾਪਸ exprp->clone_ਰੁੱਖ(false);
 
         // Create the 'current value' variable
-        FileLine* const flp = exprp->fileline();
-        auto result = m_curr.emplace(*exprp, nullptr);
-        if (result.second) result.first->second = crateTemp(exprp);
-        AstVarScope* const currp = result.first->second;
+        File_ਸਤਰ* ਅਚਲ flp = exprp->fileline();
+        ਸਵੈਚਾਲਿਤ ਨਤੀਜਾ = m_curr.emplace(*exprp, nullptr);
+        ਜੇ (ਨਤੀਜਾ.ਦੂਜਾ) ਨਤੀਜਾ.ਪਹਿਲਾ->ਦੂਜਾ = crate_ਆਰਜ਼ੀ(exprp);
+        AstVarScope* ਅਚਲ currp = ਨਤੀਜਾ.ਪਹਿਲਾ->ਦੂਜਾ;
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਅਧਾਰ_Refp
+            = hasNullableMemberAccess(exprp) ? get_ਅਧਾਰ_Nullable_Ref(exprp) : nullptr;
 
         // Add pre update if it does not exist yet in this round
-        if (m_hasPreUpdate.emplace(*currp).second) {
-            m_results.m_preUpdates.push_back(
+        ਜੇ (m_hasPreUpdate.emplace(*currp).ਦੂਜਾ) {
+            m_results.m_preUpdates.ਧੱਕੋ_ਪਿੱਠ(
                 wrapStmtWithNullCheck(flp,
-                                      new AstAssign{flp, new AstVarRef{flp, currp, VAccess::WRITE},
-                                                    exprp->cloneTree(false)},
-                                      baseRefp));
+                                      new Ast_ਸੌਂਪੋ{flp, new AstVarRef{flp, currp, VAccess::WRITE},
+                                                    exprp->clone_ਰੁੱਖ(false)},
+                                      ਅਧਾਰ_Refp));
         }
-        return new AstVarRef{flp, currp, VAccess::READ};
+        ਵਾਪਸ new AstVarRef{flp, currp, VAccess::READ};
     }
 
-    AstVarScope* getPrev(AstNodeExpr* exprp) {
-        FileLine* const flp = exprp->fileline();
-        const auto rdCurr = [this, exprp]() { return getCurr(exprp); };
+    AstVarScope* getPrev(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        File_ਸਤਰ* ਅਚਲ flp = exprp->fileline();
+        ਅਚਲ ਸਵੈਚਾਲਿਤ rdCurr = [this, exprp]() { ਵਾਪਸ getCurr(exprp); };
 
         // Check if we need null guards for a member access through a nullable reference
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(exprp) ? getBaseNullableRef(exprp) : nullptr;
+        ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਅਧਾਰ_Refp
+            = hasNullableMemberAccess(exprp) ? get_ਅਧਾਰ_Nullable_Ref(exprp) : nullptr;
 
-        AstNode* scopeExprp = exprp;
-        if (AstVarRef* const refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
+        Ast_ਗੰਢ* scopeExprp = exprp;
+        ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(exprp, VarRef)) scopeExprp = refp->varScopep();
         // Create the 'previous value' variable
-        const auto pair = m_prev.emplace(*scopeExprp, nullptr);
-        if (pair.second) {
-            AstVarScope* const prevp = crateTemp(exprp);
-            pair.first->second = prevp;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_prev.emplace(*scopeExprp, nullptr);
+        ਜੇ (pair.ਦੂਜਾ) {
+            AstVarScope* ਅਚਲ prevp = crate_ਆਰਜ਼ੀ(exprp);
+            pair.ਪਹਿਲਾ->ਦੂਜਾ = prevp;
             // Add the initializer init (guarded if through a nullable reference)
-            AstAssign* const initp = new AstAssign{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
-                                                   exprp->cloneTree(false)};
-            m_results.m_inits.push_back(wrapStmtWithNullCheck(flp, initp, baseRefp));
+            Ast_ਸੌਂਪੋ* ਅਚਲ initp = new Ast_ਸੌਂਪੋ{flp, new AstVarRef{flp, prevp, VAccess::WRITE},
+                                                   exprp->clone_ਰੁੱਖ(false)};
+            m_results.m_inits.ਧੱਕੋ_ਪਿੱਠ(wrapStmtWithNullCheck(flp, initp, ਅਧਾਰ_Refp));
         }
 
-        AstVarScope* const prevp = pair.first->second;
+        AstVarScope* ਅਚਲ prevp = pair.ਪਹਿਲਾ->ਦੂਜਾ;
 
-        const auto wrPrev = [=]() { return new AstVarRef{flp, prevp, VAccess::WRITE}; };
+        ਅਚਲ ਸਵੈਚਾਲਿਤ wrPrev = [=]() { ਵਾਪਸ new AstVarRef{flp, prevp, VAccess::WRITE}; };
 
         // Add post update if it does not exist yet
-        if (m_hasPostUpdate.emplace(*exprp).second) {
-            AstNodeDType* const exprDtp = exprp->dtypep()->skipRefp();
-            if (!isSupportedDType(exprDtp)) {
+        ਜੇ (m_hasPostUpdate.emplace(*exprp).ਦੂਜਾ) {
+            Ast_ਗੰਢ_DType* ਅਚਲ ਵਿਅੰਜਕ_Dtp = exprp->dtypep()->skipRefp();
+            ਜੇ (!isSupportedDType(ਵਿਅੰਜਕ_Dtp)) {
                 exprp->v3warn(
                     E_UNSUPPORTED,
                     "Unsupported: Cannot detect changes on expression of complex type "
-                        << exprDtp->prettyDTypeNameQ() << "\n"
-                        << exprp->warnMore()
+                        << ਵਿਅੰਜਕ_Dtp->prettyDTypeNameQ() << "\n"
+                        << exprp->warn_ਹੋਰ()
                         << "... May be caused by combinational cycles reported with UNOPTFLAT");
-                return prevp;
+                ਵਾਪਸ prevp;
             }
-            if (VN_IS(exprDtp, UnpackArrayDType)) {
-                AstCMethodHard* const cmhp
-                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ASSIGN, rdCurr()};
-                cmhp->dtypeSetVoid();
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), baseRefp));
-            } else {
-                m_results.m_postUpdates.push_back(
-                    wrapStmtWithNullCheck(flp, new AstAssign{flp, wrPrev(), rdCurr()}, baseRefp));
+            ਜੇ (VN_IS(ਵਿਅੰਜਕ_Dtp, UnpackArrayDType)) {
+                AstCMethodHard* ਅਚਲ cmhp
+                    = new AstCMethodHard{flp, wrPrev(), VCMethod::UNPACKED_ਸੌਂਪੋ, rdCurr()};
+                cmhp->dtype_ਸੈੱਟ_Void();
+                m_results.m_postUpdates.ਧੱਕੋ_ਪਿੱਠ(
+                    wrapStmtWithNullCheck(flp, cmhp->makeStmt(), ਅਧਾਰ_Refp));
+            } ਨਹੀਂਤਾਂ {
+                m_results.m_postUpdates.ਧੱਕੋ_ਪਿੱਠ(
+                    wrapStmtWithNullCheck(flp, new Ast_ਸੌਂਪੋ{flp, wrPrev(), rdCurr()}, ਅਧਾਰ_Refp));
             }
         }
 
-        return prevp;
+        ਵਾਪਸ prevp;
     }
 
-    std::pair<AstNodeExpr*, bool> createTerm(const AstSenItem* senItemp) {
-        FileLine* const flp = senItemp->fileline();
-        AstNodeExpr* const senp = senItemp->sensp();
+    std::pair<Ast_ਗੰਢ_ਵਿਅੰਜਕ*, bool> create_ਪਦ(ਅਚਲ Ast_Sen_ਵਸਤੂ* senItemp) {
+        File_ਸਤਰ* ਅਚਲ flp = senItemp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ senp = senItemp->sensp();
 
         // Check if the sensitivity expression involves accessing through a class reference
         // that may be null (e.g., DynScope handles created in fork blocks, or class member
         // virtual interfaces). If so, we need to guard against null pointer dereference.
-        const AstNodeExpr* const baseRefp
-            = hasNullableMemberAccess(senp) ? getBaseNullableRef(senp) : nullptr;
+        ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਅਧਾਰ_Refp
+            = hasNullableMemberAccess(senp) ? get_ਅਧਾਰ_Nullable_Ref(senp) : nullptr;
 
-        const auto currp = [this, senp]() { return getCurr(senp); };
-        const auto prevp
-            = [this, flp, senp]() { return new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
-        const auto lsb = [=](AstNodeExpr* opp) { return new AstSel{flp, opp, 0, 1}; };
+        ਅਚਲ ਸਵੈਚਾਲਿਤ currp = [this, senp]() { ਵਾਪਸ getCurr(senp); };
+        ਅਚਲ ਸਵੈਚਾਲਿਤ prevp
+            = [this, flp, senp]() { ਵਾਪਸ new AstVarRef{flp, getPrev(senp), VAccess::READ}; };
+        ਅਚਲ ਸਵੈਚਾਲਿਤ lsb = [=](Ast_ਗੰਢ_ਵਿਅੰਜਕ* opp) { ਵਾਪਸ new AstSel{flp, opp, 0, 1}; };
 
         // All event signals should be 1-bit at this point
-        switch (senItemp->edgeType()) {
-        case VEdgeType::ET_CHANGED:
-        case VEdgeType::ET_HYBRID:  //
-            if (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
+        ਚੋਣ (senItemp->ਕਿਨਾਰਾ_Type()) {
+        ਹਾਲਤ VEdgeType::ET_ਬਦਲਿਆ:
+        ਹਾਲਤ VEdgeType::ET_HYBRID:  //
+            ਜੇ (VN_IS(senp->dtypep()->skipRefp(), UnpackArrayDType)) {
                 // operand order reversed to avoid calling neq() method on non-VlUnpacked type, see
                 // issue #5125
-                AstCMethodHard* const resultp
+                AstCMethodHard* ਅਚਲ resultp
                     = new AstCMethodHard{flp, prevp(), VCMethod::UNPACKED_NEQ, currp()};
-                resultp->dtypeSetBit();
-                return {wrapExprWithNullCheck(flp, resultp, baseRefp), true};
+                resultp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+                ਵਾਪਸ {wrap_ਵਿਅੰਜਕ_With_Null_Check(flp, resultp, ਅਧਾਰ_Refp), true};
             }
-            return {wrapExprWithNullCheck(flp, new AstNeq{flp, currp(), prevp()}, baseRefp), true};
-        case VEdgeType::ET_BOTHEDGE:  //
-            return {wrapExprWithNullCheck(flp, lsb(new AstXor{flp, currp(), prevp()}), baseRefp),
+            ਵਾਪਸ {wrap_ਵਿਅੰਜਕ_With_Null_Check(flp, new AstNeq{flp, currp(), prevp()}, ਅਧਾਰ_Refp), true};
+        ਹਾਲਤ VEdgeType::ET_BOTHEDGE:  //
+            ਵਾਪਸ {wrap_ਵਿਅੰਜਕ_With_Null_Check(flp, lsb(new AstXor{flp, currp(), prevp()}), ਅਧਾਰ_Refp),
                     false};
-        case VEdgeType::ET_POSEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), baseRefp),
+        ਹਾਲਤ VEdgeType::ET_POSEDGE:  //
+            ਵਾਪਸ {wrap_ਵਿਅੰਜਕ_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, currp(), new AstNot{flp, prevp()}}), ਅਧਾਰ_Refp),
                     false};
-        case VEdgeType::ET_NEGEDGE:  //
-            return {wrapExprWithNullCheck(
-                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), baseRefp),
+        ਹਾਲਤ VEdgeType::ET_NEGEDGE:  //
+            ਵਾਪਸ {wrap_ਵਿਅੰਜਕ_With_Null_Check(
+                        flp, lsb(new AstAnd{flp, new AstNot{flp, currp()}, prevp()}), ਅਧਾਰ_Refp),
                     false};
-        case VEdgeType::ET_EVENT: {
+        ਹਾਲਤ VEdgeType::ET_EVENT: {
             UASSERT_OBJ(v3Global.hasEvents(), senItemp, "Inconsistent");
 
             // Clear 'fired' state when done (guarded if through a nullable reference)
             // The event is modified, so the select (e.g. assoc array) must be an lvalue
-            AstNodeExpr* const clearFromp = currp();
-            if (AstNodeVarRef* const refp
-                = VN_CAST(clearFromp->getVAccessTargetRecurse(), NodeVarRef)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ clearFromp = currp();
+            ਜੇ (Ast_ਗੰਢ_Var_Ref* ਅਚਲ refp
+                = VN_CAST(clearFromp->get_VAccess_ਨਿਸ਼ਾਨਾ_Recurse(), ਗੰਢ_Var_Ref)) {
                 refp->access(VAccess::WRITE);
             }
-            AstCMethodHard* const clearp
+            AstCMethodHard* ਅਚਲ clearp
                 = new AstCMethodHard{flp, clearFromp, VCMethod::EVENT_CLEAR_FIRED};
-            clearp->dtypeSetVoid();
-            AstNodeStmt* const clearStmtp
-                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), baseRefp);
-            m_results.m_postUpdates.push_back(clearStmtp);
-            m_results.m_destructivePostUpdates.push_back(clearStmtp);
+            clearp->dtype_ਸੈੱਟ_Void();
+            Ast_ਗੰਢ_Stmt* ਅਚਲ clearStmtp
+                = wrapStmtWithNullCheck(flp, clearp->makeStmt(), ਅਧਾਰ_Refp);
+            m_results.m_postUpdates.ਧੱਕੋ_ਪਿੱਠ(clearStmtp);
+            m_results.m_destructivePostUpdates.ਧੱਕੋ_ਪਿੱਠ(clearStmtp);
 
             // Get 'fired' state
-            AstCMethodHard* const callp
+            AstCMethodHard* ਅਚਲ callp
                 = new AstCMethodHard{flp, currp(), VCMethod::EVENT_IS_FIRED};
-            callp->dtypeSetBit();
-            AstNodeExpr* const firedp = wrapExprWithNullCheck(flp, callp, baseRefp);
-            if (const AstVarRef* const refp = VN_CAST(senp, VarRef)) {
+            callp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ firedp = wrap_ਵਿਅੰਜਕ_With_Null_Check(flp, callp, ਅਧਾਰ_Refp);
+            ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(senp, VarRef)) {
                 // The private NBA event must run so pending assignments finish settling.
-                if (refp->varScopep() == v3Global.rootp()->nbaEventp()) return {firedp, false};
+                ਜੇ (refp->varScopep() == v3Global.rootp()->nbaEventp()) ਵਾਪਸ {firedp, false};
             }
             // Do not trigger user named-event processes after $finish.
-            AstNodeExpr* const notFinishp
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ notFinishp
                 = new AstCExpr{flp,
                                "VL_LIKELY(!vlSymsp->_vm_contextp__->gotFinish() && "
                                "!vlSymsp->_vm_contextp__->finishPending())",
                                1};
-            return {new AstLogAnd{flp, notFinishp, firedp}, false};
+            ਵਾਪਸ {new AstLogAnd{flp, notFinishp, firedp}, false};
         }
-        case VEdgeType::ET_TRUE:  //
-            return {currp(), false};
-        case VEdgeType::ET_INITIAL_NBA:  //
-            return {new AstConst{flp, AstConst::BitFalse{}}, true};
-        default:  // LCOV_EXCL_START
+        ਹਾਲਤ VEdgeType::ET_TRUE:  //
+            ਵਾਪਸ {currp(), false};
+        ਹਾਲਤ VEdgeType::ET_INITIAL_NBA:  //
+            ਵਾਪਸ {new AstConst{flp, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_False{}}, true};
+        ਮੂਲ:  // LCOV_EXCL_START
             senItemp->v3fatalSrc("Unknown edge type");
-            return {nullptr, false};
+            ਵਾਪਸ {nullptr, false};
         }  // LCOV_EXCL_STOP
     }
 
-public:
+ਜਨਤਕ:
     // Returns the expression computing the trigger, and a bool indicating that
     // this trigger should be fired on the first evaluation (at initialization)
-    std::pair<AstNodeExpr*, bool> build(const AstSenItem* senItemp) {
-        auto term = createTerm(senItemp);
-        if (AstNodeExpr* const condp = senItemp->condp()) {
-            term.first = new AstAnd{senItemp->fileline(), condp->cloneTreePure(false), term.first};
+    std::pair<Ast_ਗੰਢ_ਵਿਅੰਜਕ*, bool> build(ਅਚਲ Ast_Sen_ਵਸਤੂ* senItemp) {
+        ਸਵੈਚਾਲਿਤ ਪਦ = create_ਪਦ(senItemp);
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp = senItemp->condp()) {
+            ਪਦ.ਪਹਿਲਾ = new AstAnd{senItemp->fileline(), condp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(false), ਪਦ.ਪਹਿਲਾ};
         }
-        return term;
+        ਵਾਪਸ ਪਦ;
     }
 
     // Like above, but for a whole SenTree
-    std::pair<AstNodeExpr*, bool> build(const AstSenTree* senTreep) {
-        FileLine* const flp = senTreep->fileline();
-        AstNodeExpr* resultp = nullptr;
+    std::pair<Ast_ਗੰਢ_ਵਿਅੰਜਕ*, bool> build(ਅਚਲ Ast_Sen_ਰੁੱਖ* senTreep) {
+        File_ਸਤਰ* ਅਚਲ flp = senTreep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* resultp = nullptr;
         bool firedAtInitialization = false;
-        for (AstSenItem* senItemp = senTreep->sensesp(); senItemp;
-             senItemp = VN_AS(senItemp->nextp(), SenItem)) {
-            const auto& pair = build(senItemp);
-            if (AstNodeExpr* termp = pair.first) {
+        ਲਈ (Ast_Sen_ਵਸਤੂ* senItemp = senTreep->sensesp(); senItemp;
+             senItemp = VN_AS(senItemp->nextp(), Sen_ਵਸਤੂ)) {
+            ਅਚਲ ਸਵੈਚਾਲਿਤ& pair = build(senItemp);
+            ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* termp = pair.ਪਹਿਲਾ) {
                 resultp = resultp ? new AstOr{flp, resultp, termp} : termp;
-                firedAtInitialization |= pair.second;
+                firedAtInitialization |= pair.ਦੂਜਾ;
             }
         }
-        return {resultp, firedAtInitialization};
+        ਵਾਪਸ {resultp, firedAtInitialization};
     }
 
     Results getResultsAndClearUpdates() {
@@ -354,7 +354,7 @@ public:
         m_hasPostUpdate.clear();
         Results ans = std::move(m_results);
         m_results = {};
-        return ans;
+        ਵਾਪਸ ans;
     }
 
     Results getAndClearResults() {
@@ -362,12 +362,12 @@ public:
         m_prev.clear();
         m_hasPreUpdate.clear();
         m_hasPostUpdate.clear();
-        return std::move(m_results);
+        ਵਾਪਸ std::move(m_results);
     }
 
     // CONSTRUCTOR
-    explicit SenExprBuilder(AstScope* scopep)
+    explicit Sen_ਵਿਅੰਜਕ_Builder(AstScope* scopep)
         : m_scopep{scopep} {}
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

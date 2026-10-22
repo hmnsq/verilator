@@ -15,54 +15,54 @@
 //*************************************************************************
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
-# ifndef PSAPI_VERSION
-#  define PSAPI_VERSION 1  // Needed for compatibility with Windows 7
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+# ifndef PSAPI_ਸੰਸਕਰਣ
+#  define PSAPI_ਸੰਸਕਰਣ 1  // Needed for compatibility with Windows 7
 # endif
-#endif
-#ifndef __MINGW32__
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ __MINGW32__
 # define MINGW_HAS_SECURE_API 1  // Needed to expose a "secure" POSIX-like API
-#endif
+#ਜੇ_ਅੰਤ
 // clang-format on
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
 // Limited V3 headers here - this is a base class for Vlc etc
-#include "V3Os.h"
-#include "V3String.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Os.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3String.h"
 
-#ifndef V3ERROR_NO_GLOBAL_
-#include "V3Global.h"
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
-#endif
+#ਜੇ_ਅੰਤ
 
-#include <cerrno>
-#include <climits>  // PATH_MAX (especially on FreeBSD)
-#include <cstdarg>
-#ifdef _MSC_VER
-#include <filesystem>  // C++17
-#define PATH_MAX MAX_PATH
-#else
-#include <dirent.h>
-#include <utime.h>
-#endif
-#include <fcntl.h>
-#include <fstream>
-#include <memory>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cerrno>
+#ਅਨ੍ਤਰ੍ਭਾਵ <climits>  // PATH_MAX (especially on FreeBSD)
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstdarg>
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _MSC_VER
+#ਅਨ੍ਤਰ੍ਭਾਵ <filesystem>  // C++17
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ ਰਸਤਾ_MAX MAX_ਰਸਤਾ
+#ਨਹੀਂਤਾਂ
+#ਅਨ੍ਤਰ੍ਭਾਵ <dirent.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utime.h>
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <fcntl.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fstream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <memory>
 
-#include <sys/stat.h>
-#include <sys/types.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/stat.h>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sys/types.h>
 
-#ifdef HAVE_TCMALLOC
-#include <gperftools/malloc_extension.h>
-#endif
-#ifdef HAVE_JEMALLOC
-#include <jemalloc/jemalloc.h>
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_TCMALLOC
+#ਅਨ੍ਤਰ੍ਭਾਵ <gperftools/malloc_extension.h>
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_JEMALLOC
+#ਅਨ੍ਤਰ੍ਭਾਵ <jemalloc/jemalloc.h>
+#ਜੇ_ਅੰਤ
 
 // clang-format off
-#if defined(_WIN32) || defined(__MINGW32__)
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
 # include <windows.h>   // LONG for bcrypt.h on MINGW
 # include <algorithm>  // replace
 # include <bcrypt.h>  // BCryptGenRandom
@@ -75,363 +75,363 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 #  ifdef __MINGW32__
 #   define WIFEXITED(w) (((w) & 0xC0000000) == 0)
 #   define WEXITSTATUS(w) ((w) & ~0xC0000000)
-#  else
+#  ਨਹੀਂਤਾਂ
 #   define WIFEXITED(w) (((w) & 0377) == 0)
 #   define WEXITSTATUS(w) (((w) >> 8) & 0377)
 #  endif
 # endif
-#else
+#ਨਹੀਂਤਾਂ
 # include <sys/time.h>
 # ifndef __wasi__
 #  include <sys/wait.h>  // Needed on FreeBSD for WIFEXITED
 # endif
 # include <unistd.h>  // usleep
-#endif
+#ਜੇ_ਅੰਤ
 // clang-format on
 
-#define VL_ALLOW_VERILATEDOS_C
-#include "verilatedos_c.h"
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VL_ALLOW_VERILATEDOS_C
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos_c.h"
 
 //######################################################################
 // Environment
 
-string V3Os::getenvStr(const string& envvar, const string& defaultValue) {
-    return VString::escapeStringForPath(VlOs::getenvStr(envvar, defaultValue));
+string V3Os::getenvStr(ਅਚਲ string& envvar, ਅਚਲ string& default_ਮੁੱਲ) {
+    ਵਾਪਸ VString::escape_String_For_ਰਸਤਾ(VlOs::getenvStr(envvar, default_ਮੁੱਲ));
 }
 
-void V3Os::setenvStr(const string& envvar, const string& value, const string& why) {
-    if (why != "") {
-        UINFO(1, "export " << envvar << "='" << value << "'  # " << why);
-    } else {
-        UINFO(1, "export " << envvar << "='" << value << "'");
+ਖਾਲੀ V3Os::setenvStr(ਅਚਲ string& envvar, ਅਚਲ string& ਮੁੱਲ, ਅਚਲ string& why) {
+    ਜੇ (why != "") {
+        UINFO(1, "export " << envvar << "='" << ਮੁੱਲ << "'  # " << why);
+    } ਨਹੀਂਤਾਂ {
+        UINFO(1, "export " << envvar << "='" << ਮੁੱਲ << "'");
     }
-#if defined(_WIN32) || defined(__MINGW32__)
-    _putenv_s(envvar.c_str(), value.c_str());
-#elif defined(_BSD_SOURCE) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
-    setenv(envvar.c_str(), value.c_str(), true);
-#else
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+    _putenv_s(envvar.c_str(), ਮੁੱਲ.c_str());
+#ਜਾਂਜੇ defined(BSD_ਸਰੋਤ) || (defined(_POSIX_C_SOURCE) && _POSIX_C_SOURCE >= 200112L)
+    setenv(envvar.c_str(), ਮੁੱਲ.c_str(), ਸੱਚ);
+#ਨਹੀਂਤਾਂ
     // setenv() replaced by putenv() in Solaris environment. Prototype is different
     // putenv() requires NAME=VALUE format
-    const string vareq = envvar + "=" + value;
+    ਅਚਲ string vareq = envvar + "=" + ਮੁੱਲ;
     putenv(strdup(vareq.c_str()));  // will leak if setting the same variable again
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
 // Generic filename utilities
 
-#if defined(_WIN32) || defined(__MINGW32__)
-static constexpr char V3OS_SLASH = '\\';
-#else
-static constexpr char V3OS_SLASH = '/';
-#endif
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+ਸਥਿਰ constexpr ਅੱਖਰ V3OS_SLASH = '\\';
+#ਨਹੀਂਤਾਂ
+ਸਥਿਰ constexpr ਅੱਖਰ V3OS_SLASH = '/';
+#ਜੇ_ਅੰਤ
 
-static bool isSlash(char ch) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    return ch == '/' || ch == '\\';
-#else
-    return ch == '/';
-#endif
+ਸਥਿਰ ਤਾਰਕਿਕ isSlash(ਅੱਖਰ ch) VL_ਸ਼ੁੱਧ {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+    ਵਾਪਸ ch == '/' || ch == '\\';
+#ਨਹੀਂਤਾਂ
+    ਵਾਪਸ ch == '/';
+#ਜੇ_ਅੰਤ
 }
 
-string V3Os::filenameCleanup(const string& filename) VL_PURE {
+string V3Os::filenameCleanup(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
     string str;
-    str.reserve(filename.length());
-    bool lastIsSlash = false;
-    for (const char ch : filename) {
-        const bool lastIsSlashOld = lastIsSlash;
-        lastIsSlash = isSlash(ch);
-        if (lastIsSlash && lastIsSlashOld) continue;
+    str.reserve(filename.ਲੰਮਾਈ());
+    ਤਾਰਕਿਕ ਆਖਰੀ_Is_Slash = ਝੂਠ;
+    ਲਈ (ਅਚਲ ਅੱਖਰ ch : filename) {
+        ਅਚਲ ਤਾਰਕਿਕ ਆਖਰੀ_Is_Slash_Old = ਆਖਰੀ_Is_Slash;
+        ਆਖਰੀ_Is_Slash = isSlash(ch);
+        ਜੇ (ਆਖਰੀ_Is_Slash && ਆਖਰੀ_Is_Slash_Old) ਜਾਰੀ;
         str += ch;
     }
-    if (str.size() > 1 && isSlash(str.back())) str.pop_back();
-    while (str.size() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
-    return str;
+    ਜੇ (str.ਮਾਪ() > 1 && isSlash(str.ਪਿੱਠ())) str.ਕੱਢੋ_ਪਿੱਠ();
+    ਜਦੋਂ (str.ਮਾਪ() > 2 && str[0] == '.' && isSlash(str[1])) str.erase(0, 2);
+    ਵਾਪਸ str;
 }
 
-string V3Os::filenameJoin(std::initializer_list<const std::string> paths) VL_PURE {
+string V3Os::filenameJoin(std::initializer_list<ਅਚਲ std::string> paths) VL_ਸ਼ੁੱਧ {
     string fullpath;
-    for (const auto& item : paths) {
-        if (item.empty() || item == ".") continue;
-        if (!fullpath.empty()) fullpath += V3OS_SLASH;
-        fullpath += item;
+    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& ਵਸਤੂ_3 : paths) {
+        ਜੇ (ਵਸਤੂ_3.ਖਾਲੀ_ਥਾਵਾਂ() || ਵਸਤੂ_3 == ".") ਜਾਰੀ;
+        ਜੇ (!fullpath.ਖਾਲੀ_ਥਾਵਾਂ()) fullpath += V3OS_SLASH;
+        fullpath += ਵਸਤੂ_3;
     }
-    return fullpath;
+    ਵਾਪਸ fullpath;
 }
 
-string V3Os::filenameDir(const string& filename) VL_PURE {
+string V3Os::filenameDir(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
     // std::filesystem::path::parent_path
-    auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    ਸਵੈਚਾਲਿਤ it = filename.rbegin();
+    ਲਈ (; it != filename.rend(); ++it) {
+        ਜੇ (isSlash(*it)) ਰੋਕੋ;
     }
-    if (it.base() == filename.begin()) return ".";
-    return string{filename.begin(), (++it).base()};
+    ਜੇ (it.ਅਧਾਰ() == filename.begin()) ਵਾਪਸ ".";
+    ਵਾਪਸ string{filename.begin(), (++it).ਅਧਾਰ()};
 }
 
-string V3Os::filenameExt(const string& filename) VL_PURE {
-    string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) {
-        base.erase(0, pos);
-        return base;
+string V3Os::filenameExt(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
+    string ਅਧਾਰ = filenameNonDir(filename);
+    ਅਚਲ string::ਮਾਪ_type pos = ਅਧਾਰ.ਲੱਭੋ('.');
+    ਜੇ (pos != string::npos) {
+        ਅਧਾਰ.erase(0, pos);
+        ਵਾਪਸ ਅਧਾਰ;
     }
-    return "";
+    ਵਾਪਸ "";
 }
 
-string V3Os::filenameNonDir(const string& filename) VL_PURE {
+string V3Os::filenameNonDir(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
     // std::filesystem::path::filename
-    auto it = filename.rbegin();
-    for (; it != filename.rend(); ++it) {
-        if (isSlash(*it)) break;
+    ਸਵੈਚਾਲਿਤ it = filename.rbegin();
+    ਲਈ (; it != filename.rend(); ++it) {
+        ਜੇ (isSlash(*it)) ਰੋਕੋ;
     }
-    return string{it.base(), filename.end()};
+    ਵਾਪਸ string{it.ਅਧਾਰ(), filename.ਸਿਰਾ()};
 }
 
-string V3Os::filenameNonDirExt(const string& filename) VL_PURE {
-    string base = filenameNonDir(filename);
-    const string::size_type pos = base.find('.');
-    if (pos != string::npos) base.erase(pos);
-    return base;
+string V3Os::filenameNonDirExt(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
+    string ਅਧਾਰ = filenameNonDir(filename);
+    ਅਚਲ string::ਮਾਪ_type pos = ਅਧਾਰ.ਲੱਭੋ('.');
+    ਜੇ (pos != string::npos) ਅਧਾਰ.erase(pos);
+    ਵਾਪਸ ਅਧਾਰ;
 }
 
-string V3Os::filenameSubstitute(const string& filename) {
-    string result;
+string V3Os::filenameSubstitute(ਅਚਲ string& filename) {
+    string ਨਤੀਜਾ;
     // cppcheck-has-bug-suppress unusedLabel
-    enum : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
-    for (string::size_type pos = 0; pos < filename.length(); ++pos) {
-        if ((filename[pos] == '$') && (pos + 1 < filename.length())) {
-            switch (filename[pos + 1]) {
-            case '{': brackets = CURLY; break;
-            case '(': brackets = PAREN; break;
-            default: brackets = NONE; break;
+    ਗਿਣਤੀ : uint8_t { NONE, PAREN, CURLY } brackets = NONE;
+    ਲਈ (string::ਮਾਪ_type pos = 0; pos < filename.ਲੰਮਾਈ(); ++pos) {
+        ਜੇ ((filename[pos] == '$') && (pos + 1 < filename.ਲੰਮਾਈ())) {
+            ਚੋਣ (filename[pos + 1]) {
+            ਹਾਲਤ '{': brackets = CURLY; ਰੋਕੋ;
+            ਹਾਲਤ '(': brackets = PAREN; ਰੋਕੋ;
+            ਮੂਲ: brackets = NONE; ਰੋਕੋ;
             }
-            if (brackets != NONE) pos = pos + 1;
-            string::size_type endpos = pos + 1;
-            while (((endpos + 1) < filename.length())
+            ਜੇ (brackets != NONE) pos = pos + 1;
+            string::ਮਾਪ_type endpos = pos + 1;
+            ਜਦੋਂ (((endpos + 1) < filename.ਲੰਮਾਈ())
                    && (((brackets == NONE)
-                        && (std::isalnum(filename[endpos + 1]) || filename[endpos + 1] == '_'))
+                        && (std::ਅੱਖਰ_ਜਾਂ_ਅੰਕ(filename[endpos + 1]) || filename[endpos + 1] == '_'))
                        || ((brackets == CURLY) && (filename[endpos + 1] != '}'))
                        || ((brackets == PAREN) && (filename[endpos + 1] != ')'))))
                 ++endpos;
             // Catch bracket errors
-            if (((brackets == CURLY) && (filename[endpos + 1] != '}'))
+            ਜੇ (((brackets == CURLY) && (filename[endpos + 1] != '}'))
                 || ((brackets == PAREN) && (filename[endpos + 1] != ')'))) {
                 v3fatal("Unmatched brackets in variable substitution in file: " + filename);
             }
-            const string envvar = filename.substr(pos + 1, endpos - pos);
+            ਅਚਲ string envvar = filename.substr(pos + 1, endpos - pos);
             string envvalue;
-            if (!envvar.empty()) envvalue = getenvStr(envvar, "");
-            if (!envvalue.empty()) {
-                result += envvalue;
-                if (brackets == NONE) {
+            ਜੇ (!envvar.ਖਾਲੀ_ਥਾਵਾਂ()) envvalue = getenvStr(envvar, "");
+            ਜੇ (!envvalue.ਖਾਲੀ_ਥਾਵਾਂ()) {
+                ਨਤੀਜਾ += envvalue;
+                ਜੇ (brackets == NONE) {
                     pos = endpos;
-                } else {
+                } ਨਹੀਂਤਾਂ {
                     pos = endpos + 1;
                 }
-            } else {
-                result += filename[pos];  // *pos == '$'
+            } ਨਹੀਂਤਾਂ {
+                ਨਤੀਜਾ += filename[pos];  // *pos == '$'
             }
-        } else {
-            result += filename[pos];
+        } ਨਹੀਂਤਾਂ {
+            ਨਤੀਜਾ += filename[pos];
         }
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-string V3Os::filenameRealPath(const string& filename) VL_PURE {
+string V3Os::filename_Real_ਰਸਤਾ(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
     // Get rid of all the ../ behavior in the middle of the paths.
     // If there is a ../ that goes down from the 'root' of this path it is preserved.
-    char retpath[PATH_MAX];
-    if (
-#if defined(_WIN32) || defined(__MINGW32__)
-        _fullpath(retpath, filename.c_str(), PATH_MAX)
-#else
+    ਅੱਖਰ retpath[ਰਸਤਾ_MAX];
+    ਜੇ (
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+        _fullpath(retpath, filename.c_str(), ਰਸਤਾ_MAX)
+#ਨਹੀਂਤਾਂ
         realpath(filename.c_str(), retpath)
-#endif
+#ਜੇ_ਅੰਤ
     ) {
-        return std::string{retpath};
+        ਵਾਪਸ std::string{retpath};
     }
-    return filename;
+    ਵਾਪਸ filename;
 }
 
-string V3Os::filenameAbsolutePath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
+string V3Os::filename_Absolute_ਰਸਤਾ(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
     // _fullpath does not resolve symlinks
-    return filenameRealPath(filename);
-#else
-    if (!filenameIsRel(filename)) return filename;
-    return filenameJoin(filenameRealPath("."), filename);
-#endif
+    ਵਾਪਸ filename_Real_ਰਸਤਾ(filename);
+#ਨਹੀਂਤਾਂ
+    ਜੇ (!filenameIsRel(filename)) ਵਾਪਸ filename;
+    ਵਾਪਸ filenameJoin(filename_Real_ਰਸਤਾ("."), filename);
+#ਜੇ_ਅੰਤ
 }
 
-string V3Os::filenameRelativePath(const string& filename, const string& base) VL_PURE {
-    const string a = V3Os::filenameRealPath(filename);
-    const string b = V3Os::filenameRealPath(base);
-    string result;
-    if (a == b) return ".";
+string V3Os::filename_Relative_ਰਸਤਾ(ਅਚਲ string& filename, ਅਚਲ string& ਅਧਾਰ) VL_ਸ਼ੁੱਧ {
+    ਅਚਲ string a = V3Os::filename_Real_ਰਸਤਾ(filename);
+    ਅਚਲ string b = V3Os::filename_Real_ਰਸਤਾ(ਅਧਾਰ);
+    string ਨਤੀਜਾ;
+    ਜੇ (a == b) ਵਾਪਸ ".";
 
-    auto aIt = a.begin();
-    auto bIt = b.begin();
-    while (aIt != a.end() && bIt != b.end()) {
+    ਸਵੈਚਾਲਿਤ aIt = a.begin();
+    ਸਵੈਚਾਲਿਤ bIt = b.begin();
+    ਜਦੋਂ (aIt != a.ਸਿਰਾ() && bIt != b.ਸਿਰਾ()) {
         // UINFO(9, "fnrp scan " << (aIt - a.begin()) << " " << a.substr(aIt - a.begin()));
         // UINFO(9, "fnrp scan " << (bIt - b.begin()) << " " << b.substr(bIt - b.begin()));
-        auto aWordIt = aIt;  // position of next slash
-        for (; aWordIt != a.end(); ++aWordIt) {
-            if (isSlash(*aWordIt)) break;
+        ਸਵੈਚਾਲਿਤ a_ਸ਼ਬਦ_It = aIt;  // position of next slash
+        ਲਈ (; a_ਸ਼ਬਦ_It != a.ਸਿਰਾ(); ++a_ਸ਼ਬਦ_It) {
+            ਜੇ (isSlash(*a_ਸ਼ਬਦ_It)) ਰੋਕੋ;
         }
 
-        auto bWordIt = bIt;  // position of next slash
-        for (; bWordIt != b.end(); ++bWordIt) {
-            if (isSlash(*bWordIt)) break;
+        ਸਵੈਚਾਲਿਤ b_ਸ਼ਬਦ_It = bIt;  // position of next slash
+        ਲਈ (; b_ਸ਼ਬਦ_It != b.ਸਿਰਾ(); ++b_ਸ਼ਬਦ_It) {
+            ਜੇ (isSlash(*b_ਸ਼ਬਦ_It)) ਰੋਕੋ;
         }
 
-        const string aWord = a.substr(aIt - a.begin(), aWordIt - aIt);
-        const string bWord = b.substr(bIt - b.begin(), bWordIt - bIt);
-        if (aWord != bWord) break;
-        aIt = aWordIt;
-        bIt = bWordIt;
-        if (aIt != a.end()) ++aIt;  // Skip slash
-        if (bIt != b.end()) ++bIt;  // Skip slash
+        ਅਚਲ string a_ਸ਼ਬਦ = a.substr(aIt - a.begin(), a_ਸ਼ਬਦ_It - aIt);
+        ਅਚਲ string b_ਸ਼ਬਦ = b.substr(bIt - b.begin(), b_ਸ਼ਬਦ_It - bIt);
+        ਜੇ (a_ਸ਼ਬਦ != b_ਸ਼ਬਦ) ਰੋਕੋ;
+        aIt = a_ਸ਼ਬਦ_It;
+        bIt = b_ਸ਼ਬਦ_It;
+        ਜੇ (aIt != a.ਸਿਰਾ()) ++aIt;  // Skip slash
+        ਜੇ (bIt != b.ਸਿਰਾ()) ++bIt;  // Skip slash
     }
 
-    while (bIt != b.end()) {
-        for (; bIt != b.end(); ++bIt) {
-            if (isSlash(*bIt)) {
+    ਜਦੋਂ (bIt != b.ਸਿਰਾ()) {
+        ਲਈ (; bIt != b.ਸਿਰਾ(); ++bIt) {
+            ਜੇ (isSlash(*bIt)) {
                 ++bIt;
-                break;
+                ਰੋਕੋ;
             }
         }
-        if (!result.empty()) result += "/";
-        result += "..";
+        ਜੇ (!ਨਤੀਜਾ.ਖਾਲੀ_ਥਾਵਾਂ()) ਨਤੀਜਾ += "/";
+        ਨਤੀਜਾ += "..";
     }
 
-    const string aLeft = a.substr(aIt - a.begin());
-    if (!aLeft.empty()) {
-        if (!result.empty()) result += "/";
-        result += aLeft;
+    ਅਚਲ string a_ਖੱਬਾ = a.substr(aIt - a.begin());
+    ਜੇ (!a_ਖੱਬਾ.ਖਾਲੀ_ਥਾਵਾਂ()) {
+        ਜੇ (!ਨਤੀਜਾ.ਖਾਲੀ_ਥਾਵਾਂ()) ਨਤੀਜਾ += "/";
+        ਨਤੀਜਾ += a_ਖੱਬਾ;
     }
-    return filenameCleanup(result);
+    ਵਾਪਸ filenameCleanup(ਨਤੀਜਾ);
 }
 
-bool V3Os::filenameIsRel(const string& filename) VL_PURE {
-#if defined(_MSC_VER)
-    return std::filesystem::path(filename).is_relative();
-#else
-    return (filename.length() > 0 && filename[0] != '/');
-#endif
+ਤਾਰਕਿਕ V3Os::filenameIsRel(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
+#ਜੇ defined(_MSC_VER)
+    ਵਾਪਸ std::filesystem::ਰਸਤਾ(filename).is_relative();
+#ਨਹੀਂਤਾਂ
+    ਵਾਪਸ (filename.ਲੰਮਾਈ() > 0 && filename[0] != '/');
+#ਜੇ_ਅੰਤ
 }
 
-string V3Os::filenameSlashPath(const string& filename) VL_PURE {
-#if defined(_WIN32) || defined(__MINGW32__)
-    string slashedPath = filename;
-    std::replace(slashedPath.begin(), slashedPath.end(), '\\', '/');
-    return slashedPath;
-#else
-    return filename;
-#endif
+string V3Os::filename_Slash_ਰਸਤਾ(ਅਚਲ string& filename) VL_ਸ਼ੁੱਧ {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+    string slashed_ਰਸਤਾ = filename;
+    std::replace(slashed_ਰਸਤਾ.begin(), slashed_ਰਸਤਾ.ਸਿਰਾ(), '\\', '/');
+    ਵਾਪਸ slashed_ਰਸਤਾ;
+#ਨਹੀਂਤਾਂ
+    ਵਾਪਸ filename;
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
 // File utilities
 
-string V3Os::getline(std::istream& is, char delim) {
-    string line;
-#ifdef __CYGWIN__  // Work around buggy implementation of getline
-    char buf[65536];
+string V3Os::getline(std::istream& is, ਅੱਖਰ delim) {
+    string ਸਤਰ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __CYGWIN__  // Work around buggy implementation of getline
+    ਅੱਖਰ buf[65536];
     is.getline(buf, 65535, delim);
-    line = buf;
-#else
-    std::getline(is, line, delim);
-#endif
-    return line;
+    ਸਤਰ = buf;
+#ਨਹੀਂਤਾਂ
+    std::getline(is, ਸਤਰ, delim);
+#ਜੇ_ਅੰਤ
+    ਵਾਪਸ ਸਤਰ;
 }
 
 //######################################################################
 // Directory utilities
 
-void V3Os::createDir(const string& dirname) {
-#if defined(_WIN32) || defined(__MINGW32__)
+ਖਾਲੀ V3Os::createDir(ਅਚਲ string& dirname) {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
     _mkdir(dirname.c_str());
-#else
+#ਨਹੀਂਤਾਂ
     mkdir(dirname.c_str(), 0777);
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-void V3Os::filesystemFlush(const string& dirname) {
+ਖਾਲੀ V3Os::filesystemFlush(ਅਚਲ string& dirname) {
     // NFS caches stat() calls so to get up-to-date information must
     // do a open or opendir on the filename.
-#if defined(_MSC_VER) || defined(__MINGW32__)
-    if (int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+#ਜੇ defined(_MSC_VER) || defined(__MINGW32__)
+    ਜੇ (ਪੂਰਨ fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        ਜੇ (fd > 0) ::close(fd);
     }
-#else
+#ਨਹੀਂਤਾਂ
     // Faster to just try both rather than check if a file is a dir.
-    if (DIR* const dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
+    ਜੇ (DIR* ਅਚਲ dirp = opendir(dirname.c_str())) {  // LCOV_EXCL_BR_LINE
         closedir(dirp);  // LCOV_EXCL_LINE
-    } else if (const int fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
-        if (fd > 0) ::close(fd);
+    } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ ਪੂਰਨ fd = ::open(dirname.c_str(), O_RDONLY)) {  // LCOV_EXCL_BR_LINE
+        ਜੇ (fd > 0) ::close(fd);
     }
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-void V3Os::filesystemFlushBuildDir(const string& dirname) {
+ਖਾਲੀ V3Os::filesystemFlushBuildDir(ਅਚਲ string& dirname) {
     // Attempt to force out written directory, for NFS like file systems.
-#if !defined(_MSC_VER) && !defined(__MINGW32__)
+#ਜੇ !defined(_MSC_VER) && !defined(__MINGW32__)
     // Linux kernel may not reread from NFS unless timestamp modified
-    const int err = utimes(dirname.c_str(), nullptr);
+    ਅਚਲ ਪੂਰਨ err = utimes(dirname.c_str(), ਖਾਲੀ_ਸੂਚਕ);
     // Not an error
-    if (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
-#endif
+    ਜੇ (err != 0) UINFO(1, "-Info: File not utimed: " << dirname);
+#ਜੇ_ਅੰਤ
     filesystemFlush(dirname);
 }
 
-void V3Os::unlinkRegexp(const string& dir, const string& regexp) {
-#ifdef _MSC_VER
-    try {
-        for (const auto& dirEntry : std::filesystem::directory_iterator(dir.c_str())) {
-            if (VString::wildmatch(dirEntry.path().filename().string(), regexp.c_str())) {
-                const string fullname = dir + "/" + dirEntry.path().filename().string();
+ਖਾਲੀ V3Os::unlinkRegexp(ਅਚਲ string& dir, ਅਚਲ string& regexp) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ _MSC_VER
+    ਕੋਸ਼ਿਸ਼ {
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& dir_ਇੰਦਰਾਜ : std::filesystem::directory_iterator(dir.c_str())) {
+            ਜੇ (VString::wildmatch(dir_ਇੰਦਰਾਜ.ਰਸਤਾ().filename().string(), regexp.c_str())) {
+                ਅਚਲ string fullname = dir + "/" + dir_ਇੰਦਰਾਜ.ਰਸਤਾ().filename().string();
                 _unlink(fullname.c_str());
             }
         }
-    } catch (std::filesystem::filesystem_error const& ex) {}
-#else
-    if (DIR* const dirp = opendir(dir.c_str())) {
-        while (struct dirent* const direntp = readdir(dirp)) {
-            if (VString::wildmatch(direntp->d_name, regexp.c_str())) {
-                const string fullname = dir + "/" + std::string{direntp->d_name};
-#if defined(_WIN32) || defined(__MINGW32__)
+    } ਫੜੋ (std::filesystem::filesystem_error ਅਚਲ& ex) {}
+#ਨਹੀਂਤਾਂ
+    ਜੇ (DIR* ਅਚਲ dirp = opendir(dir.c_str())) {
+        ਜਦੋਂ (ਬਣਤਰ dirent* ਅਚਲ direntp = readdir(dirp)) {
+            ਜੇ (VString::wildmatch(direntp->d_name, regexp.c_str())) {
+                ਅਚਲ string fullname = dir + "/" + std::string{direntp->d_name};
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
                 _unlink(fullname.c_str());
-#else
+#ਨਹੀਂਤਾਂ
                 unlink(fullname.c_str());
-#endif
+#ਜੇ_ਅੰਤ
             }
         }
         closedir(dirp);
     }
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
 // METHODS (memory)
 
-void V3Os::releaseMemory() {
-#ifdef HAVE_TCMALLOC
-    MallocExtension::instance()->ReleaseFreeMemory();
-#endif
-#ifdef HAVE_JEMALLOC
+ਖਾਲੀ V3Os::release_ਸਮ੍ਰਿਤੀ() {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_TCMALLOC
+    MallocExtension::instance()->Release_Free_ਸਮ੍ਰਿਤੀ();
+#ਜੇ_ਅੰਤ
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ HAVE_JEMALLOC
     // Purge all unused dirty pages across all arenas
-    unsigned narenas = 0;
-    size_t sz = sizeof(narenas);
-    if (mallctl("arenas.narenas", &narenas, &sz, nullptr, 0)) {
-        return;  // Failed to get number of arenas, give up
+    ਬਿਨਾਨਿਸ਼ਾਨੀ narenas = 0;
+    ਮਾਪ_t sz = ਆਕਾਰ(narenas);
+    ਜੇ (mallctl("arenas.narenas", &narenas, &sz, ਖਾਲੀ_ਸੂਚਕ, 0)) {
+        ਵਾਪਸ;  // Failed to get number of arenas, give up
     }
-    char buf[64];
+    ਅੱਖਰ buf[64];
     // Index equal to narenas represents all arenas
-    (void)VL_SNPRINTF(buf, sizeof(buf), "arena.%u.purge", narenas);
-    mallctl(buf, nullptr, nullptr, nullptr, 0);
-#endif
+    (ਖਾਲੀ)VL_SNPRINTF(buf, ਆਕਾਰ(buf), "arena.%u.purge", narenas);
+    mallctl(buf, ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ, 0);
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
@@ -439,99 +439,99 @@ void V3Os::releaseMemory() {
 
 uint64_t V3Os::rand64(std::array<uint64_t, 2>& stater) {
     // Xoroshiro128+ algorithm
-    const uint64_t result = stater[0] + stater[1];
+    ਅਚਲ uint64_t ਨਤੀਜਾ = stater[0] + stater[1];
     stater[1] ^= stater[0];
     stater[0] = (((stater[0] << 55) | (stater[0] >> 9)) ^ stater[1] ^ (stater[1] << 14));
     stater[1] = (stater[1] << 36) | (stater[1] >> 28);
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-string V3Os::trueRandom(size_t size) VL_MT_SAFE {
-    string result(size, '\xFF');
-    char* const data = const_cast<char*>(result.data());
+string V3Os::trueRandom(ਮਾਪ_t ਮਾਪ) VL_MT_ਸੁਰੱਖਿਅਤ {
+    string ਨਤੀਜਾ(ਮਾਪ, '\xFF');
+    ਅੱਖਰ* ਅਚਲ ਅੰਕੜੇ = const_cast<ਅੱਖਰ*>(ਨਤੀਜਾ.ਅੰਕੜੇ());
     // Note: std::string.data() returns a non-const Char* from C++17 onwards.
     // For pre-C++17, this cast is OK in practice, even though it's UB.
-#if defined(_WIN32) || defined(__MINGW32__)
-    const NTSTATUS hr = BCryptGenRandom(nullptr, reinterpret_cast<BYTE*>(data), size,
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
+    ਅਚਲ NTSTATUS hr = BCryptGenRandom(ਖਾਲੀ_ਸੂਚਕ, reinterpret_cast<BYTE*>(ਅੰਕੜੇ), ਮਾਪ,
                                         BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-    if (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
+    ਜੇ (VL_UNCOVERABLE(!BCRYPT_SUCCESS(hr))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#elif defined(__wasi__)
+#ਜਾਂਜੇ defined(__wasi__)
     // WASI has no /dev/urandom. getentropy() rejects sizes over 256 bytes,
     // which is more than any caller asks for, and errors rather than truncates.
-    if (VL_UNCOVERABLE(getentropy(data, size))) {
+    ਜੇ (VL_UNCOVERABLE(getentropy(ਅੰਕੜੇ, ਮਾਪ))) {
         v3fatal("Could not acquire random data. Try specifying a key instead.");  // LCOV_EXCL_LINE
     }
-#else
-    std::ifstream is{"/dev/urandom", std::ios::in | std::ios::binary};
+#ਨਹੀਂਤਾਂ
+    std::ifstream is{"/dev/urandom", std::ios::ਵਿੱਚ_2 | std::ios::ਦੁਆਧਾਰੀ};
     // This read uses the size of the buffer.
     // Flawfinder: ignore
-    if (VL_UNCOVERABLE(!is.read(data, size))) {
+    ਜੇ (VL_UNCOVERABLE(!is.ਪਠ(ਅੰਕੜੇ, ਮਾਪ))) {
         v3fatal("Could not open /dev/urandom, no source of randomness. "  // LCOV_EXCL_LINE
                 "Try specifying a key instead.");
     }
-#endif
-    return result;
+#ਜੇ_ਅੰਤ
+    ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 //######################################################################
 // METHODS (performance)
 
-uint64_t V3Os::timeUsecs() {
-#if defined(_WIN32) || defined(__MINGW32__)
+uint64_t V3Os::ਸਮਾਂ_Usecs() {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
     // Microseconds between 1601-01-01 00:00:00 UTC and 1970-01-01 00:00:00 UTC
-    static constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
+    ਸਥਿਰ constexpr uint64_t EPOCH_DIFFERENCE_USECS = 11644473600000000ULL;
 
     FILETIME ft;  // contains number of 0.1us intervals since the beginning of 1601 UTC.
-    GetSystemTimeAsFileTime(&ft);
-    const uint64_t us
-        = ((static_cast<uint64_t>(ft.dwHighDateTime) << 32) + ft.dwLowDateTime + 5ULL) / 10ULL;
-    return us - EPOCH_DIFFERENCE_USECS;
-#else
+    Get_System_ਸਮਾਂ_As_File_ਸਮਾਂ(&ft);
+    ਅਚਲ uint64_t us
+        = ((static_cast<uint64_t>(ft.dw_ਉੱਚਾ_Date_ਸਮਾਂ) << 32) + ft.dw_ਨੀਵਾਂ_Date_ਸਮਾਂ + 5ULL) / 10ULL;
+    ਵਾਪਸ us - EPOCH_DIFFERENCE_USECS;
+#ਨਹੀਂਤਾਂ
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init)
     timeval tv;
-    if (gettimeofday(&tv, nullptr) < 0) return 0;
-    return static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
-#endif
+    ਜੇ (gettimeofday(&tv, ਖਾਲੀ_ਸੂਚਕ) < 0) ਵਾਪਸ 0;
+    ਵਾਪਸ static_cast<uint64_t>(tv.tv_sec) * 1000000 + tv.tv_usec;
+#ਜੇ_ਅੰਤ
 }
 
-void V3Os::u_sleep(int64_t usec) {
-#if defined(_WIN32) || defined(__MINGW32__)
+ਖਾਲੀ V3Os::u_sleep(int64_t usec) {
+#ਜੇ defined(_WIN32) || defined(__MINGW32__)
     std::this_thread::sleep_for(std::chrono::microseconds(usec));
-#else
+#ਨਹੀਂਤਾਂ
     // cppcheck-suppress obsoleteFunctionsusleep
     // Flawfinder: ignore
     ::usleep(usec);
-#endif
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
 // METHODS (sub command)
 
-int V3Os::system(const string& command) {
-#ifdef __wasi__
+ਪੂਰਨ V3Os::system(ਅਚਲ string& command) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ __wasi__
     // WASI has no process spawning
     v3fatal("Running subcommands is not supported on this platform: " << command);
-    return -1;
-#else
+    ਵਾਪਸ -1;
+#ਨਹੀਂਤਾਂ
     UINFO(1, "Running system: " << command);
-    const int ret = ::system(command.c_str());
-    if (VL_UNCOVERABLE(ret == -1)) {
+    ਅਚਲ ਪੂਰਨ ret = ::system(command.c_str());
+    ਜੇ (VL_UNCOVERABLE(ret == -1)) {
         v3fatal("Failed to execute command:"  // LCOV_EXCL_LINE
                 << command << " " << std::strerror(errno));  // LCOV_EXCL_LINE
-        return -1;  // LCOV_EXCL_LINE
+        ਵਾਪਸ -1;  // LCOV_EXCL_LINE
     }
     UASSERT(WIFEXITED(ret), "system(" << command << ") returned unexpected value of " << ret);
-    const int exit_code = WEXITSTATUS(ret);
-    UINFO(1, command << " returned exit code of " << exit_code);
-    UASSERT(exit_code >= 0, "exit code must not be negative");
-    return exit_code;
-#endif
+    ਅਚਲ ਪੂਰਨ exit_ਕੋਡ = WEXITSTATUS(ret);
+    UINFO(1, command << " returned exit code of " << exit_ਕੋਡ);
+    UASSERT(exit_ਕੋਡ >= 0, "exit code must not be negative");
+    ਵਾਪਸ exit_ਕੋਡ;
+#ਜੇ_ਅੰਤ
 }
 
-void V3Os::selfTest() {
-#ifdef VL_DEBUG
+ਖਾਲੀ V3Os::selfTest() {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_DEBUG
     UASSERT_SELFTEST(filenameCleanup(""), "");
     UASSERT_SELFTEST(filenameCleanup("."), ".");
     UASSERT_SELFTEST(filenameCleanup(".."), "..");
@@ -555,19 +555,19 @@ void V3Os::selfTest() {
     UASSERT_SELFTEST(filenameExt("a.a/b.b/f"), "");
     UASSERT_SELFTEST(filenameExt("a.a/b.b/f.e"), ".e");
     UASSERT_SELFTEST(filenameNonDirExt("a.a/b.b/f.e"), "f");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b", "/a/b"), ".");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b", "/a/b/c"), "..");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b", "/a/b/c/d"), "../..");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b/x", "/a/b/c/d"), "../../x");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b/x/y", "/"), "a/b/x/y");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b/x/y", "/a/b"), "x/y");
-    UASSERT_SELFTEST(filenameRelativePath("/a/b/x/y", "/a/q"), "../b/x/y");
-    UASSERT_SELFTEST(filenameRelativePath("a/b", "a/b"), ".");
-    UASSERT_SELFTEST(filenameRelativePath("a/b", "a/b/c"), "..");
-    UASSERT_SELFTEST(filenameRelativePath("a/b", "a/b/c/d"), "../..");
-    UASSERT_SELFTEST(filenameRelativePath("a/b/x", "a/b/c/d"), "../../x");
-    UASSERT_SELFTEST(filenameRelativePath("a/b/x/y", ""), "a/b/x/y");
-    UASSERT_SELFTEST(filenameRelativePath("a/b/x/y", "a/b"), "x/y");
-    UASSERT_SELFTEST(filenameRelativePath("a/b/x/y", "a/q"), "../b/x/y");
-#endif
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b", "/a/b"), ".");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b", "/a/b/c"), "..");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b", "/a/b/c/d"), "../..");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b/x", "/a/b/c/d"), "../../x");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b/x/y", "/"), "a/b/x/y");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b/x/y", "/a/b"), "x/y");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("/a/b/x/y", "/a/q"), "../b/x/y");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b", "a/b"), ".");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b", "a/b/c"), "..");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b", "a/b/c/d"), "../..");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b/x", "a/b/c/d"), "../../x");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b/x/y", ""), "a/b/x/y");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b/x/y", "a/b"), "x/y");
+    UASSERT_SELFTEST(filename_Relative_ਰਸਤਾ("a/b/x/y", "a/q"), "../b/x/y");
+#ਜੇ_ਅੰਤ
 }

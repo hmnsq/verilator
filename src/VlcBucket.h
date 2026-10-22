@@ -14,16 +14,16 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCBUCKET_H_
-#define VERILATOR_VLCBUCKET_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_VLCBUCKET_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_VLCBUCKET_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "V3Error.h"
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ V3ERROR_NO_GLOBAL_
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
 //********************************************************************
 // VlcBuckets - Container of all coverage point hits for a given test
@@ -33,83 +33,83 @@
 class VlcBuckets final {
     // MEMBERS
     uint64_t* m_datap = nullptr;  ///< Pointer to first bucket (dynamically allocated)
-    uint64_t m_dataSize = 0;  ///< Current entries in m_datap
+    uint64_t m_ਅੰਕੜੇ_ਮਾਪ = 0;  ///< Current entries in m_datap
     uint64_t m_bucketsCovered = 0;  ///< Num buckets with sufficient coverage
 
-    static uint64_t covBit(uint64_t point) { return 1ULL << (point & 63); }
-    uint64_t allocSize() const { return sizeof(uint64_t) * m_dataSize / 64; }
-    void allocate(uint64_t point) {
-        const uint64_t oldsize = m_dataSize;
-        if (m_dataSize < point) m_dataSize = (point + 64) & ~63ULL;  // Keep power of two
-        m_dataSize *= 2;
+    ਸਥਿਰ uint64_t cov_ਦੋਆਧਾਰੀ_ਅੰਕ(uint64_t ਬਿੰਦੂ) { ਵਾਪਸ 1ULL << (ਬਿੰਦੂ & 63); }
+    uint64_t alloc_ਮਾਪ() ਅਚਲ { ਵਾਪਸ ਆਕਾਰ(uint64_t) * m_ਅੰਕੜੇ_ਮਾਪ / 64; }
+    ਖਾਲੀ allocate(uint64_t ਬਿੰਦੂ) {
+        ਅਚਲ uint64_t oldsize = m_ਅੰਕੜੇ_ਮਾਪ;
+        ਜੇ (m_ਅੰਕੜੇ_ਮਾਪ < ਬਿੰਦੂ) m_ਅੰਕੜੇ_ਮਾਪ = (ਬਿੰਦੂ + 64) & ~63ULL;  // Keep power of two
+        m_ਅੰਕੜੇ_ਮਾਪ *= 2;
         // UINFO(9, "Realloc " << allocSize() << " for " << point << "  " << cvtToHex(m_datap));
-        uint64_t* const newp = static_cast<uint64_t*>(std::realloc(m_datap, allocSize()));
-        if (VL_UNCOVERABLE(!newp)) {
+        uint64_t* ਅਚਲ newp = static_cast<uint64_t*>(std::realloc(m_datap, alloc_ਮਾਪ()));
+        ਜੇ (VL_UNCOVERABLE(!newp)) {
             // cppcheck-suppress doubleFree  // cppcheck 1.90 bug - realloc doesn't free on fail
-            free(m_datap);  // LCOV_EXCL_LINE
+            ਮੁਕਤ(m_datap);  // LCOV_EXCL_LINE
             v3fatal("Out of memory increasing buckets");  // LCOV_EXCL_LINE
         }
         m_datap = newp;
-        for (uint64_t i = oldsize; i < m_dataSize; i += 64) m_datap[i / 64] = 0;
+        ਲਈ (uint64_t i = oldsize; i < m_ਅੰਕੜੇ_ਮਾਪ; i += 64) m_datap[i / 64] = 0;
     }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
     VlcBuckets() { allocate(1024); }
     ~VlcBuckets() {
-        m_dataSize = 0;
-        VL_DO_CLEAR(free(m_datap), m_datap = nullptr);
+        m_ਅੰਕੜੇ_ਮਾਪ = 0;
+        VL_DO_CLEAR(ਮੁਕਤ(m_datap), m_datap = nullptr);
     }
 
     // ACCESSORS
-    static uint64_t sufficient() { return 1; }
-    uint64_t bucketsCovered() const { return m_bucketsCovered; }
+    ਸਥਿਰ uint64_t sufficient() { ਵਾਪਸ 1; }
+    uint64_t bucketsCovered() ਅਚਲ { ਵਾਪਸ m_bucketsCovered; }
 
     // METHODS
-    void addData(uint64_t point, uint64_t hits) {
-        if (hits >= sufficient()) {
+    ਖਾਲੀ ਜੋੜੋ_ਅੰਕੜੇ(uint64_t ਬਿੰਦੂ, uint64_t ਪ੍ਰਾਪਤੀਆਂ) {
+        ਜੇ (ਪ੍ਰਾਪਤੀਆਂ >= sufficient()) {
             // UINFO(9, "     addData " << point << " " << hits << " size=" << m_dataSize);
-            if (point >= m_dataSize) allocate(point);
-            m_datap[point / 64] |= covBit(point);
+            ਜੇ (ਬਿੰਦੂ >= m_ਅੰਕੜੇ_ਮਾਪ) allocate(ਬਿੰਦੂ);
+            m_datap[ਬਿੰਦੂ / 64] |= cov_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੰਦੂ);
             m_bucketsCovered++;
         }
     }
-    void clearHits(uint64_t point) const {
-        if (point >= m_dataSize) return;
-        m_datap[point / 64] &= ~covBit(point);
+    ਖਾਲੀ clear_ਪ੍ਰਾਪਤੀਆਂ(uint64_t ਬਿੰਦੂ) ਅਚਲ {
+        ਜੇ (ਬਿੰਦੂ >= m_ਅੰਕੜੇ_ਮਾਪ) ਵਾਪਸ;
+        m_datap[ਬਿੰਦੂ / 64] &= ~cov_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੰਦੂ);
     }
-    bool exists(uint64_t point) const {
-        if (point >= m_dataSize) return false;
-        return (m_datap[point / 64] & covBit(point)) ? true : false;
+    bool exists(uint64_t ਬਿੰਦੂ) ਅਚਲ {
+        ਜੇ (ਬਿੰਦੂ >= m_ਅੰਕੜੇ_ਮਾਪ) ਵਾਪਸ false;
+        ਵਾਪਸ (m_datap[ਬਿੰਦੂ / 64] & cov_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੰਦੂ)) ? true : false;
     }
-    uint64_t hits(uint64_t point) const {
-        if (point >= m_dataSize) return 0;
-        return (m_datap[point / 64] & covBit(point)) ? 1 : 0;
+    uint64_t ਪ੍ਰਾਪਤੀਆਂ(uint64_t ਬਿੰਦੂ) ਅਚਲ {
+        ਜੇ (ਬਿੰਦੂ >= m_ਅੰਕੜੇ_ਮਾਪ) ਵਾਪਸ 0;
+        ਵਾਪਸ (m_datap[ਬਿੰਦੂ / 64] & cov_ਦੋਆਧਾਰੀ_ਅੰਕ(ਬਿੰਦੂ)) ? 1 : 0;
     }
-    uint64_t popCount() const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) ++pop;
+    uint64_t ਕੱਢੋ_ਗਿਣਤੀ() ਅਚਲ {
+        uint64_t ਕੱਢੋ = 0;
+        ਲਈ (uint64_t i = 0; i < m_ਅੰਕੜੇ_ਮਾਪ; ++i) {
+            ਜੇ (ਪ੍ਰਾਪਤੀਆਂ(i)) ++ਕੱਢੋ;
         }
-        return pop;
+        ਵਾਪਸ ਕੱਢੋ;
     }
-    uint64_t dataPopCount(const VlcBuckets& remaining) const {
-        uint64_t pop = 0;
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && remaining.hits(i)) ++pop;
+    uint64_t ਅੰਕੜੇ_ਕੱਢੋ_ਗਿਣਤੀ(ਅਚਲ VlcBuckets& ਬਚਿਆ) ਅਚਲ {
+        uint64_t ਕੱਢੋ = 0;
+        ਲਈ (uint64_t i = 0; i < m_ਅੰਕੜੇ_ਮਾਪ; ++i) {
+            ਜੇ (ਪ੍ਰਾਪਤੀਆਂ(i) && ਬਚਿਆ.ਪ੍ਰਾਪਤੀਆਂ(i)) ++ਕੱਢੋ;
         }
-        return pop;
+        ਵਾਪਸ ਕੱਢੋ;
     }
-    void orData(const VlcBuckets& ordata) {
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i) && ordata.hits(i)) clearHits(i);
+    ਖਾਲੀ or_ਅੰਕੜੇ(ਅਚਲ VlcBuckets& ordata) {
+        ਲਈ (uint64_t i = 0; i < m_ਅੰਕੜੇ_ਮਾਪ; ++i) {
+            ਜੇ (ਪ੍ਰਾਪਤੀਆਂ(i) && ordata.ਪ੍ਰਾਪਤੀਆਂ(i)) clear_ਪ੍ਰਾਪਤੀਆਂ(i);
         }
     }
 
-    void dump() const {
+    ਖਾਲੀ dump() ਅਚਲ {
         std::cout << "#     ";
-        for (uint64_t i = 0; i < m_dataSize; ++i) {
-            if (hits(i)) std::cout << "," << i;
+        ਲਈ (uint64_t i = 0; i < m_ਅੰਕੜੇ_ਮਾਪ; ++i) {
+            ਜੇ (ਪ੍ਰਾਪਤੀਆਂ(i)) std::cout << "," << i;
         }
         std::cout << "\n";
     }
@@ -117,4 +117,4 @@ public:
 
 //######################################################################
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard

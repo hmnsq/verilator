@@ -19,24 +19,24 @@
 //          Create new MODULE TOP with connections to below signals
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3LinkLevel.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3LinkLevel.h"
 
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Levelizing class functions
 
-struct CmpLevel final {
-    bool operator()(const AstNodeModule* lhsp, const AstNodeModule* rhsp) const {
-        return lhsp->level() < rhsp->level();
+ਬਣਤਰ CmpLevel final {
+    ਤਾਰਕਿਕ ਸੰਚਾਲਕ()(ਅਚਲ Ast_ਗੰਢ_Module* lhsp, ਅਚਲ Ast_ਗੰਢ_Module* rhsp) ਅਚਲ {
+        ਵਾਪਸ lhsp->level() < rhsp->level();
     }
 };
 
-void V3LinkLevel::modSortByLevel() {
+ਖਾਲੀ V3LinkLevel::mod_ਛਾਂਟੋ_By_Level() {
     // Sort modules by levels, root down to lowest children
     // Calculate levels again in case we added modules
     UINFO(2, "modSortByLevel()");
@@ -45,94 +45,94 @@ void V3LinkLevel::modSortByLevel() {
 
     ModVec mods;  // Modules
     ModVec tops;  // Top level modules
-    for (AstNodeModule* nodep = v3Global.rootp()->modulesp(); nodep;
-         nodep = VN_AS(nodep->nextp(), NodeModule)) {
-        if (nodep->isTop() && !VN_IS(nodep, NotFoundModule)) {
+    ਲਈ (Ast_ਗੰਢ_Module* nodep = v3Global.rootp()->modulesp(); nodep;
+         nodep = VN_AS(nodep->nextp(), ਗੰਢ_Module)) {
+        ਜੇ (nodep->is_ਸਿਖਰ() && !VN_IS(nodep, Not_ਮਿਲਿਆ_Module)) {
             UINFO(9, "top candidate " << nodep);
-            tops.push_back(nodep);
+            tops.ਧੱਕੋ_ਪਿੱਠ(nodep);
         }
-        mods.push_back(nodep);
+        mods.ਧੱਕੋ_ਪਿੱਠ(nodep);
     }
-    if (tops.size() >= 2) {
-        const AstNode* const secp = tops[1];  // Complain about second one, as first often intended
-        if (!secp->fileline()->warnIsOff(V3ErrorCode::MULTITOP)) {
-            auto warnTopModules = [](const AstNode* const secp, ModVec tops)
+    ਜੇ (tops.ਮਾਪ() >= 2) {
+        ਅਚਲ Ast_ਗੰਢ* ਅਚਲ secp = tops[1];  // Complain about second one, as first often intended
+        ਜੇ (!secp->fileline()->warnIsOff(V3_Error_ਕੋਡ::MULTITOP)) {
+            ਸਵੈਚਾਲਿਤ warn_ਸਿਖਰ_Modules = [](ਅਚਲ Ast_ਗੰਢ* ਅਚਲ secp, ModVec tops)
                                       VL_REQUIRES(V3Error::s().m_mutex) -> std::string {
                 std::stringstream ss;
-                for (AstNode* alsop : tops) {
-                    ss << secp->warnMore() << "... Top module " << alsop->prettyNameQ() << '\n'
+                ਲਈ (Ast_ਗੰਢ* alsop : tops) {
+                    ss << secp->warn_ਹੋਰ() << "... Top module " << alsop->prettyNameQ() << '\n'
                        << alsop->warnContextSecondary();
                 }
-                return ss.str();
+                ਵਾਪਸ ss.str();
             };
 
             secp->v3warn(MULTITOP, "Multiple top level modules\n"
-                                       << secp->warnMore()
+                                       << secp->warn_ਹੋਰ()
                                        << "... Suggest see manual; fix the duplicates, or use "
                                           "--top-module to select top."
                                        << V3Error::s().warnContextNone()
                                        << V3Error::warnAdditionalInfo()
-                                       << warnTopModules(secp, tops));
+                                       << warn_ਸਿਖਰ_Modules(secp, tops));
         }
     }
 
     timescaling(mods);
 
     // Reorder the netlist's modules to have modules in level sorted order
-    stable_sort(mods.begin(), mods.end(), CmpLevel());  // Sort the vector
+    stable_ਛਾਂਟੋ(mods.begin(), mods.ਸਿਰਾ(), CmpLevel());  // Sort the vector
     UINFO(9, "modSortByLevel() sorted");  // Comment required for gcc4.6.3 / bug666
-    for (AstNodeModule* nodep : mods) nodep->unlinkFrBack();
+    ਲਈ (Ast_ਗੰਢ_Module* nodep : mods) nodep->unlink_Fr_ਪਿੱਠ();
     UASSERT_OBJ(!v3Global.rootp()->modulesp(), v3Global.rootp(), "Unlink didn't work");
-    for (AstNodeModule* nodep : mods) v3Global.rootp()->addModulesp(nodep);
+    ਲਈ (Ast_ਗੰਢ_Module* nodep : mods) v3Global.rootp()->ਜੋੜੋ_Modulesp(nodep);
     UINFO(9, "modSortByLevel() done");  // Comment required for gcc4.6.3 / bug666
-    V3Global::dumpCheckGlobalTree("cellsort", false, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("cellsort", ਝੂਠ, dump_ਰੁੱਖ_Either_Level() >= 3);
 }
 
-void V3LinkLevel::timescaling(const ModVec& mods) {
+ਖਾਲੀ V3LinkLevel::timescaling(ਅਚਲ ModVec& mods) {
     // Timescale determination
-    const AstNodeModule* modTimedp = nullptr;
+    ਅਚਲ Ast_ਗੰਢ_Module* modTimedp = ਖਾਲੀ_ਸੂਚਕ;
     VTimescale unit{VTimescale::NONE};
 
     // Move timeunit attributes from parse to module unit
     // Grammar only allows timeunit as module_item, so no need to recurse full tree
-    for (AstNodeModule* modp : mods) {
-        for (AstNode *nextp, *childp = modp->stmtsp(); childp; childp = nextp) {
+    ਲਈ (Ast_ਗੰਢ_Module* modp : mods) {
+        ਲਈ (Ast_ਗੰਢ *nextp, *childp = modp->stmtsp(); childp; childp = nextp) {
             nextp = childp->nextp();
             // cppcheck-suppress constVariablePointer
-            if (AstPragma* pragp = VN_CAST(childp, Pragma)) {
-                if (pragp->pragType() == VPragmaType::TIMEUNIT_SET) {
+            ਜੇ (AstPragma* pragp = VN_CAST(childp, Pragma)) {
+                ਜੇ (pragp->pragType() == VPragmaType::TIMEUNIT_ਸੈੱਟ) {
                     modp->timeunit(pragp->timescale());
-                    VL_DO_DANGLING(pragp->unlinkFrBack()->deleteTree(), pragp);
+                    VL_DO_DANGLING(pragp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), pragp);
                 }
             }
         }
     }
     // Use highest level module as default unit - already sorted in proper order
     // Combine timing into later modules
-    for (AstNodeModule* modp : mods) {
-        if (!modTimedp && !modp->timeunit().isNone()) {
+    ਲਈ (Ast_ਗੰਢ_Module* modp : mods) {
+        ਜੇ (!modTimedp && !modp->timeunit().isNone()) {
             modTimedp = modp;
             unit = modTimedp->timeunit();
-            break;
+            ਰੋਕੋ;
         }
     }
-    unit = v3Global.opt.timeComputeUnit(unit);  // Apply override
-    if (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
+    unit = v3Global.opt.ਸਮਾਂ_Compute_Unit(unit);  // Apply override
+    ਜੇ (unit.isNone()) unit = VTimescale{VTimescale::TS_DEFAULT};
     v3Global.rootp()->timeunit(unit);
 
-    bool dunitTimed = false;  // $unit had a timeunit
-    if (const AstPackage* const upkgp = v3Global.rootp()->dollarUnitPkgp()) {
-        if (!upkgp->timeunit().isNone()) dunitTimed = true;
+    ਤਾਰਕਿਕ dunitTimed = ਝੂਠ;  // $unit had a timeunit
+    ਜੇ (ਅਚਲ AstPackage* ਅਚਲ upkgp = v3Global.rootp()->dollarUnitPkgp()) {
+        ਜੇ (!upkgp->timeunit().isNone()) dunitTimed = ਸੱਚ;
     }
 
-    for (AstNodeModule* modp : mods) {
-        if (!v3Global.opt.timeOverrideUnit().isNone()) modp->timeunit(unit);
-        if (modp->timeunit().isNone()) {
-            if (modTimedp  // Got previous
+    ਲਈ (Ast_ਗੰਢ_Module* modp : mods) {
+        ਜੇ (!v3Global.opt.ਸਮਾਂ_Override_Unit().isNone()) modp->timeunit(unit);
+        ਜੇ (modp->timeunit().isNone()) {
+            ਜੇ (modTimedp  // Got previous
                 && !dunitTimed
                 && (  // unit doesn't already include an override
-                    v3Global.opt.timeOverrideUnit().isNone()
-                    && v3Global.opt.timeDefaultUnit().isNone())
+                    v3Global.opt.ਸਮਾਂ_Override_Unit().isNone()
+                    && v3Global.opt.ਸਮਾਂ_Default_Unit().isNone())
                 && modp->timescaleMatters()) {
                 modp->v3warn(TIMESCALEMOD,
                              "Timescale missing on this module as other modules have "
@@ -148,8 +148,8 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
 
     v3Global.rootp()->timescaleSpecified(modTimedp);  // true if some module specifies timescale
 
-    if (v3Global.rootp()->timeprecision().isNone()) {
-        v3Global.rootp()->timeprecisionMerge(v3Global.rootp()->fileline(),
+    ਜੇ (v3Global.rootp()->timeprecision().isNone()) {
+        v3Global.rootp()->timeprecision_ਮਿਲਾਓ(v3Global.rootp()->fileline(),
                                              VTimescale{VTimescale::TS_DEFAULT});
     }
 
@@ -159,81 +159,81 @@ void V3LinkLevel::timescaling(const ModVec& mods) {
 //######################################################################
 // Wrapping
 
-void V3LinkLevel::wrapTop(AstNetlist* rootp) {
+ਖਾਲੀ V3LinkLevel::wrap_ਸਿਖਰ(AstNetlist* rootp) {
     UINFO(2, __FUNCTION__ << ":");
     // We do ONLY the top module
-    AstNodeModule* const oldmodp = rootp->modulesp();
-    if (!oldmodp) {  // Later V3LinkDot will warn
+    Ast_ਗੰਢ_Module* ਅਚਲ oldmodp = rootp->modulesp();
+    ਜੇ (!oldmodp) {  // Later V3LinkDot will warn
         UINFO(1, "No module found to wrap");
-        return;
+        ਵਾਪਸ;
     }
-    rootp->resolvedTopModuleName(oldmodp->name());
+    rootp->resolved_ਸਿਖਰ_Module_Name(oldmodp->name());
 
-    AstNodeModule* const newmodp = new AstModule{oldmodp->fileline(), "$root", oldmodp->libname()};
-    newmodp->name(AstNode::encodeName(newmodp->name()));  // so origName is nice
+    Ast_ਗੰਢ_Module* ਅਚਲ newmodp = ਨਵਾਂ AstModule{oldmodp->fileline(), "$root", oldmodp->libname()};
+    newmodp->name(Ast_ਗੰਢ::encodeName(newmodp->name()));  // so origName is nice
     // Make the new module first in the list
-    oldmodp->unlinkFrBackWithNext();
-    newmodp->addNext(oldmodp);
-    newmodp->depth(1);
+    oldmodp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+    newmodp->ਜੋੜੋ_ਅਗਲਾ(oldmodp);
+    newmodp->ਡੂੰਘਾਈ(1);
     newmodp->level(1);
-    newmodp->modPublic(true);
-    newmodp->protect(false);
+    newmodp->mod_ਜਨਤਕ(ਸੱਚ);
+    newmodp->protect(ਝੂਠ);
     newmodp->timeunit(oldmodp->timeunit());
-    rootp->addModulesp(newmodp);
+    rootp->ਜੋੜੋ_Modulesp(newmodp);
 
     // TODO the module creation above could be done after linkcells, but
     // the rest must be done after data type resolution
-    wrapTopCell(rootp);
+    wrap_ਸਿਖਰ_Cell(rootp);
 
     // Instantiate all packages under the top wrapper
     // This way all later SCOPE based optimizations can ignore packages
-    for (AstNodeModule* modp = rootp->modulesp(); modp; modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) {
-            AstCell* const cellp
-                = new AstCell{modp->fileline(), modp->fileline(),
+    ਲਈ (Ast_ਗੰਢ_Module* modp = rootp->modulesp(); modp; modp = VN_AS(modp->nextp(), ਗੰਢ_Module)) {
+        ਜੇ (VN_IS(modp, Package)) {
+            AstCell* ਅਚਲ cellp
+                = ਨਵਾਂ AstCell{modp->fileline(), modp->fileline(),
                               // Could add __03a__03a="::" to prevent conflict
                               // with module names/"v"
-                              modp->name(), modp->name(), nullptr, nullptr, nullptr};
+                              modp->name(), modp->name(), ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ};
             cellp->modp(modp);
-            newmodp->addStmtsp(cellp);
+            newmodp->ਜੋੜੋ_Stmtsp(cellp);
         }
     }
 
     // All modules and hier-classes except one we created are now a level deeper
-    rootp->foreach([&](AstNodeModule* const modp) {
-        if (modp != newmodp && modp->level()) modp->level(1 + modp->level());
+    rootp->foreach([&](Ast_ਗੰਢ_Module* ਅਚਲ modp) {
+        ਜੇ (modp != newmodp && modp->level()) modp->level(1 + modp->level());
     });
 
-    V3Global::dumpCheckGlobalTree("wraptop", 0, dumpTreeEitherLevel() >= 6);
+    V3Global::dump_Check_Global_ਰੁੱਖ("wraptop", 0, dump_ਰੁੱਖ_Either_Level() >= 6);
 }
 
-void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
-    AstNodeModule* const newmodp = rootp->modulesp();
-    UASSERT_OBJ(newmodp && newmodp->isTop(), rootp, "No TOP module found to insert under");
+ਖਾਲੀ V3LinkLevel::wrap_ਸਿਖਰ_Cell(AstNetlist* rootp) {
+    Ast_ਗੰਢ_Module* ਅਚਲ newmodp = rootp->modulesp();
+    UASSERT_OBJ(newmodp && newmodp->is_ਸਿਖਰ(), rootp, "No TOP module found to insert under");
 
     // Find all duplicate signal names (if multitop)
-    using NameSet = std::unordered_set<std::string>;
-    NameSet ioNames;
-    NameSet dupNames;
+    ਵਰਤੋਂ Name_ਸੈੱਟ = std::unordered_ਸੈੱਟ<std::string>;
+    Name_ਸੈੱਟ io_ਨਾਂ;
+    Name_ਸੈੱਟ dup_ਨਾਂ;
     // For all modules, skipping over new top
     // cppcheck-suppress constVariablePointer
-    for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
-         oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
-        for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
-                if (oldvarp->isIO()) {
-                    if (!ioNames.insert(oldvarp->name()).second) {
+    ਲਈ (Ast_ਗੰਢ_Module* oldmodp = VN_AS(rootp->modulesp()->nextp(), ਗੰਢ_Module);
+         oldmodp && oldmodp->is_ਸਿਖਰ(); oldmodp = VN_AS(oldmodp->nextp(), ਗੰਢ_Module)) {
+        ਲਈ (Ast_ਗੰਢ* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            ਜੇ (AstVar* ਅਚਲ oldvarp = VN_CAST(subnodep, Var)) {
+                ਜੇ (oldvarp->isIO()) {
+                    ਜੇ (!io_ਨਾਂ.ਪਾਓ(oldvarp->name()).ਦੂਜਾ) {
                         // UINFO(8, "Multitop dup I/O found: " << oldvarp);
-                        dupNames.insert(oldvarp->name());
+                        dup_ਨਾਂ.ਪਾਓ(oldvarp->name());
                     }
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
-                    const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
-                        const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
-                            if (!ioNames.insert(oldvarp->name()).second) {
+                } ਨਹੀਂਤਾਂ ਜੇ (v3Global.opt.ਸਿਖਰ_Ifaces_Supported() && oldvarp->isIfaceRef()) {
+                    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ subtypep = oldvarp->subDTypep();
+                    ਜੇ (VN_IS(subtypep, IfaceRefDType)) {
+                        ਅਚਲ AstIfaceRefDType* ਅਚਲ ifacerefp = VN_AS(subtypep, IfaceRefDType);
+                        ਜੇ (!ifacerefp->cellp()) {
+                            ਜੇ (!io_ਨਾਂ.ਪਾਓ(oldvarp->name()).ਦੂਜਾ) {
                                 // UINFO(8, "Multitop dup interface found: " << oldvarp);
-                                dupNames.insert(oldvarp->name());
+                                dup_ਨਾਂ.ਪਾਓ(oldvarp->name());
                             }
                         }
                     }
@@ -243,105 +243,105 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     }
 
     // For all modules, skipping over new top
-    for (AstNodeModule* oldmodp = VN_AS(rootp->modulesp()->nextp(), NodeModule);
-         oldmodp && oldmodp->isTop(); oldmodp = VN_AS(oldmodp->nextp(), NodeModule)) {
-        if (VN_IS(oldmodp, Package)) continue;
+    ਲਈ (Ast_ਗੰਢ_Module* oldmodp = VN_AS(rootp->modulesp()->nextp(), ਗੰਢ_Module);
+         oldmodp && oldmodp->is_ਸਿਖਰ(); oldmodp = VN_AS(oldmodp->nextp(), ਗੰਢ_Module)) {
+        ਜੇ (VN_IS(oldmodp, Package)) ਜਾਰੀ;
         // Add instance
         UINFO(5, "LOOP " << oldmodp);
-        AstCell* const cellp = new AstCell{
+        AstCell* ਅਚਲ cellp = ਨਵਾਂ AstCell{
             newmodp->fileline(),
             newmodp->fileline(),
-            (!v3Global.opt.l2Name().empty() ? v3Global.opt.l2Name() : oldmodp->name()),
+            (!v3Global.opt.l2Name().ਖਾਲੀ_ਥਾਵਾਂ() ? v3Global.opt.l2Name() : oldmodp->name()),
             oldmodp->name(),
-            nullptr,
-            nullptr,
-            nullptr};
+            ਖਾਲੀ_ਸੂਚਕ,
+            ਖਾਲੀ_ਸੂਚਕ,
+            ਖਾਲੀ_ਸੂਚਕ};
         cellp->modp(oldmodp);
-        newmodp->addStmtsp(cellp);
+        newmodp->ਜੋੜੋ_Stmtsp(cellp);
 
         // Add pins
-        for (AstNode* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const oldvarp = VN_CAST(subnodep, Var)) {
+        ਲਈ (Ast_ਗੰਢ* subnodep = oldmodp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            ਜੇ (AstVar* ਅਚਲ oldvarp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << oldvarp);
-                if (oldvarp->isIO()) {
+                ਜੇ (oldvarp->isIO()) {
                     string name = oldvarp->name();
-                    if (dupNames.find(name) != dupNames.end()) {
+                    ਜੇ (dup_ਨਾਂ.ਲੱਭੋ(name) != dup_ਨਾਂ.ਸਿਰਾ()) {
                         // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                         name = oldmodp->name() + "__02E" + name;
                     }
 
-                    AstVar* const varp = oldvarp->cloneTree(false);
+                    AstVar* ਅਚਲ varp = oldvarp->clone_ਰੁੱਖ(ਝੂਠ);
                     varp->name(name);
-                    varp->protect(false);
-                    newmodp->addStmtsp(varp);
-                    varp->sigPublic(true);  // User needs to be able to get to it...
-                    oldvarp->primaryIO(false);
-                    varp->primaryIO(true);
+                    varp->protect(ਝੂਠ);
+                    newmodp->ਜੋੜੋ_Stmtsp(varp);
+                    varp->sig_ਜਨਤਕ(ਸੱਚ);  // User needs to be able to get to it...
+                    oldvarp->primaryIO(ਝੂਠ);
+                    varp->primaryIO(ਸੱਚ);
                     varp->icoMaybeWritten(oldvarp->icoMaybeWritten());
-                    if (varp->isRef() || varp->isConstRef()) {
+                    ਜੇ (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (varp->isIO() && v3Global.opt.systemC()) {
-                        varp->sc(true);
+                    ਜੇ (varp->isIO() && v3Global.opt.systemC()) {
+                        varp->sc(ਸੱਚ);
                         // User can see trace one level down from the wrapper
                         // Avoids packing & unpacking SC signals a second time
-                        varp->trace(false);
+                        varp->trace(ਝੂਠ);
                     }
 
-                    if (v3Global.opt.noTraceTop() && varp->isIO()) varp->trace(false);
+                    ਜੇ (v3Global.opt.no_Trace_ਸਿਖਰ() && varp->isIO()) varp->trace(ਝੂਠ);
 
-                    AstPin* const pinp = new AstPin{
+                    AstPin* ਅਚਲ pinp = ਨਵਾਂ AstPin{
                         oldvarp->fileline(), 0, varp->name(),
-                        new AstVarRef{varp->fileline(), varp,
+                        ਨਵਾਂ AstVarRef{varp->fileline(), varp,
                                       oldvarp->isWritable() ? VAccess::WRITE : VAccess::READ}};
                     // Skip length and width comp; we know it's a direct assignment
                     pinp->modVarp(oldvarp);
-                    cellp->addPinsp(pinp);
-                } else if (v3Global.opt.topIfacesSupported() && oldvarp->isIfaceRef()) {
+                    cellp->ਜੋੜੋ_Pinsp(pinp);
+                } ਨਹੀਂਤਾਂ ਜੇ (v3Global.opt.ਸਿਖਰ_Ifaces_Supported() && oldvarp->isIfaceRef()) {
                     // for each interface port on oldmodp instantiate a corresponding interface
                     // cell in $root
-                    const AstNodeDType* const subtypep = oldvarp->subDTypep();
-                    if (VN_IS(subtypep, IfaceRefDType)) {
-                        const AstIfaceRefDType* const ifacerefp = VN_AS(subtypep, IfaceRefDType);
-                        if (!ifacerefp->cellp()) {
+                    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ subtypep = oldvarp->subDTypep();
+                    ਜੇ (VN_IS(subtypep, IfaceRefDType)) {
+                        ਅਚਲ AstIfaceRefDType* ਅਚਲ ifacerefp = VN_AS(subtypep, IfaceRefDType);
+                        ਜੇ (!ifacerefp->cellp()) {
                             string name = oldvarp->name();
-                            if (dupNames.find(name) != dupNames.end()) {
+                            ਜੇ (dup_ਨਾਂ.ਲੱਭੋ(name) != dup_ਨਾਂ.ਸਿਰਾ()) {
                                 // __02E=. while __DOT__ looks nicer but will break V3LinkDot
                                 name = oldmodp->name() + "__02E" + name;
                             }
 
-                            AstCell* ifacecellp = new AstCell{newmodp->fileline(),
+                            AstCell* ifacecellp = ਨਵਾਂ AstCell{newmodp->fileline(),
                                                               newmodp->fileline(),
                                                               name,
                                                               ifacerefp->ifaceName(),
-                                                              nullptr,
-                                                              nullptr,
-                                                              nullptr};
+                                                              ਖਾਲੀ_ਸੂਚਕ,
+                                                              ਖਾਲੀ_ਸੂਚਕ,
+                                                              ਖਾਲੀ_ਸੂਚਕ};
                             ifacecellp->modp(ifacerefp->ifacep());
-                            newmodp->addStmtsp(ifacecellp);
+                            newmodp->ਜੋੜੋ_Stmtsp(ifacecellp);
 
-                            AstIfaceRefDType* const idtypep = new AstIfaceRefDType{
+                            AstIfaceRefDType* ਅਚਲ idtypep = ਨਵਾਂ AstIfaceRefDType{
                                 newmodp->fileline(), name, ifacerefp->ifaceName()};
-                            idtypep->ifacep(nullptr);
+                            idtypep->ifacep(ਖਾਲੀ_ਸੂਚਕ);
                             idtypep->dtypep(idtypep);
                             idtypep->cellp(ifacecellp);
-                            rootp->typeTablep()->addTypesp(idtypep);
+                            rootp->typeTablep()->ਜੋੜੋ_Typesp(idtypep);
 
-                            AstVar* varp = new AstVar{newmodp->fileline(), VVarType::IFACEREF,
+                            AstVar* varp = ਨਵਾਂ AstVar{newmodp->fileline(), VVarType::IFACEREF,
                                                       name + "__Viftop", idtypep};
-                            varp->isIfaceParent(true);
-                            ifacecellp->addNextHere(varp);
-                            ifacecellp->hasIfaceVar(true);
+                            varp->is_Iface_ਮਾਪਾ(ਸੱਚ);
+                            ifacecellp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(varp);
+                            ifacecellp->hasIfaceVar(ਸੱਚ);
 
-                            AstPin* const pinp
-                                = new AstPin{oldvarp->fileline(), 0, varp->name(),
-                                             new AstVarRef{varp->fileline(), varp,
+                            AstPin* ਅਚਲ pinp
+                                = ਨਵਾਂ AstPin{oldvarp->fileline(), 0, varp->name(),
+                                             ਨਵਾਂ AstVarRef{varp->fileline(), varp,
                                                            oldvarp->isWritable() ? VAccess::WRITE
                                                                                  : VAccess::READ}};
                             pinp->modVarp(oldvarp);
-                            cellp->addPinsp(pinp);
+                            cellp->ਜੋੜੋ_Pinsp(pinp);
                         }
                     }
                 }
@@ -350,35 +350,35 @@ void V3LinkLevel::wrapTopCell(AstNetlist* rootp) {
     }
 }
 
-void V3LinkLevel::nonWrapTop(AstNetlist* rootp) {
+ਖਾਲੀ V3LinkLevel::non_Wrap_ਸਿਖਰ(AstNetlist* rootp) {
     // Perform variable setting step for top modules to prevent
     // optimizing away primary ports when only serializing input
-    if (!rootp->modulesp()) {  // Later V3LinkDot will warn
+    ਜੇ (!rootp->modulesp()) {  // Later V3LinkDot will warn
         UINFO(1, "No module found");
-        return;
+        ਵਾਪਸ;
     }
 
     // For all top modules
-    for (AstNodeModule* modp = rootp->modulesp(); modp && modp->isTop();
-         modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (VN_IS(modp, Package)) continue;
+    ਲਈ (Ast_ਗੰਢ_Module* modp = rootp->modulesp(); modp && modp->is_ਸਿਖਰ();
+         modp = VN_AS(modp->nextp(), ਗੰਢ_Module)) {
+        ਜੇ (VN_IS(modp, Package)) ਜਾਰੀ;
 
         UINFO(5, "LOOP " << modp);
 
-        for (AstNode* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
-            if (AstVar* const varp = VN_CAST(subnodep, Var)) {
+        ਲਈ (Ast_ਗੰਢ* subnodep = modp->stmtsp(); subnodep; subnodep = subnodep->nextp()) {
+            ਜੇ (AstVar* ਅਚਲ varp = VN_CAST(subnodep, Var)) {
                 UINFO(8, "VARWRAP " << varp);
-                if (varp->isIO()) {
-                    varp->protect(false);
-                    varp->sigPublic(true);
-                    varp->primaryIO(true);
-                    if (varp->isRef() || varp->isConstRef()) {
+                ਜੇ (varp->isIO()) {
+                    varp->protect(ਝੂਠ);
+                    varp->sig_ਜਨਤਕ(ਸੱਚ);
+                    varp->primaryIO(ਸੱਚ);
+                    ਜੇ (varp->isRef() || varp->isConstRef()) {
                         varp->v3warn(E_UNSUPPORTED,
                                      "Unsupported: ref/const ref as primary input/output: "
                                          << varp->prettyNameQ());
                     }
-                    if (v3Global.opt.systemC()) varp->sc(true);
-                    if (v3Global.opt.noTraceTop()) varp->trace(false);
+                    ਜੇ (v3Global.opt.systemC()) varp->sc(ਸੱਚ);
+                    ਜੇ (v3Global.opt.no_Trace_ਸਿਖਰ()) varp->trace(ਝੂਠ);
                 }
             }
         }

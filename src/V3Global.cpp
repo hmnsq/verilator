@@ -14,73 +14,73 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstMT.h"
 
-#include "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
 
-#include "V3ConstPool.h"
-#include "V3EmitV.h"
-#include "V3Error.h"
-#include "V3File.h"
-#include "V3HierBlock.h"
-#include "V3LibMap.h"
-#include "V3LinkCells.h"
-#include "V3Parse.h"
-#include "V3ParseImp.h"
-#include "V3PreShell.h"
-#include "V3Stats.h"
-#include "V3ThreadPool.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3ConstPool.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3EmitV.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3File.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3HierBlock.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3LibMap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3LinkCells.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Parse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3ParseImp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PreShell.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3ThreadPool.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // AddressSanitizer default options
 
-#ifdef VL_ASAN
-extern "C" const char* __asan_default_options() {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_ASAN
+ਬਾਹਰੀ "C" ਅਚਲ ਅੱਖਰ* __asan_default_options() {
     // See https://github.com/google/sanitizers/wiki/SanitizerCommonFlags
     // or 'env ASAN_OPTIONS=help=1 ./verilator_bin'
-    return ""
-#ifndef VL_LEAK_CHECKS
+    ਵਾਪਸ ""
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VL_LEAK_CHECKS
            ":detect_leaks=0"
-#endif
+#ਜੇ_ਅੰਤ
         ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 //######################################################################
 // V3Global
 
-void V3Global::boot() {
+ਖਾਲੀ V3Global::boot() {
     UASSERT(!m_rootp, "call once");
-    m_rootp = new AstNetlist;
-    m_constPoolp = new V3ConstPool;
-    m_libMapp = new V3LibMap;
+    m_rootp = ਨਵਾਂ AstNetlist;
+    m_constPoolp = ਨਵਾਂ V3ConstPool;
+    m_libMapp = ਨਵਾਂ V3LibMap;
 }
 
-void V3Global::shutdown() {
+ਖਾਲੀ V3Global::shutdown() {
     V3PreShell::shutdown();
-    VL_DO_CLEAR(delete m_hierGraphp, m_hierGraphp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_threadPoolp, m_threadPoolp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_libMapp, m_libMapp = nullptr);  // delete nullptr is safe
-    VL_DO_CLEAR(delete m_constPoolp, m_constPoolp = nullptr);  // delete nullptr is safe
-#ifdef VL_LEAK_CHECKS
-    if (m_rootp) VL_DO_CLEAR(m_rootp->deleteTree(), m_rootp = nullptr);
-#endif
-    FileLine::deleteAllRemaining();
+    VL_DO_CLEAR(ਮਿਟਾਓ m_hierGraphp, m_hierGraphp = ਖਾਲੀ_ਸੂਚਕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ਮਿਟਾਓ m_threadPoolp, m_threadPoolp = ਖਾਲੀ_ਸੂਚਕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ਮਿਟਾਓ m_libMapp, m_libMapp = ਖਾਲੀ_ਸੂਚਕ);  // delete nullptr is safe
+    VL_DO_CLEAR(ਮਿਟਾਓ m_constPoolp, m_constPoolp = ਖਾਲੀ_ਸੂਚਕ);  // delete nullptr is safe
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_LEAK_CHECKS
+    ਜੇ (m_rootp) VL_DO_CLEAR(m_rootp->delete_ਰੁੱਖ(), m_rootp = ਖਾਲੀ_ਸੂਚਕ);
+#ਜੇ_ਅੰਤ
+    File_ਸਤਰ::delete_All_ਬਚਿਆ();
 }
 
-void V3Global::vlExit(int status) {
+ਖਾਲੀ V3Global::vlExit(ਪੂਰਨ ਸਥਿਤੀ) {
     shutdown();
-    std::exit(status);
+    std::ਬਾਹਰ_ਨਿਕਲੋ(ਸਥਿਤੀ);
 }
 
-void V3Global::checkTree() const { rootp()->checkTree(); }
+ਖਾਲੀ V3Global::check_ਰੁੱਖ() ਅਚਲ { rootp()->check_ਰੁੱਖ(); }
 
-void V3Global::readFiles() {
+ਖਾਲੀ V3Global::readFiles() {
     // NODE STATE
     //   AstNode::user4p()      // VSymEnt*    Package and typedef symbol names
-    const VNUser4InUse inuser4;
+    ਅਚਲ VNUser4_ਵਿੱਚ_Use inuser4;
 
     VInFilter filter{v3Global.opt.pipeFilter()};
 
@@ -88,57 +88,57 @@ void V3Global::readFiles() {
         V3Parse parser{v3Global.rootp(), &filter};
 
         // Parse the std waivers
-        if (v3Global.opt.stdWaiver()) {
+        ਜੇ (v3Global.opt.stdWaiver()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdWaiverPath()}, V3Options::getStdWaiverPath(), false,
-                false, "work",
+                ਨਵਾਂ File_ਸਤਰ{V3Options::get_Std_Waiver_ਰਸਤਾ()}, V3Options::get_Std_Waiver_ਰਸਤਾ(), ਝੂਠ,
+                ਝੂਠ, "work",
                 "Cannot find verilated_std_waiver.vlt containing built-in lint waivers: ");
         }
         // Read .vlt files
-        for (const VFileLibName& filelib : v3Global.opt.vltFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        ਲਈ (ਅਚਲ VFileLibName& filelib : v3Global.opt.vltFiles()) {
+            parser.parseFile(ਨਵਾਂ File_ਸਤਰ{File_ਸਤਰ::command_ਸਤਰ_Filename()}, filelib.filename(),
+                             ਝੂਠ, ਝੂਠ, filelib.libname(),
                              "Cannot find file containing .vlt file: ");
         }
 
         // Parse the std package
-        if (v3Global.opt.stdPackage()) {
+        ਜੇ (v3Global.opt.stdPackage()) {
             parser.parseFile(
-                new FileLine{V3Options::getStdPackagePath()}, V3Options::getStdPackagePath(),
-                false, false, "work",
+                ਨਵਾਂ File_ਸਤਰ{V3Options::get_Std_Package_ਰਸਤਾ()}, V3Options::get_Std_Package_ਰਸਤਾ(),
+                ਝੂਠ, ਝੂਠ, "work",
                 "Cannot find verilated_std.sv containing built-in std:: definitions: ");
         }
 
         // Parse libmap files
-        for (const string& filename : v3Global.opt.libmapFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filename, false, true,
+        ਲਈ (ਅਚਲ string& filename : v3Global.opt.libmapFiles()) {
+            parser.parseFile(ਨਵਾਂ File_ਸਤਰ{File_ਸਤਰ::command_ਸਤਰ_Filename()}, filename, ਝੂਠ, ਸੱਚ,
                              "work", "Cannot find file containing libmap definitions: ");
         }
         // Create library mapping
         V3LibMap::map(v3Global.rootp());
 
         // Read top module
-        for (const auto& filelib : v3Global.opt.vFiles()) {
-            const string& libname = filelib.libname() == "work"
-                                        ? v3Global.libMapp()->matchMapping(filelib.filename())
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& filelib : v3Global.opt.vFiles()) {
+            ਅਚਲ string& libname = filelib.libname() == "work"
+                                        ? v3Global.libMapp()->ਮੇਲ_Mapping(filelib.filename())
                                         : filelib.libname();
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, libname, "Cannot find file containing module: ");
+            parser.parseFile(ਨਵਾਂ File_ਸਤਰ{File_ਸਤਰ::command_ਸਤਰ_Filename()}, filelib.filename(),
+                             ਝੂਠ, ਝੂਠ, libname, "Cannot find file containing module: ");
         }
 
         // Read libraries
         // To be compatible with other simulators,
         // this needs to be done after the top file is read
-        for (const auto& filelib : v3Global.opt.libraryFiles()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             true, false, filelib.libname(),
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& filelib : v3Global.opt.libraryFiles()) {
+            parser.parseFile(ਨਵਾਂ File_ਸਤਰ{File_ਸਤਰ::command_ਸਤਰ_Filename()}, filelib.filename(),
+                             ਸੱਚ, ਝੂਠ, filelib.libname(),
                              "Cannot find file containing library module: ");
         }
 
         // Read hierarchical type parameter file
-        for (const auto& filelib : v3Global.opt.hierParamFile()) {
-            parser.parseFile(new FileLine{FileLine::commandLineFilename()}, filelib.filename(),
-                             false, false, filelib.libname(),
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& filelib : v3Global.opt.hierParamFile()) {
+            parser.parseFile(ਨਵਾਂ File_ਸਤਰ{File_ਸਤਰ::command_ਸਤਰ_Filename()}, filelib.filename(),
+                             ਝੂਠ, ਝੂਠ, filelib.libname(),
                              "Cannot open file containing hierarchical parameter declarations: ");
         }
     }
@@ -146,116 +146,116 @@ void V3Global::readFiles() {
     // v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("parse.tree"));
     V3Error::abortIfErrors();
 
-    if (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
+    ਜੇ (!v3Global.opt.preprocOnly() || v3Global.opt.preprocResolve()) {
         // Resolve all modules cells refer to
         V3LinkCells::link(v3Global.rootp(), &filter);
     }
 
-    V3Global::dumpCheckGlobalTree("cells", false, dumpTreeEitherLevel() >= 9);
+    V3Global::dump_Check_Global_ਰੁੱਖ("cells", ਝੂਠ, dump_ਰੁੱਖ_Either_Level() >= 9);
 }
 
-void V3Global::removeStd() {
+ਖਾਲੀ V3Global::removeStd() {
     // Delete the std package if unused
-    if (!usesStdPackage()) {
+    ਜੇ (!ਵਰਤਦਾ_Std_Package()) {
         UINFO(3, "Removing unused std:: package");
-        if (AstNodeModule* stdp = v3Global.rootp()->stdPackagep()) {
-            v3Global.rootp()->stdPackagep(nullptr);
-            v3Global.rootp()->stdPackageProcessp(nullptr);
-            VL_DO_DANGLING(stdp->unlinkFrBack()->deleteTree(), stdp);
+        ਜੇ (Ast_ਗੰਢ_Module* stdp = v3Global.rootp()->stdPackagep()) {
+            v3Global.rootp()->stdPackagep(ਖਾਲੀ_ਸੂਚਕ);
+            v3Global.rootp()->stdPackageProcessp(ਖਾਲੀ_ਸੂਚਕ);
+            VL_DO_DANGLING(stdp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), stdp);
         }
     }
 }
 
-string V3Global::debugFilename(const string& nameComment, int newNumber) {
-    ++m_debugFileNumber;
-    if (newNumber) m_debugFileNumber = newNumber;
-    return opt.hierTopDataDir() + "/" + opt.prefix() + "_" + digitsFilename(m_debugFileNumber)
+string V3Global::debugFilename(ਅਚਲ string& nameComment, ਪੂਰਨ new_ਸੰਖਿਆ) {
+    ++m_debug_File_ਸੰਖਿਆ;
+    ਜੇ (new_ਸੰਖਿਆ) m_debug_File_ਸੰਖਿਆ = new_ਸੰਖਿਆ;
+    ਵਾਪਸ opt.hier_ਸਿਖਰ_ਅੰਕੜੇ_Dir() + "/" + opt.ਅਗੇਤਰ() + "_" + digitsFilename(m_debug_File_ਸੰਖਿਆ)
            + "_" + nameComment;
 }
-string V3Global::digitsFilename(int number) {
+string V3Global::digitsFilename(ਪੂਰਨ ਸੰਖਿਆ) {
     std::stringstream ss;
-    ss << std::setfill('0') << std::setw(3) << number;
-    return ss.str();
+    ss << std::setfill('0') << std::setw(3) << ਸੰਖਿਆ;
+    ਵਾਪਸ ss.str();
 }
 
-void V3Global::dumpCheckGlobalTree(const string& stagename, int newNumber, bool doDump,
-                                   bool doCheck) {
-    const string treeFilename = v3Global.debugFilename(stagename + ".tree", newNumber);
-    if (dumpTreeLevel()) v3Global.rootp()->dumpTreeFile(treeFilename, doDump);
-    if (dumpTreeJsonLevel()) {
-        v3Global.rootp()->dumpTreeJsonFile(treeFilename + ".json", doDump);
+ਖਾਲੀ V3Global::dump_Check_Global_ਰੁੱਖ(ਅਚਲ string& stagename, ਪੂਰਨ new_ਸੰਖਿਆ, ਤਾਰਕਿਕ doDump,
+                                   ਤਾਰਕਿਕ doCheck) {
+    ਅਚਲ string ਰੁੱਖ_Filename = v3Global.debugFilename(stagename + ".tree", new_ਸੰਖਿਆ);
+    ਜੇ (dump_ਰੁੱਖ_Level()) v3Global.rootp()->dump_ਰੁੱਖ_File(ਰੁੱਖ_Filename, doDump);
+    ਜੇ (dump_ਰੁੱਖ_Json_Level()) {
+        v3Global.rootp()->dump_ਰੁੱਖ_Json_File(ਰੁੱਖ_Filename + ".json", doDump);
     }
-    if (v3Global.opt.dumpTreeDot()) {
-        v3Global.rootp()->dumpTreeDotFile(treeFilename + ".dot", doDump);
+    ਜੇ (v3Global.opt.dump_ਰੁੱਖ_Dot()) {
+        v3Global.rootp()->dump_ਰੁੱਖ_Dot_File(ਰੁੱਖ_Filename + ".dot", doDump);
     }
-    if (v3Global.opt.stats()) V3Stats::statsStage(stagename);
+    ਜੇ (v3Global.opt.stats()) V3Stats::statsStage(stagename);
 
-    if (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(treeFilename + ".v");
-    if (doCheck && (v3Global.opt.debugCheck() || dumpTreeEitherLevel())) {
+    ਜੇ (doDump && v3Global.opt.debugEmitV()) V3EmitV::debugEmitV(ਰੁੱਖ_Filename + ".v");
+    ਜੇ (doCheck && (v3Global.opt.debugCheck() || dump_ਰੁੱਖ_Either_Level())) {
         // Error check
-        v3Global.rootp()->checkTree();
+        v3Global.rootp()->check_ਰੁੱਖ();
         // Broken isn't part of check tree because it can munge iterp's
         // set by other steps if it is called in the middle of other operations
         V3Broken::brokenAll(v3Global.rootp());
     }
 }
 
-void V3Global::idPtrMapDumpJson(std::ostream& os) {
+ਖਾਲੀ V3Global::idPtrMapDumpJson(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"pointers\": {";
-    for (const auto& itr : m_ptrToId) {
-        os << sep << '"' << itr.second << "\": \"" << cvtToHex(itr.first) << '"';
+    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& itr : m_ptr_ਮੰਜ਼ਿਲ_Id) {
+        os << sep << '"' << itr.ਦੂਜਾ << "\": \"" << cvt_ਮੰਜ਼ਿਲ_Hex(itr.ਪਹਿਲਾ) << '"';
         sep = ",\n  ";
     }
     os << "\n }";
 }
 
-void V3Global::saveJsonPtrFieldName(const std::string& fieldName) {
-    m_jsonPtrNames.insert(fieldName);
+ਖਾਲੀ V3Global::save_Json_Ptr_ਖੇਤਰ_Name(ਅਚਲ std::string& ਖੇਤਰ_Name) {
+    m_json_Ptr_ਨਾਂ.ਪਾਓ(ਖੇਤਰ_Name);
 }
 
-void V3Global::ptrNamesDumpJson(std::ostream& os) {
+ਖਾਲੀ V3Global::ptr_ਨਾਂ_Dump_Json(std::ostream& os) {
     std::string sep = "\n  ";
     os << "\"ptrFieldNames\": [";
-    for (const auto& itr : m_jsonPtrNames) {
+    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& itr : m_json_Ptr_ਨਾਂ) {
         os << sep << '"' << itr << '"';
         sep = ",\n  ";
     }
     os << "\n ]";
 }
 
-const std::string& V3Global::ptrToId(const void* p) {
-    const auto pair = m_ptrToId.emplace(p, "");
-    if (pair.second) {
+ਅਚਲ std::string& V3Global::ptr_ਮੰਜ਼ਿਲ_Id(ਅਚਲ ਖਾਲੀ* p) {
+    ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_ptr_ਮੰਜ਼ਿਲ_Id.emplace(p, "");
+    ਜੇ (pair.ਦੂਜਾ) {
         std::ostringstream os;
-        if (p) {
+        ਜੇ (p) {
             os << "(";
-            unsigned id = m_ptrToId.size();
-            do { os << static_cast<char>('A' + id % 26); } while (id /= 26);
+            ਬਿਨਾਨਿਸ਼ਾਨੀ id = m_ptr_ਮੰਜ਼ਿਲ_Id.ਮਾਪ();
+            ਕਰੋ { os << static_cast<ਅੱਖਰ>('A' + id % 26); } ਜਦੋਂ (id /= 26);
             os << ")";
-        } else {
+        } ਨਹੀਂਤਾਂ {
             os << "0";
         }
-        pair.first->second = os.str();
+        pair.ਪਹਿਲਾ->ਦੂਜਾ = os.str();
     }
-    return pair.first->second;
+    ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
 }
 
-std::vector<std::string> V3Global::verilatedCppFiles() {
-    std::vector<std::string> result;
-    result.emplace_back("verilated.cpp");
-    if (v3Global.dpi()) result.emplace_back("verilated_dpi.cpp");
-    if (v3Global.opt.vpi()) result.emplace_back("verilated_vpi.cpp");
-    if (v3Global.opt.savable()) result.emplace_back("verilated_save.cpp");
-    if (v3Global.opt.coverage()) result.emplace_back("verilated_cov.cpp");
-    if (v3Global.opt.coverage() || v3Global.useCovergroup())
-        result.emplace_back("verilated_covergroup.cpp");
-    for (const string& base : v3Global.opt.traceSourceBases())
-        result.emplace_back(base + "_c.cpp");
-    if (v3Global.usesProbDist()) result.emplace_back("verilated_probdist.cpp");
-    if (v3Global.usesTiming()) result.emplace_back("verilated_timing.cpp");
-    if (v3Global.useRandomizeMethods()) result.emplace_back("verilated_random.cpp");
-    result.emplace_back("verilated_threads.cpp");
-    if (v3Global.opt.usesProfiler()) result.emplace_back("verilated_profiler.cpp");
-    return result;
+std::ਸਦਿਸ਼<std::string> V3Global::verilatedCppFiles() {
+    std::ਸਦਿਸ਼<std::string> ਨਤੀਜਾ;
+    ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated.cpp");
+    ਜੇ (v3Global.dpi()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_dpi.cpp");
+    ਜੇ (v3Global.opt.vpi()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_vpi.cpp");
+    ਜੇ (v3Global.opt.savable()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_save.cpp");
+    ਜੇ (v3Global.opt.coverage()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_cov.cpp");
+    ਜੇ (v3Global.opt.coverage() || v3Global.useCovergroup())
+        ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_covergroup.cpp");
+    ਲਈ (ਅਚਲ string& ਅਧਾਰ : v3Global.opt.trace_ਸਰੋਤ_Bases())
+        ਨਤੀਜਾ.emplace_ਪਿੱਠ(ਅਧਾਰ + "_c.cpp");
+    ਜੇ (v3Global.ਵਰਤਦਾ_Prob_Dist()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_probdist.cpp");
+    ਜੇ (v3Global.ਵਰਤਦਾ_Timing()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_timing.cpp");
+    ਜੇ (v3Global.useRandomizeMethods()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_random.cpp");
+    ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_threads.cpp");
+    ਜੇ (v3Global.opt.ਵਰਤਦਾ_Profiler()) ਨਤੀਜਾ.emplace_ਪਿੱਠ("verilated_profiler.cpp");
+    ਵਾਪਸ ਨਤੀਜਾ;
 }

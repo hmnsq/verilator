@@ -14,14 +14,14 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstMT.h"
 
-#include "V3Broken.h"
-#include "V3File.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Broken.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3File.h"
 
-#include <iomanip>
-#include <memory>
-#include <sstream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <memory>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sstream>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -30,349 +30,349 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 
 uint64_t VIsCached::s_cachedCntGbl = 1;
 
-uint64_t AstNode::s_editCntLast = 0;
-uint64_t AstNode::s_editCntGbl = 0;  // Hot cache line
+uint64_t Ast_ਗੰਢ::s_edit_Cnt_ਆਖਰੀ = 0;
+uint64_t Ast_ਗੰਢ::s_editCntGbl = 0;  // Hot cache line
 
 // To allow for fast clearing of all user pointers, we keep a "timestamp"
 // along with each userp, and thus by bumping this count we can make it look
 // as if we iterated across the entire tree to set all the userp's to null.
-int AstNode::s_cloneCntGbl = 0;
-uint32_t VNUser1InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
-uint32_t VNUser2InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
-uint32_t VNUser3InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
-uint32_t VNUser4InUse::s_userCntGbl = 0;  // Hot cache line, leave adjacent
+ਪੂਰਨ Ast_ਗੰਢ::s_cloneCntGbl = 0;
+uint32_t VNUser1_ਵਿੱਚ_Use::s_userCntGbl = 0;  // Hot cache line, leave adjacent
+uint32_t VNUser2_ਵਿੱਚ_Use::s_userCntGbl = 0;  // Hot cache line, leave adjacent
+uint32_t VNUser3_ਵਿੱਚ_Use::s_userCntGbl = 0;  // Hot cache line, leave adjacent
+uint32_t VNUser4_ਵਿੱਚ_Use::s_userCntGbl = 0;  // Hot cache line, leave adjacent
 
-bool VNUser1InUse::s_userBusy = false;
-bool VNUser2InUse::s_userBusy = false;
-bool VNUser3InUse::s_userBusy = false;
-bool VNUser4InUse::s_userBusy = false;
+ਤਾਰਕਿਕ VNUser1_ਵਿੱਚ_Use::s_userBusy = ਝੂਠ;
+ਤਾਰਕਿਕ VNUser2_ਵਿੱਚ_Use::s_userBusy = ਝੂਠ;
+ਤਾਰਕਿਕ VNUser3_ਵਿੱਚ_Use::s_userBusy = ਝੂਠ;
+ਤਾਰਕਿਕ VNUser4_ਵਿੱਚ_Use::s_userBusy = ਝੂਠ;
 
-int AstNodeDType::s_uniqueNum = 0;
+ਪੂਰਨ Ast_ਗੰਢ_DType::s_unique_ਅੰਕ = 0;
 
 //======================================================================
 // VCMethod information
 
-VCMethod VCMethod::arrayMethod(const string& name) {
-    for (int i = 0; i < _ENUM_MAX; ++i) {
-        const VCMethod method{i};
-        if (name == method.ascii()) return method;
+VCMethod VCMethod::array_ਵਿਧੀ(ਅਚਲ string& name) {
+    ਲਈ (ਪੂਰਨ i = 0; i < _ENUM_MAX; ++i) {
+        ਅਚਲ VCMethod ਵਿਧੀ{i};
+        ਜੇ (name == ਵਿਧੀ.ascii()) ਵਾਪਸ ਵਿਧੀ;
     }
     v3fatalSrc("Not a method name known to VCMethod: '" << name << '\'');
-    return VCMethod{};
+    ਵਾਪਸ VCMethod{};
 }
 
 //######################################################################
 // VNUser
 
-std::string VNUser::dumpStr(std::string (*fmtAddrp)(const void*)) const {
-#ifdef VL_USER_TYPE_CHECKS
-    if (const uint64_t* const uip = std::get_if<uint64_t>(&m_u)) return "#"s + cvtToStr(*uip);
-    if (void* const* const upp = std::get_if<void*>(&m_u)) return fmtAddrp(*upp);
-    return "";
-#else
+std::string VNUser::dumpStr(std::string (*fmtAddrp)(ਅਚਲ ਖਾਲੀ*)) ਅਚਲ {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_USER_TYPE_CHECKS
+    ਜੇ (ਅਚਲ uint64_t* ਅਚਲ uip = std::get_if<uint64_t>(&m_u)) ਵਾਪਸ "#"s + cvt_ਮੰਜ਼ਿਲ_Str(*uip);
+    ਜੇ (ਖਾਲੀ* ਅਚਲ* ਅਚਲ upp = std::get_if<ਖਾਲੀ*>(&m_u)) ਵਾਪਸ fmtAddrp(*upp);
+    ਵਾਪਸ "";
+#ਨਹੀਂਤਾਂ
     // Dumps void* representation
-    if (!m_u.up) return "";
-    return fmtAddrp(m_u.up);
-#endif
+    ਜੇ (!m_u.ਉੱਪਰ) ਵਾਪਸ "";
+    ਵਾਪਸ fmtAddrp(m_u.ਉੱਪਰ);
+#ਜੇ_ਅੰਤ
 }
 
 //######################################################################
 // VNType
 
-const VNTypeInfo VNType::s_typeInfoTable[VNType::NUM_TYPES()] = {
-#include "V3Ast__gen_type_info.h"  // From ./astgen
+ਅਚਲ VNTypeInfo VNType::s_type_Info_ਸਾਰਣੀ[VNType::ਅੰਕ_TYPES()] = {
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast__gen_type_info.h"  // From ./astgen
 };
 
-std::ostream& operator<<(std::ostream& os, VNType rhs);
+std::ostream& ਸੰਚਾਲਕ<<(std::ostream& os, VNType rhs);
 
 //######################################################################
 // VFwdType
 
-bool VFwdType::isNodeCompatible(const AstNode* nodep) const {
-    const AstNode* defp = nodep;
-    if (const AstTypedef* const adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
-    if (const AstNodeDType* const adefp = VN_CAST(defp, NodeDType))
-        defp = adefp->skipRefToNonRefp();
-    switch (m_e) {
-    case VFwdType::NONE: return true; break;
-    case VFwdType::ENUM: return VN_IS(defp, EnumDType); break;
-    case VFwdType::STRUCT: return VN_IS(defp, StructDType); break;
-    case VFwdType::UNION: return VN_IS(defp, UnionDType); break;
-    case VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
-    case VFwdType::CLASS: return VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); break;
-    case VFwdType::GENERIC_INTERFACE: return VN_IS(defp, IfaceRefDType); break;
-    default: v3fatalSrc("Bad case");
+ਤਾਰਕਿਕ VFwdType::is_ਗੰਢ_Compatible(ਅਚਲ Ast_ਗੰਢ* nodep) ਅਚਲ {
+    ਅਚਲ Ast_ਗੰਢ* defp = nodep;
+    ਜੇ (ਅਚਲ AstTypedef* ਅਚਲ adefp = VN_CAST(defp, Typedef)) defp = adefp->subDTypep();
+    ਜੇ (ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ adefp = VN_CAST(defp, ਗੰਢ_DType))
+        defp = adefp->skip_Ref_ਮੰਜ਼ਿਲ_Non_Refp();
+    ਚੋਣ (m_e) {
+    ਹਾਲਤ VFwdType::NONE: ਵਾਪਸ ਸੱਚ; ਰੋਕੋ;
+    ਹਾਲਤ VFwdType::ENUM: ਵਾਪਸ VN_IS(defp, EnumDType); ਰੋਕੋ;
+    ਹਾਲਤ VFwdType::STRUCT: ਵਾਪਸ VN_IS(defp, StructDType); ਰੋਕੋ;
+    ਹਾਲਤ VFwdType::UNION: ਵਾਪਸ VN_IS(defp, UnionDType); ਰੋਕੋ;
+    ਹਾਲਤ VFwdType::INTERFACE_CLASS:  // FALLTHRU  // TODO: Over permissive for now
+    ਹਾਲਤ VFwdType::CLASS: ਵਾਪਸ VN_IS(defp, ClassRefDType) || VN_IS(defp, Class); ਰੋਕੋ;
+    ਹਾਲਤ VFwdType::GENERIC_INTERFACE: ਵਾਪਸ VN_IS(defp, IfaceRefDType); ਰੋਕੋ;
+    ਮੂਲ: v3fatalSrc("Bad case");
     }
     VL_UNREACHABLE;
-    return false;  // LCOV_EXCL_LINE
+    ਵਾਪਸ ਝੂਠ;  // LCOV_EXCL_LINE
 }
 
 //######################################################################
 // VSelfPointerText
 
-const std::shared_ptr<const string> VSelfPointerText::s_emptyp = std::make_shared<string>("");
-const std::shared_ptr<const string> VSelfPointerText::s_thisp = std::make_shared<string>("this");
+ਅਚਲ std::shared_ptr<ਅਚਲ string> VSelf_ਸੂਚਕ_ਪਾਠ::s_emptyp = std::make_shared<string>("");
+ਅਚਲ std::shared_ptr<ਅਚਲ string> VSelf_ਸੂਚਕ_ਪਾਠ::s_thisp = std::make_shared<string>("this");
 
-string VSelfPointerText::replaceThis(bool useSelfForThis, const string& text) {
-    return useSelfForThis ? VString::replaceWord(text, "this", "vlSelf") : text;
+string VSelf_ਸੂਚਕ_ਪਾਠ::replaceThis(ਤਾਰਕਿਕ useSelfForThis, ਅਚਲ string& ਪਾਠ) {
+    ਵਾਪਸ useSelfForThis ? VString::replace_ਸ਼ਬਦ(ਪਾਠ, "this", "vlSelf") : ਪਾਠ;
 }
 
-string VSelfPointerText::protect(bool useSelfForThis, bool protect) const {
-    return VIdProtect::protectWordsIf(replaceThis(useSelfForThis, asString()), protect);
+string VSelf_ਸੂਚਕ_ਪਾਠ::protect(ਤਾਰਕਿਕ useSelfForThis, ਤਾਰਕਿਕ protect) ਅਚਲ {
+    ਵਾਪਸ VIdProtect::protect_ਸ਼ਬਦ_If(replaceThis(useSelfForThis, asString()), protect);
 }
 
 //######################################################################
 // AstNode
 
-AstNode::AstNode(VNType t, FileLine* fl)
+Ast_ਗੰਢ::Ast_ਗੰਢ(VNType t, File_ਸਤਰ* fl)
     : m_type{t}
     , m_fileline{fl} {
-    m_headtailp = this;  // When made, we're a list of only a single element
-    // Attributes
-    m_flags.didWidth = false;
-    m_flags.doingWidth = false;
-    m_flags.protect = true;
-    m_flags.unused = 0;  // Initializing this avoids a read-modify-write on construction
-    editCountInc();
+    m_headtailp = ਇਹ;  // When made, we're a list of only a single element
+    //ਗੁਣ
+    m_flags.did_ਚੌੜਾਈ = ਝੂਠ;
+    m_flags.doing_ਚੌੜਾਈ = ਝੂਠ;
+    m_flags.protect = ਸੱਚ;
+    m_flags.ਅਣਵਰਤਿਆ = 0;  // Initializing this avoids a read-modify-write on construction
+    edit_ਗਿਣਤੀ_Inc();
 }
 
-AstNode* AstNode::abovep() const {
+Ast_ਗੰਢ* Ast_ਗੰਢ::abovep() ਅਚਲ {
     // m_headtailp only valid at beginning or end of list
     // Avoid supporting at other locations as would require walking
     // list which is likely to cause performance issues.
-    UASSERT_OBJ(!m_nextp || firstAbovep(), this, "abovep() not allowed when in midlist");
-    const AstNode* const firstp = firstAbovep() ? this : m_headtailp;
-    return firstp->backp();
+    UASSERT_OBJ(!m_nextp || ਪਹਿਲਾ_Abovep(), ਇਹ, "abovep() not allowed when in midlist");
+    ਅਚਲ Ast_ਗੰਢ* ਅਚਲ firstp = ਪਹਿਲਾ_Abovep() ? ਇਹ : m_headtailp;
+    ਵਾਪਸ firstp->backp();
 }
-AstNode* AstNode::aboveLoopp() const {
+Ast_ਗੰਢ* Ast_ਗੰਢ::aboveLoopp() ਅਚਲ {
     // Returns parent node. Avoid using this, may have performance issues.
-    const AstNode* nodep = this;
+    ਅਚਲ Ast_ਗੰਢ* nodep = ਇਹ;
     // Backwards over peers (versus parents)
-    while (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
-    return nodep->backp();
+    ਜਦੋਂ (nodep->backp() && nodep->backp()->nextp() == nodep) nodep = nodep->backp();
+    ਵਾਪਸ nodep->backp();
 }
 
-string AstNode::encodeName(const string& namein) {
+string Ast_ਗੰਢ::encodeName(ਅਚਲ string& namein) {
     // Encode signal name raw from parser, then not called again on same signal
-    string out;
-    out.reserve(namein.size());
-    for (auto pos = namein.begin(); pos != namein.end(); ++pos) {
-        if ((pos == namein.begin()) ? std::isalpha(pos[0])  // digits can't lead identifiers
-                                    : std::isalnum(pos[0])) {
-            out += pos[0];
-        } else if (pos[0] == '_') {
-            out += pos[0];
-            if (pos + 1 == namein.end()) break;
-            if (pos[1] == '_') {
+    string ਬਾਹਰਲਾ;
+    ਬਾਹਰਲਾ.reserve(namein.ਮਾਪ());
+    ਲਈ (ਸਵੈਚਾਲਿਤ pos = namein.begin(); pos != namein.ਸਿਰਾ(); ++pos) {
+        ਜੇ ((pos == namein.begin()) ? std::ਅੱਖਰ_ਹੈ(pos[0])  // digits can't lead identifiers
+                                    : std::ਅੱਖਰ_ਜਾਂ_ਅੰਕ(pos[0])) {
+            ਬਾਹਰਲਾ += pos[0];
+        } ਨਹੀਂਤਾਂ ਜੇ (pos[0] == '_') {
+            ਬਾਹਰਲਾ += pos[0];
+            ਜੇ (pos + 1 == namein.ਸਿਰਾ()) ਰੋਕੋ;
+            ਜੇ (pos[1] == '_') {
                 ++pos;
-                out += "__05F";  // hex(_) = 0x5F
+                ਬਾਹਰਲਾ += "__05F";  // hex(_) = 0x5F
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // Need the leading 0 so this will never collide with
             // a user identifier nor a temp we create in Verilator.
             // We also do *NOT* use __DOT__ etc, as we search for those
             // in some replacements, and don't want to mangle the user's names.
-            const unsigned val = pos[0] & 0xff;  // Mask to avoid sign extension
+            ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ val = pos[0] & 0xff;  // Mask to avoid sign extension
             std::stringstream hex;
             hex << std::setfill('0') << std::setw(2) << std::hex << val;
-            out += "__0" + hex.str();
+            ਬਾਹਰਲਾ += "__0" + hex.str();
         }
     }
     // Shorten names
     // TODO long term use VName in place of "string name"
     // Then we also won't need to save the table of hashed values
-    VName vname{out};
-    return vname.hashedName();
+    VName vname{ਬਾਹਰਲਾ};
+    ਵਾਪਸ vname.hashedName();
 }
 
-string AstNode::encodeNumber(int64_t num) {
-    if (num < 0) return "__02D" + cvtToStr(-num);  // 2D=-
-    return cvtToStr(num);
+string Ast_ਗੰਢ::encode_ਸੰਖਿਆ(int64_t ਅੰਕ) {
+    ਜੇ (ਅੰਕ < 0) ਵਾਪਸ "__02D" + cvt_ਮੰਜ਼ਿਲ_Str(-ਅੰਕ);  // 2D=-
+    ਵਾਪਸ cvt_ਮੰਜ਼ਿਲ_Str(ਅੰਕ);
 }
 
-string AstNode::nameProtect() const { return VIdProtect::protectIf(name(), protect()); }
-string AstNode::origNameProtect() const { return VIdProtect::protectIf(origName(), protect()); }
+string Ast_ਗੰਢ::nameProtect() ਅਚਲ { ਵਾਪਸ VIdProtect::protectIf(name(), protect()); }
+string Ast_ਗੰਢ::origNameProtect() ਅਚਲ { ਵਾਪਸ VIdProtect::protectIf(origName(), protect()); }
 
-string AstNode::shortName() const {
+string Ast_ਗੰਢ::shortName() ਅਚਲ {
     string pretty = name();
-    string::size_type pos;
-    while ((pos = pretty.find("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
-    return pretty;
+    string::ਮਾਪ_type pos;
+    ਜਦੋਂ ((pos = pretty.ਲੱਭੋ("__PVT__")) != string::npos) pretty.replace(pos, 7, "");
+    ਵਾਪਸ pretty;
 }
 
-string AstNode::dedotName(const string& namein) {
+string Ast_ਗੰਢ::dedotName(ਅਚਲ string& namein) {
     string pretty = namein;
-    string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
-    if (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    return pretty;
+    string::ਮਾਪ_type pos;
+    ਜਦੋਂ ((pos = pretty.ਲੱਭੋ("__DOT__")) != string::npos) pretty.replace(pos, 7, ".");
+    ਜੇ (pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    ਵਾਪਸ pretty;
 }
 
-string AstNode::nameNoArray(const string& namein) {
-    return namein.substr(0, namein.find("__BRA__"));
+string Ast_ਗੰਢ::nameNoArray(ਅਚਲ string& namein) {
+    ਵਾਪਸ namein.substr(0, namein.ਲੱਭੋ("__BRA__"));
 }
 
-string AstNode::vcdName(const string& namein) {
+string Ast_ਗੰਢ::vcdName(ਅਚਲ string& namein) {
     // VCD tracing expects space to separate hierarchy
     // Dots are reserved for dots the user put in the name
     // We earlier hashed all symbols, dehash them so user sees real name
     string pretty{VName::dehash(namein)};
-    string::size_type pos;
-    while ((pos = pretty.find("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
-    while ((pos = pretty.find('.')) != string::npos) pretty.replace(pos, 1, " ");
+    string::ਮਾਪ_type pos;
+    ਜਦੋਂ ((pos = pretty.ਲੱਭੋ("__DOT__")) != string::npos) pretty.replace(pos, 7, " ");
+    ਜਦੋਂ ((pos = pretty.ਲੱਭੋ('.')) != string::npos) pretty.replace(pos, 1, " ");
     // Now convert escaped special characters, etc
-    return prettyName(pretty);
+    ਵਾਪਸ prettyName(pretty);
 }
 
-string AstNode::prettyName(const string& namein) VL_PURE {
+string Ast_ਗੰਢ::prettyName(ਅਚਲ string& namein) VL_ਸ਼ੁੱਧ {
     // This function is somewhat hot, so we short-circuit some compares
     string pretty;
-    pretty.reserve(namein.length());
-    for (const char* pos = namein.c_str(); *pos;) {
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    pretty.reserve(namein.ਲੰਮਾਈ());
+    ਲਈ (ਅਚਲ ਅੱਖਰ* pos = namein.c_str(); *pos;) {
+        ਜੇ (pos[0] == '-' && pos[1] == '>') {  // ->
             pretty += ".";
             pos += 2;
-            continue;
+            ਜਾਰੀ;
         }
-        if (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        ਜੇ (pos[0] == '_' && pos[1] == '_') {  // Short-circuit
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__BRA__", 7)) {
                 pretty += "[";
                 pos += 7;
-                continue;
+                ਜਾਰੀ;
             }
-            if (0 == std::strncmp(pos, "__KET__", 7)) {
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__KET__", 7)) {
                 pretty += "]";
                 pos += 7;
-                continue;
+                ਜਾਰੀ;
             }
-            if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__DOT__", 7)) {
                 pretty += ".";
                 pos += 7;
-                continue;
+                ਜਾਰੀ;
             }
-            if (0 == std::strncmp(pos, "__LIB__", 7)) {
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__LIB__", 7)) {
                 pretty = "";  // Trim library name before module name
                 pos += 7;
-                continue;
+                ਜਾਰੀ;
             }
-            if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__PVT__", 7)) {
                 pretty += "";
                 pos += 7;
-                continue;
+                ਜਾਰੀ;
             }
-            if (0 == std::strncmp(pos, "__Viftop", 8)) {
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__Viftop", 8)) {
                 pretty += "";
                 pos += 8;
-                continue;
+                ਜਾਰੀ;
             }
-            if (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
+            ਜੇ (pos[0] == '_' && pos[1] == '_' && pos[2] == '0' && std::isxdigit(pos[3])
                 && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
-                         * (std::isdigit(pos[3]) ? (pos[3] - '0')
+                ਅੱਖਰ ਮੁੱਲ = 0;
+                ਮੁੱਲ += 16
+                         * (std::ਅੰਕ_ਹੈ(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
-                    += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
-                pretty += value;
+                ਮੁੱਲ
+                    += (std::ਅੰਕ_ਹੈ(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
+                pretty += ਮੁੱਲ;
                 pos += 5;
-                continue;
+                ਜਾਰੀ;
             }
         }
         // Default
         pretty += pos[0];
         ++pos;
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    ਜੇ (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    ਜੇ (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    ਵਾਪਸ pretty;
 }
 
-string AstNode::vpiName(const string& namein) {
+string Ast_ਗੰਢ::vpiName(ਅਚਲ string& namein) {
     // This is slightly different from prettyName, in that when we encounter escaped characters,
     // we change that identifier to an escaped identifier, wrapping it with '\' and ' '
     // as specified in LRM 23.6
-    const size_t offset = VString::startsWith(namein, "__SYM__") ? 7 : 0;
+    ਅਚਲ ਮਾਪ_t ਵਿੱਥ = VString::startsWith(namein, "__SYM__") ? 7 : 0;
     string pretty;
-    pretty.reserve(namein.length());
-    bool inEscapedIdent = false;
-    int lastIdent = 0;
+    pretty.reserve(namein.ਲੰਮਾਈ());
+    ਤਾਰਕਿਕ ਵਿੱਚ_Escaped_Ident = ਝੂਠ;
+    ਪੂਰਨ ਆਖਰੀ_Ident = 0;
 
-    for (const char* pos = namein.c_str() + offset; *pos;) {
-        char specialChar = 0;
-        if (pos[0] == '-' && pos[1] == '>') {  // ->
+    ਲਈ (ਅਚਲ ਅੱਖਰ* pos = namein.c_str() + ਵਿੱਥ; *pos;) {
+        ਅੱਖਰ specialChar = 0;
+        ਜੇ (pos[0] == '-' && pos[1] == '>') {  // ->
             specialChar = '.';
             pos += 2;
-        } else if (pos[0] == '_' && pos[1] == '_') {  // __
-            if (0 == std::strncmp(pos, "__BRA__", 7)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (pos[0] == '_' && pos[1] == '_') {  // __
+            ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__BRA__", 7)) {
                 specialChar = '[';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__KET__", 7)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__KET__", 7)) {
                 specialChar = ']';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__DOT__", 7)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__DOT__", 7)) {
                 specialChar = '.';
                 pos += 7;
-            } else if (0 == std::strncmp(pos, "__PVT__", 7)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__PVT__", 7)) {
                 pos += 7;
-                continue;
-            } else if (0 == std::strncmp(pos, "__0", 3) && std::isxdigit(pos[3])
+                ਜਾਰੀ;
+            } ਨਹੀਂਤਾਂ ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(pos, "__0", 3) && std::isxdigit(pos[3])
                        && std::isxdigit(pos[4])) {
-                char value = 0;
-                value += 16
-                         * (std::isdigit(pos[3]) ? (pos[3] - '0')
+                ਅੱਖਰ ਮੁੱਲ = 0;
+                ਮੁੱਲ += 16
+                         * (std::ਅੰਕ_ਹੈ(pos[3]) ? (pos[3] - '0')
                                                  : (std::tolower(pos[3]) - 'a' + 10));
-                value
-                    += (std::isdigit(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
+                ਮੁੱਲ
+                    += (std::ਅੰਕ_ਹੈ(pos[4]) ? (pos[4] - '0') : (std::tolower(pos[4]) - 'a' + 10));
 
                 // __ doesn't always imply escaped ident
-                if (value != '_') inEscapedIdent = true;
+                ਜੇ (ਮੁੱਲ != '_') ਵਿੱਚ_Escaped_Ident = ਸੱਚ;
 
-                pretty += value;
+                pretty += ਮੁੱਲ;
                 pos += 5;
-                continue;
+                ਜਾਰੀ;
             }
-        } else if (pos[0] == '.') {
+        } ਨਹੀਂਤਾਂ ਜੇ (pos[0] == '.') {
             specialChar = '.';
             ++pos;
         }
 
-        if (specialChar) {
-            if (inEscapedIdent && (specialChar == '[' || specialChar == '.')) {
+        ਜੇ (specialChar) {
+            ਜੇ (ਵਿੱਚ_Escaped_Ident && (specialChar == '[' || specialChar == '.')) {
                 pretty += " ";
-                pretty.insert(lastIdent, "\\");
-                inEscapedIdent = false;
+                pretty.ਪਾਓ(ਆਖਰੀ_Ident, "\\");
+                ਵਿੱਚ_Escaped_Ident = ਝੂਠ;
             }
 
             pretty += specialChar;
 
-            if (specialChar == ']' || specialChar == '.') {
-                lastIdent = pretty.length();
-                inEscapedIdent = false;
+            ਜੇ (specialChar == ']' || specialChar == '.') {
+                ਆਖਰੀ_Ident = pretty.ਲੰਮਾਈ();
+                ਵਿੱਚ_Escaped_Ident = ਝੂਠ;
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             pretty += pos[0];
             ++pos;
         }
     }
-    if (inEscapedIdent) {
+    ਜੇ (ਵਿੱਚ_Escaped_Ident) {
         pretty += " ";
-        pretty.insert(lastIdent, "\\");
+        pretty.ਪਾਓ(ਆਖਰੀ_Ident, "\\");
     }
-    if (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
-    if (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
-    return pretty;
+    ਜੇ (pretty[0] == 'T' && pretty.substr(0, 4) == "TOP.") pretty.replace(0, 4, "");
+    ਜੇ (pretty[0] == 'T' && pretty.substr(0, 5) == "TOP->") pretty.replace(0, 5, "");
+    ਵਾਪਸ pretty;
 }
 
-string AstNode::prettyTypeName() const {
-    if (name() == "") return typeName();
-    return std::string{typeName()} + " '" + prettyNameMsg() + "'";
+string Ast_ਗੰਢ::prettyTypeName() ਅਚਲ {
+    ਜੇ (name() == "") ਵਾਪਸ typeName();
+    ਵਾਪਸ std::string{typeName()} + " '" + pretty_Name_ਸੁਨੇਹਾ() + "'";
 }
 
 //######################################################################
 // Insertion
 
-void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int lineno, bool next) {
-#ifdef VL_DEBUG
+ਖਾਲੀ Ast_ਗੰਢ::debug_ਰੁੱਖ_Change(ਅਚਲ Ast_ਗੰਢ* nodep, ਅਚਲ ਅੱਖਰ* ਅਗੇਤਰ, ਪੂਰਨ lineno, ਤਾਰਕਿਕ ਅਗਲਾ) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_DEBUG
 // Called on all major tree changers.
 // Only for use for those really nasty bugs relating to internals
 // Note this may be null.
@@ -391,88 +391,88 @@ void AstNode::debugTreeChange(const AstNode* nodep, const char* prefix, int line
 //  nodep->checkTree();
 //  v3Global.rootp()->checkTree();
 //}
-#endif
+#ਜੇ_ਅੰਤ
 }
 
-template <>
-AstNode* AstNode::addNext<AstNode, AstNode>(AstNode* nodep, AstNode* newp) {
+ਸਾਂਚਾ <>
+Ast_ਗੰਢ* Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ<Ast_ਗੰਢ, Ast_ਗੰਢ>(Ast_ਗੰਢ* nodep, Ast_ਗੰਢ* newp) {
     // Add to m_nextp, returns this
     UDEBUGONLY(UASSERT_OBJ(newp, nodep, "Null item passed to addNext"););
-    debugTreeChange(nodep, "-addNextThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addNextNew: ", __LINE__, true);
-    if (!nodep)  // verilog.y and lots of other places assume this
-        return newp;
+    debug_ਰੁੱਖ_Change(nodep, "-addNextThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-addNextNew: ", __LINE__, ਸੱਚ);
+    ਜੇ (!nodep)  // verilog.y and lots of other places assume this
+        ਵਾਪਸ newp;
 
     // Find end of old list
-    AstNode* oldtailp = nodep;
-    if (oldtailp->m_nextp) {
-        if (oldtailp->m_headtailp) {
+    Ast_ਗੰਢ* oldtailp = nodep;
+    ਜੇ (oldtailp->m_nextp) {
+        ਜੇ (oldtailp->m_headtailp) {
             oldtailp = oldtailp->m_headtailp;  // This=beginning of list, jump to end
             UDEBUGONLY(UASSERT_OBJ(!oldtailp->m_nextp, nodep,
                                    "Node had next, but headtail says it shouldn't"););
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // Though inefficient, we are occasionally passed an
             // addNext in the middle of a list.
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            ਜਦੋਂ (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
     }
     // Link it in
     oldtailp->m_nextp = newp;
     newp->m_backp = oldtailp;
     // New tail needs the head
-    AstNode* const newtailp = newp->m_headtailp;
-    AstNode* const headp = oldtailp->m_headtailp;
-    oldtailp->m_headtailp = nullptr;  // May be written again as new head
-    newp->m_headtailp = nullptr;  // May be written again as new tail
+    Ast_ਗੰਢ* ਅਚਲ newtailp = newp->m_headtailp;
+    Ast_ਗੰਢ* ਅਚਲ headp = oldtailp->m_headtailp;
+    oldtailp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // May be written again as new head
+    newp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // May be written again as new tail
     newtailp->m_headtailp = headp;
     headp->m_headtailp = newtailp;
-    newp->editCountInc();
+    newp->edit_ਗਿਣਤੀ_Inc();
     // No change of m_iterpp, as only changing m_nextp of current node;
     // the current node is still the one at the iteration point
 
-    debugTreeChange(nodep, "-addNextOut:", __LINE__, true);
-    return nodep;
+    debug_ਰੁੱਖ_Change(nodep, "-addNextOut:", __LINE__, ਸੱਚ);
+    ਵਾਪਸ nodep;
 }
 
-void AstNode::addNextHere(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(Ast_ਗੰਢ* newp) {
     // Add to m_nextp on exact node passed, not at the end.
     //  'this' could be at head, tail, or both (single)
     //  'newp' could be head of single node, or list
     UASSERT(newp, "Null item passed to addNext");
     UASSERT_OBJ(!newp->backp(), newp, "New node (back) already assigned?");
-    debugTreeChange(this, "-addHereThs: ", __LINE__, false);
-    debugTreeChange(newp, "-addHereNew: ", __LINE__, true);
-    newp->editCountInc();
+    debug_ਰੁੱਖ_Change(ਇਹ, "-addHereThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-addHereNew: ", __LINE__, ਸੱਚ);
+    newp->edit_ਗਿਣਤੀ_Inc();
 
-    AstNode* const addlastp = newp->m_headtailp;  // Last node in list to be added
+    Ast_ਗੰਢ* ਅਚਲ addlastp = newp->m_headtailp;  // Last node in list to be added
     UASSERT_OBJ(!addlastp->m_nextp, addlastp, "Headtailp tail isn't at the tail");
 
     // Forward links
-    AstNode* const oldnextp = this->m_nextp;
-    this->m_nextp = newp;
+    Ast_ਗੰਢ* ਅਚਲ oldnextp = ਇਹ->m_nextp;
+    ਇਹ->m_nextp = newp;
     addlastp->m_nextp = oldnextp;  // Perhaps null if 'this' is not list
 
     // Backward links
-    if (oldnextp) oldnextp->m_backp = addlastp;
-    newp->m_backp = this;
+    ਜੇ (oldnextp) oldnextp->m_backp = addlastp;
+    newp->m_backp = ਇਹ;
 
     // Head/tail
-    AstNode* const oldheadtailp = this->m_headtailp;
+    Ast_ਗੰਢ* ਅਚਲ oldheadtailp = ਇਹ->m_headtailp;
     //    (!oldheadtailp)               // this was&is middle of list
     //    (oldheadtailp==this && !oldnext)// this was head AND tail (one node long list)
     //    (oldheadtailp && oldnextp)    // this was&is head of list of not just one node, not
     //    tail (oldheadtailp && !oldnextp)   // this was tail of list, might also
     //                                     be head of one-node list
     //
-    newp->m_headtailp = nullptr;  // Not at head any longer
-    addlastp->m_headtailp = nullptr;  // Presume middle of list
+    newp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // Not at head any longer
+    addlastp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // Presume middle of list
     // newp might happen to be head/tail after all, if so will be set again below
-    if (oldheadtailp) {  // else in middle of list, no change
-        if (oldheadtailp == this) {  // this was one node
-            this->m_headtailp = addlastp;  // Was head/tail, now a tail
+    ਜੇ (oldheadtailp) {  // else in middle of list, no change
+        ਜੇ (oldheadtailp == ਇਹ) {  // this was one node
+            ਇਹ->m_headtailp = addlastp;  // Was head/tail, now a tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
-        } else if (!oldnextp) {  // this was tail
-            this->m_headtailp = nullptr;  // No longer a tail
+        } ਨਹੀਂਤਾਂ ਜੇ (!oldnextp) {  // this was tail
+            ਇਹ->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // No longer a tail
             oldheadtailp->m_headtailp = addlastp;  // Head gets new tail
             addlastp->m_headtailp = oldheadtailp;  // Tail needs to remember head (or nullptr)
         }  // else is head, and we're inserting into the middle, so no other change
@@ -480,334 +480,334 @@ void AstNode::addNextHere(AstNode* newp) {
 
     // No change of m_iterpp, as adding after current node;
     // the current node is still the one at the iteration point
-    debugTreeChange(this, "-addHereOut: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-addHereOut: ", __LINE__, ਸੱਚ);
 }
 
-void AstNode::setOp1p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਸੈੱਟ_Op1p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to setOp1p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op1p, this, "Adding to non-empty, non-list op1"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op1p, ਇਹ, "Adding to non-empty, non-list op1"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op1"););
-    debugTreeChange(this, "-setOp1pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp1pNew: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp1pThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-setOp1pNew: ", __LINE__, ਸੱਚ);
     m_op1p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp1pOut: ", __LINE__, false);
+    newp->edit_ਗਿਣਤੀ_Inc();
+    newp->m_backp = ਇਹ;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp1pOut: ", __LINE__, ਝੂਠ);
 }
 
-void AstNode::setOp2p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਸੈੱਟ_Op2p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to setOp2p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op2p, this, "Adding to non-empty, non-list op2"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op2p, ਇਹ, "Adding to non-empty, non-list op2"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op2"););
-    debugTreeChange(this, "-setOp2pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp2pNew: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp2pThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-setOp2pNew: ", __LINE__, ਸੱਚ);
     m_op2p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp2pOut: ", __LINE__, false);
+    newp->edit_ਗਿਣਤੀ_Inc();
+    newp->m_backp = ਇਹ;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp2pOut: ", __LINE__, ਝੂਠ);
 }
 
-void AstNode::setOp3p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਸੈੱਟ_Op3p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to setOp3p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op3p, this, "Adding to non-empty, non-list op3"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op3p, ਇਹ, "Adding to non-empty, non-list op3"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op3"););
-    debugTreeChange(this, "-setOp3pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp3pNew: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp3pThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-setOp3pNew: ", __LINE__, ਸੱਚ);
     m_op3p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp3pOut: ", __LINE__, false);
+    newp->edit_ਗਿਣਤੀ_Inc();
+    newp->m_backp = ਇਹ;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp3pOut: ", __LINE__, ਝੂਠ);
 }
 
-void AstNode::setOp4p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਸੈੱਟ_Op4p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to setOp4p");
-    UDEBUGONLY(UASSERT_OBJ(!m_op4p, this, "Adding to non-empty, non-list op4"););
+    UDEBUGONLY(UASSERT_OBJ(!m_op4p, ਇਹ, "Adding to non-empty, non-list op4"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
     UDEBUGONLY(UASSERT_OBJ(!newp->m_nextp, newp, "Adding list to non-list op4"););
-    debugTreeChange(this, "-setOp4pThs: ", __LINE__, false);
-    debugTreeChange(newp, "-setOp4pNew: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp4pThs: ", __LINE__, ਝੂਠ);
+    debug_ਰੁੱਖ_Change(newp, "-setOp4pNew: ", __LINE__, ਸੱਚ);
     m_op4p = newp;
-    newp->editCountInc();
-    newp->m_backp = this;
-    debugTreeChange(this, "-setOp4pOut: ", __LINE__, false);
+    newp->edit_ਗਿਣਤੀ_Inc();
+    newp->m_backp = ਇਹ;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-setOp4pOut: ", __LINE__, ਝੂਠ);
 }
 
-void AstNode::addOp1p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_Op1p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to addOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    ਜੇ (!m_op1p) {
         op1p(newp);
-    } else {
-        m_op1p->addNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op1p->ਜੋੜੋ_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::addOp2p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_Op2p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to addOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    ਜੇ (!m_op2p) {
         op2p(newp);
-    } else {
-        m_op2p->addNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op2p->ਜੋੜੋ_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::addOp3p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_Op3p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to addOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    ਜੇ (!m_op3p) {
         op3p(newp);
-    } else {
-        m_op3p->addNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op3p->ਜੋੜੋ_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::addOp4p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_Op4p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to addOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    ਜੇ (!m_op4p) {
         op4p(newp);
-    } else {
-        m_op4p->addNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op4p->ਜੋੜੋ_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::prependOp1p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::prependOp1p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to prependOp1p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op1p) {
+    ਜੇ (!m_op1p) {
         op1p(newp);
-    } else {
-        m_op1p->addHereThisAsNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op1p->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::prependOp2p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::prependOp2p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to prependOp2p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op2p) {
+    ਜੇ (!m_op2p) {
         op2p(newp);
-    } else {
-        m_op2p->addHereThisAsNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op2p->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::prependOp3p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::prependOp3p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to prependOp3p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op3p) {
+    ਜੇ (!m_op3p) {
         op3p(newp);
-    } else {
-        m_op3p->addHereThisAsNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op3p->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::prependOp4p(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::prependOp4p(Ast_ਗੰਢ* newp) {
     UASSERT(newp, "Null item passed to prependOp4p");
     UDEBUGONLY(UASSERT_OBJ(!newp->m_backp, newp, "Adding already linked node"););
-    if (!m_op4p) {
+    ਜੇ (!m_op4p) {
         op4p(newp);
-    } else {
-        m_op4p->addHereThisAsNext(newp);
+    } ਨਹੀਂਤਾਂ {
+        m_op4p->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(newp);
     }
 }
 
-void AstNode::replaceWith(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::replaceWith(Ast_ਗੰਢ* newp) {
     // Replace oldp with this
     // Unlike a unlink/relink, children are changed to point to the new node.
     VNRelinker repHandle;
-    this->unlinkFrBack(&repHandle);
+    ਇਹ->unlink_Fr_ਪਿੱਠ(&repHandle);
     repHandle.relink(newp);
 }
-void AstNode::replaceWithKeepDType(AstNode* newp) {
-    newp->dtypeFrom(this);
+ਖਾਲੀ Ast_ਗੰਢ::replaceWithKeepDType(Ast_ਗੰਢ* newp) {
+    newp->dtypeFrom(ਇਹ);
     replaceWith(newp);
 }
 
-void VNRelinker::dump(std::ostream& str) const {
+ਖਾਲੀ VNRelinker::dump(std::ostream& str) ਅਚਲ {
     str << " BK=" << reinterpret_cast<uint32_t*>(m_backp);
     str << " ITER=" << reinterpret_cast<uint32_t*>(m_iterpp);
-    str << " CHG=" << (m_chg == RELINK_NEXT ? "[NEXT] " : "");
+    str << " CHG=" << (m_chg == RELINK_ਅਗਲਾ ? "[NEXT] " : "");
     str << (m_chg == RELINK_OP1 ? "[OP1] " : "");
     str << (m_chg == RELINK_OP2 ? "[OP2] " : "");
     str << (m_chg == RELINK_OP3 ? "[OP3] " : "");
     str << (m_chg == RELINK_OP4 ? "[OP4] " : "");
 }
 
-AstNode* AstNode::unlinkFrBackWithNext(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkWNextThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_ਗੰਢ* Ast_ਗੰਢ::unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ(VNRelinker* linkerp) {
+    debug_ਰੁੱਖ_Change(ਇਹ, "-unlinkWNextThs: ", __LINE__, ਸੱਚ);
+    Ast_ਗੰਢ* ਅਚਲ oldp = ਇਹ;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_ਗਿਣਤੀ_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    Ast_ਗੰਢ* ਅਚਲ backp = oldp->m_backp;
+    ਜੇ (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
         linkerp->m_iterpp = oldp->m_iterpp;
-        if (backp->m_nextp == oldp) {
-            linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        ਜੇ (backp->m_nextp == oldp) {
+            linkerp->m_chg = VNRelinker::RELINK_ਅਗਲਾ;
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
+        } ਨਹੀਂਤਾਂ {
             oldp->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
-        backp->m_nextp = nullptr;
+    ਜੇ (backp->m_nextp == oldp) {
+        backp->m_nextp = ਖਾਲੀ_ਸੂਚਕ;
         // Old list gets truncated
         // New list becomes a list upon itself
         // Most common case is unlinking a entire operand tree, or all but the
         // head (else we'd probably call unlinkFrBack without next)
-        AstNode* oldtailp = backp->m_headtailp;
-        if (!oldtailp) {
+        Ast_ਗੰਢ* oldtailp = backp->m_headtailp;
+        ਜੇ (!oldtailp) {
             // We are in the middle of a list; we have no way to find head or tail in O(1)
             oldtailp = oldp;
-            while (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
+            ਜਦੋਂ (oldtailp->m_nextp) oldtailp = oldtailp->m_nextp;
         }
         // Create new head/tail of old list
-        AstNode* const oldheadp = oldtailp->m_headtailp;
+        Ast_ਗੰਢ* ਅਚਲ oldheadp = oldtailp->m_headtailp;
         oldheadp->m_headtailp = oldp->m_backp;
         oldheadp->m_headtailp->m_headtailp = oldheadp;
         // Create new head/tail of extracted list
         oldp->m_headtailp = oldtailp;
         oldp->m_headtailp->m_headtailp = oldp;
-    } else if (backp->m_op1p == oldp) {
-        backp->m_op1p = nullptr;
-    } else if (backp->m_op2p == oldp) {
-        backp->m_op2p = nullptr;
-    } else if (backp->m_op3p == oldp) {
-        backp->m_op3p = nullptr;
-    } else if (backp->m_op4p == oldp) {
-        backp->m_op4p = nullptr;
-    } else {
-        this->v3fatalSrc("Unlink of node with back not pointing to it.");
+    } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op1p == oldp) {
+        backp->m_op1p = ਖਾਲੀ_ਸੂਚਕ;
+    } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op2p == oldp) {
+        backp->m_op2p = ਖਾਲੀ_ਸੂਚਕ;
+    } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op3p == oldp) {
+        backp->m_op3p = ਖਾਲੀ_ਸੂਚਕ;
+    } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op4p == oldp) {
+        backp->m_op4p = ਖਾਲੀ_ਸੂਚਕ;
+    } ਨਹੀਂਤਾਂ {
+        ਇਹ->v3fatalSrc("Unlink of node with back not pointing to it.");
     }
     // Relink
-    oldp->m_backp = nullptr;
+    oldp->m_backp = ਖਾਲੀ_ਸੂਚਕ;
     // Iterator fixup
-    if (oldp->m_iterpp) {
-        *(oldp->m_iterpp) = nullptr;
-        oldp->m_iterpp = nullptr;
+    ਜੇ (oldp->m_iterpp) {
+        *(oldp->m_iterpp) = ਖਾਲੀ_ਸੂਚਕ;
+        oldp->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
     }
-    debugTreeChange(oldp, "-unlinkWNextOut: ", __LINE__, true);
-    return oldp;
+    debug_ਰੁੱਖ_Change(oldp, "-unlinkWNextOut: ", __LINE__, ਸੱਚ);
+    ਵਾਪਸ oldp;
 }
 
-AstNode* AstNode::unlinkFrBack(VNRelinker* linkerp) {
-    debugTreeChange(this, "-unlinkFrBkThs: ", __LINE__, true);
-    AstNode* const oldp = this;
+Ast_ਗੰਢ* Ast_ਗੰਢ::unlink_Fr_ਪਿੱਠ(VNRelinker* linkerp) {
+    debug_ਰੁੱਖ_Change(ਇਹ, "-unlinkFrBkThs: ", __LINE__, ਸੱਚ);
+    Ast_ਗੰਢ* ਅਚਲ oldp = ਇਹ;
     UASSERT_OBJ(oldp->m_backp, oldp, "Node has no back, already unlinked?");
-    oldp->editCountInc();
+    oldp->edit_ਗਿਣਤੀ_Inc();
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = oldp->m_backp;
-    if (linkerp) {
+    Ast_ਗੰਢ* ਅਚਲ backp = oldp->m_backp;
+    ਜੇ (linkerp) {
         linkerp->m_oldp = oldp;
         linkerp->m_backp = backp;
-        if (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
+        ਜੇ (oldp->m_iterpp) {  // Assumes we will always relink() if want to keep iterating
             linkerp->m_iterpp = oldp->m_iterpp;
-            *(oldp->m_iterpp) = nullptr;
-            oldp->m_iterpp = nullptr;
+            *(oldp->m_iterpp) = ਖਾਲੀ_ਸੂਚਕ;
+            oldp->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
         }
-        if (backp->m_nextp == oldp) {
-            linkerp->m_chg = VNRelinker::RELINK_NEXT;
-        } else if (backp->m_op1p == oldp) {
+        ਜੇ (backp->m_nextp == oldp) {
+            linkerp->m_chg = VNRelinker::RELINK_ਅਗਲਾ;
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op1p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP1;
-        } else if (backp->m_op2p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op2p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP2;
-        } else if (backp->m_op3p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op3p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP3;
-        } else if (backp->m_op4p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op4p == oldp) {
             linkerp->m_chg = VNRelinker::RELINK_OP4;
-        } else {
-            this->v3fatalSrc("Unlink of node with back not pointing to it.");
+        } ਨਹੀਂਤਾਂ {
+            ਇਹ->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
     }
-    if (backp->m_nextp == oldp) {
+    ਜੇ (backp->m_nextp == oldp) {
         // This node gets removed from middle (or tail) of list
         // Not head, since then oldp wouldn't be a next of backp...
         backp->m_nextp = oldp->m_nextp;
-        if (backp->m_nextp) backp->m_nextp->m_backp = backp;
+        ਜੇ (backp->m_nextp) backp->m_nextp->m_backp = backp;
         // If it was a tail, back becomes new tail
-        if (oldp->m_headtailp) {
+        ਜੇ (oldp->m_headtailp) {
             backp->m_headtailp = oldp->m_headtailp;
             backp->m_headtailp->m_headtailp = backp;
         }
-    } else {
-        if (backp->m_op1p == oldp) {
+    } ਨਹੀਂਤਾਂ {
+        ਜੇ (backp->m_op1p == oldp) {
             backp->m_op1p = oldp->m_nextp;
-        } else if (backp->m_op2p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op2p == oldp) {
             backp->m_op2p = oldp->m_nextp;
-        } else if (backp->m_op3p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op3p == oldp) {
             backp->m_op3p = oldp->m_nextp;
-        } else if (backp->m_op4p == oldp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op4p == oldp) {
             backp->m_op4p = oldp->m_nextp;
-        } else {
-            this->v3fatalSrc("Unlink of node with back not pointing to it.");
+        } ਨਹੀਂਤਾਂ {
+            ਇਹ->v3fatalSrc("Unlink of node with back not pointing to it.");
         }
-        if (oldp->m_nextp) {
-            AstNode* const newheadp = oldp->m_nextp;
+        ਜੇ (oldp->m_nextp) {
+            Ast_ਗੰਢ* ਅਚਲ newheadp = oldp->m_nextp;
             newheadp->m_backp = backp;
             newheadp->m_headtailp = oldp->m_headtailp;
             newheadp->m_headtailp->m_headtailp = newheadp;
         }
     }
     // Iterator fixup
-    if (oldp->m_iterpp) {  // Only if no linker, point to next in list
-        if (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
+    ਜੇ (oldp->m_iterpp) {  // Only if no linker, point to next in list
+        ਜੇ (oldp->m_nextp) oldp->m_nextp->m_iterpp = oldp->m_iterpp;
         *(oldp->m_iterpp) = oldp->m_nextp;
-        oldp->m_iterpp = nullptr;
+        oldp->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
     }
     // Relink
-    oldp->m_nextp = nullptr;
-    oldp->m_backp = nullptr;
+    oldp->m_nextp = ਖਾਲੀ_ਸੂਚਕ;
+    oldp->m_backp = ਖਾਲੀ_ਸੂਚਕ;
     oldp->m_headtailp = oldp;
-    debugTreeChange(oldp, "-unlinkFrBkOut: ", __LINE__, true);
-    return oldp;
+    debug_ਰੁੱਖ_Change(oldp, "-unlinkFrBkOut: ", __LINE__, ਸੱਚ);
+    ਵਾਪਸ oldp;
 }
 
-void AstNode::relink(VNRelinker* linkerp) {
-    if (debug() > 8) {
-        UINFO_PREFIX(" EDIT:      relink: ");
+ਖਾਲੀ Ast_ਗੰਢ::relink(VNRelinker* linkerp) {
+    ਜੇ (debug() > 8) {
+        UINFO_ਅਗੇਤਰ(" EDIT:      relink: ");
         dumpPtrs();
     }
-    AstNode* const newp = this;
+    Ast_ਗੰਢ* ਅਚਲ newp = ਇਹ;
     UASSERT(linkerp && linkerp->m_backp, "Need non-empty linker");
     UASSERT_OBJ(!newp->m_backp, newp, "New node already linked?");
-    newp->editCountInc();
+    newp->edit_ਗਿਣਤੀ_Inc();
 
-    if (debug() > 8) {
-        linkerp->dump(cout);
-        cout << endl;
+    ਜੇ (debug() > 8) {
+        linkerp->dump(ਬਾਹਰ);
+        ਬਾਹਰ << ਸਤਰ_ਅੰਤ;
     }
 
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = linkerp->m_backp;
-    debugTreeChange(this, "-relinkNew: ", __LINE__, true);
-    debugTreeChange(backp, "-relinkTre: ", __LINE__, true);
+    Ast_ਗੰਢ* ਅਚਲ backp = linkerp->m_backp;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-relinkNew: ", __LINE__, ਸੱਚ);
+    debug_ਰੁੱਖ_Change(backp, "-relinkTre: ", __LINE__, ਸੱਚ);
 
-    switch (linkerp->m_chg) {
-    case VNRelinker::RELINK_NEXT: backp->addNextHere(newp); break;
-    case VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); break;
-    case VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); break;
-    default: this->v3fatalSrc("Relink of node without any link to change."); break;
+    ਚੋਣ (linkerp->m_chg) {
+    ਹਾਲਤ VNRelinker::RELINK_ਅਗਲਾ: backp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(newp); ਰੋਕੋ;
+    ਹਾਲਤ VNRelinker::RELINK_OP1: relinkOneLink(backp->m_op1p /*ref*/, newp); ਰੋਕੋ;
+    ਹਾਲਤ VNRelinker::RELINK_OP2: relinkOneLink(backp->m_op2p /*ref*/, newp); ਰੋਕੋ;
+    ਹਾਲਤ VNRelinker::RELINK_OP3: relinkOneLink(backp->m_op3p /*ref*/, newp); ਰੋਕੋ;
+    ਹਾਲਤ VNRelinker::RELINK_OP4: relinkOneLink(backp->m_op4p /*ref*/, newp); ਰੋਕੋ;
+    ਮੂਲ: ਇਹ->v3fatalSrc("Relink of node without any link to change."); ਰੋਕੋ;
     }
     // Relink
     newp->m_backp = backp;
-    linkerp->m_backp = nullptr;
+    linkerp->m_backp = ਖਾਲੀ_ਸੂਚਕ;
     // Iterator fixup
-    if (linkerp->m_iterpp) {
+    ਜੇ (linkerp->m_iterpp) {
         // If we're iterating over a next() link, we need to follow links off the
         // NEW node, which is always assumed to be what we are relinking to.
         // This adds a unfortunate hot 8 bytes to every AstNode, but is faster than passing
@@ -817,148 +817,148 @@ void AstNode::relink(VNRelinker* linkerp) {
         *(newp->m_iterpp) = newp;
     }
     // Empty the linker so not used twice accidentally
-    linkerp->m_backp = nullptr;
-    debugTreeChange(this, "-relinkOut: ", __LINE__, true);
+    linkerp->m_backp = ਖਾਲੀ_ਸੂਚਕ;
+    debug_ਰੁੱਖ_Change(ਇਹ, "-relinkOut: ", __LINE__, ਸੱਚ);
 }
 
-void AstNode::relinkOneLink(AstNode*& pointpr,  // Ref to pointer that gets set to newp
-                            AstNode* newp) {
-    if (pointpr) {
+ਖਾਲੀ Ast_ਗੰਢ::relinkOneLink(Ast_ਗੰਢ*& pointpr,  // Ref to pointer that gets set to newp
+                            Ast_ਗੰਢ* newp) {
+    ਜੇ (pointpr) {
         // We know there will be at least two elements when we are done,
         //    (newp & the old list).
         // We *ALLOW* the new node to have its own next list.
         // Likewise there may be a old list.
         // Insert the whole old list following the new node's list.
         // Thus a unlink without next, followed by relink, gives the same list.
-        AstNode* const newlistlastp = newp->m_headtailp;
+        Ast_ਗੰਢ* ਅਚਲ newlistlastp = newp->m_headtailp;
         UASSERT_OBJ(!(newlistlastp->m_nextp && newlistlastp != newp), newp,
                     "Headtailp tail isn't at the tail");
-        AstNode* const oldlistlastp = pointpr->m_headtailp;
+        Ast_ਗੰਢ* ਅਚਲ oldlistlastp = pointpr->m_headtailp;
         UASSERT_OBJ(!(oldlistlastp->m_nextp && oldlistlastp != pointpr), newp,
                     "Old headtailp tail isn't at the tail");
         // Next links
         newlistlastp->m_nextp = pointpr;
         pointpr->m_backp = newlistlastp;
         // Head/tail
-        pointpr->m_headtailp = nullptr;  // Old head
-        newlistlastp->m_headtailp = nullptr;  // Old tail
+        pointpr->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // Old head
+        newlistlastp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;  // Old tail
         newp->m_headtailp = oldlistlastp;  // Head points to tail
         oldlistlastp->m_headtailp = newp;  // Tail points to head
     }
     pointpr = newp;
 }
 
-void AstNode::addHereThisAsNext(AstNode* newp) {
+ਖਾਲੀ Ast_ਗੰਢ::ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(Ast_ਗੰਢ* newp) {
     // {back}->this->{next} becomes {back}->new->this->{next}
     UASSERT_OBJ(!newp->backp(), newp, "New node already linked?");
-    UASSERT_OBJ(this->m_backp, this, "'this' node has no back, already unlinked?");
+    UASSERT_OBJ(ਇਹ->m_backp, ਇਹ, "'this' node has no back, already unlinked?");
     UASSERT_OBJ(newp->m_headtailp, newp, "m_headtailp not set on new node");
     //
     // cppcheck-suppress shadowFunction
-    AstNode* const backp = this->m_backp;
-    AstNode* const newLastp = newp->m_headtailp;
+    Ast_ਗੰਢ* ਅਚਲ backp = ਇਹ->m_backp;
+    Ast_ਗੰਢ* ਅਚਲ newLastp = newp->m_headtailp;
     //
-    this->editCountInc();
+    ਇਹ->edit_ਗਿਣਤੀ_Inc();
     // Common linkage
-    newLastp->m_nextp = this;
-    this->m_backp = newLastp;
+    newLastp->m_nextp = ਇਹ;
+    ਇਹ->m_backp = newLastp;
     newp->m_backp = backp;
     // newLastp will not be the last node in the list as 'this' will follow it.
     // If newLastp == newp, then below handles newp becoming head
-    newLastp->m_headtailp = nullptr;
+    newLastp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;
     // Linkage dependent on position
-    if (backp && backp->m_nextp == this) {
+    ਜੇ (backp && backp->m_nextp == ਇਹ) {
         // If 'this' is not at the head of a list, then the new node will also not be at the head
         // of a list, so we can just link in the new node in the middle.
         backp->m_nextp = newp;
-        newp->m_headtailp = nullptr;
-    } else {
+        newp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;
+    } ਨਹੀਂਤਾਂ {
         // If 'this' is at the head of a list, then the new node becomes the head of that list.
-        if (backp) {
-            if (backp->m_op1p == this) {
+        ਜੇ (backp) {
+            ਜੇ (backp->m_op1p == ਇਹ) {
                 backp->m_op1p = newp;
-            } else if (backp->m_op2p == this) {
+            } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op2p == ਇਹ) {
                 backp->m_op2p = newp;
-            } else if (backp->m_op3p == this) {
+            } ਨਹੀਂਤਾਂ ਜੇ (backp->m_op3p == ਇਹ) {
                 backp->m_op3p = newp;
-            } else {
-                UASSERT_OBJ(backp->m_op4p == this, this, "Don't know where newp should go");
+            } ਨਹੀਂਤਾਂ {
+                UASSERT_OBJ(backp->m_op4p == ਇਹ, ਇਹ, "Don't know where newp should go");
                 backp->m_op4p = newp;
             }
         }
         // We also need to update m_headtailp.
-        AstNode* const tailp = this->m_headtailp;
-        this->m_headtailp = nullptr;
+        Ast_ਗੰਢ* ਅਚਲ tailp = ਇਹ->m_headtailp;
+        ਇਹ->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;
         newp->m_headtailp = tailp;
         tailp->m_headtailp = newp;
     }
     // Iterator fixup
-    if (newLastp->m_iterpp) *(newLastp->m_iterpp) = this;
-    if (this->m_iterpp) {
-        *(this->m_iterpp) = newp;
-        this->m_iterpp = nullptr;
+    ਜੇ (newLastp->m_iterpp) *(newLastp->m_iterpp) = ਇਹ;
+    ਜੇ (ਇਹ->m_iterpp) {
+        *(ਇਹ->m_iterpp) = newp;
+        ਇਹ->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
     }
     //
-    debugTreeChange(this, "-addHereThisAsNext: ", __LINE__, true);
+    debug_ਰੁੱਖ_Change(ਇਹ, "-addHereThisAsNext: ", __LINE__, ਸੱਚ);
 }
 
 //======================================================================
 // Clone
 
-AstNode* AstNode::cloneTreeIter(bool needPure) {
+Ast_ਗੰਢ* Ast_ਗੰਢ::clone_ਰੁੱਖ_Iter(ਤਾਰਕਿਕ need_ਸ਼ੁੱਧ) {
     // private: Clone single node and children
-    if (needPure) purityCheck();
-    AstNode* const newp = this->clone();
-    if (this->m_op1p) newp->op1p(this->m_op1p->cloneTreeIterList(needPure));
-    if (this->m_op2p) newp->op2p(this->m_op2p->cloneTreeIterList(needPure));
-    if (this->m_op3p) newp->op3p(this->m_op3p->cloneTreeIterList(needPure));
-    if (this->m_op4p) newp->op4p(this->m_op4p->cloneTreeIterList(needPure));
-    newp->m_iterpp = nullptr;
-    newp->clonep(this);  // Save pointers to/from both to simplify relinking.
-    this->clonep(newp);  // Save pointers to/from both to simplify relinking.
-    return newp;
+    ਜੇ (need_ਸ਼ੁੱਧ) purityCheck();
+    Ast_ਗੰਢ* ਅਚਲ newp = ਇਹ->clone();
+    ਜੇ (ਇਹ->m_op1p) newp->op1p(ਇਹ->m_op1p->clone_ਰੁੱਖ_Iter_List(need_ਸ਼ੁੱਧ));
+    ਜੇ (ਇਹ->m_op2p) newp->op2p(ਇਹ->m_op2p->clone_ਰੁੱਖ_Iter_List(need_ਸ਼ੁੱਧ));
+    ਜੇ (ਇਹ->m_op3p) newp->op3p(ਇਹ->m_op3p->clone_ਰੁੱਖ_Iter_List(need_ਸ਼ੁੱਧ));
+    ਜੇ (ਇਹ->m_op4p) newp->op4p(ਇਹ->m_op4p->clone_ਰੁੱਖ_Iter_List(need_ਸ਼ੁੱਧ));
+    newp->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
+    newp->clonep(ਇਹ);  // Save pointers to/from both to simplify relinking.
+    ਇਹ->clonep(newp);  // Save pointers to/from both to simplify relinking.
+    ਵਾਪਸ newp;
 }
 
-AstNode* AstNode::cloneTreeIterList(bool needPure) {
+Ast_ਗੰਢ* Ast_ਗੰਢ::clone_ਰੁੱਖ_Iter_List(ਤਾਰਕਿਕ need_ਸ਼ੁੱਧ) {
     // private: Clone list of nodes, set m_headtailp
-    AstNode* newheadp = nullptr;
-    AstNode* newtailp = nullptr;
+    Ast_ਗੰਢ* newheadp = ਖਾਲੀ_ਸੂਚਕ;
+    Ast_ਗੰਢ* newtailp = ਖਾਲੀ_ਸੂਚਕ;
     // Audited to make sure this is never nullptr
-    for (AstNode* oldp = this; oldp; oldp = oldp->m_nextp) {
-        AstNode* const newp = oldp->cloneTreeIter(needPure);
-        newp->m_headtailp = nullptr;
+    ਲਈ (Ast_ਗੰਢ* oldp = ਇਹ; oldp; oldp = oldp->m_nextp) {
+        Ast_ਗੰਢ* ਅਚਲ newp = oldp->clone_ਰੁੱਖ_Iter(need_ਸ਼ੁੱਧ);
+        newp->m_headtailp = ਖਾਲੀ_ਸੂਚਕ;
         newp->m_backp = newtailp;
-        if (newtailp) newtailp->m_nextp = newp;
-        if (!newheadp) newheadp = newp;
+        ਜੇ (newtailp) newtailp->m_nextp = newp;
+        ਜੇ (!newheadp) newheadp = newp;
         newtailp = newp;
     }
     newheadp->m_headtailp = newtailp;
     newtailp->m_headtailp = newheadp;
-    return newheadp;
+    ਵਾਪਸ newheadp;
 }
 
-AstNode* AstNode::cloneTree(bool cloneNextLink, bool needPure) {
-    debugTreeChange(this, "-cloneThs: ", __LINE__, cloneNextLink);
-    cloneClearTree();
-    AstNode* newp;
-    if (cloneNextLink && this->m_nextp) {
-        newp = cloneTreeIterList(needPure);
-    } else {
-        newp = cloneTreeIter(needPure);
-        newp->m_nextp = nullptr;
+Ast_ਗੰਢ* Ast_ਗੰਢ::clone_ਰੁੱਖ(ਤਾਰਕਿਕ clone_ਅਗਲਾ_Link, ਤਾਰਕਿਕ need_ਸ਼ੁੱਧ) {
+    debug_ਰੁੱਖ_Change(ਇਹ, "-cloneThs: ", __LINE__, clone_ਅਗਲਾ_Link);
+    clone_Clear_ਰੁੱਖ();
+    Ast_ਗੰਢ* newp;
+    ਜੇ (clone_ਅਗਲਾ_Link && ਇਹ->m_nextp) {
+        newp = clone_ਰੁੱਖ_Iter_List(need_ਸ਼ੁੱਧ);
+    } ਨਹੀਂਤਾਂ {
+        newp = clone_ਰੁੱਖ_Iter(need_ਸ਼ੁੱਧ);
+        newp->m_nextp = ਖਾਲੀ_ਸੂਚਕ;
         newp->m_headtailp = newp;
     }
-    newp->m_backp = nullptr;
-    newp->cloneRelinkTree();
-    debugTreeChange(newp, "-cloneOut: ", __LINE__, true);
-    return newp;
+    newp->m_backp = ਖਾਲੀ_ਸੂਚਕ;
+    newp->clone_Relink_ਰੁੱਖ();
+    debug_ਰੁੱਖ_Change(newp, "-cloneOut: ", __LINE__, ਸੱਚ);
+    ਵਾਪਸ newp;
 }
 
-void AstNode::purityCheck() {
-    if (VL_UNLIKELY(!isPure())) {
-        this->v3warn(SIDEEFFECT,
+ਖਾਲੀ Ast_ਗੰਢ::purityCheck() {
+    ਜੇ (VL_UNLIKELY(!is_ਸ਼ੁੱਧ())) {
+        ਇਹ->v3warn(SIDEEFFECT,
                      "Expression side effect may be mishandled\n"
-                         << this->warnMore()
+                         << ਇਹ->warn_ਹੋਰ()
                          << "... Suggest use a temporary variable in place of this expression");
         // this->v3fatalSrc("cloneTreePure debug backtrace");  // Comment in to debug where caused
     }
@@ -967,168 +967,168 @@ void AstNode::purityCheck() {
 //======================================================================
 // Delete
 
-void AstNode::deleteNode() {
+ਖਾਲੀ Ast_ਗੰਢ::delete_ਗੰਢ() {
     // private: Delete single node. Publicly call deleteTree() instead.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    editCountInc();
+    edit_ਗਿਣਤੀ_Inc();
     // Change links of old node so we coredump if used
-    this->m_nextp = reinterpret_cast<AstNode*>(0x1);
-    this->m_backp = reinterpret_cast<AstNode*>(0x1);
-    this->m_headtailp = reinterpret_cast<AstNode*>(0x1);
-    this->m_op1p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op2p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op3p = reinterpret_cast<AstNode*>(0x1);
-    this->m_op4p = reinterpret_cast<AstNode*>(0x1);
-    this->m_iterpp = reinterpret_cast<AstNode**>(0x1);
-    if (
-#if !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
-        true
-#else
+    ਇਹ->m_nextp = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_backp = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_headtailp = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_op1p = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_op2p = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_op3p = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_op4p = reinterpret_cast<Ast_ਗੰਢ*>(0x1);
+    ਇਹ->m_iterpp = reinterpret_cast<Ast_ਗੰਢ**>(0x1);
+    ਜੇ (
+#ਜੇ !defined(VL_DEBUG) || defined(VL_LEAK_CHECKS)
+        ਸੱਚ
+#ਨਹੀਂਤਾਂ
         !v3Global.opt.debugLeak()
-#endif
+#ਜੇ_ਅੰਤ
     ) {
-        delete this;
+        ਮਿਟਾਓ ਇਹ;
     }
     // Else leak massively, so each pointer is unique
     // and we can debug easier.
 }
 
-void AstNode::deleteTreeIter() {
+ਖਾਲੀ Ast_ਗੰਢ::delete_ਰੁੱਖ_Iter() {
     // private: Delete list of nodes. Publicly call deleteTree() instead.
     // Audited to make sure this is never nullptr
-    for (AstNode *nodep = this, *nnextp; nodep; nodep = nnextp) {
+    ਲਈ (Ast_ਗੰਢ *nodep = ਇਹ, *nnextp; nodep; nodep = nnextp) {
         nnextp = nodep->m_nextp;
         // MUST be depth first!
-        if (nodep->m_op1p) nodep->m_op1p->deleteTreeIter();
-        if (nodep->m_op2p) nodep->m_op2p->deleteTreeIter();
-        if (nodep->m_op3p) nodep->m_op3p->deleteTreeIter();
-        if (nodep->m_op4p) nodep->m_op4p->deleteTreeIter();
-        nodep->m_nextp = nullptr;
-        nodep->m_backp = nullptr;
-        nodep->deleteNode();
+        ਜੇ (nodep->m_op1p) nodep->m_op1p->delete_ਰੁੱਖ_Iter();
+        ਜੇ (nodep->m_op2p) nodep->m_op2p->delete_ਰੁੱਖ_Iter();
+        ਜੇ (nodep->m_op3p) nodep->m_op3p->delete_ਰੁੱਖ_Iter();
+        ਜੇ (nodep->m_op4p) nodep->m_op4p->delete_ਰੁੱਖ_Iter();
+        nodep->m_nextp = ਖਾਲੀ_ਸੂਚਕ;
+        nodep->m_backp = ਖਾਲੀ_ਸੂਚਕ;
+        nodep->delete_ਗੰਢ();
     }
 }
 
-void AstNode::deleteTree() {
+ਖਾਲੀ Ast_ਗੰਢ::delete_ਰੁੱਖ() {
     // deleteTree always deletes the next link, because you must have called
     // unlinkFromBack or unlinkFromBackWithNext as appropriate before calling this.
     UASSERT(!m_backp, "Delete called on node with backlink still set");
-    debugTreeChange(this, "-delTree:  ", __LINE__, true);
-    this->editCountInc();
+    debug_ਰੁੱਖ_Change(ਇਹ, "-delTree:  ", __LINE__, ਸੱਚ);
+    ਇਹ->edit_ਗਿਣਤੀ_Inc();
     // MUST be depth first!
-    deleteTreeIter();
+    delete_ਰੁੱਖ_Iter();
 }
 
 //======================================================================
 // Memory checks
 
-#ifdef VL_LEAK_CHECKS
-void* AstNode::operator new(size_t size) {
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_LEAK_CHECKS
+ਖਾਲੀ* Ast_ਗੰਢ::ਸੰਚਾਲਕ ਨਵਾਂ(ਮਾਪ_t ਮਾਪ) {
     // Optimization note: Aligning to cache line is a loss, due to lost packing
-    AstNode* const objp = static_cast<AstNode*>(::operator new(size));
-    V3Broken::addNewed(objp);
-    return objp;
+    Ast_ਗੰਢ* ਅਚਲ objp = static_cast<Ast_ਗੰਢ*>(::ਸੰਚਾਲਕ ਨਵਾਂ(ਮਾਪ));
+    V3Broken::ਜੋੜੋ_Newed(objp);
+    ਵਾਪਸ objp;
 }
 
-void AstNode::operator delete(void* objp, size_t size) {
-    if (!objp) return;
-    const AstNode* const nodep = static_cast<AstNode*>(objp);
+ਖਾਲੀ Ast_ਗੰਢ::ਸੰਚਾਲਕ ਮਿਟਾਓ(ਖਾਲੀ* objp, ਮਾਪ_t ਮਾਪ) {
+    ਜੇ (!objp) ਵਾਪਸ;
+    ਅਚਲ Ast_ਗੰਢ* ਅਚਲ nodep = static_cast<Ast_ਗੰਢ*>(objp);
     V3Broken::deleted(nodep);
-    ::operator delete(objp);
+    ::ਸੰਚਾਲਕ ਮਿਟਾਓ(objp);
 }
-#endif
+#ਜੇ_ਅੰਤ
 
-#ifdef VL_ALLOC_RANDOM_CHECKS
-void* AstNode::operator new(size_t size) {  // VL_MT_SAFE
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_ALLOC_RANDOM_CHECKS
+ਖਾਲੀ* Ast_ਗੰਢ::ਸੰਚਾਲਕ ਨਵਾਂ(ਮਾਪ_t ਮਾਪ) {  // VL_MT_SAFE
     // Compute the maximum node size once and cache it
-    static const size_t ASTGEN_MAX_NODE_SIZE = []() {
-        size_t maxSize = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            maxSize = std::max(maxSize, VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof);
+    ਸਥਿਰ ਅਚਲ ਮਾਪ_t ASTGEN_MAX_ਗੰਢ_ਮਾਪ = []() {
+        ਮਾਪ_t max_ਮਾਪ = 0;
+        ਲਈ (ਮਾਪ_t t = 0; t < VNType::ਅੰਕ_TYPES(); ++t) {
+            max_ਮਾਪ = std::max(max_ਮਾਪ, VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof);
         }
-        return maxSize;
+        ਵਾਪਸ max_ਮਾਪ;
     }();
 
     // Make the following small to debug this routine, larger for performance and better random
-    constexpr size_t POOL_SIZE = 65536;  // Ideally large enough to fit all nodes used in tests
+    constexpr ਮਾਪ_t POOL_ਮਾਪ = 65536;  // Ideally large enough to fit all nodes used in tests
     // Randomly select from a large pool (POOL_SIZE) of max-node sized (MAX_NODE_SIZE) pointers
-    static uint64_t s_lfsr = 0;  // LFSR, 0 = didn't initialize yet
-    if (int seed = v3Global.opt.debugAllocRandom()) {
-        static V3Mutex s_mutex;
-        const V3LockGuard lock{s_mutex};
-        static std::array<void*, POOL_SIZE> s_nodePool VL_GUARDED_BY(s_mutex);
+    ਸਥਿਰ uint64_t s_lfsr = 0;  // LFSR, 0 = didn't initialize yet
+    ਜੇ (ਪੂਰਨ ਬੀਜ = v3Global.opt.debugAllocRandom()) {
+        ਸਥਿਰ V3Mutex s_mutex;
+        ਅਚਲ V3_ਤਾਲਾ_Guard ਤਾਲਾ_2{s_mutex};
+        ਸਥਿਰ std::array<ਖਾਲੀ*, POOL_ਮਾਪ> s_ਗੰਢ_Pool VL_GUARDED_BY(s_mutex);
         constexpr uint64_t POLYNOMIAL = 0x80000000000019e2ULL;
-        UASSERT_STATIC(size <= ASTGEN_MAX_NODE_SIZE, "fix ASTGEN_MAX_NODE_SIZE");
-        if (!s_lfsr) {
-            s_lfsr = seed;
-            if (!s_lfsr) s_lfsr = ~s_lfsr;
-            for (size_t i = 0; i < POOL_SIZE; ++i) {
-                s_nodePool[i] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);
+        UASSERT_STATIC(ਮਾਪ <= ASTGEN_MAX_ਗੰਢ_ਮਾਪ, "fix ASTGEN_MAX_NODE_SIZE");
+        ਜੇ (!s_lfsr) {
+            s_lfsr = ਬੀਜ;
+            ਜੇ (!s_lfsr) s_lfsr = ~s_lfsr;
+            ਲਈ (ਮਾਪ_t i = 0; i < POOL_ਮਾਪ; ++i) {
+                s_ਗੰਢ_Pool[i] = ::ਸੰਚਾਲਕ ਨਵਾਂ(ASTGEN_MAX_ਗੰਢ_ਮਾਪ + 64);
             }
             // Sort, just to make it more obvious we are properly randomizing
-            std::sort(std::begin(s_nodePool), std::end(s_nodePool));
+            std::ਛਾਂਟੋ(std::begin(s_ਗੰਢ_Pool), std::ਸਿਰਾ(s_ਗੰਢ_Pool));
         }
         // Xoroshiro128+ algorithm
         s_lfsr = (s_lfsr & 1ULL) ? ((s_lfsr >> 1ULL) ^ POLYNOMIAL) : (s_lfsr >> 1ULL);
-        const size_t index = s_lfsr % POOL_SIZE;
-        AstNode* const objp = static_cast<AstNode*>(s_nodePool[index]);
-        s_nodePool[index] = ::operator new(ASTGEN_MAX_NODE_SIZE + 64);  // For later new()
-        return objp;
-    } else {
-        AstNode* const objp = static_cast<AstNode*>(::operator new(size));
-        return objp;
+        ਅਚਲ ਮਾਪ_t ਸੂਚਕਾਂਕ = s_lfsr % POOL_ਮਾਪ;
+        Ast_ਗੰਢ* ਅਚਲ objp = static_cast<Ast_ਗੰਢ*>(s_ਗੰਢ_Pool[ਸੂਚਕਾਂਕ]);
+        s_ਗੰਢ_Pool[ਸੂਚਕਾਂਕ] = ::ਸੰਚਾਲਕ ਨਵਾਂ(ASTGEN_MAX_ਗੰਢ_ਮਾਪ + 64);  // For later new()
+        ਵਾਪਸ objp;
+    } ਨਹੀਂਤਾਂ {
+        Ast_ਗੰਢ* ਅਚਲ objp = static_cast<Ast_ਗੰਢ*>(::ਸੰਚਾਲਕ ਨਵਾਂ(ਮਾਪ));
+        ਵਾਪਸ objp;
     }
 }
-void AstNode::operator delete(void* objp, size_t size) {
+ਖਾਲੀ Ast_ਗੰਢ::ਸੰਚਾਲਕ ਮਿਟਾਓ(ਖਾਲੀ* objp, ਮਾਪ_t ਮਾਪ) {
     // Leak due to size difference between true node and MAX_NODE_SIZE
-    (void)objp;
-    (void)size;
+    (ਖਾਲੀ)objp;
+    (ਖਾਲੀ)ਮਾਪ;
 }
-#endif
+#ਜੇ_ਅੰਤ
 
 //======================================================================
 // Iterators
 
-void AstNode::iterateChildren(VNVisitor& v) {
+ਖਾਲੀ Ast_ਗੰਢ::iterateChildren(VNVisitor& v) {
     // This is a very hot function
     // Optimization note: Grabbing m_op#p->m_nextp is a net loss
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNext(v);
-    if (m_op2p) m_op2p->iterateAndNext(v);
-    if (m_op3p) m_op3p->iterateAndNext(v);
-    if (m_op4p) m_op4p->iterateAndNext(v);
+    ਜੇ (m_op1p) m_op1p->iterate_And_ਅਗਲਾ(v);
+    ਜੇ (m_op2p) m_op2p->iterate_And_ਅਗਲਾ(v);
+    ਜੇ (m_op3p) m_op3p->iterate_And_ਅਗਲਾ(v);
+    ਜੇ (m_op4p) m_op4p->iterate_And_ਅਗਲਾ(v);
 }
 
-void AstNode::iterateChildrenConst(VNVisitorConst& v) {
+ਖਾਲੀ Ast_ਗੰਢ::iterateChildrenConst(VNVisitorConst& v) {
     // This is a very hot function
     ASTNODE_PREFETCH(m_op1p);
     ASTNODE_PREFETCH(m_op2p);
     ASTNODE_PREFETCH(m_op3p);
     ASTNODE_PREFETCH(m_op4p);
-    if (m_op1p) m_op1p->iterateAndNextConst(v);
-    if (m_op2p) m_op2p->iterateAndNextConst(v);
-    if (m_op3p) m_op3p->iterateAndNextConst(v);
-    if (m_op4p) m_op4p->iterateAndNextConst(v);
+    ਜੇ (m_op1p) m_op1p->iterate_And_ਅਗਲਾ_Const(v);
+    ਜੇ (m_op2p) m_op2p->iterate_And_ਅਗਲਾ_Const(v);
+    ਜੇ (m_op3p) m_op3p->iterate_And_ਅਗਲਾ_Const(v);
+    ਜੇ (m_op4p) m_op4p->iterate_And_ਅਗਲਾ_Const(v);
 }
 
-void AstNode::iterateAndNext(VNVisitor& v) {
+ਖਾਲੀ Ast_ਗੰਢ::iterate_And_ਅਗਲਾ(VNVisitor& v) {
     // This is a very hot function
     // IMPORTANT: If you replace a node that's the target of this iterator,
     // then the NEW node will be iterated on next, it isn't skipped!
     // Future versions of this function may require the node to have a back to be iterated;
     // there's no lower level reason yet though the back must exist.
-    AstNode* nodep = this;
-#ifdef VL_DEBUG  // Otherwise too hot of a function for debug
+    Ast_ਗੰਢ* nodep = ਇਹ;
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ VL_DEBUG  // Otherwise too hot of a function for debug
     UASSERT_OBJ(!(nodep && !nodep->m_backp), nodep, "iterateAndNext node has no back");
-#endif
+#ਜੇ_ਅੰਤ
     // cppcheck-suppress knownConditionTrueFalse
-    if (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
-    while (nodep) {  // effectively: if (!this) return;  // Callers rely on this
-        if (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
-        AstNode* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
+    ਜੇ (nodep) ASTNODE_PREFETCH(nodep->m_nextp);
+    ਜਦੋਂ (nodep) {  // effectively: if (!this) return;  // Callers rely on this
+        ਜੇ (nodep->m_nextp) ASTNODE_PREFETCH(nodep->m_nextp->m_nextp);
+        Ast_ਗੰਢ* niterp = nodep;  // Pointer may get stomped via m_iterpp if the node is edited
         // Desirable check, but many places where multiple iterations are OK
         // UASSERT_OBJ(!niterp->m_iterpp, niterp, "IterateAndNext under iterateAndNext may miss
         // edits"); Optimization note: Doing PREFETCH_RW on m_iterpp is a net even
@@ -1139,141 +1139,141 @@ void AstNode::iterateAndNext(VNVisitor& v) {
         // niterp maybe nullptr, so need cast if printing
         // if (niterp != nodep) UINFO(1,"iterateAndNext edited "<<cvtToHex(nodep)
         //                             <<" now into "<<cvtToHex(niterp)<<endl);
-        if (!niterp) return;  // Perhaps node deleted inside accept
-        niterp->m_iterpp = nullptr;
-        if (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
+        ਜੇ (!niterp) ਵਾਪਸ;  // Perhaps node deleted inside accept
+        niterp->m_iterpp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (VL_UNLIKELY(niterp != nodep)) {  // Edited node inside accept
             nodep = niterp;
-        } else {  // Unchanged node (though maybe updated m_next), just continue loop
+        } ਨਹੀਂਤਾਂ {  // Unchanged node (though maybe updated m_next), just continue loop
             nodep = niterp->m_nextp;
         }
     }
 }
 
-void AstNode::iterateListBackwardsConst(VNVisitorConst& v) {
-    AstNode* nodep = this;
-    while (nodep->m_nextp) nodep = nodep->m_nextp;
-    while (nodep) {
+ਖਾਲੀ Ast_ਗੰਢ::iterateListBackwardsConst(VNVisitorConst& v) {
+    Ast_ਗੰਢ* nodep = ਇਹ;
+    ਜਦੋਂ (nodep->m_nextp) nodep = nodep->m_nextp;
+    ਜਦੋਂ (nodep) {
         // Edits not supported: nodep->m_iterpp = &nodep;
         nodep->accept(v);
-        if (nodep->backp()->m_nextp == nodep) {
+        ਜੇ (nodep->backp()->m_nextp == nodep) {
             nodep = nodep->backp();
-        } else {
-            nodep = nullptr;
+        } ਨਹੀਂਤਾਂ {
+            nodep = ਖਾਲੀ_ਸੂਚਕ;
         }  // else: backp points up the tree.
     }
 }
 
-void AstNode::iterateChildrenBackwardsConst(VNVisitorConst& v) {
-    if (m_op1p) m_op1p->iterateListBackwardsConst(v);
-    if (m_op2p) m_op2p->iterateListBackwardsConst(v);
-    if (m_op3p) m_op3p->iterateListBackwardsConst(v);
-    if (m_op4p) m_op4p->iterateListBackwardsConst(v);
+ਖਾਲੀ Ast_ਗੰਢ::iterateChildrenBackwardsConst(VNVisitorConst& v) {
+    ਜੇ (m_op1p) m_op1p->iterateListBackwardsConst(v);
+    ਜੇ (m_op2p) m_op2p->iterateListBackwardsConst(v);
+    ਜੇ (m_op3p) m_op3p->iterateListBackwardsConst(v);
+    ਜੇ (m_op4p) m_op4p->iterateListBackwardsConst(v);
 }
 
-void AstNode::iterateAndNextConst(VNVisitorConst& v) {
+ਖਾਲੀ Ast_ਗੰਢ::iterate_And_ਅਗਲਾ_Const(VNVisitorConst& v) {
     // Keep following the current list even if edits change it
-    AstNode* nodep = this;
-    do {
-        AstNode* const nnextp = nodep->m_nextp;
+    Ast_ਗੰਢ* nodep = ਇਹ;
+    ਕਰੋ {
+        Ast_ਗੰਢ* ਅਚਲ nnextp = nodep->m_nextp;
         ASTNODE_PREFETCH(nnextp);
         nodep->accept(v);
         nodep = nnextp;
-    } while (nodep);
+    } ਜਦੋਂ (nodep);
 }
 
-AstNode* AstNode::iterateSubtreeReturnEdits(VNVisitor& v) {
+Ast_ਗੰਢ* Ast_ਗੰਢ::iterateSubtreeReturnEdits(VNVisitor& v) {
     // Some visitors perform tree edits (such as V3Const), and may even
     // replace/delete the exact nodep that the visitor is called with.  If
     // this happens, the parent will lose the handle to the node that was
     // processed.
     // To solve this, this function returns the pointer to the replacement node,
     // which in many cases is just the same node that was passed in.
-    AstNode* nodep = this;  // Note "this" may point to bogus point later in this function
-    if (VN_IS(nodep, Netlist)) {
+    Ast_ਗੰਢ* nodep = ਇਹ;  // Note "this" may point to bogus point later in this function
+    ਜੇ (VN_IS(nodep, Netlist)) {
         // Calling on top level; we know the netlist won't get replaced
         nodep->accept(v);
-    } else if (!nodep->backp()) {
+    } ਨਹੀਂਤਾਂ ਜੇ (!nodep->backp()) {
         // Calling on standalone tree; insert a shim node so we can keep
         // track, then delete it on completion
-        AstBegin* const tempp = new AstBegin{nodep->fileline(), "[EditWrapper]", nodep, false};
+        AstBegin* ਅਚਲ tempp = ਨਵਾਂ AstBegin{nodep->fileline(), "[EditWrapper]", nodep, ਝੂਠ};
         // nodep to null as may be replaced
         VL_DO_DANGLING(tempp->stmtsp()->accept(v), nodep);
-        nodep = tempp->stmtsp()->unlinkFrBackWithNext();
-        VL_DO_DANGLING(tempp->deleteTree(), tempp);
-    } else {
+        nodep = tempp->stmtsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+        VL_DO_DANGLING(tempp->delete_ਰੁੱਖ(), tempp);
+    } ਨਹੀਂਤਾਂ {
         // Use back to determine who's pointing at us (IE assume new node
         // grafts into same place as old one)
-        AstNode** nextnodepp = nullptr;
-        if (this->m_backp->m_op1p == this) {
-            nextnodepp = &(this->m_backp->m_op1p);
-        } else if (this->m_backp->m_op2p == this) {
-            nextnodepp = &(this->m_backp->m_op2p);
-        } else if (this->m_backp->m_op3p == this) {
-            nextnodepp = &(this->m_backp->m_op3p);
-        } else if (this->m_backp->m_op4p == this) {
-            nextnodepp = &(this->m_backp->m_op4p);
-        } else if (this->m_backp->m_nextp == this) {
-            nextnodepp = &(this->m_backp->m_nextp);
+        Ast_ਗੰਢ** nextnodepp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (ਇਹ->m_backp->m_op1p == ਇਹ) {
+            nextnodepp = &(ਇਹ->m_backp->m_op1p);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਇਹ->m_backp->m_op2p == ਇਹ) {
+            nextnodepp = &(ਇਹ->m_backp->m_op2p);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਇਹ->m_backp->m_op3p == ਇਹ) {
+            nextnodepp = &(ਇਹ->m_backp->m_op3p);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਇਹ->m_backp->m_op4p == ਇਹ) {
+            nextnodepp = &(ਇਹ->m_backp->m_op4p);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਇਹ->m_backp->m_nextp == ਇਹ) {
+            nextnodepp = &(ਇਹ->m_backp->m_nextp);
         }
-        UASSERT_OBJ(nextnodepp, this, "Node's back doesn't point to forward to node itself");
+        UASSERT_OBJ(nextnodepp, ਇਹ, "Node's back doesn't point to forward to node itself");
         {
             VL_DO_DANGLING(nodep->accept(v), nodep);  // nodep to null as may be replaced
         }
         nodep = *nextnodepp;  // Grab new node from point where old was connected
     }
-    return nodep;
+    ਵਾਪਸ nodep;
 }
 
 //======================================================================
 
-void AstNode::cloneRelinkTree() {
+ਖਾਲੀ Ast_ਗੰਢ::clone_Relink_ਰੁੱਖ() {
     // private: Cleanup clone() operation on whole tree. Publicly call cloneTree() instead.
-    for (AstNode* nodep = this; nodep; nodep = nodep->m_nextp) {
-        if (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
+    ਲਈ (Ast_ਗੰਢ* nodep = ਇਹ; nodep; nodep = nodep->m_nextp) {
+        ਜੇ (nodep->m_dtypep && nodep->m_dtypep->clonep()) {
             nodep->m_dtypep = nodep->m_dtypep->clonep();
         }
         nodep->cloneRelink();
-        if (nodep->m_op1p) nodep->m_op1p->cloneRelinkTree();
-        if (nodep->m_op2p) nodep->m_op2p->cloneRelinkTree();
-        if (nodep->m_op3p) nodep->m_op3p->cloneRelinkTree();
-        if (nodep->m_op4p) nodep->m_op4p->cloneRelinkTree();
+        ਜੇ (nodep->m_op1p) nodep->m_op1p->clone_Relink_ਰੁੱਖ();
+        ਜੇ (nodep->m_op2p) nodep->m_op2p->clone_Relink_ਰੁੱਖ();
+        ਜੇ (nodep->m_op3p) nodep->m_op3p->clone_Relink_ਰੁੱਖ();
+        ਜੇ (nodep->m_op4p) nodep->m_op4p->clone_Relink_ਰੁੱਖ();
     }
 }
 
 //======================================================================
 // Comparison
 
-bool AstNode::gateTreeIter() const {
+ਤਾਰਕਿਕ Ast_ਗੰਢ::gate_ਰੁੱਖ_Iter() ਅਚਲ {
     // private: Return true if the two trees are identical
-    if (!isGateOptimizable()) return false;
-    if (m_op1p && !m_op1p->gateTreeIter()) return false;
-    if (m_op2p && !m_op2p->gateTreeIter()) return false;
-    if (m_op3p && !m_op3p->gateTreeIter()) return false;
-    if (m_op4p && !m_op4p->gateTreeIter()) return false;
-    return true;
+    ਜੇ (!isGateOptimizable()) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (m_op1p && !m_op1p->gate_ਰੁੱਖ_Iter()) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (m_op2p && !m_op2p->gate_ਰੁੱਖ_Iter()) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (m_op3p && !m_op3p->gate_ਰੁੱਖ_Iter()) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (m_op4p && !m_op4p->gate_ਰੁੱਖ_Iter()) ਵਾਪਸ ਝੂਠ;
+    ਵਾਪਸ ਸੱਚ;
 }
 
-bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ignNext,
-                           bool gateOnly) {
+ਤਾਰਕਿਕ Ast_ਗੰਢ::same_ਰੁੱਖ_Iter(ਅਚਲ Ast_ਗੰਢ* node1p, ਅਚਲ Ast_ਗੰਢ* node2p, ਤਾਰਕਿਕ ign_ਅਗਲਾ,
+                           ਤਾਰਕਿਕ gateOnly) {
     // private: Return true if the two trees are identical
     // Iterate over the list, rather than recurse, as lists might be long
-    while (true) {
-        if (!node1p && !node2p) return true;
-        if (!node1p || !node2p) return false;
-        if (node1p->type() != node2p->type()) return false;
+    ਜਦੋਂ (ਸੱਚ) {
+        ਜੇ (!node1p && !node2p) ਵਾਪਸ ਸੱਚ;
+        ਜੇ (!node1p || !node2p) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (node1p->type() != node2p->type()) ਵਾਪਸ ਝੂਠ;
         UASSERT_OBJ(
             (!node1p->dtypep() && !node2p->dtypep()) || (node1p->dtypep() && node2p->dtypep()),
             node1p,
             "Comparison of a node with dtypep() with a node without dtypep()\n-node2=" << node2p);
-        if (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) return false;
-        if (!node1p->sameNode(node2p) || (gateOnly && !node1p->isGateOptimizable())) return false;
-        if (!sameTreeIter(node1p->m_op1p, node2p->m_op1p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op2p, node2p->m_op2p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op3p, node2p->m_op3p, false, gateOnly)
-            || !sameTreeIter(node1p->m_op4p, node2p->m_op4p, false, gateOnly)) {
-            return false;
+        ਜੇ (node1p->dtypep() && !node1p->dtypep()->similarDType(node2p->dtypep())) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (!node1p->same_ਗੰਢ(node2p) || (gateOnly && !node1p->isGateOptimizable())) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (!same_ਰੁੱਖ_Iter(node1p->m_op1p, node2p->m_op1p, ਝੂਠ, gateOnly)
+            || !same_ਰੁੱਖ_Iter(node1p->m_op2p, node2p->m_op2p, ਝੂਠ, gateOnly)
+            || !same_ਰੁੱਖ_Iter(node1p->m_op3p, node2p->m_op3p, ਝੂਠ, gateOnly)
+            || !same_ਰੁੱਖ_Iter(node1p->m_op4p, node2p->m_op4p, ਝੂਠ, gateOnly)) {
+            ਵਾਪਸ ਝੂਠ;
         }
-        if (ignNext) return true;
+        ਜੇ (ign_ਅਗਲਾ) ਵਾਪਸ ਸੱਚ;
         node1p = node1p->m_nextp;
         node2p = node2p->m_nextp;
     }
@@ -1282,83 +1282,83 @@ bool AstNode::sameTreeIter(const AstNode* node1p, const AstNode* node2p, bool ig
 //======================================================================
 // Debugging
 
-void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
+ਖਾਲੀ Ast_ਗੰਢ::check_ਰੁੱਖ_Iter(ਅਚਲ Ast_ਗੰਢ* prevBackp) ਅਚਲ VL_MT_STABLE {
     // private: Check a tree and children
-    UASSERT_OBJ(prevBackp == this->backp(), this, "Back node inconsistent");
-    const VNTypeInfo& typeInfo = VNType::typeInfo(this->type());
-    for (int i = 1; i <= 4; i++) {
-        AstNode* nodep = nullptr;
-        switch (i) {
-        case 1: nodep = op1p(); break;
-        case 2: nodep = op2p(); break;
-        case 3: nodep = op3p(); break;
-        case 4: nodep = op4p(); break;
-        default: this->v3fatalSrc("Bad case"); break;
+    UASSERT_OBJ(prevBackp == ਇਹ->backp(), ਇਹ, "Back node inconsistent");
+    ਅਚਲ VNTypeInfo& typeInfo = VNType::typeInfo(ਇਹ->type());
+    ਲਈ (ਪੂਰਨ i = 1; i <= 4; i++) {
+        Ast_ਗੰਢ* nodep = ਖਾਲੀ_ਸੂਚਕ;
+        ਚੋਣ (i) {
+        ਹਾਲਤ 1: nodep = op1p(); ਰੋਕੋ;
+        ਹਾਲਤ 2: nodep = op2p(); ਰੋਕੋ;
+        ਹਾਲਤ 3: nodep = op3p(); ਰੋਕੋ;
+        ਹਾਲਤ 4: nodep = op4p(); ਰੋਕੋ;
+        ਮੂਲ: ਇਹ->v3fatalSrc("Bad case"); ਰੋਕੋ;
         }
         // cppcheck-suppress danglingTempReference
-        const char* opName = typeInfo.m_opNamep[i - 1];
-        switch (typeInfo.m_opType[i - 1]) {
-        case VNTypeInfo::OP_UNUSED:
-            UASSERT_OBJ(!nodep, this, typeInfo.m_namep << " must not use " << opName << "()");
-            break;
-        case VNTypeInfo::OP_USED:
-            UASSERT_OBJ(nodep, this,
+        ਅਚਲ ਅੱਖਰ* opName = typeInfo.m_opNamep[i - 1];
+        ਚੋਣ (typeInfo.m_opType[i - 1]) {
+        ਹਾਲਤ VNTypeInfo::OP_ਅਣਵਰਤਿਆ:
+            UASSERT_OBJ(!nodep, ਇਹ, typeInfo.m_namep << " must not use " << opName << "()");
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_ਵਰਤਿਆ:
+            UASSERT_OBJ(nodep, ਇਹ,
                         typeInfo.m_namep << " must have non-nullptr " << opName << "()");
-            UASSERT_OBJ(!nodep->nextp(), this,
+            UASSERT_OBJ(!nodep->nextp(), ਇਹ,
                         typeInfo.m_namep << "::" << opName
                                          << "() cannot have a non-nullptr nextp()");
-            nodep->checkTreeIter(this);
-            break;
-        case VNTypeInfo::OP_LIST:
-            if (const AstNode* const headp = nodep) {
+            nodep->check_ਰੁੱਖ_Iter(ਇਹ);
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_LIST:
+            ਜੇ (ਅਚਲ Ast_ਗੰਢ* ਅਚਲ headp = nodep) {
                 // cppcheck-suppress shadowFunction
-                const AstNode* backp = this;
-                const AstNode* tailp;
-                const AstNode* opp = headp;
-                do {
-                    opp->checkTreeIter(backp);
+                ਅਚਲ Ast_ਗੰਢ* backp = ਇਹ;
+                ਅਚਲ Ast_ਗੰਢ* tailp;
+                ਅਚਲ Ast_ਗੰਢ* opp = headp;
+                ਕਰੋ {
+                    opp->check_ਰੁੱਖ_Iter(backp);
                     UASSERT_OBJ(opp == headp || !opp->nextp() || !opp->m_headtailp, opp,
                                 "Headtailp should be null in middle of lists");
                     backp = tailp = opp;
                     opp = opp->nextp();
-                } while (opp);
+                } ਜਦੋਂ (opp);
                 UASSERT_OBJ(headp->m_headtailp == tailp, headp,
                             "Tail in headtailp is inconsistent");
                 UASSERT_OBJ(tailp->m_headtailp == headp, tailp,
                             "Head in headtailp is inconsistent");
             }
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (nodep) {
-                UASSERT_OBJ(!nodep->nextp(), this,
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_OPTIONAL:
+            ਜੇ (nodep) {
+                UASSERT_OBJ(!nodep->nextp(), ਇਹ,
                             typeInfo.m_namep << "::" << opName
                                              << "() cannot have a non-nullptr nextp()");
-                nodep->checkTreeIter(this);
+                nodep->check_ਰੁੱਖ_Iter(ਇਹ);
             }
-            break;
-        default: this->v3fatalSrc("Bad case"); break;
+            ਰੋਕੋ;
+        ਮੂਲ: ਇਹ->v3fatalSrc("Bad case"); ਰੋਕੋ;
         }
     }
-    if (v3Global.opt.debugWidth() && v3Global.widthMinUsage() == VWidthMinUsage::VERILOG_WIDTH) {
-        if (const AstNodeExpr* const exprp = VN_CAST(this, NodeExpr)) {
-            const char* const whyp = exprp->widthMismatch();
-            if (whyp) {
-                auto dtypeStr = [](const AstNodeExpr* exprp) VL_MT_STABLE {
+    ਜੇ (v3Global.opt.debug_ਚੌੜਾਈ() && v3Global.ਚੌੜਾਈ_Min_Usage() == VWidthMinUsage::VERILOG_ਚੌੜਾਈ) {
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = VN_CAST(ਇਹ, ਗੰਢ_ਵਿਅੰਜਕ)) {
+            ਅਚਲ ਅੱਖਰ* ਅਚਲ whyp = exprp->ਚੌੜਾਈ_Mismatch();
+            ਜੇ (whyp) {
+                ਸਵੈਚਾਲਿਤ dtypeStr = [](ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) VL_MT_STABLE {
                     std::ostringstream ss;
                     exprp->dtypep()->dumpSmall(ss);
-                    return ss.str();
+                    ਵਾਪਸ ss.str();
                 };
-                if (const AstNodeUniop* const uniopp = VN_CAST(exprp, NodeUniop)) {
+                ਜੇ (ਅਚਲ Ast_ਗੰਢ_Uniop* ਅਚਲ uniopp = VN_CAST(exprp, ਗੰਢ_Uniop)) {
                     UASSERT_OBJ(!whyp, uniopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(uniopp)
                                                           << " LHS:" << dtypeStr(uniopp->lhsp()));
-                } else if (const AstNodeBiop* const biopp = VN_CAST(exprp, NodeBiop)) {
+                } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ Ast_ਗੰਢ_Biop* ਅਚਲ biopp = VN_CAST(exprp, ਗੰਢ_Biop)) {
                     UASSERT_OBJ(!whyp, biopp,
                                 "widthMismatch detected " << whyp << "OUT:" << dtypeStr(biopp)
                                                           << " LHS:" << dtypeStr(biopp->lhsp())
                                                           << " RHS:" << dtypeStr(biopp->rhsp()));
-                } else {
-                    UASSERT_OBJ(false, exprp,
+                } ਨਹੀਂਤਾਂ {
+                    UASSERT_OBJ(ਝੂਠ, exprp,
                                 "widthMismatch detected " << whyp << " in an unexpected type");
                 }
             }
@@ -1367,653 +1367,653 @@ void AstNode::checkTreeIter(const AstNode* prevBackp) const VL_MT_STABLE {
 }
 
 // cppcheck-suppress unusedFunction  // Debug only
-char* AstNode::dumpTreeJsonGdb(const AstNode* nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
-    std::stringstream nodepStream;
-    nodep->dumpTreeJson(nodepStream);
-    const std::string str = nodepStream.rdbuf()->str();
-    return strdup(str.c_str());
+ਅੱਖਰ* Ast_ਗੰਢ::dump_ਰੁੱਖ_Json_Gdb(ਅਚਲ Ast_ਗੰਢ* nodep) {
+    ਜੇ (!nodep) ਵਾਪਸ strdup("{\"addr\":\"NULL\"}\n");
+    std::stringstream nodep_ਧਾਰਾ;
+    nodep->dump_ਰੁੱਖ_Json(nodep_ਧਾਰਾ);
+    ਅਚਲ std::string str = nodep_ਧਾਰਾ.rdbuf()->str();
+    ਵਾਪਸ strdup(str.c_str());
 }
 // cppcheck-suppress unusedFunction  // Debug only
 // identity func to allow for passing already done dumps to jtree
-char* AstNode::dumpTreeJsonGdb(const char* str) { return strdup(str); }
+ਅੱਖਰ* Ast_ਗੰਢ::dump_ਰੁੱਖ_Json_Gdb(ਅਚਲ ਅੱਖਰ* str) { ਵਾਪਸ strdup(str); }
 // cppcheck-suppress unusedFunction  // Debug only
 // allow for passing pointer literals like 0x42.. without manual cast
-char* AstNode::dumpTreeJsonGdb(intptr_t nodep) {
-    if (!nodep) return strdup("{\"addr\":\"NULL\"}\n");
-    return dumpTreeJsonGdb(reinterpret_cast<const AstNode*>(nodep));
+ਅੱਖਰ* Ast_ਗੰਢ::dump_ਰੁੱਖ_Json_Gdb(intptr_t nodep) {
+    ਜੇ (!nodep) ਵਾਪਸ strdup("{\"addr\":\"NULL\"}\n");
+    ਵਾਪਸ dump_ਰੁੱਖ_Json_Gdb(reinterpret_cast<ਅਚਲ Ast_ਗੰਢ*>(nodep));
 }
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
-        cout << "<nullptr>" << endl;
-        return;
+ਖਾਲੀ Ast_ਗੰਢ::dumpGdb(ਅਚਲ Ast_ਗੰਢ* nodep) {  // For GDB only  // LCOV_EXCL_START
+    ਜੇ (!nodep) {
+        ਬਾਹਰ << "<nullptr>" << ਸਤਰ_ਅੰਤ;
+        ਵਾਪਸ;
     }
-    nodep->dumpGdbHeader();
-    cout << "  ";
-    nodep->dump(cout);
-    cout << endl;
+    nodep->dump_Gdb_ਸਿਰਲੇਖ();
+    ਬਾਹਰ << "  ";
+    nodep->dump(ਬਾਹਰ);
+    ਬਾਹਰ << ਸਤਰ_ਅੰਤ;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpGdbHeader() const {  // For GDB only  // LCOV_EXCL_START
-    dumpPtrs(cout);
-    cout << "  Fileline = " << fileline() << endl;
+ਖਾਲੀ Ast_ਗੰਢ::dump_Gdb_ਸਿਰਲੇਖ() ਅਚਲ {  // For GDB only  // LCOV_EXCL_START
+    dumpPtrs(ਬਾਹਰ);
+    ਬਾਹਰ << "  Fileline = " << fileline() << ਸਤਰ_ਅੰਤ;
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeGdb(const AstNode* nodep) {  // For GDB only  // LCOV_EXCL_START
-    if (!nodep) {
-        cout << "<nullptr>" << endl;
-        return;
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_Gdb(ਅਚਲ Ast_ਗੰਢ* nodep) {  // For GDB only  // LCOV_EXCL_START
+    ਜੇ (!nodep) {
+        ਬਾਹਰ << "<nullptr>" << ਸਤਰ_ਅੰਤ;
+        ਵਾਪਸ;
     }
-    nodep->dumpGdbHeader();
-    nodep->dumpTree(cout);
+    nodep->dump_Gdb_ਸਿਰਲੇਖ();
+    nodep->dump_ਰੁੱਖ(ਬਾਹਰ);
 }  // LCOV_EXCL_STOP
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::dumpTreeFileGdb(const AstNode* nodep,  // LCOV_EXCL_START
-                              const char* filenamep) {  // For GDB only
-    if (!nodep) {
-        cout << "<nullptr>" << endl;
-        return;
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_File_Gdb(ਅਚਲ Ast_ਗੰਢ* nodep,  // LCOV_EXCL_START
+                              ਅਚਲ ਅੱਖਰ* filenamep) {  // For GDB only
+    ਜੇ (!nodep) {
+        ਬਾਹਰ << "<nullptr>" << ਸਤਰ_ਅੰਤ;
+        ਵਾਪਸ;
     }
-    const string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
-    v3Global.rootp()->dumpTreeFile(filename);
+    ਅਚਲ string filename = filenamep ? filenamep : v3Global.debugFilename("debug.tree", 98);
+    v3Global.rootp()->dump_ਰੁੱਖ_File(filename);
 }  // LCOV_EXCL_STOP
 
 // cppcheck-suppress unusedFunction  // Debug only
-void AstNode::checkIter() const {
-    if (m_iterpp) {
-        dumpPtrs(cout);
+ਖਾਲੀ Ast_ਗੰਢ::checkIter() ਅਚਲ {
+    ਜੇ (m_iterpp) {
+        dumpPtrs(ਬਾਹਰ);
         // Perhaps something forgot to clear m_iterpp?
-        this->v3fatalSrc("Iteration link m_iterpp should be nullptr");
+        ਇਹ->v3fatalSrc("Iteration link m_iterpp should be nullptr");
     }
 }
 
-void AstNode::dumpPtrs(std::ostream& os) const {
-    os << "This=" << typeName() << " " << cvtToHex(this);
-    os << " back=" << cvtToHex(backp());
-    if (nextp()) os << " next=" << cvtToHex(nextp());
-    if (m_headtailp == this) {
+ਖਾਲੀ Ast_ਗੰਢ::dumpPtrs(std::ostream& os) ਅਚਲ {
+    os << "This=" << typeName() << " " << cvt_ਮੰਜ਼ਿਲ_Hex(ਇਹ);
+    os << " back=" << cvt_ਮੰਜ਼ਿਲ_Hex(backp());
+    ਜੇ (nextp()) os << " next=" << cvt_ਮੰਜ਼ਿਲ_Hex(nextp());
+    ਜੇ (m_headtailp == ਇਹ) {
         os << " headtail=this";
-    } else {
-        os << " headtail=" << cvtToHex(m_headtailp);
+    } ਨਹੀਂਤਾਂ {
+        os << " headtail=" << cvt_ਮੰਜ਼ਿਲ_Hex(m_headtailp);
     }
-    if (op1p()) os << " op1p=" << cvtToHex(op1p());
-    if (op2p()) os << " op2p=" << cvtToHex(op2p());
-    if (op3p()) os << " op3p=" << cvtToHex(op3p());
-    if (op4p()) os << " op4p=" << cvtToHex(op4p());
-    const auto dumpUser = [&os](const char* prefix, const VNUser& user) {
-        const std::string s
-            = user.dumpStr([](const void* p) -> std::string { return cvtToHex(p); });
-        if (!s.empty()) os << prefix << s;
+    ਜੇ (op1p()) os << " op1p=" << cvt_ਮੰਜ਼ਿਲ_Hex(op1p());
+    ਜੇ (op2p()) os << " op2p=" << cvt_ਮੰਜ਼ਿਲ_Hex(op2p());
+    ਜੇ (op3p()) os << " op3p=" << cvt_ਮੰਜ਼ਿਲ_Hex(op3p());
+    ਜੇ (op4p()) os << " op4p=" << cvt_ਮੰਜ਼ਿਲ_Hex(op4p());
+    ਅਚਲ ਸਵੈਚਾਲਿਤ dumpUser = [&os](ਅਚਲ ਅੱਖਰ* ਅਗੇਤਰ, ਅਚਲ VNUser& user) {
+        ਅਚਲ std::string s
+            = user.dumpStr([](ਅਚਲ ਖਾਲੀ* p) -> std::string { ਵਾਪਸ cvt_ਮੰਜ਼ਿਲ_Hex(p); });
+        ਜੇ (!s.ਖਾਲੀ_ਥਾਵਾਂ()) os << ਅਗੇਤਰ << s;
     };
     dumpUser(" user1p=", user1u());
     dumpUser(" user2p=", user2u());
     dumpUser(" user3p=", user3u());
     dumpUser(" user4p=", user4u());
-    if (m_iterpp) {
-        os << " iterpp=" << cvtToHex(m_iterpp);
+    ਜੇ (m_iterpp) {
+        os << " iterpp=" << cvt_ਮੰਜ਼ਿਲ_Hex(m_iterpp);
         // This may cause address sanitizer failures as iterpp can be stale
         // os << "*=" << cvtToHex(*m_iterpp);
     }
     os << "\n";
 }
 
-void AstNode::dumpTree(std::ostream& os, const string& indent, int maxDepth) const {
-    static int s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
-    os << indent << " " << this << '\n';
-    if (VN_DELETED(this)) return;
-    if (debug() > 8) {
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ(std::ostream& os, ਅਚਲ string& indent, ਪੂਰਨ max_ਡੂੰਘਾਈ) ਅਚਲ {
+    ਸਥਿਰ ਪੂਰਨ s_debugFileline = v3Global.opt.debugSrcLevel("fileline");  // --debugi-fileline 9
+    os << indent << " " << ਇਹ << '\n';
+    ਜੇ (VN_DELETED(ਇਹ)) ਵਾਪਸ;
+    ਜੇ (debug() > 8) {
         os << indent << "     ";
         dumpPtrs(os);
     }
-    if (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
+    ਜੇ (VN_DELETED(op1p()) || VN_DELETED(op2p())  // LCOV_EXCL_START
         || VN_DELETED(op3p()) || VN_DELETED(op4p())) {
-        os << indent << "1/2/3/4: %E-0x1/deleted! node " << cvtToHex(this)
-           << endl;  // endl intentional to do flush
-        return;
+        os << indent << "1/2/3/4: %E-0x1/deleted! node " << cvt_ਮੰਜ਼ਿਲ_Hex(ਇਹ)
+           << ਸਤਰ_ਅੰਤ;  // endl intentional to do flush
+        ਵਾਪਸ;
     }  // LCOV_EXCL_STOP
-    if (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
-    if (maxDepth == 1) {
-        if (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
-    } else {
-        for (const AstNode* nodep = op1p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "1:", maxDepth - 1);
+    ਜੇ (s_debugFileline >= 9) os << fileline()->warnContextSecondary();
+    ਜੇ (max_ਡੂੰਘਾਈ == 1) {
+        ਜੇ (op1p() || op2p() || op3p() || op4p()) os << indent << "1: ...(maxDepth)\n";
+    } ਨਹੀਂਤਾਂ {
+        ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = op1p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_ਰੁੱਖ(os, indent + "1:", max_ਡੂੰਘਾਈ - 1);
         }
-        for (const AstNode* nodep = op2p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "2:", maxDepth - 1);
+        ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = op2p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_ਰੁੱਖ(os, indent + "2:", max_ਡੂੰਘਾਈ - 1);
         }
-        for (const AstNode* nodep = op3p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "3:", maxDepth - 1);
+        ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = op3p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_ਰੁੱਖ(os, indent + "3:", max_ਡੂੰਘਾਈ - 1);
         }
-        for (const AstNode* nodep = op4p(); nodep; nodep = nodep->nextp()) {
-            nodep->dumpTree(os, indent + "4:", maxDepth - 1);
+        ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = op4p(); nodep; nodep = nodep->nextp()) {
+            nodep->dump_ਰੁੱਖ(os, indent + "4:", max_ਡੂੰਘਾਈ - 1);
         }
     }
 }
 
-void AstNode::dumpTreeAndNext(std::ostream& os, const string& indent, int maxDepth) const {
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_And_ਅਗਲਾ(std::ostream& os, ਅਚਲ string& indent, ਪੂਰਨ max_ਡੂੰਘਾਈ) ਅਚਲ {
     // Audited to make sure this is never nullptr
-    for (const AstNode* nodep = this; nodep; nodep = nodep->nextp()) {
-        nodep->dumpTree(os, indent, maxDepth);
+    ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = ਇਹ; nodep; nodep = nodep->nextp()) {
+        nodep->dump_ਰੁੱਖ(os, indent, max_ਡੂੰਘਾਈ);
     }
 }
 
-void AstNode::dumpTreeFile(const string& filename, bool doDump) {
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_File(ਅਚਲ string& filename, ਤਾਰਕਿਕ doDump) {
     // Not const function as calls checkTree
-    if (doDump) {
+    ਜੇ (doDump) {
         {  // Write log & close
             UINFO(2, "Dumping " << filename);
-            const std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
-            if (logsp->fail()) v3fatal("Can't write file: " << filename);
-            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << editCountLast();
-            *logsp << "> to <e" << std::dec << editCountGbl() << ">\n";
-            if (editCountGbl() == editCountLast() && ::dumpTreeLevel() < 9) {
+            ਅਚਲ std::unique_ptr<std::ofstream> logsp{V3File::new_ofstream(filename)};
+            ਜੇ (logsp->fail()) v3fatal("Can't write file: " << filename);
+            *logsp << "Verilator Tree Dump (format 0x3900) from <e" << std::dec << edit_ਗਿਣਤੀ_ਆਖਰੀ();
+            *logsp << "> to <e" << std::dec << edit_ਗਿਣਤੀ_Gbl() << ">\n";
+            ਜੇ (edit_ਗਿਣਤੀ_Gbl() == edit_ਗਿਣਤੀ_ਆਖਰੀ() && ::dump_ਰੁੱਖ_Level() < 9) {
                 *logsp << '\n';
                 *logsp << "No changes since last dump!\n";
-            } else {
-                dumpTree(*logsp);
-                editCountSetLast();  // Next dump can indicate start from here
+            } ਨਹੀਂਤਾਂ {
+                dump_ਰੁੱਖ(*logsp);
+                edit_ਗਿਣਤੀ_ਸੈੱਟ_ਆਖਰੀ();  // Next dump can indicate start from here
             }
         }
     }
 }
 
-static void drawChildren(std::ostream& os, const AstNode* thisp, const AstNode* childp,
-                         const std::string& childName) {
-    if (childp) {
-        os << "\tn" << cvtToHex(thisp) << " -> n" << cvtToHex(childp) << " [" << "label=\""
-           << childName << "\" color=red];\n";
-        for (const AstNode* nodep = childp; nodep; nodep = nodep->nextp()) {
-            nodep->dumpTreeDot(os);
-            if (nodep->nextp()) {
-                os << "\tn" << cvtToHex(nodep) << " -> n" << cvtToHex(nodep->nextp()) << " ["
+ਸਥਿਰ ਖਾਲੀ drawChildren(std::ostream& os, ਅਚਲ Ast_ਗੰਢ* thisp, ਅਚਲ Ast_ਗੰਢ* childp,
+                         ਅਚਲ std::string& ਬੱਚਾ_Name) {
+    ਜੇ (childp) {
+        os << "\tn" << cvt_ਮੰਜ਼ਿਲ_Hex(thisp) << " -> n" << cvt_ਮੰਜ਼ਿਲ_Hex(childp) << " [" << "label=\""
+           << ਬੱਚਾ_Name << "\" color=red];\n";
+        ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = childp; nodep; nodep = nodep->nextp()) {
+            nodep->dump_ਰੁੱਖ_Dot(os);
+            ਜੇ (nodep->nextp()) {
+                os << "\tn" << cvt_ਮੰਜ਼ਿਲ_Hex(nodep) << " -> n" << cvt_ਮੰਜ਼ਿਲ_Hex(nodep->nextp()) << " ["
                    << "label=\"next\" color=red];\n";
-                os << "\t{rank=same; n" << cvtToHex(nodep) << ", n" << cvtToHex(nodep->nextp())
+                os << "\t{rank=same; n" << cvt_ਮੰਜ਼ਿਲ_Hex(nodep) << ", n" << cvt_ਮੰਜ਼ਿਲ_Hex(nodep->nextp())
                    << "}\n";
             }
         }
     }
 }
 
-void AstNode::dumpTreeDot(std::ostream& os) const {
-    os << "\tn" << cvtToHex(this) << "\t[" << "label=\"" << typeName() << "\\n"
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_Dot(std::ostream& os) ਅਚਲ {
+    os << "\tn" << cvt_ਮੰਜ਼ਿਲ_Hex(ਇਹ) << "\t[" << "label=\"" << typeName() << "\\n"
        << name() << "\"];\n";
-    drawChildren(os, this, m_op1p, "op1");
-    drawChildren(os, this, m_op2p, "op2");
-    drawChildren(os, this, m_op3p, "op3");
-    drawChildren(os, this, m_op4p, "op4");
+    drawChildren(os, ਇਹ, m_op1p, "op1");
+    drawChildren(os, ਇਹ, m_op2p, "op2");
+    drawChildren(os, ਇਹ, m_op3p, "op3");
+    drawChildren(os, ਇਹ, m_op4p, "op4");
 }
 
-void AstNode::dumpTreeJsonFile(const string& filename, bool doDump) {
-    if (!doDump) return;
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_Json_File(ਅਚਲ string& filename, ਤਾਰਕਿਕ doDump) {
+    ਜੇ (!doDump) ਵਾਪਸ;
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatal("Can't write file: " << filename);
-    dumpTreeJson(*treejsonp);
+    ਅਚਲ std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
+    ਜੇ (treejsonp->fail()) v3fatal("Can't write file: " << filename);
+    dump_ਰੁੱਖ_Json(*treejsonp);
     *treejsonp << '\n';
 }
 
-void AstNode::dumpJsonMetaFileGdb(const char* filename) { dumpJsonMetaFile(filename); }
-void AstNode::dumpJsonMetaFile(const string& filename) {
+ਖਾਲੀ Ast_ਗੰਢ::dumpJsonMetaFileGdb(ਅਚਲ ਅੱਖਰ* filename) { dumpJsonMetaFile(filename); }
+ਖਾਲੀ Ast_ਗੰਢ::dumpJsonMetaFile(ਅਚਲ string& filename) {
     UINFO(2, "Dumping " << filename);
-    const std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
-    if (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
+    ਅਚਲ std::unique_ptr<std::ofstream> treejsonp{V3File::new_ofstream(filename)};
+    ਜੇ (treejsonp->fail()) v3fatalStatic("Can't write file: " << filename);
     *treejsonp << '{';
-    FileLine::fileNameNumMapDumpJson(*treejsonp);
+    File_ਸਤਰ::file_Name_ਅੰਕ_Map_Dump_Json(*treejsonp);
     *treejsonp << ',';
     v3Global.idPtrMapDumpJson(*treejsonp);
     *treejsonp << ',';
-    v3Global.ptrNamesDumpJson(*treejsonp);
+    v3Global.ptr_ਨਾਂ_Dump_Json(*treejsonp);
     *treejsonp << "}\n";
 }
 
-void AstNode::dumpTreeDotFile(const string& filename, bool doDump) {
-    if (doDump) {
+ਖਾਲੀ Ast_ਗੰਢ::dump_ਰੁੱਖ_Dot_File(ਅਚਲ string& filename, ਤਾਰਕਿਕ doDump) {
+    ਜੇ (doDump) {
         UINFO(2, "Dumping " << filename);
-        const std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
-        if (treedotp->fail()) v3fatal("Can't write file: " << filename);
+        ਅਚਲ std::unique_ptr<std::ofstream> treedotp{V3File::new_ofstream(filename)};
+        ਜੇ (treedotp->fail()) v3fatal("Can't write file: " << filename);
         *treedotp << "digraph vTree{\n";
         *treedotp << "\tgraph\t[label=\"" << filename + ".dot" << "\",\n";
         *treedotp << "\t\t labelloc=t, labeljust=l,\n";
         *treedotp << "\t\t //size=\"7.5,10\",\n"
                   << "];\n";
-        dumpTreeDot(*treedotp);
+        dump_ਰੁੱਖ_Dot(*treedotp);
         *treedotp << "}\n";
     }
 }
 
-string AstNode::instanceStr() const {
+string Ast_ਗੰਢ::instanceStr() ਅਚਲ {
     // Max iterations before giving up on location search,
     // in case we have some circular reference bug.
-    constexpr unsigned maxIterations = 10000;
-    unsigned iterCount = 0;
+    constexpr ਬਿਨਾਨਿਸ਼ਾਨੀ maxIterations = 10000;
+    ਬਿਨਾਨਿਸ਼ਾਨੀ iter_ਗਿਣਤੀ = 0;
     // Walk 'backp' chain
-    for (const AstNode* currp = this; currp; currp = currp->backp(), ++iterCount) {
-        if (VL_UNCOVERABLE(iterCount >= maxIterations)) return "";  // LCOV_EXCL_LINE
+    ਲਈ (ਅਚਲ Ast_ਗੰਢ* currp = ਇਹ; currp; currp = currp->backp(), ++iter_ਗਿਣਤੀ) {
+        ਜੇ (VL_UNCOVERABLE(iter_ਗਿਣਤੀ >= maxIterations)) ਵਾਪਸ "";  // LCOV_EXCL_LINE
         // Prefer the enclosing scope, if there is one. This is always under the enclosing module,
         // so just pick it up when encountered
-        if (const AstScope* const scopep = VN_CAST(currp, Scope)) {
-            return scopep->isTop() ? "" : "... note: In instance " + scopep->prettyNameQ();
+        ਜੇ (ਅਚਲ AstScope* ਅਚਲ scopep = VN_CAST(currp, Scope)) {
+            ਵਾਪਸ scopep->is_ਸਿਖਰ() ? "" : "... note: In instance " + scopep->prettyNameQ();
         }
         // If scopes don't exist, report an example instance of the enclosing module
-        if (const AstModule* const modp = VN_CAST(currp, Module)) {
-            const string instanceName = modp->someInstanceName();
-            return instanceName.empty() ? "" : "... note: In instance '" + instanceName + "'";
+        ਜੇ (ਅਚਲ AstModule* ਅਚਲ modp = VN_CAST(currp, Module)) {
+            ਅਚਲ string instanceName = modp->someInstanceName();
+            ਵਾਪਸ instanceName.ਖਾਲੀ_ਥਾਵਾਂ() ? "" : "... note: In instance '" + instanceName + "'";
         }
     }
-    return "";
+    ਵਾਪਸ "";
 }
-void AstNode::v3errorEnd(const std::ostringstream& str) const VL_RELEASE(V3Error::s().m_mutex) {
-    if (!m_fileline) {
-        V3Error::v3errorEnd(str, "", nullptr);
-    } else {
+ਖਾਲੀ Ast_ਗੰਢ::v3error_ਸਿਰਾ(ਅਚਲ std::ostringstream& str) ਅਚਲ VL_RELEASE(V3Error::s().m_mutex) {
+    ਜੇ (!m_fileline) {
+        V3Error::v3error_ਸਿਰਾ(str, "", ਖਾਲੀ_ਸੂਚਕ);
+    } ਨਹੀਂਤਾਂ {
         // Don't look for instance name when warning is disabled.
         // In case of large number of warnings, this can
         // take significant amount of time
-        const string instanceStrExtra
-            = m_fileline->warnIsOff(V3Error::s().errorCode()) ? "" : instanceStr();
+        ਅਚਲ string instanceStrExtra
+            = m_fileline->warnIsOff(V3Error::s().error_ਕੋਡ()) ? "" : instanceStr();
         std::ostringstream nsstr;
         nsstr << str.str();
-        if (debug()) {
+        ਜੇ (debug()) {
             nsstr << '\n';
             nsstr << "-node: ";
-            const_cast<AstNode*>(this)->dump(nsstr);
+            const_cast<Ast_ਗੰਢ*>(ਇਹ)->dump(nsstr);
             nsstr << '\n';
         }
-        m_fileline->v3errorEnd(nsstr, instanceStrExtra);
+        m_fileline->v3error_ਸਿਰਾ(nsstr, instanceStrExtra);
     }
 }
-void AstNode::v3errorEndFatal(const std::ostringstream& str) const
+ਖਾਲੀ Ast_ਗੰਢ::v3error_ਸਿਰਾ_Fatal(ਅਚਲ std::ostringstream& str) ਅਚਲ
     VL_RELEASE(V3Error::s().m_mutex) {
-    v3errorEnd(str);
-    assert(0);  // LCOV_EXCL_LINE
+    v3error_ਸਿਰਾ(str);
+    ਪ੍ਰਤਿਜ੍ਞਾ(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }
 
 //======================================================================
 // Data type conversion
 
-void AstNode::dtypeChgSigned(bool flag) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing to (un)signed");
-    dtypeChgWidthSigned(dtypep()->width(), dtypep()->widthMin(), VSigning::fromBool(flag));
+ਖਾਲੀ Ast_ਗੰਢ::dtypeChgSigned(ਤਾਰਕਿਕ flag) {
+    UASSERT_OBJ(dtypep(), ਇਹ, "No dtype when changing to (un)signed");
+    dtype_Chg_ਚੌੜਾਈ_Signed(dtypep()->ਚੌੜਾਈ(), dtypep()->ਚੌੜਾਈ_Min(), VSigning::fromBool(flag));
 }
-void AstNode::dtypeChgWidth(int width, int widthMin) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
-    dtypeChgWidthSigned(width, widthMin, dtypep()->numeric());
+ਖਾਲੀ Ast_ਗੰਢ::dtype_Chg_ਚੌੜਾਈ(ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ ਚੌੜਾਈ_Min) {
+    UASSERT_OBJ(dtypep(), ਇਹ, "No dtype when changing width");
+    dtype_Chg_ਚੌੜਾਈ_Signed(ਚੌੜਾਈ, ਚੌੜਾਈ_Min, dtypep()->numeric());
 }
 
-void AstNode::dtypeChgWidthSigned(int width, int widthMin, VSigning numeric) {
-    UASSERT_OBJ(dtypep(), this, "No dtype when changing width");
-    const AstNodeDType* const enumDTypep = dtypep()->skipRefToEnump();
-    if (width == dtypep()->width() && widthMin == dtypep()->widthMin()
+ਖਾਲੀ Ast_ਗੰਢ::dtype_Chg_ਚੌੜਾਈ_Signed(ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ ਚੌੜਾਈ_Min, VSigning numeric) {
+    UASSERT_OBJ(dtypep(), ਇਹ, "No dtype when changing width");
+    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ enumDTypep = dtypep()->skip_Ref_ਮੰਜ਼ਿਲ_Enump();
+    ਜੇ (ਚੌੜਾਈ == dtypep()->ਚੌੜਾਈ() && ਚੌੜਾਈ_Min == dtypep()->ਚੌੜਾਈ_Min()
         && numeric == dtypep()->numeric()
         // Enums need to become direct sizes to avoid later ENUMVALUE errors
         && !VN_IS(enumDTypep, EnumDType)) {
-        return;  // Correct already
+        ਵਾਪਸ;  // Correct already
     }
-    const AstNodeDType* const dtypep = enumDTypep->skipRefp();
+    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = enumDTypep->skipRefp();
     // This cannot be asserted yet, because V3Clean tends to change width of everything
     // UASSERT_OBJ(!dtypep->isCompound(), this, "Cannot change width of compound dtype.");
-    dtypeSetBitOrLogicUnsized(width, widthMin, numeric, dtypep->isFourstate());
+    dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ_Or_Logic_Unsized(ਚੌੜਾਈ, ਚੌੜਾਈ_Min, numeric, dtypep->isFourstate());
 }
 
-AstNodeDType* AstNode::findBasicDType(VBasicDTypeKwd kwd) const {
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Basic_DType(VBasicDTypeKwd kwd) ਅਚਲ {
     // For 'simple' types we use the global directory.  These are all unsized.
     // More advanced types land under the module/task/etc
-    return v3Global.rootp()->typeTablep()->findBasicDType(fileline(), kwd);
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Basic_DType(fileline(), kwd);
 }
-AstNodeDType* AstNode::findBitDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
-                                                             width, widthMin, numeric);
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ ਚੌੜਾਈ_Min, VSigning numeric) ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Logic_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(fileline(), VBasicDTypeKwd::ਦੋਆਧਾਰੀ_ਅੰਕ,
+                                                             ਚੌੜਾਈ, ਚੌੜਾਈ_Min, numeric);
 }
-AstNodeDType* AstNode::findLogicDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
-                                                             width, widthMin, numeric);
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Logic_DType(ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ ਚੌੜਾਈ_Min, VSigning numeric) ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Logic_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(fileline(), VBasicDTypeKwd::LOGIC,
+                                                             ਚੌੜਾਈ, ਚੌੜਾਈ_Min, numeric);
 }
-AstNodeDType* AstNode::findLogic2StateDType(int width, int widthMin, VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(
-        fileline(), VBasicDTypeKwd::LOGIC2STATE, width, widthMin, numeric);
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Logic2_State_DType(ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ ਚੌੜਾਈ_Min, VSigning numeric) ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Logic_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(
+        fileline(), VBasicDTypeKwd::LOGIC2STATE, ਚੌੜਾਈ, ਚੌੜਾਈ_Min, numeric);
 }
-AstNodeDType* AstNode::findLogicRangeDType(const VNumRange& range, int widthMin,
-                                           VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::LOGIC,
-                                                             range, widthMin, numeric);
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Logic_Range_DType(ਅਚਲ VNumRange& range, ਪੂਰਨ ਚੌੜਾਈ_Min,
+                                           VSigning numeric) ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Logic_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(fileline(), VBasicDTypeKwd::LOGIC,
+                                                             range, ਚੌੜਾਈ_Min, numeric);
 }
-AstNodeDType* AstNode::findBitRangeDType(const VNumRange& range, int widthMin,
-                                         VSigning numeric) const {
-    return v3Global.rootp()->typeTablep()->findLogicBitDType(fileline(), VBasicDTypeKwd::BIT,
-                                                             range, widthMin, numeric);
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_Range_DType(ਅਚਲ VNumRange& range, ਪੂਰਨ ਚੌੜਾਈ_Min,
+                                         VSigning numeric) ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Logic_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(fileline(), VBasicDTypeKwd::ਦੋਆਧਾਰੀ_ਅੰਕ,
+                                                             range, ਚੌੜਾਈ_Min, numeric);
 }
-AstBasicDType* AstNode::findInsertSameDType(AstBasicDType* nodep) {
-    return v3Global.rootp()->typeTablep()->findInsertSameDType(nodep);
+AstBasicDType* Ast_ਗੰਢ::ਲੱਭੋ_ਪਾਓ_Same_DType(AstBasicDType* nodep) {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਪਾਓ_Same_DType(nodep);
 }
-AstNodeDType* AstNode::findConstraintRefDType() const {
-    return v3Global.rootp()->typeTablep()->findConstraintRefDType(fileline());
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Constraint_Ref_DType() ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Constraint_Ref_DType(fileline());
 }
-AstNodeDType* AstNode::findEmptyQueueDType() const {
-    return v3Global.rootp()->typeTablep()->findEmptyQueueDType(fileline());
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_ਖਾਲੀ_ਥਾਵਾਂ_ਕਤਾਰ_DType() ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਖਾਲੀ_ਥਾਵਾਂ_ਕਤਾਰ_DType(fileline());
 }
-AstNodeDType* AstNode::findQueueIndexDType() const {
-    return v3Global.rootp()->typeTablep()->findQueueIndexDType(fileline());
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_ਕਤਾਰ_ਸੂਚਕਾਂਕ_DType() ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਕਤਾਰ_ਸੂਚਕਾਂਕ_DType(fileline());
 }
-AstNodeDType* AstNode::findStreamDType() const {
-    return v3Global.rootp()->typeTablep()->findStreamDType(fileline());
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_ਧਾਰਾ_DType() ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਧਾਰਾ_DType(fileline());
 }
-AstNodeDType* AstNode::findVoidDType() const {
-    return v3Global.rootp()->typeTablep()->findVoidDType(fileline());
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::ਲੱਭੋ_Void_DType() ਅਚਲ {
+    ਵਾਪਸ v3Global.rootp()->typeTablep()->ਲੱਭੋ_Void_DType(fileline());
 }
 
-static const AstNodeDType* computeCastableBase(const AstNodeDType* nodep) {
-    while (true) {
-        if (const AstPackArrayDType* const packp = VN_CAST(nodep, PackArrayDType)) {
+ਸਥਿਰ ਅਚਲ Ast_ਗੰਢ_DType* compute_Castable_ਅਧਾਰ(ਅਚਲ Ast_ਗੰਢ_DType* nodep) {
+    ਜਦੋਂ (ਸੱਚ) {
+        ਜੇ (ਅਚਲ AstPackArrayDType* ਅਚਲ packp = VN_CAST(nodep, PackArrayDType)) {
             nodep = packp->subDTypep();
-            continue;
+            ਜਾਰੀ;
         }
-        if (const AstNodeDType* const refp = nodep->skipRefToEnump()) {
-            if (refp != nodep) {
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ refp = nodep->skip_Ref_ਮੰਜ਼ਿਲ_Enump()) {
+            ਜੇ (refp != nodep) {
                 nodep = refp;
-                continue;
+                ਜਾਰੀ;
             }
         }
-        return nodep;
+        ਵਾਪਸ nodep;
     }
 }
 
-static VCastable computeCastableImp(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                    const AstNode* fromConstp, const bool checkIfaceArgCompat) {
-    const VCastable castable = VCastable::UNSUPPORTED;
-    toDtp = toDtp->skipRefToEnump();
-    fromDtp = fromDtp->skipRefToEnump();
-    if (toDtp == fromDtp) return VCastable::SAMEISH;
-    if (toDtp->similarDType(fromDtp)) return VCastable::SAMEISH;
+ਸਥਿਰ VCastable computeCastableImp(ਅਚਲ Ast_ਗੰਢ_DType* ਮੰਜ਼ਿਲ_Dtp, ਅਚਲ Ast_ਗੰਢ_DType* fromDtp,
+                                    ਅਚਲ Ast_ਗੰਢ* fromConstp, ਅਚਲ ਤਾਰਕਿਕ checkIfaceArgCompat) {
+    ਅਚਲ VCastable castable = VCastable::UNSUPPORTED;
+    ਮੰਜ਼ਿਲ_Dtp = ਮੰਜ਼ਿਲ_Dtp->skip_Ref_ਮੰਜ਼ਿਲ_Enump();
+    fromDtp = fromDtp->skip_Ref_ਮੰਜ਼ਿਲ_Enump();
+    ਜੇ (ਮੰਜ਼ਿਲ_Dtp == fromDtp) ਵਾਪਸ VCastable::SAMEISH;
+    ਜੇ (ਮੰਜ਼ਿਲ_Dtp->similarDType(fromDtp)) ਵਾਪਸ VCastable::SAMEISH;
     // UNSUP unpacked struct/unions (treated like BasicDType)
-    const AstNodeDType* fromBaseDtp = computeCastableBase(fromDtp);
+    ਅਚਲ Ast_ਗੰਢ_DType* from_ਅਧਾਰ_Dtp = compute_Castable_ਅਧਾਰ(fromDtp);
 
-    const bool fromNumericable = VN_IS(fromBaseDtp, BasicDType) || VN_IS(fromBaseDtp, EnumDType)
-                                 || VN_IS(fromBaseDtp, StreamDType)
-                                 || VN_IS(fromBaseDtp, NodeUOrStructDType);
+    ਅਚਲ ਤਾਰਕਿਕ fromNumericable = VN_IS(from_ਅਧਾਰ_Dtp, BasicDType) || VN_IS(from_ਅਧਾਰ_Dtp, EnumDType)
+                                 || VN_IS(from_ਅਧਾਰ_Dtp, ਧਾਰਾ_DType)
+                                 || VN_IS(from_ਅਧਾਰ_Dtp, ਗੰਢ_UOr_Struct_DType);
 
-    const AstNodeDType* toBaseDtp = computeCastableBase(toDtp);
-    const bool toNumericable
-        = VN_IS(toBaseDtp, BasicDType) || VN_IS(toBaseDtp, NodeUOrStructDType);
+    ਅਚਲ Ast_ਗੰਢ_DType* ਮੰਜ਼ਿਲ_ਅਧਾਰ_Dtp = compute_Castable_ਅਧਾਰ(ਮੰਜ਼ਿਲ_Dtp);
+    ਅਚਲ ਤਾਰਕਿਕ ਮੰਜ਼ਿਲ_Numericable
+        = VN_IS(ਮੰਜ਼ਿਲ_ਅਧਾਰ_Dtp, BasicDType) || VN_IS(ਮੰਜ਼ਿਲ_ਅਧਾਰ_Dtp, ਗੰਢ_UOr_Struct_DType);
 
-    if (toBaseDtp == fromBaseDtp) return VCastable::COMPATIBLE;
+    ਜੇ (ਮੰਜ਼ਿਲ_ਅਧਾਰ_Dtp == from_ਅਧਾਰ_Dtp) ਵਾਪਸ VCastable::COMPATIBLE;
 
-    if (toNumericable) {
-        if (fromNumericable) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toBaseDtp, EnumDType)) {
-        if (VN_IS(fromBaseDtp, EnumDType) && toDtp->sameTree(fromDtp))
-            return VCastable::ENUM_IMPLICIT;
-        if (fromNumericable) return VCastable::ENUM_EXPLICIT;
-    } else if (VN_IS(toDtp, QueueDType)
-               && (VN_IS(fromDtp, BasicDType) || VN_IS(fromDtp, StreamDType))) {
-        return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
-        if (fromConstp->isNull()) return VCastable::COMPATIBLE;
-    } else if (VN_IS(toDtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
-        const AstClass* const toClassp = VN_AS(toDtp, ClassRefDType)->classp();
-        const AstClass* const fromClassp = VN_AS(fromDtp, ClassRefDType)->classp();
-        const bool downcast = AstClass::isClassExtendedFrom(toClassp, fromClassp);
-        const bool upcast = AstClass::isClassExtendedFrom(fromClassp, toClassp);
-        if (upcast) return VCastable::COMPATIBLE;
-        if (downcast) return VCastable::DYNAMIC_CLASS;
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstIfaceRefDType* const toIfp
-               = VN_CAST(checkIfaceArgCompat ? toDtp->elemDTypep(true) : toDtp, IfaceRefDType)) {
+    ਜੇ (ਮੰਜ਼ਿਲ_Numericable) {
+        ਜੇ (fromNumericable) ਵਾਪਸ VCastable::COMPATIBLE;
+    } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਮੰਜ਼ਿਲ_ਅਧਾਰ_Dtp, EnumDType)) {
+        ਜੇ (VN_IS(from_ਅਧਾਰ_Dtp, EnumDType) && ਮੰਜ਼ਿਲ_Dtp->same_ਰੁੱਖ(fromDtp))
+            ਵਾਪਸ VCastable::ENUM_IMPLICIT;
+        ਜੇ (fromNumericable) ਵਾਪਸ VCastable::ENUM_EXPLICIT;
+    } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਮੰਜ਼ਿਲ_Dtp, ਕਤਾਰ_DType)
+               && (VN_IS(fromDtp, BasicDType) || VN_IS(fromDtp, ਧਾਰਾ_DType))) {
+        ਵਾਪਸ VCastable::COMPATIBLE;
+    } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਮੰਜ਼ਿਲ_Dtp, ClassRefDType) && VN_IS(fromConstp, Const)) {
+        ਜੇ (fromConstp->isNull()) ਵਾਪਸ VCastable::COMPATIBLE;
+    } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਮੰਜ਼ਿਲ_Dtp, ClassRefDType) && VN_IS(fromDtp, ClassRefDType)) {
+        ਅਚਲ AstClass* ਅਚਲ ਮੰਜ਼ਿਲ_Classp = VN_AS(ਮੰਜ਼ਿਲ_Dtp, ClassRefDType)->classp();
+        ਅਚਲ AstClass* ਅਚਲ fromClassp = VN_AS(fromDtp, ClassRefDType)->classp();
+        ਅਚਲ ਤਾਰਕਿਕ downcast = AstClass::isClassExtendedFrom(ਮੰਜ਼ਿਲ_Classp, fromClassp);
+        ਅਚਲ ਤਾਰਕਿਕ upcast = AstClass::isClassExtendedFrom(fromClassp, ਮੰਜ਼ਿਲ_Classp);
+        ਜੇ (upcast) ਵਾਪਸ VCastable::COMPATIBLE;
+        ਜੇ (downcast) ਵਾਪਸ VCastable::DYNAMIC_CLASS;
+        ਵਾਪਸ VCastable::INCOMPATIBLE;
+    } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstIfaceRefDType* ਅਚਲ ਮੰਜ਼ਿਲ_Ifp
+               = VN_CAST(checkIfaceArgCompat ? ਮੰਜ਼ਿਲ_Dtp->elemDTypep(ਸੱਚ) : ਮੰਜ਼ਿਲ_Dtp, IfaceRefDType)) {
         // Two interface refs are compatible if they point at the same interface
         // module (and modport, if any). Pointer-equality on the dtype isn't
         // enough since every cell binding clones the dtype.
         // Argument compatibility also requires matching virtualness for ref arguments, while
         // input arguments may bind an unqualified or same-modport source to a virtual target.
         // Argument compatibility also supports fixed-size arrays of interface references.
-        const AstIfaceRefDType* const fromIfp
-            = VN_CAST(checkIfaceArgCompat ? fromDtp->elemDTypep(true) : fromDtp, IfaceRefDType);
-        if (checkIfaceArgCompat && fromIfp && (toDtp != toIfp || fromDtp != fromIfp)) {
-            const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType);
-            const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
+        ਅਚਲ AstIfaceRefDType* ਅਚਲ fromIfp
+            = VN_CAST(checkIfaceArgCompat ? fromDtp->elemDTypep(ਸੱਚ) : fromDtp, IfaceRefDType);
+        ਜੇ (checkIfaceArgCompat && fromIfp && (ਮੰਜ਼ਿਲ_Dtp != ਮੰਜ਼ਿਲ_Ifp || fromDtp != fromIfp)) {
+            ਅਚਲ AstUnpackArrayDType* ਅਚਲ ਮੰਜ਼ਿਲ_Arrayp = VN_CAST(ਮੰਜ਼ਿਲ_Dtp, UnpackArrayDType);
+            ਅਚਲ AstUnpackArrayDType* ਅਚਲ fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
             // IEEE 1800-2023 6.22.2: Equal-sized fixed arrays have equivalent types.
-            if (!toArrayp || !fromArrayp
-                || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-                return VCastable::INCOMPATIBLE;
+            ਜੇ (!ਮੰਜ਼ਿਲ_Arrayp || !fromArrayp
+                || ਮੰਜ਼ਿਲ_Arrayp->elementsConst() != fromArrayp->elementsConst()) {
+                ਵਾਪਸ VCastable::INCOMPATIBLE;
             }
-            return computeCastableImp(toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr,
+            ਵਾਪਸ computeCastableImp(ਮੰਜ਼ਿਲ_Arrayp->subDTypep(), fromArrayp->subDTypep(), ਖਾਲੀ_ਸੂਚਕ,
                                       checkIfaceArgCompat);
         }
-        if (!fromIfp || toIfp->ifaceViaCellp() != fromIfp->ifaceViaCellp()) {
-            if (!checkIfaceArgCompat) return castable;
-            return VCastable::INCOMPATIBLE;
+        ਜੇ (!fromIfp || ਮੰਜ਼ਿਲ_Ifp->iface_ਰਾਹੀਂ_Cellp() != fromIfp->iface_ਰਾਹੀਂ_Cellp()) {
+            ਜੇ (!checkIfaceArgCompat) ਵਾਪਸ castable;
+            ਵਾਪਸ VCastable::INCOMPATIBLE;
         }
-        const bool sameModport = toIfp->modportp() == fromIfp->modportp();
-        if (!checkIfaceArgCompat) {
-            if (!toIfp->modportp() || sameModport) return VCastable::COMPATIBLE;
-            return castable;
+        ਅਚਲ ਤਾਰਕਿਕ sameModport = ਮੰਜ਼ਿਲ_Ifp->modportp() == fromIfp->modportp();
+        ਜੇ (!checkIfaceArgCompat) {
+            ਜੇ (!ਮੰਜ਼ਿਲ_Ifp->modportp() || sameModport) ਵਾਪਸ VCastable::COMPATIBLE;
+            ਵਾਪਸ castable;
         }
-        if (toIfp->isVirtual() == fromIfp->isVirtual() && sameModport) {
-            return VCastable::SAMEISH;
+        ਜੇ (ਮੰਜ਼ਿਲ_Ifp->isVirtual() == fromIfp->isVirtual() && sameModport) {
+            ਵਾਪਸ VCastable::SAMEISH;
         }
         // An unqualified interface or virtual interface may bind to a modport-qualified
         // virtual interface.
-        if (toIfp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
-            return VCastable::COMPATIBLE;
+        ਜੇ (ਮੰਜ਼ਿਲ_Ifp->isVirtual() && (!fromIfp->modportp() || sameModport)) {
+            ਵਾਪਸ VCastable::COMPATIBLE;
         }
-        return VCastable::INCOMPATIBLE;
-    } else if (const AstUnpackArrayDType* const toArrayp = VN_CAST(toDtp, UnpackArrayDType)) {
+        ਵਾਪਸ VCastable::INCOMPATIBLE;
+    } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstUnpackArrayDType* ਅਚਲ ਮੰਜ਼ਿਲ_Arrayp = VN_CAST(ਮੰਜ਼ਿਲ_Dtp, UnpackArrayDType)) {
         // Equivalent if the same size with equivalent elements, the bounds may differ
         // (IEEE 1800-2023 6.22.2)
-        const AstUnpackArrayDType* const fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
-        if (!fromArrayp || toArrayp->elementsConst() != fromArrayp->elementsConst()) {
-            return castable;
+        ਅਚਲ AstUnpackArrayDType* ਅਚਲ fromArrayp = VN_CAST(fromDtp, UnpackArrayDType);
+        ਜੇ (!fromArrayp || ਮੰਜ਼ਿਲ_Arrayp->elementsConst() != fromArrayp->elementsConst()) {
+            ਵਾਪਸ castable;
         }
-        const VCastable subCastable = computeCastableImp(
-            toArrayp->subDTypep(), fromArrayp->subDTypep(), nullptr, checkIfaceArgCompat);
+        ਅਚਲ VCastable subCastable = computeCastableImp(
+            ਮੰਜ਼ਿਲ_Arrayp->subDTypep(), fromArrayp->subDTypep(), ਖਾਲੀ_ਸੂਚਕ, checkIfaceArgCompat);
         // Elements must match, but a nested dimension is COMPATIBLE if equivalent, and a virtual
         // interface element can refer to an interface instance
-        const AstNodeDType* const toSubp = toArrayp->subDTypep()->skipRefp();
-        if (subCastable == VCastable::SAMEISH
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ ਮੰਜ਼ਿਲ_Subp = ਮੰਜ਼ਿਲ_Arrayp->subDTypep()->skipRefp();
+        ਜੇ (subCastable == VCastable::SAMEISH
             || (subCastable == VCastable::COMPATIBLE
-                && (VN_IS(toSubp, UnpackArrayDType) || VN_IS(toSubp, IfaceRefDType)))) {
-            return VCastable::COMPATIBLE;
+                && (VN_IS(ਮੰਜ਼ਿਲ_Subp, UnpackArrayDType) || VN_IS(ਮੰਜ਼ਿਲ_Subp, IfaceRefDType)))) {
+            ਵਾਪਸ VCastable::COMPATIBLE;
         }
     }
-    return castable;
+    ਵਾਪਸ castable;
 }
 
-VCastable AstNode::computeCastable(const AstNodeDType* toDtp, const AstNodeDType* fromDtp,
-                                   const AstNode* fromConstp, const bool checkIfaceArgCompat) {
-    const auto castable = computeCastableImp(toDtp, fromDtp, fromConstp, checkIfaceArgCompat);
-    UINFO(9, "  castable=" << castable << "  for " << toDtp);
+VCastable Ast_ਗੰਢ::computeCastable(ਅਚਲ Ast_ਗੰਢ_DType* ਮੰਜ਼ਿਲ_Dtp, ਅਚਲ Ast_ਗੰਢ_DType* fromDtp,
+                                   ਅਚਲ Ast_ਗੰਢ* fromConstp, ਅਚਲ ਤਾਰਕਿਕ checkIfaceArgCompat) {
+    ਅਚਲ ਸਵੈਚਾਲਿਤ castable = computeCastableImp(ਮੰਜ਼ਿਲ_Dtp, fromDtp, fromConstp, checkIfaceArgCompat);
+    UINFO(9, "  castable=" << castable << "  for " << ਮੰਜ਼ਿਲ_Dtp);
     UINFO(9, "     =?= " << fromDtp);
-    if (fromConstp) UINFO(9, "     const= " << fromConstp);
-    return castable;
+    ਜੇ (fromConstp) UINFO(9, "     const= " << fromConstp);
+    ਵਾਪਸ castable;
 }
 
-AstNodeDType* AstNode::getCommonClassTypep(AstNode* node1p, AstNode* node2p) {
+Ast_ਗੰਢ_DType* Ast_ਗੰਢ::getCommonClassTypep(Ast_ਗੰਢ* node1p, Ast_ਗੰਢ* node2p) {
     // Return the class type that both node1p and node2p are castable to.
     // If both are null, return the type of null constant.
     // If one is a class and one is null, return AstClassRefDType that points to that class.
     // If no common class type exists, return nullptr.
 
     // First handle cases with null values and when one class is a super class of the other.
-    if (VN_IS(node1p, Const)) std::swap(node1p, node2p);
+    ਜੇ (VN_IS(node1p, Const)) std::ਅਦਲਾ_ਬਦਲੀ(node1p, node2p);
     {
-        const VCastable castable = computeCastable(node1p->dtypep(), node2p->dtypep(), node2p);
-        if (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
-            return node1p->dtypep();
-        if (castable == VCastable::DYNAMIC_CLASS) return node2p->dtypep();
+        ਅਚਲ VCastable castable = computeCastable(node1p->dtypep(), node2p->dtypep(), node2p);
+        ਜੇ (castable == VCastable::SAMEISH || castable == VCastable::COMPATIBLE)
+            ਵਾਪਸ node1p->dtypep();
+        ਜੇ (castable == VCastable::DYNAMIC_CLASS) ਵਾਪਸ node2p->dtypep();
     }
 
     AstClassRefDType* classDtypep1 = VN_CAST(node1p->dtypep()->skipRefp(), ClassRefDType);
-    while (classDtypep1) {
-        const VCastable castable = computeCastable(classDtypep1, node2p->dtypep(), node2p);
-        if (castable == VCastable::COMPATIBLE) return classDtypep1;
-        AstClassExtends* const extendsp = classDtypep1->classp()->extendsp();
-        if (!extendsp) break;
-        AstNodeDType* const edtp
-            = extendsp->dtypep() ? extendsp->dtypep() : extendsp->childDTypep();
+    ਜਦੋਂ (classDtypep1) {
+        ਅਚਲ VCastable castable = computeCastable(classDtypep1, node2p->dtypep(), node2p);
+        ਜੇ (castable == VCastable::COMPATIBLE) ਵਾਪਸ classDtypep1;
+        AstClassExtends* ਅਚਲ extendsp = classDtypep1->classp()->extendsp();
+        ਜੇ (!extendsp) ਰੋਕੋ;
+        Ast_ਗੰਢ_DType* ਅਚਲ edtp
+            = extendsp->dtypep() ? extendsp->dtypep() : extendsp->ਬੱਚਾ_DTypep();
         classDtypep1 = VN_AS(edtp->skipRefp(), ClassRefDType);
     }
-    return nullptr;
+    ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 }
 
 //######################################################################
 // Renders the canonical pattern S-expression for a single AstNode
 
-class VNPatternString final {
+ਵਰਗ VNPatternString final {
     std::ostream& m_os;
 
     std::map<std::string, std::string> m_internedConsts;  // Interned constants
-    std::map<int, std::string> m_internedWordWidths;  // Interned widths
-    std::map<int, std::string> m_internedWideWidths;  // Interned widths
+    std::map<ਪੂਰਨ, std::string> m_interned_ਸ਼ਬਦ_Widths;  // Interned widths
+    std::map<ਪੂਰਨ, std::string> m_internedWideWidths;  // Interned widths
 
     // Whether to dump the widhtMin as well
-    const bool m_dumpWidthMin = v3Global.widthMinUsage() != VWidthMinUsage::MATCHES_WIDTH;
+    ਅਚਲ ਤਾਰਕਿਕ m_dump_ਚੌੜਾਈ_Min = v3Global.ਚੌੜਾਈ_Min_Usage() != VWidthMinUsage::MATCHES_ਚੌੜਾਈ;
 
-    static std::string toLetters(size_t value, bool lowerCase = false) {
-        const char base = lowerCase ? 'a' : 'A';
+    ਸਥਿਰ std::string ਮੰਜ਼ਿਲ_Letters(ਮਾਪ_t ਮੁੱਲ, ਤਾਰਕਿਕ ਹੇਠਲਾ_Case = ਝੂਠ) {
+        ਅਚਲ ਅੱਖਰ ਅਧਾਰ = ਹੇਠਲਾ_Case ? 'a' : 'A';
         std::string s;
-        do { s += static_cast<char>(base + value % 26); } while (value /= 26);
-        return s;
+        ਕਰੋ { s += static_cast<ਅੱਖਰ>(ਅਧਾਰ + ਮੁੱਲ % 26); } ਜਦੋਂ (ਮੁੱਲ /= 26);
+        ਵਾਪਸ s;
     }
 
-    const std::string& internConst(const AstConst& nodep) {
-        const auto pair = m_internedConsts.emplace(nodep.num().ascii(false), "");
-        if (pair.second) pair.first->second += toLetters(m_internedConsts.size() - 1);
-        return pair.first->second;
+    ਅਚਲ std::string& internConst(ਅਚਲ AstConst& nodep) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_internedConsts.emplace(nodep.ਅੰਕ().ascii(ਝੂਠ), "");
+        ਜੇ (pair.ਦੂਜਾ) pair.ਪਹਿਲਾ->ਦੂਜਾ += ਮੰਜ਼ਿਲ_Letters(m_internedConsts.ਮਾਪ() - 1);
+        ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
     }
 
-    const std::string& internWordWidth(int value) {
-        const auto pair = m_internedWordWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWordWidths.size() - 1, true);
-        return pair.first->second;
+    ਅਚਲ std::string& intern_ਸ਼ਬਦ_ਚੌੜਾਈ(ਪੂਰਨ ਮੁੱਲ) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_interned_ਸ਼ਬਦ_Widths.emplace(ਮੁੱਲ, "");
+        ਜੇ (pair.ਦੂਜਾ) pair.ਪਹਿਲਾ->ਦੂਜਾ += ਮੰਜ਼ਿਲ_Letters(m_interned_ਸ਼ਬਦ_Widths.ਮਾਪ() - 1, ਸੱਚ);
+        ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
     }
 
-    const std::string& internWideWidth(int value) {
-        const auto pair = m_internedWideWidths.emplace(value, "");
-        if (pair.second) pair.first->second += toLetters(m_internedWideWidths.size() - 1);
-        return pair.first->second;
+    ਅਚਲ std::string& intern_Wide_ਚੌੜਾਈ(ਪੂਰਨ ਮੁੱਲ) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_internedWideWidths.emplace(ਮੁੱਲ, "");
+        ਜੇ (pair.ਦੂਜਾ) pair.ਪਹਿਲਾ->ਦੂਜਾ += ਮੰਜ਼ਿਲ_Letters(m_internedWideWidths.ਮਾਪ() - 1);
+        ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
     }
 
     // True if the node has no operands (e.g. a VarRef or Const)
-    static bool isLeaf(const AstNode* nodep) {
-        const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
-        for (const VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
-            if (opType != VNTypeInfo::OP_UNUSED) return false;
+    ਸਥਿਰ ਤਾਰਕਿਕ is_ਪੱਤੀ(ਅਚਲ Ast_ਗੰਢ* nodep) {
+        ਅਚਲ VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
+        ਲਈ (ਅਚਲ VNTypeInfo::OpEn& opType : typeInfo.m_opType) {
+            ਜੇ (opType != VNTypeInfo::OP_ਅਣਵਰਤਿਆ) ਵਾਪਸ ਝੂਠ;
         }
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
     // Render operand, return true if not unused
-    void renderOperand(VNTypeInfo::OpEn opType, const AstNode* const opp, uint32_t depth) {
-        switch (opType) {
-        case VNTypeInfo::OP_UNUSED:  //
-            break;
-        case VNTypeInfo::OP_USED:  //
+    ਖਾਲੀ render_ਸੰਕਾਰਜ(VNTypeInfo::OpEn opType, ਅਚਲ Ast_ਗੰਢ* ਅਚਲ opp, uint32_t ਡੂੰਘਾਈ) {
+        ਚੋਣ (opType) {
+        ਹਾਲਤ VNTypeInfo::OP_ਅਣਵਰਤਿਆ:  //
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_ਵਰਤਿਆ:  //
             m_os << ' ';
-            render(opp, depth);
-            break;
-        case VNTypeInfo::OP_LIST:
+            render(opp, ਡੂੰਘਾਈ);
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_LIST:
             m_os << " [";
-            for (const AstNode* nodep = opp; nodep; nodep = nodep->nextp()) {
-                if (nodep != opp) m_os << ", ";
-                render(opp, depth);
+            ਲਈ (ਅਚਲ Ast_ਗੰਢ* nodep = opp; nodep; nodep = nodep->nextp()) {
+                ਜੇ (nodep != opp) m_os << ", ";
+                render(opp, ਡੂੰਘਾਈ);
             }
             m_os << ']';
-            break;
-        case VNTypeInfo::OP_OPTIONAL:
-            if (opp) {
+            ਰੋਕੋ;
+        ਹਾਲਤ VNTypeInfo::OP_OPTIONAL:
+            ਜੇ (opp) {
                 m_os << " ";
-                render(opp, depth);
-            } else {
+                render(opp, ਡੂੰਘਾਈ);
+            } ਨਹੀਂਤਾਂ {
                 m_os << " nil";
             }
-            break;
+            ਰੋਕੋ;
         }
     }
 
     // Render the node into the stream.
-    void render(const AstNode* nodep, uint32_t depth) {
-        if (const AstConst* const constp = VN_CAST(nodep, Const)) {
+    ਖਾਲੀ render(ਅਚਲ Ast_ਗੰਢ* nodep, uint32_t ਡੂੰਘਾਈ) {
+        ਜੇ (ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(nodep, Const)) {
             // Base case 1: constant
-            if (constp->isZero()) {
+            ਜੇ (constp->isZero()) {
                 m_os << "(CONST ZERO)";
-            } else if (constp->isEqAllOnes()) {
+            } ਨਹੀਂਤਾਂ ਜੇ (constp->isEqAllOnes()) {
                 m_os << "(CONST ONES)";
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 m_os << "(CONST #" << internConst(*constp) << ')';
             }
-        } else if (isLeaf(nodep)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (is_ਪੱਤੀ(nodep)) {
             // Base case 2: expression with no operands (e.g. a variable reference)
             m_os << '(' << nodep->typeName() << ')';
-        } else if (depth == 0) {
+        } ਨਹੀਂਤਾਂ ਜੇ (ਡੂੰਘਾਈ == 0) {
             // Base case 3: deep expression
             m_os << '_';
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // Recursively print an S-expression for the expression
             m_os << '(';
             // Name
             m_os << nodep->typeName();
             // Operands
-            const VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
-            renderOperand(typeInfo.m_opType[0], nodep->op1p(), depth - 1);
-            renderOperand(typeInfo.m_opType[1], nodep->op2p(), depth - 1);
-            renderOperand(typeInfo.m_opType[2], nodep->op3p(), depth - 1);
-            renderOperand(typeInfo.m_opType[3], nodep->op4p(), depth - 1);
+            ਅਚਲ VNTypeInfo& typeInfo = VNType::typeInfo(nodep->type());
+            render_ਸੰਕਾਰਜ(typeInfo.m_opType[0], nodep->op1p(), ਡੂੰਘਾਈ - 1);
+            render_ਸੰਕਾਰਜ(typeInfo.m_opType[1], nodep->op2p(), ਡੂੰਘਾਈ - 1);
+            render_ਸੰਕਾਰਜ(typeInfo.m_opType[2], nodep->op3p(), ਡੂੰਘਾਈ - 1);
+            render_ਸੰਕਾਰਜ(typeInfo.m_opType[3], nodep->op4p(), ਡੂੰਘਾਈ - 1);
             // S-expression end
             m_os << ')';
         }
 
         // Annotate type
         m_os << ':';
-        const AstNodeDType* const dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : nullptr;
-        if (!dtypep) {
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = nodep->dtypep() ? nodep->dtypep()->skipRefp() : ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (!dtypep) {
             m_os << '?';
-        } else if (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (dtypep->isCompound() || VN_IS(dtypep, UnpackArrayDType)) {
             dtypep->dumpSmall(m_os);
-        } else {
-            const int width = nodep->width();
-            if (width == 1) {
+        } ਨਹੀਂਤਾਂ {
+            ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = nodep->ਚੌੜਾਈ();
+            ਜੇ (ਚੌੜਾਈ == 1) {
                 m_os << '1';
-            } else if (width <= VL_QUADSIZE) {
-                m_os << internWordWidth(width);
-            } else {
-                m_os << internWideWidth(width);
+            } ਨਹੀਂਤਾਂ ਜੇ (ਚੌੜਾਈ <= VL_QUADSIZE) {
+                m_os << intern_ਸ਼ਬਦ_ਚੌੜਾਈ(ਚੌੜਾਈ);
+            } ਨਹੀਂਤਾਂ {
+                m_os << intern_Wide_ਚੌੜਾਈ(ਚੌੜਾਈ);
             }
-            if (m_dumpWidthMin) {
+            ਜੇ (m_dump_ਚੌੜਾਈ_Min) {
                 m_os << '/';
-                const int widthMin = nodep->widthMin();
-                if (widthMin == 1) {
+                ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ_Min = nodep->ਚੌੜਾਈ_Min();
+                ਜੇ (ਚੌੜਾਈ_Min == 1) {
                     m_os << '1';
-                } else if (widthMin <= VL_QUADSIZE) {
-                    m_os << internWordWidth(widthMin);
-                } else {
-                    m_os << internWideWidth(widthMin);
+                } ਨਹੀਂਤਾਂ ਜੇ (ਚੌੜਾਈ_Min <= VL_QUADSIZE) {
+                    m_os << intern_ਸ਼ਬਦ_ਚੌੜਾਈ(ਚੌੜਾਈ_Min);
+                } ਨਹੀਂਤਾਂ {
+                    m_os << intern_Wide_ਚੌੜਾਈ(ਚੌੜਾਈ_Min);
                 }
             }
         }
     }
 
-public:
-    VNPatternString(std::ostream& os, const AstNode* nodep, uint32_t depth)
+ਜਨਤਕ:
+    VNPatternString(std::ostream& os, ਅਚਲ Ast_ਗੰਢ* nodep, uint32_t ਡੂੰਘਾਈ)
         : m_os{os} {
-        render(nodep, depth);
+        render(nodep, ਡੂੰਘਾਈ);
     }
 };
 
-std::string AstNodeExpr::patternString(uint32_t depth) const {
+std::string Ast_ਗੰਢ_ਵਿਅੰਜਕ::ਨਮੂਨਾ_String(uint32_t ਡੂੰਘਾਈ) ਅਚਲ {
     std::ostringstream oss;
-    VNPatternString{oss, this, depth};
-    return oss.str();
+    VNPatternString{oss, ਇਹ, ਡੂੰਘਾਈ};
+    ਵਾਪਸ oss.str();
 }
 
 //######################################################################
 // VNDeleter
 
-void VNDeleter::doDeletes() {
-    for (AstNode* const nodep : m_deleteps) nodep->deleteTree();
+ਖਾਲੀ VNDeleter::doDeletes() {
+    ਲਈ (Ast_ਗੰਢ* ਅਚਲ nodep : m_deleteps) nodep->delete_ਰੁੱਖ();
     m_deleteps.clear();
 }
 
 //######################################################################
 // VNVisitor
 
-#include "V3Ast__gen_visitor_defns.h"  // From ./astgen
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast__gen_visitor_defns.h"  // From ./astgen

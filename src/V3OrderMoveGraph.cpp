@@ -18,47 +18,47 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderMoveGraph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderMoveGraph.h"
 
-#include "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //======================================================================
 // OrderMoveDomScope implementation
 
-OrderMoveDomScope::DomScopeMap OrderMoveDomScope::s_dsMap;
+ਕ੍ਰਮ_Move_Dom_Scope::DomScopeMap ਕ੍ਰਮ_Move_Dom_Scope::s_dsMap;
 
 //======================================================================
 // OrderMoveVertex implementation
 
-OrderMoveVertex::OrderMoveVertex(OrderMoveGraph& graph, OrderLogicVertex* lVtxp,
-                                 const OrderDomain* domainp) VL_MT_DISABLED
-    : V3GraphVertex{&graph},
+ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼::ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ, ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* lVtxp,
+                                 ਅਚਲ ਕ੍ਰਮ_Domain* domainp) VL_MT_DISABLED
+    : V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{&ਗ੍ਰਾਫ},
       m_logicp{lVtxp},
-      m_domScope{OrderMoveDomScope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : nullptr)} {
+      m_domScope{ਕ੍ਰਮ_Move_Dom_Scope::getOrCreate(domainp, lVtxp ? lVtxp->scopep() : ਖਾਲੀ_ਸੂਚਕ)} {
     UASSERT_OBJ(!lVtxp || lVtxp->domainp() == domainp, lVtxp, "Wrong domain for Move vertex");
 }
 
 //======================================================================
 // OrderMoveGraphBuilder - for OrderMoveGraph::build
 
-class OrderMoveGraphBuilder final {
+ਵਰਗ ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder final {
     // TYPES
-    using DomainMap = std::map<const OrderDomain*, OrderMoveVertex*>;
+    ਵਰਤੋਂ DomainMap = std::map<ਅਚਲ ਕ੍ਰਮ_Domain*, ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼*>;
 
     // MEMBERS
-    OrderGraph& m_orderGraph;  // Input OrderGraph
+    ਕ੍ਰਮ_ਗ੍ਰਾਫ& m_ਕ੍ਰਮ_ਗ੍ਰਾਫ;  // Input OrderGraph
     // Output OrderMoveGraph
-    std::unique_ptr<OrderMoveGraph> m_moveGraphp{new OrderMoveGraph{m_orderGraph}};
+    std::unique_ptr<ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ> m_moveGraphp{ਨਵਾਂ ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ{m_ਕ੍ਰਮ_ਗ੍ਰਾਫ}};
     // Storage for domain -> OrderMoveVertex, maps held in OrderVarVertex::userp()
     std::deque<DomainMap> m_domainMaps;
 
     // CONSTRUCTORS
-    explicit OrderMoveGraphBuilder(OrderGraph& orderGraph)
-        : m_orderGraph{orderGraph} {
+    ਸਪਸ਼ਟ ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਕ੍ਰਮ_ਗ੍ਰਾਫ_2)
+        : m_ਕ੍ਰਮ_ਗ੍ਰਾਫ{ਕ੍ਰਮ_ਗ੍ਰਾਫ_2} {
         // How this works:
         //  - Create a OrderMoveVertex for each OrderLogicVertex.
         //  - Following each OrderLogicVertex, search forward in the context of its domain
@@ -71,31 +71,31 @@ class OrderMoveGraphBuilder final {
 
         // For each logic vertex, make a OrderMoveVertex, for each variable vertex, allocate
         // storage
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                lvtxp->userp(new OrderMoveVertex{*m_moveGraphp, lvtxp, lvtxp->domainp()});
-            } else {
+        ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& vtx : m_ਕ੍ਰਮ_ਗ੍ਰਾਫ.vertices()) {
+            ਜੇ (ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ lvtxp = vtx.cast<ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼>()) {
+                lvtxp->userp(ਨਵਾਂ ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼{*m_moveGraphp, lvtxp, lvtxp->domainp()});
+            } ਨਹੀਂਤਾਂ {
                 // This is an OrderVarVertex
-                m_domainMaps.emplace_back();
-                vtx.userp(&m_domainMaps.back());
+                m_domainMaps.emplace_ਪਿੱਠ();
+                vtx.userp(&m_domainMaps.ਪਿੱਠ());
             }
         }
         // Build edges between logic vertices
-        for (V3GraphVertex& vtx : m_orderGraph.vertices()) {
-            if (OrderLogicVertex* const lvtxp = vtx.cast<OrderLogicVertex>()) {
-                iterateLogicVertex(lvtxp);
+        ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& vtx : m_ਕ੍ਰਮ_ਗ੍ਰਾਫ.vertices()) {
+            ਜੇ (ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ lvtxp = vtx.cast<ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼>()) {
+                iterate_Logic_ਸ਼ੀਰਸ਼(lvtxp);
             }
         }
-        m_moveGraphp->removeRedundantEdgesSum(&V3GraphEdge::followAlwaysTrue);
+        m_moveGraphp->remove_Redundant_ਕਿਨਾਰੇ_ਜੋੜ(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
         m_moveGraphp->userClearVertices();
     }
-    virtual ~OrderMoveGraphBuilder() = default;
-    VL_UNCOPYABLE(OrderMoveGraphBuilder);
-    VL_UNMOVABLE(OrderMoveGraphBuilder);
+    ਆਭਾਸੀ ~ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder() = ਮੂਲ;
+    VL_UNCOPYABLE(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder);
+    VL_UNMOVABLE(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder);
 
     // METHODS
 
-    bool domainsExclusive(const OrderDomain* fromp, const OrderDomain* top) {
+    ਤਾਰਕਿਕ domainsExclusive(ਅਚਲ ਕ੍ਰਮ_Domain* fromp, ਅਚਲ ਕ੍ਰਮ_Domain* ਸਿਖਰ) {
         // Return 'true' if we can prove that both 'from' and 'to' cannot both
         // be active on the same evaluation, or false if we can't prove this.
         //
@@ -109,90 +109,90 @@ class OrderMoveGraphBuilder final {
         //
         // ... unless you know more about A and B, which sounds hard.
 
-        const std::set<uint32_t>& fromTriggers = fromp->triggers();
-        const std::set<uint32_t>& toTriggers = top->triggers();
-        if (fromTriggers.size() != 1) return false;
-        if (toTriggers.size() != 1) return false;
-        const AstSenItem* const fromSenItemp = m_orderGraph.trigSenItemp(*fromTriggers.begin());
-        if (!fromSenItemp) return false;
-        const AstSenItem* const toSenItemp = m_orderGraph.trigSenItemp(*toTriggers.begin());
-        if (!toSenItemp) return false;
+        ਅਚਲ std::ਸੈੱਟ<uint32_t>& fromTriggers = fromp->triggers();
+        ਅਚਲ std::ਸੈੱਟ<uint32_t>& ਮੰਜ਼ਿਲ_Triggers = ਸਿਖਰ->triggers();
+        ਜੇ (fromTriggers.ਮਾਪ() != 1) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (ਮੰਜ਼ਿਲ_Triggers.ਮਾਪ() != 1) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ Ast_Sen_ਵਸਤੂ* ਅਚਲ fromSenItemp = m_ਕ੍ਰਮ_ਗ੍ਰਾਫ.trigSenItemp(*fromTriggers.begin());
+        ਜੇ (!fromSenItemp) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ Ast_Sen_ਵਸਤੂ* ਅਚਲ ਮੰਜ਼ਿਲ_Sen_Itemp = m_ਕ੍ਰਮ_ਗ੍ਰਾਫ.trigSenItemp(*ਮੰਜ਼ਿਲ_Triggers.begin());
+        ਜੇ (!ਮੰਜ਼ਿਲ_Sen_Itemp) ਵਾਪਸ ਝੂਠ;
 
-        const AstNodeVarRef* const fromVarrefp = fromSenItemp->varrefp();
-        if (!fromVarrefp) return false;
-        const AstNodeVarRef* const toVarrefp = toSenItemp->varrefp();
-        if (!toVarrefp) return false;
+        ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ fromVarrefp = fromSenItemp->varrefp();
+        ਜੇ (!fromVarrefp) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ ਮੰਜ਼ਿਲ_Varrefp = ਮੰਜ਼ਿਲ_Sen_Itemp->varrefp();
+        ਜੇ (!ਮੰਜ਼ਿਲ_Varrefp) ਵਾਪਸ ਝੂਠ;
 
         // We know nothing about the relationship between different clocks here,
         // so only proceed if strictly the same clock.
-        if (fromVarrefp->varScopep() != toVarrefp->varScopep()) return false;
+        ਜੇ (fromVarrefp->varScopep() != ਮੰਜ਼ਿਲ_Varrefp->varScopep()) ਵਾਪਸ ਝੂਠ;
 
-        return fromSenItemp->edgeType().exclusiveEdge(toSenItemp->edgeType());
+        ਵਾਪਸ fromSenItemp->ਕਿਨਾਰਾ_Type().exclusive_ਕਿਨਾਰਾ(ਮੰਜ਼ਿਲ_Sen_Itemp->ਕਿਨਾਰਾ_Type());
     }
 
-    void addEdge(OrderMoveVertex* srcp, OrderMoveVertex* dstp) {
-        new V3GraphEdge{m_moveGraphp.get(), srcp, dstp, 1};
+    ਖਾਲੀ ਜੋੜੋ_ਕਿਨਾਰਾ(ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* srcp, ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* dstp) {
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{m_moveGraphp.get(), srcp, dstp, 1};
     }
 
-    void iterateLogicVertex(const OrderLogicVertex* lvtxp) {
-        const OrderDomain* const domainp = lvtxp->domainp();
-        OrderMoveVertex* const lMoveVtxp = static_cast<OrderMoveVertex*>(lvtxp->userp());
+    ਖਾਲੀ iterate_Logic_ਸ਼ੀਰਸ਼(ਅਚਲ ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* lvtxp) {
+        ਅਚਲ ਕ੍ਰਮ_Domain* ਅਚਲ domainp = lvtxp->domainp();
+        ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* ਅਚਲ lMoveVtxp = static_cast<ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼*>(lvtxp->userp());
         // Search forward from lvtxp, making new edges from lMoveVtxp forward
-        for (const V3GraphEdge& edge : lvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        ਲਈ (ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ : lvtxp->ਬਾਹਰਲਾ_ਕਿਨਾਰੇ()) {
+            ਜੇ (ਕਿਨਾਰਾ.ਭਾਰ_2() == 0) ਜਾਰੀ;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderVarVertex
-            const OrderVarVertex* const vvtxp = static_cast<const OrderVarVertex*>(edge.top());
+            ਅਚਲ ਕ੍ਰਮ_Var_ਸ਼ੀਰਸ਼* ਅਚਲ vvtxp = static_cast<ਅਚਲ ਕ੍ਰਮ_Var_ਸ਼ੀਰਸ਼*>(ਕਿਨਾਰਾ.ਸਿਖਰ());
 
             // Look up OrderMoveVertex for this domain on this variable
             DomainMap& mapp = *static_cast<DomainMap*>(vvtxp->userp());
-            const auto pair = mapp.emplace(domainp, nullptr);
+            ਅਚਲ ਸਵੈਚਾਲਿਤ pair = mapp.emplace(domainp, ਖਾਲੀ_ਸੂਚਕ);
             // Reference to the mapped OrderMoveVertex
-            OrderMoveVertex*& vMoveVtxp = pair.first->second;
+            ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼*& vMoveVtxp = pair.ਪਹਿਲਾ->ਦੂਜਾ;
 
             // On first encounter, visit downstream logic dependent on this (var, domain)
-            if (pair.second) vMoveVtxp = iterateVarVertex(vvtxp, domainp);
+            ਜੇ (pair.ਦੂਜਾ) vMoveVtxp = iterate_Var_ਸ਼ੀਰਸ਼(vvtxp, domainp);
 
             // If no downstream dependents from this variable, then there is no need to add this
             // variable as a dependent.
-            if (!vMoveVtxp) continue;
+            ਜੇ (!vMoveVtxp) ਜਾਰੀ;
 
             // Add this (variable, domain) as dependent of the logic that writes it.
-            addEdge(lMoveVtxp, vMoveVtxp);
+            ਜੋੜੋ_ਕਿਨਾਰਾ(lMoveVtxp, vMoveVtxp);
         }
     }
 
     // Return the OrderMoveVertex for this (var, domain) pair, iff it has downstream dependencies,
     // otherwise return nullptr.
-    OrderMoveVertex* iterateVarVertex(const OrderVarVertex* vvtxp, const OrderDomain* domainp) {
-        OrderMoveVertex* vMoveVtxp = nullptr;
+    ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* iterate_Var_ਸ਼ੀਰਸ਼(ਅਚਲ ਕ੍ਰਮ_Var_ਸ਼ੀਰਸ਼* vvtxp, ਅਚਲ ਕ੍ਰਮ_Domain* domainp) {
+        ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* vMoveVtxp = ਖਾਲੀ_ਸੂਚਕ;
         // Search forward from vvtxp, making new edges from vMoveVtxp forward
-        for (const V3GraphEdge& edge : vvtxp->outEdges()) {
-            if (edge.weight() == 0) continue;  // Was cut
+        ਲਈ (ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ : vvtxp->ਬਾਹਰਲਾ_ਕਿਨਾਰੇ()) {
+            ਜੇ (ਕਿਨਾਰਾ.ਭਾਰ_2() == 0) ਜਾਰੀ;  // Was cut
 
             // OrderGraph is a bipartite graph, so we know it's an OrderLogicVertex
-            const OrderLogicVertex* const lVtxp = edge.top()->as<OrderLogicVertex>();
+            ਅਚਲ ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ lVtxp = ਕਿਨਾਰਾ.ਸਿਖਰ()->as<ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼>();
 
             // Do not construct dependencies across exclusive domains.
-            if (domainsExclusive(domainp, lVtxp->domainp())) continue;
+            ਜੇ (domainsExclusive(domainp, lVtxp->domainp())) ਜਾਰੀ;
 
             // there is a path from this vvtx to a logic vertex. Add the new edge.
-            if (!vMoveVtxp) vMoveVtxp = new OrderMoveVertex{*m_moveGraphp, nullptr, domainp};
-            OrderMoveVertex* const lMoveVxp = static_cast<OrderMoveVertex*>(lVtxp->userp());
-            addEdge(vMoveVtxp, lMoveVxp);
+            ਜੇ (!vMoveVtxp) vMoveVtxp = ਨਵਾਂ ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼{*m_moveGraphp, ਖਾਲੀ_ਸੂਚਕ, domainp};
+            ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* ਅਚਲ lMoveVxp = static_cast<ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼*>(lVtxp->userp());
+            ਜੋੜੋ_ਕਿਨਾਰਾ(vMoveVtxp, lMoveVxp);
         }
-        return vMoveVtxp;
+        ਵਾਪਸ vMoveVtxp;
     }
 
-public:
-    static std::unique_ptr<OrderMoveGraph> apply(OrderGraph& orderGraph) {
-        return std::move(OrderMoveGraphBuilder{orderGraph}.m_moveGraphp);
+ਜਨਤਕ:
+    ਸਥਿਰ std::unique_ptr<ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ> apply(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਕ੍ਰਮ_ਗ੍ਰਾਫ_2) {
+        ਵਾਪਸ std::move(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder{ਕ੍ਰਮ_ਗ੍ਰਾਫ_2}.m_moveGraphp);
     }
 };
 
 //======================================================================
 // OrderMoveGraph implementation
 
-std::unique_ptr<OrderMoveGraph> OrderMoveGraph::build(OrderGraph& orderGraph) {
-    return OrderMoveGraphBuilder::apply(orderGraph);
+std::unique_ptr<ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ> ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ::build(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਕ੍ਰਮ_ਗ੍ਰਾਫ_2) {
+    ਵਾਪਸ ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Builder::apply(ਕ੍ਰਮ_ਗ੍ਰਾਫ_2);
 }

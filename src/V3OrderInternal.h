@@ -14,18 +14,18 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ORDERINTERNAL_H_
-#define VERILATOR_V3ORDERINTERNAL_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3ORDERINTERNAL_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3ORDERINTERNAL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Order.h"
-#include "V3OrderGraph.h"
-#include "V3OrderMoveGraph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Order.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderGraph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderMoveGraph.h"
 
-#include <string>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 class AstVarScope;
 
@@ -35,24 +35,24 @@ class LogicByScope;
 
 //============================================================================
 
-namespace V3Order {
+namespace V3_ਕ੍ਰਮ {
 
-std::unique_ptr<OrderGraph> buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
+std::unique_ptr<ਕ੍ਰਮ_ਗ੍ਰਾਫ> build_ਕ੍ਰਮ_ਗ੍ਰਾਫ(ਅਚਲ V3Sched::TriggerKit& trigKit,  //
                                             AstVarScope* trigVscp,  //
-                                            const std::vector<V3Sched::LogicByScope*>& coll,  //
-                                            const V3Sched::CovergroupRefBindings& cgRefBindings,
+                                            ਅਚਲ std::ਸਦਿਸ਼<V3Sched::LogicByScope*>& coll,  //
+                                            ਅਚਲ V3Sched::CovergroupRefBindings& cgRefBindings,
                                             bool parallel);
 
-void orderOrderGraph(OrderGraph& graph, const std::string& tag);
+ਖਾਲੀ ਕ੍ਰਮ_ਕ੍ਰਮ_ਗ੍ਰਾਫ(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ, ਅਚਲ std::string& ਟੈਗ);
 
-void processDomains(OrderGraph& graph,  //
-                    const std::string& tag,  //
-                    const ExternalTriggersProvider& externalTriggers);
+ਖਾਲੀ processDomains(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ,  //
+                    ਅਚਲ std::string& ਟੈਗ,  //
+                    ਅਚਲ ExternalTriggersProvider& externalTriggers);
 
-AstNodeStmt* createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ਗੰਢ_Stmt* createSerial(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ& move_ਗ੍ਰਾਫ, ਅਚਲ std::string& ਟੈਗ, bool slow);
 
-AstNodeStmt* createParallel(OrderMoveGraph& moveGraph, const std::string& tag, bool slow);
+Ast_ਗੰਢ_Stmt* createParallel(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ& move_ਗ੍ਰਾਫ, ਅਚਲ std::string& ਟੈਗ, bool slow);
 
 };  // namespace V3Order
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

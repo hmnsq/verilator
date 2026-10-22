@@ -14,33 +14,33 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHALG_H_
-#define VERILATOR_V3GRAPHALG_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3GRAPHALG_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3GRAPHALG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
 
 //=============================================================================
 // Algorithms - common class
 // For internal use, most graph algorithms use this as a base class
 
-template <typename T_Graph = V3Graph>  // Or sometimes const V3Graph
-class GraphAlg VL_NOT_FINAL {
-protected:
-    T_Graph* const m_graphp;  // Graph we're operating upon
-    const V3EdgeFuncP m_edgeFuncp;  // Function that says we follow this edge
+ਸਾਂਚਾ <typename T_ਗ੍ਰਾਫ = V3_ਗ੍ਰਾਫ>  // Or sometimes const V3Graph
+class ਗ੍ਰਾਫ_Alg VL_NOT_FINAL {
+ਸੁਰੱਖਿਅਤ:
+    T_ਗ੍ਰਾਫ* ਅਚਲ m_graphp;  // Graph we're operating upon
+    ਅਚਲ V3_ਕਿਨਾਰਾ_Func_P m_ਕਿਨਾਰਾ_Funcp;  // Function that says we follow this edge
     // CONSTRUCTORS
-    GraphAlg(T_Graph* graphp, V3EdgeFuncP edgeFuncp)
+    ਗ੍ਰਾਫ_Alg(T_ਗ੍ਰਾਫ* graphp, V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp)
         : m_graphp{graphp}
-        , m_edgeFuncp{edgeFuncp} {}
-    ~GraphAlg() = default;
+        , m_ਕਿਨਾਰਾ_Funcp{ਕਿਨਾਰਾ_Funcp} {}
+    ~ਗ੍ਰਾਫ_Alg() = ਮੂਲ;
     // METHODS
-    bool followEdge(V3GraphEdge* edgep) { return (edgep->weight() && (m_edgeFuncp)(edgep)); }
+    bool follow_ਕਿਨਾਰਾ(V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* edgep) { ਵਾਪਸ (edgep->ਭਾਰ_2() && (m_ਕਿਨਾਰਾ_Funcp)(edgep)); }
 };
 
 //============================================================================
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

@@ -14,30 +14,30 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3RANDOMIZE_METHOD_H_
-#define VERILATOR_V3RANDOMIZE_METHOD_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3_RANDOMIZE_ਵਿਧੀ_H
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3_RANDOMIZE_ਵਿਧੀ_H
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
 class AstClass;
 class AstFunc;
 class AstNetlist;
-class AstNodeModule;
+class Ast_ਗੰਢ_Module;
 
 class VMemberMap;
 
 class V3Randomize final {
-public:
-    static void randomizeNetlist(AstNetlist* nodep) VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ randomizeNetlist(AstNetlist* nodep) VL_MT_DISABLED;
 
-    static AstFunc* newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
-                                     const std::string& name = "randomize",
+    ਸਥਿਰ AstFunc* newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
+                                     ਅਚਲ std::string& name = "randomize",
                                      bool allowVirtual = true,
-                                     bool childDType = false) VL_MT_DISABLED;
-    static AstFunc* newRandomizeStdFunc(AstNodeModule* nodep,
-                                        const std::string& name) VL_MT_DISABLED;
-    static AstFunc* newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) VL_MT_DISABLED;
+                                     bool ਬੱਚਾ_DType = false) VL_MT_DISABLED;
+    ਸਥਿਰ AstFunc* newRandomizeStdFunc(Ast_ਗੰਢ_Module* nodep,
+                                        ਅਚਲ std::string& name) VL_MT_DISABLED;
+    ਸਥਿਰ AstFunc* newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

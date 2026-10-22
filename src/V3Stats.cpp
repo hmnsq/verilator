@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstMT.h"
 
-#include "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
 
-#include <iomanip>
-#include <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -31,122 +31,122 @@ V3Mutex V3Stats::s_mutex;
 //######################################################################
 // Stats class functions
 
-class StatsVisitor final : public VNVisitorConst {
-    struct Counters final {
+ਵਰਗ StatsVisitor final : ਜਨਤਕ VNVisitorConst {
+    ਬਣਤਰ Counters final {
         // Nodes of given type
-        std::array<uint64_t, VNType::NUM_TYPES()> m_statTypeCount{};
+        std::array<uint64_t, VNType::ਅੰਕ_TYPES()> m_stat_Type_ਗਿਣਤੀ{};
         // Prediction of given type
-        std::array<uint64_t, VBranchPred::_ENUM_END> m_statPred{};
+        std::array<uint64_t, VBranchPred::ENUM_ਸਿਰਾ> m_statPred{};
     };
 
     // STATE
-    const bool m_fastOnly;  // When true, consider only fast functions
-    bool m_empty = true;  // Netlist is empty
+    ਅਚਲ ਤਾਰਕਿਕ m_fastOnly;  // When true, consider only fast functions
+    ਤਾਰਕਿਕ m_ਖਾਲੀ_ਥਾਵਾਂ = ਸੱਚ;  // Netlist is empty
     Counters m_counters;  // The actual counts we will display
     Counters m_dumpster;  // Alternate buffer to make discarding parts of the tree easier
     Counters* m_accump;  // The currently active accumulator
-    std::vector<uint64_t> m_statVarWidths;  // Variables of given width
-    std::vector<std::map<const std::string, uint32_t>>
-        m_statVarWidthNames;  // Var names of given width
+    std::ਸਦਿਸ਼<uint64_t> m_statVarWidths;  // Variables of given width
+    std::ਸਦਿਸ਼<std::map<ਅਚਲ std::string, uint32_t>>
+        m_stat_Var_ਚੌੜਾਈ_ਨਾਂ;  // Var names of given width
 
     // METHODS
-    void countThenIterateChildren(AstNode* nodep) {
-        ++m_accump->m_statTypeCount[nodep->type()];
-        if (nodep->type() != VNType::Netlist) m_empty = false;
+    ਖਾਲੀ ਗਿਣਤੀ_Then_Iterate_Children(Ast_ਗੰਢ* nodep) {
+        ++m_accump->m_stat_Type_ਗਿਣਤੀ[nodep->type()];
+        ਜੇ (nodep->type() != VNType::Netlist) m_ਖਾਲੀ_ਥਾਵਾਂ = ਝੂਠ;
         iterateChildrenConst(nodep);
     }
 
     // VISITORS
-    void visit(AstVar* nodep) override {
-        if (nodep->dtypep()) {
-            if (!nodep->constPoolEntry()) {
+    ਖਾਲੀ ਦੇਖੋ(AstVar* nodep) override {
+        ਜੇ (nodep->dtypep()) {
+            ਜੇ (!nodep->const_Pool_ਇੰਦਰਾਜ()) {
                 // Count proper variables
-                if (m_statVarWidths.size() <= static_cast<size_t>(nodep->width())) {
-                    m_statVarWidths.resize(nodep->width() + 5);
-                    if (v3Global.opt.statsVars()) {  //
-                        m_statVarWidthNames.resize(nodep->width() + 5);
+                ਜੇ (m_statVarWidths.ਮਾਪ() <= static_cast<ਮਾਪ_t>(nodep->ਚੌੜਾਈ())) {
+                    m_statVarWidths.resize(nodep->ਚੌੜਾਈ() + 5);
+                    ਜੇ (v3Global.opt.statsVars()) {  //
+                        m_stat_Var_ਚੌੜਾਈ_ਨਾਂ.resize(nodep->ਚੌੜਾਈ() + 5);
                     }
                 }
-                ++m_statVarWidths.at(nodep->width());
-                if (v3Global.opt.statsVars()) {
-                    ++m_statVarWidthNames.at(nodep->width())[nodep->prettyName()];
+                ++m_statVarWidths.at(nodep->ਚੌੜਾਈ());
+                ਜੇ (v3Global.opt.statsVars()) {
+                    ++m_stat_Var_ਚੌੜਾਈ_ਨਾਂ.at(nodep->ਚੌੜਾਈ())[nodep->prettyName()];
                 }
             }
         }
 
-        countThenIterateChildren(nodep);
+        ਗਿਣਤੀ_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNodeIf* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_If* nodep) override {
         // Track prediction
         ++m_accump->m_statPred[nodep->branchPred()];
-        countThenIterateChildren(nodep);
+        ਗਿਣਤੀ_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstCFunc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
         VL_RESTORER(m_accump);
-        if (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
-        countThenIterateChildren(nodep);
+        ਜੇ (m_fastOnly && !nodep->slow()) m_accump = &m_counters;
+        ਗਿਣਤੀ_Then_Iterate_Children(nodep);
     }
 
-    void visit(AstNode* nodep) override { countThenIterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { ਗਿਣਤੀ_Then_Iterate_Children(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    StatsVisitor(AstNetlist* nodep, const std::string& stage, bool fastOnly)
+    StatsVisitor(AstNetlist* nodep, ਅਚਲ std::string& stage, ਤਾਰਕਿਕ fastOnly)
         : m_fastOnly{fastOnly}
         , m_accump{fastOnly ? &m_dumpster : &m_counters} {
         UINFO(9, "Starting stats, fastOnly=" << fastOnly);
         iterateConst(nodep);
-        if (m_empty) return;
+        ਜੇ (m_ਖਾਲੀ_ਥਾਵਾਂ) ਵਾਪਸ;
 
         // Shorthand
-        const auto addStat = [&](const std::string& name, double count, unsigned precision = 0) {
-            V3Stats::addStat(stage, name, count, precision);
+        ਅਚਲ ਸਵੈਚਾਲਿਤ ਜੋੜੋ_Stat = [&](ਅਚਲ std::string& name, ਦੁੱਗਣਾ ਗਿਣਤੀ_2, ਬਿਨਾਨਿਸ਼ਾਨੀ precision = 0) {
+            V3Stats::ਜੋੜੋ_Stat(stage, name, ਗਿਣਤੀ_2, precision);
         };
 
         // Variable widths
-        for (unsigned i = 0; i < m_statVarWidths.size(); i++) {
-            if (const uint64_t count = m_statVarWidths.at(i)) {
+        ਲਈ (ਬਿਨਾਨਿਸ਼ਾਨੀ i = 0; i < m_statVarWidths.ਮਾਪ(); i++) {
+            ਜੇ (ਅਚਲ uint64_t ਗਿਣਤੀ_2 = m_statVarWidths.at(i)) {
                 std::stringstream ss;
                 ss << "Vars, width " << std::setw(5) << std::dec << i;
-                const std::string prefix = ss.str();
-                if (v3Global.opt.statsVars()) {
-                    for (const auto& it : m_statVarWidthNames.at(i)) {
-                        addStat(prefix + " " + it.first, it.second);
+                ਅਚਲ std::string ਅਗੇਤਰ = ss.str();
+                ਜੇ (v3Global.opt.statsVars()) {
+                    ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& it : m_stat_Var_ਚੌੜਾਈ_ਨਾਂ.at(i)) {
+                        ਜੋੜੋ_Stat(ਅਗੇਤਰ + " " + it.ਪਹਿਲਾ, it.ਦੂਜਾ);
                     }
-                } else {
-                    addStat(prefix, count);
+                } ਨਹੀਂਤਾਂ {
+                    ਜੋੜੋ_Stat(ਅਗੇਤਰ, ਗਿਣਤੀ_2);
                 }
             }
         }
 
         // Node types (also total memory usage)
-        const auto typeName
-            = [](size_t t) { return std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
-        const auto typeSize
-            = [](size_t t) { return VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
-        size_t totalNodeMemoryUsage = 0;
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                totalNodeMemoryUsage += count * typeSize(t);
-                addStat("Node count, " + typeName(t), count);
+        ਅਚਲ ਸਵੈਚਾਲਿਤ typeName
+            = [](ਮਾਪ_t t) { ਵਾਪਸ std::string{VNType{static_cast<VNType::en>(t)}.ascii()}; };
+        ਅਚਲ ਸਵੈਚਾਲਿਤ type_ਮਾਪ
+            = [](ਮਾਪ_t t) { ਵਾਪਸ VNType::typeInfo(static_cast<VNType::en>(t)).m_sizeof; };
+        ਮਾਪ_t ਕੁੱਲ_ਗੰਢ_ਸਮ੍ਰਿਤੀ_Usage = 0;
+        ਲਈ (ਮਾਪ_t t = 0; t < VNType::ਅੰਕ_TYPES(); ++t) {
+            ਜੇ (ਅਚਲ uint64_t ਗਿਣਤੀ_2 = m_counters.m_stat_Type_ਗਿਣਤੀ[t]) {
+                ਕੁੱਲ_ਗੰਢ_ਸਮ੍ਰਿਤੀ_Usage += ਗਿਣਤੀ_2 * type_ਮਾਪ(t);
+                ਜੋੜੋ_Stat("Node count, " + typeName(t), ਗਿਣਤੀ_2);
             }
         }
-        addStat("Node mem TOTAL (MiB)", totalNodeMemoryUsage >> 20);
+        ਜੋੜੋ_Stat("Node mem TOTAL (MiB)", ਕੁੱਲ_ਗੰਢ_ਸਮ੍ਰਿਤੀ_Usage >> 20);
 
         // Node Memory usage
-        for (size_t t = 0; t < VNType::NUM_TYPES(); ++t) {
-            if (const uint64_t count = m_counters.m_statTypeCount[t]) {
-                const double share = 100.0 * count * typeSize(t) / totalNodeMemoryUsage;
-                addStat("Node mem %, " + typeName(t), share, 2);
+        ਲਈ (ਮਾਪ_t t = 0; t < VNType::ਅੰਕ_TYPES(); ++t) {
+            ਜੇ (ਅਚਲ uint64_t ਗਿਣਤੀ_2 = m_counters.m_stat_Type_ਗਿਣਤੀ[t]) {
+                ਅਚਲ ਦੁੱਗਣਾ share = 100.0 * ਗਿਣਤੀ_2 * type_ਮਾਪ(t) / ਕੁੱਲ_ਗੰਢ_ਸਮ੍ਰਿਤੀ_Usage;
+                ਜੋੜੋ_Stat("Node mem %, " + typeName(t), share, 2);
             }
         }
 
         // Branch predictions
-        for (int t = 0; t < VBranchPred::_ENUM_END; ++t) {
-            if (const uint64_t c = m_counters.m_statPred[t]) {
-                addStat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
+        ਲਈ (ਪੂਰਨ t = 0; t < VBranchPred::ENUM_ਸਿਰਾ; ++t) {
+            ਜੇ (ਅਚਲ uint64_t c = m_counters.m_statPred[t]) {
+                ਜੋੜੋ_Stat("Branch prediction, "s + VBranchPred{t}.ascii(), c);
             }
         }
     }
@@ -155,6 +155,6 @@ public:
 //######################################################################
 // Top Stats class
 
-void V3Stats::statsStageAll(AstNetlist* nodep, const std::string& stage, bool fastOnly) {
+ਖਾਲੀ V3Stats::statsStageAll(AstNetlist* nodep, ਅਚਲ std::string& stage, ਤਾਰਕਿਕ fastOnly) {
     StatsVisitor{nodep, stage, fastOnly};
 }

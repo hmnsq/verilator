@@ -22,9 +22,9 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CUse.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3CUse.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -33,93 +33,93 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 // Visit within a module all nodes and data types they reference, finding
 // any classes so we can make sure they are defined when Verilated code
 // compiles
-class CUseVisitor final : public VNVisitorConst {
+ਵਰਗ CUseVisitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     //  AstNode::user1()     -> bool.  True if already visited
-    const VNUser1InUse m_inuser1;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
 
     // MEMBERS
-    AstNodeModule* const m_modp;  // Current module
-    std::map<std::string, std::pair<FileLine*, VUseType>> m_didUse;  // What we already used
+    Ast_ਗੰਢ_Module* ਅਚਲ m_modp;  // Current module
+    std::map<std::string, std::pair<File_ਸਤਰ*, VUseType>> m_didUse;  // What we already used
 
     // METHODS
-    void addNewUse(const AstNode* nodep, VUseType useType, const string& name) {
-        auto e = m_didUse.emplace(name, std::make_pair(nodep->fileline(), useType));
-        if (e.second || ((e.first->second.second & useType) != useType)) {
-            e.first->second.second = e.first->second.second | useType;
+    ਖਾਲੀ ਜੋੜੋ_New_Use(ਅਚਲ Ast_ਗੰਢ* nodep, VUseType useType, ਅਚਲ string& name) {
+        ਸਵੈਚਾਲਿਤ e = m_didUse.emplace(name, std::make_pair(nodep->fileline(), useType));
+        ਜੇ (e.ਦੂਜਾ || ((e.ਪਹਿਲਾ->ਦੂਜਾ.ਦੂਜਾ & useType) != useType)) {
+            e.ਪਹਿਲਾ->ਦੂਜਾ.ਦੂਜਾ = e.ਪਹਿਲਾ->ਦੂਜਾ.ਦੂਜਾ | useType;
         }
     }
 
     // VISITORS
-    void visit(AstClassRefDType* nodep) override {
-        addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->classp()->name());
+    ਖਾਲੀ ਦੇਖੋ(AstClassRefDType* nodep) override {
+        ਜੋੜੋ_New_Use(nodep, VUseType::INT_FWD_CLASS, nodep->classp()->name());
     }
-    void visit(AstCFunc* nodep) override {
-        if (nodep->user1SetOnce()) return;
-        iterateAndNextConstNull(nodep->argsp());
-        iterateAndNextConstNull(nodep->stmtsp());
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
+        ਜੇ (nodep->user1_ਸੈੱਟ_Once()) ਵਾਪਸ;
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->argsp());
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->stmtsp());
     }
-    void visit(AstCCall* /*nodep*/) override {}
-    void visit(AstCReturn* nodep) override {
-        UASSERT_OBJ(!nodep->user1SetOnce(), nodep, "Visited same return twice");
+    ਖਾਲੀ ਦੇਖੋ(AstCCall* /*nodep*/) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstCReturn* nodep) override {
+        UASSERT_OBJ(!nodep->user1_ਸੈੱਟ_Once(), nodep, "Visited same return twice");
         iterateConst(nodep->lhsp()->dtypep());
     }
-    void visit(AstNodeDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
-        if (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_DType* nodep) override {
+        ਜੇ (nodep->user1_ਸੈੱਟ_Once()) ਵਾਪਸ;  // Process once
+        ਜੇ (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
+        ਜੇ (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
 
         // Add a CUse for every struct that requires a declaration
-        AstNodeUOrStructDType* const stypep = VN_CAST(nodep->skipRefp(), NodeUOrStructDType);
-        if (stypep && stypep->classOrPackagep()) {
-            addNewUse(nodep, VUseType::INT_INCLUDE, stypep->classOrPackagep()->name());
+        Ast_ਗੰਢ_UOr_Struct_DType* ਅਚਲ stypep = VN_CAST(nodep->skipRefp(), ਗੰਢ_UOr_Struct_DType);
+        ਜੇ (stypep && stypep->classOrPackagep()) {
+            ਜੋੜੋ_New_Use(nodep, VUseType::INT_INCLUDE, stypep->classOrPackagep()->name());
             iterateChildrenConst(stypep);
-        } else if (const AstClassRefDType* const classp
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstClassRefDType* ਅਚਲ classp
                    = VN_CAST(nodep->skipRefp(), ClassRefDType)) {
-            addNewUse(nodep, VUseType::INT_FWD_CLASS, classp->name());
+            ਜੋੜੋ_New_Use(nodep, VUseType::INT_FWD_CLASS, classp->name());
         }
     }
-    void visit(AstNode* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->dtypep()) iterateConst(nodep->dtypep());
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ਜੇ (nodep->user1_ਸੈੱਟ_Once()) ਵਾਪਸ;  // Process once
+        ਜੇ (nodep->dtypep()) iterateConst(nodep->dtypep());
         iterateChildrenConst(nodep);
     }
-    void visit(AstCell* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->modp()->isConstPool()) return;  // Special emit rules
+    ਖਾਲੀ ਦੇਖੋ(AstCell* nodep) override {
+        ਜੇ (nodep->user1_ਸੈੱਟ_Once()) ਵਾਪਸ;  // Process once
+        ਜੇ (nodep->modp()->isConstPool()) ਵਾਪਸ;  // Special emit rules
         // Currently no IMP_INCLUDE because we include __Syms which has them all
-        addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->modp()->name());
+        ਜੋੜੋ_New_Use(nodep, VUseType::INT_FWD_CLASS, nodep->modp()->name());
         iterateChildrenConst(nodep);
     }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit CUseVisitor(AstNodeModule* modp)
+    ਸਪਸ਼ਟ CUseVisitor(Ast_ਗੰਢ_Module* modp)
         : m_modp{modp} {
         iterateConst(modp);
 
-        for (const auto& used : m_didUse) {
-            AstCUse* const newp = new AstCUse{used.second.first, used.second.second, used.first};
-            m_modp->addStmtsp(newp);
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& ਵਰਤਿਆ : m_didUse) {
+            AstCUse* ਅਚਲ newp = ਨਵਾਂ AstCUse{ਵਰਤਿਆ.ਦੂਜਾ.ਪਹਿਲਾ, ਵਰਤਿਆ.ਦੂਜਾ.ਦੂਜਾ, ਵਰਤਿਆ.ਪਹਿਲਾ};
+            m_modp->ਜੋੜੋ_Stmtsp(newp);
             UINFO(8, "Insert " << newp);
         }
     }
-    ~CUseVisitor() override = default;
+    ~CUseVisitor() override = ਮੂਲ;
     VL_UNCOPYABLE(CUseVisitor);
 };
 
 //######################################################################
 // Class class functions
 
-void V3CUse::cUseAll() {
+ਖਾਲੀ V3CUse::cUseAll() {
     UINFO(2, __FUNCTION__ << ":");
     // Call visitor separately for each module, so visitor state is cleared
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
-         modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (modp->isConstPool()) continue;  // Special emit rules
+    ਲਈ (Ast_ਗੰਢ_Module* modp = v3Global.rootp()->modulesp(); modp;
+         modp = VN_AS(modp->nextp(), ਗੰਢ_Module)) {
+        ਜੇ (modp->isConstPool()) ਜਾਰੀ;  // Special emit rules
         // Insert under this module; someday we should e.g. make Ast
         // for each output file and put under that
         CUseVisitor{modp};
     }
-    V3Global::dumpCheckGlobalTree("cuse", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("cuse", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

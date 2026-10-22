@@ -32,37 +32,37 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Force.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Force.h"
 
-#include "V3AstUserAllocator.h"
-#include "V3Stats.h"
-#include "V3UniqueNames.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3AstUserAllocator.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3UniqueNames.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class ForceState final {
-public:
-    struct ForceRange VL_NOT_FINAL {
-        int m_rangeLsb = 0;  // VlForceVec range: bit index or array element index
-        int m_rangeMsb = 0;  // VlForceVec range: bit index or array element index
-        int m_padLsb = 0;  // Bit positions for RHS padding
-        int m_padMsb = 0;  // Bit positions for RHS padding
+ਵਰਗ ForceState final {
+ਜਨਤਕ:
+    ਬਣਤਰ ForceRange VL_NOT_FINAL {
+        ਪੂਰਨ m_rangeLsb = 0;  // VlForceVec range: bit index or array element index
+        ਪੂਰਨ m_rangeMsb = 0;  // VlForceVec range: bit index or array element index
+        ਪੂਰਨ m_padLsb = 0;  // Bit positions for RHS padding
+        ਪੂਰਨ m_padMsb = 0;  // Bit positions for RHS padding
     };
 
-    struct ForceInfo final : ForceRange {
+    ਬਣਤਰ ForceInfo final : ForceRange {
         // MEMBERS
-        int m_forceId = 0;  // Unique (per signal) variable of this force assignment
-        bool m_hasArraySel = false;  // If this has an array select on LHS
-        bool m_isExternal = false;  // Synthetic force for the public force controls
-        bool m_skipRdRefresh = false;  // finalizeRhsVars's force-rd-update block refreshes forceRd
-        AstVarScope* m_rhsVarVscp = nullptr;  // Scope of the var containing RHSID
-        AstNodeExpr* m_rhsExprp = nullptr;  // Expression on RHS of this force assignment
+        ਪੂਰਨ m_forceId = 0;  // Unique (per signal) variable of this force assignment
+        ਤਾਰਕਿਕ m_hasArraySel = ਝੂਠ;  // If this has an array select on LHS
+        ਤਾਰਕਿਕ m_isExternal = ਝੂਠ;  // Synthetic force for the public force controls
+        ਤਾਰਕਿਕ m_skipRdRefresh = ਝੂਠ;  // finalizeRhsVars's force-rd-update block refreshes forceRd
+        AstVarScope* m_rhsVarVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the var containing RHSID
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* m_rhsExprp = ਖਾਲੀ_ਸੂਚਕ;  // Expression on RHS of this force assignment
 
-        ForceInfo() = default;
-        ForceInfo(int rangeLsb, int rangeMsb, int padLsb, int padMsb, int forceId,
-                  bool hasArraySel, AstVarScope* rhsVarVscp, AstNodeExpr* rhsExprp)
+        ForceInfo() = ਮੂਲ;
+        ForceInfo(ਪੂਰਨ rangeLsb, ਪੂਰਨ rangeMsb, ਪੂਰਨ padLsb, ਪੂਰਨ padMsb, ਪੂਰਨ forceId,
+                  ਤਾਰਕਿਕ hasArraySel, AstVarScope* rhsVarVscp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* rhsExprp)
             : m_forceId{forceId}
             , m_hasArraySel{hasArraySel}
             , m_rhsVarVscp{rhsVarVscp}
@@ -74,324 +74,324 @@ public:
         }
     };
 
-    struct VarForceInfo final {
-        AstVarScope* m_forceVecVscp = nullptr;  // Scope of the __VforceVec (VlForceVec) variable
-        AstVarScope* m_forceRdVscp = nullptr;  // Scope of the __VforceRd (read-back) variable
-        AstVarScope* m_forceEnVscp = nullptr;  // Scope of the __VforceEn (force enable) variable
-        AstVarScope* m_forceValVscp = nullptr;  // Scope of the __VforceVal (force value) variable
-        AstVarScope* m_varVscp = nullptr;  // Scope of the forced (original) variable
-        AstVar* m_varp = nullptr;  // The forced (original) variable
-        AstScope* m_scopep = nullptr;  // Scope containing the forced variable
-        std::unordered_map<AstAssignForce*, ForceInfo> m_forces;
-        std::unordered_map<string, int> m_forcePathToIndex;
-        int m_nextForcePathIndex = 1;  // Start at 1 so 0 can be the base path (whole signal)
+    ਬਣਤਰ VarForceInfo final {
+        AstVarScope* m_forceVecVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the __VforceVec (VlForceVec) variable
+        AstVarScope* m_forceRdVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the __VforceRd (read-back) variable
+        AstVarScope* m_forceEnVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the __VforceEn (force enable) variable
+        AstVarScope* m_forceValVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the __VforceVal (force value) variable
+        AstVarScope* m_varVscp = ਖਾਲੀ_ਸੂਚਕ;  // Scope of the forced (original) variable
+        AstVar* m_varp = ਖਾਲੀ_ਸੂਚਕ;  // The forced (original) variable
+        AstScope* m_scopep = ਖਾਲੀ_ਸੂਚਕ;  // Scope containing the forced variable
+        std::unordered_map<Ast_ਸੌਂਪੋ_Force*, ForceInfo> m_forces;
+        std::unordered_map<string, ਪੂਰਨ> m_force_ਰਸਤਾ_ਮੰਜ਼ਿਲ_ਸੂਚਕਾਂਕ;
+        ਪੂਰਨ m_ਅਗਲਾ_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ = 1;  // Start at 1 so 0 can be the base path (whole signal)
 
-    private:
-        static void buildForcePathKeyRecurse(AstNodeExpr* nodep, string& out) {
-            if (VN_IS(nodep, VarRef)) return;
-            if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-                buildForcePathKeyRecurse(selp->fromp(), out);
-                out += "|S" + cvtToStr(selp->lsbConst()) + ":" + cvtToStr(selp->widthConst());
-                return;
+    ਨਿਜੀ:
+        ਸਥਿਰ ਖਾਲੀ build_Force_ਰਸਤਾ_ਕੁੰਜੀ_Recurse(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep, string& ਬਾਹਰਲਾ) {
+            ਜੇ (VN_IS(nodep, VarRef)) ਵਾਪਸ;
+            ਜੇ (ਅਚਲ AstSel* ਅਚਲ selp = VN_CAST(nodep, Sel)) {
+                build_Force_ਰਸਤਾ_ਕੁੰਜੀ_Recurse(selp->fromp(), ਬਾਹਰਲਾ);
+                ਬਾਹਰਲਾ += "|S" + cvt_ਮੰਜ਼ਿਲ_Str(selp->lsbConst()) + ":" + cvt_ਮੰਜ਼ਿਲ_Str(selp->ਚੌੜਾਈ_Const());
+                ਵਾਪਸ;
             }
-            if (AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-                AstNodeExpr* const fromp = selp->fromp();
-                buildForcePathKeyRecurse(fromp, out);
-                out += "|T" + selp->name();
-                return;
+            ਜੇ (AstStructSel* ਅਚਲ selp = VN_CAST(nodep, StructSel)) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = selp->fromp();
+                build_Force_ਰਸਤਾ_ਕੁੰਜੀ_Recurse(fromp, ਬਾਹਰਲਾ);
+                ਬਾਹਰਲਾ += "|T" + selp->name();
+                ਵਾਪਸ;
             }
             nodep->v3fatalSrc("Unsupported: opaque force path selector "
                               << nodep->prettyTypeName());
         }
 
-        static string forcePathKey(AstNodeExpr* nodep) {
-            string out;
-            buildForcePathKeyRecurse(nodep, out);
-            return out;
+        ਸਥਿਰ string force_ਰਸਤਾ_ਕੁੰਜੀ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+            string ਬਾਹਰਲਾ;
+            build_Force_ਰਸਤਾ_ਕੁੰਜੀ_Recurse(nodep, ਬਾਹਰਲਾ);
+            ਵਾਪਸ ਬਾਹਰਲਾ;
         }
 
-    public:
-        int getOrCreateForcePathIndex(AstNodeExpr* nodep) {
-            const auto pair
-                = m_forcePathToIndex.emplace(forcePathKey(nodep), m_nextForcePathIndex);
-            if (pair.second) ++m_nextForcePathIndex;
-            return pair.first->second;
+    ਜਨਤਕ:
+        ਪੂਰਨ get_Or_Create_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+            ਅਚਲ ਸਵੈਚਾਲਿਤ pair
+                = m_force_ਰਸਤਾ_ਮੰਜ਼ਿਲ_ਸੂਚਕਾਂਕ.emplace(force_ਰਸਤਾ_ਕੁੰਜੀ(nodep), m_ਅਗਲਾ_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ);
+            ਜੇ (pair.ਦੂਜਾ) ++m_ਅਗਲਾ_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ;
+            ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
         }
 
-        int findForcePathIndex(AstNodeExpr* nodep) const {
-            const auto it = m_forcePathToIndex.find(forcePathKey(nodep));
-            return it != m_forcePathToIndex.end() ? it->second : -1;
+        ਪੂਰਨ ਲੱਭੋ_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) ਅਚਲ {
+            ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_force_ਰਸਤਾ_ਮੰਜ਼ਿਲ_ਸੂਚਕਾਂਕ.ਲੱਭੋ(force_ਰਸਤਾ_ਕੁੰਜੀ(nodep));
+            ਵਾਪਸ it != m_force_ਰਸਤਾ_ਮੰਜ਼ਿਲ_ਸੂਚਕਾਂਕ.ਸਿਰਾ() ? it->ਦੂਜਾ : -1;
         }
     };
 
-    struct ForceHelperVars final {
-        AstVar* m_rdVarp = nullptr;  // The __VforceRd (read-back) variable
-        AstVar* m_enVarp = nullptr;  // The __VforceEn (force enable) variable
-        AstVar* m_valVarp = nullptr;  // The __VforceVal (force value) variable
+    ਬਣਤਰ ForceHelperVars final {
+        AstVar* m_rdVarp = ਖਾਲੀ_ਸੂਚਕ;  // The __VforceRd (read-back) variable
+        AstVar* m_enVarp = ਖਾਲੀ_ਸੂਚਕ;  // The __VforceEn (force enable) variable
+        AstVar* m_valVarp = ਖਾਲੀ_ਸੂਚਕ;  // The __VforceVal (force value) variable
     };
 
-    struct ArraySelInfo final {
-        std::vector<AstArraySel*> m_sels;  // Array selects collected along the path, outer first
-        bool m_hasBitSel = false;  // Bit-select was found along the path too
+    ਬਣਤਰ ArraySelInfo final {
+        std::ਸਦਿਸ਼<AstArraySel*> m_sels;  // Array selects collected along the path, outer first
+        ਤਾਰਕਿਕ m_has_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel = ਝੂਠ;  // Bit-select was found along the path too
     };
 
-    struct ForceRangeInfo final : ForceRange {
-        bool m_hasArraySel = false;  // LHS has an array select
+    ਬਣਤਰ ForceRangeInfo final : ForceRange {
+        ਤਾਰਕਿਕ m_hasArraySel = ਝੂਠ;  // LHS has an array select
         ArraySelInfo m_arrayInfo;  // Array-select information collected for the LHS
     };
 
-private:
-    using ScopeVarCache = std::unordered_map<const AstVar*, AstVarScope*>;
+ਨਿਜੀ:
+    ਵਰਤੋਂ ScopeVarCache = std::unordered_map<ਅਚਲ AstVar*, AstVarScope*>;
 
     // NODE STATE
     //  AstVarRef::user1      -> bool.  Not to replace reference
     //  AstAssignForce::user2 -> bool.  Force is synthetic (externally forceable)
     //  AstVar::user3         -> ForceHelperVars via m_forceHelperVarsByVar
-    const VNUser1InUse m_user1InUse;
-    const VNUser2InUse m_user2InUse;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_user1_ਵਿੱਚ_Use;
+    ਅਚਲ VNUser2_ਵਿੱਚ_Use m_user2_ਵਿੱਚ_Use;
 
-public:
-    using ForceHelperVarsByVar = AstUser3Allocator<AstVar, ForceHelperVars>;
+ਜਨਤਕ:
+    ਵਰਤੋਂ ForceHelperVarsByVar = AstUser3Allocator<AstVar, ForceHelperVars>;
     // Raw-variable reads never to replace, even in the other pass (see markPermanentlyProtected)
-    using ProtectedVarRefSet = std::unordered_set<const AstVarRef*>;
+    ਵਰਤੋਂ Protected_Var_Ref_ਸੈੱਟ = std::unordered_ਸੈੱਟ<ਅਚਲ AstVarRef*>;
     // AstVarScopes with force-rd-update logic already generated, by either pass
-    using BuiltVarScopeSet = std::unordered_set<const AstVarScope*>;
+    ਵਰਤੋਂ Built_Var_Scope_ਸੈੱਟ = std::unordered_ਸੈੱਟ<ਅਚਲ AstVarScope*>;
 
-private:
+ਨਿਜੀ:
     ForceHelperVarsByVar& m_forceHelperVarsByVar;
-    std::vector<VarForceInfo> m_varInfos;  // Indexed by stable variable ID
-    std::unordered_map<AstVarScope*, int> m_varToId;
-    std::unordered_set<AstVar*> m_clockedWrites;
-    std::unordered_map<AstVar*, std::vector<ForceInfo*>> m_rhsDepToForces;
+    std::ਸਦਿਸ਼<VarForceInfo> m_varInfos;  // Indexed by stable variable ID
+    std::unordered_map<AstVarScope*, ਪੂਰਨ> m_var_ਮੰਜ਼ਿਲ_Id;
+    std::unordered_ਸੈੱਟ<AstVar*> m_clockedWrites;
+    std::unordered_map<AstVar*, std::ਸਦਿਸ਼<ForceInfo*>> m_rhs_Dep_ਮੰਜ਼ਿਲ_Forces;
     std::unordered_map<AstScope*, ScopeVarCache> m_scopeVarCaches;
-    bool m_doingAssign = false;  // If true, we're processing procedural continuous assign
+    ਤਾਰਕਿਕ m_doing_ਸੌਂਪੋ = ਝੂਠ;  // If true, we're processing procedural continuous assign
                                  // statements instead of force statements
-    ProtectedVarRefSet& m_permanentlyProtected;
-    BuiltVarScopeSet& m_forceRdUpdateBuilt;
+    Protected_Var_Ref_ਸੈੱਟ& m_permanentlyProtected;
+    Built_Var_Scope_ਸੈੱਟ& m_forceRdUpdateBuilt;
 
-public:
-    ForceState(bool doingAssign, ForceHelperVarsByVar& forceHelperVarsByVar,
-               ProtectedVarRefSet& permanentlyProtected, BuiltVarScopeSet& forceRdUpdateBuilt)
+ਜਨਤਕ:
+    ForceState(ਤਾਰਕਿਕ doing_ਸੌਂਪੋ, ForceHelperVarsByVar& forceHelperVarsByVar,
+               Protected_Var_Ref_ਸੈੱਟ& permanentlyProtected, Built_Var_Scope_ਸੈੱਟ& forceRdUpdateBuilt)
         : m_forceHelperVarsByVar{forceHelperVarsByVar}
-        , m_doingAssign{doingAssign}
+        , m_doing_ਸੌਂਪੋ{doing_ਸੌਂਪੋ}
         , m_permanentlyProtected{permanentlyProtected}
         , m_forceRdUpdateBuilt{forceRdUpdateBuilt} {}
     VL_UNCOPYABLE(ForceState);
 
     // STATIC METHODS
-    static AstConst* makeZeroConst(AstNode* nodep, int width) {
-        V3Number zero{nodep, width};
-        zero.setAllBits0();
-        return new AstConst{nodep->fileline(), zero};
+    ਸਥਿਰ AstConst* makeZeroConst(Ast_ਗੰਢ* nodep, ਪੂਰਨ ਚੌੜਾਈ) {
+        V3_ਸੰਖਿਆ zero{nodep, ਚੌੜਾਈ};
+        zero.ਸੈੱਟ_All_Bits0();
+        ਵਾਪਸ ਨਵਾਂ AstConst{nodep->fileline(), zero};
     }
 
-    static AstConst* makeConst32(FileLine* flp, int value) {
-        return new AstConst{flp, AstConst::WidthedValue{}, 32, static_cast<uint32_t>(value)};
+    ਸਥਿਰ AstConst* makeConst32(File_ਸਤਰ* flp, ਪੂਰਨ ਮੁੱਲ) {
+        ਵਾਪਸ ਨਵਾਂ AstConst{flp, AstConst::Widthed_ਮੁੱਲ{}, 32, static_cast<uint32_t>(ਮੁੱਲ)};
     }
 
-    static AstConst* makeRangeMaskConst(AstNode* nodep, int width, int lsb, int msb) {
-        V3Number mask{nodep, width};
-        mask.setAllBits0();
-        for (int bit = lsb; bit <= msb; ++bit) mask.setBit(bit, 1);
-        return new AstConst{nodep->fileline(), mask};
+    ਸਥਿਰ AstConst* make_Range_ਨਕਾਬ_Const(Ast_ਗੰਢ* nodep, ਪੂਰਨ ਚੌੜਾਈ, ਪੂਰਨ lsb, ਪੂਰਨ msb) {
+        V3_ਸੰਖਿਆ ਨਕਾਬ{nodep, ਚੌੜਾਈ};
+        ਨਕਾਬ.ਸੈੱਟ_All_Bits0();
+        ਲਈ (ਪੂਰਨ ਦੋਆਧਾਰੀ_ਅੰਕ_2 = lsb; ਦੋਆਧਾਰੀ_ਅੰਕ_2 <= msb; ++ਦੋਆਧਾਰੀ_ਅੰਕ_2) ਨਕਾਬ.ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(ਦੋਆਧਾਰੀ_ਅੰਕ_2, 1);
+        ਵਾਪਸ ਨਵਾਂ AstConst{nodep->fileline(), ਨਕਾਬ};
     }
 
-    static AstNodeExpr* zeroPadToBaseWidth(AstNodeExpr* exprp, int baseWidth, int padLsb,
-                                           int padMsb) {
-        if (baseWidth <= 0) return exprp;
-        const int lowPad = padLsb;
-        const int highPad = baseWidth - (padMsb + 1);
-        if (lowPad > 0) {
-            exprp = new AstConcat{exprp->fileline(), exprp, makeZeroConst(exprp, lowPad)};
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* zero_Pad_ਮੰਜ਼ਿਲ_ਅਧਾਰ_ਚੌੜਾਈ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, ਪੂਰਨ ਅਧਾਰ_ਚੌੜਾਈ, ਪੂਰਨ padLsb,
+                                           ਪੂਰਨ padMsb) {
+        ਜੇ (ਅਧਾਰ_ਚੌੜਾਈ <= 0) ਵਾਪਸ exprp;
+        ਅਚਲ ਪੂਰਨ ਨੀਵਾਂ_Pad = padLsb;
+        ਅਚਲ ਪੂਰਨ ਉੱਚਾ_Pad = ਅਧਾਰ_ਚੌੜਾਈ - (padMsb + 1);
+        ਜੇ (ਨੀਵਾਂ_Pad > 0) {
+            exprp = ਨਵਾਂ AstConcat{exprp->fileline(), exprp, makeZeroConst(exprp, ਨੀਵਾਂ_Pad)};
         }
-        if (highPad > 0) {
-            exprp = new AstConcat{exprp->fileline(), makeZeroConst(exprp, highPad), exprp};
+        ਜੇ (ਉੱਚਾ_Pad > 0) {
+            exprp = ਨਵਾਂ AstConcat{exprp->fileline(), makeZeroConst(exprp, ਉੱਚਾ_Pad), exprp};
         }
-        return exprp;
+        ਵਾਪਸ exprp;
     }
 
-    static bool isUnpackedArrayDType(const AstNodeDType* dtypep) {
-        return VN_IS(dtypep->skipRefp(), UnpackArrayDType);
+    ਸਥਿਰ ਤਾਰਕਿਕ isUnpackedArrayDType(ਅਚਲ Ast_ਗੰਢ_DType* dtypep) {
+        ਵਾਪਸ VN_IS(dtypep->skipRefp(), UnpackArrayDType);
     }
 
-    static bool isBitwiseDType(const AstNode* nodep) {
-        const AstBasicDType* const basicp = nodep->dtypep()->skipRefp()->basicp();
-        return basicp && !basicp->isDouble() && !basicp->isString() && !basicp->isOpaque();
+    ਸਥਿਰ ਤਾਰਕਿਕ isBitwiseDType(ਅਚਲ Ast_ਗੰਢ* nodep) {
+        ਅਚਲ AstBasicDType* ਅਚਲ basicp = nodep->dtypep()->skipRefp()->basicp();
+        ਵਾਪਸ basicp && !basicp->isDouble() && !basicp->isString() && !basicp->isOpaque();
     }
 
-    static AstNodeExpr* castToNodeDType(AstNodeExpr* exprp, AstNode* dtypeFromp) {
-        const AstNodeDType* const dtypep = dtypeFromp->dtypep()->skipRefp();
-        const AstBasicDType* const basicp = dtypep->basicp();
-        if (!basicp || basicp->isDouble() || basicp->isString() || basicp->isOpaque()
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* cast_ਮੰਜ਼ਿਲ_ਗੰਢ_DType(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, Ast_ਗੰਢ* dtypeFromp) {
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = dtypeFromp->dtypep()->skipRefp();
+        ਅਚਲ AstBasicDType* ਅਚਲ basicp = dtypep->basicp();
+        ਜੇ (!basicp || basicp->isDouble() || basicp->isString() || basicp->isOpaque()
             || dtypep->isWide() || isUnpackedArrayDType(dtypep)) {
-            return exprp;
+            ਵਾਪਸ exprp;
         }
-        return new AstCCast{exprp->fileline(), exprp, dtypeFromp};
+        ਵਾਪਸ ਨਵਾਂ AstCCast{exprp->fileline(), exprp, dtypeFromp};
     }
 
-    static void markNonReplaceable(AstVarRef* const nodep) { nodep->user1SetOnce(); }
-    bool isNotReplaceable(const AstVarRef* const nodep) const {
-        return nodep->user1() || m_permanentlyProtected.count(nodep) > 0;
+    ਸਥਿਰ ਖਾਲੀ markNonReplaceable(AstVarRef* ਅਚਲ nodep) { nodep->user1_ਸੈੱਟ_Once(); }
+    ਤਾਰਕਿਕ isNotReplaceable(ਅਚਲ AstVarRef* ਅਚਲ nodep) ਅਚਲ {
+        ਵਾਪਸ nodep->user1() || m_permanentlyProtected.ਗਿਣਤੀ_2(nodep) > 0;
     }
     // Like markNonReplaceable(), but persists into the other of the force/assign pass too
-    void markPermanentlyProtected(AstVarRef* const nodep) const {
+    ਖਾਲੀ markPermanentlyProtected(AstVarRef* ਅਚਲ nodep) ਅਚਲ {
         markNonReplaceable(nodep);
-        m_permanentlyProtected.insert(nodep);
+        m_permanentlyProtected.ਪਾਓ(nodep);
     }
 
-    static std::vector<ForceInfo*> forceInfosInIdOrder(VarForceInfo& info) {
-        std::vector<ForceInfo*> forceps;
-        forceps.reserve(info.m_forces.size());
-        for (auto& it : info.m_forces) forceps.push_back(&it.second);
-        std::sort(forceps.begin(), forceps.end(), [](const ForceInfo* ap, const ForceInfo* bp) {
-            return ap->m_forceId < bp->m_forceId;
+    ਸਥਿਰ std::ਸਦਿਸ਼<ForceInfo*> force_Infos_ਵਿੱਚ_Id_ਕ੍ਰਮ(VarForceInfo& info) {
+        std::ਸਦਿਸ਼<ForceInfo*> forceps;
+        forceps.reserve(info.m_forces.ਮਾਪ());
+        ਲਈ (ਸਵੈਚਾਲਿਤ& it : info.m_forces) forceps.ਧੱਕੋ_ਪਿੱਠ(&it.ਦੂਜਾ);
+        std::ਛਾਂਟੋ(forceps.begin(), forceps.ਸਿਰਾ(), [](ਅਚਲ ForceInfo* ap, ਅਚਲ ForceInfo* bp) {
+            ਵਾਪਸ ap->m_forceId < bp->m_forceId;
         });
-        return forceps;
+        ਵਾਪਸ forceps;
     }
 
-    static std::vector<const ForceInfo*> forceInfosInIdOrder(const VarForceInfo& info) {
-        std::vector<const ForceInfo*> forceps;
-        forceps.reserve(info.m_forces.size());
-        for (const auto& it : info.m_forces) forceps.push_back(&it.second);
-        std::sort(forceps.begin(), forceps.end(), [](const ForceInfo* ap, const ForceInfo* bp) {
-            return ap->m_forceId < bp->m_forceId;
+    ਸਥਿਰ std::ਸਦਿਸ਼<ਅਚਲ ForceInfo*> force_Infos_ਵਿੱਚ_Id_ਕ੍ਰਮ(ਅਚਲ VarForceInfo& info) {
+        std::ਸਦਿਸ਼<ਅਚਲ ForceInfo*> forceps;
+        forceps.reserve(info.m_forces.ਮਾਪ());
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& it : info.m_forces) forceps.ਧੱਕੋ_ਪਿੱਠ(&it.ਦੂਜਾ);
+        std::ਛਾਂਟੋ(forceps.begin(), forceps.ਸਿਰਾ(), [](ਅਚਲ ForceInfo* ap, ਅਚਲ ForceInfo* bp) {
+            ਵਾਪਸ ap->m_forceId < bp->m_forceId;
         });
-        return forceps;
+        ਵਾਪਸ forceps;
     }
 
-    static bool isOpaquePathSelector(const AstNode* nodep) {
-        return VN_IS(nodep, Sel) || VN_IS(nodep, NodeSel) || VN_IS(nodep, StructSel);
+    ਸਥਿਰ ਤਾਰਕਿਕ is_Opaque_ਰਸਤਾ_Selector(ਅਚਲ Ast_ਗੰਢ* nodep) {
+        ਵਾਪਸ VN_IS(nodep, Sel) || VN_IS(nodep, ਗੰਢ_Sel) || VN_IS(nodep, StructSel);
     }
 
-    static bool isOutermostOpaquePathSelector(const AstNode* nodep) {
-        if (!isOpaquePathSelector(nodep)) return false;
-        const AstNode* const backp = nodep->backp();
-        return !backp || !isOpaquePathSelector(backp);
+    ਸਥਿਰ ਤਾਰਕਿਕ is_Outermost_Opaque_ਰਸਤਾ_Selector(ਅਚਲ Ast_ਗੰਢ* nodep) {
+        ਜੇ (!is_Opaque_ਰਸਤਾ_Selector(nodep)) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ Ast_ਗੰਢ* ਅਚਲ backp = nodep->backp();
+        ਵਾਪਸ !backp || !is_Opaque_ਰਸਤਾ_Selector(backp);
     }
 
-    static AstVarRef* getOneVarRef(AstNodeExpr* forceStmtp) {
-        AstNode* const basep = forceStmtp->baseFromp(true);
-        if (AstSampled* sampledp = VN_CAST(basep, Sampled))
-            if (AstNodeExpr* exprp = VN_CAST(sampledp->exprp(), NodeExpr))
-                return getOneVarRef(exprp);
-        AstVarRef* const varRefp = VN_CAST(basep, VarRef);
+    ਸਥਿਰ AstVarRef* getOneVarRef(Ast_ਗੰਢ_ਵਿਅੰਜਕ* forceStmtp) {
+        Ast_ਗੰਢ* ਅਚਲ basep = forceStmtp->ਅਧਾਰ_Fromp(ਸੱਚ);
+        ਜੇ (AstSampled* sampledp = VN_CAST(basep, Sampled))
+            ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = VN_CAST(sampledp->exprp(), ਗੰਢ_ਵਿਅੰਜਕ))
+                ਵਾਪਸ getOneVarRef(exprp);
+        AstVarRef* ਅਚਲ varRefp = VN_CAST(basep, VarRef);
         UASSERT_OBJ(varRefp, forceStmtp, "Force/release expression has no VarRef at its base");
-        return varRefp;
+        ਵਾਪਸ varRefp;
     }
 
-    static AstNodeExpr* buildNestedArraySel(FileLine* flp, AstNodeExpr* fromp,
-                                            const std::vector<int>& indicies) {
-        AstNodeExpr* curp = fromp;
-        for (const int idx : indicies) curp = new AstArraySel{flp, curp, idx};
-        return curp;
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* buildNestedArraySel(File_ਸਤਰ* flp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* fromp,
+                                            ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& indicies) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* curp = fromp;
+        ਲਈ (ਅਚਲ ਪੂਰਨ idx : indicies) curp = ਨਵਾਂ AstArraySel{flp, curp, idx};
+        ਵਾਪਸ curp;
     }
 
-    template <typename Fn>
-    static AstNodeStmt* foreachUnpackedLeaf(const std::vector<AstUnpackArrayDType*>& dims,
-                                            Fn buildLeaf) {
-        AstNodeStmt* headp = nullptr;
-        AstNodeStmt* tailp = nullptr;
-        if (dims.empty()) return nullptr;
-        int total = 1;
-        for (const AstUnpackArrayDType* const d : dims) total *= d->elementsConst();
-        if (total <= 0) return nullptr;
-        std::vector<int> idx(dims.size(), 0);
-        for (int flat = 0; flat < total; ++flat) {
-            AstNodeStmt* const stmtp = buildLeaf(idx, flat);
-            if (!headp) {
+    ਸਾਂਚਾ <ਕਿਸਮ_ਨਾਂ Fn>
+    ਸਥਿਰ Ast_ਗੰਢ_Stmt* foreach_Unpacked_ਪੱਤੀ(ਅਚਲ std::ਸਦਿਸ਼<AstUnpackArrayDType*>& dims,
+                                            Fn build_ਪੱਤੀ) {
+        Ast_ਗੰਢ_Stmt* headp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ_Stmt* tailp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (dims.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        ਪੂਰਨ ਕੁੱਲ = 1;
+        ਲਈ (ਅਚਲ AstUnpackArrayDType* ਅਚਲ d : dims) ਕੁੱਲ *= d->elementsConst();
+        ਜੇ (ਕੁੱਲ <= 0) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        std::ਸਦਿਸ਼<ਪੂਰਨ> idx(dims.ਮਾਪ(), 0);
+        ਲਈ (ਪੂਰਨ flat = 0; flat < ਕੁੱਲ; ++flat) {
+            Ast_ਗੰਢ_Stmt* ਅਚਲ stmtp = build_ਪੱਤੀ(idx, flat);
+            ਜੇ (!headp) {
                 headp = stmtp;
-            } else {
-                tailp->addNext(stmtp);
+            } ਨਹੀਂਤਾਂ {
+                tailp->ਜੋੜੋ_ਅਗਲਾ(stmtp);
             }
             tailp = stmtp;
-            for (int d = static_cast<int>(dims.size()) - 1; d >= 0; --d) {
-                if (++idx[d] < dims[d]->elementsConst()) break;
+            ਲਈ (ਪੂਰਨ d = static_cast<ਪੂਰਨ>(dims.ਮਾਪ()) - 1; d >= 0; --d) {
+                ਜੇ (++idx[d] < dims[d]->elementsConst()) ਰੋਕੋ;
                 idx[d] = 0;
             }
         }
-        return headp;
+        ਵਾਪਸ headp;
     }
 
-    ForceRangeInfo getForceRangeInfo(AstNodeExpr* lhsp, AstVar* varp,
-                                     bool requireConstRangeSelect) {
+    ForceRangeInfo getForceRangeInfo(Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsp, AstVar* varp,
+                                     ਤਾਰਕਿਕ requireConstRangeSelect) {
         ForceRangeInfo info;
         info.m_arrayInfo = getArraySelInfo(lhsp);
-        info.m_hasArraySel = !info.m_arrayInfo.m_sels.empty();
+        info.m_hasArraySel = !info.m_arrayInfo.m_sels.ਖਾਲੀ_ਥਾਵਾਂ();
 
-        info.m_padMsb = isBitwiseDType(varp) ? (varp->width() - 1) : 0;
+        info.m_padMsb = isBitwiseDType(varp) ? (varp->ਚੌੜਾਈ() - 1) : 0;
 
-        if (const AstSel* const outerSelp = VN_CAST(lhsp, Sel)) {
-            int totalLsb = 0;
-            for (AstNodeExpr* curp = lhsp; const AstSel* const selp = VN_CAST(curp, Sel);
+        ਜੇ (ਅਚਲ AstSel* ਅਚਲ outerSelp = VN_CAST(lhsp, Sel)) {
+            ਪੂਰਨ ਕੁੱਲ_Lsb = 0;
+            ਲਈ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* curp = lhsp; ਅਚਲ AstSel* ਅਚਲ selp = VN_CAST(curp, Sel);
                  curp = selp->fromp()) {
-                if (requireConstRangeSelect) {
+                ਜੇ (requireConstRangeSelect) {
                     UASSERT_OBJ(VN_IS(selp->lsbp(), Const), lhsp,
                                 "Unsupported: force on non-const range select");
                 }
-                totalLsb += selp->lsbConst();
+                ਕੁੱਲ_Lsb += selp->lsbConst();
             }
-            info.m_padLsb = totalLsb;
-            info.m_padMsb = totalLsb + outerSelp->widthConst() - 1;
+            info.m_padLsb = ਕੁੱਲ_Lsb;
+            info.m_padMsb = ਕੁੱਲ_Lsb + outerSelp->ਚੌੜਾਈ_Const() - 1;
         }
 
         info.m_rangeLsb = info.m_padLsb;
         info.m_rangeMsb = info.m_padMsb;
-        if (info.m_hasArraySel) {
+        ਜੇ (info.m_hasArraySel) {
             // Unpacked array selections are tracked as a single flattened element index
             // inside VlForceVec, regardless of how many unpacked dimensions the source uses.
-            std::vector<int> indices;
-            indices.reserve(info.m_arrayInfo.m_sels.size());
-            for (AstArraySel* const selp : info.m_arrayInfo.m_sels) {
+            std::ਸਦਿਸ਼<ਪੂਰਨ> indices;
+            indices.reserve(info.m_arrayInfo.m_sels.ਮਾਪ());
+            ਲਈ (AstArraySel* ਅਚਲ selp : info.m_arrayInfo.m_sels) {
                 UASSERT_OBJ(VN_IS(selp->bitp(), Const), selp,
                             "Unsupported: force on non-constant array select");
-                indices.push_back(VN_AS(selp->bitp(), Const)->toSInt());
+                indices.ਧੱਕੋ_ਪਿੱਠ(VN_AS(selp->bitp(), Const)->ਮੰਜ਼ਿਲ_SInt());
             }
-            info.m_rangeLsb = flattenIndex(indices, arraySelDimSizes(info.m_arrayInfo));
+            info.m_rangeLsb = flatten_ਸੂਚਕਾਂਕ(indices, arraySelDimSizes(info.m_arrayInfo));
 
             info.m_rangeMsb = info.m_rangeLsb;
-        } else if (isUnpackedArrayDType(varp->dtypep())) {
+        } ਨਹੀਂਤਾਂ ਜੇ (isUnpackedArrayDType(varp->dtypep())) {
             lhsp->v3fatalSrc("Whole unpacked-array force/release should have been lowered via "
                              "element selections");
         }
-        if (!isBitwiseDType(varp) && !info.m_hasArraySel && !VN_IS(lhsp, VarRef)) {
+        ਜੇ (!isBitwiseDType(varp) && !info.m_hasArraySel && !VN_IS(lhsp, VarRef)) {
             // Non-bitwise member/struct paths cannot use a real bit range, so map each distinct
             // source path onto a synthetic index in VlForceVec and use that index consistently
             // for force, release, and readback.
             VarForceInfo& varInfo = getOrCreateVarInfo(getOneVarRef(lhsp)->varScopep());
-            const int index = varInfo.getOrCreateForcePathIndex(lhsp);
-            info.m_rangeLsb = index;
-            info.m_rangeMsb = index;
+            ਅਚਲ ਪੂਰਨ ਸੂਚਕਾਂਕ = varInfo.get_Or_Create_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ(lhsp);
+            info.m_rangeLsb = ਸੂਚਕਾਂਕ;
+            info.m_rangeMsb = ਸੂਚਕਾਂਕ;
         }
-        return info;
+        ਵਾਪਸ info;
     }
 
-    AstNodeExpr* addRhsValueReads(const VarForceInfo& varInfo, AstNodeExpr* exprp) const {
-        if (!doingAssign()) return exprp;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਜੋੜੋ_Rhs_ਮੁੱਲ_Reads(ਅਚਲ VarForceInfo& varInfo, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) ਅਚਲ {
+        ਜੇ (!doing_ਸੌਂਪੋ()) ਵਾਪਸ exprp;
 
-        const std::vector<const ForceInfo*> forceps = forceInfosInIdOrder(varInfo);
-        if (forceps.empty()) return exprp;
+        ਅਚਲ std::ਸਦਿਸ਼<ਅਚਲ ForceInfo*> forceps = force_Infos_ਵਿੱਚ_Id_ਕ੍ਰਮ(varInfo);
+        ਜੇ (forceps.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ exprp;
 
         // VlForceVec stores pointers to RHS shadows, so expose those reads to scheduling.
-        AstCExpr* const cexprp = new AstCExpr{exprp->fileline(), AstCExpr::Pure{}};
+        AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{exprp->fileline(), AstCExpr::ਸ਼ੁੱਧ{}};
         cexprp->dtypeFrom(exprp);
-        cexprp->add("(");
-        for (const ForceInfo* const finfop : forceps) {
+        cexprp->ਜੋੜੋ("(");
+        ਲਈ (ਅਚਲ ForceInfo* ਅਚਲ finfop : forceps) {
             UASSERT_OBJ(finfop->m_rhsVarVscp, exprp, "No RHS var for forced variable");
-            AstVarRef* const refp
-                = new AstVarRef{exprp->fileline(), finfop->m_rhsVarVscp, VAccess::READ};
+            AstVarRef* ਅਚਲ refp
+                = ਨਵਾਂ AstVarRef{exprp->fileline(), finfop->m_rhsVarVscp, VAccess::READ};
             markNonReplaceable(refp);
-            cexprp->add("(void)(");
-            cexprp->add(refp);
-            cexprp->add("), ");
+            cexprp->ਜੋੜੋ("(void)(");
+            cexprp->ਜੋੜੋ(refp);
+            cexprp->ਜੋੜੋ("), ");
         }
-        cexprp->add(exprp);
-        cexprp->add(")");
-        return cexprp;
+        cexprp->ਜੋੜੋ(exprp);
+        cexprp->ਜੋੜੋ(")");
+        ਵਾਪਸ cexprp;
     }
 
-    AstNodeExpr* createForceReadCall(const VarForceInfo& varInfo, FileLine* flp, VCMethod method,
-                                     AstNodeExpr* originalExprp, AstNode* dtypeFromp,
-                                     AstNodeExpr* indexExprp) const {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* createForceReadCall(ਅਚਲ VarForceInfo& varInfo, File_ਸਤਰ* flp, VCMethod ਵਿਧੀ,
+                                     Ast_ਗੰਢ_ਵਿਅੰਜਕ* originalExprp, Ast_ਗੰਢ* dtypeFromp,
+                                     Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਸੂਚਕਾਂਕ_Exprp) ਅਚਲ {
         UASSERT(varInfo.m_forceVecVscp, "No forceVec for forced variable");
 
         // Protect only the read this call replaces, which would otherwise be replaced
@@ -399,1152 +399,1152 @@ public:
         // must still see its own force, including an index read of the same array as in
         // 'mem[mem[0]]'.
         markNonReplaceable(getOneVarRef(originalExprp));
-        AstNodeExpr* const origValp
-            = addRhsValueReads(varInfo, castToNodeDType(originalExprp, dtypeFromp));
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origValp
+            = ਜੋੜੋ_Rhs_ਮੁੱਲ_Reads(varInfo, cast_ਮੰਜ਼ਿਲ_ਗੰਢ_DType(originalExprp, dtypeFromp));
 
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, varInfo.m_forceVecVscp, VAccess::READ}, method, origValp};
-        if (indexExprp) callp->addPinsp(indexExprp);
+        AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
+            flp, ਨਵਾਂ AstVarRef{flp, varInfo.m_forceVecVscp, VAccess::READ}, ਵਿਧੀ, origValp};
+        ਜੇ (ਸੂਚਕਾਂਕ_Exprp) callp->ਜੋੜੋ_Pinsp(ਸੂਚਕਾਂਕ_Exprp);
         callp->dtypeFrom(dtypeFromp);
-        return callp;
+        ਵਾਪਸ callp;
     }
 
-    AstNodeExpr* createForceRdExpression(const VarForceInfo& varInfo, FileLine* flp) const {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* create_Force_Rd_ਵਿਅੰਜਕ(ਅਚਲ VarForceInfo& varInfo, File_ਸਤਰ* flp) ਅਚਲ {
         UASSERT(varInfo.m_varVscp, "No base var scope for forced variable");
-        AstVar* const varp = varInfo.m_varVscp->varp();
-        if (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+        AstVar* ਅਚਲ varp = varInfo.m_varVscp->varp();
+        ਜੇ (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
             // Array element forces live in the force vector, including partial-element forces.
             // The assign pass reuses the force-read shadow, as for an array element read.
-            if (doingAssign()) { return new AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::READ}; }
+            ਜੇ (doing_ਸੌਂਪੋ()) { ਵਾਪਸ ਨਵਾਂ AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::READ}; }
             // Whole-array force reads introduce artificial scheduling cycles.
-            varp->fileline()->modifyWarnOff(V3ErrorCode::UNOPTFLAT, true);
-            AstVarRef* const baseRefp = new AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
-            markPermanentlyProtected(baseRefp);
-            return createForceReadCall(varInfo, flp, VCMethod::FORCE_READ, baseRefp, varp,
-                                       nullptr);
+            varp->fileline()->modifyWarnOff(V3_Error_ਕੋਡ::UNOPTFLAT, ਸੱਚ);
+            AstVarRef* ਅਚਲ ਅਧਾਰ_Refp = ਨਵਾਂ AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
+            markPermanentlyProtected(ਅਧਾਰ_Refp);
+            ਵਾਪਸ createForceReadCall(varInfo, flp, VCMethod::FORCE_READ, ਅਧਾਰ_Refp, varp,
+                                       ਖਾਲੀ_ਸੂਚਕ);
         }
-        AstVarRef* const baseRefp = new AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
-        markPermanentlyProtected(baseRefp);
-        AstNodeExpr* const enRefp = new AstVarRef{flp, varInfo.m_forceEnVscp, VAccess::READ};
-        AstNodeExpr* const valRefp = new AstVarRef{flp, varInfo.m_forceValVscp, VAccess::READ};
-        if (isBitwiseDType(varp)) {
-            return new AstOr{
-                flp, new AstAnd{flp, enRefp, valRefp},
-                new AstAnd{flp, new AstNot{flp, enRefp->cloneTreePure(false)}, baseRefp}};
+        AstVarRef* ਅਚਲ ਅਧਾਰ_Refp = ਨਵਾਂ AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
+        markPermanentlyProtected(ਅਧਾਰ_Refp);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enRefp = ਨਵਾਂ AstVarRef{flp, varInfo.m_forceEnVscp, VAccess::READ};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valRefp = ਨਵਾਂ AstVarRef{flp, varInfo.m_forceValVscp, VAccess::READ};
+        ਜੇ (isBitwiseDType(varp)) {
+            ਵਾਪਸ ਨਵਾਂ AstOr{
+                flp, ਨਵਾਂ AstAnd{flp, enRefp, valRefp},
+                ਨਵਾਂ AstAnd{flp, ਨਵਾਂ AstNot{flp, enRefp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)}, ਅਧਾਰ_Refp}};
         }
-        return new AstCond{flp, enRefp, valRefp, baseRefp};
+        ਵਾਪਸ ਨਵਾਂ AstCond{flp, enRefp, valRefp, ਅਧਾਰ_Refp};
     }
 
-    AstNodeStmt* createForceRdUpdateStmt(const VarForceInfo& varInfo) const {
+    Ast_ਗੰਢ_Stmt* createForceRdUpdateStmt(ਅਚਲ VarForceInfo& varInfo) ਅਚਲ {
         UASSERT(varInfo.m_forceRdVscp, "No forceRd for forced variable");
-        AstVar* const varp = varInfo.m_varVscp->varp();
-        if (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
-            return createForceRdUpdateStmtUnpacked(varInfo);
+        AstVar* ਅਚਲ varp = varInfo.m_varVscp->varp();
+        ਜੇ (VN_IS(varp->dtypeSkipRefp(), UnpackArrayDType)) {
+            ਵਾਪਸ createForceRdUpdateStmtUnpacked(varInfo);
         }
-        FileLine* const flp = varInfo.m_varVscp->fileline();
-        return new AstAssign{flp, new AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::WRITE},
-                             createForceRdExpression(varInfo, flp)};
+        File_ਸਤਰ* ਅਚਲ flp = varInfo.m_varVscp->fileline();
+        ਵਾਪਸ ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, ਨਵਾਂ AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::WRITE},
+                             create_Force_Rd_ਵਿਅੰਜਕ(varInfo, flp)};
     }
 
-    AstNodeStmt* createForceRdUpdateStmtUnpacked(const VarForceInfo& varInfo) const {
-        FileLine* const flp = varInfo.m_varVscp->fileline();
-        AstVar* const varp = varInfo.m_varVscp->varp();
-        AstUnpackArrayDType* const arrDtypep = VN_AS(varp->dtypep()->skipRefp(), UnpackArrayDType);
-        const std::vector<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
-        AstNodeStmt* const stmtsp = foreachUnpackedLeaf(
-            dims, [&](const std::vector<int>& idx, int /*flat*/) -> AstNodeStmt* {
-                AstVarRef* const baseRefp = new AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
-                markPermanentlyProtected(baseRefp);
-                AstNodeExpr* const baseSelp = buildNestedArraySel(flp, baseRefp, idx);
-                AstNodeExpr* const enSelp = buildNestedArraySel(
-                    flp, new AstVarRef{flp, varInfo.m_forceEnVscp, VAccess::READ}, idx);
-                AstNodeExpr* const valSelp = buildNestedArraySel(
-                    flp, new AstVarRef{flp, varInfo.m_forceValVscp, VAccess::READ}, idx);
-                AstNodeExpr* const readExprp = new AstOr{
-                    flp, new AstAnd{flp, enSelp, valSelp},
-                    new AstAnd{flp, new AstNot{flp, enSelp->cloneTreePure(false)}, baseSelp}};
-                AstNodeExpr* const rdLhsSelp = buildNestedArraySel(
-                    flp, new AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::WRITE}, idx);
-                return new AstAssign{flp, rdLhsSelp, readExprp};
+    Ast_ਗੰਢ_Stmt* createForceRdUpdateStmtUnpacked(ਅਚਲ VarForceInfo& varInfo) ਅਚਲ {
+        File_ਸਤਰ* ਅਚਲ flp = varInfo.m_varVscp->fileline();
+        AstVar* ਅਚਲ varp = varInfo.m_varVscp->varp();
+        AstUnpackArrayDType* ਅਚਲ arrDtypep = VN_AS(varp->dtypep()->skipRefp(), UnpackArrayDType);
+        ਅਚਲ std::ਸਦਿਸ਼<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
+        Ast_ਗੰਢ_Stmt* ਅਚਲ stmtsp = foreach_Unpacked_ਪੱਤੀ(
+            dims, [&](ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& idx, ਪੂਰਨ /*flat*/) -> Ast_ਗੰਢ_Stmt* {
+                AstVarRef* ਅਚਲ ਅਧਾਰ_Refp = ਨਵਾਂ AstVarRef{flp, varInfo.m_varVscp, VAccess::READ};
+                markPermanentlyProtected(ਅਧਾਰ_Refp);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਅਧਾਰ_Selp = buildNestedArraySel(flp, ਅਧਾਰ_Refp, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enSelp = buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, varInfo.m_forceEnVscp, VAccess::READ}, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valSelp = buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, varInfo.m_forceValVscp, VAccess::READ}, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ readExprp = ਨਵਾਂ AstOr{
+                    flp, ਨਵਾਂ AstAnd{flp, enSelp, valSelp},
+                    ਨਵਾਂ AstAnd{flp, ਨਵਾਂ AstNot{flp, enSelp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)}, ਅਧਾਰ_Selp}};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rdLhsSelp = buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, varInfo.m_forceRdVscp, VAccess::WRITE}, idx);
+                ਵਾਪਸ ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, rdLhsSelp, readExprp};
             });
         // Whole-array reads use the force vector, whose external-force entries point to
         // RHS shadows. Refresh those alongside forceRd so blocking writes are visible
         // before the next statement. Only synthetic expressions are safe to reevaluate here.
-        for (const ForceInfo* const finfop : forceInfosInIdOrder(varInfo)) {
-            if (!finfop->m_isExternal) continue;
-            stmtsp->addNext(new AstAssign{flp,
-                                          new AstVarRef{flp, finfop->m_rhsVarVscp, VAccess::WRITE},
-                                          finfop->m_rhsExprp->cloneTreePure(false)});
+        ਲਈ (ਅਚਲ ForceInfo* ਅਚਲ finfop : force_Infos_ਵਿੱਚ_Id_ਕ੍ਰਮ(varInfo)) {
+            ਜੇ (!finfop->m_isExternal) ਜਾਰੀ;
+            stmtsp->ਜੋੜੋ_ਅਗਲਾ(ਨਵਾਂ Ast_ਸੌਂਪੋ{flp,
+                                          ਨਵਾਂ AstVarRef{flp, finfop->m_rhsVarVscp, VAccess::WRITE},
+                                          finfop->m_rhsExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)});
         }
-        return stmtsp;
+        ਵਾਪਸ stmtsp;
     }
 
     VarForceInfo& getOrCreateVarInfo(AstVarScope* vscp) {
-        const auto it = m_varToId.find(vscp);
-        if (it != m_varToId.end()) return m_varInfos[it->second];
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_var_ਮੰਜ਼ਿਲ_Id.ਲੱਭੋ(vscp);
+        ਜੇ (it != m_var_ਮੰਜ਼ਿਲ_Id.ਸਿਰਾ()) ਵਾਪਸ m_varInfos[it->ਦੂਜਾ];
 
-        m_varToId.emplace(vscp, m_varInfos.size());
-        m_varInfos.emplace_back();
-        VarForceInfo& info = m_varInfos.back();
+        m_var_ਮੰਜ਼ਿਲ_Id.emplace(vscp, m_varInfos.ਮਾਪ());
+        m_varInfos.emplace_ਪਿੱਠ();
+        VarForceInfo& info = m_varInfos.ਪਿੱਠ();
         info.m_varVscp = vscp;
         info.m_varp = vscp->varp();
         info.m_scopep = vscp->scopep();
 
-        AstVar* const varp = info.m_varp;
-        if (!varp->isForceable()) return info;
+        AstVar* ਅਚਲ varp = info.m_varp;
+        ਜੇ (!varp->isForceable()) ਵਾਪਸ info;
 
-        FileLine* const flp = varp->fileline();
+        File_ਸਤਰ* ਅਚਲ flp = varp->fileline();
         ForceHelperVars& helperVars = m_forceHelperVarsByVar(varp);
-        const bool helperVarsBuilt = helperVars.m_rdVarp != nullptr;
-        UASSERT_OBJ(helperVarsBuilt == (helperVars.m_enVarp != nullptr)
-                        && helperVarsBuilt == (helperVars.m_valVarp != nullptr),
+        ਅਚਲ ਤਾਰਕਿਕ helperVarsBuilt = helperVars.m_rdVarp != ਖਾਲੀ_ਸੂਚਕ;
+        UASSERT_OBJ(helperVarsBuilt == (helperVars.m_enVarp != ਖਾਲੀ_ਸੂਚਕ)
+                        && helperVarsBuilt == (helperVars.m_valVarp != ਖਾਲੀ_ਸੂਚਕ),
                     varp, "Incomplete force helper set");
-        if (!helperVarsBuilt) {
-            const bool unpacked = isUnpackedArrayDType(varp->dtypep());
-            const VVarType enValType = unpacked ? VVarType::WIRE : VVarType::VAR;
-            AstNodeDType* const enDtypep
-                = unpacked || isBitwiseDType(varp) ? varp->dtypep() : varp->findBitDType();
+        ਜੇ (!helperVarsBuilt) {
+            ਅਚਲ ਤਾਰਕਿਕ unpacked = isUnpackedArrayDType(varp->dtypep());
+            ਅਚਲ VVarType enValType = unpacked ? VVarType::WIRE : VVarType::VAR;
+            Ast_ਗੰਢ_DType* ਅਚਲ enDtypep
+                = unpacked || isBitwiseDType(varp) ? varp->dtypep() : varp->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType();
             helperVars.m_rdVarp
-                = new AstVar{flp, VVarType::WIRE, varp->name() + "__VforceRd", varp->dtypep()};
-            helperVars.m_rdVarp->sigPublic(true);
+                = ਨਵਾਂ AstVar{flp, VVarType::WIRE, varp->name() + "__VforceRd", varp->dtypep()};
+            helperVars.m_rdVarp->sig_ਜਨਤਕ(ਸੱਚ);
             helperVars.m_enVarp
-                = new AstVar{flp, enValType, varp->name() + "__VforceEn", enDtypep};
-            helperVars.m_enVarp->sigUserRWPublic(true);
+                = ਨਵਾਂ AstVar{flp, enValType, varp->name() + "__VforceEn", enDtypep};
+            helperVars.m_enVarp->sigUserRWPublic(ਸੱਚ);
             helperVars.m_valVarp
-                = new AstVar{flp, enValType, varp->name() + "__VforceVal", varp->dtypep()};
-            helperVars.m_valVarp->sigUserRWPublic(true);
-            varp->addNextHere(helperVars.m_rdVarp);
-            varp->addNextHere(helperVars.m_enVarp);
-            varp->addNextHere(helperVars.m_valVarp);
+                = ਨਵਾਂ AstVar{flp, enValType, varp->name() + "__VforceVal", varp->dtypep()};
+            helperVars.m_valVarp->sigUserRWPublic(ਸੱਚ);
+            varp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(helperVars.m_rdVarp);
+            varp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(helperVars.m_enVarp);
+            varp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(helperVars.m_valVarp);
         }
 
-        info.m_forceRdVscp = findScopeVar(info.m_scopep, helperVars.m_rdVarp);
-        info.m_forceEnVscp = findScopeVar(info.m_scopep, helperVars.m_enVarp);
-        info.m_forceValVscp = findScopeVar(info.m_scopep, helperVars.m_valVarp);
-        if (info.m_forceRdVscp || info.m_forceEnVscp || info.m_forceValVscp) {
+        info.m_forceRdVscp = ਲੱਭੋ_Scope_Var(info.m_scopep, helperVars.m_rdVarp);
+        info.m_forceEnVscp = ਲੱਭੋ_Scope_Var(info.m_scopep, helperVars.m_enVarp);
+        info.m_forceValVscp = ਲੱਭੋ_Scope_Var(info.m_scopep, helperVars.m_valVarp);
+        ਜੇ (info.m_forceRdVscp || info.m_forceEnVscp || info.m_forceValVscp) {
             UASSERT_OBJ(info.m_forceRdVscp && info.m_forceEnVscp && info.m_forceValVscp, vscp,
                         "Incomplete pre-existing force helper set");
-        } else {
-            info.m_forceRdVscp = new AstVarScope{flp, info.m_scopep, helperVars.m_rdVarp};
-            info.m_forceEnVscp = new AstVarScope{flp, info.m_scopep, helperVars.m_enVarp};
-            info.m_forceValVscp = new AstVarScope{flp, info.m_scopep, helperVars.m_valVarp};
-            info.m_scopep->addVarsp(info.m_forceRdVscp);
-            info.m_scopep->addVarsp(info.m_forceEnVscp);
-            info.m_scopep->addVarsp(info.m_forceValVscp);
+        } ਨਹੀਂਤਾਂ {
+            info.m_forceRdVscp = ਨਵਾਂ AstVarScope{flp, info.m_scopep, helperVars.m_rdVarp};
+            info.m_forceEnVscp = ਨਵਾਂ AstVarScope{flp, info.m_scopep, helperVars.m_enVarp};
+            info.m_forceValVscp = ਨਵਾਂ AstVarScope{flp, info.m_scopep, helperVars.m_valVarp};
+            info.m_scopep->ਜੋੜੋ_Varsp(info.m_forceRdVscp);
+            info.m_scopep->ਜੋੜੋ_Varsp(info.m_forceEnVscp);
+            info.m_scopep->ਜੋੜੋ_Varsp(info.m_forceValVscp);
         }
-        return info;
+        ਵਾਪਸ info;
     }
 
-    void markClockedWrite(AstVar* varp) { m_clockedWrites.insert(varp); }
-    bool hasClockedWrite(AstVar* varp) const { return m_clockedWrites.count(varp); }
+    ਖਾਲੀ markClockedWrite(AstVar* varp) { m_clockedWrites.ਪਾਓ(varp); }
+    ਤਾਰਕਿਕ hasClockedWrite(AstVar* varp) ਅਚਲ { ਵਾਪਸ m_clockedWrites.ਗਿਣਤੀ_2(varp); }
 
-    bool doingAssign() const { return m_doingAssign; }
+    ਤਾਰਕਿਕ doing_ਸੌਂਪੋ() ਅਚਲ { ਵਾਪਸ m_doing_ਸੌਂਪੋ; }
 
-    const VarForceInfo* getVarInfo(AstVarScope* vscp) const {
-        const auto it = m_varToId.find(vscp);
-        return it != m_varToId.end() ? &m_varInfos[it->second] : nullptr;
+    ਅਚਲ VarForceInfo* getVarInfo(AstVarScope* vscp) ਅਚਲ {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_var_ਮੰਜ਼ਿਲ_Id.ਲੱਭੋ(vscp);
+        ਵਾਪਸ it != m_var_ਮੰਜ਼ਿਲ_Id.ਸਿਰਾ() ? &m_varInfos[it->ਦੂਜਾ] : ਖਾਲੀ_ਸੂਚਕ;
     }
 
-    AstVarScope* findScopeVar(AstScope* scopep, const AstVar* varp) {
+    AstVarScope* ਲੱਭੋ_Scope_Var(AstScope* scopep, ਅਚਲ AstVar* varp) {
         ScopeVarCache& cache = m_scopeVarCaches[scopep];
-        if (cache.empty()) {
-            for (AstVarScope* vscp = scopep->varsp(); vscp;
+        ਜੇ (cache.ਖਾਲੀ_ਥਾਵਾਂ()) {
+            ਲਈ (AstVarScope* vscp = scopep->varsp(); vscp;
                  vscp = VN_AS(vscp->nextp(), VarScope)) {
                 cache.emplace(vscp->varp(), vscp);
             }
         }
-        const auto it = cache.find(varp);
-        return it != cache.end() ? it->second : nullptr;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = cache.ਲੱਭੋ(varp);
+        ਵਾਪਸ it != cache.ਸਿਰਾ() ? it->ਦੂਜਾ : ਖਾਲੀ_ਸੂਚਕ;
     }
-    void addForceAssignment(AstVar* varp, AstVarScope* vscp, AstNodeExpr* rhsExprp,
-                            AstAssignForce* forceStmtp, int rangeLsb, int rangeMsb, int padLsb,
-                            int padMsb, bool hasArraySel, bool skipRdRefresh = false) {
-        v3Global.setUsesForce();
-        varp->setForcedByCode();
+    ਖਾਲੀ ਜੋੜੋ_Force_Assignment(AstVar* varp, AstVarScope* vscp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* rhsExprp,
+                            Ast_ਸੌਂਪੋ_Force* forceStmtp, ਪੂਰਨ rangeLsb, ਪੂਰਨ rangeMsb, ਪੂਰਨ padLsb,
+                            ਪੂਰਨ padMsb, ਤਾਰਕਿਕ hasArraySel, ਤਾਰਕਿਕ skipRdRefresh = ਝੂਠ) {
+        v3Global.ਸੈੱਟ_ਵਰਤਦਾ_Force();
+        varp->ਸੈੱਟ_Forced_By_ਕੋਡ();
 
         VarForceInfo& info = getOrCreateVarInfo(vscp);
-        const int forceId = info.m_forces.size();
-        FileLine* const flp = varp->fileline();
-        AstScope* const scopep = vscp->scopep();
+        ਅਚਲ ਪੂਰਨ forceId = info.m_forces.ਮਾਪ();
+        File_ਸਤਰ* ਅਚਲ flp = varp->fileline();
+        AstScope* ਅਚਲ scopep = vscp->scopep();
         // Allocate one force vector per variable, no matter how many individual force
         // statements later target slices/elements of that variable.
-        if (!info.m_forceVecVscp) {
-            AstCDType* const forceVecDtypep = new AstCDType{flp, "VlForceVec"};
-            v3Global.rootp()->typeTablep()->addTypesp(forceVecDtypep);
+        ਜੇ (!info.m_forceVecVscp) {
+            AstCDType* ਅਚਲ forceVecDtypep = ਨਵਾਂ AstCDType{flp, "VlForceVec"};
+            v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(forceVecDtypep);
 
-            AstVar* const forceVecVarp
-                = new AstVar{flp, VVarType::MEMBER,
-                             varp->name() + (m_doingAssign ? "_VassignVec" : "__VforceVec") + "__"
+            AstVar* ਅਚਲ forceVecVarp
+                = ਨਵਾਂ AstVar{flp, VVarType::MEMBER,
+                             varp->name() + (m_doing_ਸੌਂਪੋ ? "_VassignVec" : "__VforceVec") + "__"
                                  + scopep->nameDotless(),
                              forceVecDtypep};
-            forceVecVarp->funcLocal(false);
-            forceVecVarp->isInternal(true);
-            varp->addNextHere(forceVecVarp);
-            info.m_forceVecVscp = new AstVarScope{flp, scopep, forceVecVarp};
-            scopep->addVarsp(info.m_forceVecVscp);
+            forceVecVarp->funcLocal(ਝੂਠ);
+            forceVecVarp->is_ਅੰਦਰੂਨੀ(ਸੱਚ);
+            varp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(forceVecVarp);
+            info.m_forceVecVscp = ਨਵਾਂ AstVarScope{flp, scopep, forceVecVarp};
+            scopep->ਜੋੜੋ_Varsp(info.m_forceVecVscp);
         }
 
-        auto pair = info.m_forces.emplace(forceStmtp,
+        ਸਵੈਚਾਲਿਤ pair = info.m_forces.emplace(forceStmtp,
                                           ForceInfo{rangeLsb, rangeMsb, padLsb, padMsb, forceId,
-                                                    hasArraySel, nullptr, rhsExprp});
-        ForceInfo& finfo = pair.first->second;
+                                                    hasArraySel, ਖਾਲੀ_ਸੂਚਕ, rhsExprp});
+        ForceInfo& finfo = pair.ਪਹਿਲਾ->ਦੂਜਾ;
         finfo.m_isExternal = forceStmtp->user2();
         finfo.m_skipRdRefresh = skipRdRefresh;
-        if (doingAssign()) {
-            std::vector<AstVar*> depVarps;
-            finfo.m_rhsExprp->foreach([&](AstVarRef* const refp) {
-                if (!refp->access().isReadOnly()) return;
-                AstVar* const depVarp = refp->varp();
-                if (depVarp
-                    && std::find(depVarps.begin(), depVarps.end(), depVarp) == depVarps.end()) {
-                    depVarps.push_back(depVarp);
+        ਜੇ (doing_ਸੌਂਪੋ()) {
+            std::ਸਦਿਸ਼<AstVar*> depVarps;
+            finfo.m_rhsExprp->foreach([&](AstVarRef* ਅਚਲ refp) {
+                ਜੇ (!refp->access().isReadOnly()) ਵਾਪਸ;
+                AstVar* ਅਚਲ depVarp = refp->varp();
+                ਜੇ (depVarp
+                    && std::ਲੱਭੋ(depVarps.begin(), depVarps.ਸਿਰਾ(), depVarp) == depVarps.ਸਿਰਾ()) {
+                    depVarps.ਧੱਕੋ_ਪਿੱਠ(depVarp);
                 }
             });
-            for (AstVar* const depVarp : depVarps) m_rhsDepToForces[depVarp].push_back(&finfo);
+            ਲਈ (AstVar* ਅਚਲ depVarp : depVarps) m_rhs_Dep_ਮੰਜ਼ਿਲ_Forces[depVarp].ਧੱਕੋ_ਪਿੱਠ(&finfo);
         }
 
         UINFO(3, "Added force ID " << forceId << " for " << varp->name() << " [" << rangeMsb << ":"
                                    << rangeLsb << "]\n");
     }
 
-    static void collectArraySelInfo(AstNodeExpr* exprp, ArraySelInfo& info) {
-        if (const auto* const selp = VN_CAST(exprp, Sel)) {
-            info.m_hasBitSel = true;
+    ਸਥਿਰ ਖਾਲੀ collectArraySelInfo(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, ArraySelInfo& info) {
+        ਜੇ (ਅਚਲ ਸਵੈਚਾਲਿਤ* ਅਚਲ selp = VN_CAST(exprp, Sel)) {
+            info.m_has_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel = ਸੱਚ;
             collectArraySelInfo(selp->fromp(), info);
-        } else if (auto* const selp = VN_CAST(exprp, ArraySel)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (ਸਵੈਚਾਲਿਤ* ਅਚਲ selp = VN_CAST(exprp, ArraySel)) {
             collectArraySelInfo(selp->fromp(), info);
-            info.m_sels.push_back(selp);
-        } else if (const auto* const memberp = VN_CAST(exprp, StructSel)) {
+            info.m_sels.ਧੱਕੋ_ਪਿੱਠ(selp);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ ਸਵੈਚਾਲਿਤ* ਅਚਲ memberp = VN_CAST(exprp, StructSel)) {
             collectArraySelInfo(memberp->fromp(), info);
         }
     }
 
-    static ArraySelInfo getArraySelInfo(AstNodeExpr* exprp) {
+    ਸਥਿਰ ArraySelInfo getArraySelInfo(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
         ArraySelInfo info;
         collectArraySelInfo(exprp, info);
-        return info;
+        ਵਾਪਸ info;
     }
 
-    static std::vector<int> arraySelDimSizes(const ArraySelInfo& info) {
-        std::vector<int> dims;
-        dims.reserve(info.m_sels.size());
-        for (AstArraySel* const selp : info.m_sels) {
-            AstNodeDType* const dtypep = selp->fromp()->dtypep()->skipRefp();
-            const AstUnpackArrayDType* const arrayp = VN_CAST(dtypep, UnpackArrayDType);
+    ਸਥਿਰ std::ਸਦਿਸ਼<ਪੂਰਨ> arraySelDimSizes(ਅਚਲ ArraySelInfo& info) {
+        std::ਸਦਿਸ਼<ਪੂਰਨ> dims;
+        dims.reserve(info.m_sels.ਮਾਪ());
+        ਲਈ (AstArraySel* ਅਚਲ selp : info.m_sels) {
+            Ast_ਗੰਢ_DType* ਅਚਲ dtypep = selp->fromp()->dtypep()->skipRefp();
+            ਅਚਲ AstUnpackArrayDType* ਅਚਲ arrayp = VN_CAST(dtypep, UnpackArrayDType);
             UASSERT_OBJ(arrayp, selp, "Array select is not on unpacked array");
-            dims.push_back(arrayp->declRange().elements());
+            dims.ਧੱਕੋ_ਪਿੱਠ(arrayp->declRange().elements());
         }
-        return dims;
+        ਵਾਪਸ dims;
     }
 
-    static int flattenIndex(const std::vector<int>& indices, const std::vector<int>& dimSizes) {
-        UASSERT(indices.size() == dimSizes.size(), "Array index and dimension size mismatch");
-        int index = 0;
-        int stride = 1;
-        for (int i = static_cast<int>(indices.size()) - 1; i >= 0; --i) {
-            index += indices[i] * stride;
+    ਸਥਿਰ ਪੂਰਨ flatten_ਸੂਚਕਾਂਕ(ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& indices, ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& dimSizes) {
+        UASSERT(indices.ਮਾਪ() == dimSizes.ਮਾਪ(), "Array index and dimension size mismatch");
+        ਪੂਰਨ ਸੂਚਕਾਂਕ = 0;
+        ਪੂਰਨ stride = 1;
+        ਲਈ (ਪੂਰਨ i = static_cast<ਪੂਰਨ>(indices.ਮਾਪ()) - 1; i >= 0; --i) {
+            ਸੂਚਕਾਂਕ += indices[i] * stride;
             stride *= dimSizes[i];
         }
-        return index;
+        ਵਾਪਸ ਸੂਚਕਾਂਕ;
     }
 
-    static AstNodeExpr* buildFlattenIndexExpr(FileLine* flp, const ArraySelInfo& info) {
-        const std::vector<int> dimSizes = arraySelDimSizes(info);
-        bool allConst = true;
-        for (AstArraySel* const selp : info.m_sels) {
-            if (!VN_IS(selp->bitp(), Const)) {
-                allConst = false;
-                break;
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* build_Flatten_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(File_ਸਤਰ* flp, ਅਚਲ ArraySelInfo& info) {
+        ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ> dimSizes = arraySelDimSizes(info);
+        ਤਾਰਕਿਕ allConst = ਸੱਚ;
+        ਲਈ (AstArraySel* ਅਚਲ selp : info.m_sels) {
+            ਜੇ (!VN_IS(selp->bitp(), Const)) {
+                allConst = ਝੂਠ;
+                ਰੋਕੋ;
             }
         }
-        if (allConst) {
-            std::vector<int> constIndices;
-            constIndices.reserve(info.m_sels.size());
-            for (AstArraySel* const selp : info.m_sels) {
-                constIndices.push_back(VN_AS(selp->bitp(), Const)->toSInt());
+        ਜੇ (allConst) {
+            std::ਸਦਿਸ਼<ਪੂਰਨ> constIndices;
+            constIndices.reserve(info.m_sels.ਮਾਪ());
+            ਲਈ (AstArraySel* ਅਚਲ selp : info.m_sels) {
+                constIndices.ਧੱਕੋ_ਪਿੱਠ(VN_AS(selp->bitp(), Const)->ਮੰਜ਼ਿਲ_SInt());
             }
-            return makeConst32(flp, flattenIndex(constIndices, dimSizes));
+            ਵਾਪਸ makeConst32(flp, flatten_ਸੂਚਕਾਂਕ(constIndices, dimSizes));
         }
         // A read may select the element at run time, so compute the same flattened index
         // as flattenIndex() does, but as an expression.  Only a force target has to be a
         // constant element; 'array[i]' with a variable 'i' is an ordinary read.
-        AstNodeExpr* resultp = nullptr;
-        int stride = 1;
-        for (int i = static_cast<int>(info.m_sels.size()) - 1; i >= 0; --i) {
-            AstNodeExpr* termp = info.m_sels[i]->bitp()->cloneTreePure(false);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* resultp = ਖਾਲੀ_ਸੂਚਕ;
+        ਪੂਰਨ stride = 1;
+        ਲਈ (ਪੂਰਨ i = static_cast<ਪੂਰਨ>(info.m_sels.ਮਾਪ()) - 1; i >= 0; --i) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* termp = info.m_sels[i]->bitp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
             // V3Width sizes an array index to at most 32 bits, so widening is all that
             // is needed to keep the arithmetic below width matched.
-            if (termp->width() < 32) termp = new AstExtend{flp, termp, 32};
-            if (stride != 1) termp = new AstMul{flp, termp, makeConst32(flp, stride)};
-            resultp = resultp ? new AstAdd{flp, resultp, termp} : termp;
+            ਜੇ (termp->ਚੌੜਾਈ() < 32) termp = ਨਵਾਂ AstExtend{flp, termp, 32};
+            ਜੇ (stride != 1) termp = ਨਵਾਂ AstMul{flp, termp, makeConst32(flp, stride)};
+            resultp = resultp ? ਨਵਾਂ Ast_ਜੋੜੋ{flp, resultp, termp} : termp;
             stride *= dimSizes[i];
         }
-        return resultp;
+        ਵਾਪਸ resultp;
     }
 
-    static AstNodeExpr* buildRhsDataExpr(FileLine* flp, const ForceInfo& finfo) {
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* build_Rhs_ਅੰਕੜੇ_ਵਿਅੰਜਕ(File_ਸਤਰ* flp, ਅਚਲ ForceInfo& finfo) {
         UASSERT(finfo.m_rhsVarVscp, "RHS var scope not assigned");
-        return new AstVarRef{flp, finfo.m_rhsVarVscp, VAccess::READ};
+        ਵਾਪਸ ਨਵਾਂ AstVarRef{flp, finfo.m_rhsVarVscp, VAccess::READ};
     }
 
-    void finalizeRhsVars() {
-        for (VarForceInfo& info : m_varInfos) {
-            AstVar* const varp = info.m_varp;
-            if (info.m_forces.empty()) continue;
+    ਖਾਲੀ finalizeRhsVars() {
+        ਲਈ (VarForceInfo& info : m_varInfos) {
+            AstVar* ਅਚਲ varp = info.m_varp;
+            ਜੇ (info.m_forces.ਖਾਲੀ_ਥਾਵਾਂ()) ਜਾਰੀ;
 
-            AstScope* const scopep = info.m_scopep;
+            AstScope* ਅਚਲ scopep = info.m_scopep;
             UASSERT_OBJ(scopep, varp, "Missing scope for force RHS vars");
 
-            FileLine* const flp = varp->fileline();
-            const std::vector<ForceInfo*> forceps = forceInfosInIdOrder(info);
+            File_ਸਤਰ* ਅਚਲ flp = varp->fileline();
+            ਅਚਲ std::ਸਦਿਸ਼<ForceInfo*> forceps = force_Infos_ਵਿੱਚ_Id_ਕ੍ਰਮ(info);
 
-            for (ForceInfo* const finfop : forceps) {
+            ਲਈ (ForceInfo* ਅਚਲ finfop : forceps) {
                 ForceInfo& finfo = *finfop;
                 UASSERT_OBJ(finfo.m_rhsExprp, varp, "Missing RHS expression for ForceInfo");
 
                 // Create per-force temporary storage for the captured RHS value.
-                AstVar* const rhsVarp = new AstVar{
+                AstVar* ਅਚਲ rhsVarp = ਨਵਾਂ AstVar{
                     flp, VVarType::VAR,
-                    varp->name() + (doingAssign() ? "_VassignRHS" : "__VforceRHS")
-                        + std::to_string(finfo.m_forceId) + "__" + scopep->nameDotless(),
+                    varp->name() + (doing_ਸੌਂਪੋ() ? "_VassignRHS" : "__VforceRHS")
+                        + std::ਮੰਜ਼ਿਲ_string(finfo.m_forceId) + "__" + scopep->nameDotless(),
                     finfo.m_rhsExprp->dtypep()};
-                rhsVarp->noSubst(true);
-                rhsVarp->sigPublic(true);
-                rhsVarp->setForcedByCode();
-                varp->addNextHere(rhsVarp);
-                finfo.m_rhsVarVscp = new AstVarScope{flp, scopep, rhsVarp};
-                scopep->addVarsp(finfo.m_rhsVarVscp);
+                rhsVarp->noSubst(ਸੱਚ);
+                rhsVarp->sig_ਜਨਤਕ(ਸੱਚ);
+                rhsVarp->ਸੈੱਟ_Forced_By_ਕੋਡ();
+                varp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(rhsVarp);
+                finfo.m_rhsVarVscp = ਨਵਾਂ AstVarScope{flp, scopep, rhsVarp};
+                scopep->ਜੋੜੋ_Varsp(finfo.m_rhsVarVscp);
 
                 // Array reads use the force vector even when a public read shadow exists.
                 // Keep their consumers ordered after RHS capture through forceVec.touch().
                 // always_comb begin
                 //   forceRHS[id] = rhsExpr;
                 //   forceVec.touch();  // When reads use the force vector
-                // end
-                AstAssign* const rhsAssignp = new AstAssign{
-                    flp, new AstVarRef{flp, finfo.m_rhsVarVscp, VAccess::WRITE}, finfo.m_rhsExprp};
+                //ਸਿਰਾ
+                Ast_ਸੌਂਪੋ* ਅਚਲ rhsAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                    flp, ਨਵਾਂ AstVarRef{flp, finfo.m_rhsVarVscp, VAccess::WRITE}, finfo.m_rhsExprp};
 
-                if (!info.m_forceRdVscp || isUnpackedArrayDType(varp->dtypep())) {
+                ਜੇ (!info.m_forceRdVscp || isUnpackedArrayDType(varp->dtypep())) {
                     // touch() is intentionally a semantic no-op at runtime: it creates an
                     // explicit use/ordering edge from the RHS-capture logic to the force vector
                     // so later optimization/scheduling passes keep this update path connected.
-                    AstCMethodHard* const touchCallp = new AstCMethodHard{
-                        flp, new AstVarRef{flp, info.m_forceVecVscp, VAccess::WRITE},
+                    AstCMethodHard* ਅਚਲ touchCallp = ਨਵਾਂ AstCMethodHard{
+                        flp, ਨਵਾਂ AstVarRef{flp, info.m_forceVecVscp, VAccess::WRITE},
                         VCMethod::FORCE_TOUCH};
-                    touchCallp->dtypeSetVoid();
-                    AstNodeStmt* const touchStmtp = touchCallp->makeStmt();
-                    rhsAssignp->addNextHere(touchStmtp);
+                    touchCallp->dtype_ਸੈੱਟ_Void();
+                    Ast_ਗੰਢ_Stmt* ਅਚਲ touchStmtp = touchCallp->makeStmt();
+                    rhsAssignp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(touchStmtp);
                 }
 
                 // Run both updates in a combinational always block.
-                AstAlways* const alwaysp
-                    = new AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr, rhsAssignp};
-                AstSenTree* const senTreep
-                    = new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Combo{}}};
-                AstActive* const activep = new AstActive{flp, "force-rhs-update", senTreep};
-                activep->senTreeStorep(activep->sentreep());
-                activep->addStmtsp(alwaysp);
-                scopep->addBlocksp(activep);
+                AstAlways* ਅਚਲ alwaysp
+                    = ਨਵਾਂ AstAlways{flp, VAlwaysKwd::ALWAYS, ਖਾਲੀ_ਸੂਚਕ, rhsAssignp};
+                Ast_Sen_ਰੁੱਖ* ਅਚਲ senTreep
+                    = ਨਵਾਂ Ast_Sen_ਰੁੱਖ{flp, ਨਵਾਂ Ast_Sen_ਵਸਤੂ{flp, Ast_Sen_ਵਸਤੂ::Combo{}}};
+                Ast_ਸਰਗਰਮ* ਅਚਲ activep = ਨਵਾਂ Ast_ਸਰਗਰਮ{flp, "force-rhs-update", senTreep};
+                activep->sen_ਰੁੱਖ_Storep(activep->sentreep());
+                activep->ਜੋੜੋ_Stmtsp(alwaysp);
+                scopep->ਜੋੜੋ_Blocksp(activep);
             }
 
-            if (info.m_forceRdVscp) {
-                if (!m_forceRdUpdateBuilt.insert(info.m_varVscp).second) continue;
-                AstActive* const activeInitp = new AstActive{
+            ਜੇ (info.m_forceRdVscp) {
+                ਜੇ (!m_forceRdUpdateBuilt.ਪਾਓ(info.m_varVscp).ਦੂਜਾ) ਜਾਰੀ;
+                Ast_ਸਰਗਰਮ* ਅਚਲ ਸਰਗਰਮ_Initp = ਨਵਾਂ Ast_ਸਰਗਰਮ{
                     flp, "force-init",
-                    new AstSenTree{flp, new AstSenItem{flp, AstSenItem::Static{}}}};
-                activeInitp->senTreeStorep(activeInitp->sentreep());
-                AstNodeStmt* initStmtp = nullptr;
-                if (AstUnpackArrayDType* const arrDtypep
+                    ਨਵਾਂ Ast_Sen_ਰੁੱਖ{flp, ਨਵਾਂ Ast_Sen_ਵਸਤੂ{flp, Ast_Sen_ਵਸਤੂ::Static{}}}};
+                ਸਰਗਰਮ_Initp->sen_ਰੁੱਖ_Storep(ਸਰਗਰਮ_Initp->sentreep());
+                Ast_ਗੰਢ_Stmt* initStmtp = ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (AstUnpackArrayDType* ਅਚਲ arrDtypep
                     = VN_CAST(varp->dtypeSkipRefp(), UnpackArrayDType)) {
-                    const std::vector<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
-                    const int innerWidth = dims.back()->subDTypep()->skipRefp()->width();
-                    initStmtp = foreachUnpackedLeaf(
-                        dims, [&](const std::vector<int>& idx, int /*flat*/) -> AstNodeStmt* {
-                            AstNodeExpr* const lhsp = buildNestedArraySel(
-                                flp, new AstVarRef{flp, info.m_forceEnVscp, VAccess::WRITE}, idx);
-                            return new AstAssign{flp, lhsp, makeZeroConst(varp, innerWidth)};
+                    ਅਚਲ std::ਸਦਿਸ਼<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
+                    ਅਚਲ ਪੂਰਨ inner_ਚੌੜਾਈ = dims.ਪਿੱਠ()->subDTypep()->skipRefp()->ਚੌੜਾਈ();
+                    initStmtp = foreach_Unpacked_ਪੱਤੀ(
+                        dims, [&](ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& idx, ਪੂਰਨ /*flat*/) -> Ast_ਗੰਢ_Stmt* {
+                            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = buildNestedArraySel(
+                                flp, ਨਵਾਂ AstVarRef{flp, info.m_forceEnVscp, VAccess::WRITE}, idx);
+                            ਵਾਪਸ ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, lhsp, makeZeroConst(varp, inner_ਚੌੜਾਈ)};
                         });
-                } else {
-                    initStmtp = new AstAssign{
-                        flp, new AstVarRef{flp, info.m_forceEnVscp, VAccess::WRITE},
-                        makeZeroConst(varp, info.m_forceEnVscp->width())};
+                } ਨਹੀਂਤਾਂ {
+                    initStmtp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                        flp, ਨਵਾਂ AstVarRef{flp, info.m_forceEnVscp, VAccess::WRITE},
+                        makeZeroConst(varp, info.m_forceEnVscp->ਚੌੜਾਈ())};
                 }
-                initStmtp->addNext(createForceRdUpdateStmt(info));
-                activeInitp->addStmtsp(new AstInitial{flp, initStmtp});
-                scopep->addBlocksp(activeInitp);
+                initStmtp->ਜੋੜੋ_ਅਗਲਾ(createForceRdUpdateStmt(info));
+                ਸਰਗਰਮ_Initp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstInitial{flp, initStmtp});
+                scopep->ਜੋੜੋ_Blocksp(ਸਰਗਰਮ_Initp);
 
-                AstSenItem* itemsp = nullptr;
-                auto addSenItem = [&](AstVarScope* vscp) {
-                    if (!vscp) return;
-                    AstSenItem* const nextp = new AstSenItem{
-                        flp, VEdgeType::ET_CHANGED, new AstVarRef{flp, vscp, VAccess::READ}};
-                    if (itemsp) {
-                        itemsp->addNext(nextp);
-                    } else {
+                Ast_Sen_ਵਸਤੂ* itemsp = ਖਾਲੀ_ਸੂਚਕ;
+                ਸਵੈਚਾਲਿਤ ਜੋੜੋ_Sen_ਵਸਤੂ = [&](AstVarScope* vscp) {
+                    ਜੇ (!vscp) ਵਾਪਸ;
+                    Ast_Sen_ਵਸਤੂ* ਅਚਲ nextp = ਨਵਾਂ Ast_Sen_ਵਸਤੂ{
+                        flp, VEdgeType::ET_ਬਦਲਿਆ, ਨਵਾਂ AstVarRef{flp, vscp, VAccess::READ}};
+                    ਜੇ (itemsp) {
+                        itemsp->ਜੋੜੋ_ਅਗਲਾ(nextp);
+                    } ਨਹੀਂਤਾਂ {
                         itemsp = nextp;
                     }
                 };
-                addSenItem(info.m_forceEnVscp);
-                addSenItem(info.m_forceValVscp);
-                AstVarRef* const origSenRefp = new AstVarRef{flp, info.m_varVscp, VAccess::READ};
+                ਜੋੜੋ_Sen_ਵਸਤੂ(info.m_forceEnVscp);
+                ਜੋੜੋ_Sen_ਵਸਤੂ(info.m_forceValVscp);
+                AstVarRef* ਅਚਲ origSenRefp = ਨਵਾਂ AstVarRef{flp, info.m_varVscp, VAccess::READ};
                 markPermanentlyProtected(origSenRefp);
-                AstSenItem* const origItemp
-                    = new AstSenItem{flp, VEdgeType::ET_CHANGED, origSenRefp};
-                if (!itemsp) varp->v3fatalSrc("force-rd-update missing force-enable sen item");
-                itemsp->addNext(origItemp);
-                for (ForceInfo* const finfop : forceps) {
-                    if (!finfop->m_isExternal) addSenItem(finfop->m_rhsVarVscp);
+                Ast_Sen_ਵਸਤੂ* ਅਚਲ origItemp
+                    = ਨਵਾਂ Ast_Sen_ਵਸਤੂ{flp, VEdgeType::ET_ਬਦਲਿਆ, origSenRefp};
+                ਜੇ (!itemsp) varp->v3fatalSrc("force-rd-update missing force-enable sen item");
+                itemsp->ਜੋੜੋ_ਅਗਲਾ(origItemp);
+                ਲਈ (ForceInfo* ਅਚਲ finfop : forceps) {
+                    ਜੇ (!finfop->m_isExternal) ਜੋੜੋ_Sen_ਵਸਤੂ(finfop->m_rhsVarVscp);
                 }
 
-                AstActive* const activep
-                    = new AstActive{flp, "force-rd-update", new AstSenTree{flp, itemsp}};
-                activep->senTreeStorep(activep->sentreep());
-                activep->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr,
+                Ast_ਸਰਗਰਮ* ਅਚਲ activep
+                    = ਨਵਾਂ Ast_ਸਰਗਰਮ{flp, "force-rd-update", ਨਵਾਂ Ast_Sen_ਰੁੱਖ{flp, itemsp}};
+                activep->sen_ਰੁੱਖ_Storep(activep->sentreep());
+                activep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstAlways{flp, VAlwaysKwd::ALWAYS, ਖਾਲੀ_ਸੂਚਕ,
                                                  createForceRdUpdateStmt(info)});
-                scopep->addBlocksp(activep);
+                scopep->ਜੋੜੋ_Blocksp(activep);
             }
         }
     }
 
-    AstNode* createRhsUpdatesForWrite(FileLine* flp, AstVar* writtenVarp) const {
-        if (!doingAssign()) return nullptr;
+    Ast_ਗੰਢ* createRhsUpdatesForWrite(File_ਸਤਰ* flp, AstVar* writtenVarp) ਅਚਲ {
+        ਜੇ (!doing_ਸੌਂਪੋ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 
-        const auto it = m_rhsDepToForces.find(writtenVarp);
-        if (it == m_rhsDepToForces.end()) return nullptr;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_rhs_Dep_ਮੰਜ਼ਿਲ_Forces.ਲੱਭੋ(writtenVarp);
+        ਜੇ (it == m_rhs_Dep_ਮੰਜ਼ਿਲ_Forces.ਸਿਰਾ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 
-        AstNode* headp = nullptr;
-        AstNode* tailp = nullptr;
-        for (const ForceInfo* const finfop : it->second) {
+        Ast_ਗੰਢ* headp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ* tailp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਅਚਲ ForceInfo* ਅਚਲ finfop : it->ਦੂਜਾ) {
             UASSERT_OBJ(finfop->m_rhsVarVscp, writtenVarp, "No RHS var for forced variable");
             UASSERT_OBJ(finfop->m_rhsExprp, writtenVarp, "Missing RHS expression");
-            AstAssign* const updatep
-                = new AstAssign{flp, new AstVarRef{flp, finfop->m_rhsVarVscp, VAccess::WRITE},
-                                finfop->m_rhsExprp->cloneTreePure(false)};
-            if (tailp) {
-                tailp->addNextHere(updatep);
-            } else {
+            Ast_ਸੌਂਪੋ* ਅਚਲ updatep
+                = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, ਨਵਾਂ AstVarRef{flp, finfop->m_rhsVarVscp, VAccess::WRITE},
+                                finfop->m_rhsExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+            ਜੇ (tailp) {
+                tailp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(updatep);
+            } ਨਹੀਂਤਾਂ {
                 headp = updatep;
             }
             tailp = updatep;
         }
-        return headp;
+        ਵਾਪਸ headp;
     }
 
-    const ForceInfo& getForceInfo(AstAssignForce* forceStmtp) const {
-        AstVarScope* const vscp = getOneVarRef(forceStmtp->lhsp())->varScopep();
-        const VarForceInfo* const varInfo = getVarInfo(vscp);
+    ਅਚਲ ForceInfo& getForceInfo(Ast_ਸੌਂਪੋ_Force* forceStmtp) ਅਚਲ {
+        AstVarScope* ਅਚਲ vscp = getOneVarRef(forceStmtp->lhsp())->varScopep();
+        ਅਚਲ VarForceInfo* ਅਚਲ varInfo = getVarInfo(vscp);
         UASSERT(varInfo, "Force info not found for variable");
-        auto it2 = varInfo->m_forces.find(forceStmtp);
-        UASSERT(it2 != varInfo->m_forces.end(), "Force statement not found");
-        return it2->second;
+        ਸਵੈਚਾਲਿਤ it2 = varInfo->m_forces.ਲੱਭੋ(forceStmtp);
+        UASSERT(it2 != varInfo->m_forces.ਸਿਰਾ(), "Force statement not found");
+        ਵਾਪਸ it2->ਦੂਜਾ;
     }
 
-    static bool selOverlapsAnyForce(const VarForceInfo& varInfo, int selLsb, int selMsb) {
-        for (const auto& pair : varInfo.m_forces) {
-            if (pair.second.m_rangeLsb <= selMsb && pair.second.m_rangeMsb >= selLsb) return true;
+    ਸਥਿਰ ਤਾਰਕਿਕ selOverlapsAnyForce(ਅਚਲ VarForceInfo& varInfo, ਪੂਰਨ selLsb, ਪੂਰਨ selMsb) {
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& pair : varInfo.m_forces) {
+            ਜੇ (pair.ਦੂਜਾ.m_rangeLsb <= selMsb && pair.ਦੂਜਾ.m_rangeMsb >= selLsb) ਵਾਪਸ ਸੱਚ;
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
 
-    AstNodeExpr* createForceReadExpression(const VarForceInfo& varInfo,
-                                           AstVarRef* originalRefp) const {
-        FileLine* const flp = originalRefp->fileline();
-        AstVarRef* const refp = originalRefp->cloneTreePure(false);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* create_Force_Read_ਵਿਅੰਜਕ(ਅਚਲ VarForceInfo& varInfo,
+                                           AstVarRef* originalRefp) ਅਚਲ {
+        File_ਸਤਰ* ਅਚਲ flp = originalRefp->fileline();
+        AstVarRef* ਅਚਲ refp = originalRefp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
         refp->access(VAccess::READ);
-        return createForceReadCall(varInfo, flp, VCMethod::FORCE_READ, refp, refp->varp(),
-                                   nullptr);
+        ਵਾਪਸ createForceReadCall(varInfo, flp, VCMethod::FORCE_READ, refp, refp->varp(),
+                                   ਖਾਲੀ_ਸੂਚਕ);
     }
 
-    AstNodeExpr* createForceReadIndexExpression(const VarForceInfo& varInfo,
-                                                AstNodeExpr* originalExprp,
-                                                AstNodeExpr* indexExprp) const {
-        FileLine* const flp = originalExprp->fileline();
-        AstNodeExpr* const exprp = originalExprp->cloneTreePure(false);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* create_Force_Read_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(ਅਚਲ VarForceInfo& varInfo,
+                                                Ast_ਗੰਢ_ਵਿਅੰਜਕ* originalExprp,
+                                                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਸੂਚਕਾਂਕ_Exprp) ਅਚਲ {
+        File_ਸਤਰ* ਅਚਲ flp = originalExprp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = originalExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
         // Must be an LValue to a static variable
-        VN_AS(exprp->getVAccessTargetRecurse(), VarRef)->access(VAccess::READ);
-        return createForceReadCall(varInfo, flp, VCMethod::FORCE_READ_INDEX, exprp, originalExprp,
-                                   indexExprp);
+        VN_AS(exprp->get_VAccess_ਨਿਸ਼ਾਨਾ_Recurse(), VarRef)->access(VAccess::READ);
+        ਵਾਪਸ createForceReadCall(varInfo, flp, VCMethod::FORCE_READ_ਸੂਚਕਾਂਕ, exprp, originalExprp,
+                                   ਸੂਚਕਾਂਕ_Exprp);
     }
 
-    static AstNodeExpr* rebuildSelPath(AstNodeExpr* pathp, AstNodeExpr* baseExprp) {
-        if (const AstSel* const selp = VN_CAST(pathp, Sel)) {
-            AstNodeExpr* const fromp = rebuildSelPath(selp->fromp(), baseExprp);
-            AstSel* const outp
-                = new AstSel{selp->fileline(), fromp, selp->lsbConst(), selp->widthConst()};
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* rebuild_Sel_ਰਸਤਾ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* pathp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਧਾਰ_Exprp) {
+        ਜੇ (ਅਚਲ AstSel* ਅਚਲ selp = VN_CAST(pathp, Sel)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = rebuild_Sel_ਰਸਤਾ(selp->fromp(), ਅਧਾਰ_Exprp);
+            AstSel* ਅਚਲ outp
+                = ਨਵਾਂ AstSel{selp->fileline(), fromp, selp->lsbConst(), selp->ਚੌੜਾਈ_Const()};
             outp->dtypeFrom(selp);
-            return outp;
+            ਵਾਪਸ outp;
         }
-        return baseExprp;
+        ਵਾਪਸ ਅਧਾਰ_Exprp;
     }
 };
 
 // Split deassign concat LHS before converting to release internals.
-static void splitDeassign(AstDeassign* nodep) {
-    AstConcat* const concatp = VN_CAST(nodep->lhsp(), Concat);
-    if (!concatp) return;
+ਸਥਿਰ ਖਾਲੀ ਵੰਡੋ_Deassign(AstDeassign* nodep) {
+    AstConcat* ਅਚਲ concatp = VN_CAST(nodep->lhsp(), Concat);
+    ਜੇ (!concatp) ਵਾਪਸ;
 
-    FileLine* const flp = nodep->fileline();
-    AstDeassign* const newLp = new AstDeassign{flp, concatp->lhsp()->unlinkFrBack()};
-    AstDeassign* const newRp = new AstDeassign{flp, concatp->rhsp()->unlinkFrBack()};
-    AstNodeExpr* const conp = concatp->unlinkFrBack();
+    File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
+    AstDeassign* ਅਚਲ newLp = ਨਵਾਂ AstDeassign{flp, concatp->lhsp()->unlink_Fr_ਪਿੱਠ()};
+    AstDeassign* ਅਚਲ newRp = ਨਵਾਂ AstDeassign{flp, concatp->rhsp()->unlink_Fr_ਪਿੱਠ()};
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ conp = concatp->unlink_Fr_ਪਿੱਠ();
     nodep->replaceWith(newLp);
-    newLp->addNextHere(newRp);
-    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-    VL_DO_DANGLING(conp->deleteTree(), conp);
+    newLp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(newRp);
+    VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+    VL_DO_DANGLING(conp->delete_ਰੁੱਖ(), conp);
 
-    splitDeassign(newLp);
-    splitDeassign(newRp);
+    ਵੰਡੋ_Deassign(newLp);
+    ਵੰਡੋ_Deassign(newRp);
 }
 
 //######################################################################
 // ForceDiscoveryVisitor - Discover force statements
 
-class ForceDiscoveryVisitor final : public VNVisitorConst {
+ਵਰਗ ForceDiscoveryVisitor final : ਜਨਤਕ VNVisitorConst {
     ForceState& m_state;
-    bool m_inClockedActive = false;
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Clocked_ਸਰਗਰਮ = ਝੂਠ;
 
-    void buildForceableUnpackedArray(AstVarScope* const nodep,
-                                     AstUnpackArrayDType* const arrDtypep) {
-        AstVar* const varp = nodep->varp();
-        const std::vector<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
-        UASSERT_OBJ(!dims.empty(), varp,
+    ਖਾਲੀ buildForceableUnpackedArray(AstVarScope* ਅਚਲ nodep,
+                                     AstUnpackArrayDType* ਅਚਲ arrDtypep) {
+        AstVar* ਅਚਲ varp = nodep->varp();
+        ਅਚਲ std::ਸਦਿਸ਼<AstUnpackArrayDType*> dims = arrDtypep->unpackDimensions();
+        UASSERT_OBJ(!dims.ਖਾਲੀ_ਥਾਵਾਂ(), varp,
                     "buildForceableUnpackedArray called with non-unpacked dtype");
-        const AstNodeDType* const leafDtypep = dims.back()->subDTypep()->skipRefp();
-        const AstBasicDType* const innerBasicp = leafDtypep->basicp();
-        if (!innerBasicp || !ForceState::isBitwiseDType(innerBasicp)) {
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ ਪੱਤੀ_Dtypep = dims.ਪਿੱਠ()->subDTypep()->skipRefp();
+        ਅਚਲ AstBasicDType* ਅਚਲ innerBasicp = ਪੱਤੀ_Dtypep->basicp();
+        ਜੇ (!innerBasicp || !ForceState::isBitwiseDType(innerBasicp)) {
             varp->v3warn(E_UNSUPPORTED,
                          "Unsupported: Forcing unpacked arrays of non-bitwise inner type: "
                              << varp->name());  // (#4735)
-            return;
+            ਵਾਪਸ;
         }
 
-        FileLine* const flp = varp->fileline();
-        const int innerWidth = leafDtypep->width();
+        File_ਸਤਰ* ਅਚਲ flp = varp->fileline();
+        ਅਚਲ ਪੂਰਨ inner_ਚੌੜਾਈ = ਪੱਤੀ_Dtypep->ਚੌੜਾਈ();
 
         ForceState::VarForceInfo& info = m_state.getOrCreateVarInfo(nodep);
-        AstVarScope* const enVscp = info.m_forceEnVscp;
-        AstVarScope* const valVscp = info.m_forceValVscp;
+        AstVarScope* ਅਚਲ enVscp = info.m_forceEnVscp;
+        AstVarScope* ਅਚਲ valVscp = info.m_forceValVscp;
 
-        AstSenItem* const itemsp = new AstSenItem{flp, VEdgeType::ET_CHANGED,
-                                                  new AstVarRef{flp, enVscp, VAccess::READ}};
-        AstActive* const activep = new AstActive{flp, "force-update", new AstSenTree{flp, itemsp}};
-        activep->senTreeStorep(activep->sentreep());
+        Ast_Sen_ਵਸਤੂ* ਅਚਲ itemsp = ਨਵਾਂ Ast_Sen_ਵਸਤੂ{flp, VEdgeType::ET_ਬਦਲਿਆ,
+                                                  ਨਵਾਂ AstVarRef{flp, enVscp, VAccess::READ}};
+        Ast_ਸਰਗਰਮ* ਅਚਲ activep = ਨਵਾਂ Ast_ਸਰਗਰਮ{flp, "force-update", ਨਵਾਂ Ast_Sen_ਰੁੱਖ{flp, itemsp}};
+        activep->sen_ਰੁੱਖ_Storep(activep->sentreep());
 
-        AstNodeStmt* const alwaysBodyHeadp = ForceState::foreachUnpackedLeaf(
-            dims, [&](const std::vector<int>& idx, int flat) -> AstNodeStmt* {
-                AstVarRef* const origRefp = new AstVarRef{flp, nodep, VAccess::READ};
+        Ast_ਗੰਢ_Stmt* ਅਚਲ alwaysBodyHeadp = ForceState::foreach_Unpacked_ਪੱਤੀ(
+            dims, [&](ਅਚਲ std::ਸਦਿਸ਼<ਪੂਰਨ>& idx, ਪੂਰਨ flat) -> Ast_ਗੰਢ_Stmt* {
+                AstVarRef* ਅਚਲ origRefp = ਨਵਾਂ AstVarRef{flp, nodep, VAccess::READ};
                 ForceState::markNonReplaceable(origRefp);
-                AstNodeExpr* const origSelp = ForceState::buildNestedArraySel(flp, origRefp, idx);
-                AstNodeExpr* const enSelp = ForceState::buildNestedArraySel(
-                    flp, new AstVarRef{flp, enVscp, VAccess::READ}, idx);
-                AstNodeExpr* const valSelp = ForceState::buildNestedArraySel(
-                    flp, new AstVarRef{flp, valVscp, VAccess::READ}, idx);
-                AstNodeExpr* const forceExprp = new AstOr{
-                    flp, new AstAnd{flp, enSelp, valSelp},
-                    new AstAnd{flp, new AstNot{flp, enSelp->cloneTreePure(false)}, origSelp}};
-                AstNodeExpr* const lhsSelp = ForceState::buildNestedArraySel(
-                    flp, new AstVarRef{flp, nodep, VAccess::WRITE}, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origSelp = ForceState::buildNestedArraySel(flp, origRefp, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enSelp = ForceState::buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, enVscp, VAccess::READ}, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valSelp = ForceState::buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, valVscp, VAccess::READ}, idx);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ forceExprp = ਨਵਾਂ AstOr{
+                    flp, ਨਵਾਂ AstAnd{flp, enSelp, valSelp},
+                    ਨਵਾਂ AstAnd{flp, ਨਵਾਂ AstNot{flp, enSelp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)}, origSelp}};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsSelp = ForceState::buildNestedArraySel(
+                    flp, ਨਵਾਂ AstVarRef{flp, nodep, VAccess::WRITE}, idx);
 
-                AstAssignForce* const forceAssignp = new AstAssignForce{flp, lhsSelp, forceExprp};
-                forceAssignp->user2(true);
+                Ast_ਸੌਂਪੋ_Force* ਅਚਲ forceAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ_Force{flp, lhsSelp, forceExprp};
+                forceAssignp->user2(ਸੱਚ);
 
-                AstNodeExpr* const rhsClonep = forceExprp->cloneTreePure(false);
-                rhsClonep->foreach([varp](AstVarRef* const r) {
-                    if (r->varp() == varp) ForceState::markNonReplaceable(r);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsClonep = forceExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                rhsClonep->foreach([varp](AstVarRef* ਅਚਲ r) {
+                    ਜੇ (r->varp() == varp) ForceState::markNonReplaceable(r);
                 });
-                m_state.addForceAssignment(varp, nodep, rhsClonep, forceAssignp,
+                m_state.ਜੋੜੋ_Force_Assignment(varp, nodep, rhsClonep, forceAssignp,
                                            /*rangeLsb=*/flat, /*rangeMsb=*/flat,
-                                           /*padLsb=*/0, /*padMsb=*/innerWidth - 1,
-                                           /*hasArraySel=*/true, /*skipRdRefresh=*/true);
-                return forceAssignp;
+                                           /*padLsb=*/0, /*padMsb=*/inner_ਚੌੜਾਈ - 1,
+                                           /*hasArraySel=*/ਸੱਚ, /*skipRdRefresh=*/ਸੱਚ);
+                ਵਾਪਸ forceAssignp;
             });
-        activep->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr, alwaysBodyHeadp});
-        nodep->scopep()->addBlocksp(activep);
+        activep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstAlways{flp, VAlwaysKwd::ALWAYS, ਖਾਲੀ_ਸੂਚਕ, alwaysBodyHeadp});
+        nodep->scopep()->ਜੋੜੋ_Blocksp(activep);
     }
 
-    void visit(AstAssignForce* nodep) override {
-        if (nodep->user2()) return;  // External force statements are pre-registered.
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Force* nodep) override {
+        ਜੇ (nodep->user2()) ਵਾਪਸ;  // External force statements are pre-registered.
         UINFO(2, "Discovering force statement: " << nodep << "\n");
 
-        AstVarRef* const lhsVarRefp = m_state.getOneVarRef(nodep->lhsp());
-        AstVar* const forcedVarp = lhsVarRefp->varp();
+        AstVarRef* ਅਚਲ lhsVarRefp = m_state.getOneVarRef(nodep->lhsp());
+        AstVar* ਅਚਲ forcedVarp = lhsVarRefp->varp();
         UASSERT(forcedVarp, "VarRef missing Varp");
 
         // Resolve force bookkeeping range/padding for the LHS shape.
         ForceState::ForceRangeInfo rangeInfo
-            = m_state.getForceRangeInfo(nodep->lhsp(), forcedVarp, true);
+            = m_state.getForceRangeInfo(nodep->lhsp(), forcedVarp, ਸੱਚ);
 
         // Keep narrow rhs, VlForceVec blends unpacked-array bit-select forces at read time
-        AstNodeExpr* const rhsExprp = nodep->rhsp()->cloneTreePure(false);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsExprp = nodep->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
 
-        m_state.addForceAssignment(forcedVarp, lhsVarRefp->varScopep(), rhsExprp, nodep,
+        m_state.ਜੋੜੋ_Force_Assignment(forcedVarp, lhsVarRefp->varScopep(), rhsExprp, nodep,
                                    rangeInfo.m_rangeLsb, rangeInfo.m_rangeMsb, rangeInfo.m_padLsb,
                                    rangeInfo.m_padMsb, rangeInfo.m_hasArraySel);
     }
 
-    void visit(AstAssign* nodep) override {
-        if (m_state.doingAssign() && m_inClockedActive) {
-            if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ* nodep) override {
+        ਜੇ (m_state.doing_ਸੌਂਪੋ() && m_ਵਿੱਚ_Clocked_ਸਰਗਰਮ) {
+            ਜੇ (AstVarRef* ਅਚਲ lhsp = VN_CAST(nodep->lhsp(), VarRef)) {
                 m_state.markClockedWrite(lhsp->varp());
             }
         }
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstActive* nodep) override {
-        VL_RESTORER(m_inClockedActive);
-        m_inClockedActive = nodep->hasClocked();
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸਰਗਰਮ* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Clocked_ਸਰਗਰਮ);
+        m_ਵਿੱਚ_Clocked_ਸਰਗਰਮ = nodep->hasClocked();
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstVarScope* nodep) override {
-        if (nodep->varp()->isForceable()) {
+    ਖਾਲੀ ਦੇਖੋ(AstVarScope* nodep) override {
+        ਜੇ (nodep->varp()->isForceable()) {
             // assignAll() runs after forceAll() and traverses the same netlist with a fresh
             // ForceState. Reuse already-created public helper vars instead of regenerating
             // duplicate __Vforce* members for every forceable signal.
-            if (m_state.doingAssign()) {
+            ਜੇ (m_state.doing_ਸੌਂਪੋ()) {
                 m_state.getOrCreateVarInfo(nodep);
                 iterateChildrenConst(nodep);
-                return;
+                ਵਾਪਸ;
             }
 
-            if (AstUnpackArrayDType* const arrDtypep
+            ਜੇ (AstUnpackArrayDType* ਅਚਲ arrDtypep
                 = VN_CAST(nodep->varp()->dtypeSkipRefp(), UnpackArrayDType)) {
                 buildForceableUnpackedArray(nodep, arrDtypep);
                 iterateChildrenConst(nodep);
-                return;
+                ਵਾਪਸ;
             }
 
-            const AstBasicDType* const bdtypep = nodep->varp()->basicp();
-            if (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::STRING) {
+            ਅਚਲ AstBasicDType* ਅਚਲ bdtypep = nodep->varp()->basicp();
+            ਜੇ (bdtypep && bdtypep->keyword() == VBasicDTypeKwd::STRING) {
                 nodep->varp()->v3error(
                     "Forcing strings is not permitted: " << nodep->varp()->name());
             }
 
             // Build the per-signal force update logic.
-            AstVar* const varp = nodep->varp();
-            FileLine* const flp = varp->fileline();
+            AstVar* ਅਚਲ varp = nodep->varp();
+            File_ਸਤਰ* ਅਚਲ flp = varp->fileline();
             ForceState::VarForceInfo& info = m_state.getOrCreateVarInfo(nodep);
-            AstVarScope* const enVscp = info.m_forceEnVscp;
-            AstVarScope* const valVscp = info.m_forceValVscp;
+            AstVarScope* ਅਚਲ enVscp = info.m_forceEnVscp;
+            AstVarScope* ਅਚਲ valVscp = info.m_forceValVscp;
 
             // Build an update block triggered by force-enable changes.
-            AstSenItem* const itemsp = new AstSenItem{flp, VEdgeType::ET_CHANGED,
-                                                      new AstVarRef{flp, enVscp, VAccess::READ}};
-            AstActive* const activep
-                = new AstActive{flp, "force-update", new AstSenTree{flp, itemsp}};
-            activep->senTreeStorep(activep->sentreep());
+            Ast_Sen_ਵਸਤੂ* ਅਚਲ itemsp = ਨਵਾਂ Ast_Sen_ਵਸਤੂ{flp, VEdgeType::ET_ਬਦਲਿਆ,
+                                                      ਨਵਾਂ AstVarRef{flp, enVscp, VAccess::READ}};
+            Ast_ਸਰਗਰਮ* ਅਚਲ activep
+                = ਨਵਾਂ Ast_ਸਰਗਰਮ{flp, "force-update", ਨਵਾਂ Ast_Sen_ਰੁੱਖ{flp, itemsp}};
+            activep->sen_ਰੁੱਖ_Storep(activep->sentreep());
 
             // Build expression selecting forced value when enabled, otherwise original value.
             // forceExpr = (isBitwise) ? ((en & val) | (~en & orig)) : (en ? val : orig);
-            AstVarRef* const refp = new AstVarRef{flp, nodep, VAccess::READ};
+            AstVarRef* ਅਚਲ refp = ਨਵਾਂ AstVarRef{flp, nodep, VAccess::READ};
             ForceState::markNonReplaceable(refp);
-            AstVarRef* const enRefp = new AstVarRef{flp, enVscp, VAccess::READ};
-            AstVarRef* const valRefp = new AstVarRef{flp, valVscp, VAccess::READ};
-            const AstBasicDType* const basicp = varp->dtypep()->skipRefp()->basicp();
-            AstNodeExpr* const forceExprp
+            AstVarRef* ਅਚਲ enRefp = ਨਵਾਂ AstVarRef{flp, enVscp, VAccess::READ};
+            AstVarRef* ਅਚਲ valRefp = ਨਵਾਂ AstVarRef{flp, valVscp, VAccess::READ};
+            ਅਚਲ AstBasicDType* ਅਚਲ basicp = varp->dtypep()->skipRefp()->basicp();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ forceExprp
                 = basicp && basicp->isRanged()
-                      ? static_cast<AstNodeExpr*>(new AstOr{
-                            flp, new AstAnd{flp, enRefp, valRefp},
-                            new AstAnd{flp, new AstNot{flp, enRefp->cloneTreePure(false)}, refp}})
-                      : static_cast<AstNodeExpr*>(new AstCond{flp, enRefp, valRefp, refp});
-            AstAssignForce* const forceAssignp
-                = new AstAssignForce{flp, new AstVarRef{flp, nodep, VAccess::WRITE}, forceExprp};
-            forceAssignp->user2(true);
-            activep->addStmtsp(new AstAlways{flp, VAlwaysKwd::ALWAYS, nullptr, forceAssignp});
-            nodep->scopep()->addBlocksp(activep);
+                      ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਨਵਾਂ AstOr{
+                            flp, ਨਵਾਂ AstAnd{flp, enRefp, valRefp},
+                            ਨਵਾਂ AstAnd{flp, ਨਵਾਂ AstNot{flp, enRefp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)}, refp}})
+                      : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਨਵਾਂ AstCond{flp, enRefp, valRefp, refp});
+            Ast_ਸੌਂਪੋ_Force* ਅਚਲ forceAssignp
+                = ਨਵਾਂ Ast_ਸੌਂਪੋ_Force{flp, ਨਵਾਂ AstVarRef{flp, nodep, VAccess::WRITE}, forceExprp};
+            forceAssignp->user2(ਸੱਚ);
+            activep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstAlways{flp, VAlwaysKwd::ALWAYS, ਖਾਲੀ_ਸੂਚਕ, forceAssignp});
+            nodep->scopep()->ਜੋੜੋ_Blocksp(activep);
 
             // Clone the RHS for tracking and preserve original var refs as non-replaceable.
-            AstNodeExpr* const rhsClonep = forceExprp->cloneTreePure(false);
-            rhsClonep->foreach([varp](AstVarRef* const refp) {
-                if (refp->varp() == varp) ForceState::markNonReplaceable(refp);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsClonep = forceExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+            rhsClonep->foreach([varp](AstVarRef* ਅਚਲ refp) {
+                ਜੇ (refp->varp() == varp) ForceState::markNonReplaceable(refp);
             });
 
             // Compute full assignment range (including unpacked arrays) for force bookkeeping.
-            const bool bitwiseVar = ForceState::isBitwiseDType(varp);
-            const int padMsb = bitwiseVar ? (varp->width() - 1) : 0;
-            int rangeLsb = 0;
-            int rangeMsb = padMsb;
-            if (ForceState::isUnpackedArrayDType(varp->dtypep())) {
+            ਅਚਲ ਤਾਰਕਿਕ bitwiseVar = ForceState::isBitwiseDType(varp);
+            ਅਚਲ ਪੂਰਨ padMsb = bitwiseVar ? (varp->ਚੌੜਾਈ() - 1) : 0;
+            ਪੂਰਨ rangeLsb = 0;
+            ਪੂਰਨ rangeMsb = padMsb;
+            ਜੇ (ForceState::isUnpackedArrayDType(varp->dtypep())) {
                 nodep->v3fatalSrc("Forceable unpacked arrays should have been rejected earlier");
             }
-            m_state.addForceAssignment(varp, nodep, rhsClonep, forceAssignp, rangeLsb, rangeMsb, 0,
-                                       padMsb, false);
+            m_state.ਜੋੜੋ_Force_Assignment(varp, nodep, rhsClonep, forceAssignp, rangeLsb, rangeMsb, 0,
+                                       padMsb, ਝੂਠ);
         }
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
-    explicit ForceDiscoveryVisitor(AstNetlist* nodep, ForceState& state)
+ਜਨਤਕ:
+    ਸਪਸ਼ਟ ForceDiscoveryVisitor(AstNetlist* nodep, ForceState& state)
         : m_state{state} {
-        iterateAndNextConstNull(nodep->modulesp());
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->modulesp());
     }
 };
 
 //######################################################################
 // ForceConvertVisitor - Convert force/release statements
 
-class ForceConvertVisitor final : public VNVisitor {
+ਵਰਗ ForceConvertVisitor final : ਜਨਤਕ VNVisitor {
     ForceState& m_state;
 
-    void visit(AstAssignForce* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Force* nodep) override {
         UINFO(2, "Converting force statement: " << nodep << "\n");
 
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstVarRef* const lhsVarRefp = m_state.getOneVarRef(lhsp);
-        AstVar* const forcedVarp = lhsVarRefp->varp();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = nodep->lhsp();
+        AstVarRef* ਅਚਲ lhsVarRefp = m_state.getOneVarRef(lhsp);
+        AstVar* ਅਚਲ forcedVarp = lhsVarRefp->varp();
 
-        const ForceState::ForceInfo& info = m_state.getForceInfo(nodep);
-        const ForceState::VarForceInfo* const varInfo
+        ਅਚਲ ForceState::ForceInfo& info = m_state.getForceInfo(nodep);
+        ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo
             = m_state.getVarInfo(lhsVarRefp->varScopep());
         UASSERT_OBJ(varInfo && varInfo->m_forceVecVscp, nodep, "Force info not set up");
 
-        FileLine* const flp = nodep->fileline();
+        File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
 
         // Assign RHS shadow value immediately so force takes effect in the same timestep.
         UASSERT_OBJ(info.m_rhsVarVscp, nodep, "No RHS var for forced variable");
-        AstAssign* const rhsAssignp
-            = new AstAssign{flp, new AstVarRef{flp, info.m_rhsVarVscp, VAccess::WRITE},
-                            nodep->rhsp()->cloneTreePure(false)};
+        Ast_ਸੌਂਪੋ* ਅਚਲ rhsAssignp
+            = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, ਨਵਾਂ AstVarRef{flp, info.m_rhsVarVscp, VAccess::WRITE},
+                            nodep->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
 
-        AstAssign* valAssignp = nullptr;
-        AstAssign* enAssignp = nullptr;
-        const bool bitwiseForcedVar = ForceState::isBitwiseDType(forcedVarp);
+        Ast_ਸੌਂਪੋ* valAssignp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਸੌਂਪੋ* enAssignp = ਖਾਲੀ_ਸੂਚਕ;
+        ਅਚਲ ਤਾਰਕਿਕ bitwiseForcedVar = ForceState::isBitwiseDType(forcedVarp);
         // When an externally forceable signal is also forced in (System)Verilog code
         // keep the public __VforceEn/__VforceVal signals in sync with the procedural force too.
         // Don't do this for array selections; those are represented only in VlForceVec.
-        if (!nodep->user2() && varInfo->m_forceEnVscp && varInfo->m_forceValVscp
+        ਜੇ (!nodep->user2() && varInfo->m_forceEnVscp && varInfo->m_forceValVscp
             && !info.m_hasArraySel) {
-            AstNodeExpr* baseExprp = nodep->rhsp()->cloneTreePure(false);
-            baseExprp->foreach(
-                [](AstVarRef* const refp) { ForceState::markNonReplaceable(refp); });
-            if (bitwiseForcedVar) {
-                baseExprp = ForceState::zeroPadToBaseWidth(baseExprp, forcedVarp->width(),
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਧਾਰ_Exprp = nodep->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+            ਅਧਾਰ_Exprp->foreach(
+                [](AstVarRef* ਅਚਲ refp) { ForceState::markNonReplaceable(refp); });
+            ਜੇ (bitwiseForcedVar) {
+                ਅਧਾਰ_Exprp = ForceState::zero_Pad_ਮੰਜ਼ਿਲ_ਅਧਾਰ_ਚੌੜਾਈ(ਅਧਾਰ_Exprp, forcedVarp->ਚੌੜਾਈ(),
                                                            info.m_padLsb, info.m_padMsb);
             }
-            if (bitwiseForcedVar) {
+            ਜੇ (bitwiseForcedVar) {
                 // forceVal = (forceVal & ~mask(range)) | (rhs_padded & mask(range));
                 // forceEn  = forceEn | mask(range);
-                AstConst* const maskConstp = ForceState::makeRangeMaskConst(
-                    nodep, forcedVarp->width(), info.m_rangeLsb, info.m_rangeMsb);
-                AstNodeExpr* const valReadp
-                    = new AstVarRef{flp, varInfo->m_forceValVscp, VAccess::READ};
-                AstNodeExpr* const valWritep
-                    = new AstVarRef{flp, varInfo->m_forceValVscp, VAccess::WRITE};
-                AstNodeExpr* const notMaskp = new AstNot{flp, maskConstp};
-                AstNodeExpr* const maskedOldp = new AstAnd{flp, valReadp, notMaskp};
-                AstNodeExpr* const newValp = new AstOr{flp, maskedOldp, baseExprp};
-                valAssignp = new AstAssign{flp, valWritep, newValp};
+                AstConst* ਅਚਲ ਨਕਾਬ_Constp = ForceState::make_Range_ਨਕਾਬ_Const(
+                    nodep, forcedVarp->ਚੌੜਾਈ(), info.m_rangeLsb, info.m_rangeMsb);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valReadp
+                    = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceValVscp, VAccess::READ};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valWritep
+                    = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceValVscp, VAccess::WRITE};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ notMaskp = ਨਵਾਂ AstNot{flp, ਨਕਾਬ_Constp};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ maskedOldp = ਨਵਾਂ AstAnd{flp, valReadp, notMaskp};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ newValp = ਨਵਾਂ AstOr{flp, maskedOldp, ਅਧਾਰ_Exprp};
+                valAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, valWritep, newValp};
 
-                AstNodeExpr* const enReadp
-                    = new AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::READ};
-                AstNodeExpr* const enWritep
-                    = new AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE};
-                AstNodeExpr* const newEnp
-                    = new AstOr{flp, enReadp, maskConstp->cloneTreePure(false)};
-                enAssignp = new AstAssign{flp, enWritep, newEnp};
-            } else {
-                AstConst* const oneConstp = ForceState::makeRangeMaskConst(nodep, 1, 0, 0);
-                AstNodeExpr* const rhsValp = ForceState::castToNodeDType(baseExprp, forcedVarp);
-                valAssignp = new AstAssign{
-                    flp, new AstVarRef{flp, varInfo->m_forceValVscp, VAccess::WRITE}, rhsValp};
-                enAssignp = new AstAssign{
-                    flp, new AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE}, oneConstp};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enReadp
+                    = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::READ};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enWritep
+                    = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ newEnp
+                    = ਨਵਾਂ AstOr{flp, enReadp, ਨਕਾਬ_Constp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                enAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, enWritep, newEnp};
+            } ਨਹੀਂਤਾਂ {
+                AstConst* ਅਚਲ oneConstp = ForceState::make_Range_ਨਕਾਬ_Const(nodep, 1, 0, 0);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsValp = ForceState::cast_ਮੰਜ਼ਿਲ_ਗੰਢ_DType(ਅਧਾਰ_Exprp, forcedVarp);
+                valAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                    flp, ਨਵਾਂ AstVarRef{flp, varInfo->m_forceValVscp, VAccess::WRITE}, rhsValp};
+                enAssignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                    flp, ਨਵਾਂ AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE}, oneConstp};
             }
         }
 
         // Verilog pseudocode:
         //   forceVec.addForce(range_lsb, range_msb, &forceRHS[id], rhs_lsb);
-        const AstSel* const selLhsp = VN_CAST(lhsp, Sel);
-        const bool arrayBitSel
-            = info.m_hasArraySel && selLhsp && ForceState::getArraySelInfo(lhsp).m_hasBitSel
+        ਅਚਲ AstSel* ਅਚਲ selLhsp = VN_CAST(lhsp, Sel);
+        ਅਚਲ ਤਾਰਕਿਕ array_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel
+            = info.m_hasArraySel && selLhsp && ForceState::getArraySelInfo(lhsp).m_has_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel
               && ForceState::isBitwiseDType(selLhsp->fromp())
-              && (info.m_padMsb - info.m_padLsb + 1) < selLhsp->fromp()->width();
-        AstNodeExpr* const rhsDatap = ForceState::buildRhsDataExpr(flp, info);
-        AstCExpr* const rhsAddrp = new AstCExpr{flp};
-        rhsAddrp->add("&(");
-        rhsAddrp->add(rhsDatap);
-        rhsAddrp->add(")");
-        AstCMethodHard* const addForceCallp = new AstCMethodHard{
-            flp, new AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::WRITE}, VCMethod::FORCE_ADD,
+              && (info.m_padMsb - info.m_padLsb + 1) < selLhsp->fromp()->ਚੌੜਾਈ();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsDatap = ForceState::build_Rhs_ਅੰਕੜੇ_ਵਿਅੰਜਕ(flp, info);
+        AstCExpr* ਅਚਲ rhsAddrp = ਨਵਾਂ AstCExpr{flp};
+        rhsAddrp->ਜੋੜੋ("&(");
+        rhsAddrp->ਜੋੜੋ(rhsDatap);
+        rhsAddrp->ਜੋੜੋ(")");
+        AstCMethodHard* ਅਚਲ ਜੋੜੋ_Force_Callp = ਨਵਾਂ AstCMethodHard{
+            flp, ਨਵਾਂ AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::WRITE}, VCMethod::FORCE_ਜੋੜੋ,
             ForceState::makeConst32(flp, info.m_rangeLsb)};
-        addForceCallp->addPinsp(ForceState::makeConst32(flp, info.m_rangeMsb));
-        addForceCallp->addPinsp(rhsAddrp);
-        addForceCallp->addPinsp(
-            ForceState::makeConst32(flp, arrayBitSel ? info.m_padLsb : info.m_rangeLsb));
-        if (arrayBitSel) {
-            addForceCallp->addPinsp(ForceState::makeConst32(flp, info.m_padLsb));
-            addForceCallp->addPinsp(ForceState::makeConst32(flp, info.m_padMsb));
-            addForceCallp->addPinsp(ForceState::makeConst32(flp, selLhsp->fromp()->width()));
+        ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, info.m_rangeMsb));
+        ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(rhsAddrp);
+        ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(
+            ForceState::makeConst32(flp, array_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel ? info.m_padLsb : info.m_rangeLsb));
+        ਜੇ (array_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel) {
+            ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, info.m_padLsb));
+            ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, info.m_padMsb));
+            ਜੋੜੋ_Force_Callp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, selLhsp->fromp()->ਚੌੜਾਈ()));
         }
-        addForceCallp->dtypeSetVoid();
-        AstNodeStmt* const stmtp = addForceCallp->makeStmt();
+        ਜੋੜੋ_Force_Callp->dtype_ਸੈੱਟ_Void();
+        Ast_ਗੰਢ_Stmt* ਅਚਲ stmtp = ਜੋੜੋ_Force_Callp->makeStmt();
 
-        AstNode* tailp = rhsAssignp;
-        if (valAssignp) {
-            tailp->addNextHere(valAssignp);
+        Ast_ਗੰਢ* tailp = rhsAssignp;
+        ਜੇ (valAssignp) {
+            tailp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(valAssignp);
             tailp = valAssignp;
         }
-        if (enAssignp) {
-            tailp->addNextHere(enAssignp);
+        ਜੇ (enAssignp) {
+            tailp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(enAssignp);
             tailp = enAssignp;
         }
-        tailp->addNextHere(stmtp);
-        if (varInfo->m_forceRdVscp && !info.m_skipRdRefresh) {
-            stmtp->addNextHere(m_state.createForceRdUpdateStmt(*varInfo));
+        tailp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(stmtp);
+        ਜੇ (varInfo->m_forceRdVscp && !info.m_skipRdRefresh) {
+            stmtp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(m_state.createForceRdUpdateStmt(*varInfo));
         }
         nodep->replaceWith(rhsAssignp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
-    void visit(AstRelease* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstRelease* nodep) override {
         UINFO(2, "Converting release statement: " << nodep << "\n");
 
-        AstNodeExpr* const lhsp = nodep->lhsp();
-        AstVarRef* const lhsVarRefp = m_state.getOneVarRef(lhsp);
-        AstVar* const releasedVarp = lhsVarRefp->varp();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = nodep->lhsp();
+        AstVarRef* ਅਚਲ lhsVarRefp = m_state.getOneVarRef(lhsp);
+        AstVar* ਅਚਲ releasedVarp = lhsVarRefp->varp();
 
-        const ForceState::VarForceInfo* const varInfo
+        ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo
             = m_state.getVarInfo(lhsVarRefp->varScopep());
-        if (!varInfo) {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+        ਜੇ (!varInfo) {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep->unlink_Fr_ਪਿੱਠ()), nodep);
+            ਵਾਪਸ;
         }
-        UASSERT_OBJ(!varInfo->m_forces.empty(), nodep, "Var info for variable with no forces");
+        UASSERT_OBJ(!varInfo->m_forces.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Var info for variable with no forces");
 
-        FileLine* const flp = nodep->fileline();
+        File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
 
-        const ForceState::ForceRangeInfo rangeInfo
-            = m_state.getForceRangeInfo(lhsp, releasedVarp, false);
+        ਅਚਲ ForceState::ForceRangeInfo rangeInfo
+            = m_state.getForceRangeInfo(lhsp, releasedVarp, ਝੂਠ);
 
-        const AstSel* const selLhsp = VN_CAST(lhsp, Sel);
-        const bool arrayBitSel
-            = rangeInfo.m_hasArraySel && selLhsp && rangeInfo.m_arrayInfo.m_hasBitSel
+        ਅਚਲ AstSel* ਅਚਲ selLhsp = VN_CAST(lhsp, Sel);
+        ਅਚਲ ਤਾਰਕਿਕ array_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel
+            = rangeInfo.m_hasArraySel && selLhsp && rangeInfo.m_arrayInfo.m_has_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel
               && ForceState::isBitwiseDType(selLhsp->fromp())
-              && (rangeInfo.m_padMsb - rangeInfo.m_padLsb + 1) < selLhsp->fromp()->width();
-        AstCMethodHard* const releaseCallp = new AstCMethodHard{
-            flp, new AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::WRITE},
+              && (rangeInfo.m_padMsb - rangeInfo.m_padLsb + 1) < selLhsp->fromp()->ਚੌੜਾਈ();
+        AstCMethodHard* ਅਚਲ releaseCallp = ਨਵਾਂ AstCMethodHard{
+            flp, ਨਵਾਂ AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::WRITE},
             VCMethod::FORCE_RELEASE, ForceState::makeConst32(flp, rangeInfo.m_rangeLsb)};
-        releaseCallp->addPinsp(ForceState::makeConst32(flp, rangeInfo.m_rangeMsb));
-        if (arrayBitSel) {
-            releaseCallp->addPinsp(ForceState::makeConst32(flp, rangeInfo.m_padLsb));
-            releaseCallp->addPinsp(ForceState::makeConst32(flp, rangeInfo.m_padMsb));
+        releaseCallp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, rangeInfo.m_rangeMsb));
+        ਜੇ (array_ਦੋਆਧਾਰੀ_ਅੰਕ_Sel) {
+            releaseCallp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, rangeInfo.m_padLsb));
+            releaseCallp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, rangeInfo.m_padMsb));
         }
-        releaseCallp->dtypeSetVoid();
+        releaseCallp->dtype_ਸੈੱਟ_Void();
         // forceVec.release(range_lsb, range_msb [, bit_lsb, bit_msb]);
-        AstNodeStmt* const releasep = releaseCallp->makeStmt();
+        Ast_ਗੰਢ_Stmt* ਅਚਲ releasep = releaseCallp->makeStmt();
 
-        AstAssign* clearEnp = nullptr;
+        Ast_ਸੌਂਪੋ* clearEnp = ਖਾਲੀ_ਸੂਚਕ;
         // Releases must also clear the external/public force-enable, but only for
         // directly forceable variables and only for non-array-select cases that use that external
         // force.
-        if (releasedVarp->isForceable() && varInfo->m_forceEnVscp && !rangeInfo.m_hasArraySel) {
-            AstNodeExpr* const enWritep
-                = new AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE};
-            if (ForceState::isBitwiseDType(releasedVarp)) {
-                const int varWidth = releasedVarp->width();
-                if (rangeInfo.m_rangeLsb == 0 && rangeInfo.m_rangeMsb == varWidth - 1) {
+        ਜੇ (releasedVarp->isForceable() && varInfo->m_forceEnVscp && !rangeInfo.m_hasArraySel) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enWritep
+                = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::WRITE};
+            ਜੇ (ForceState::isBitwiseDType(releasedVarp)) {
+                ਅਚਲ ਪੂਰਨ var_ਚੌੜਾਈ = releasedVarp->ਚੌੜਾਈ();
+                ਜੇ (rangeInfo.m_rangeLsb == 0 && rangeInfo.m_rangeMsb == var_ਚੌੜਾਈ - 1) {
                     clearEnp
-                        = new AstAssign{flp, enWritep, ForceState::makeZeroConst(nodep, varWidth)};
-                } else {
+                        = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, enWritep, ForceState::makeZeroConst(nodep, var_ਚੌੜਾਈ)};
+                } ਨਹੀਂਤਾਂ {
                     // forceEn = forceEn & ~mask(range);
-                    AstNodeExpr* const enReadp
-                        = new AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::READ};
-                    AstConst* const maskConst = ForceState::makeRangeMaskConst(
-                        nodep, varWidth, rangeInfo.m_rangeLsb, rangeInfo.m_rangeMsb);
-                    AstNodeExpr* const newEnp
-                        = new AstAnd{flp, enReadp, new AstNot{flp, maskConst}};
-                    clearEnp = new AstAssign{flp, enWritep, newEnp};
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ enReadp
+                        = ਨਵਾਂ AstVarRef{flp, varInfo->m_forceEnVscp, VAccess::READ};
+                    AstConst* ਅਚਲ ਨਕਾਬ_Const = ForceState::make_Range_ਨਕਾਬ_Const(
+                        nodep, var_ਚੌੜਾਈ, rangeInfo.m_rangeLsb, rangeInfo.m_rangeMsb);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ newEnp
+                        = ਨਵਾਂ AstAnd{flp, enReadp, ਨਵਾਂ AstNot{flp, ਨਕਾਬ_Const}};
+                    clearEnp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, enWritep, newEnp};
                 }
-            } else {
-                clearEnp = new AstAssign{flp, enWritep, ForceState::makeZeroConst(nodep, 1)};
+            } ਨਹੀਂਤਾਂ {
+                clearEnp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, enWritep, ForceState::makeZeroConst(nodep, 1)};
             }
         }
 
-        const AstSel* const selp = VN_CAST(lhsp, Sel);
-        AstNodeExpr* const basep = selp ? selp->fromp() : lhsp;
+        ਅਚਲ AstSel* ਅਚਲ selp = VN_CAST(lhsp, Sel);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ basep = selp ? selp->fromp() : lhsp;
 
-        AstNode* stmtListp = releasep;
-        if (clearEnp) {
-            clearEnp->addNextHere(stmtListp);
+        Ast_ਗੰਢ* stmtListp = releasep;
+        ਜੇ (clearEnp) {
+            clearEnp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(stmtListp);
             stmtListp = clearEnp;
         }
 
         // IEEE 1800-2023 10.6.2: When released, if the variable is not continuously driven,
         // it maintains its current value until the next procedural assignment.
-        const bool fullBitwiseRelease
+        ਅਚਲ ਤਾਰਕਿਕ ਭਰਿਆ_Bitwise_Release
             = ForceState::isBitwiseDType(releasedVarp) && !rangeInfo.m_hasArraySel && !selp
-              && rangeInfo.m_rangeLsb == 0 && rangeInfo.m_rangeMsb == releasedVarp->width() - 1;
-        if (!releasedVarp->isContinuously()
-            && !(m_state.doingAssign() && m_state.hasClockedWrite(releasedVarp)
-                 && fullBitwiseRelease)) {
+              && rangeInfo.m_rangeLsb == 0 && rangeInfo.m_rangeMsb == releasedVarp->ਚੌੜਾਈ() - 1;
+        ਜੇ (!releasedVarp->isContinuously()
+            && !(m_state.doing_ਸੌਂਪੋ() && m_state.hasClockedWrite(releasedVarp)
+                 && ਭਰਿਆ_Bitwise_Release)) {
             // Member/struct paths on non-bitwise types do not lower to a plain VarRef/bit range,
             // so their current forced value is recovered via the same synthetic path index.
             // if (!continuously_driven) lhs = force_read_current(lhs_path);
             // forceVec.release(range);
-            const bool hasOpaquePath = !ForceState::isBitwiseDType(releasedVarp)
+            ਅਚਲ ਤਾਰਕਿਕ has_Opaque_ਰਸਤਾ = !ForceState::isBitwiseDType(releasedVarp)
                                        && !rangeInfo.m_hasArraySel && !VN_IS(lhsp, VarRef);
-            AstNodeExpr* forceReadp = nullptr;
-            if (hasOpaquePath) {
-                forceReadp = m_state.createForceReadIndexExpression(
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* forceReadp = ਖਾਲੀ_ਸੂਚਕ;
+            ਜੇ (has_Opaque_ਰਸਤਾ) {
+                forceReadp = m_state.create_Force_Read_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(
                     *varInfo, lhsp, ForceState::makeConst32(flp, rangeInfo.m_rangeLsb));
-            } else if (rangeInfo.m_hasArraySel) {
-                forceReadp = m_state.createForceReadIndexExpression(
+            } ਨਹੀਂਤਾਂ ਜੇ (rangeInfo.m_hasArraySel) {
+                forceReadp = m_state.create_Force_Read_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(
                     *varInfo, basep,
-                    ForceState::buildFlattenIndexExpr(flp, rangeInfo.m_arrayInfo));
-                if (selp) { forceReadp = ForceState::rebuildSelPath(lhsp, forceReadp); }
-            } else {
+                    ForceState::build_Flatten_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(flp, rangeInfo.m_arrayInfo));
+                ਜੇ (selp) { forceReadp = ForceState::rebuild_Sel_ਰਸਤਾ(lhsp, forceReadp); }
+            } ਨਹੀਂਤਾਂ {
                 forceReadp
-                    = selp ? ForceState::rebuildSelPath(
-                                 lhsp, m_state.createForceReadExpression(*varInfo, lhsVarRefp))
-                           : m_state.createForceReadExpression(*varInfo, lhsVarRefp);
+                    = selp ? ForceState::rebuild_Sel_ਰਸਤਾ(
+                                 lhsp, m_state.create_Force_Read_ਵਿਅੰਜਕ(*varInfo, lhsVarRefp))
+                           : m_state.create_Force_Read_ਵਿਅੰਜਕ(*varInfo, lhsVarRefp);
             }
-            AstAssign* const assignp = new AstAssign{flp, lhsp->cloneTreePure(false), forceReadp};
-            assignp->addNextHere(stmtListp);
+            Ast_ਸੌਂਪੋ* ਅਚਲ assignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, lhsp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), forceReadp};
+            assignp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(stmtListp);
             stmtListp = assignp;
         }
 
-        if (varInfo->m_forceRdVscp) stmtListp->addNext(m_state.createForceRdUpdateStmt(*varInfo));
+        ਜੇ (varInfo->m_forceRdVscp) stmtListp->ਜੋੜੋ_ਅਗਲਾ(m_state.createForceRdUpdateStmt(*varInfo));
 
         nodep->replaceWith(stmtListp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     ForceConvertVisitor(AstNetlist* nodep, ForceState& state)
         : m_state{state} {
-        iterateAndNextNull(nodep->modulesp());
+        iterate_And_ਅਗਲਾ_Null(nodep->modulesp());
     }
 };
 
 //######################################################################
 // ForceReplaceVisitor - Replace variable reads with force-aware reads
 
-class ForceReplaceVisitor final : public VNVisitor {
-    const ForceState& m_state;
+ਵਰਗ ForceReplaceVisitor final : ਜਨਤਕ VNVisitor {
+    ਅਚਲ ForceState& m_state;
     VDouble0 m_nonOverlappingForceSels;  // Statistic tracking
-    AstNodeStmt* m_stmtp = nullptr;
-    bool m_inLogic = false;
+    Ast_ਗੰਢ_Stmt* m_stmtp = ਖਾਲੀ_ਸੂਚਕ;
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Logic = ਝੂਠ;
 
-    void iterateLogic(AstNode* nodep) {
-        VL_RESTORER(m_inLogic);
-        m_inLogic = true;
+    ਖਾਲੀ iterateLogic(Ast_ਗੰਢ* nodep) {
+        VL_RESTORER(m_ਵਿੱਚ_Logic);
+        m_ਵਿੱਚ_Logic = ਸੱਚ;
         iterateChildren(nodep);
     }
 
-    void visit(AstNodeStmt* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Stmt* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstAssign* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterate(nodep->lhsp());
         iterate(nodep->rhsp());
-        if (AstVarRef* const lhsp = VN_CAST(nodep->lhsp()->baseFromp(true), VarRef)) {
-            if (AstNode* const updatep
+        ਜੇ (AstVarRef* ਅਚਲ lhsp = VN_CAST(nodep->lhsp()->ਅਧਾਰ_Fromp(ਸੱਚ), VarRef)) {
+            ਜੇ (Ast_ਗੰਢ* ਅਚਲ updatep
                 = m_state.createRhsUpdatesForWrite(nodep->fileline(), lhsp->varp())) {
-                nodep->addNextHere(updatep);
+                nodep->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(updatep);
             }
         }
     }
-    void visit(AstAssignCont* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Cont* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
-        iterateAndNextNull(nodep->timingControlp());
+        iterate_And_ਅਗਲਾ_Null(nodep->timingControlp());
         iterate(nodep->rhsp());
     }
-    void visit(AstDeassign*) override {}
-    void visit(AstCFunc* nodep) override { iterateLogic(nodep); }
-    void visit(AstCoverToggle* nodep) override { iterateLogic(nodep); }
-    void visit(AstNodeProcedure* nodep) override { iterateLogic(nodep); }
-    void visit(AstAlways* nodep) override {
-        if (nodep->keyword() == VAlwaysKwd::CONT_ASSIGN) {
+    ਖਾਲੀ ਦੇਖੋ(AstDeassign*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override { iterateLogic(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstCoverToggle* nodep) override { iterateLogic(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Procedure* nodep) override { iterateLogic(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstAlways* nodep) override {
+        ਜੇ (nodep->keyword() == VAlwaysKwd::CONT_ਸੌਂਪੋ) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
         iterateLogic(nodep);
     }
-    void visit(AstSenItem* nodep) override { iterateLogic(nodep); }
-    void visit(AstSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_Sen_ਵਸਤੂ* nodep) override { iterateLogic(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstSel* nodep) override {
         // Replace Sel on a wide with readSelI/Q/W to avoid materializing the full value
-        AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef);
-        if (!refp || m_state.isNotReplaceable(refp) || !refp->access().isReadOnly()) {
-            visit(static_cast<AstNode*>(nodep));
-            return;
+        AstVarRef* ਅਚਲ refp = VN_CAST(nodep->fromp(), VarRef);
+        ਜੇ (!refp || m_state.isNotReplaceable(refp) || !refp->access().isReadOnly()) {
+            ਦੇਖੋ(static_cast<Ast_ਗੰਢ*>(nodep));
+            ਵਾਪਸ;
         }
 
-        AstVar* const varp = refp->varp();
-        const ForceState::VarForceInfo* const varInfo = m_state.getVarInfo(refp->varScopep());
-        if (!varInfo || varInfo->m_forceRdVscp || varInfo->m_forces.empty()
+        AstVar* ਅਚਲ varp = refp->varp();
+        ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo = m_state.getVarInfo(refp->varScopep());
+        ਜੇ (!varInfo || varInfo->m_forceRdVscp || varInfo->m_forces.ਖਾਲੀ_ਥਾਵਾਂ()
             || !ForceState::isBitwiseDType(varp) || !varp->dtypep()->isWide()) {
-            visit(static_cast<AstNode*>(nodep));
-            return;
+            ਦੇਖੋ(static_cast<Ast_ਗੰਢ*>(nodep));
+            ਵਾਪਸ;
         }
 
-        if (const AstConst* const lsbConstp = VN_CAST(nodep->lsbp(), Const)) {
-            const int selLsb = lsbConstp->toSInt();
-            const int selMsb = selLsb + nodep->width() - 1;
-            if (!varp->isSigPublic()
+        ਜੇ (ਅਚਲ AstConst* ਅਚਲ lsbConstp = VN_CAST(nodep->lsbp(), Const)) {
+            ਅਚਲ ਪੂਰਨ selLsb = lsbConstp->ਮੰਜ਼ਿਲ_SInt();
+            ਅਚਲ ਪੂਰਨ selMsb = selLsb + nodep->ਚੌੜਾਈ() - 1;
+            ਜੇ (!varp->is_Sig_ਜਨਤਕ()
                 && !ForceState::selOverlapsAnyForce(*varInfo, selLsb, selMsb)) {
                 m_nonOverlappingForceSels++;
                 ForceState::markNonReplaceable(refp);
-                visit(static_cast<AstNode*>(nodep));
-                return;
+                ਦੇਖੋ(static_cast<Ast_ਗੰਢ*>(nodep));
+                ਵਾਪਸ;
             }
         }
 
-        FileLine* const flp = nodep->fileline();
+        File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
         ForceState::markNonReplaceable(refp);
-        AstVarRef* const refClonep = refp->cloneTreePure(false);
+        AstVarRef* ਅਚਲ refClonep = refp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
         ForceState::markNonReplaceable(refClonep);
-        AstCMethodHard* const callp = new AstCMethodHard{
-            flp, new AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::READ},
-            VCMethod::FORCE_READ_SEL, ForceState::makeConst32(flp, varp->width())};
-        callp->addPinsp(refClonep);
-        callp->addPinsp(nodep->lsbp()->cloneTreePure(false));
-        callp->addPinsp(ForceState::makeConst32(flp, nodep->width()));
+        AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
+            flp, ਨਵਾਂ AstVarRef{flp, varInfo->m_forceVecVscp, VAccess::READ},
+            VCMethod::FORCE_READ_SEL, ForceState::makeConst32(flp, varp->ਚੌੜਾਈ())};
+        callp->ਜੋੜੋ_Pinsp(refClonep);
+        callp->ਜੋੜੋ_Pinsp(nodep->lsbp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+        callp->ਜੋੜੋ_Pinsp(ForceState::makeConst32(flp, nodep->ਚੌੜਾਈ()));
         callp->dtypeFrom(nodep);
         nodep->replaceWith(callp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
-    void visit(AstArraySel* nodep) override {
-        if (const AstArraySel* const backSelp = VN_CAST(nodep->backp(), ArraySel)) {
+    ਖਾਲੀ ਦੇਖੋ(AstArraySel* nodep) override {
+        ਜੇ (ਅਚਲ AstArraySel* ਅਚਲ ਪਿੱਠ_Selp = VN_CAST(nodep->backp(), ArraySel)) {
             // Only the outermost selection of the array path should become a force-aware
             // read; inner selections along 'fromp' fold into the final flattened index.
             // A selection used as the index is a read in its own right, as in
             // 'mem[mem[0]]', so it must not be skipped here.
-            if (backSelp->fromp() == nodep) {
+            ਜੇ (ਪਿੱਠ_Selp->fromp() == nodep) {
                 iterateChildren(nodep);
-                return;
+                ਵਾਪਸ;
             }
         }
 
-        AstNode* const basep = nodep->baseFromp(true);
-        AstVarRef* const baseRefp = VN_CAST(basep, VarRef);
-        if (!baseRefp) {
+        Ast_ਗੰਢ* ਅਚਲ basep = nodep->ਅਧਾਰ_Fromp(ਸੱਚ);
+        AstVarRef* ਅਚਲ ਅਧਾਰ_Refp = VN_CAST(basep, VarRef);
+        ਜੇ (!ਅਧਾਰ_Refp) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        AstVar* const varp = baseRefp->varp();
-        const ForceState::VarForceInfo* const varInfo = m_state.getVarInfo(baseRefp->varScopep());
+        AstVar* ਅਚਲ varp = ਅਧਾਰ_Refp->varp();
+        ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo = m_state.getVarInfo(ਅਧਾਰ_Refp->varScopep());
         // Skip non-forceable reads, reads we intentionally protected earlier, and intermediate
         // selections that still evaluate to an unpacked array rather than a scalar element.
-        if (m_state.isNotReplaceable(baseRefp) || !varInfo
+        ਜੇ (m_state.isNotReplaceable(ਅਧਾਰ_Refp) || !varInfo
             || !ForceState::isUnpackedArrayDType(varp->dtypep())
             || VN_IS(nodep->dtypep()->skipRefp(), UnpackArrayDType)) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
 
-        if (!baseRefp->access().isReadOnly()) {
+        ਜੇ (!ਅਧਾਰ_Refp->access().isReadOnly()) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        if (m_state.doingAssign() && varInfo->m_forceRdVscp) {
-            baseRefp->varp(varInfo->m_forceRdVscp->varp());
-            baseRefp->varScopep(varInfo->m_forceRdVscp);
+        ਜੇ (m_state.doing_ਸੌਂਪੋ() && varInfo->m_forceRdVscp) {
+            ਅਧਾਰ_Refp->varp(varInfo->m_forceRdVscp->varp());
+            ਅਧਾਰ_Refp->varScopep(varInfo->m_forceRdVscp);
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        const ForceState::ArraySelInfo arrayInfo = ForceState::getArraySelInfo(nodep);
+        ਅਚਲ ForceState::ArraySelInfo arrayInfo = ForceState::getArraySelInfo(nodep);
         // Substitute forced reads inside the index expressions before anything is cloned,
         // so the fallback value and the flattened index use the same, force-aware index.
         // An index is an ordinary read, including when it reads the same array as in
         // 'mem[mem[0]]'.
-        for (AstArraySel* const selp : arrayInfo.m_sels) iterateAndNextNull(selp->bitp());
-        AstNodeExpr* const indexExprp
-            = ForceState::buildFlattenIndexExpr(nodep->fileline(), arrayInfo);
-        AstNodeExpr* const readExprp
-            = m_state.createForceReadIndexExpression(*varInfo, nodep, indexExprp);
+        ਲਈ (AstArraySel* ਅਚਲ selp : arrayInfo.m_sels) iterate_And_ਅਗਲਾ_Null(selp->bitp());
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਸੂਚਕਾਂਕ_Exprp
+            = ForceState::build_Flatten_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(nodep->fileline(), arrayInfo);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ readExprp
+            = m_state.create_Force_Read_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(*varInfo, nodep, ਸੂਚਕਾਂਕ_Exprp);
         nodep->replaceWith(readExprp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (m_state.isNotReplaceable(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
+        ਜੇ (m_state.isNotReplaceable(nodep)) ਵਾਪਸ;
         // The array an ArraySel selects from is left to visit(AstArraySel), which builds
         // the force-aware read for the whole select. The index is an ordinary read and
         // must still be substituted here, so check which child this is.
-        if (const AstArraySel* const backSelp = VN_CAST(nodep->backp(), ArraySel)) {
-            if (backSelp->fromp() == nodep) return;
+        ਜੇ (ਅਚਲ AstArraySel* ਅਚਲ ਪਿੱਠ_Selp = VN_CAST(nodep->backp(), ArraySel)) {
+            ਜੇ (ਪਿੱਠ_Selp->fromp() == nodep) ਵਾਪਸ;
         }
 
-        const ForceState::VarForceInfo* const varInfo = m_state.getVarInfo(nodep->varScopep());
-        if (!varInfo) return;
+        ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo = m_state.getVarInfo(nodep->varScopep());
+        ਜੇ (!varInfo) ਵਾਪਸ;
 
-        if (varInfo->m_forceRdVscp) {
-            if (nodep->access().isRW()) {
-                if (m_inLogic) {
+        ਜੇ (varInfo->m_forceRdVscp) {
+            ਜੇ (nodep->access().isRW()) {
+                ਜੇ (m_ਵਿੱਚ_Logic) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: Signals used via read-write reference cannot be "
                                   "forced");
                 }
-                return;
+                ਵਾਪਸ;
             }
-            if (nodep->access().isReadOnly()) {
+            ਜੇ (nodep->access().isReadOnly()) {
                 // Inline the effective value so a blocking update to a continuous driver is
                 // visible immediately. The __VforceRd shadow is updated only on the next event.
-                AstNodeExpr* const readp
-                    = m_state.createForceRdExpression(*varInfo, nodep->fileline());
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ readp
+                    = m_state.create_Force_Rd_ਵਿਅੰਜਕ(*varInfo, nodep->fileline());
                 nodep->replaceWith(readp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+                ਵਾਪਸ;
             }
-            if (m_inLogic && m_stmtp) {
-                m_stmtp->addNextHere(m_state.createForceRdUpdateStmt(*varInfo));
+            ਜੇ (m_ਵਿੱਚ_Logic && m_stmtp) {
+                m_stmtp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(m_state.createForceRdUpdateStmt(*varInfo));
             }
-            return;
+            ਵਾਪਸ;
         }
 
         // For opaque member/struct paths we rewrite the outer path node instead of the base
         // VarRef, so leave the base reference alone and let visit(AstNode*) handle it.
-        if (nodep->backp() && (VN_IS(nodep->backp(), Sel) || VN_IS(nodep->backp(), StructSel))
+        ਜੇ (nodep->backp() && (VN_IS(nodep->backp(), Sel) || VN_IS(nodep->backp(), StructSel))
             && !ForceState::isBitwiseDType(nodep->varp())
             && !ForceState::isUnpackedArrayDType(nodep->varp()->dtypep())) {
-            return;
+            ਵਾਪਸ;
         }
 
-        UASSERT_OBJ(!varInfo->m_forces.empty(), nodep, "Var info for variable with no forces");
+        UASSERT_OBJ(!varInfo->m_forces.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Var info for variable with no forces");
 
-        if (nodep->access().isRW()) {
+        ਜੇ (nodep->access().isRW()) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Signals used via read-write reference cannot be forced");
-        } else if (nodep->access().isReadOnly()) {
+        } ਨਹੀਂਤਾਂ ਜੇ (nodep->access().isReadOnly()) {
             ForceState::markNonReplaceable(nodep);
-            AstNodeExpr* const readExprp = m_state.createForceReadExpression(*varInfo, nodep);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ readExprp = m_state.create_Force_Read_ਵਿਅੰਜਕ(*varInfo, nodep);
             nodep->replaceWith(readExprp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         }
     }
-    void visit(AstNode* nodep) override {
-        if (ForceState::isOutermostOpaquePathSelector(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ਜੇ (ForceState::is_Outermost_Opaque_ਰਸਤਾ_Selector(nodep)) {
             // Handle the whole opaque path at its outermost node so we can assign one stable
             // synthetic force-path index to the full selection/member chain.
-            AstNodeExpr* const exprp = VN_AS(nodep, NodeExpr);
-            AstNode* const basep = exprp->baseFromp(true);
-            AstVarRef* const baseRefp = VN_CAST(basep, VarRef);
-            if (baseRefp) {
-                AstVar* const varp = baseRefp->varp();
-                if (!ForceState::isBitwiseDType(varp)
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = VN_AS(nodep, ਗੰਢ_ਵਿਅੰਜਕ);
+            Ast_ਗੰਢ* ਅਚਲ basep = exprp->ਅਧਾਰ_Fromp(ਸੱਚ);
+            AstVarRef* ਅਚਲ ਅਧਾਰ_Refp = VN_CAST(basep, VarRef);
+            ਜੇ (ਅਧਾਰ_Refp) {
+                AstVar* ਅਚਲ varp = ਅਧਾਰ_Refp->varp();
+                ਜੇ (!ForceState::isBitwiseDType(varp)
                     && !ForceState::isUnpackedArrayDType(varp->dtypep())) {
-                    const ForceState::VarForceInfo* const varInfo
-                        = m_state.getVarInfo(baseRefp->varScopep());
-                    if (!m_state.isNotReplaceable(baseRefp) && varInfo) {
-                        const int forcePathIndex = varInfo->findForcePathIndex(exprp);
-                        if (forcePathIndex >= 0) {
-                            if (!baseRefp->access().isReadOnly()) return;
-                            AstNodeExpr* const readExprp = m_state.createForceReadIndexExpression(
+                    ਅਚਲ ForceState::VarForceInfo* ਅਚਲ varInfo
+                        = m_state.getVarInfo(ਅਧਾਰ_Refp->varScopep());
+                    ਜੇ (!m_state.isNotReplaceable(ਅਧਾਰ_Refp) && varInfo) {
+                        ਅਚਲ ਪੂਰਨ force_ਰਸਤਾ_ਸੂਚਕਾਂਕ = varInfo->ਲੱਭੋ_Force_ਰਸਤਾ_ਸੂਚਕਾਂਕ(exprp);
+                        ਜੇ (force_ਰਸਤਾ_ਸੂਚਕਾਂਕ >= 0) {
+                            ਜੇ (!ਅਧਾਰ_Refp->access().isReadOnly()) ਵਾਪਸ;
+                            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ readExprp = m_state.create_Force_Read_ਸੂਚਕਾਂਕ_ਵਿਅੰਜਕ(
                                 *varInfo, exprp,
-                                ForceState::makeConst32(nodep->fileline(), forcePathIndex));
+                                ForceState::makeConst32(nodep->fileline(), force_ਰਸਤਾ_ਸੂਚਕਾਂਕ));
                             nodep->replaceWith(readExprp);
-                            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                            return;
+                            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+                            ਵਾਪਸ;
                         }
                     }
                 }
@@ -1553,13 +1553,13 @@ class ForceReplaceVisitor final : public VNVisitor {
         iterateChildren(nodep);
     }
 
-public:
-    explicit ForceReplaceVisitor(AstNetlist* nodep, const ForceState& state)
+ਜਨਤਕ:
+    ਸਪਸ਼ਟ ForceReplaceVisitor(AstNetlist* nodep, ਅਚਲ ForceState& state)
         : m_state{state} {
-        iterateAndNextNull(nodep->modulesp());
+        iterate_And_ਅਗਲਾ_Null(nodep->modulesp());
     }
     ~ForceReplaceVisitor() override {
-        V3Stats::addStat("Non-overlapping force sels", m_nonOverlappingForceSels);
+        V3Stats::ਜੋੜੋ_Stat("Non-overlapping force sels", m_nonOverlappingForceSels);
     }
 };
 //######################################################################
@@ -1568,63 +1568,63 @@ public:
 //######################################################################
 // V3Force - Main entry point
 
-static void forceAllImpl(AstNetlist* nodep, ForceState::ForceHelperVarsByVar& helperVars,
-                         ForceState::ProtectedVarRefSet& permanentlyProtected,
-                         ForceState::BuiltVarScopeSet& forceRdUpdateBuilt) {
+ਸਥਿਰ ਖਾਲੀ forceAllImpl(AstNetlist* nodep, ForceState::ForceHelperVarsByVar& helperVars,
+                         ForceState::Protected_Var_Ref_ਸੈੱਟ& permanentlyProtected,
+                         ForceState::Built_Var_Scope_ਸੈੱਟ& forceRdUpdateBuilt) {
     UINFO(2, __FUNCTION__ << ":\n");
-    if (!v3Global.hasForceableSignals()) return;
-    ForceState state{false, helperVars, permanentlyProtected, forceRdUpdateBuilt};
+    ਜੇ (!v3Global.has_Forceable_ਸੰਕੇਤ()) ਵਾਪਸ;
+    ForceState state{ਝੂਠ, helperVars, permanentlyProtected, forceRdUpdateBuilt};
     { ForceDiscoveryVisitor{nodep, state}; }
     state.finalizeRhsVars();
     { ForceConvertVisitor{nodep, state}; }
     { ForceReplaceVisitor{nodep, state}; }
-    V3Global::dumpCheckGlobalTree("force", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("force", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }
 
-static void assignAllImpl(AstNetlist* nodep, ForceState::ForceHelperVarsByVar& helperVars,
-                          ForceState::ProtectedVarRefSet& permanentlyProtected,
-                          ForceState::BuiltVarScopeSet& forceRdUpdateBuilt) {
+ਸਥਿਰ ਖਾਲੀ ਸੌਂਪੋ_All_Impl(AstNetlist* nodep, ForceState::ForceHelperVarsByVar& helperVars,
+                          ForceState::Protected_Var_Ref_ਸੈੱਟ& permanentlyProtected,
+                          ForceState::Built_Var_Scope_ਸੈੱਟ& forceRdUpdateBuilt) {
     UINFO(2, __FUNCTION__ << ":\n");
-    if (!v3Global.hasAssignDeassign()) return;
+    ਜੇ (!v3Global.has_ਸੌਂਪੋ_Deassign()) ਵਾਪਸ;
 
-    std::vector<AstDeassign*> deassignps;
-    nodep->foreach([&](AstDeassign* deassignp) { deassignps.push_back(deassignp); });
-    for (AstDeassign* const deassignp : deassignps) splitDeassign(deassignp);
+    std::ਸਦਿਸ਼<AstDeassign*> deassignps;
+    nodep->foreach([&](AstDeassign* deassignp) { deassignps.ਧੱਕੋ_ਪਿੱਠ(deassignp); });
+    ਲਈ (AstDeassign* ਅਚਲ deassignp : deassignps) ਵੰਡੋ_Deassign(deassignp);
 
-    std::vector<AstAssignCont*> assignContps;
+    std::ਸਦਿਸ਼<Ast_ਸੌਂਪੋ_Cont*> ਸੌਂਪੋ_Contps;
     deassignps.clear();
-    nodep->foreach([&](AstNodeStmt* nodep) {
-        if (AstAssignCont* const assignContp = VN_CAST(nodep, AssignCont)) {
-            assignContps.push_back(assignContp);
-        } else if (AstDeassign* const deassignp = VN_CAST(nodep, Deassign)) {
-            deassignps.push_back(deassignp);
+    nodep->foreach([&](Ast_ਗੰਢ_Stmt* nodep) {
+        ਜੇ (Ast_ਸੌਂਪੋ_Cont* ਅਚਲ ਸੌਂਪੋ_Contp = VN_CAST(nodep, ਸੌਂਪੋ_Cont)) {
+            ਸੌਂਪੋ_Contps.ਧੱਕੋ_ਪਿੱਠ(ਸੌਂਪੋ_Contp);
+        } ਨਹੀਂਤਾਂ ਜੇ (AstDeassign* ਅਚਲ deassignp = VN_CAST(nodep, Deassign)) {
+            deassignps.ਧੱਕੋ_ਪਿੱਠ(deassignp);
         }
     });
 
-    for (AstAssignCont* const assignp : assignContps) {
-        assignp->replaceWith(new AstAssignForce{assignp->fileline(),
-                                                assignp->lhsp()->unlinkFrBack(),
-                                                assignp->rhsp()->unlinkFrBack()});
-        VL_DO_DANGLING(assignp->deleteTree(), assignp);
+    ਲਈ (Ast_ਸੌਂਪੋ_Cont* ਅਚਲ assignp : ਸੌਂਪੋ_Contps) {
+        assignp->replaceWith(ਨਵਾਂ Ast_ਸੌਂਪੋ_Force{assignp->fileline(),
+                                                assignp->lhsp()->unlink_Fr_ਪਿੱਠ(),
+                                                assignp->rhsp()->unlink_Fr_ਪਿੱਠ()});
+        VL_DO_DANGLING(assignp->delete_ਰੁੱਖ(), assignp);
     }
-    for (AstDeassign* const deassignp : deassignps) {
+    ਲਈ (AstDeassign* ਅਚਲ deassignp : deassignps) {
         deassignp->replaceWith(
-            new AstRelease{deassignp->fileline(), deassignp->lhsp()->cloneTreePure(true)});
-        VL_DO_DANGLING(deassignp->deleteTree(), deassignp);
+            ਨਵਾਂ AstRelease{deassignp->fileline(), deassignp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ)});
+        VL_DO_DANGLING(deassignp->delete_ਰੁੱਖ(), deassignp);
     }
-    ForceState state{true, helperVars, permanentlyProtected, forceRdUpdateBuilt};
+    ForceState state{ਸੱਚ, helperVars, permanentlyProtected, forceRdUpdateBuilt};
     { ForceDiscoveryVisitor{nodep, state}; }
     state.finalizeRhsVars();
     { ForceConvertVisitor{nodep, state}; }
     { ForceReplaceVisitor{nodep, state}; }
-    V3Global::dumpCheckGlobalTree("assign-deassign", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("assign-deassign", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }
 
-void V3Force::forceAndAssignAll(AstNetlist* nodep) {
-    const VNUser3InUse user3InUse;
+ਖਾਲੀ V3Force::force_And_ਸੌਂਪੋ_All(AstNetlist* nodep) {
+    ਅਚਲ VNUser3_ਵਿੱਚ_Use user3_ਵਿੱਚ_Use;
     ForceState::ForceHelperVarsByVar helperVars;
-    ForceState::ProtectedVarRefSet permanentlyProtected;
-    ForceState::BuiltVarScopeSet forceRdUpdateBuilt;
+    ForceState::Protected_Var_Ref_ਸੈੱਟ permanentlyProtected;
+    ForceState::Built_Var_Scope_ਸੈੱਟ forceRdUpdateBuilt;
     forceAllImpl(nodep, helperVars, permanentlyProtected, forceRdUpdateBuilt);
-    assignAllImpl(nodep, helperVars, permanentlyProtected, forceRdUpdateBuilt);
+    ਸੌਂਪੋ_All_Impl(nodep, helperVars, permanentlyProtected, forceRdUpdateBuilt);
 }

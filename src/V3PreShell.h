@@ -14,14 +14,14 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3PRESHELL_H_
-#define VERILATOR_V3PRESHELL_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3PRESHELL_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3PRESHELL_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Error.h"
-#include "V3FileLine.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3FileLine.h"
 
 class V3ParseImp;
 class VInFilter;
@@ -31,17 +31,17 @@ class VSpellCheck;
 
 class V3PreShell final {
     // Static class for calling preprocessor
-public:
-    static void boot() VL_MT_DISABLED;
-    static void shutdown() VL_MT_DISABLED;
-    static bool preproc(FileLine* fl, const string& modname, VInFilter* filterp,
-                        V3ParseImp* parsep, const string& errmsg) VL_MT_DISABLED;
-    static void preprocInclude(FileLine* fl, const string& modname) VL_MT_DISABLED;
-    static void defineCmdLine(const string& name, const string& value) VL_MT_DISABLED;
-    static void undef(const string& name) VL_MT_DISABLED;
-    static void dumpDefines(std::ostream& os) VL_MT_DISABLED;
-    static void candidateDefines(VSpellCheck* spellerp) VL_MT_DISABLED;
-    static void selfTest() VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ boot() VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ shutdown() VL_MT_DISABLED;
+    ਸਥਿਰ bool preproc(File_ਸਤਰ* fl, ਅਚਲ string& modname, VInFilter* filterp,
+                        V3ParseImp* parsep, ਅਚਲ string& errmsg) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ preprocInclude(File_ਸਤਰ* fl, ਅਚਲ string& modname) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ define_Cmd_ਸਤਰ(ਅਚਲ string& name, ਅਚਲ string& ਮੁੱਲ) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ undef(ਅਚਲ string& name) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ dump_ਨਿਰਧਾਰਤ_ਕਰਦਾ(std::ostream& os) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ candidate_ਨਿਰਧਾਰਤ_ਕਰਦਾ(VSpellCheck* spellerp) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ selfTest() VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

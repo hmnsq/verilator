@@ -14,25 +14,25 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WAIVER_H_
-#define VERILATOR_V3WAIVER_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3WAIVER_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3WAIVER_H_
 
-#include "V3Error.h"
-#include "V3Mutex.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Mutex.h"
 
-#include <string>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 class V3Waiver final {
     // TYPES
-    using WaiverList = std::vector<std::string>;
-    static V3Mutex s_mutex;  // Protect members
-    static WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
+    using WaiverList = std::ਸਦਿਸ਼<std::string>;
+    ਸਥਿਰ V3Mutex s_mutex;  // Protect members
+    ਸਥਿਰ WaiverList s_waiverList VL_GUARDED_BY(s_mutex);
 
-public:
-    static void addEntry(V3ErrorCode errorCode, const string& filename, const std::string& msg)
-        VL_MT_SAFE_EXCLUDES(s_mutex);
-    static void write(const std::string& filename) VL_MT_SAFE_EXCLUDES(s_mutex);
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ ਜੋੜੋ_ਇੰਦਰਾਜ(V3_Error_ਕੋਡ error_ਕੋਡ, ਅਚਲ string& filename, ਅਚਲ std::string& ਸੁਨੇਹਾ_2)
+        VL_MT_ਸੁਰੱਖਿਅਤ_EXCLUDES(s_mutex);
+    ਸਥਿਰ ਖਾਲੀ ਲਿਖ(ਅਚਲ std::string& filename) VL_MT_ਸੁਰੱਖਿਅਤ_EXCLUDES(s_mutex);
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

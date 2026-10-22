@@ -12,26 +12,26 @@
 // DESCRIPTION: Verilator: Emit C++ for precompiled header include
 //
 
-#include "V3PchAstMT.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstMT.h"
 
-#include "V3EmitC.h"
-#include "V3EmitCBase.h"
-#include "V3File.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3EmitC.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3EmitCBase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3File.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Precompiled header emitter
 
-class EmitCPch final : public EmitCBaseVisitorConst {
+ਵਰਗ EmitCPch final : ਜਨਤਕ EmitCBaseVisitorConst {
     // METHODS
 
-    void emitPch() {
-        openNewOutputHeaderFile(EmitCUtil::pchClassName(), "Precompiled header");
+    ਖਾਲੀ emitPch() {
+        open_New_Output_ਸਿਰਲੇਖ_File(EmitCUtil::pchClassName(), "Precompiled header");
         puts("//\n");
         puts("// Internal details; most user sources do not need this header,\n");
         puts("// unless using verilator public meta comments.\n");
-        puts("// Suggest use " + EmitCUtil::topClassName() + ".h instead.\n");
+        puts("// Suggest use " + EmitCUtil::ਸਿਖਰ_Class_Name() + ".h instead.\n");
 
         ofp()->putsGuard();
 
@@ -46,33 +46,33 @@ class EmitCPch final : public EmitCBaseVisitorConst {
 
         puts("\n");
         puts("\n#include \"verilated.h\"\n");
-        if (v3Global.dpi()) puts("#include \"verilated_dpi.h\"\n");
+        ਜੇ (v3Global.dpi()) puts("#include \"verilated_dpi.h\"\n");
 
         puts("\n");
         puts("#include \"" + EmitCUtil::symClassName() + ".h\"\n");
-        puts("#include \"" + EmitCUtil::topClassName() + ".h\"\n");
+        puts("#include \"" + EmitCUtil::ਸਿਖਰ_Class_Name() + ".h\"\n");
 
         puts("\n// Additional include files added using '--compiler-include'\n");
-        for (const string& filename : v3Global.opt.compilerIncludes()) {
+        ਲਈ (ਅਚਲ string& filename : v3Global.opt.compilerIncludes()) {
             puts("#include \"" + filename + "\"\n");
         }
 
-        ofp()->putsEndGuard();
+        ofp()->puts_ਸਿਰਾ_Guard();
 
         closeOutputFile();
     }
 
     // VISITOR
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Unused"); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { nodep->v3fatalSrc("Unused"); }
 
-public:
-    explicit EmitCPch() { emitPch(); }
+ਜਨਤਕ:
+    ਸਪਸ਼ਟ EmitCPch() { emitPch(); }
 };
 
 //######################################################################
 // EmitC static functions
 
-void V3EmitC::emitcPch() {
+ਖਾਲੀ V3EmitC::emitcPch() {
     UINFO(2, __FUNCTION__ << ":");
     EmitCPch{};
 }

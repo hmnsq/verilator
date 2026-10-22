@@ -15,105 +15,105 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTUSERALLOCATOR_H_
-#define VERILATOR_V3ASTUSERALLOCATOR_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3ASTUSERALLOCATOR_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3ASTUSERALLOCATOR_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
 
-#include <type_traits>
-#include <utility>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <type_traits>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utility>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
-template <typename T_Node, typename T_Data, int N_UserN>
-class AstUserAllocatorBase VL_NOT_FINAL {
+ਸਾਂਚਾ <typename T_ਗੰਢ, typename T_ਅੰਕੜੇ, ਪੂਰਨ N_UserN>
+class Ast_User_Allocator_ਅਧਾਰ VL_NOT_FINAL {
     static_assert(1 <= N_UserN && N_UserN <= 4, "Wrong user pointer number");
-    static_assert(std::is_base_of<AstNode, T_Node>::value, "T_Node must be an AstNode type");
+    static_assert(std::is_ਅਧਾਰ_ਦਾ<Ast_ਗੰਢ, T_ਗੰਢ>::ਮੁੱਲ, "T_Node must be an AstNode type");
 
-private:
-    std::deque<T_Data> m_allocated;
+ਨਿਜੀ:
+    std::deque<T_ਅੰਕੜੇ> m_allocated;
 
-    T_Data* getUserp(const T_Node* nodep) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            const VNUser user = nodep->user1u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            const VNUser user = nodep->user2u();
-            return user.to<T_Data*>();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            const VNUser user = nodep->user3u();
-            return user.to<T_Data*>();
-        } else {
-            const VNUser user = nodep->user4u();
-            return user.to<T_Data*>();
+    T_ਅੰਕੜੇ* getUserp(ਅਚਲ T_ਗੰਢ* nodep) ਅਚਲ {
+        ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            ਅਚਲ VNUser user = nodep->user1u();
+            ਵਾਪਸ user.ਮੰਜ਼ਿਲ<T_ਅੰਕੜੇ*>();
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            ਅਚਲ VNUser user = nodep->user2u();
+            ਵਾਪਸ user.ਮੰਜ਼ਿਲ<T_ਅੰਕੜੇ*>();
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            ਅਚਲ VNUser user = nodep->user3u();
+            ਵਾਪਸ user.ਮੰਜ਼ਿਲ<T_ਅੰਕੜੇ*>();
+        } ਨਹੀਂਤਾਂ {
+            ਅਚਲ VNUser user = nodep->user4u();
+            ਵਾਪਸ user.ਮੰਜ਼ਿਲ<T_ਅੰਕੜੇ*>();
         }
     }
 
-    void setUserp(T_Node* nodep, T_Data* userp) const {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+    ਖਾਲੀ ਸੈੱਟ_Userp(T_ਗੰਢ* nodep, T_ਅੰਕੜੇ* userp) ਅਚਲ {
+        ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
             nodep->user1u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
             nodep->user2u(VNUser{userp});
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
             nodep->user3u(VNUser{userp});
-        } else {
+        } ਨਹੀਂਤਾਂ {
             nodep->user4u(VNUser{userp});
         }
     }
 
-protected:
-    AstUserAllocatorBase() {
-        if VL_CONSTEXPR_CXX17 (N_UserN == 1) {
-            VNUser1InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 2) {
-            VNUser2InUse::check();
-        } else if VL_CONSTEXPR_CXX17 (N_UserN == 3) {
-            VNUser3InUse::check();
-        } else {
-            VNUser4InUse::check();
+ਸੁਰੱਖਿਅਤ:
+    Ast_User_Allocator_ਅਧਾਰ() {
+        ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 1) {
+            VNUser1_ਵਿੱਚ_Use::check();
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 2) {
+            VNUser2_ਵਿੱਚ_Use::check();
+        } ਨਹੀਂਤਾਂ ਜੇ VL_CONSTEXPR_CXX17 (N_UserN == 3) {
+            VNUser3_ਵਿੱਚ_Use::check();
+        } ਨਹੀਂਤਾਂ {
+            VNUser4_ਵਿੱਚ_Use::check();
         }
     }
 
-    VL_UNCOPYABLE(AstUserAllocatorBase);
+    VL_UNCOPYABLE(Ast_User_Allocator_ਅਧਾਰ);
 
-public:
+ਜਨਤਕ:
     // Get a reference to the user data. If does not exist, construct it with given arguments.
-    template <typename... Args>
-    T_Data& operator()(T_Node* nodep, Args&&... args) {
-        T_Data* userp = getUserp(nodep);
-        if (!userp) {
-            m_allocated.emplace_back(std::forward<Args>(args)...);
-            userp = &m_allocated.back();
-            setUserp(nodep, userp);
+    ਸਾਂਚਾ <typename... ਦਲੀਲਾਂ_2>
+    T_ਅੰਕੜੇ& ਸੰਚਾਲਕ()(T_ਗੰਢ* nodep, ਦਲੀਲਾਂ_2&&... ਦਲੀਲਾਂ) {
+        T_ਅੰਕੜੇ* userp = getUserp(nodep);
+        ਜੇ (!userp) {
+            m_allocated.emplace_ਪਿੱਠ(std::forward<ਦਲੀਲਾਂ_2>(ਦਲੀਲਾਂ)...);
+            userp = &m_allocated.ਪਿੱਠ();
+            ਸੈੱਟ_Userp(nodep, userp);
         }
-        return *userp;
+        ਵਾਪਸ *userp;
     }
 
     // Get a reference to the user data
-    T_Data& operator()(const T_Node* nodep) const {
-        T_Data* const userp = getUserp(nodep);
+    T_ਅੰਕੜੇ& ਸੰਚਾਲਕ()(ਅਚਲ T_ਗੰਢ* nodep) ਅਚਲ {
+        T_ਅੰਕੜੇ* ਅਚਲ userp = getUserp(nodep);
         UASSERT_OBJ(userp, nodep, "Missing User data on const AstNode");
-        return *userp;
+        ਵਾਪਸ *userp;
     }
 
     // Get a pointer to the user data if exists, otherwise nullptr
-    T_Data* tryGet(const T_Node* nodep) const { return getUserp(nodep); }
+    T_ਅੰਕੜੇ* tryGet(ਅਚਲ T_ਗੰਢ* nodep) ਅਚਲ { ਵਾਪਸ getUserp(nodep); }
 
-    void clear() { m_allocated.clear(); }
+    ਖਾਲੀ clear() { m_allocated.clear(); }
 };
 
 // User pointer allocator classes. T_Node is the type of node the allocator should be applied to
 // and is there for a bit of extra type safety. T_Data is the type of the data structure
 // managed by the allocator.
-template <typename T_Node, typename T_Data>
-class AstUser1Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 1> {};
-template <typename T_Node, typename T_Data>
-class AstUser2Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 2> {};
-template <typename T_Node, typename T_Data>
-class AstUser3Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 3> {};
-template <typename T_Node, typename T_Data>
-class AstUser4Allocator final : public AstUserAllocatorBase<T_Node, T_Data, 4> {};
+ਸਾਂਚਾ <typename T_ਗੰਢ, typename T_ਅੰਕੜੇ>
+class AstUser1Allocator final : ਜਨਤਕ Ast_User_Allocator_ਅਧਾਰ<T_ਗੰਢ, T_ਅੰਕੜੇ, 1> {};
+ਸਾਂਚਾ <typename T_ਗੰਢ, typename T_ਅੰਕੜੇ>
+class AstUser2Allocator final : ਜਨਤਕ Ast_User_Allocator_ਅਧਾਰ<T_ਗੰਢ, T_ਅੰਕੜੇ, 2> {};
+ਸਾਂਚਾ <typename T_ਗੰਢ, typename T_ਅੰਕੜੇ>
+class AstUser3Allocator final : ਜਨਤਕ Ast_User_Allocator_ਅਧਾਰ<T_ਗੰਢ, T_ਅੰਕੜੇ, 3> {};
+ਸਾਂਚਾ <typename T_ਗੰਢ, typename T_ਅੰਕੜੇ>
+class AstUser4Allocator final : ਜਨਤਕ Ast_User_Allocator_ਅਧਾਰ<T_ਗੰਢ, T_ਅੰਕੜੇ, 4> {};
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

@@ -14,27 +14,27 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3LINKDOT_H_
-#define VERILATOR_V3LINKDOT_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3LINKDOT_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3LINKDOT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
 //============================================================================
 
-enum VLinkDotStep : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
+ਗਿਣਤੀ VLink_Dot_ਕਦਮ : uint8_t { LDS_PRIMARY, LDS_PARAMED, LDS_SCOPED };
 
 class V3LinkDot final {
-    static void dumpSubstep(const string& name) VL_MT_DISABLED;
-    static void linkDotGuts(AstNetlist* rootp, VLinkDotStep step) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ dumpSubstep(ਅਚਲ string& name) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ linkDotGuts(AstNetlist* rootp, VLink_Dot_ਕਦਮ ਕਦਮ) VL_MT_DISABLED;
 
-public:
-    static void linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
-    static void linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ linkDotPrimary(AstNetlist* nodep) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ linkDotParamed(AstNetlist* nodep) VL_MT_DISABLED;
+    ਸਥਿਰ ਖਾਲੀ linkDotScope(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

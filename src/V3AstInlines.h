@@ -14,222 +14,222 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3ASTINLINES_H_
-#define VERILATOR_V3ASTINLINES_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3ASTINLINES_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3ASTINLINES_H_
 
-#ifndef VERILATOR_V3AST_H_
-#error "Use V3Ast.h as the include"
-#include "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
-#endif
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3AST_H_
+#ਗਲਤੀ "Use V3Ast.h as the include"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"  // This helps code analysis tools pick up symbols in V3Ast.h and related
+#ਜੇ_ਅੰਤ
 
 //######################################################################
 // Inline METHODS
 
-int AstNode::width() const VL_MT_STABLE { return dtypep() ? dtypep()->width() : 0; }
-int AstNode::widthMin() const VL_MT_STABLE { return dtypep() ? dtypep()->widthMin() : 0; }
-bool AstNode::width1() const {  // V3Const uses to know it can optimize
-    return dtypep() && dtypep()->width() == 1;
+ਪੂਰਨ Ast_ਗੰਢ::ਚੌੜਾਈ() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ dtypep() ? dtypep()->ਚੌੜਾਈ() : 0; }
+ਪੂਰਨ Ast_ਗੰਢ::ਚੌੜਾਈ_Min() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ dtypep() ? dtypep()->ਚੌੜਾਈ_Min() : 0; }
+bool Ast_ਗੰਢ::width1() ਅਚਲ {  // V3Const uses to know it can optimize
+    ਵਾਪਸ dtypep() && dtypep()->ਚੌੜਾਈ() == 1;
 }
-int AstNode::widthInstrs() const {
-    return (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->widthWords() : 1));
+ਪੂਰਨ Ast_ਗੰਢ::ਚੌੜਾਈ_Instrs() ਅਚਲ {
+    ਵਾਪਸ (!dtypep() ? 1 : (dtypep()->isWide() ? dtypep()->ਚੌੜਾਈ_ਸ਼ਬਦ() : 1));
 }
-bool AstNode::isCHandle() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
+bool Ast_ਗੰਢ::isCHandle() ਅਚਲ VL_MT_STABLE {
+    ਵਾਪਸ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isCHandle();
 }
-bool AstNode::isDouble() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
+bool Ast_ਗੰਢ::isDouble() ਅਚਲ VL_MT_STABLE {
+    ਵਾਪਸ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isDouble();
 }
-bool AstNode::isString() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
+bool Ast_ਗੰਢ::isString() ਅਚਲ VL_MT_STABLE {
+    ਵਾਪਸ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isString();
 }
-bool AstNode::isEvent() const VL_MT_STABLE {
-    return dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
+bool Ast_ਗੰਢ::isEvent() ਅਚਲ VL_MT_STABLE {
+    ਵਾਪਸ dtypep() && dtypep()->basicp() && dtypep()->basicp()->isEvent();
 }
 
-bool AstNode::isSigned() const VL_MT_STABLE { return dtypep() && dtypep()->isSigned(); }
+bool Ast_ਗੰਢ::isSigned() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ dtypep() && dtypep()->isSigned(); }
 
-bool AstNode::isClassHandleValue() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNull())
+bool Ast_ਗੰਢ::is_Class_Handle_ਮੁੱਲ() ਅਚਲ {
+    ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->ਅੰਕ().isNull())
            || (dtypep() && VN_IS(dtypep()->skipRefp(), ClassRefDType));
 }
-bool AstNode::isNull() const { return VN_IS(this, Const) && VN_AS(this, Const)->num().isNull(); }
-bool AstNode::isZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqZero());
+bool Ast_ਗੰਢ::isNull() ਅਚਲ { ਵਾਪਸ VN_IS(this, Const) && VN_AS(this, Const)->ਅੰਕ().isNull(); }
+bool Ast_ਗੰਢ::isZero() ਅਚਲ {
+    ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->ਅੰਕ().isEqZero());
 }
-bool AstNode::isNeqZero() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->num().isNeqZero());
+bool Ast_ਗੰਢ::isNeqZero() ਅਚਲ {
+    ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->ਅੰਕ().isNeqZero());
 }
-bool AstNode::isOne() const { return (VN_IS(this, Const) && VN_AS(this, Const)->num().isEqOne()); }
-bool AstNode::isAllOnes() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
+bool Ast_ਗੰਢ::isOne() ਅਚਲ { ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->ਅੰਕ().isEqOne()); }
+bool Ast_ਗੰਢ::isAllOnes() ਅਚਲ {
+    ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnes());
 }
-bool AstNode::isAllOnesV() const {
-    return (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
+bool Ast_ਗੰਢ::isAllOnesV() ਅਚਲ {
+    ਵਾਪਸ (VN_IS(this, Const) && VN_AS(this, Const)->isEqAllOnesV());
 }
-bool AstNode::sameTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, false);
+bool Ast_ਗੰਢ::same_ਰੁੱਖ(ਅਚਲ Ast_ਗੰਢ* node2p) ਅਚਲ {
+    ਵਾਪਸ same_ਰੁੱਖ_Iter(this, node2p, true, false);
 }
-bool AstNode::sameGateTree(const AstNode* node2p) const {
-    return sameTreeIter(this, node2p, true, true);
+bool Ast_ਗੰਢ::same_Gate_ਰੁੱਖ(ਅਚਲ Ast_ਗੰਢ* node2p) ਅਚਲ {
+    ਵਾਪਸ same_ਰੁੱਖ_Iter(this, node2p, true, true);
 }
 
-int AstNodeArrayDType::left() const VL_MT_STABLE { return rangep()->leftConst(); }
-int AstNodeArrayDType::right() const VL_MT_STABLE { return rangep()->rightConst(); }
-int AstNodeArrayDType::hi() const VL_MT_STABLE { return rangep()->hiConst(); }
-int AstNodeArrayDType::lo() const VL_MT_STABLE { return rangep()->loConst(); }
-int AstNodeArrayDType::elementsConst() const VL_MT_STABLE { return rangep()->elementsConst(); }
-VNumRange AstNodeArrayDType::declRange() const VL_MT_STABLE { return VNumRange{left(), right()}; }
+ਪੂਰਨ Ast_ਗੰਢ_Array_DType::ਖੱਬਾ() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ rangep()->ਖੱਬਾ_Const(); }
+ਪੂਰਨ Ast_ਗੰਢ_Array_DType::ਸੱਜਾ() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ rangep()->ਸੱਜਾ_Const(); }
+ਪੂਰਨ Ast_ਗੰਢ_Array_DType::hi() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ rangep()->hiConst(); }
+ਪੂਰਨ Ast_ਗੰਢ_Array_DType::lo() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ rangep()->loConst(); }
+ਪੂਰਨ Ast_ਗੰਢ_Array_DType::elementsConst() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ rangep()->elementsConst(); }
+VNumRange Ast_ਗੰਢ_Array_DType::declRange() ਅਚਲ VL_MT_STABLE { ਵਾਪਸ VNumRange{ਖੱਬਾ(), ਸੱਜਾ()}; }
 
-AstFuncRef::AstFuncRef(FileLine* fl, AstFunc* taskp, AstArg* argsp)
+AstFuncRef::AstFuncRef(File_ਸਤਰ* fl, AstFunc* taskp, AstArg* argsp)
     : ASTGEN_SUPER_FuncRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
     dtypeFrom(taskp);
 }
 
-AstRange::AstRange(FileLine* fl, int left, int right)
+AstRange::AstRange(File_ਸਤਰ* fl, ਪੂਰਨ ਖੱਬਾ, ਪੂਰਨ ਸੱਜਾ)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(left)});
-    rightp(new AstConst{fl, static_cast<uint32_t>(right)});
+    leftp(new AstConst{fl, static_cast<uint32_t>(ਖੱਬਾ)});
+    rightp(new AstConst{fl, static_cast<uint32_t>(ਸੱਜਾ)});
 }
-AstRange::AstRange(FileLine* fl, const VNumRange& range)
+AstRange::AstRange(File_ਸਤਰ* fl, ਅਚਲ VNumRange& range)
     : ASTGEN_SUPER_Range(fl) {
-    leftp(new AstConst{fl, static_cast<uint32_t>(range.left())});
-    rightp(new AstConst{fl, static_cast<uint32_t>(range.right())});
+    leftp(new AstConst{fl, static_cast<uint32_t>(range.ਖੱਬਾ())});
+    rightp(new AstConst{fl, static_cast<uint32_t>(range.ਸੱਜਾ())});
 }
-int AstRange::leftConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(leftp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ਪੂਰਨ AstRange::ਖੱਬਾ_Const() ਅਚਲ VL_MT_STABLE {
+    ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(leftp(), Const);
+    ਵਾਪਸ (constp ? constp->ਮੰਜ਼ਿਲ_SInt() : 0);
 }
-int AstRange::rightConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(rightp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ਪੂਰਨ AstRange::ਸੱਜਾ_Const() ਅਚਲ VL_MT_STABLE {
+    ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(rightp(), Const);
+    ਵਾਪਸ (constp ? constp->ਮੰਜ਼ਿਲ_SInt() : 0);
 }
 
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, VFlagChildDType, AstNodeDType* dtp,
+AstPackArrayDType::AstPackArrayDType(File_ਸਤਰ* fl, VFlag_ਬੱਚਾ_DType, Ast_ਗੰਢ_DType* dtp,
                                      AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
-    childDTypep(dtp);  // Only for parser
+    ਬੱਚਾ_DTypep(dtp);  // Only for parser
     refDTypep(nullptr);
     this->rangep(rangep);
     dtypep(nullptr);  // V3Width will resolve
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = subDTypep()->ਚੌੜਾਈ() * rangep->elementsConst();
+    ਚੌੜਾਈ_Force(ਚੌੜਾਈ, ਚੌੜਾਈ);
 }
-AstPackArrayDType::AstPackArrayDType(FileLine* fl, AstNodeDType* dtp, AstRange* rangep)
+AstPackArrayDType::AstPackArrayDType(File_ਸਤਰ* fl, Ast_ਗੰਢ_DType* dtp, AstRange* rangep)
     : ASTGEN_SUPER_PackArrayDType(fl) {
     refDTypep(dtp);
     this->rangep(rangep);
     dtypep(this);
-    const int width = subDTypep()->width() * rangep->elementsConst();
-    widthForce(width, width);
+    ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = subDTypep()->ਚੌੜਾਈ() * rangep->elementsConst();
+    ਚੌੜਾਈ_Force(ਚੌੜਾਈ, ਚੌੜਾਈ);
 }
 
-int AstQueueDType::boundConst() const VL_MT_STABLE {
-    const AstConst* const constp = VN_CAST(boundp(), Const);
-    return (constp ? constp->toSInt() : 0);
+ਪੂਰਨ Ast_ਕਤਾਰ_DType::boundConst() ਅਚਲ VL_MT_STABLE {
+    ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(boundp(), Const);
+    ਵਾਪਸ (constp ? constp->ਮੰਜ਼ਿਲ_SInt() : 0);
 }
 
-AstTaskRef::AstTaskRef(FileLine* fl, AstTask* taskp, AstArg* argsp)
+AstTaskRef::AstTaskRef(File_ਸਤਰ* fl, AstTask* taskp, AstArg* argsp)
     : ASTGEN_SUPER_TaskRef(fl, taskp->name(), argsp) {
     this->taskp(taskp);
-    dtypeSetVoid();
+    dtype_ਸੈੱਟ_Void();
 }
 
-int AstBasicDType::hi() const { return (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
-int AstBasicDType::lo() const { return (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
-int AstBasicDType::elements() const {
-    return (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
+ਪੂਰਨ AstBasicDType::hi() ਅਚਲ { ਵਾਪਸ (rangep() ? rangep()->hiConst() : m.m_nrange.hi()); }
+ਪੂਰਨ AstBasicDType::lo() ਅਚਲ { ਵਾਪਸ (rangep() ? rangep()->loConst() : m.m_nrange.lo()); }
+ਪੂਰਨ AstBasicDType::elements() ਅਚਲ {
+    ਵਾਪਸ (rangep() ? rangep()->elementsConst() : m.m_nrange.elements());
 }
-bool AstBasicDType::ascending() const {
-    return (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
+bool AstBasicDType::ascending() ਅਚਲ {
+    ਵਾਪਸ (rangep() ? rangep()->ascending() : m.m_nrange.ascending());
 }
 
-bool AstActive::hasClocked() const { return m_sentreep->hasClocked(); }
-bool AstActive::hasCombo() const { return m_sentreep->hasCombo(); }
-bool AstActive::hasInitial() const { return m_sentreep->hasInitial(); }
-bool AstActive::hasStatic() const { return m_sentreep->hasStatic(); }
+bool Ast_ਸਰਗਰਮ::hasClocked() ਅਚਲ { ਵਾਪਸ m_sentreep->hasClocked(); }
+bool Ast_ਸਰਗਰਮ::hasCombo() ਅਚਲ { ਵਾਪਸ m_sentreep->hasCombo(); }
+bool Ast_ਸਰਗਰਮ::hasInitial() ਅਚਲ { ਵਾਪਸ m_sentreep->hasInitial(); }
+bool Ast_ਸਰਗਰਮ::hasStatic() ਅਚਲ { ਵਾਪਸ m_sentreep->hasStatic(); }
 
-bool AstNodeModule::isDollarUnit() const { return this == v3Global.rootp()->dollarUnitPkgp(); }
-bool AstNodeModule::isConstPool() const { return this == v3Global.rootp()->constPoolPkgp(); }
+bool Ast_ਗੰਢ_Module::isDollarUnit() ਅਚਲ { ਵਾਪਸ this == v3Global.rootp()->dollarUnitPkgp(); }
+bool Ast_ਗੰਢ_Module::isConstPool() ਅਚਲ { ਵਾਪਸ this == v3Global.rootp()->constPoolPkgp(); }
 
-AstAlways::AstAlways(AstAssignW* assignp)
+AstAlways::AstAlways(Ast_ਸੌਂਪੋ_W* assignp)
     : ASTGEN_SUPER_Always(assignp->fileline(), assignp)
-    , m_keyword{VAlwaysKwd::CONT_ASSIGN} {}
+    , m_keyword{VAlwaysKwd::CONT_ਸੌਂਪੋ} {}
 
-AstElabDisplay::AstElabDisplay(FileLine* fl, VDisplayType dispType, AstNodeExpr* exprsp)
+AstElabDisplay::AstElabDisplay(File_ਸਤਰ* fl, VDisplayType dispType, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprsp)
     : ASTGEN_SUPER_ElabDisplay(fl) {
-    addFmtp(new AstSFormatF{fl, "", true, exprsp});
+    ਜੋੜੋ_Fmtp(new AstSFormatF{fl, "", true, exprsp});
     m_displayType = dispType;
 }
 
-bool AstVar::sameNode(const AstNode* samep) const {
-    const AstVar* const asamep = VN_DBG_AS(samep, Var);
-    return m_name == asamep->m_name && varType() == asamep->varType()
+bool AstVar::same_ਗੰਢ(ਅਚਲ Ast_ਗੰਢ* samep) ਅਚਲ {
+    ਅਚਲ AstVar* ਅਚਲ asamep = VN_DBG_AS(samep, Var);
+    ਵਾਪਸ m_name == asamep->m_name && varType() == asamep->varType()
            && covergroupRefMember() == asamep->covergroupRefMember()
            && libInoutId() == asamep->libInoutId() && libInoutEnable() == asamep->libInoutEnable();
 }
 
-AstMatchMasked::AstMatchMasked(FileLine* fl, AstNodeExpr* lhsp, AstVarRef* matchp)
-    : ASTGEN_SUPER_MatchMasked(fl) {
+Ast_ਮੇਲ_Masked::Ast_ਮੇਲ_Masked(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsp, AstVarRef* matchp)
+    : ASTGEN_SUPER_ਮੇਲ_Masked(fl) {
     this->lhsp(lhsp);
     this->matchp(matchp);
-    dtypeSetUInt32();
+    dtype_ਸੈੱਟ_UInt32();
 }
 
-AstVarRef::AstVarRef(FileLine* fl, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_ਸਤਰ* fl, AstVar* varp, ਅਚਲ VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varp, access) {
-    if (v3Global.assertDTypesResolved()) {
+    ਜੇ (v3Global.assertDTypesResolved()) {
         UASSERT_OBJ(varp, this, "Require non-null varp post resolution");
-    } else if (varp) {
+    } ਨਹੀਂਤਾਂ ਜੇ (varp) {
         m_name = varp->name();
     }
 }
-AstVarRef::AstVarRef(FileLine* fl, AstNodeModule* pkgp, AstVar* varp, const VAccess& access)
+AstVarRef::AstVarRef(File_ਸਤਰ* fl, Ast_ਗੰਢ_Module* pkgp, AstVar* varp, ਅਚਲ VAccess& access)
     : AstVarRef{fl, varp, access} {
     classOrPackagep(pkgp);
 }
 // This form only allowed post-link (see above)
-AstVarRef::AstVarRef(FileLine* fl, AstVarScope* varscp, const VAccess& access)
+AstVarRef::AstVarRef(File_ਸਤਰ* fl, AstVarScope* varscp, ਅਚਲ VAccess& access)
     : ASTGEN_SUPER_VarRef(fl, varscp->varp(), access) {
     varScopep(varscp);
 }
 
-string AstVarRef::name() const { return varp() ? varp()->name() : nameThis(); }
+string AstVarRef::name() ਅਚਲ { ਵਾਪਸ varp() ? varp()->name() : nameThis(); }
 
-bool AstVarRef::sameNode(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep() && access() == samep->access());
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
+bool AstVarRef::same_ਗੰਢ(ਅਚਲ AstVarRef* samep) ਅਚਲ {
+    ਜੇ (varScopep()) ਵਾਪਸ (varScopep() == samep->varScopep() && access() == samep->access());
+    ਵਾਪਸ (self_ਸੂਚਕ() == samep->self_ਸੂਚਕ() && classOrPackagep() == samep->classOrPackagep()
             && access() == samep->access()
-            && (varp() && samep->varp() && varp()->sameNode(samep->varp())));
+            && (varp() && samep->varp() && varp()->same_ਗੰਢ(samep->varp())));
 }
-bool AstVarRef::sameNoLvalue(const AstVarRef* samep) const {
-    if (varScopep()) return (varScopep() == samep->varScopep());
+bool AstVarRef::sameNoLvalue(ਅਚਲ AstVarRef* samep) ਅਚਲ {
+    ਜੇ (varScopep()) ਵਾਪਸ (varScopep() == samep->varScopep());
 
-    return (selfPointer() == samep->selfPointer() && classOrPackagep() == samep->classOrPackagep()
-            && (!selfPointer().isEmpty() || !samep->selfPointer().isEmpty())
-            && varp()->sameNode(samep->varp()));
+    ਵਾਪਸ (self_ਸੂਚਕ() == samep->self_ਸੂਚਕ() && classOrPackagep() == samep->classOrPackagep()
+            && (!self_ਸੂਚਕ().is_ਖਾਲੀ_ਥਾਵਾਂ() || !samep->self_ਸੂਚਕ().is_ਖਾਲੀ_ਥਾਵਾਂ())
+            && varp()->same_ਗੰਢ(samep->varp()));
 }
 
-AstVarXRef::AstVarXRef(FileLine* fl, AstVar* varp, const string& dotted, const VAccess& access)
+AstVarXRef::AstVarXRef(File_ਸਤਰ* fl, AstVar* varp, ਅਚਲ string& dotted, ਅਚਲ VAccess& access)
     : ASTGEN_SUPER_VarXRef(fl, varp, access)
     , m_name{varp->name()}
     , m_dotted{dotted} {
     dtypeFrom(varp);
 }
 
-AstStmtExpr* AstNodeExpr::makeStmt() { return new AstStmtExpr{fileline(), this}; }
+Ast_Stmt_ਵਿਅੰਜਕ* Ast_ਗੰਢ_ਵਿਅੰਜਕ::makeStmt() { ਵਾਪਸ new Ast_Stmt_ਵਿਅੰਜਕ{fileline(), this}; }
 
-AstConsArrayItem* AstConsArray::itemsp() const VL_MT_STABLE {
-    return VN_DBG_AS(op2p(), ConsArrayItem);
+Ast_Cons_Array_ਵਸਤੂ* AstConsArray::itemsp() ਅਚਲ VL_MT_STABLE {
+    ਵਾਪਸ VN_DBG_AS(op2p(), Cons_Array_ਵਸਤੂ);
 }
 
 // Walk up the AST via backp() to find the containing AstNodeModule.
 // Returns nullptr if not found.
-inline AstNodeModule* findParentModule(AstNode* nodep) {
-    for (AstNode* curp = nodep; curp; curp = curp->backp()) {
-        if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+ਸਤਰਅੰਦਰ Ast_ਗੰਢ_Module* ਲੱਭੋ_ਮਾਪਾ_Module(Ast_ਗੰਢ* nodep) {
+    ਲਈ (Ast_ਗੰਢ* curp = nodep; curp; curp = curp->backp()) {
+        ਜੇ (Ast_ਗੰਢ_Module* ਅਚਲ modp = VN_CAST(curp, ਗੰਢ_Module)) ਵਾਪਸ modp;
     }
-    return nullptr;
+    ਵਾਪਸ nullptr;
 }
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

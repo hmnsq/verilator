@@ -14,109 +14,109 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3HIERBLOCK_H_
-#define VERILATOR_V3HIERBLOCK_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3HIERBLOCK_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3HIERBLOCK_H_
 
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
 
-#include <map>
-#include <set>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <utility>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utility>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 class AstNetlist;
-class AstNodeModule;
+class Ast_ਗੰਢ_Module;
 class AstParamTypeDType;
 class AstVar;
 
 //######################################################################
 
-class V3HierGraph final : public V3Graph {
-public:
-    V3HierGraph() = default;
-    ~V3HierGraph() = default;
-    VL_UNCOPYABLE(V3HierGraph);
-    VL_UNMOVABLE(V3HierGraph);
+class V3_Hier_ਗ੍ਰਾਫ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ {
+ਜਨਤਕ:
+    V3_Hier_ਗ੍ਰਾਫ() = ਮੂਲ;
+    ~V3_Hier_ਗ੍ਰਾਫ() = ਮੂਲ;
+    VL_UNCOPYABLE(V3_Hier_ਗ੍ਰਾਫ);
+    VL_UNMOVABLE(V3_Hier_ਗ੍ਰਾਫ);
 
     // Explicit HDL inputs followed by the library-discovered top module file, if any.
-    static VStringList sourceFiles(const string& topModuleFile = "") VL_MT_DISABLED;
+    ਸਥਿਰ VStringList ਸਰੋਤ_Files(ਅਚਲ string& ਸਿਖਰ_Module_File = "") VL_MT_DISABLED;
     // Write command line arguments to .f files for child Verilation run
-    void writeCommandArgsFiles(bool forMkJson) const VL_MT_DISABLED;
-    void writeParametersFiles() const VL_MT_DISABLED;
-    static string topCommandArgsFilename(bool forMkJson) VL_MT_DISABLED;
+    ਖਾਲੀ write_Command_ਦਲੀਲਾਂ_Files(bool forMkJson) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ writeParametersFiles() ਅਚਲ VL_MT_DISABLED;
+    ਸਥਿਰ string ਸਿਖਰ_Command_ਦਲੀਲਾਂ_Filename(bool forMkJson) VL_MT_DISABLED;
 };
 
-class V3HierBlock final : public V3GraphVertex {
-    VL_RTTI_IMPL(V3HierBlock, V3GraphVertex)
+class V3_Hier_ਖੰਡ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(V3_Hier_ਖੰਡ, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼)
 
     // TYPES
     // Parameter name, stringified value
     using StrGParam = std::pair<string, string>;
-    using StrGParams = std::vector<StrGParam>;
+    using StrGParams = std::ਸਦਿਸ਼<StrGParam>;
 
     // MEMBERS
-    const AstModule* const m_modp;  // Hierarchical block module
+    ਅਚਲ AstModule* ਅਚਲ m_modp;  // Hierarchical block module
     // Value parameters that are overridden by #(.param(value)) syntax.
-    const std::vector<AstVar*> m_params;
+    ਅਚਲ std::ਸਦਿਸ਼<AstVar*> m_params;
     // Types parameters that are overridden by #(.param(value)) syntax.
-    const std::vector<AstParamTypeDType*> m_typeParams;
+    ਅਚਲ std::ਸਦਿਸ਼<AstParamTypeDType*> m_typeParams;
 
     // METHODS
-    static StrGParams stringifyParams(const std::vector<AstVar*>& params,
+    ਸਥਿਰ StrGParams stringifyParams(ਅਚਲ std::ਸਦਿਸ਼<AstVar*>& params,
                                       bool forGOption) VL_MT_DISABLED;
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORs
-    V3HierBlock(V3HierGraph* graphp, const AstModule* modp, const std::vector<AstVar*>& params,
-                const std::vector<AstParamTypeDType*>& typeParams)
-        : V3GraphVertex{graphp}
+    V3_Hier_ਖੰਡ(V3_Hier_ਗ੍ਰਾਫ* graphp, ਅਚਲ AstModule* modp, ਅਚਲ std::ਸਦਿਸ਼<AstVar*>& params,
+                ਅਚਲ std::ਸਦਿਸ਼<AstParamTypeDType*>& typeParams)
+        : V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{graphp}
         , m_modp{modp}
         , m_params{params}
         , m_typeParams{typeParams} {}
-    ~V3HierBlock() VL_MT_DISABLED = default;
-    VL_UNCOPYABLE(V3HierBlock);
-    VL_UNMOVABLE(V3HierBlock);
+    ~V3_Hier_ਖੰਡ() VL_MT_DISABLED = ਮੂਲ;
+    VL_UNCOPYABLE(V3_Hier_ਖੰਡ);
+    VL_UNMOVABLE(V3_Hier_ਖੰਡ);
 
-    const AstModule* modp() const { return m_modp; }
+    ਅਚਲ AstModule* modp() ਅਚਲ { ਵਾਪਸ m_modp; }
 
     // Whether a string parameter value can be passed to a hierarchical block's Verilation
-    static bool stringParamPassable(const string& value) VL_PURE;
+    ਸਥਿਰ bool stringParamPassable(ਅਚਲ string& ਮੁੱਲ) VL_ਸ਼ੁੱਧ;
 
     // For emitting Makefile and build definition JSON
-    VStringList commandArgs(bool forMkJson) const VL_MT_DISABLED;
-    VStringList hierBlockArgs() const VL_MT_DISABLED;
-    string hierPrefix() const VL_MT_DISABLED;
-    string hierSomeFilename(bool withDir, const char* prefix,
-                            const char* suffix) const VL_MT_DISABLED;
-    string hierWrapperFilename(bool withDir) const VL_MT_DISABLED;
-    string hierMkFilename(bool withDir) const VL_MT_DISABLED;
-    string hierLibFilename(bool withDir) const VL_MT_DISABLED;
-    string hierGeneratedFilenames(bool withDir) const VL_MT_DISABLED;
+    VStringList command_ਦਲੀਲਾਂ(bool forMkJson) ਅਚਲ VL_MT_DISABLED;
+    VStringList hier_ਖੰਡ_ਦਲੀਲਾਂ() ਅਚਲ VL_MT_DISABLED;
+    string hier_ਅਗੇਤਰ() ਅਚਲ VL_MT_DISABLED;
+    string hierSomeFilename(bool withDir, ਅਚਲ ਅੱਖਰ* ਅਗੇਤਰ,
+                            ਅਚਲ ਅੱਖਰ* suffix) ਅਚਲ VL_MT_DISABLED;
+    string hierWrapperFilename(bool withDir) ਅਚਲ VL_MT_DISABLED;
+    string hierMkFilename(bool withDir) ਅਚਲ VL_MT_DISABLED;
+    string hierLibFilename(bool withDir) ਅਚਲ VL_MT_DISABLED;
+    string hierGeneratedFilenames(bool withDir) ਅਚਲ VL_MT_DISABLED;
     // Returns the original HDL file if it is not included in v3Global.opt.vFiles().
-    string vFileIfNecessary() const VL_MT_DISABLED;
+    string vFileIfNecessary() ਅਚਲ VL_MT_DISABLED;
     // Write command line arguments to .f file for this hierarchical block
-    void writeCommandArgsFile(bool forMkJson) const VL_MT_DISABLED;
-    void writeParametersFile() const VL_MT_DISABLED;
-    string commandArgsFilename(bool forMkJson) const VL_MT_DISABLED;
-    string typeParametersFilename() const VL_MT_DISABLED;
+    ਖਾਲੀ write_Command_ਦਲੀਲਾਂ_File(bool forMkJson) ਅਚਲ VL_MT_DISABLED;
+    ਖਾਲੀ writeParametersFile() ਅਚਲ VL_MT_DISABLED;
+    string command_ਦਲੀਲਾਂ_Filename(bool forMkJson) ਅਚਲ VL_MT_DISABLED;
+    string typeParametersFilename() ਅਚਲ VL_MT_DISABLED;
 
     // For Graphviz dumps only
-    std::string name() const override { return m_modp->prettyNameQ(); }
-    std::string dotShape() const override { return "box"; }
+    std::string name() ਅਚਲ override { ਵਾਪਸ m_modp->prettyNameQ(); }
+    std::string dotShape() ਅਚਲ override { ਵਾਪਸ "box"; }
 };
 
 //######################################################################
 // Pass to create hierarcical block graph
 
-class V3Hierarchical final {
-public:
-    static void createGraph(AstNetlist* nodep) VL_MT_DISABLED;
+class V3_ਦਰਜਾਵਾਰ final {
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ create_ਗ੍ਰਾਫ(AstNetlist* nodep) VL_MT_DISABLED;
 };
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard

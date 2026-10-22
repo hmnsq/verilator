@@ -29,33 +29,33 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Randomize.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Randomize.h"
 
-#include "V3Ast.h"
-#include "V3Const.h"
-#include "V3ConstPool.h"
-#include "V3Container.h"
-#include "V3Error.h"
-#include "V3FileLine.h"
-#include "V3Global.h"
-#include "V3MemberMap.h"
-#include "V3Task.h"
-#include "V3UniqueNames.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Const.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3ConstPool.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3FileLine.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3MemberMap.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Task.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3UniqueNames.h"
 
-#include <queue>
-#include <tuple>
-#include <utility>
+#ਅਨ੍ਤਰ੍ਭਾਵ <queue>
+#ਅਨ੍ਤਰ੍ਭਾਵ <tuple>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utility>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // ######################################################################
 // Determines if a class is used with randomization
 
-enum ClassRandom : uint8_t {
+ਗਿਣਤੀ ClassRandom : uint8_t {
     NONE,  // randomize() is not called
     IS_RANDOMIZED,  // randomize() is called
     IS_RANDOMIZED_GLOBAL,  // randomize() is called with global constraints
@@ -66,142 +66,142 @@ enum ClassRandom : uint8_t {
 // ######################################################################
 // Constants for global constraint processing
 
-static constexpr const char* GLOBAL_CONSTRAINT_SEPARATOR = "__DT__";
-static constexpr const char* BASIC_RANDOMIZE_FUNC_NAME = "__VBasicRand";
+ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* GLOBAL_CONSTRAINT_SEPARATOR = "__DT__";
+ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* BASIC_RANDOMIZE_FUNC_NAME = "__VBasicRand";
 
 // Walk extends chain to find __Vrandmode variable (stored in AstClass::user2p).
 // user2p is only set on the root class where __Vrandmode was created, so
 // derived classes need this chain walk. Accepts AstNodeModule* for flexibility.
-static AstVar* getRandModeVarFromClass(AstNodeModule* classp) {
-    while (classp) {
-        if (classp->user2p()) return VN_AS(classp->user2p(), Var);
-        AstClass* const cp = VN_CAST(classp, Class);
-        if (!cp || !cp->extendsp()) return nullptr;
+ਸਥਿਰ AstVar* get_Rand_ਬਹੁਲਕ_Var_From_Class(Ast_ਗੰਢ_Module* classp) {
+    ਜਦੋਂ (classp) {
+        ਜੇ (classp->user2p()) ਵਾਪਸ VN_AS(classp->user2p(), Var);
+        AstClass* ਅਚਲ cp = VN_CAST(classp, Class);
+        ਜੇ (!cp || !cp->extendsp()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         classp = cp->extendsp()->classp();
     }
-    return nullptr;
+    ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 }
 
 // Walk extends chain to find random generator variable (stored in AstClass::user3p).
-static AstVar* getRandomGenerator(AstClass* const classp) {
-    if (classp->user3p()) return VN_AS(classp->user3p(), Var);
-    if (classp->extendsp()) return getRandomGenerator(classp->extendsp()->classp());
-    return nullptr;
+ਸਥਿਰ AstVar* getRandomGenerator(AstClass* ਅਚਲ classp) {
+    ਜੇ (classp->user3p()) ਵਾਪਸ VN_AS(classp->user3p(), Var);
+    ਜੇ (classp->extendsp()) ਵਾਪਸ getRandomGenerator(classp->extendsp()->classp());
+    ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 }
 
 // Create __Vsetup_constraints function if non existant inside memberMap,
 // if existant return one already present
-static AstTask* getCreateConstraintSetupFunc(AstClass* classp, VMemberMap& memberMap) {
-    static const char* const name = "__Vsetup_constraints";
-    AstTask* setupAllTaskp = VN_AS(memberMap.findMember(classp, name), Task);
-    if (setupAllTaskp) return setupAllTaskp;
-    setupAllTaskp = new AstTask{classp->fileline(), "__Vsetup_constraints", nullptr};
-    setupAllTaskp->classMethod(true);
-    setupAllTaskp->isVirtual(true);
-    classp->addMembersp(setupAllTaskp);
-    memberMap.insert(classp, setupAllTaskp);
-    return setupAllTaskp;
+ਸਥਿਰ AstTask* get_Create_Constraint_ਤਿਆਰੀ_Func(AstClass* classp, VMemberMap& memberMap) {
+    ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ name = "__Vsetup_constraints";
+    AstTask* ਤਿਆਰੀ_All_Taskp = VN_AS(memberMap.ਲੱਭੋ_Member(classp, name), Task);
+    ਜੇ (ਤਿਆਰੀ_All_Taskp) ਵਾਪਸ ਤਿਆਰੀ_All_Taskp;
+    ਤਿਆਰੀ_All_Taskp = ਨਵਾਂ AstTask{classp->fileline(), "__Vsetup_constraints", ਖਾਲੀ_ਸੂਚਕ};
+    ਤਿਆਰੀ_All_Taskp->class_ਵਿਧੀ(ਸੱਚ);
+    ਤਿਆਰੀ_All_Taskp->isVirtual(ਸੱਚ);
+    classp->ਜੋੜੋ_Membersp(ਤਿਆਰੀ_All_Taskp);
+    memberMap.ਪਾਓ(classp, ਤਿਆਰੀ_All_Taskp);
+    ਵਾਪਸ ਤਿਆਰੀ_All_Taskp;
 }
 
 // ######################################################################
 // Establishes the target of a rand_mode() call
 
-struct RandModeTarget final {
+ਬਣਤਰ Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ final {
     // MEMBERS
-    AstVar* const receiverp;  // Variable that is the target of the rand_mode() call
-    AstNodeExpr* const fromp;  // Expression from which the rand_mode() call originates
-    AstClass* const classp;  // Class in which rand_mode should be set
+    AstVar* ਅਚਲ receiverp;  // Variable that is the target of the rand_mode() call
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp;  // Expression from which the rand_mode() call originates
+    AstClass* ਅਚਲ classp;  // Class in which rand_mode should be set
 
     // METHODS
-    static RandModeTarget get(AstNodeExpr* fromp, AstNodeModule* modp) {
-        if (!fromp) return {nullptr, nullptr, VN_AS(modp, Class)};
-        if (AstCMethodHard* const methodHardp = VN_CAST(fromp, CMethodHard)) {
-            return RandModeTarget::get(methodHardp->fromp(), modp);
+    ਸਥਿਰ Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ get(Ast_ਗੰਢ_ਵਿਅੰਜਕ* fromp, Ast_ਗੰਢ_Module* modp) {
+        ਜੇ (!fromp) ਵਾਪਸ {ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ, VN_AS(modp, Class)};
+        ਜੇ (AstCMethodHard* ਅਚਲ ਵਿਧੀ_Hardp = VN_CAST(fromp, CMethodHard)) {
+            ਵਾਪਸ Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ::get(ਵਿਧੀ_Hardp->fromp(), modp);
         }
-        AstVar* receiverp = nullptr;
+        AstVar* receiverp = ਖਾਲੀ_ਸੂਚਕ;
         AstClass* classp = VN_CAST(modp, Class);
-        if (AstVarRef* const varrefp = VN_CAST(fromp, VarRef)) {
+        ਜੇ (AstVarRef* ਅਚਲ varrefp = VN_CAST(fromp, VarRef)) {
             receiverp = varrefp->varp();
-            if (receiverp->isRand()) {
-                fromp = nullptr;
-                if (receiverp->lifetime().isStatic()) {
+            ਜੇ (receiverp->isRand()) {
+                fromp = ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (receiverp->lifetime().isStatic()) {
                     classp = VN_AS(varrefp->classOrPackagep(), Class);
                 }
             }
-        } else if (AstMemberSel* const memberSelp = VN_CAST(fromp, MemberSel)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(fromp, MemberSel)) {
             receiverp = memberSelp->varp();
-            if (receiverp->isRand()) {
+            ਜੇ (receiverp->isRand()) {
                 fromp = memberSelp->fromp();
                 classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
             }
         }
         UASSERT_OBJ(receiverp, fromp, "Unknown rand_mode() receiver");
-        if (!receiverp->isRand()) {
-            AstClassRefDType* const classRefDtp
+        ਜੇ (!receiverp->isRand()) {
+            AstClassRefDType* ਅਚਲ classRefDtp
                 = VN_CAST(receiverp->dtypep()->skipRefp(), ClassRefDType);
-            if (classRefDtp) classp = classRefDtp->classp();
+            ਜੇ (classRefDtp) classp = classRefDtp->classp();
         }
-        return {receiverp, fromp, classp};
+        ਵਾਪਸ {receiverp, fromp, classp};
     }
 };
 
 // ######################################################################
 // Stores info about a variable's rand_mode state/a constraint's constraint_mode state
 
-union RandomizeMode final {
+ਸੰਘ Randomize_ਬਹੁਲਕ final {
     // MEMBERS
-    struct {
-        bool usesMode : 1;  // Variable/constraint uses rand_mode/constraint_mode
-        uint32_t index : 31;  // Index of var/constraint in rand_mode/constraint_mode vector
+    ਬਣਤਰ {
+        ਤਾਰਕਿਕ ਵਰਤਦਾ_ਬਹੁਲਕ : 1;  // Variable/constraint uses rand_mode/constraint_mode
+        uint32_t ਸੂਚਕਾਂਕ : 31;  // Index of var/constraint in rand_mode/constraint_mode vector
     };
     uint64_t asUQuad;  // Representation as int to be stored in nodep->user*
 };
 
 // Look through unpacked array dimensions to the element type
-static AstNodeDType* arrayElementDTypep(AstNodeDType* dtypep) {
+ਸਥਿਰ Ast_ਗੰਢ_DType* arrayElementDTypep(Ast_ਗੰਢ_DType* dtypep) {
     dtypep = dtypep->skipRefp();
-    while (dtypep->isNonPackedArray()) dtypep = dtypep->subDTypep()->skipRefp();
-    return dtypep;
+    ਜਦੋਂ (dtypep->isNonPackedArray()) dtypep = dtypep->subDTypep()->skipRefp();
+    ਵਾਪਸ dtypep;
 }
 
 // Whether dtypep is, or contains anywhere through unpacked array/struct
 // nesting, a real value. A packed struct can't hold one (IEEE disallows
 // real as a packed-struct member), so it's never worth descending into.
-static bool dtypeContainsReal(AstNodeDType* dtypep) {
+ਸਥਿਰ ਤਾਰਕਿਕ dtype_ਸ਼ਾਮਲ_ਹੈ_Real(Ast_ਗੰਢ_DType* dtypep) {
     dtypep = dtypep->skipRefp();
-    if (AstNodeDType* const subp = dtypep->subDTypep()) return dtypeContainsReal(subp);
-    if (const AstNodeUOrStructDType* const structp = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (structp->packed()) return false;
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+    ਜੇ (Ast_ਗੰਢ_DType* ਅਚਲ subp = dtypep->subDTypep()) ਵਾਪਸ dtype_ਸ਼ਾਮਲ_ਹੈ_Real(subp);
+    ਜੇ (ਅਚਲ Ast_ਗੰਢ_UOr_Struct_DType* ਅਚਲ structp = VN_CAST(dtypep, ਗੰਢ_UOr_Struct_DType)) {
+        ਜੇ (structp->packed()) ਵਾਪਸ ਝੂਠ;
+        ਲਈ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
-            if (dtypeContainsReal(memberp->subDTypep())) return true;
+            ਜੇ (dtype_ਸ਼ਾਮਲ_ਹੈ_Real(memberp->subDTypep())) ਵਾਪਸ ਸੱਚ;
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
-    const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType);
-    return basicp && basicp->isDouble();
+    ਅਚਲ AstBasicDType* ਅਚਲ basicp = VN_CAST(dtypep, BasicDType);
+    ਵਾਪਸ basicp && basicp->isDouble();
 }
 
 // Check a rand/randc variable's type against IEEE 1800-2023 18.4's
 // allowed list. Purely diagnostic: codegen sites that would otherwise
 // mishandle one of these types guard themselves on V3Error::errorCount()
 // rather than relying on anything checked here.
-static void checkRandTypeEligibility(AstNode* contextp, AstNodeDType* dtypep, bool isRandc) {
+ਸਥਿਰ ਖਾਲੀ checkRandTypeEligibility(Ast_ਗੰਢ* contextp, Ast_ਗੰਢ_DType* dtypep, ਤਾਰਕਿਕ isRandc) {
     dtypep = dtypep->skipRefp();
-    if (AstNodeDType* const subp = dtypep->subDTypep()) {
+    ਜੇ (Ast_ਗੰਢ_DType* ਅਚਲ subp = dtypep->subDTypep()) {
         checkRandTypeEligibility(contextp, subp, isRandc);  // Containers inherit rand/randc kind
-        return;
+        ਵਾਪਸ;
     }
-    if (VN_IS(dtypep, ClassRefDType)) {
+    ਜੇ (VN_IS(dtypep, ClassRefDType)) {
         // rand on a class handle is legal (recursive randomization).
         // Only randc is disallowed.
-        if (isRandc) {
+        ਜੇ (isRandc) {
             contextp->v3error("'randc' on an object handle (IEEE 1800-2023 18.4: object "
                               "handles shall not be declared randc)");
         }
-        return;
+        ਵਾਪਸ;
     }
-    if (const AstIfaceRefDType* const ifacep = VN_CAST(dtypep, IfaceRefDType)) {
+    ਜੇ (ਅਚਲ AstIfaceRefDType* ਅਚਲ ifacep = VN_CAST(dtypep, IfaceRefDType)) {
         // A class property can only hold a *virtual* interface handle --
         // a plain interface can't be a class member at all -- so a
         // rand-qualified var landing here is always the virtual kind.
@@ -211,57 +211,57 @@ static void checkRandTypeEligibility(AstNode* contextp, AstNodeDType* dtypep, bo
         // compile if left unchecked.
         contextp->v3error("'rand'/'randc' on a virtual interface handle (not "
                           "in IEEE 1800-2023 18.4's random-variable type domain)");
-        return;
+        ਵਾਪਸ;
     }
-    if (const AstNodeUOrStructDType* const structp = VN_CAST(dtypep, NodeUOrStructDType)) {
-        if (structp->packed()) return;  // Integral by construction; members checked separately
-        if (VN_IS(structp, UnionDType)) {
+    ਜੇ (ਅਚਲ Ast_ਗੰਢ_UOr_Struct_DType* ਅਚਲ structp = VN_CAST(dtypep, ਗੰਢ_UOr_Struct_DType)) {
+        ਜੇ (structp->packed()) ਵਾਪਸ;  // Integral by construction; members checked separately
+        ਜੇ (VN_IS(structp, UnionDType)) {
             contextp->v3error("'rand'/'randc' on an unpacked union (IEEE "
                               "1800-2023 18.4: unpacked unions shall not be declared as rand "
                               "or randc)");
-            return;
+            ਵਾਪਸ;
         }
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+        ਲਈ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
             // Each unpacked-struct member independently declares its own rand/randc.
-            if (memberp->rand().isRandomizable()) {
+            ਜੇ (memberp->rand().isRandomizable()) {
                 checkRandTypeEligibility(memberp, memberp->subDTypep(), memberp->rand().isRandC());
             }
         }
-        return;
+        ਵਾਪਸ;
     }
-    const AstBasicDType* const basicp = VN_CAST(dtypep, BasicDType);
+    ਅਚਲ AstBasicDType* ਅਚਲ basicp = VN_CAST(dtypep, BasicDType);
     // V3Width has already resolved every dtype by this pass, and every
     // other leaf kind (class handle, virtual interface, struct/union) was
     // already dispatched above, so a rand-qualified var's dtype can only
     // be a BasicDType here.
     UASSERT_OBJ(basicp, dtypep, "Unexpected non-basic leaf dtype for rand var");
-    if (basicp->isDouble()) {
+    ਜੇ (basicp->isDouble()) {
         // rand on a real variable is legal; only randc is disallowed.
-        if (isRandc) {
+        ਜੇ (isRandc) {
             contextp->v3error("'randc' on a real variable (IEEE 1800-2023 18.4: "
                               "real variables shall not be declared randc)");
         }
-        return;
+        ਵਾਪਸ;
     }
-    switch (basicp->keyword()) {
-    case VBasicDTypeKwd::STRING:
-    case VBasicDTypeKwd::CHANDLE:
-    case VBasicDTypeKwd::EVENT: {
-        const char* const articlep = basicp->keyword() == VBasicDTypeKwd::EVENT ? "an" : "a";
+    ਚੋਣ (basicp->keyword()) {
+    ਹਾਲਤ VBasicDTypeKwd::STRING:
+    ਹਾਲਤ VBasicDTypeKwd::CHANDLE:
+    ਹਾਲਤ VBasicDTypeKwd::EVENT: {
+        ਅਚਲ ਅੱਖਰ* ਅਚਲ articlep = basicp->keyword() == VBasicDTypeKwd::EVENT ? "an" : "a";
         contextp->v3error("'rand'/'randc' on " << articlep << " " << basicp->keyword().typeName()
                                                << " variable (not in IEEE 1800-2023 18.4's "
                                                   "random-variable type domain)");
-        break;
+        ਰੋਕੋ;
     }
-    default: break;
+    ਮੂਲ: ਰੋਕੋ;
     }
 }
 
 //######################################################################
 // Visitor that marks classes needing a randomize() method
 
-class RandomizeMarkVisitor final : public VNVisitor {
+ਵਰਗ RandomizeMarkVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     // Cleared on Netlist
     //  AstClass::user1()       -> bool.  Set true to indicate needs randomize processing
@@ -272,80 +272,80 @@ class RandomizeMarkVisitor final : public VNVisitor {
     //  AstVar::user2p()        -> AstNodeModule*. Pointer to containing module
     //  AstNodeFTask::user2p()  -> AstNodeModule*. Pointer to containing module
     //  AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
-    const VNUser1InUse m_inuser1;
-    const VNUser2InUse m_inuser2;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
+    ਅਚਲ VNUser2_ਵਿੱਚ_Use m_inuser2;
 
-    using DerivedSet = std::unordered_set<AstClass*>;
-    using BaseToDerivedMap = std::unordered_map<const AstClass*, DerivedSet>;
+    ਵਰਤੋਂ Derived_ਸੈੱਟ = std::unordered_ਸੈੱਟ<AstClass*>;
+    ਵਰਤੋਂ ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map = std::unordered_map<ਅਚਲ AstClass*, Derived_ਸੈੱਟ>;
 
-    BaseToDerivedMap m_baseToDerivedMap;  // Mapping from base classes to classes that extend them
-    AstClass* m_classp = nullptr;  // Current class
-    AstNode* m_constraintExprGenp = nullptr;  // Current constraint or constraint if expression
-    AstNodeModule* m_modp;  // Current module
-    AstNodeStmt* m_stmtp = nullptr;  // Current statement
-    AstNodeFTaskRef* m_stdRandCallp = nullptr;  // Current std::randomize() call
-    bool m_inStdWith = false;  // True when inside a 'with {}' clause
-    std::set<AstNodeVarRef*> m_staticRefs;  // References to static variables under `with` clauses
-    AstWith* m_withp = nullptr;  // Current 'with' constraint node
+    ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map m_ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map;  // Mapping from base classes to classes that extend them
+    AstClass* m_classp = ਖਾਲੀ_ਸੂਚਕ;  // Current class
+    Ast_ਗੰਢ* m_constraint_ਵਿਅੰਜਕ_Genp = ਖਾਲੀ_ਸੂਚਕ;  // Current constraint or constraint if expression
+    Ast_ਗੰਢ_Module* m_modp;  // Current module
+    Ast_ਗੰਢ_Stmt* m_stmtp = ਖਾਲੀ_ਸੂਚਕ;  // Current statement
+    Ast_ਗੰਢ_FTask_Ref* m_stdRandCallp = ਖਾਲੀ_ਸੂਚਕ;  // Current std::randomize() call
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Std_With = ਝੂਠ;  // True when inside a 'with {}' clause
+    std::ਸੈੱਟ<Ast_ਗੰਢ_Var_Ref*> m_staticRefs;  // References to static variables under `with` clauses
+    AstWith* m_withp = ਖਾਲੀ_ਸੂਚਕ;  // Current 'with' constraint node
 
     // METHODS
     // Mark all rand variables in IS_RANDOMIZED_GLOBAL classes as globalConstrained
-    void markGlobalConstrainedVars(AstClass* classp) {
-        for (const AstClass* cp = classp; cp;
-             cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            for (AstNode* memberp = cp->stmtsp(); memberp; memberp = memberp->nextp()) {
-                AstVar* const varp = VN_CAST(memberp, Var);
-                if (!varp) continue;
-                if (varp->rand().isRandomizable()) varp->globalConstrained(true);
+    ਖਾਲੀ markGlobalConstrainedVars(AstClass* classp) {
+        ਲਈ (ਅਚਲ AstClass* cp = classp; cp;
+             cp = cp->extendsp() ? cp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ) {
+            ਲਈ (Ast_ਗੰਢ* memberp = cp->stmtsp(); memberp; memberp = memberp->nextp()) {
+                AstVar* ਅਚਲ varp = VN_CAST(memberp, Var);
+                ਜੇ (!varp) ਜਾਰੀ;
+                ਜੇ (varp->rand().isRandomizable()) varp->globalConstrained(ਸੱਚ);
             }
         }
     }
     // Check if a variable is listed in std::randomize() arguments
-    bool isVarInStdRandomizeArgs(const AstVar* varp) const {
-        if (!m_inStdWith || !m_stdRandCallp) return false;
+    ਤਾਰਕਿਕ is_Var_ਵਿੱਚ_Std_Randomize_ਦਲੀਲਾਂ(ਅਚਲ AstVar* varp) ਅਚਲ {
+        ਜੇ (!m_ਵਿੱਚ_Std_With || !m_stdRandCallp) ਵਾਪਸ ਝੂਠ;
 
-        for (AstArg* argp = m_stdRandCallp->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-            const AstNodeExpr* exprp = argp->exprp();
+        ਲਈ (AstArg* argp = m_stdRandCallp->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+            ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = argp->exprp();
             // Traverse through expression to find the base variable
-            while (exprp) {
-                if (const AstNodeVarRef* const varrefp = VN_CAST(exprp, NodeVarRef)) {
-                    if (varrefp->varp() == varp) return true;
-                    break;
+            ਜਦੋਂ (exprp) {
+                ਜੇ (ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ varrefp = VN_CAST(exprp, ਗੰਢ_Var_Ref)) {
+                    ਜੇ (varrefp->varp() == varp) ਵਾਪਸ ਸੱਚ;
+                    ਰੋਕੋ;
                 }
-                if (const AstMemberSel* const memberselp = VN_CAST(exprp, MemberSel)) {
-                    if (memberselp->varp() == varp) return true;
+                ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ memberselp = VN_CAST(exprp, MemberSel)) {
+                    ਜੇ (memberselp->varp() == varp) ਵਾਪਸ ਸੱਚ;
                     exprp = memberselp->fromp();
-                } else if (const AstArraySel* const arrselp = VN_CAST(exprp, ArraySel)) {
+                } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstArraySel* ਅਚਲ arrselp = VN_CAST(exprp, ArraySel)) {
                     exprp = arrselp->fromp();
-                } else if (const AstStructSel* const strselp = VN_CAST(exprp, StructSel)) {
+                } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstStructSel* ਅਚਲ strselp = VN_CAST(exprp, StructSel)) {
                     exprp = strselp->fromp();
-                } else if (const AstCMethodHard* const methodp = VN_CAST(exprp, CMethodHard)) {
+                } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstCMethodHard* ਅਚਲ methodp = VN_CAST(exprp, CMethodHard)) {
                     exprp = methodp->fromp();
-                } else {
-                    break;
+                } ਨਹੀਂਤਾਂ {
+                    ਰੋਕੋ;
                 }
             }
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
-    void markMembers(const AstClass* nodep) {
-        for (const AstClass* classp = nodep; classp;
-             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr) {
-            for (AstNode* memberp = classp->stmtsp(); memberp; memberp = memberp->nextp()) {
-                AstVar* const varp = VN_CAST(memberp, Var);
-                if (!varp) continue;
+    ਖਾਲੀ markMembers(ਅਚਲ AstClass* nodep) {
+        ਲਈ (ਅਚਲ AstClass* classp = nodep; classp;
+             classp = classp->extendsp() ? classp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ) {
+            ਲਈ (Ast_ਗੰਢ* memberp = classp->stmtsp(); memberp; memberp = memberp->nextp()) {
+                AstVar* ਅਚਲ varp = VN_CAST(memberp, Var);
+                ਜੇ (!varp) ਜਾਰੀ;
                 // If member is randomizable and of class type, mark its class
-                if (varp->rand().isRandomizable()) {
-                    const AstNodeDType* const varDtypep = varp->dtypep()->skipRefp();
-                    const AstClassRefDType* classRefp = VN_CAST(varDtypep, ClassRefDType);
-                    if (!classRefp) {
-                        const AstNodeDType* subDTypep = varDtypep->subDTypep();
-                        if (subDTypep) subDTypep = subDTypep->skipRefp();
+                ਜੇ (varp->rand().isRandomizable()) {
+                    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ varDtypep = varp->dtypep()->skipRefp();
+                    ਅਚਲ AstClassRefDType* classRefp = VN_CAST(varDtypep, ClassRefDType);
+                    ਜੇ (!classRefp) {
+                        ਅਚਲ Ast_ਗੰਢ_DType* subDTypep = varDtypep->subDTypep();
+                        ਜੇ (subDTypep) subDTypep = subDTypep->skipRefp();
                         classRefp = VN_CAST(subDTypep, ClassRefDType);
                     }
-                    if (classRefp) {
-                        AstClass* const rclassp = classRefp->classp();
-                        if (!rclassp->user1()) {
+                    ਜੇ (classRefp) {
+                        AstClass* ਅਚਲ rclassp = classRefp->classp();
+                        ਜੇ (!rclassp->user1()) {
                             rclassp->user1(IS_RANDOMIZED_GLOBAL);
                             markGlobalConstrainedVars(rclassp);
                             markMembers(rclassp);
@@ -353,20 +353,20 @@ class RandomizeMarkVisitor final : public VNVisitor {
                         }
                     }
                     // If the class is randomized inline, all members use rand mode
-                    if (nodep->user1() == IS_RANDOMIZED_INLINE) {
-                        RandomizeMode randMode = {};
-                        randMode.usesMode = true;
-                        varp->user1(randMode.asUQuad);
+                    ਜੇ (nodep->user1() == IS_RANDOMIZED_INLINE) {
+                        Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {};
+                        rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ = ਸੱਚ;
+                        varp->user1(rand_ਬਹੁਲਕ.asUQuad);
                     }
                 }
             }
         }
     }
-    void markDerived(const AstClass* nodep) {
-        const auto it = m_baseToDerivedMap.find(nodep);
-        if (it != m_baseToDerivedMap.end()) {
-            for (auto* classp : it->second) {
-                if (classp->user1() < nodep->user1()) {
+    ਖਾਲੀ markDerived(ਅਚਲ AstClass* nodep) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map.ਲੱਭੋ(nodep);
+        ਜੇ (it != m_ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map.ਸਿਰਾ()) {
+            ਲਈ (ਸਵੈਚਾਲਿਤ* classp : it->ਦੂਜਾ) {
+                ਜੇ (classp->user1() < nodep->user1()) {
                     classp->user1(nodep->user1());
                     markMembers(classp);
                     markDerived(classp);
@@ -374,788 +374,788 @@ class RandomizeMarkVisitor final : public VNVisitor {
             }
         }
     }
-    void markAllDerived() {
-        for (const auto& p : m_baseToDerivedMap) {
-            if (p.first->user1()) markDerived(p.first);
+    ਖਾਲੀ markAllDerived() {
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& p : m_ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map) {
+            ਜੇ (p.ਪਹਿਲਾ->user1()) markDerived(p.ਪਹਿਲਾ);
         }
     }
-    void setPackageRefs() {
-        for (AstNodeVarRef* staticRefp : m_staticRefs) {
+    ਖਾਲੀ ਸੈੱਟ_Package_Refs() {
+        ਲਈ (Ast_ਗੰਢ_Var_Ref* staticRefp : m_staticRefs) {
             UINFO(9, "Updated classOrPackage ref for " << staticRefp->name());
-            staticRefp->classOrPackagep(VN_AS(staticRefp->varp()->user2p(), NodeModule));
+            staticRefp->classOrPackagep(VN_AS(staticRefp->varp()->user2p(), ਗੰਢ_Module));
         }
     }
-    void markNestedGlobalConstrainedRecurse(AstNode* nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            AstVar* const varp = refp->varp();
-            if (varp->globalConstrained()) return;
-            varp->globalConstrained(true);
-        } else if (const AstMemberSel* const memberSelp = VN_CAST(nodep, MemberSel)) {
-            if (memberSelp->varp()) {
-                AstVar* const varp = memberSelp->varp();
-                if (varp->globalConstrained()) return;
-                varp->globalConstrained(true);
+    ਖਾਲੀ markNestedGlobalConstrainedRecurse(Ast_ਗੰਢ* nodep) {
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(nodep, VarRef)) {
+            AstVar* ਅਚਲ varp = refp->varp();
+            ਜੇ (varp->globalConstrained()) ਵਾਪਸ;
+            varp->globalConstrained(ਸੱਚ);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ memberSelp = VN_CAST(nodep, MemberSel)) {
+            ਜੇ (memberSelp->varp()) {
+                AstVar* ਅਚਲ varp = memberSelp->varp();
+                ਜੇ (varp->globalConstrained()) ਵਾਪਸ;
+                varp->globalConstrained(ਸੱਚ);
             }
             markNestedGlobalConstrainedRecurse(memberSelp->fromp());
         }
     }
 
     // Build MemberSel chain from variable path
-    AstNodeExpr* buildMemberSelChain(AstVarRef* rootVarRefp, const std::vector<AstVar*>& path) {
-        AstNodeExpr* exprp = rootVarRefp->cloneTree(false);
-        for (AstVar* memberVarp : path) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* buildMemberSelChain(AstVarRef* ਜੜ੍ਹ_Var_Refp, ਅਚਲ std::ਸਦਿਸ਼<AstVar*>& ਰਸਤਾ) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = ਜੜ੍ਹ_Var_Refp->clone_ਰੁੱਖ(ਝੂਠ);
+        ਲਈ (AstVar* memberVarp : ਰਸਤਾ) {
             AstMemberSel* memberSelp
-                = new AstMemberSel{rootVarRefp->fileline(), exprp, memberVarp};
+                = ਨਵਾਂ AstMemberSel{ਜੜ੍ਹ_Var_Refp->fileline(), exprp, memberVarp};
             memberSelp->user2p(m_classp);
             exprp = memberSelp;
         }
-        return exprp;
+        ਵਾਪਸ exprp;
     }
 
     // Process a single constraint during nested constraint cloning
-    void processNestedConstraint(AstConstraint* const constrp, AstVarRef* rootVarRefp,
-                                 const std::vector<AstVar*>& newPath, AstClass* targetClassp) {
-        std::string pathPrefix = rootVarRefp->name();
-        for (AstVar* pathMemberVarp : newPath) {
-            pathPrefix += GLOBAL_CONSTRAINT_SEPARATOR + pathMemberVarp->name();
+    ਖਾਲੀ processNestedConstraint(AstConstraint* ਅਚਲ constrp, AstVarRef* ਜੜ੍ਹ_Var_Refp,
+                                 ਅਚਲ std::ਸਦਿਸ਼<AstVar*>& new_ਰਸਤਾ, AstClass* ਨਿਸ਼ਾਨਾ_Classp) {
+        std::string ਰਸਤਾ_ਅਗੇਤਰ = ਜੜ੍ਹ_Var_Refp->name();
+        ਲਈ (AstVar* ਰਸਤਾ_Member_Varp : new_ਰਸਤਾ) {
+            ਰਸਤਾ_ਅਗੇਤਰ += GLOBAL_CONSTRAINT_SEPARATOR + ਰਸਤਾ_Member_Varp->name();
         }
 
-        const std::string newName = pathPrefix + GLOBAL_CONSTRAINT_SEPARATOR + constrp->name();
+        ਅਚਲ std::string newName = ਰਸਤਾ_ਅਗੇਤਰ + GLOBAL_CONSTRAINT_SEPARATOR + constrp->name();
 
         // Check if this constraint already exists in the target class
-        bool isDuplicate = false;
-        targetClassp->foreachMember([&](AstClass* const, AstConstraint* const existingConstrp) {
-            if (existingConstrp->name() == newName) {
+        ਤਾਰਕਿਕ isDuplicate = ਝੂਠ;
+        ਨਿਸ਼ਾਨਾ_Classp->foreachMember([&](AstClass* ਅਚਲ, AstConstraint* ਅਚਲ existingConstrp) {
+            ਜੇ (existingConstrp->name() == newName) {
                 // Multiple paths lead to same constraint - unsupported pattern
-                isDuplicate = true;
+                isDuplicate = ਸੱਚ;
             }
         });
-        if (isDuplicate) return;
+        ਜੇ (isDuplicate) ਵਾਪਸ;
 
-        AstConstraint* const cloneConstrp = constrp->cloneTree(false);
+        AstConstraint* ਅਚਲ cloneConstrp = constrp->clone_ਰੁੱਖ(ਝੂਠ);
         cloneConstrp->name(newName);
 
         // FuncRefs are converted after the traversal. Converting moves the args under the new
         // MethodCall, where foreach would not visit VarRefs or nested calls such as add(lim()).
-        std::vector<AstFuncRef*> funcRefps;
-        cloneConstrp->foreach([&](AstNodeExpr* exprp) {
-            if (AstVarRef* const varRefp = VN_CAST(exprp, VarRef)) {
-                if (!varRefp->varp()->isClassMember()) return;
-                AstNodeExpr* const chainp = buildMemberSelChain(rootVarRefp, newPath);
-                AstMemberSel* const finalSelp
-                    = new AstMemberSel{varRefp->fileline(), chainp, varRefp->varp()};
+        std::ਸਦਿਸ਼<AstFuncRef*> funcRefps;
+        cloneConstrp->foreach([&](Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+            ਜੇ (AstVarRef* ਅਚਲ varRefp = VN_CAST(exprp, VarRef)) {
+                ਜੇ (!varRefp->varp()->isClassMember()) ਵਾਪਸ;
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ chainp = buildMemberSelChain(ਜੜ੍ਹ_Var_Refp, new_ਰਸਤਾ);
+                AstMemberSel* ਅਚਲ finalSelp
+                    = ਨਵਾਂ AstMemberSel{varRefp->fileline(), chainp, varRefp->varp()};
                 finalSelp->user2p(m_classp);
                 varRefp->replaceWith(finalSelp);
-                VL_DO_DANGLING(pushDeletep(varRefp), varRefp);
-            } else if (AstFuncRef* const funcRefp = VN_CAST(exprp, FuncRef)) {
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(varRefp), varRefp);
+            } ਨਹੀਂਤਾਂ ਜੇ (AstFuncRef* ਅਚਲ funcRefp = VN_CAST(exprp, FuncRef)) {
                 // Static and non-member calls are correctly qualified already
-                if (funcRefp->taskp()->classMethod() && !funcRefp->taskp()->isStatic()) {
-                    funcRefps.push_back(funcRefp);
+                ਜੇ (funcRefp->taskp()->class_ਵਿਧੀ() && !funcRefp->taskp()->isStatic()) {
+                    funcRefps.ਧੱਕੋ_ਪਿੱਠ(funcRefp);
                 }
             }
         });
-        for (AstFuncRef* funcRefp : funcRefps) {
-            AstNodeExpr* const chainp = buildMemberSelChain(rootVarRefp, newPath);
-            AstArg* const argsp
-                = funcRefp->argsp() ? funcRefp->argsp()->unlinkFrBackWithNext() : nullptr;
-            AstMethodCall* const callp
-                = new AstMethodCall{funcRefp->fileline(), chainp, funcRefp->name(), argsp};
+        ਲਈ (AstFuncRef* funcRefp : funcRefps) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ chainp = buildMemberSelChain(ਜੜ੍ਹ_Var_Refp, new_ਰਸਤਾ);
+            AstArg* ਅਚਲ argsp
+                = funcRefp->argsp() ? funcRefp->argsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ() : ਖਾਲੀ_ਸੂਚਕ;
+            Ast_ਵਿਧੀ_Call* ਅਚਲ callp
+                = ਨਵਾਂ Ast_ਵਿਧੀ_Call{funcRefp->fileline(), chainp, funcRefp->name(), argsp};
             callp->taskp(funcRefp->taskp());
             callp->classOrPackagep(funcRefp->classOrPackagep());
             callp->dtypep(funcRefp->dtypep());
             callp->superReference(funcRefp->superReference());
             funcRefp->replaceWith(callp);
-            VL_DO_DANGLING(pushDeletep(funcRefp), funcRefp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(funcRefp), funcRefp);
         }
         funcRefps.clear();
 
         // Add constraint directly to the target class
-        targetClassp->addStmtsp(cloneConstrp);
+        ਨਿਸ਼ਾਨਾ_Classp->ਜੋੜੋ_Stmtsp(cloneConstrp);
         // Immediately iterate to set user1 marks
         iterateConst(cloneConstrp);
     }
 
     // Clone constraints from nested rand class members
-    void cloneNestedConstraintsRecurse(AstVarRef* rootVarRefp, AstClass* classp,
-                                       const std::vector<AstVar*>& pathToClass,
-                                       AstClass* targetClassp) {
-        for (AstNode* memberNodep = classp->membersp(); memberNodep;
+    ਖਾਲੀ cloneNestedConstraintsRecurse(AstVarRef* ਜੜ੍ਹ_Var_Refp, AstClass* classp,
+                                       ਅਚਲ std::ਸਦਿਸ਼<AstVar*>& ਰਸਤਾ_ਮੰਜ਼ਿਲ_Class,
+                                       AstClass* ਨਿਸ਼ਾਨਾ_Classp) {
+        ਲਈ (Ast_ਗੰਢ* memberNodep = classp->membersp(); memberNodep;
              memberNodep = memberNodep->nextp()) {
-            AstVar* const memberVarp = VN_CAST(memberNodep, Var);
-            if (!memberVarp) continue;
-            if (!memberVarp->rand().isRandomizable()) continue;
-            const AstClassRefDType* const memberClassRefp
+            AstVar* ਅਚਲ memberVarp = VN_CAST(memberNodep, Var);
+            ਜੇ (!memberVarp) ਜਾਰੀ;
+            ਜੇ (!memberVarp->rand().isRandomizable()) ਜਾਰੀ;
+            ਅਚਲ AstClassRefDType* ਅਚਲ memberClassRefp
                 = VN_CAST(memberVarp->dtypep()->skipRefp(), ClassRefDType);
-            if (!memberClassRefp || !memberClassRefp->classp()) continue;
+            ਜੇ (!memberClassRefp || !memberClassRefp->classp()) ਜਾਰੀ;
 
             AstClass* nestedClassp = memberClassRefp->classp();
 
-            std::vector<AstVar*> newPath = pathToClass;
-            newPath.push_back(memberVarp);
+            std::ਸਦਿਸ਼<AstVar*> new_ਰਸਤਾ = ਰਸਤਾ_ਮੰਜ਼ਿਲ_Class;
+            new_ਰਸਤਾ.ਧੱਕੋ_ਪਿੱਠ(memberVarp);
             // Replace all variable references inside the cloned constraint with proper
             // member selections
             nestedClassp->foreachMember(
-                [&](AstClass* const containingClassp, AstConstraint* const constrp) {
-                    processNestedConstraint(constrp, rootVarRefp, newPath, targetClassp);
+                [&](AstClass* ਅਚਲ containingClassp, AstConstraint* ਅਚਲ constrp) {
+                    processNestedConstraint(constrp, ਜੜ੍ਹ_Var_Refp, new_ਰਸਤਾ, ਨਿਸ਼ਾਨਾ_Classp);
                 });
-            cloneNestedConstraintsRecurse(rootVarRefp, nestedClassp, newPath, targetClassp);
+            cloneNestedConstraintsRecurse(ਜੜ੍ਹ_Var_Refp, nestedClassp, new_ਰਸਤਾ, ਨਿਸ਼ਾਨਾ_Classp);
         }
     }
 
     // Get randomized variables from (std::)randomize() arguments
     // and mark AstNodeModule nodes in which they are defined
-    void handleRandomizeArgument(AstNodeExpr* exprp, AstVar* const varp, const bool stdRandomize) {
+    ਖਾਲੀ handle_Randomize_ਦਲੀਲ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, AstVar* ਅਚਲ varp, ਅਚਲ ਤਾਰਕਿਕ stdRandomize) {
         // IEEE 1800-2023 18.11: "Arguments are limited to the names of properties
         // of the calling object; expressions are not allowed."
         // However, for compatibility with other simulators, we support complex
         // expressions like obj.member[idx].field in inline randomize().
-        while (exprp) {
-            AstVar* randVarp = nullptr;
-            if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
+        ਜਦੋਂ (exprp) {
+            AstVar* randVarp = ਖਾਲੀ_ਸੂਚਕ;
+            ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(exprp, MemberSel)) {
                 randVarp = memberSelp->varp();
                 exprp = memberSelp->fromp();
-            } else if (AstArraySel* const arraySelp = VN_CAST(exprp, ArraySel)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (AstArraySel* ਅਚਲ arraySelp = VN_CAST(exprp, ArraySel)) {
                 exprp = arraySelp->fromp();
-                continue;  // Skip ArraySel, continue traversing
-            } else if (AstStructSel* const structSelp = VN_CAST(exprp, StructSel)) {
+                ਜਾਰੀ;  // Skip ArraySel, continue traversing
+            } ਨਹੀਂਤਾਂ ਜੇ (AstStructSel* ਅਚਲ structSelp = VN_CAST(exprp, StructSel)) {
                 exprp = structSelp->fromp();
-                continue;  // Skip StructSel, continue traversing
-            } else if (AstCMethodHard* const methodp = VN_CAST(exprp, CMethodHard)) {
+                ਜਾਰੀ;  // Skip StructSel, continue traversing
+            } ਨਹੀਂਤਾਂ ਜੇ (AstCMethodHard* ਅਚਲ methodp = VN_CAST(exprp, CMethodHard)) {
                 exprp = methodp->fromp();
-                continue;
-            } else if (AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
+                ਜਾਰੀ;
+            } ਨਹੀਂਤਾਂ ਜੇ (AstVarRef* ਅਚਲ varrefp = VN_CAST(exprp, VarRef)) {
                 randVarp = varrefp->varp();
-                varrefp->user1(true);
+                varrefp->user1(ਸੱਚ);
                 varrefp->access(VAccess::READWRITE);
-                exprp = nullptr;
-            } else {
+                exprp = ਖਾਲੀ_ਸੂਚਕ;
+            } ਨਹੀਂਤਾਂ {
                 // All invalid and unsupported expressions should be caught in V3Width
                 exprp->v3fatalSrc("Unexpected expression type in randomize() argument");
             }
             UASSERT_OBJ(randVarp, exprp, "No rand variable found");
-            if (randVarp == varp) return;
-            AstNode* backp = randVarp;
-            while (backp && !VN_IS(backp, NodeModule)) backp = backp->backp();
-            if (stdRandomize) {
+            ਜੇ (randVarp == varp) ਵਾਪਸ;
+            Ast_ਗੰਢ* backp = randVarp;
+            ਜਦੋਂ (backp && !VN_IS(backp, ਗੰਢ_Module)) backp = backp->backp();
+            ਜੇ (stdRandomize) {
                 UASSERT_OBJ(backp, randVarp, "No class or module found for rand variable");
                 backp->user1(IS_STD_RANDOMIZED);
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 // Inline randomized then
                 UASSERT_OBJ(VN_IS(backp, Class), randVarp,
                             "No class found for inline randomized variable");
-                RandomizeMode randMode = {};
-                randMode.usesMode = true;
-                randVarp->user1(randMode.asUQuad);
+                Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {};
+                rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ = ਸੱਚ;
+                randVarp->user1(rand_ਬਹੁਲਕ.asUQuad);
                 backp->user1(IS_RANDOMIZED_INLINE);
             }
         }
     }
 
     // VISITORS
-    void visit(AstClass* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstClass* nodep) override {
         VL_RESTORER(m_classp);
         VL_RESTORER(m_modp);
         m_modp = m_classp = nodep;
         iterateChildrenConst(nodep);
-        if (nodep->extendsp()) {
+        ਜੇ (nodep->extendsp()) {
             // Record derived class for inheritance hierarchy tracking
-            const AstClass* const basep = nodep->extendsp()->classp();
-            m_baseToDerivedMap[basep].insert(nodep);
+            ਅਚਲ AstClass* ਅਚਲ basep = nodep->extendsp()->classp();
+            m_ਅਧਾਰ_ਮੰਜ਼ਿਲ_Derived_Map[basep].ਪਾਓ(nodep);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Stmt* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
-        if (!nodep->backp()) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        ਜੇ (!nodep->backp()) VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std")
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask_Ref* nodep) override {
+        ਜੇ (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std")
             m_stdRandCallp = nodep;
         iterateChildrenConst(nodep);
-        if (nodep->name() == "rand_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* const fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            bool valid = true;
-            if (VN_IS(fromp, ArraySel)) {
+        ਜੇ (nodep->name() == "rand_mode") {
+            Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = ਵਿਧੀ_Callp ? ਵਿਧੀ_Callp->fromp() : ਖਾਲੀ_ਸੂਚਕ;
+            ਤਾਰਕਿਕ valid = ਸੱਚ;
+            ਜੇ (VN_IS(fromp, ArraySel)) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: 'rand_mode()' on unpacked array element");
-                valid = false;
-            } else if (VN_IS(fromp, StructSel)) {
+                valid = ਝੂਠ;
+            } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(fromp, StructSel)) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: 'rand_mode()' on unpacked struct element");
-                valid = false;
-            } else if (VN_IS(fromp, Sel)) {
+                valid = ਝੂਠ;
+            } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(fromp, Sel)) {
                 nodep->v3error("Cannot call 'rand_mode()' on packed array element");
-                valid = false;
-            } else if (AstCMethodHard* const methodHardp = VN_CAST(fromp, CMethodHard)) {
-                if (methodHardp->method() == VCMethod::ARRAY_AT
-                    || methodHardp->method() == VCMethod::ARRAY_AT_WRITE) {
+                valid = ਝੂਠ;
+            } ਨਹੀਂਤਾਂ ਜੇ (AstCMethodHard* ਅਚਲ ਵਿਧੀ_Hardp = VN_CAST(fromp, CMethodHard)) {
+                ਜੇ (ਵਿਧੀ_Hardp->ਵਿਧੀ() == VCMethod::ARRAY_AT
+                    || ਵਿਧੀ_Hardp->ਵਿਧੀ() == VCMethod::ARRAY_AT_WRITE) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: 'rand_mode()' on dynamic array element");
-                    valid = false;
-                } else {
-                    methodHardp->v3fatalSrc("Unknown rand_mode() receiver");
+                    valid = ਝੂਠ;
+                } ਨਹੀਂਤਾਂ {
+                    ਵਿਧੀ_Hardp->v3fatalSrc("Unknown rand_mode() receiver");
                 }
             }
-            if (!nodep->argsp() && VN_IS(nodep->backp(), StmtExpr)
-                && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
+            ਜੇ (!nodep->argsp() && VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)
+                && !nodep->backp()->fileline()->warnIsOff(V3_Error_ਕੋਡ::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
                     "Ignoring return value of non-void function (IEEE 1800-2023 13.4.1)");
-                valid = false;
+                valid = ਝੂਠ;
             }
-            if (valid) {
-                const RandModeTarget randModeTarget = RandModeTarget::get(fromp, m_classp);
-                if ((!randModeTarget.receiverp || !randModeTarget.receiverp->isRand())
+            ਜੇ (valid) {
+                ਅਚਲ Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ = Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ::get(fromp, m_classp);
+                ਜੇ ((!rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp || !rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp->isRand())
                     && !nodep->argsp()) {
                     nodep->v3error(
                         "Cannot call 'rand_mode()' as a function on non-random variable");
-                    valid = false;
-                } else if (!randModeTarget.classp) {
+                    valid = ਝੂਠ;
+                } ਨਹੀਂਤਾਂ ਜੇ (!rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp) {
                     nodep->v3error("Cannot call 'rand_mode()' on non-random, non-class variable");
-                    valid = false;
-                } else if (nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
+                    valid = ਝੂਠ;
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)) {
                     nodep->v3error("'rand_mode()' with arguments cannot be called as a function");
-                    valid = false;
-                } else if (randModeTarget.receiverp && randModeTarget.receiverp->isRand()) {
+                    valid = ਝੂਠ;
+                } ਨਹੀਂਤਾਂ ਜੇ (rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp && rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp->isRand()) {
                     // Called on a rand member variable
-                    RandomizeMode randMode = {};
-                    randMode.usesMode = true;
-                    randModeTarget.receiverp->user1(randMode.asUQuad);
-                } else {
+                    Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {};
+                    rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ = ਸੱਚ;
+                    rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp->user1(rand_ਬਹੁਲਕ.asUQuad);
+                } ਨਹੀਂਤਾਂ {
                     // Called on 'this' or a non-rand class instance
-                    randModeTarget.classp->foreachMember([&](AstClass*, AstVar* varp) {
-                        if (!varp->isRand()) return;
-                        RandomizeMode randMode = {};
-                        randMode.usesMode = true;
-                        varp->user1(randMode.asUQuad);
+                    rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp->foreachMember([&](AstClass*, AstVar* varp) {
+                        ਜੇ (!varp->isRand()) ਵਾਪਸ;
+                        Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {};
+                        rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ = ਸੱਚ;
+                        varp->user1(rand_ਬਹੁਲਕ.asUQuad);
                     });
                 }
             }
-            if (!valid) {
-                if (!nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
-                    nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                } else {
-                    m_stmtp->unlinkFrBack();
+            ਜੇ (!valid) {
+                ਜੇ (!nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)) {
+                    nodep->replaceWith(ਨਵਾਂ AstConst{nodep->fileline(), 0});
+                    VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                } ਨਹੀਂਤਾਂ {
+                    m_stmtp->unlink_Fr_ਪਿੱਠ();
                 }
             }
-            return;
+            ਵਾਪਸ;
         }
 
-        if (nodep->name() == "constraint_mode") {
-            bool valid = true;
-            if (nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
+        ਜੇ (nodep->name() == "constraint_mode") {
+            ਤਾਰਕਿਕ valid = ਸੱਚ;
+            ਜੇ (nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)) {
                 nodep->v3error(
                     "'constraint_mode()' with arguments cannot be called as a function");
-                valid = false;
-            } else if (!nodep->argsp() && VN_IS(nodep->backp(), StmtExpr)
-                       && !nodep->backp()->fileline()->warnIsOff(V3ErrorCode::IGNOREDRETURN)) {
+                valid = ਝੂਠ;
+            } ਨਹੀਂਤਾਂ ਜੇ (!nodep->argsp() && VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)
+                       && !nodep->backp()->fileline()->warnIsOff(V3_Error_ਕੋਡ::IGNOREDRETURN)) {
                 nodep->v3warn(
                     IGNOREDRETURN,
                     "Ignoring return value of non-void function (IEEE 1800-2023 13.4.1)");
-                valid = false;
+                valid = ਝੂਠ;
             }
-            AstConstraint* constrp = nullptr;
+            AstConstraint* constrp = ਖਾਲੀ_ਸੂਚਕ;
             AstClass* classp = m_classp;
-            if (const AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall)) {
-                if (const AstConstraintRef* const constrRefp
-                    = VN_CAST(methodCallp->fromp(), ConstraintRef)) {
+            ਜੇ (ਅਚਲ Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call)) {
+                ਜੇ (ਅਚਲ AstConstraintRef* ਅਚਲ constrRefp
+                    = VN_CAST(ਵਿਧੀ_Callp->fromp(), ConstraintRef)) {
                     constrp = constrRefp->constrp();
-                    if (constrRefp->fromp()) classp = VN_AS(constrRefp->classOrPackagep(), Class);
-                } else if (AstClassRefDType* classRefDtp
-                           = VN_CAST(methodCallp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
+                    ਜੇ (constrRefp->fromp()) classp = VN_AS(constrRefp->classOrPackagep(), Class);
+                } ਨਹੀਂਤਾਂ ਜੇ (AstClassRefDType* classRefDtp
+                           = VN_CAST(ਵਿਧੀ_Callp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
                     classp = classRefDtp->classp();
-                } else {
+                } ਨਹੀਂਤਾਂ {
                     nodep->v3error("Cannot call 'constraint_mode()' on a non-class variable");
-                    valid = false;
+                    valid = ਝੂਠ;
                 }
             }
-            if (!nodep->argsp() && !constrp) {
+            ਜੇ (!nodep->argsp() && !constrp) {
                 nodep->v3error("Cannot call 'constraint_mode()' as a function on a variable");
-                valid = false;
+                valid = ਝੂਠ;
             }
-            if (valid) {
-                RandomizeMode constraintMode = {};
-                constraintMode.usesMode = true;
-                if (constrp) {
-                    constrp->user1(constraintMode.asUQuad);
-                } else {
+            ਜੇ (valid) {
+                Randomize_ਬਹੁਲਕ constraint_ਬਹੁਲਕ = {};
+                constraint_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ = ਸੱਚ;
+                ਜੇ (constrp) {
+                    constrp->user1(constraint_ਬਹੁਲਕ.asUQuad);
+                } ਨਹੀਂਤਾਂ {
                     classp->foreachMember([=](AstClass*, AstConstraint* constrp) {
-                        constrp->user1(constraintMode.asUQuad);
+                        constrp->user1(constraint_ਬਹੁਲਕ.asUQuad);
                     });
                 }
-            } else {
-                if (!nodep->argsp() && !VN_IS(nodep->backp(), StmtExpr)) {
-                    nodep->replaceWith(new AstConst{nodep->fileline(), 0});
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                } else {
-                    m_stmtp->unlinkFrBack();
+            } ਨਹੀਂਤਾਂ {
+                ਜੇ (!nodep->argsp() && !VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ)) {
+                    nodep->replaceWith(ਨਵਾਂ AstConst{nodep->fileline(), 0});
+                    VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                } ਨਹੀਂਤਾਂ {
+                    m_stmtp->unlink_Fr_ਪਿੱਠ();
                 }
             }
-            return;
+            ਵਾਪਸ;
         }
 
-        if (nodep->name() != "randomize") {
+        ਜੇ (nodep->name() != "randomize") {
             // Propagate user1 from children (same pattern as visit(AstNodeExpr*))
-            if (m_constraintExprGenp || m_inStdWith) {
+            ਜੇ (m_constraint_ਵਿਅੰਜਕ_Genp || m_ਵਿੱਚ_Std_With) {
                 // Only the arguments decide whether a call depends on rand variables. The object
                 // it's called on doesn't count, so a.f() isn't marked just because 'a' is rand
-                for (AstNode* argp = nodep->argsp(); argp; argp = argp->nextp()) {
-                    if (argp->user1()) {
-                        nodep->user1(true);
-                        break;
+                ਲਈ (Ast_ਗੰਢ* argp = nodep->argsp(); argp; argp = argp->nextp()) {
+                    ਜੇ (argp->user1()) {
+                        nodep->user1(ਸੱਚ);
+                        ਰੋਕੋ;
                     }
                 }
             }
-            return;
+            ਵਾਪਸ;
         }
         AstClass* classp = m_classp;
-        if (const AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall)) {
-            if (const AstClassRefDType* const classRefp
-                = VN_CAST(methodCallp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
+        ਜੇ (ਅਚਲ Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call)) {
+            ਜੇ (ਅਚਲ AstClassRefDType* ਅਚਲ classRefp
+                = VN_CAST(ਵਿਧੀ_Callp->fromp()->dtypep()->skipRefp(), ClassRefDType)) {
                 classp = classRefp->classp();
             }
         }
-        if (classp) {
-            if (!classp->user1()) classp->user1(IS_RANDOMIZED);
+        ਜੇ (classp) {
+            ਜੇ (!classp->user1()) classp->user1(IS_RANDOMIZED);
             markMembers(classp);
             // Clone constraints from all IS_RANDOMIZED_GLOBAL members
-            classp->foreachMember([&](AstClass* const, AstVar* const memberVarp) {
-                if (!memberVarp->rand().isRandomizable()) return;
-                const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-                const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-                if (!classRefp || !classRefp->classp()) return;
-                AstClass* const memberClassp = classRefp->classp();
-                if (memberClassp->user1() != IS_RANDOMIZED_GLOBAL) return;
-                memberVarp->globalConstrained(true);
+            classp->foreachMember([&](AstClass* ਅਚਲ, AstVar* ਅਚਲ memberVarp) {
+                ਜੇ (!memberVarp->rand().isRandomizable()) ਵਾਪਸ;
+                ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = memberVarp->dtypep()->skipRefp();
+                ਅਚਲ AstClassRefDType* ਅਚਲ classRefp = VN_CAST(dtypep, ClassRefDType);
+                ਜੇ (!classRefp || !classRefp->classp()) ਵਾਪਸ;
+                AstClass* ਅਚਲ memberClassp = classRefp->classp();
+                ਜੇ (memberClassp->user1() != IS_RANDOMIZED_GLOBAL) ਵਾਪਸ;
+                memberVarp->globalConstrained(ਸੱਚ);
                 // Clone constraints from this IS_RANDOMIZED_GLOBAL member class
-                AstVarRef* rootVarRefp
-                    = new AstVarRef{nodep->fileline(), classp, memberVarp, VAccess::READ};
-                std::vector<AstVar*> emptyPath;
-                memberClassp->foreachMember([&](AstClass* const, AstConstraint* const constrp) {
-                    processNestedConstraint(constrp, rootVarRefp, emptyPath, classp);
+                AstVarRef* ਜੜ੍ਹ_Var_Refp
+                    = ਨਵਾਂ AstVarRef{nodep->fileline(), classp, memberVarp, VAccess::READ};
+                std::ਸਦਿਸ਼<AstVar*> ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ;
+                memberClassp->foreachMember([&](AstClass* ਅਚਲ, AstConstraint* ਅਚਲ constrp) {
+                    processNestedConstraint(constrp, ਜੜ੍ਹ_Var_Refp, ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ, classp);
                 });
-                cloneNestedConstraintsRecurse(rootVarRefp, memberClassp, emptyPath, classp);
+                cloneNestedConstraintsRecurse(ਜੜ੍ਹ_Var_Refp, memberClassp, ਖਾਲੀ_ਥਾਵਾਂ_ਰਸਤਾ, classp);
                 // Delete the temporary VarRef created for constraint cloning
-                VL_DO_DANGLING(rootVarRefp->deleteTree(), rootVarRefp);
+                VL_DO_DANGLING(ਜੜ੍ਹ_Var_Refp->delete_ਰੁੱਖ(), ਜੜ੍ਹ_Var_Refp);
             });
         }
-        if (nodep->classOrPackagep()->name() == "std") {
-            m_stdRandCallp = nullptr;
-            for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-                handleRandomizeArgument(argp->exprp(), nullptr, true);
+        ਜੇ (nodep->classOrPackagep()->name() == "std") {
+            m_stdRandCallp = ਖਾਲੀ_ਸੂਚਕ;
+            ਲਈ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                handle_Randomize_ਦਲੀਲ(argp->exprp(), ਖਾਲੀ_ਸੂਚਕ, ਸੱਚ);
             }
-            return;
+            ਵਾਪਸ;
         }
-        for (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+        ਲਈ (AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
             // randomize(null): handle before IS_RANDOMIZED_INLINE so the
             // check-only path does not allocate unused __Vrandmode slots.
-            if (const AstConst* const constp = VN_CAST(argp->exprp(), Const)) {
-                UASSERT_OBJ(constp->num().isNull(), constp,
+            ਜੇ (ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(argp->exprp(), Const)) {
+                UASSERT_OBJ(constp->ਅੰਕ().isNull(), constp,
                             "Non-null AstConst arg to randomize() should have been "
                             "rejected by V3Width");
                 // SMT pin only handles scalars; nested-class constraints don't cascade.
-                const bool hasUnsupportedMember
-                    = classp->existsMember([](const AstClass*, const AstVar* memberVarp) {
-                          if (!memberVarp->rand().isRandomizable()) return false;
-                          const AstNodeDType* const dtp = memberVarp->dtypep()->skipRefp();
-                          return VN_IS(dtp, UnpackArrayDType) || VN_IS(dtp, DynArrayDType)
-                                 || VN_IS(dtp, QueueDType) || VN_IS(dtp, AssocArrayDType)
+                ਅਚਲ ਤਾਰਕਿਕ hasUnsupportedMember
+                    = classp->existsMember([](ਅਚਲ AstClass*, ਅਚਲ AstVar* memberVarp) {
+                          ਜੇ (!memberVarp->rand().isRandomizable()) ਵਾਪਸ ਝੂਠ;
+                          ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtp = memberVarp->dtypep()->skipRefp();
+                          ਵਾਪਸ VN_IS(dtp, UnpackArrayDType) || VN_IS(dtp, DynArrayDType)
+                                 || VN_IS(dtp, ਕਤਾਰ_DType) || VN_IS(dtp, AssocArrayDType)
                                  || VN_IS(dtp, WildcardArrayDType) || VN_IS(dtp, ClassRefDType);
                       });
-                if (hasUnsupportedMember) {
+                ਜੇ (hasUnsupportedMember) {
                     nodep->v3warn(E_UNSUPPORTED,
                                   "Unsupported: 'randomize(null)' on class with rand "
                                   "container or class member");
                 }
-                continue;
+                ਜਾਰੀ;
             }
             classp->user1(IS_RANDOMIZED_INLINE);
-            AstVar* fromVarp = nullptr;  // If nodep is a method call, this is its receiver
-            if (AstMethodCall* methodCallp = VN_CAST(nodep, MethodCall)) {
-                if (AstMemberSel* const memberSelp = VN_CAST(methodCallp->fromp(), MemberSel)) {
+            AstVar* fromVarp = ਖਾਲੀ_ਸੂਚਕ;  // If nodep is a method call, this is its receiver
+            ਜੇ (Ast_ਵਿਧੀ_Call* ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call)) {
+                ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(ਵਿਧੀ_Callp->fromp(), MemberSel)) {
                     fromVarp = memberSelp->varp();
-                } else {
-                    AstVarRef* const varrefp = VN_AS(methodCallp->fromp(), VarRef);
+                } ਨਹੀਂਤਾਂ {
+                    AstVarRef* ਅਚਲ varrefp = VN_AS(ਵਿਧੀ_Callp->fromp(), VarRef);
                     fromVarp = varrefp->varp();
                 }
             }
-            handleRandomizeArgument(argp->exprp(), fromVarp, false);
+            handle_Randomize_ਦਲੀਲ(argp->exprp(), fromVarp, ਝੂਠ);
         }
         // Re-mark members after the class became inline-randomized above.
-        if (classp && classp->user1() == IS_RANDOMIZED_INLINE) markMembers(classp);
+        ਜੇ (classp && classp->user1() == IS_RANDOMIZED_INLINE) markMembers(classp);
     }
-    void visit(AstConstraintUnique* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintUnique* nodep) override {
         VL_RESTORER(m_stmtp);
-        VL_RESTORER(m_constraintExprGenp);
+        VL_RESTORER(m_constraint_ਵਿਅੰਜਕ_Genp);
         m_stmtp = nodep;
-        m_constraintExprGenp = nodep;
+        m_constraint_ਵਿਅੰਜਕ_Genp = nodep;
         iterateChildren(nodep);
-        if (!nodep->backp()) VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        ਜੇ (!nodep->backp()) VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstConstraintExpr* nodep) override {
-        VL_RESTORER(m_constraintExprGenp);
-        m_constraintExprGenp = nodep;
+    ਖਾਲੀ ਦੇਖੋ(Ast_Constraint_ਵਿਅੰਜਕ* nodep) override {
+        VL_RESTORER(m_constraint_ਵਿਅੰਜਕ_Genp);
+        m_constraint_ਵਿਅੰਜਕ_Genp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstConstraintIf* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintIf* nodep) override {
         {
-            VL_RESTORER(m_constraintExprGenp);
-            m_constraintExprGenp = nodep;
+            VL_RESTORER(m_constraint_ਵਿਅੰਜਕ_Genp);
+            m_constraint_ਵਿਅੰਜਕ_Genp = nodep;
             iterateConst(nodep->condp());
         }
-        iterateAndNextConstNull(nodep->thensp());
-        iterateAndNextConstNull(nodep->elsesp());
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->thensp());
+        iterate_And_ਅਗਲਾ_Const_Null(nodep->elsesp());
     }
-    void visit(AstNodeVarRef* nodep) override {
-        if (!m_constraintExprGenp) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Var_Ref* nodep) override {
+        ਜੇ (!m_constraint_ਵਿਅੰਜਕ_Genp) ਵਾਪਸ;
 
-        if (nodep->varp()->lifetime().isStatic()) m_staticRefs.emplace(nodep);
+        ਜੇ (nodep->varp()->lifetime().isStatic()) m_staticRefs.emplace(nodep);
 
         // Mark as randomizable if: rand-declared, or listed in std::randomize() args
-        if (nodep->varp()->rand().isRandomizable() && !(m_inStdWith && m_stdRandCallp)) {
-            nodep->user1(true);
-        } else if (isVarInStdRandomizeArgs(nodep->varp())) {
-            nodep->user1(true);
+        ਜੇ (nodep->varp()->rand().isRandomizable() && !(m_ਵਿੱਚ_Std_With && m_stdRandCallp)) {
+            nodep->user1(ਸੱਚ);
+        } ਨਹੀਂਤਾਂ ਜੇ (is_Var_ਵਿੱਚ_Std_Randomize_ਦਲੀਲਾਂ(nodep->varp())) {
+            nodep->user1(ਸੱਚ);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!m_constraintExprGenp) return;
+    ਖਾਲੀ ਦੇਖੋ(AstMemberSel* nodep) override {
+        ਜੇ (!m_constraint_ਵਿਅੰਜਕ_Genp) ਵਾਪਸ;
         iterateChildrenConst(nodep);
-        const bool randObject = nodep->fromp()->user1() || VN_IS(nodep->fromp(), LambdaArgRef);
-        const bool randMember = nodep->varp()->rand().isRandomizable();
-        const bool inStdWith = m_inStdWith && m_stdRandCallp;
-        if (randObject && randMember && !inStdWith) {
-            nodep->user1(true);
-        } else if (inStdWith && isVarInStdRandomizeArgs(nodep->varp())) {
-            nodep->user1(true);
+        ਅਚਲ ਤਾਰਕਿਕ randObject = nodep->fromp()->user1() || VN_IS(nodep->fromp(), LambdaArgRef);
+        ਅਚਲ ਤਾਰਕਿਕ randMember = nodep->varp()->rand().isRandomizable();
+        ਅਚਲ ਤਾਰਕਿਕ ਵਿੱਚ_Std_With = m_ਵਿੱਚ_Std_With && m_stdRandCallp;
+        ਜੇ (randObject && randMember && !ਵਿੱਚ_Std_With) {
+            nodep->user1(ਸੱਚ);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਵਿੱਚ_Std_With && is_Var_ਵਿੱਚ_Std_Randomize_ਦਲੀਲਾਂ(nodep->varp())) {
+            nodep->user1(ਸੱਚ);
             // Mark parent object for constraint expression visitor
-            if (VN_IS(nodep->fromp(), VarRef)) nodep->fromp()->user1(true);
+            ਜੇ (VN_IS(nodep->fromp(), VarRef)) nodep->fromp()->user1(ਸੱਚ);
         }
 
-        if (m_withp) {
-            AstNode* backp = m_withp;
-            while (backp->backp()) {
-                if (const AstMethodCall* const callp = VN_CAST(backp, MethodCall)) {
+        ਜੇ (m_withp) {
+            Ast_ਗੰਢ* backp = m_withp;
+            ਜਦੋਂ (backp->backp()) {
+                ਜੇ (ਅਚਲ Ast_ਵਿਧੀ_Call* ਅਚਲ callp = VN_CAST(backp, ਵਿਧੀ_Call)) {
                     AstClassRefDType* classdtype
                         = VN_AS(callp->fromp()->dtypep()->skipRefp(), ClassRefDType);
                     nodep->user2p(classdtype->classp());
-                    break;
+                    ਰੋਕੋ;
                 }
                 backp = backp->backp();
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             nodep->user2p(m_modp);
         }
     }
-    void visit(AstNodeModule* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Module* nodep) override {
         VL_RESTORER(m_modp);
         m_modp = nodep;
         iterateChildrenConst(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask* nodep) override {
         nodep->user2p(m_modp);
         iterateChildrenConst(nodep);
     }
-    void visit(AstVar* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstVar* nodep) override {
         nodep->user2p(m_modp);
-        if (nodep->rand().isRandomizable()) {
+        ਜੇ (nodep->rand().isRandomizable()) {
             checkRandTypeEligibility(nodep, nodep->dtypep(), nodep->rand().isRandC());
         }
         iterateChildrenConst(nodep);
     }
-    void visit(AstWith* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstWith* nodep) override {
         VL_RESTORER(m_withp);
         m_withp = nodep;
-        if (m_stdRandCallp && nodep == m_stdRandCallp->withp()) m_inStdWith = true;
+        ਜੇ (m_stdRandCallp && nodep == m_stdRandCallp->withp()) m_ਵਿੱਚ_Std_With = ਸੱਚ;
         iterateChildrenConst(nodep);
-        m_inStdWith = false;
+        m_ਵਿੱਚ_Std_With = ਝੂਠ;
     }
 
-    void visit(AstNodeExpr* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) override {
         iterateChildrenConst(nodep);
-        if (!m_constraintExprGenp && !m_inStdWith) return;
+        ਜੇ (!m_constraint_ਵਿਅੰਜਕ_Genp && !m_ਵਿੱਚ_Std_With) ਵਾਪਸ;
         nodep->user1((nodep->op1p() && nodep->op1p()->user1())
                      || (nodep->op2p() && nodep->op2p()->user1())
                      || (nodep->op3p() && nodep->op3p()->user1())
                      || (nodep->op4p() && nodep->op4p()->user1()));
     }
-    void visit(AstArg* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstArg* nodep) override {
         iterateChildrenConst(nodep);
-        if (!m_constraintExprGenp && !m_inStdWith) return;
+        ਜੇ (!m_constraint_ਵਿਅੰਜਕ_Genp && !m_ਵਿੱਚ_Std_With) ਵਾਪਸ;
         nodep->user1(nodep->exprp() && nodep->exprp()->user1());
     }
 
-    void visit(AstNode* nodep) override { iterateChildrenConst(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildrenConst(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit RandomizeMarkVisitor(AstNode* nodep) {
+    ਸਪਸ਼ਟ RandomizeMarkVisitor(Ast_ਗੰਢ* nodep) {
         iterateConst(nodep);
         markAllDerived();
-        setPackageRefs();
+        ਸੈੱਟ_Package_Refs();
     }
-    ~RandomizeMarkVisitor() override = default;
+    ~RandomizeMarkVisitor() override = ਮੂਲ;
 };
 
 //######################################################################
 // Visitor that turns constraints into template strings for solvers
 
-class ConstraintExprVisitor final : public VNVisitor {
+ਵਰਗ Constraint_ਵਿਅੰਜਕ_Visitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     // AstVar::user3() -> bool. Handled in constraints
     // AstNodeExpr::user1()    -> bool. Depending on a randomized variable
     // AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
     // VNuser3InUse m_inuser3; (Allocated for use in RandomizeVisitor)
 
-    AstClass* const m_classp;
-    AstNodeFTask* const m_inlineInitTaskp;  // Method to add write_var calls to
+    AstClass* ਅਚਲ m_classp;
+    Ast_ਗੰਢ_FTask* ਅਚਲ m_inlineInitTaskp;  // Method to add write_var calls to
                                             // (may be null, then new() is used)
-    AstNodeFTask* const m_memberselInitTaskp;  // Fallback for membersel write_var when
+    Ast_ਗੰਢ_FTask* ਅਚਲ m_memberselInitTaskp;  // Fallback for membersel write_var when
                                                // classp has no randomize() (inherited members)
-    AstVar* const m_genp;  // VlRandomizer variable of the class
-    AstVar* m_randModeVarp;  // Relevant randmode state variable
-    bool m_wantSingle = false;  // Whether to merge constraint expressions with LOGAND
+    AstVar* ਅਚਲ m_genp;  // VlRandomizer variable of the class
+    AstVar* m_rand_ਬਹੁਲਕ_Varp;  // Relevant randmode state variable
+    ਤਾਰਕਿਕ m_wantSingle = ਝੂਠ;  // Whether to merge constraint expressions with LOGAND
     VMemberMap& m_memberMap;  // Member names cached for fast lookup
-    bool m_structSel = false;  // Marks when inside structSel
+    ਤਾਰਕਿਕ m_structSel = ਝੂਠ;  // Marks when inside structSel
                                // (used to format "%s.%s" for struct arrays and nested structs)
-    bool m_deferRandModeHoist = false;  // Wait for the complete struct member path
-    std::set<std::string>& m_writtenVars;  // Track which variable paths have write_var generated
+    ਤਾਰਕਿਕ m_defer_Rand_ਬਹੁਲਕ_Hoist = ਝੂਠ;  // Wait for the complete struct member path
+    std::ਸੈੱਟ<std::string>& m_writtenVars;  // Track which variable paths have write_var generated
                                            // (shared across all constraints)
-    std::set<std::string> m_inlineWrittenVars;  // Per-instance tracking for inline constraints
-    VInsertionSet<AstVar*>* m_sizeConstrainedArraysp = nullptr;  // Arrays with size constraints
-    AstNodeExpr* m_conditionp = nullptr;  // Condition under which current expression is defined
+    std::ਸੈੱਟ<std::string> m_inlineWrittenVars;  // Per-instance tracking for inline constraints
+    VInsertion_ਸੈੱਟ<AstVar*>* m_ਮਾਪ_Constrained_Arraysp = ਖਾਲੀ_ਸੂਚਕ;  // Arrays with size constraints
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* m_conditionp = ਖਾਲੀ_ਸੂਚਕ;  // Condition under which current expression is defined
                                           // (nullptr == always defined)
-    AstNodeFTask* m_prepareConstrainedArraysp = nullptr;  // Grow arrays for indexed struct access
-    uint32_t* m_uniqueConstraintId = nullptr;  // Current ID of unique call
-    V3UniqueNames& m_uniqueNames;  // Unique names of temporaries, and of blocks holding them
-    std::vector<AstVar*> m_rangeConstrainedEnums;  // Enums that are already range-constrained
-    AstNode* m_firstExpressionInsideIndexp = nullptr;
-    AstConstraintForeach* m_foreachp = nullptr;  // Innermost constraint-foreach being processed
-    std::set<const AstVar*> m_foreachIdxVars;  // Index vars of all enclosing constraint-foreaches
+    Ast_ਗੰਢ_FTask* m_prepareConstrainedArraysp = ਖਾਲੀ_ਸੂਚਕ;  // Grow arrays for indexed struct access
+    uint32_t* m_uniqueConstraintId = ਖਾਲੀ_ਸੂਚਕ;  // Current ID of unique call
+    V3_Unique_ਨਾਂ& m_unique_ਨਾਂ;  // Unique names of temporaries, and of blocks holding them
+    std::ਸਦਿਸ਼<AstVar*> m_rangeConstrainedEnums;  // Enums that are already range-constrained
+    Ast_ਗੰਢ* m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_Indexp = ਖਾਲੀ_ਸੂਚਕ;
+    AstConstraintForeach* m_foreachp = ਖਾਲੀ_ਸੂਚਕ;  // Innermost constraint-foreach being processed
+    std::ਸੈੱਟ<ਅਚਲ AstVar*> m_foreachIdxVars;  // Index vars of all enclosing constraint-foreaches
 
-    class NestedAccessPath final {
-        AstMemberSel* m_topNestedArrayMemberSelp
-            = nullptr;  // Top node of nested array/member access
-        AstSFormatF* m_nestedNameFormatTopp = nullptr;  // Top node of variable's name format
-        AstSFormatF* m_nestedNameFormatp = nullptr;  // Last node of variable's name format
-        AstNode** m_firstExpressionInsideIndexPointerp
-            = nullptr;  // First expression with no name, used for "Multiple expressions inside
+    ਵਰਗ Nested_Access_ਰਸਤਾ final {
+        AstMemberSel* m_ਸਿਖਰ_Nested_Array_Member_Selp
+            = ਖਾਲੀ_ਸੂਚਕ;  // Top node of nested array/member access
+        AstSFormatF* m_nestedNameFormatTopp = ਖਾਲੀ_ਸੂਚਕ;  // Top node of variable's name format
+        AstSFormatF* m_nestedNameFormatp = ਖਾਲੀ_ਸੂਚਕ;  // Last node of variable's name format
+        Ast_ਗੰਢ** m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp
+            = ਖਾਲੀ_ਸੂਚਕ;  // First expression with no name, used for "Multiple expressions inside
                         // indices of complex expression in constraint" error
 
         std::string m_smtName;  // string name for shouldWriteVar checking
 
-    public:
-        void addVarNamePart(AstSFormatF* const nodep, std::string&& name) {
-            if (!m_nestedNameFormatp) {
+    ਜਨਤਕ:
+        ਖਾਲੀ ਜੋੜੋ_Var_Name_Part(AstSFormatF* ਅਚਲ nodep, std::string&& name) {
+            ਜੇ (!m_nestedNameFormatp) {
                 m_nestedNameFormatTopp = nodep;
                 m_nestedNameFormatp = m_nestedNameFormatTopp;
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 m_nestedNameFormatp->prependExprsp(nodep);
             }
             m_nestedNameFormatp = nodep;
 
-            m_smtName.insert(0, "." + name);
+            m_smtName.ਪਾਓ(0, "." + name);
             // Some expressions have empty name which can cause some variables to have the same
             // name and only first one will be written
-            if (name == "") {
-                if (*m_firstExpressionInsideIndexPointerp) {
-                    (*m_firstExpressionInsideIndexPointerp)
+            ਜੇ (name == "") {
+                ਜੇ (*m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp) {
+                    (*m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp)
                         ->v3warn(
                             E_UNSUPPORTED,
                             "Unsupported: Multiple expressions inside indices of complex "
                             "expression in constraint\n"
-                                << (*m_firstExpressionInsideIndexPointerp)->warnContextPrimary()
+                                << (*m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp)->warnContextPrimary()
                                 << nodep->warnOther() << "... Location of second expression\n"
                                 << nodep->warnContextSecondary());
                 }
-                *m_firstExpressionInsideIndexPointerp = nodep;
+                *m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp = nodep;
             }
         }
 
-        AstMemberSel* accessTree() { return m_topNestedArrayMemberSelp; }
-        const std::string& smtName() { return m_smtName; }
+        AstMemberSel* access_ਰੁੱਖ() { ਵਾਪਸ m_ਸਿਖਰ_Nested_Array_Member_Selp; }
+        ਅਚਲ std::string& smtName() { ਵਾਪਸ m_smtName; }
 
-        AstStmtExpr* makeWriteVarStmt(AstVar* varp, AstVar* genp) {
-            AstCMethodHard* const methodp = new AstCMethodHard{
+        Ast_Stmt_ਵਿਅੰਜਕ* makeWriteVarStmt(AstVar* varp, AstVar* genp) {
+            AstCMethodHard* ਅਚਲ methodp = ਨਵਾਂ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(genp->user2p(), NodeModule), genp,
+                ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(genp->user2p(), ਗੰਢ_Module), genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_WRITE_VAR};
-            methodp->dtypeSetVoid();
+            methodp->dtype_ਸੈੱਟ_Void();
 
-            methodp->addPinsp(m_topNestedArrayMemberSelp);  // Variable
+            methodp->ਜੋੜੋ_Pinsp(m_ਸਿਖਰ_Nested_Array_Member_Selp);  // Variable
 
-            const AstNodeDType* const dtypep = varp->dtypep();  // Width
-            const size_t width = m_topNestedArrayMemberSelp->varp()->dtypep()->width();
-            methodp->addPinsp(new AstConst{dtypep->fileline(), AstConst::Unsized64{}, width});
+            ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = varp->dtypep();  //ਚੌੜਾਈ
+            ਅਚਲ ਮਾਪ_t ਚੌੜਾਈ = m_ਸਿਖਰ_Nested_Array_Member_Selp->varp()->dtypep()->ਚੌੜਾਈ();
+            methodp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{dtypep->fileline(), AstConst::Unsized64{}, ਚੌੜਾਈ});
 
-            methodp->addPinsp(m_nestedNameFormatTopp);  // Solver name
-            m_nestedNameFormatp = nullptr;
+            methodp->ਜੋੜੋ_Pinsp(m_nestedNameFormatTopp);  // Solver name
+            m_nestedNameFormatp = ਖਾਲੀ_ਸੂਚਕ;
 
-            methodp->addPinsp(
-                new AstConst{dtypep->fileline(), AstConst::Unsized64{}, 0});  // Dimension
+            methodp->ਜੋੜੋ_Pinsp(
+                ਨਵਾਂ AstConst{dtypep->fileline(), AstConst::Unsized64{}, 0});  // Dimension
 
-            m_topNestedArrayMemberSelp = nullptr;
-            return methodp->makeStmt();
+            m_ਸਿਖਰ_Nested_Array_Member_Selp = ਖਾਲੀ_ਸੂਚਕ;
+            ਵਾਪਸ methodp->makeStmt();
         }
 
-        AstNodeExpr* cloneName() { return m_nestedNameFormatTopp->cloneTree(false); }
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* cloneName() { ਵਾਪਸ m_nestedNameFormatTopp->clone_ਰੁੱਖ(ਝੂਠ); }
 
-        void error() {
-            VL_DO_DANGLING(m_topNestedArrayMemberSelp->deleteTree(), m_topNestedArrayMemberSelp);
+        ਖਾਲੀ error() {
+            VL_DO_DANGLING(m_ਸਿਖਰ_Nested_Array_Member_Selp->delete_ਰੁੱਖ(), m_ਸਿਖਰ_Nested_Array_Member_Selp);
         }
 
-        NestedAccessPath(AstMemberSel* topMemberSelp, AstNode** pointerToFirstExprp)
-            : m_topNestedArrayMemberSelp{topMemberSelp}
-            , m_firstExpressionInsideIndexPointerp{pointerToFirstExprp} {}
-        ~NestedAccessPath() {
-            if (m_nestedNameFormatp) {
-                VL_DO_CLEAR(m_nestedNameFormatTopp->deleteTree(),
-                            m_nestedNameFormatTopp = nullptr);
-                m_nestedNameFormatp = nullptr;
+        Nested_Access_ਰਸਤਾ(AstMemberSel* ਸਿਖਰ_Member_Selp, Ast_ਗੰਢ** ਸੂਚਕ_ਮੰਜ਼ਿਲ_ਪਹਿਲਾ_Exprp)
+            : m_ਸਿਖਰ_Nested_Array_Member_Selp{ਸਿਖਰ_Member_Selp}
+            , m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_ਸੂਚਕਾਂਕ_Pointerp{ਸੂਚਕ_ਮੰਜ਼ਿਲ_ਪਹਿਲਾ_Exprp} {}
+        ~Nested_Access_ਰਸਤਾ() {
+            ਜੇ (m_nestedNameFormatp) {
+                VL_DO_CLEAR(m_nestedNameFormatTopp->delete_ਰੁੱਖ(),
+                            m_nestedNameFormatTopp = ਖਾਲੀ_ਸੂਚਕ);
+                m_nestedNameFormatp = ਖਾਲੀ_ਸੂਚਕ;
             }
         }
     };
-    NestedAccessPath* m_nestedAccess = nullptr;  // Indicates state of nested access
+    Nested_Access_ਰਸਤਾ* m_nestedAccess = ਖਾਲੀ_ਸੂਚਕ;  // Indicates state of nested access
 
     // Emit enum range hard constraint for a single variable
-    AstNodeExpr* createEnumConstraint(FileLine* const fl, const std::string& smtName,
-                                      AstEnumDType* const enumDtp, AstVar* const genVarp) {
-        AstNodeModule* const genModp = VN_AS(genVarp->user2p(), NodeModule);
-        const int width = enumDtp->width();
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* createEnumConstraint(File_ਸਤਰ* ਅਚਲ fl, ਅਚਲ std::string& smtName,
+                                      AstEnumDType* ਅਚਲ enumDtp, AstVar* ਅਚਲ genVarp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(genVarp->user2p(), ਗੰਢ_Module);
+        ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = enumDtp->ਚੌੜਾਈ();
         std::string constraint = "(__Vbv (or";
-        for (AstEnumItem* itemp = enumDtp->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            const AstConst* const vconstp = VN_AS(itemp->valuep(), Const);
-            constraint += " (= " + smtName + " (_ bv" + cvtToStr(vconstp->toUInt()) + " "
-                          + cvtToStr(width) + "))";
+        ਲਈ (Ast_Enum_ਵਸਤੂ* itemp = enumDtp->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_ਵਸਤੂ)) {
+            ਅਚਲ AstConst* ਅਚਲ vconstp = VN_AS(itemp->valuep(), Const);
+            constraint += " (= " + smtName + " (_ bv" + cvt_ਮੰਜ਼ਿਲ_Str(vconstp->ਮੰਜ਼ਿਲ_UInt()) + " "
+                          + cvt_ਮੰਜ਼ਿਲ_Str(ਚੌੜਾਈ) + "))";
         }
         constraint += "))";
-        AstCMethodHard* const callp = new AstCMethodHard{
-            fl, new AstVarRef{fl, genModp, genVarp, VAccess::READWRITE}, VCMethod::RANDOMIZER_HARD,
-            new AstCExpr{fl, AstCExpr::Pure{}, "\"" + constraint + "\""}};
-        callp->dtypeSetVoid();
-        return callp;
+        AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
+            fl, ਨਵਾਂ AstVarRef{fl, genModp, genVarp, VAccess::READWRITE}, VCMethod::RANDOMIZER_HARD,
+            ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + constraint + "\""}};
+        callp->dtype_ਸੈੱਟ_Void();
+        ਵਾਪਸ callp;
     };
 
     // Routes nested sub-objects with static rand vars when the outer class has none.
-    AstVar* findStaticRandModeVarMember(AstClass* classp) const {
-        while (true) {
-            if (AstVar* const varp
-                = VN_CAST(m_memberMap.findMember(classp, "__Vstaticrandmode"), Var)) {
-                return varp;
+    AstVar* ਲੱਭੋ_Static_Rand_ਬਹੁਲਕ_Var_Member(AstClass* classp) ਅਚਲ {
+        ਜਦੋਂ (ਸੱਚ) {
+            ਜੇ (AstVar* ਅਚਲ varp
+                = VN_CAST(m_memberMap.ਲੱਭੋ_Member(classp, "__Vstaticrandmode"), Var)) {
+                ਵਾਪਸ varp;
             }
-            AstClassExtends* const extendsp = classp->extendsp();
-            if (!extendsp) return nullptr;
+            AstClassExtends* ਅਚਲ extendsp = classp->extendsp();
+            ਜੇ (!extendsp) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             classp = extendsp->classp();
         }
     }
 
     // Mark the one directly-referenced member; it must reach the solver even when it
     // carries no rand qualifier (the constraint refers to it).
-    void markConstrainedRandMember(AstStructDType* const structp, const std::string& name) {
-        AstMemberDType* const memberp
-            = VN_CAST(m_memberMap.findMember(structp, name), MemberDType);
+    ਖਾਲੀ markConstrainedRandMember(AstStructDType* ਅਚਲ structp, ਅਚਲ std::string& name) {
+        AstMemberDType* ਅਚਲ memberp
+            = VN_CAST(m_memberMap.ਲੱਭੋ_Member(structp, name), MemberDType);
         UASSERT_OBJ(memberp, structp, "Constraint references unknown struct member " << name);
-        memberp->markConstrainedRand(true);
+        memberp->markConstrainedRand(ਸੱਚ);
     }
 
     // True when the aggregate is reached through rand-qualified struct members only
-    bool isRandQualifiedPath(const AstNodeExpr* nodep) {
-        while (nodep) {
-            if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-                if (AstStructDType* const structp
+    ਤਾਰਕਿਕ is_Rand_Qualified_ਰਸਤਾ(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਜਦੋਂ (nodep) {
+            ਜੇ (ਅਚਲ AstStructSel* ਅਚਲ selp = VN_CAST(nodep, StructSel)) {
+                ਜੇ (AstStructDType* ਅਚਲ structp
                     = VN_CAST(selp->fromp()->dtypep()->skipRefp(), StructDType)) {
-                    const AstMemberDType* const memberp
-                        = VN_CAST(m_memberMap.findMember(structp, selp->name()), MemberDType);
-                    if (memberp && !memberp->rand().isRandomizable()) return false;
+                    ਅਚਲ AstMemberDType* ਅਚਲ memberp
+                        = VN_CAST(m_memberMap.ਲੱਭੋ_Member(structp, selp->name()), MemberDType);
+                    ਜੇ (memberp && !memberp->rand().isRandomizable()) ਵਾਪਸ ਝੂਠ;
                 }
                 nodep = selp->fromp();
-            } else if (const AstArraySel* const selp = VN_CAST(nodep, ArraySel)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstArraySel* ਅਚਲ selp = VN_CAST(nodep, ArraySel)) {
                 nodep = selp->fromp();
-            } else if (const AstCMethodHard* const methodp = VN_CAST(nodep, CMethodHard)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstCMethodHard* ਅਚਲ methodp = VN_CAST(nodep, CMethodHard)) {
                 nodep = methodp->fromp();
-            } else {
-                break;
+            } ਨਹੀਂਤਾਂ {
+                ਰੋਕੋ;
             }
         }
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
     // IEEE 1800-2023 18.4: all rand members of a rand unpacked struct are solved
     // concurrently, so unreferenced rand members must still reach the solver.
-    static void markStructConstrainedRandRecurse(AstNodeDType* const dtypep) {
-        AstStructDType* const structp = VN_CAST(arrayElementDTypep(dtypep), StructDType);
-        if (!structp || structp->packed()) return;
-        structp->markConstrainedRand(true);
-        for (AstMemberDType* memberp = structp->membersp(); memberp;
+    ਸਥਿਰ ਖਾਲੀ markStructConstrainedRandRecurse(Ast_ਗੰਢ_DType* ਅਚਲ dtypep) {
+        AstStructDType* ਅਚਲ structp = VN_CAST(arrayElementDTypep(dtypep), StructDType);
+        ਜੇ (!structp || structp->packed()) ਵਾਪਸ;
+        structp->markConstrainedRand(ਸੱਚ);
+        ਲਈ (AstMemberDType* memberp = structp->membersp(); memberp;
              memberp = VN_AS(memberp->nextp(), MemberDType)) {
             // Non-rand members keep their value. TODO: randc members are solved as
             // plain rand (uniform); per-member cyclic state is not generated for structs.
-            if (!memberp->rand().isRandomizable()) continue;
-            memberp->markConstrainedRand(true);
+            ਜੇ (!memberp->rand().isRandomizable()) ਜਾਰੀ;
+            memberp->markConstrainedRand(ਸੱਚ);
             markStructConstrainedRandRecurse(memberp->subDTypep());
         }
     }
 
     // Build full path for a MemberSel chain (e.g., "obj.l2.l3.l4")
-    std::string buildMemberPath(const AstMemberSel* const memberSelp) {
-        const AstNode* fromp = memberSelp->fromp();
-        if (const AstVarRef* const refp = VN_CAST(fromp, VarRef)) {
+    std::string build_Member_ਰਸਤਾ(ਅਚਲ AstMemberSel* ਅਚਲ memberSelp) {
+        ਅਚਲ Ast_ਗੰਢ* fromp = memberSelp->fromp();
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(fromp, VarRef)) {
             // Base case: reached root VarRef
-            return refp->name() + "." + memberSelp->name();
-        } else if (const AstMemberSel* const selp = VN_CAST(fromp, MemberSel)) {
+            ਵਾਪਸ refp->name() + "." + memberSelp->name();
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ selp = VN_CAST(fromp, MemberSel)) {
             // Recursive case: build path from outer levels
-            return buildMemberPath(selp) + "." + memberSelp->name();
+            ਵਾਪਸ build_Member_ਰਸਤਾ(selp) + "." + memberSelp->name();
         }
         memberSelp->v3fatalSrc("Unexpected node type in MemberSel chain");
-        return "";
+        ਵਾਪਸ "";
     }
 
-    static AstNodeExpr* getFromp(const AstNodeExpr* const nodep) {
-        if (const AstCMethodHard* const cmethp = VN_CAST(nodep, CMethodHard)) {
-            return cmethp->fromp();
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* getFromp(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nodep) {
+        ਜੇ (ਅਚਲ AstCMethodHard* ਅਚਲ cmethp = VN_CAST(nodep, CMethodHard)) {
+            ਵਾਪਸ cmethp->fromp();
         }
-        return getSelFromp(nodep);
+        ਵਾਪਸ getSelFromp(nodep);
     }
 
-    static std::string extractSolveBeforeBaseName(const AstNodeExpr* exprp) {
-        while (const AstNodeExpr* const fromp = getFromp(exprp)) exprp = fromp;
-        if (const AstVarRef* const vrefp = VN_CAST(exprp, VarRef)) return vrefp->name();
-        return "";
+    ਸਥਿਰ std::string ਕੱਢੋ_Solve_Before_ਅਧਾਰ_Name(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        ਜਦੋਂ (ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = getFromp(exprp)) exprp = fromp;
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ vrefp = VN_CAST(exprp, VarRef)) ਵਾਪਸ vrefp->name();
+        ਵਾਪਸ "";
     }
 
-    static void buildNamePrefix(AstCExpr* exprp, const AstNodeExpr* const nodep) {
-        if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            exprp->add("(\""s + refp->name());
-            return;
+    ਸਥਿਰ ਖਾਲੀ build_Name_ਅਗੇਤਰ(AstCExpr* exprp, ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nodep) {
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(nodep, VarRef)) {
+            exprp->ਜੋੜੋ("(\""s + refp->name());
+            ਵਾਪਸ;
         }
 
-        const AstNodeExpr* const fromp = getFromp(nodep);
-        if (fromp) buildNamePrefix(exprp, fromp);
+        ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = getFromp(nodep);
+        ਜੇ (fromp) build_Name_ਅਗੇਤਰ(exprp, fromp);
 
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-            exprp->add("." + selp->name());
-        } else if (VN_IS(nodep, MemberSel)) {
+        ਜੇ (ਅਚਲ AstStructSel* ਅਚਲ selp = VN_CAST(nodep, StructSel)) {
+            exprp->ਜੋੜੋ("." + selp->name());
+        } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(nodep, MemberSel)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: Nested array element access in global constraint");
-            return;
-        } else if (const AstCMethodHard* const cmethp = VN_CAST(nodep, CMethodHard)) {
-            if (cmethp->method() == VCMethod::ARRAY_AT) {
-                AstNodeExpr* const argp = cmethp->pinsp();
-                exprp->add(".\" + ");
-                AstCFuncHard* const solverHexFuncp
-                    = new AstCFuncHard{nodep->fileline(), VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-                solverHexFuncp->addPinsp(argp->cloneTreePure(false));
-                solverHexFuncp->dtypeSetString();
-                exprp->add(solverHexFuncp);
-                exprp->add(" + \"");
-            } else {
+            ਵਾਪਸ;
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstCMethodHard* ਅਚਲ cmethp = VN_CAST(nodep, CMethodHard)) {
+            ਜੇ (cmethp->ਵਿਧੀ() == VCMethod::ARRAY_AT) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = cmethp->pinsp();
+                exprp->ਜੋੜੋ(".\" + ");
+                AstCFuncHard* ਅਚਲ solverHexFuncp
+                    = ਨਵਾਂ AstCFuncHard{nodep->fileline(), VCFunction::RANDOMIZER_ਮੰਜ਼ਿਲ_SOLVER_HEX};
+                solverHexFuncp->ਜੋੜੋ_Pinsp(argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+                solverHexFuncp->dtype_ਸੈੱਟ_String();
+                exprp->ਜੋੜੋ(solverHexFuncp);
+                exprp->ਜੋੜੋ(" + \"");
+            } ਨਹੀਂਤਾਂ {
                 cmethp->v3fatalSrc("Unexpected CMethodHard: " << cmethp->prettyTypeName());
-                return;
+                ਵਾਪਸ;
             }
         }
     }
@@ -1163,2394 +1163,2394 @@ class ConstraintExprVisitor final : public VNVisitor {
     // Build a C++ expression (as AstNodeExpr) that evaluates to a const char*
     // containing the SMT variable name for a solve-before variable reference.
     // Handles simple vars, struct selects, and array element selects (for foreach).
-    static AstCExpr* buildPathExpr(FileLine* const fl, const AstNodeExpr* nodep,
-                                   const std::string selName) {
-        AstCExpr* const exprp = new AstCExpr{fl, ""};
-        buildNamePrefix(exprp, nodep);
-        if (selName != "") {
-            exprp->add(".");
-            exprp->add(selName);
+    ਸਥਿਰ AstCExpr* build_ਰਸਤਾ_ਵਿਅੰਜਕ(File_ਸਤਰ* ਅਚਲ fl, ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep,
+                                   ਅਚਲ std::string selName) {
+        AstCExpr* ਅਚਲ exprp = ਨਵਾਂ AstCExpr{fl, ""};
+        build_Name_ਅਗੇਤਰ(exprp, nodep);
+        ਜੇ (selName != "") {
+            exprp->ਜੋੜੋ(".");
+            exprp->ਜੋੜੋ(selName);
         }
-        exprp->add("\")");
-        return exprp;
+        exprp->ਜੋੜੋ("\")");
+        ਵਾਪਸ exprp;
     }
     // Build a C++ expression (as AstNodeExpr) that evaluates to a const char*
     // containing the SMT variable name for a solve-before variable reference.
     // Handles simple vars, member selects, and array element selects (for foreach).
     // Returns nullptr for unsupported expression types.
     // Helper: build a dynamic AstCExpr for "baseName[idx]" pattern
-    AstCExpr* buildArraySelNameExpr(FileLine* fl, const std::string& baseName,
-                                    const AstNodeSel* selp) {
-        AstCExpr* const p = new AstCExpr{fl, ""};
-        p->add("(\""s + baseName + ".\"");
-        p->add("+");
-        AstCFuncHard* const solverHexFuncp
-            = new AstCFuncHard{fl, VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-        solverHexFuncp->addPinsp(selp->bitp()->cloneTreePure(false));
-        solverHexFuncp->dtypeSetString();
-        p->add(solverHexFuncp);
-        p->add(")");
-        p->dtypeSetString();
-        return p;
+    AstCExpr* build_Array_Sel_Name_ਵਿਅੰਜਕ(File_ਸਤਰ* fl, ਅਚਲ std::string& ਅਧਾਰ_Name,
+                                    ਅਚਲ Ast_ਗੰਢ_Sel* selp) {
+        AstCExpr* ਅਚਲ p = ਨਵਾਂ AstCExpr{fl, ""};
+        p->ਜੋੜੋ("(\""s + ਅਧਾਰ_Name + ".\"");
+        p->ਜੋੜੋ("+");
+        AstCFuncHard* ਅਚਲ solverHexFuncp
+            = ਨਵਾਂ AstCFuncHard{fl, VCFunction::RANDOMIZER_ਮੰਜ਼ਿਲ_SOLVER_HEX};
+        solverHexFuncp->ਜੋੜੋ_Pinsp(selp->bitp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+        solverHexFuncp->dtype_ਸੈੱਟ_String();
+        p->ਜੋੜੋ(solverHexFuncp);
+        p->ਜੋੜੋ(")");
+        p->dtype_ਸੈੱਟ_String();
+        ਵਾਪਸ p;
     }
 
     // Helper: get fromp from MemberSel or StructSel
-    static AstNodeExpr* getSelFromp(const AstNodeExpr* exprp) {
-        if (const AstMemberSel* const mp = VN_CAST(exprp, MemberSel)) return mp->fromp();
-        if (const AstStructSel* const sp = VN_CAST(exprp, StructSel)) return sp->fromp();
-        return nullptr;
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* getSelFromp(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mp = VN_CAST(exprp, MemberSel)) ਵਾਪਸ mp->fromp();
+        ਜੇ (ਅਚਲ AstStructSel* ਅਚਲ sp = VN_CAST(exprp, StructSel)) ਵਾਪਸ sp->fromp();
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
 
-    AstNodeExpr* buildSolveBeforeNameExpr(FileLine* fl, AstNodeExpr* exprp) {
-        if (const AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
-            AstCExpr* const p = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + varrefp->name() + "\"s"};
-            p->dtypeSetString();
-            return p;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* build_Solve_Before_Name_ਵਿਅੰਜਕ(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ varrefp = VN_CAST(exprp, VarRef)) {
+            AstCExpr* ਅਚਲ p = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + varrefp->name() + "\"s"};
+            p->dtype_ਸੈੱਟ_String();
+            ਵਾਪਸ p;
         }
         // Handle MemberSel or StructSel (V3Width converts MemberSel -> StructSel for structs)
-        if (AstNodeExpr* const selFromp = getSelFromp(exprp)) {
-            const std::string selName = exprp->name();
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ selFromp = getSelFromp(exprp)) {
+            ਅਚਲ std::string selName = exprp->name();
             // Check if fromp chain contains ArraySel (e.g., cfg[i].w)
-            if (const AstArraySel* const arrSelp = VN_CAST(selFromp, ArraySel)) {
-                std::string baseName;
-                if (const AstVarRef* const vp = VN_CAST(arrSelp->fromp(), VarRef)) {
-                    baseName = vp->name();
-                } else if (const AstMemberSel* const mp = VN_CAST(arrSelp->fromp(), MemberSel)) {
-                    baseName = buildMemberPath(mp);
+            ਜੇ (ਅਚਲ AstArraySel* ਅਚਲ arrSelp = VN_CAST(selFromp, ArraySel)) {
+                std::string ਅਧਾਰ_Name;
+                ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ vp = VN_CAST(arrSelp->fromp(), VarRef)) {
+                    ਅਧਾਰ_Name = vp->name();
+                } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mp = VN_CAST(arrSelp->fromp(), MemberSel)) {
+                    ਅਧਾਰ_Name = build_Member_ਰਸਤਾ(mp);
                 }
-                if (baseName.empty()) return nullptr;
-                AstCExpr* const p = new AstCExpr{fl, ""};
-                p->add("(\""s + baseName + ".\"");
-                p->add("+");
-                AstCFuncHard* const solverHexFuncp
-                    = new AstCFuncHard{fl, VCFunction::RANDOMIZER_TO_SOLVER_HEX};
-                solverHexFuncp->addPinsp(arrSelp->bitp()->cloneTreePure(false));
-                solverHexFuncp->dtypeSetString();
-                p->add(solverHexFuncp);
-                p->add(")");
-                p->dtypeSetString();
-                return p;
+                ਜੇ (ਅਧਾਰ_Name.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+                AstCExpr* ਅਚਲ p = ਨਵਾਂ AstCExpr{fl, ""};
+                p->ਜੋੜੋ("(\""s + ਅਧਾਰ_Name + ".\"");
+                p->ਜੋੜੋ("+");
+                AstCFuncHard* ਅਚਲ solverHexFuncp
+                    = ਨਵਾਂ AstCFuncHard{fl, VCFunction::RANDOMIZER_ਮੰਜ਼ਿਲ_SOLVER_HEX};
+                solverHexFuncp->ਜੋੜੋ_Pinsp(arrSelp->bitp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+                solverHexFuncp->dtype_ਸੈੱਟ_String();
+                p->ਜੋੜੋ(solverHexFuncp);
+                p->ਜੋੜੋ(")");
+                p->dtype_ਸੈੱਟ_String();
+                ਵਾਪਸ p;
             }
             // Static member path (obj.field)
-            if (const AstVarRef* const vp = VN_CAST(selFromp, VarRef)) {
-                const std::string path = vp->name() + "." + selName;
-                AstCExpr* const p = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + path + "\"s"};
-                p->dtypeSetString();
-                return p;
+            ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ vp = VN_CAST(selFromp, VarRef)) {
+                ਅਚਲ std::string ਰਸਤਾ = vp->name() + "." + selName;
+                AstCExpr* ਅਚਲ p = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + ਰਸਤਾ + "\"s"};
+                p->dtype_ਸੈੱਟ_String();
+                ਵਾਪਸ p;
             }
-            if (VN_IS(selFromp, MemberSel) || VN_IS(selFromp, StructSel)
+            ਜੇ (VN_IS(selFromp, MemberSel) || VN_IS(selFromp, StructSel)
                 || VN_IS(selFromp, CMethodHard)) {
-                AstCExpr* const p = buildPathExpr(fl, selFromp, selName);
-                p->dtypeSetString();
-                return p;
+                AstCExpr* ਅਚਲ p = build_ਰਸਤਾ_ਵਿਅੰਜਕ(fl, selFromp, selName);
+                p->dtype_ਸੈੱਟ_String();
+                ਵਾਪਸ p;
             }
-            return nullptr;
+            ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         }
-        if (VN_IS(exprp, CMethodHard)) {
-            AstCExpr* const p = buildPathExpr(fl, exprp, "");
-            p->dtypeSetString();
-            return p;
+        ਜੇ (VN_IS(exprp, CMethodHard)) {
+            AstCExpr* ਅਚਲ p = build_ਰਸਤਾ_ਵਿਅੰਜਕ(fl, exprp, "");
+            p->dtype_ਸੈੱਟ_String();
+            ਵਾਪਸ p;
         }
-        const AstNodeSel* selp = VN_CAST(exprp, ArraySel);
-        if (!selp) selp = VN_CAST(exprp, AssocSel);
-        if (selp) {
+        ਅਚਲ Ast_ਗੰਢ_Sel* selp = VN_CAST(exprp, ArraySel);
+        ਜੇ (!selp) selp = VN_CAST(exprp, AssocSel);
+        ਜੇ (selp) {
             // arr[i] -> dynamic name
-            std::string baseName;
-            if (const AstVarRef* const vp = VN_CAST(selp->fromp(), VarRef)) {
-                baseName = vp->name();
-            } else if (const AstMemberSel* const mp = VN_CAST(selp->fromp(), MemberSel)) {
-                baseName = buildMemberPath(mp);
+            std::string ਅਧਾਰ_Name;
+            ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ vp = VN_CAST(selp->fromp(), VarRef)) {
+                ਅਧਾਰ_Name = vp->name();
+            } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mp = VN_CAST(selp->fromp(), MemberSel)) {
+                ਅਧਾਰ_Name = build_Member_ਰਸਤਾ(mp);
             }
-            if (baseName.empty()) return nullptr;
-            return buildArraySelNameExpr(fl, baseName, selp);
+            ਜੇ (ਅਧਾਰ_Name.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+            ਵਾਪਸ build_Array_Sel_Name_ਵਿਅੰਜਕ(fl, ਅਧਾਰ_Name, selp);
         }
         // Packed struct member: SEL(ARRAYSEL(...)) -- bit select on array element.
         // Solver registers the whole element, so promote to array element level.
-        if (const AstSel* const bitSelp = VN_CAST(exprp, Sel)) {
-            return buildSolveBeforeNameExpr(fl, bitSelp->fromp());
+        ਜੇ (ਅਚਲ AstSel* ਅਚਲ ਦੋਆਧਾਰੀ_ਅੰਕ_Selp = VN_CAST(exprp, Sel)) {
+            ਵਾਪਸ build_Solve_Before_Name_ਵਿਅੰਜਕ(fl, ਦੋਆਧਾਰੀ_ਅੰਕ_Selp->fromp());
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
 
-    AstSFormatF* getConstFormat(AstNodeExpr* nodep) {
-        return new AstSFormatF{nodep->fileline(), (nodep->width() & 3) ? "#b%b" : "#x%x", false,
+    AstSFormatF* getConstFormat(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਵਾਪਸ ਨਵਾਂ AstSFormatF{nodep->fileline(), (nodep->ਚੌੜਾਈ() & 3) ? "#b%b" : "#x%x", ਝੂਠ,
                                nodep};
     }
-    bool editFormat(AstNodeExpr* nodep) {
-        if (nodep->user1()) return false;
+    ਤਾਰਕਿਕ editFormat(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਜੇ (nodep->user1()) ਵਾਪਸ ਝੂਠ;
         // Replace computable expression with SMT constant
         VNRelinker handle;
-        nodep->unlinkFrBack(&handle);
+        nodep->unlink_Fr_ਪਿੱਠ(&handle);
         handle.relink(getConstFormat(nodep));
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
-    AstNodeExpr* wrapWithCond(AstNodeExpr* const exprp, AstNodeExpr* const condp,
-                              const int width) {
-        if (condp) {
-            FileLine* const flp = exprp->fileline();
-            return new AstCond{
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* wrapWithCond(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp,
+                              ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ) {
+        ਜੇ (condp) {
+            File_ਸਤਰ* ਅਚਲ flp = exprp->fileline();
+            ਵਾਪਸ ਨਵਾਂ AstCond{
                 flp, condp, exprp,
-                getConstFormat(new AstConst{flp, AstConst::WidthedValue{}, width, 0})};
+                getConstFormat(ਨਵਾਂ AstConst{flp, AstConst::Widthed_ਮੁੱਲ{}, ਚੌੜਾਈ, 0})};
         }
-        return exprp;
+        ਵਾਪਸ exprp;
     }
-    AstSFormatF* editSMT(AstNodeExpr* nodep, AstNodeExpr* lhsp = nullptr,
-                         AstNodeExpr* rhsp = nullptr, AstNodeExpr* thsp = nullptr) {
+    AstSFormatF* editSMT(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep, Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsp = ਖਾਲੀ_ਸੂਚਕ,
+                         Ast_ਗੰਢ_ਵਿਅੰਜਕ* rhsp = ਖਾਲੀ_ਸੂਚਕ, Ast_ਗੰਢ_ਵਿਅੰਜਕ* thsp = ਖਾਲੀ_ਸੂਚਕ) {
         // Replace incomputable (result-dependent) expression with SMT expression
-        std::string smtExpr = nodep->emitSMT();  // Might need child width (AstExtend)
-        if (smtExpr == "") {
+        std::string smt_ਵਿਅੰਜਕ = nodep->emitSMT();  // Might need child width (AstExtend)
+        ਜੇ (smt_ਵਿਅੰਜਕ == "") {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported expression inside constraint");
-            return nullptr;
+            ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         }
 
-        const int lhsWidth = lhsp ? lhsp->width() : 0;
-        const int rhsWidth = rhsp ? rhsp->width() : 0;
-        const int thsWidth = thsp ? thsp->width() : 0;
-        AstNodeExpr* lhsCondp = nullptr;
-        AstNodeExpr* rhsCondp = nullptr;
-        AstNodeExpr* thsCondp = nullptr;
+        ਅਚਲ ਪੂਰਨ lhs_ਚੌੜਾਈ = lhsp ? lhsp->ਚੌੜਾਈ() : 0;
+        ਅਚਲ ਪੂਰਨ rhs_ਚੌੜਾਈ = rhsp ? rhsp->ਚੌੜਾਈ() : 0;
+        ਅਚਲ ਪੂਰਨ ths_ਚੌੜਾਈ = thsp ? thsp->ਚੌੜਾਈ() : 0;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsCondp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* rhsCondp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* thsCondp = ਖਾਲੀ_ਸੂਚਕ;
 
-        if (lhsp) {
+        ਜੇ (lhsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            lhsp = VN_AS(iterateSubtreeReturnEdits(lhsp->backp() ? lhsp->unlinkFrBack() : lhsp),
-                         NodeExpr);
+            m_conditionp = ਖਾਲੀ_ਸੂਚਕ;
+            lhsp = VN_AS(iterateSubtreeReturnEdits(lhsp->backp() ? lhsp->unlink_Fr_ਪਿੱਠ() : lhsp),
+                         ਗੰਢ_ਵਿਅੰਜਕ);
             lhsCondp = m_conditionp;
         }
-        if (rhsp) {
+        ਜੇ (rhsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp->backp() ? rhsp->unlinkFrBack() : rhsp),
-                         NodeExpr);
+            m_conditionp = ਖਾਲੀ_ਸੂਚਕ;
+            rhsp = VN_AS(iterateSubtreeReturnEdits(rhsp->backp() ? rhsp->unlink_Fr_ਪਿੱਠ() : rhsp),
+                         ਗੰਢ_ਵਿਅੰਜਕ);
             rhsCondp = m_conditionp;
         }
-        if (thsp) {
+        ਜੇ (thsp) {
             VL_RESTORER(m_conditionp);
-            m_conditionp = nullptr;
-            thsp = VN_AS(iterateSubtreeReturnEdits(thsp->backp() ? thsp->unlinkFrBack() : thsp),
-                         NodeExpr);
+            m_conditionp = ਖਾਲੀ_ਸੂਚਕ;
+            thsp = VN_AS(iterateSubtreeReturnEdits(thsp->backp() ? thsp->unlink_Fr_ਪਿੱਠ() : thsp),
+                         ਗੰਢ_ਵਿਅੰਜਕ);
             thsCondp = m_conditionp;
         }
 
-        AstNodeExpr* argsp = nullptr;
-        for (string::iterator pos = smtExpr.begin(); pos != smtExpr.end(); ++pos) {
-            if (pos[0] == '%') {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* argsp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (string::iterator pos = smt_ਵਿਅੰਜਕ.begin(); pos != smt_ਵਿਅੰਜਕ.ਸਿਰਾ(); ++pos) {
+            ਜੇ (pos[0] == '%') {
                 ++pos;
-                switch (pos[0]) {
-                case '%': break;
-                case 'l':
+                ਚੋਣ (pos[0]) {
+                ਹਾਲਤ '%': ਰੋਕੋ;
+                ਹਾਲਤ 'l':
                     pos[0] = 's';
                     UASSERT_OBJ(lhsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(lhsp, lhsCondp, lhsWidth));
-                    lhsp = nullptr;
-                    break;
-                case 'r':
+                    argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(argsp, wrapWithCond(lhsp, lhsCondp, lhs_ਚੌੜਾਈ));
+                    lhsp = ਖਾਲੀ_ਸੂਚਕ;
+                    ਰੋਕੋ;
+                ਹਾਲਤ 'r':
                     pos[0] = 's';
                     UASSERT_OBJ(rhsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(rhsp, rhsCondp, rhsWidth));
-                    rhsp = nullptr;
-                    break;
-                case 't':
+                    argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(argsp, wrapWithCond(rhsp, rhsCondp, rhs_ਚੌੜਾਈ));
+                    rhsp = ਖਾਲੀ_ਸੂਚਕ;
+                    ਰੋਕੋ;
+                ਹਾਲਤ 't':
                     pos[0] = 's';
                     UASSERT_OBJ(thsp, nodep, "emitSMT() references undef node");
-                    argsp = AstNode::addNext(argsp, wrapWithCond(thsp, thsCondp, thsWidth));
-                    thsp = nullptr;
-                    break;
-                default: nodep->v3fatalSrc("Unknown emitSMT format code: %" << pos[0]); break;
+                    argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(argsp, wrapWithCond(thsp, thsCondp, ths_ਚੌੜਾਈ));
+                    thsp = ਖਾਲੀ_ਸੂਚਕ;
+                    ਰੋਕੋ;
+                ਮੂਲ: nodep->v3fatalSrc("Unknown emitSMT format code: %" << pos[0]); ਰੋਕੋ;
                 }
             }
         }
         UASSERT_OBJ(!lhsp, nodep, "Missing emitSMT %l for " << lhsp);
         UASSERT_OBJ(!rhsp, nodep, "Missing emitSMT %r for " << rhsp);
         UASSERT_OBJ(!thsp, nodep, "Missing emitSMT %t for " << thsp);
-        AstSFormatF* const newp = new AstSFormatF{nodep->fileline(), smtExpr, false, argsp};
+        AstSFormatF* ਅਚਲ newp = ਨਵਾਂ AstSFormatF{nodep->fileline(), smt_ਵਿਅੰਜਕ, ਝੂਠ, argsp};
 
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        return newp;
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+        ਵਾਪਸ newp;
     }
 
-    AstNodeExpr* editSingle(FileLine* fl, AstNode* itemsp) {
-        if (!itemsp) return nullptr;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* editSingle(File_ਸਤਰ* fl, Ast_ਗੰਢ* itemsp) {
+        ਜੇ (!itemsp) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 
         VL_RESTORER(m_wantSingle);
-        m_wantSingle = true;
+        m_wantSingle = ਸੱਚ;
 
         {
-            AstBegin* const tempp
-                = new AstBegin{fl, "[EditWrapper]", itemsp->unlinkFrBackWithNext(), false};
-            VL_DO_DANGLING(iterateAndNextNull(tempp->stmtsp()), itemsp);
+            AstBegin* ਅਚਲ tempp
+                = ਨਵਾਂ AstBegin{fl, "[EditWrapper]", itemsp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ(), ਝੂਠ};
+            VL_DO_DANGLING(iterate_And_ਅਗਲਾ_Null(tempp->stmtsp()), itemsp);
             itemsp = tempp->stmtsp();
-            if (itemsp) itemsp->unlinkFrBackWithNext();
-            VL_DO_DANGLING(tempp->deleteTree(), tempp);
+            ਜੇ (itemsp) itemsp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+            VL_DO_DANGLING(tempp->delete_ਰੁੱਖ(), tempp);
         }
-        if (!itemsp) return nullptr;
+        ਜੇ (!itemsp) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 
-        AstNodeExpr* const exprsp = VN_CAST(itemsp, NodeExpr);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprsp = VN_CAST(itemsp, ਗੰਢ_ਵਿਅੰਜਕ);
         UASSERT_OBJ(exprsp, itemsp, "Single not expression?");
 
-        if (!exprsp->nextp()) return exprsp;
+        ਜੇ (!exprsp->nextp()) ਵਾਪਸ exprsp;
 
         std::ostringstream fmt;
         fmt << "(bvand";
-        for (AstNode* itemp = exprsp; itemp; itemp = itemp->nextp()) fmt << " %s";
+        ਲਈ (Ast_ਗੰਢ* itemp = exprsp; itemp; itemp = itemp->nextp()) fmt << " %s";
         fmt << ')';
-        return new AstSFormatF{fl, fmt.str(), false, exprsp};
+        ਵਾਪਸ ਨਵਾਂ AstSFormatF{fl, fmt.str(), ਝੂਠ, exprsp};
     }
 
-    AstNodeExpr* newSel(FileLine* fl, AstNodeExpr* arrayp, AstNodeExpr* idxp) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newSel(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* arrayp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* idxp) {
         // similar to V3WidthSel.cpp
         // skipRefp() unwraps typedef wrappers (AstRefDType) so the dtype kind
         // checks below recognize types spelled as `typedef <scalar> <name>[$]`.
-        AstNodeDType* const arrDtp = arrayp->unlinkFrBack()->dtypep()->skipRefp();
-        AstNodeExpr* selp = nullptr;
-        if (VN_IS(arrDtp, QueueDType) || VN_IS(arrDtp, DynArrayDType))
-            selp = new AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, idxp};
-        else if (VN_IS(arrDtp, UnpackArrayDType))
-            selp = new AstArraySel{fl, arrayp, idxp};
-        else if (VN_IS(arrDtp, AssocArrayDType))
-            selp = new AstAssocSel{fl, arrayp, idxp};
+        Ast_ਗੰਢ_DType* ਅਚਲ arrDtp = arrayp->unlink_Fr_ਪਿੱਠ()->dtypep()->skipRefp();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* selp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (VN_IS(arrDtp, ਕਤਾਰ_DType) || VN_IS(arrDtp, DynArrayDType))
+            selp = ਨਵਾਂ AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, idxp};
+        ਨਹੀਂਤਾਂ ਜੇ (VN_IS(arrDtp, UnpackArrayDType))
+            selp = ਨਵਾਂ AstArraySel{fl, arrayp, idxp};
+        ਨਹੀਂਤਾਂ ਜੇ (VN_IS(arrDtp, AssocArrayDType))
+            selp = ਨਵਾਂ AstAssocSel{fl, arrayp, idxp};
         UASSERT_OBJ(selp, arrayp, "Selecting from non-array?");
         selp->dtypep(arrDtp->subDTypep());
-        return selp;
+        ਵਾਪਸ selp;
     }
 
     // Convert expression to target width using extend or truncate as needed
-    AstNodeExpr* adjustWidth(FileLine* fl, AstNodeExpr* exprp, int targetWidth,
-                             VSigning targetSigning) {
-        const int exprWidth = exprp->width();
-        if (targetWidth > exprWidth) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* adjust_ਚੌੜਾਈ(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, ਪੂਰਨ ਨਿਸ਼ਾਨਾ_ਚੌੜਾਈ,
+                             VSigning ਨਿਸ਼ਾਨਾ_Signing) {
+        ਅਚਲ ਪੂਰਨ ਵਿਅੰਜਕ_ਚੌੜਾਈ = exprp->ਚੌੜਾਈ();
+        ਜੇ (ਨਿਸ਼ਾਨਾ_ਚੌੜਾਈ > ਵਿਅੰਜਕ_ਚੌੜਾਈ) {
             // Extend to match target width
-            AstNodeExpr* const result = new AstExtend{fl, exprp, targetWidth};
-            result->dtypeChgSigned(targetSigning);
-            return result;
-        } else if (targetWidth < exprWidth) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਨਤੀਜਾ = ਨਵਾਂ AstExtend{fl, exprp, ਨਿਸ਼ਾਨਾ_ਚੌੜਾਈ};
+            ਨਤੀਜਾ->dtypeChgSigned(ਨਿਸ਼ਾਨਾ_Signing);
+            ਵਾਪਸ ਨਤੀਜਾ;
+        } ਨਹੀਂਤਾਂ ਜੇ (ਨਿਸ਼ਾਨਾ_ਚੌੜਾਈ < ਵਿਅੰਜਕ_ਚੌੜਾਈ) {
             // Truncate to match target width
-            AstNodeExpr* const result = new AstSel{fl, exprp, 0, targetWidth};
-            result->dtypeChgSigned(targetSigning);
-            return result;
-        } else {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਨਤੀਜਾ = ਨਵਾਂ AstSel{fl, exprp, 0, ਨਿਸ਼ਾਨਾ_ਚੌੜਾਈ};
+            ਨਤੀਜਾ->dtypeChgSigned(ਨਿਸ਼ਾਨਾ_Signing);
+            ਵਾਪਸ ਨਤੀਜਾ;
+        } ਨਹੀਂਤਾਂ {
             // Width already matches
-            return exprp;
+            ਵਾਪਸ exprp;
         }
     }
 
     // Extract return expression from a simple function body, or nullptr if too complex.
     // Uses foreach to walk all assigns regardless of body organization (JumpBlock nesting etc.).
     // Takes the last assignment to the return variable -- the first is the initializer.
-    AstNodeExpr* extractReturnExpr(AstFunc* funcp) {
-        AstVar* const retVarp = VN_CAST(funcp->fvarp(), Var);
-        if (!retVarp) return nullptr;
-        AstNodeExpr* retExprp = nullptr;
-        int assignCount = 0;
-        funcp->foreach([&](AstAssign* assignp) {
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp || lhsp->varp() != retVarp) return;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਕੱਢੋ_Return_ਵਿਅੰਜਕ(AstFunc* funcp) {
+        AstVar* ਅਚਲ retVarp = VN_CAST(funcp->fvarp(), Var);
+        ਜੇ (!retVarp) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* retExprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਪੂਰਨ ਸੌਂਪੋ_ਗਿਣਤੀ = 0;
+        funcp->foreach([&](Ast_ਸੌਂਪੋ* assignp) {
+            AstVarRef* ਅਚਲ lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            ਜੇ (!lhsp || lhsp->varp() != retVarp) ਵਾਪਸ;
             retExprp = assignp->rhsp();
-            ++assignCount;
+            ++ਸੌਂਪੋ_ਗਿਣਤੀ;
         });
         // Simple function: initializer + return (2) or just return (1)
-        if (assignCount > 2 || !retExprp) return nullptr;
-        return retExprp;
+        ਜੇ (ਸੌਂਪੋ_ਗਿਣਤੀ > 2 || !retExprp) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        ਵਾਪਸ retExprp;
     }
 
     // Bottom-up user1 propagation on inlined expression tree
-    void propagateUser1InlineRecurse(AstNodeExpr* nodep) {
-        if (VN_IS(nodep, NodeVarRef)) {
-            nodep->user1(VN_AS(nodep, NodeVarRef)->varp()->rand().isRandomizable());
-            return;
+    ਖਾਲੀ propagateUser1InlineRecurse(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਜੇ (VN_IS(nodep, ਗੰਢ_Var_Ref)) {
+            nodep->user1(VN_AS(nodep, ਗੰਢ_Var_Ref)->varp()->rand().isRandomizable());
+            ਵਾਪਸ;
         }
-        if (VN_IS(nodep, Const)) {
-            nodep->user1(false);
-            return;
+        ਜੇ (VN_IS(nodep, Const)) {
+            nodep->user1(ਝੂਠ);
+            ਵਾਪਸ;
         }
-        int anyChild = false;  // Used as bool
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op1p(), NodeExpr)) {
+        ਪੂਰਨ any_ਬੱਚਾ = ਝੂਠ;  // Used as bool
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ cp = VN_CAST(nodep->op1p(), ਗੰਢ_ਵਿਅੰਜਕ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ਬੱਚਾ |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op2p(), NodeExpr)) {
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ cp = VN_CAST(nodep->op2p(), ਗੰਢ_ਵਿਅੰਜਕ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ਬੱਚਾ |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op3p(), NodeExpr)) {
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ cp = VN_CAST(nodep->op3p(), ਗੰਢ_ਵਿਅੰਜਕ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ਬੱਚਾ |= cp->user1();
         }
-        if (AstNodeExpr* const cp = VN_CAST(nodep->op4p(), NodeExpr)) {
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ cp = VN_CAST(nodep->op4p(), ਗੰਢ_ਵਿਅੰਜਕ)) {
             propagateUser1InlineRecurse(cp);
-            anyChild |= cp->user1();
+            any_ਬੱਚਾ |= cp->user1();
         }
-        nodep->user1(anyChild);
+        nodep->user1(any_ਬੱਚਾ);
     }
 
     // Prepend the bucket preamble stmts stored on user3p by lowerDistConstraints to the
     // statements that will become the body of the generated AstForeach, so the per-element
     // bucket draw is declared and evaluated in the same scope as its references.
-    static AstNode* prependDistPreamble(AstConstraintForeach* nodep, AstNode* bodyp) {
-        AstNode* const preamblep = nodep->user3p();
-        if (!preamblep) return bodyp;
-        nodep->user3p(nullptr);
-        preamblep->addNext(bodyp);
-        return preamblep;
+    ਸਥਿਰ Ast_ਗੰਢ* prependDistPreamble(AstConstraintForeach* nodep, Ast_ਗੰਢ* bodyp) {
+        Ast_ਗੰਢ* ਅਚਲ preamblep = nodep->user3p();
+        ਜੇ (!preamblep) ਵਾਪਸ bodyp;
+        nodep->user3p(ਖਾਲੀ_ਸੂਚਕ);
+        preamblep->ਜੋੜੋ_ਅਗਲਾ(bodyp);
+        ਵਾਪਸ preamblep;
     }
 
     // True if the statement references an index variable of an enclosing
     // constraint-foreach. Such a statement must stay inside the loop body; hoisting
     // it out leaves a dangling reference once task inlining deletes the index.
-    bool referencesForeachIdx(const AstNode* nodep) const {
-        if (m_foreachIdxVars.empty()) return false;
-        return nodep->exists(
-            [&](const AstVarRef* refp) { return m_foreachIdxVars.count(refp->varp()) != 0; });
+    ਤਾਰਕਿਕ referencesForeachIdx(ਅਚਲ Ast_ਗੰਢ* nodep) ਅਚਲ {
+        ਜੇ (m_foreachIdxVars.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ ਝੂਠ;
+        ਵਾਪਸ nodep->exists(
+            [&](ਅਚਲ AstVarRef* refp) { ਵਾਪਸ m_foreachIdxVars.ਗਿਣਤੀ_2(refp->varp()) != 0; });
     }
 
     // Place a solver-registration statement: into the enclosing foreach body when it
     // references an enclosing foreach index (so it is not hoisted out of the index's
     // scope), otherwise into the init task.
-    void addRegistrationStmt(AstNode* const stmtp, AstNodeFTask* const initTaskp) {
-        if (m_foreachp && referencesForeachIdx(stmtp)) {
+    ਖਾਲੀ ਜੋੜੋ_Registration_Stmt(Ast_ਗੰਢ* ਅਚਲ stmtp, Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp) {
+        ਜੇ (m_foreachp && referencesForeachIdx(stmtp)) {
             // Appending to the body mid-iteration is safe: visit(AstStmtExpr) is a
             // no-op so the appended node is not re-processed, and prependDistPreamble()
             // correctly keeps it as a loop-body statement.
-            m_foreachp->addBodyp(stmtp);
-        } else {
-            initTaskp->addStmtsp(stmtp);
+            m_foreachp->ਜੋੜੋ_Bodyp(stmtp);
+        } ਨਹੀਂਤਾਂ {
+            initTaskp->ਜੋੜੋ_Stmtsp(stmtp);
         }
     }
 
     // Create SFormatF for array dereference inside solver
-    AstSFormatF* createSolverArrDerefp(FileLine* const fl, AstNodeExpr* const arrExprp,
-                                       AstNodeExpr* const idxExprp) {
-        AstNodeExpr* const argsp = AstNode::addNext(arrExprp, idxExprp);
-        AstSFormatF* const formatp = new AstSFormatF{fl, "(select %s %s)", false, argsp};
-        return formatp;
+    AstSFormatF* createSolverArrDerefp(File_ਸਤਰ* ਅਚਲ fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ arrExprp,
+                                       Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxExprp) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(arrExprp, idxExprp);
+        AstSFormatF* ਅਚਲ formatp = ਨਵਾਂ AstSFormatF{fl, "(select %s %s)", ਝੂਠ, argsp};
+        ਵਾਪਸ formatp;
     }
 
-    void setRandMode(AstVar* const varp, AstMemberSel* const memberselp,
-                     const std::string& smtName, const RandomizeMode& randMode,
-                     AstNodeFTask* const initTaskp) {
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
-        AstVar* const subRandModeVarp = getRandModeVarFromClass(varClassp);
-        if (subRandModeVarp) {
-            AstNodeExpr* const parentAccessp = memberselp->fromp()->cloneTree(false);
-            AstMemberSel* const randModeSelp
-                = new AstMemberSel{varp->fileline(), parentAccessp, subRandModeVarp};
-            randModeSelp->dtypep(subRandModeVarp->dtypep());
-            AstCMethodHard* const atp
-                = new AstCMethodHard{varp->fileline(), randModeSelp, VCMethod::ARRAY_AT,
-                                     new AstConst{varp->fileline(), randMode.index}};
-            atp->dtypeSetUInt32();
+    ਖਾਲੀ ਸੈੱਟ_Rand_ਬਹੁਲਕ(AstVar* ਅਚਲ varp, AstMemberSel* ਅਚਲ memberselp,
+                     ਅਚਲ std::string& smtName, ਅਚਲ Randomize_ਬਹੁਲਕ& rand_ਬਹੁਲਕ,
+                     Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ varClassp = VN_AS(varp->user2p(), ਗੰਢ_Module);
+        AstVar* ਅਚਲ sub_Rand_ਬਹੁਲਕ_Varp = get_Rand_ਬਹੁਲਕ_Var_From_Class(varClassp);
+        ਜੇ (sub_Rand_ਬਹੁਲਕ_Varp) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਮਾਪਾ_Accessp = memberselp->fromp()->clone_ਰੁੱਖ(ਝੂਠ);
+            AstMemberSel* ਅਚਲ rand_ਬਹੁਲਕ_Selp
+                = ਨਵਾਂ AstMemberSel{varp->fileline(), ਮਾਪਾ_Accessp, sub_Rand_ਬਹੁਲਕ_Varp};
+            rand_ਬਹੁਲਕ_Selp->dtypep(sub_Rand_ਬਹੁਲਕ_Varp->dtypep());
+            AstCMethodHard* ਅਚਲ atp
+                = ਨਵਾਂ AstCMethodHard{varp->fileline(), rand_ਬਹੁਲਕ_Selp, VCMethod::ARRAY_AT,
+                                     ਨਵਾਂ AstConst{varp->fileline(), rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ}};
+            atp->dtype_ਸੈੱਟ_UInt32();
             // rand_mode ON: clear disabled state
-            AstCMethodHard* const enablep = new AstCMethodHard{
+            AstCMethodHard* ਅਚਲ enablep = ਨਵਾਂ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_CLEAR_VAR_DISABLED};
-            enablep->dtypeSetVoid();
-            AstNodeExpr* const nameExprp
+            enablep->dtype_ਸੈੱਟ_Void();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nameExprp
                 = m_nestedAccess ? m_nestedAccess->cloneName()
-                                 : new AstSFormatF{varp->fileline(), smtName, false, nullptr};
+                                 : ਨਵਾਂ AstSFormatF{varp->fileline(), smtName, ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
             nameExprp->dtypep(varp->dtypep());
-            enablep->addPinsp(nameExprp);
+            enablep->ਜੋੜੋ_Pinsp(nameExprp);
             // rand_mode OFF: set disabled state
-            AstCMethodHard* const disablep = new AstCMethodHard{
+            AstCMethodHard* ਅਚਲ disablep = ਨਵਾਂ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                               VAccess::READWRITE},
-                VCMethod::RANDOMIZER_SET_VAR_DISABLED};
-            disablep->dtypeSetVoid();
-            AstNodeExpr* const disnp = nameExprp->cloneTree(false);
-            disablep->addPinsp(disnp);
-            AstIf* const ifp
-                = new AstIf{varp->fileline(), atp, enablep->makeStmt(), disablep->makeStmt()};
-            addRegistrationStmt(ifp, initTaskp);
+                VCMethod::RANDOMIZER_ਸੈੱਟ_VAR_DISABLED};
+            disablep->dtype_ਸੈੱਟ_Void();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ disnp = nameExprp->clone_ਰੁੱਖ(ਝੂਠ);
+            disablep->ਜੋੜੋ_Pinsp(disnp);
+            AstIf* ਅਚਲ ifp
+                = ਨਵਾਂ AstIf{varp->fileline(), atp, enablep->makeStmt(), disablep->makeStmt()};
+            ਜੋੜੋ_Registration_Stmt(ifp, initTaskp);
         }
     }
 
-    void markRandc(AstVar* const varp, const std::string& smtName, AstNodeFTask* const initTaskp) {
-        AstCMethodHard* const markp = new AstCMethodHard{
+    ਖਾਲੀ markRandc(AstVar* ਅਚਲ varp, ਅਚਲ std::string& smtName, Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp) {
+        AstCMethodHard* ਅਚਲ markp = ਨਵਾਂ AstCMethodHard{
             varp->fileline(),
-            new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_MARK_RANDC};
-        markp->dtypeSetVoid();
-        AstNodeExpr* const nameExprp
+        markp->dtype_ਸੈੱਟ_Void();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nameExprp
             = m_nestedAccess ? m_nestedAccess->cloneName()
-                             : new AstSFormatF{varp->fileline(), smtName, false, nullptr};
+                             : ਨਵਾਂ AstSFormatF{varp->fileline(), smtName, ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
         nameExprp->dtypep(varp->dtypep());
-        markp->addPinsp(nameExprp);
-        addRegistrationStmt(markp->makeStmt(), initTaskp);
+        markp->ਜੋੜੋ_Pinsp(nameExprp);
+        ਜੋੜੋ_Registration_Stmt(markp->makeStmt(), initTaskp);
     }
 
-    AstNodeModule* getLeftmostVarModulep(AstMemberSel* const memberselp,
-                                         AstVar* const varp) const {
-        if (memberselp) {
+    Ast_ਗੰਢ_Module* getLeftmostVarModulep(AstMemberSel* ਅਚਲ memberselp,
+                                         AstVar* ਅਚਲ varp) ਅਚਲ {
+        ਜੇ (memberselp) {
             // For memberselp, find the leftmost varref to get the class
-            AstNode* leftMostNodep = memberselp->fromp();
-            while (AstMemberSel* const nestedMemberSelp = VN_CAST(leftMostNodep, MemberSel)) {
-                leftMostNodep = nestedMemberSelp->fromp();
+            Ast_ਗੰਢ* ਖੱਬਾ_Most_Nodep = memberselp->fromp();
+            ਜਦੋਂ (AstMemberSel* ਅਚਲ nestedMemberSelp = VN_CAST(ਖੱਬਾ_Most_Nodep, MemberSel)) {
+                ਖੱਬਾ_Most_Nodep = nestedMemberSelp->fromp();
             }
-            if (AstNodeVarRef* const rootVarRefp = VN_CAST(leftMostNodep, NodeVarRef)) {
-                return VN_AS(rootVarRefp->varp()->user2p(), NodeModule);
+            ਜੇ (Ast_ਗੰਢ_Var_Ref* ਅਚਲ ਜੜ੍ਹ_Var_Refp = VN_CAST(ਖੱਬਾ_Most_Nodep, ਗੰਢ_Var_Ref)) {
+                ਵਾਪਸ VN_AS(ਜੜ੍ਹ_Var_Refp->varp()->user2p(), ਗੰਢ_Module);
             }
-            return VN_AS(memberselp->user2p(), NodeModule);
+            ਵਾਪਸ VN_AS(memberselp->user2p(), ਗੰਢ_Module);
         }
-        return VN_AS(varp->user2p(), NodeModule);
+        ਵਾਪਸ VN_AS(varp->user2p(), ਗੰਢ_Module);
     }
 
-    AstNodeFTask* getInitTaskp(AstVar* const varp, const bool memberselOrStructSel,
-                               AstNodeModule* const classp) const {
-        if (m_inlineInitTaskp) return m_inlineInitTaskp;
-        varp->user3(true);
-        if (memberselOrStructSel) {
-            if (AstNodeFTask* const initTaskp
-                = VN_AS(m_memberMap.findMember(classp, "randomize"), NodeFTask)) {
-                return initTaskp;
+    Ast_ਗੰਢ_FTask* getInitTaskp(AstVar* ਅਚਲ varp, ਅਚਲ ਤਾਰਕਿਕ memberselOrStructSel,
+                               Ast_ਗੰਢ_Module* ਅਚਲ classp) ਅਚਲ {
+        ਜੇ (m_inlineInitTaskp) ਵਾਪਸ m_inlineInitTaskp;
+        varp->user3(ਸੱਚ);
+        ਜੇ (memberselOrStructSel) {
+            ਜੇ (Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp
+                = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, "randomize"), ਗੰਢ_FTask)) {
+                ਵਾਪਸ initTaskp;
             }
             // Inherited rand members may belong to a base class
             // that has no randomize(); use the caller's function
-            if (m_memberselInitTaskp) return m_memberselInitTaskp;
+            ਜੇ (m_memberselInitTaskp) ਵਾਪਸ m_memberselInitTaskp;
             classp->v3fatalSrc("No randomize() in class");
-        } else {
-            AstNodeFTask* const initTaskp
-                = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+        } ਨਹੀਂਤਾਂ {
+            Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp
+                = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, "new"), ਗੰਢ_FTask);
             UASSERT_OBJ(initTaskp, classp, "No new() in class");
-            return initTaskp;
+            ਵਾਪਸ initTaskp;
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
 
-    void createWriteVarForClassFields(AstClass* const elemClassp, const std::string& smtName,
-                                      AstVar* const iterVarp, const bool isUnpackedClassRefArray,
-                                      AstNodeModule* const classOrPackagep, AstVar* const varp,
-                                      AstIf* const ifNonNullp,
-                                      AstClassRefDType* elemClassRefDtp) const {
-        FileLine* const fl = varp->fileline();
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
+    ਖਾਲੀ createWriteVarForClassFields(AstClass* ਅਚਲ elemClassp, ਅਚਲ std::string& smtName,
+                                      AstVar* ਅਚਲ iterVarp, ਅਚਲ ਤਾਰਕਿਕ isUnpackedClassRefArray,
+                                      Ast_ਗੰਢ_Module* ਅਚਲ classOrPackagep, AstVar* ਅਚਲ varp,
+                                      AstIf* ਅਚਲ ifNonNullp,
+                                      AstClassRefDType* elemClassRefDtp) ਅਚਲ {
+        File_ਸਤਰ* ਅਚਲ fl = varp->fileline();
+        Ast_ਗੰਢ_Module* ਅਚਲ varClassp = VN_AS(varp->user2p(), ਗੰਢ_Module);
         // 32-bit index hex chars for SMT name formatting
-        constexpr int idxWidth = 32;
-        const int fmtWidth = VL_WORDS_I(idxWidth) * 8;
+        constexpr ਪੂਰਨ idx_ਚੌੜਾਈ = 32;
+        ਅਚਲ ਪੂਰਨ fmt_ਚੌੜਾਈ = VL_ਸ਼ਬਦ_I(idx_ਚੌੜਾਈ) * 8;
 
-        for (const AstClass* cp = elemClassp; cp;
-             cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            for (AstNode* mnodep = cp->stmtsp(); mnodep; mnodep = mnodep->nextp()) {
-                AstVar* const memberVarp = VN_CAST(mnodep, Var);
-                if (!memberVarp || !memberVarp->rand().isRandomizable()) continue;
-                AstNodeDType* const memberDtp = memberVarp->dtypep()->skipRefp();
-                if (VN_IS(memberDtp, ClassRefDType) || memberDtp->isNonPackedArray()) continue;
-                const int memberWidth = memberDtp->width();
+        ਲਈ (ਅਚਲ AstClass* cp = elemClassp; cp;
+             cp = cp->extendsp() ? cp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ) {
+            ਲਈ (Ast_ਗੰਢ* mnodep = cp->stmtsp(); mnodep; mnodep = mnodep->nextp()) {
+                AstVar* ਅਚਲ memberVarp = VN_CAST(mnodep, Var);
+                ਜੇ (!memberVarp || !memberVarp->rand().isRandomizable()) ਜਾਰੀ;
+                Ast_ਗੰਢ_DType* ਅਚਲ memberDtp = memberVarp->dtypep()->skipRefp();
+                ਜੇ (VN_IS(memberDtp, ClassRefDType) || memberDtp->isNonPackedArray()) ਜਾਰੀ;
+                ਅਚਲ ਪੂਰਨ member_ਚੌੜਾਈ = memberDtp->ਚੌੜਾਈ();
 
-                AstCStmt* const fmtp = new AstCStmt{fl};
-                if (isUnpackedClassRefArray) {
-                    fmtp->add("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%x."
+                AstCStmt* ਅਚਲ fmtp = ਨਵਾਂ AstCStmt{fl};
+                ਜੇ (isUnpackedClassRefArray) {
+                    fmtp->ਜੋੜੋ("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%x."
                               + memberVarp->name() + "\", (unsigned)");
-                } else {
-                    fmtp->add("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%0"
-                              + std::to_string(fmtWidth) + "x." + memberVarp->name()
+                } ਨਹੀਂਤਾਂ {
+                    fmtp->ਜੋੜੋ("VL_SNPRINTF(__Vn, sizeof(__Vn), \"" + smtName + ".%0"
+                              + std::ਮੰਜ਼ਿਲ_string(fmt_ਚੌੜਾਈ) + "x." + memberVarp->name()
                               + "\", (unsigned)");
                 }
-                fmtp->add(new AstVarRef{fl, iterVarp, VAccess::READ});
-                fmtp->add(");\n");
-                ifNonNullp->addThensp(fmtp);
+                fmtp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ});
+                fmtp->ਜੋੜੋ(");\n");
+                ifNonNullp->ਜੋੜੋ_Thensp(fmtp);
 
-                AstVarRef* const arrayWrRefp = new AstVarRef{fl, varClassp, varp, VAccess::WRITE};
+                AstVarRef* ਅਚਲ arrayWrRefp = ਨਵਾਂ AstVarRef{fl, varClassp, varp, VAccess::WRITE};
                 arrayWrRefp->classOrPackagep(classOrPackagep);
-                AstNodeExpr* atWritep;
-                if (isUnpackedClassRefArray) {
-                    atWritep = new AstArraySel{fl, arrayWrRefp,
-                                               new AstVarRef{fl, iterVarp, VAccess::READ}};
-                } else {
-                    atWritep = new AstCMethodHard{fl, arrayWrRefp, VCMethod::ARRAY_AT_WRITE,
-                                                  new AstVarRef{fl, iterVarp, VAccess::READ}};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* atWritep;
+                ਜੇ (isUnpackedClassRefArray) {
+                    atWritep = ਨਵਾਂ AstArraySel{fl, arrayWrRefp,
+                                               ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}};
+                } ਨਹੀਂਤਾਂ {
+                    atWritep = ਨਵਾਂ AstCMethodHard{fl, arrayWrRefp, VCMethod::ARRAY_AT_WRITE,
+                                                  ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}};
                 }
                 atWritep->dtypep(elemClassRefDtp);
-                AstMemberSel* const memberSelp = new AstMemberSel{fl, atWritep, memberVarp};
+                AstMemberSel* ਅਚਲ memberSelp = ਨਵਾਂ AstMemberSel{fl, atWritep, memberVarp};
 
-                AstCMethodHard* const writeVarp
-                    = new AstCMethodHard{fl,
-                                         new AstVarRef{fl, VN_AS(m_genp->user2p(), NodeModule),
+                AstCMethodHard* ਅਚਲ writeVarp
+                    = ਨਵਾਂ AstCMethodHard{fl,
+                                         ਨਵਾਂ AstVarRef{fl, VN_AS(m_genp->user2p(), ਗੰਢ_Module),
                                                        m_genp, VAccess::READWRITE},
                                          VCMethod::RANDOMIZER_WRITE_VAR};
-                writeVarp->dtypeSetVoid();
-                writeVarp->addPinsp(memberSelp);
-                writeVarp->addPinsp(
-                    new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(memberWidth)});
-                AstCExpr* const nameRefp = new AstCExpr{fl, AstCExpr::Pure{}, "__Vn", 0};
+                writeVarp->dtype_ਸੈੱਟ_Void();
+                writeVarp->ਜੋੜੋ_Pinsp(memberSelp);
+                writeVarp->ਜੋੜੋ_Pinsp(
+                    ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(member_ਚੌੜਾਈ)});
+                AstCExpr* ਅਚਲ nameRefp = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "__Vn", 0};
                 nameRefp->dtypep(varp->dtypep());
-                writeVarp->addPinsp(nameRefp);
-                writeVarp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, 0ULL});
-                ifNonNullp->addThensp(writeVarp->makeStmt());
+                writeVarp->ਜੋੜੋ_Pinsp(nameRefp);
+                writeVarp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 0ULL});
+                ifNonNullp->ਜੋੜੋ_Thensp(writeVarp->makeStmt());
             }
         }
     }
 
-    void createSolverArrayHandle(AstVar* const varp, AstClassRefDType* elemClassRefDtp,
-                                 AstNodeModule* const classOrPackagep,
-                                 const bool isUnpackedClassRefArray,
-                                 const std::string& smtName) const {
-        FileLine* const fl = varp->fileline();
-        AstClass* const elemClassp = elemClassRefDtp->classp();
-        AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
+    ਖਾਲੀ createSolverArrayHandle(AstVar* ਅਚਲ varp, AstClassRefDType* elemClassRefDtp,
+                                 Ast_ਗੰਢ_Module* ਅਚਲ classOrPackagep,
+                                 ਅਚਲ ਤਾਰਕਿਕ isUnpackedClassRefArray,
+                                 ਅਚਲ std::string& smtName) ਅਚਲ {
+        File_ਸਤਰ* ਅਚਲ fl = varp->fileline();
+        AstClass* ਅਚਲ elemClassp = elemClassRefDtp->classp();
+        Ast_ਗੰਢ_Module* ਅਚਲ varClassp = VN_AS(varp->user2p(), ਗੰਢ_Module);
 
-        AstVar* const iterVarp = new AstVar{fl, VVarType::BLOCKTEMP, m_uniqueNames.get("__Vi"),
-                                            varp->findUInt32DType()};
-        iterVarp->funcLocal(true);
+        AstVar* ਅਚਲ iterVarp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, m_unique_ਨਾਂ.get("__Vi"),
+                                            varp->ਲੱਭੋ_UInt32_DType()};
+        iterVarp->funcLocal(ਸੱਚ);
         iterVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
 
-        AstNode* const stmtsp
-            = new AstAssign{fl, new AstVarRef{fl, iterVarp, VAccess::WRITE}, new AstConst{fl, 0}};
+        Ast_ਗੰਢ* ਅਚਲ stmtsp
+            = ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::WRITE}, ਨਵਾਂ AstConst{fl, 0}};
 
-        AstNodeExpr* sizep;
-        if (isUnpackedClassRefArray) {
-            const int arraySize
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* sizep;
+        ਜੇ (isUnpackedClassRefArray) {
+            ਅਚਲ ਪੂਰਨ array_ਮਾਪ_2
                 = VN_AS(varp->dtypep()->skipRefp(), UnpackArrayDType)->elementsConst();
-            sizep = new AstConst{fl, static_cast<uint32_t>(arraySize)};
-        } else {
-            AstVarRef* const arraySizeRefp = new AstVarRef{fl, varClassp, varp, VAccess::READ};
-            arraySizeRefp->classOrPackagep(classOrPackagep);
-            AstCMethodHard* const dynSizep
-                = new AstCMethodHard{fl, arraySizeRefp, VCMethod::DYN_SIZE, nullptr};
-            dynSizep->dtypeSetUInt32();
+            sizep = ਨਵਾਂ AstConst{fl, static_cast<uint32_t>(array_ਮਾਪ_2)};
+        } ਨਹੀਂਤਾਂ {
+            AstVarRef* ਅਚਲ array_ਮਾਪ_Refp = ਨਵਾਂ AstVarRef{fl, varClassp, varp, VAccess::READ};
+            array_ਮਾਪ_Refp->classOrPackagep(classOrPackagep);
+            AstCMethodHard* ਅਚਲ dynSizep
+                = ਨਵਾਂ AstCMethodHard{fl, array_ਮਾਪ_Refp, VCMethod::DYN_ਮਾਪ, ਖਾਲੀ_ਸੂਚਕ};
+            dynSizep->dtype_ਸੈੱਟ_UInt32();
             sizep = dynSizep;
         }
 
-        AstLoop* const loopp = new AstLoop{fl};
-        stmtsp->addNext(loopp);
-        loopp->addStmtsp(new AstLoopTest{
-            fl, loopp, new AstLt{fl, new AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
+        AstLoop* ਅਚਲ loopp = ਨਵਾਂ AstLoop{fl};
+        stmtsp->ਜੋੜੋ_ਅਗਲਾ(loopp);
+        loopp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstLoopTest{
+            fl, loopp, ਨਵਾਂ AstLt{fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
 
-        AstVarRef* const arrayReadRefp = new AstVarRef{fl, varClassp, varp, VAccess::READ};
+        AstVarRef* ਅਚਲ arrayReadRefp = ਨਵਾਂ AstVarRef{fl, varClassp, varp, VAccess::READ};
         arrayReadRefp->classOrPackagep(classOrPackagep);
-        AstNodeExpr* atReadp;
-        if (isUnpackedClassRefArray) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* atReadp;
+        ਜੇ (isUnpackedClassRefArray) {
             atReadp
-                = new AstArraySel{fl, arrayReadRefp, new AstVarRef{fl, iterVarp, VAccess::READ}};
-        } else {
-            atReadp = new AstCMethodHard{fl, arrayReadRefp, VCMethod::ARRAY_AT,
-                                         new AstVarRef{fl, iterVarp, VAccess::READ}};
+                = ਨਵਾਂ AstArraySel{fl, arrayReadRefp, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}};
+        } ਨਹੀਂਤਾਂ {
+            atReadp = ਨਵਾਂ AstCMethodHard{fl, arrayReadRefp, VCMethod::ARRAY_AT,
+                                         ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}};
         }
         atReadp->dtypep(elemClassRefDtp);
-        AstIf* const ifNonNullp
-            = new AstIf{fl, new AstNeq{fl, atReadp, new AstConst{fl, AstConst::Null{}}}, nullptr};
-        loopp->addStmtsp(ifNonNullp);
+        AstIf* ਅਚਲ ifNonNullp
+            = ਨਵਾਂ AstIf{fl, ਨਵਾਂ AstNeq{fl, atReadp, ਨਵਾਂ AstConst{fl, AstConst::Null{}}}, ਖਾਲੀ_ਸੂਚਕ};
+        loopp->ਜੋੜੋ_Stmtsp(ifNonNullp);
 
-        AstCStmt* const bufDeclp = new AstCStmt{fl, "char __Vn[256];\n"};
-        ifNonNullp->addThensp(bufDeclp);
+        AstCStmt* ਅਚਲ bufDeclp = ਨਵਾਂ AstCStmt{fl, "char __Vn[256];\n"};
+        ifNonNullp->ਜੋੜੋ_Thensp(bufDeclp);
 
         createWriteVarForClassFields(elemClassp, smtName, iterVarp, isUnpackedClassRefArray,
                                      classOrPackagep, varp, ifNonNullp, elemClassRefDtp);
 
-        loopp->addStmtsp(new AstAssign{
-            fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-            new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, iterVarp, VAccess::READ}}});
+        loopp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+            fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::WRITE},
+            ਨਵਾਂ Ast_ਜੋੜੋ{fl, ਨਵਾਂ AstConst{fl, 1}, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}}});
 
-        varp->user3(true);
-        AstNodeFTask* initTaskp = m_inlineInitTaskp;
-        if (!initTaskp) {
-            initTaskp = VN_AS(m_memberMap.findMember(varClassp, "new"), NodeFTask);
+        varp->user3(ਸੱਚ);
+        Ast_ਗੰਢ_FTask* initTaskp = m_inlineInitTaskp;
+        ਜੇ (!initTaskp) {
+            initTaskp = VN_AS(m_memberMap.ਲੱਭੋ_Member(varClassp, "new"), ਗੰਢ_FTask);
             UASSERT_OBJ(initTaskp, varClassp, "No new() in class");
         }
         // At the beginning, so declared before referenced
         initTaskp->prependStmtsp(iterVarp);
-        initTaskp->addStmtsp(stmtsp);
+        initTaskp->ਜੋੜੋ_Stmtsp(stmtsp);
     }
 
-    void createSolverVarHandle(AstVar* const varp, const bool structSelOrCMeth,
-                               const bool isGlobalConstrained, const RandomizeMode randMode,
-                               AstMemberSel* const memberselp, const std::string& smtName,
-                               AstNodeModule* const classOrPackagep, AstNodeModule* const classp,
-                               AstNodeFTask* const initTaskp) {
+    ਖਾਲੀ createSolverVarHandle(AstVar* ਅਚਲ varp, ਅਚਲ ਤਾਰਕਿਕ structSelOrCMeth,
+                               ਅਚਲ ਤਾਰਕਿਕ isGlobalConstrained, ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ,
+                               AstMemberSel* ਅਚਲ memberselp, ਅਚਲ std::string& smtName,
+                               Ast_ਗੰਢ_Module* ਅਚਲ classOrPackagep, Ast_ਗੰਢ_Module* ਅਚਲ classp,
+                               Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp) {
         uint32_t unpackedDims = 0;
-        if (varp->dtypeSkipRefp()->isNonPackedArray()) {
-            unpackedDims = varp->dtypep()->dimensions(false).second;
+        ਜੇ (varp->dtypeSkipRefp()->isNonPackedArray()) {
+            unpackedDims = varp->dtypep()->dimensions(ਝੂਠ).ਦੂਜਾ;
         }
-        if (VN_IS(varp->dtypeSkipRefp(), StructDType)
+        ਜੇ (VN_IS(varp->dtypeSkipRefp(), StructDType)
             && !VN_AS(varp->dtypeSkipRefp(), StructDType)->packed()) {
             markStructConstrainedRandRecurse(varp->dtypeSkipRefp());
             unpackedDims = 1;
         }
-        AstCMethodHard* const methodp = new AstCMethodHard{
+        AstCMethodHard* ਅਚਲ methodp = ਨਵਾਂ AstCMethodHard{
             varp->fileline(),
-            new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_WRITE_VAR};
-        methodp->dtypeSetVoid();
-        if (memberselp) {
-            methodp->addPinsp(memberselp);
-        } else {
-            AstVarRef* const varRefp
-                = new AstVarRef{varp->fileline(), classp, varp, VAccess::WRITE};
+        methodp->dtype_ਸੈੱਟ_Void();
+        ਜੇ (memberselp) {
+            methodp->ਜੋੜੋ_Pinsp(memberselp);
+        } ਨਹੀਂਤਾਂ {
+            AstVarRef* ਅਚਲ varRefp
+                = ਨਵਾਂ AstVarRef{varp->fileline(), classp, varp, VAccess::WRITE};
             varRefp->classOrPackagep(classOrPackagep);
-            methodp->addPinsp(varRefp);
+            methodp->ਜੋੜੋ_Pinsp(varRefp);
         }
-        const size_t width = arrayElementDTypep(varp->dtypep())->width();
-        methodp->addPinsp(new AstConst{varp->fileline(), AstConst::Unsized64{}, width});
-        AstNodeExpr* const varnamep = new AstCExpr{varp->fileline(), AstCExpr::Pure{},
-                                                   "\"" + smtName + "\"", varp->width()};
+        ਅਚਲ ਮਾਪ_t ਚੌੜਾਈ = arrayElementDTypep(varp->dtypep())->ਚੌੜਾਈ();
+        methodp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{varp->fileline(), AstConst::Unsized64{}, ਚੌੜਾਈ});
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ varnamep = ਨਵਾਂ AstCExpr{varp->fileline(), AstCExpr::ਸ਼ੁੱਧ{},
+                                                   "\"" + smtName + "\"", varp->ਚੌੜਾਈ()};
         varnamep->dtypep(varp->dtypep());
-        methodp->addPinsp(varnamep);
-        methodp->addPinsp(
-            new AstConst{varp->dtypep()->fileline(), AstConst::Unsized64{}, unpackedDims});
-        if (randMode.usesMode && !(isGlobalConstrained && memberselp)) {
-            methodp->addPinsp(
-                new AstConst{varp->fileline(), AstConst::Unsized64{}, randMode.index});
+        methodp->ਜੋੜੋ_Pinsp(varnamep);
+        methodp->ਜੋੜੋ_Pinsp(
+            ਨਵਾਂ AstConst{varp->dtypep()->fileline(), AstConst::Unsized64{}, unpackedDims});
+        ਜੇ (rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ && !(isGlobalConstrained && memberselp)) {
+            methodp->ਜੋੜੋ_Pinsp(
+                ਨਵਾਂ AstConst{varp->fileline(), AstConst::Unsized64{}, rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ});
         }
         // For globalConstrained sub-object members with rand_mode:
         // Always call write_var (keeps variable in solver for constraint
         // evaluation), but toggle disabled state so the solver skips
         // write-back when rand_mode is off.
-        initTaskp->addStmtsp(methodp->makeStmt());
-        if (varp->lifetime().isStatic() && randMode.usesMode) {
-            AstCMethodHard* const markp = new AstCMethodHard{
+        initTaskp->ਜੋੜੋ_Stmtsp(methodp->makeStmt());
+        ਜੇ (varp->lifetime().isStatic() && rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+            AstCMethodHard* ਅਚਲ markp = ਨਵਾਂ AstCMethodHard{
                 varp->fileline(),
-                new AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+                ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                               VAccess::READWRITE},
                 VCMethod::RANDOMIZER_MARK_VAR_STATIC};
-            AstNodeExpr* const namep = new AstCExpr{varp->fileline(), AstCExpr::Pure{},
-                                                    "\"" + smtName + "\"", varp->width()};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ namep = ਨਵਾਂ AstCExpr{varp->fileline(), AstCExpr::ਸ਼ੁੱਧ{},
+                                                    "\"" + smtName + "\"", varp->ਚੌੜਾਈ()};
             namep->dtypep(varp->dtypep());
-            markp->addPinsp(namep);
-            markp->dtypeSetVoid();
-            initTaskp->addStmtsp(markp->makeStmt());
+            markp->ਜੋੜੋ_Pinsp(namep);
+            markp->dtype_ਸੈੱਟ_Void();
+            initTaskp->ਜੋੜੋ_Stmtsp(markp->makeStmt());
         }
-        if (isGlobalConstrained && memberselp && randMode.usesMode) {
-            setRandMode(varp, memberselp, smtName, randMode, initTaskp);
+        ਜੇ (isGlobalConstrained && memberselp && rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+            ਸੈੱਟ_Rand_ਬਹੁਲਕ(varp, memberselp, smtName, rand_ਬਹੁਲਕ, initTaskp);
         }
         // If randc, also emit markRandc() for cyclic tracking
-        if (varp->isRandC()) markRandc(varp, smtName, initTaskp);
+        ਜੇ (varp->isRandC()) markRandc(varp, smtName, initTaskp);
     }
 
-    AstNodeExpr* createVarExprp(AstNodeVarRef* nodep, const RandomizeMode randMode,
-                                const std::string& smtName, const bool isGlobalConstrained,
-                                AstMemberSel* memberselp, AstVar* const varp) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* createVarExprp(Ast_ਗੰਢ_Var_Ref* nodep, ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ,
+                                ਅਚਲ std::string& smtName, ਅਚਲ ਤਾਰਕਿਕ isGlobalConstrained,
+                                AstMemberSel* memberselp, AstVar* ਅਚਲ varp) {
         // Use AstSFormatF (not AstConst{String}) to prevent editFormat/V3Const
         // from reformatting the SMT variable name into a hex literal
-        AstNodeExpr* exprp = new AstSFormatF{
-            nodep->fileline(), m_nestedAccess ? nodep->name() : smtName, false, nullptr};
-        if (!randMode.usesMode) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = ਨਵਾਂ AstSFormatF{
+            nodep->fileline(), m_nestedAccess ? nodep->name() : smtName, ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
+        ਜੇ (!rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
             // Global constraints keep nodep alive for write_var processing
-            if (!isGlobalConstrained) VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return exprp;
+            ਜੇ (!isGlobalConstrained) VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            ਵਾਪਸ exprp;
         }
 
         // Get const format, using memberselp if available for correct width/value
-        AstNodeExpr* constFormatp
-            = memberselp ? getConstFormat(memberselp->cloneTree(false)) : getConstFormat(nodep);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* constFormatp
+            = memberselp ? getConstFormat(memberselp->clone_ਰੁੱਖ(ਝੂਠ)) : getConstFormat(nodep);
 
         // Static rand vars route through the var's owning class's static array
         // (may differ from m_classp when the rand var lives in a sub-object).
-        AstNodeExpr* randModeAccess;
-        const bool varIsStatic = varp->lifetime().isStatic();
-        AstClass* const varOwningClassp = varIsStatic ? VN_CAST(varp->user2p(), Class) : nullptr;
-        AstVar* const ownerStaticRandModeVarp
-            = varOwningClassp ? findStaticRandModeVarMember(varOwningClassp) : nullptr;
-        if (ownerStaticRandModeVarp) {
-            randModeAccess = new AstVarRef{varp->fileline(),
-                                           VN_AS(ownerStaticRandModeVarp->user2p(), NodeModule),
-                                           ownerStaticRandModeVarp, VAccess::READ};
-        } else if (memberselp) {
-            AstNodeModule* const varClassp = VN_AS(varp->user2p(), NodeModule);
-            AstVar* const effectiveRandModeVarp = getRandModeVarFromClass(varClassp);
-            if (effectiveRandModeVarp) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* rand_ਬਹੁਲਕ_Access;
+        ਅਚਲ ਤਾਰਕਿਕ varIsStatic = varp->lifetime().isStatic();
+        AstClass* ਅਚਲ varOwningClassp = varIsStatic ? VN_CAST(varp->user2p(), Class) : ਖਾਲੀ_ਸੂਚਕ;
+        AstVar* ਅਚਲ owner_Static_Rand_ਬਹੁਲਕ_Varp
+            = varOwningClassp ? ਲੱਭੋ_Static_Rand_ਬਹੁਲਕ_Var_Member(varOwningClassp) : ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (owner_Static_Rand_ਬਹੁਲਕ_Varp) {
+            rand_ਬਹੁਲਕ_Access = ਨਵਾਂ AstVarRef{varp->fileline(),
+                                           VN_AS(owner_Static_Rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module),
+                                           owner_Static_Rand_ਬਹੁਲਕ_Varp, VAccess::READ};
+        } ਨਹੀਂਤਾਂ ਜੇ (memberselp) {
+            Ast_ਗੰਢ_Module* ਅਚਲ varClassp = VN_AS(varp->user2p(), ਗੰਢ_Module);
+            AstVar* ਅਚਲ effective_Rand_ਬਹੁਲਕ_Varp = get_Rand_ਬਹੁਲਕ_Var_From_Class(varClassp);
+            ਜੇ (effective_Rand_ਬਹੁਲਕ_Varp) {
                 // Member's class has randmode, use it
-                AstNodeExpr* parentAccess = memberselp->fromp()->cloneTree(false);
-                AstMemberSel* randModeSel
-                    = new AstMemberSel{varp->fileline(), parentAccess, effectiveRandModeVarp};
-                randModeSel->dtypep(effectiveRandModeVarp->dtypep());
-                randModeAccess = randModeSel;
-            } else {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਮਾਪਾ_Access = memberselp->fromp()->clone_ਰੁੱਖ(ਝੂਠ);
+                AstMemberSel* rand_ਬਹੁਲਕ_Sel
+                    = ਨਵਾਂ AstMemberSel{varp->fileline(), ਮਾਪਾ_Access, effective_Rand_ਬਹੁਲਕ_Varp};
+                rand_ਬਹੁਲਕ_Sel->dtypep(effective_Rand_ਬਹੁਲਕ_Varp->dtypep());
+                rand_ਬਹੁਲਕ_Access = rand_ਬਹੁਲਕ_Sel;
+            } ਨਹੀਂਤਾਂ {
                 // Member's class has no randmode, use current scope's randmode
-                UASSERT_OBJ(m_randModeVarp, nodep, "No m_randModeVarp");
-                randModeAccess
-                    = new AstVarRef{varp->fileline(), VN_AS(m_randModeVarp->user2p(), NodeModule),
-                                    m_randModeVarp, VAccess::READ};
+                UASSERT_OBJ(m_rand_ਬਹੁਲਕ_Varp, nodep, "No m_randModeVarp");
+                rand_ਬਹੁਲਕ_Access
+                    = ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module),
+                                    m_rand_ਬਹੁਲਕ_Varp, VAccess::READ};
             }
-        } else {
-            UASSERT_OBJ(m_randModeVarp, nodep, "No m_randModeVarp");
-            randModeAccess
-                = new AstVarRef{varp->fileline(), VN_AS(m_randModeVarp->user2p(), NodeModule),
-                                m_randModeVarp, VAccess::READ};
+        } ਨਹੀਂਤਾਂ {
+            UASSERT_OBJ(m_rand_ਬਹੁਲਕ_Varp, nodep, "No m_randModeVarp");
+            rand_ਬਹੁਲਕ_Access
+                = ਨਵਾਂ AstVarRef{varp->fileline(), VN_AS(m_rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module),
+                                m_rand_ਬਹੁਲਕ_Varp, VAccess::READ};
         }
 
-        AstCMethodHard* const atp
-            = new AstCMethodHard{nodep->fileline(), randModeAccess, VCMethod::ARRAY_AT,
-                                 new AstConst{nodep->fileline(), randMode.index}};
-        atp->dtypeSetUInt32();
-        exprp = new AstCond{varp->fileline(), atp, exprp, constFormatp};
-        exprp->user1(true);  // Mark as formatted
-        return exprp;
+        AstCMethodHard* ਅਚਲ atp
+            = ਨਵਾਂ AstCMethodHard{nodep->fileline(), rand_ਬਹੁਲਕ_Access, VCMethod::ARRAY_AT,
+                                 ਨਵਾਂ AstConst{nodep->fileline(), rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ}};
+        atp->dtype_ਸੈੱਟ_UInt32();
+        exprp = ਨਵਾਂ AstCond{varp->fileline(), atp, exprp, constFormatp};
+        exprp->user1(ਸੱਚ);  // Mark as formatted
+        ਵਾਪਸ exprp;
     }
 
     // VISITORS
-    void visit(AstNodeVarRef* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Var_Ref* nodep) override {
         AstVar* varp = nodep->varp();
-        if (varp->user4p()) {
-            bool isSizeRef = false;
-            if (AstCMethodHard* const methodp = VN_CAST(nodep->backp(), CMethodHard)) {
-                if (methodp->method() == VCMethod::ASSOC_SIZE
-                    || methodp->method() == VCMethod::DYN_SIZE) {
-                    isSizeRef = true;
+        ਜੇ (varp->user4p()) {
+            ਤਾਰਕਿਕ is_ਮਾਪ_Ref = ਝੂਠ;
+            ਜੇ (AstCMethodHard* ਅਚਲ methodp = VN_CAST(nodep->backp(), CMethodHard)) {
+                ਜੇ (methodp->ਵਿਧੀ() == VCMethod::ASSOC_ਮਾਪ
+                    || methodp->ਵਿਧੀ() == VCMethod::DYN_ਮਾਪ) {
+                    is_ਮਾਪ_Ref = ਸੱਚ;
                 }
             }
-            if (!isSizeRef && m_sizeConstrainedArraysp) { m_sizeConstrainedArraysp->insert(varp); }
+            ਜੇ (!is_ਮਾਪ_Ref && m_ਮਾਪ_Constrained_Arraysp) { m_ਮਾਪ_Constrained_Arraysp->ਪਾਓ(varp); }
         }
 
         // Check if this variable is marked as globally constrained
-        const bool isGlobalConstrained = nodep->varp()->globalConstrained();
+        ਅਚਲ ਤਾਰਕਿਕ isGlobalConstrained = nodep->varp()->globalConstrained();
 
-        AstMemberSel* memberselp = nullptr;
-        bool structSelOrCMeth = false;
+        AstMemberSel* memberselp = ਖਾਲੀ_ਸੂਚਕ;
+        ਤਾਰਕਿਕ structSelOrCMeth = ਝੂਠ;
         // Set below only when narrowing to one struct field/array element;
         // staying null means "check varp's own type" (see its use further down).
-        AstNodeDType* selectedDtypep = nullptr;
+        Ast_ਗੰਢ_DType* selectedDtypep = ਖਾਲੀ_ਸੂਚਕ;
         std::string smtName;
-        if (m_nestedAccess) {
-            m_nestedAccess->addVarNamePart(
-                new AstSFormatF{varp->fileline(), nodep->name(), false, nullptr}, nodep->name());
+        ਜੇ (m_nestedAccess) {
+            m_nestedAccess->ਜੋੜੋ_Var_Name_Part(
+                ਨਵਾਂ AstSFormatF{varp->fileline(), nodep->name(), ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ}, nodep->name());
             smtName = m_nestedAccess->smtName();
-            memberselp = m_nestedAccess->accessTree();
-        } else if (VN_IS(nodep->backp(), MemberSel)) {
+            memberselp = m_nestedAccess->access_ਰੁੱਖ();
+        } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(nodep->backp(), MemberSel)) {
             // Build complete path from topmost MemberSel
-            AstNode* topMemberSel = nodep->backp();
-            while (VN_IS(topMemberSel->backp(), MemberSel)) {
-                topMemberSel = topMemberSel->backp();
+            Ast_ਗੰਢ* ਸਿਖਰ_Member_Sel = nodep->backp();
+            ਜਦੋਂ (VN_IS(ਸਿਖਰ_Member_Sel->backp(), MemberSel)) {
+                ਸਿਖਰ_Member_Sel = ਸਿਖਰ_Member_Sel->backp();
             }
-            memberselp = VN_AS(topMemberSel, MemberSel)->cloneTree(false);
-            smtName = buildMemberPath(memberselp);
-        } else if (VN_IS(nodep->backp(), StructSel) || VN_IS(nodep->backp(), CMethodHard)) {
+            memberselp = VN_AS(ਸਿਖਰ_Member_Sel, MemberSel)->clone_ਰੁੱਖ(ਝੂਠ);
+            smtName = build_Member_ਰਸਤਾ(memberselp);
+        } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(nodep->backp(), StructSel) || VN_IS(nodep->backp(), CMethodHard)) {
             // Build complete path for topmost StructSel or CMethodHard::ARRAY_AT
-            AstNode* topNodep = nodep->backp();
-            while (VN_IS(topNodep->backp(), StructSel) || VN_IS(topNodep->backp(), CMethodHard)) {
-                topNodep = topNodep->backp();
+            Ast_ਗੰਢ* ਸਿਖਰ_Nodep = nodep->backp();
+            ਜਦੋਂ (VN_IS(ਸਿਖਰ_Nodep->backp(), StructSel) || VN_IS(ਸਿਖਰ_Nodep->backp(), CMethodHard)) {
+                ਸਿਖਰ_Nodep = ਸਿਖਰ_Nodep->backp();
             }
 
-            if (VN_IS(topNodep, StructSel) || VN_IS(topNodep, CMethodHard)) {
-                structSelOrCMeth = true;
-                selectedDtypep = VN_AS(topNodep, NodeExpr)->dtypep();
+            ਜੇ (VN_IS(ਸਿਖਰ_Nodep, StructSel) || VN_IS(ਸਿਖਰ_Nodep, CMethodHard)) {
+                structSelOrCMeth = ਸੱਚ;
+                selectedDtypep = VN_AS(ਸਿਖਰ_Nodep, ਗੰਢ_ਵਿਅੰਜਕ)->dtypep();
             }
 
-            memberselp = VN_CAST(topNodep, MemberSel);
-            if (memberselp) smtName = buildMemberPath(memberselp);
+            memberselp = VN_CAST(ਸਿਖਰ_Nodep, MemberSel);
+            ਜੇ (memberselp) smtName = build_Member_ਰਸਤਾ(memberselp);
 
             // Above functions returned empty string, unrecognized node type,
             // Using nodep->name();
-            if (smtName == "") smtName = nodep->name();
-        } else {
+            ਜੇ (smtName == "") smtName = nodep->name();
+        } ਨਹੀਂਤਾਂ {
             // No MemberSel, StructSel or CMethodHard:at : just variable name
             smtName = nodep->name();
         }
 
-        if (memberselp) varp = memberselp->varp();
+        ਜੇ (memberselp) varp = memberselp->varp();
         // The SMT translation assumes bit-vector operands and does not
         // type-check; embedding a real value produces a malformed width.
         // Check the selected field/element's type, not the whole
         // struct/array's -- a real sibling field elsewhere is irrelevant.
-        if (dtypeContainsReal(structSelOrCMeth ? selectedDtypep : varp->dtypep())) {
+        ਜੇ (dtype_ਸ਼ਾਮਲ_ਹੈ_Real(structSelOrCMeth ? selectedDtypep : varp->dtypep())) {
             nodep->v3warn(E_UNSUPPORTED, "Unsupported: real value in this constraint expression");
-            return;
+            ਵਾਪਸ;
         }
-        AstNodeModule* const classOrPackagep = nodep->classOrPackagep();
-        const RandomizeMode randMode = {.asUQuad = varp->user1()};
-        if (!randMode.usesMode && editFormat(nodep)) return;
+        Ast_ਗੰਢ_Module* ਅਚਲ classOrPackagep = nodep->classOrPackagep();
+        ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = varp->user1()};
+        ਜੇ (!rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ && editFormat(nodep)) ਵਾਪਸ;
 
-        AstEnumDType* enumDtp = VN_CAST(nodep->dtypep()->skipRefToEnump(), EnumDType);
-        if (enumDtp
-            && (std::find(m_rangeConstrainedEnums.begin(), m_rangeConstrainedEnums.end(), varp)
-                == m_rangeConstrainedEnums.end())) {
+        AstEnumDType* enumDtp = VN_CAST(nodep->dtypep()->skip_Ref_ਮੰਜ਼ਿਲ_Enump(), EnumDType);
+        ਜੇ (enumDtp
+            && (std::ਲੱਭੋ(m_rangeConstrainedEnums.begin(), m_rangeConstrainedEnums.ਸਿਰਾ(), varp)
+                == m_rangeConstrainedEnums.ਸਿਰਾ())) {
             AstVar* genVarp = m_genp;
-            if (m_classp && m_classp->user3p()) genVarp = VN_AS(m_classp->user3p(), Var);
+            ਜੇ (m_classp && m_classp->user3p()) genVarp = VN_AS(m_classp->user3p(), Var);
             UASSERT_OBJ(genVarp, nodep, "No 'randomize' variable in m_genp or m_classp");
-            AstNodeExpr* enumRangeExprp
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* enumRangeExprp
                 = createEnumConstraint(nodep->fileline(), varp->name(), enumDtp, genVarp);
-            AstNodeFTask* targetTaskp = m_inlineInitTaskp;
-            if (!targetTaskp) targetTaskp = getCreateConstraintSetupFunc(m_classp, m_memberMap);
-            UASSERT_OBJ(targetTaskp, nodep, "No function to inline enum range constraint into");
-            targetTaskp->addStmtsp(enumRangeExprp->makeStmt());
-            m_rangeConstrainedEnums.push_back(varp);
+            Ast_ਗੰਢ_FTask* ਨਿਸ਼ਾਨਾ_Taskp = m_inlineInitTaskp;
+            ਜੇ (!ਨਿਸ਼ਾਨਾ_Taskp) ਨਿਸ਼ਾਨਾ_Taskp = get_Create_Constraint_ਤਿਆਰੀ_Func(m_classp, m_memberMap);
+            UASSERT_OBJ(ਨਿਸ਼ਾਨਾ_Taskp, nodep, "No function to inline enum range constraint into");
+            ਨਿਸ਼ਾਨਾ_Taskp->ਜੋੜੋ_Stmtsp(enumRangeExprp->makeStmt());
+            m_rangeConstrainedEnums.ਧੱਕੋ_ਪਿੱਠ(varp);
         }
 
         VNRelinker relinker;
-        nodep->unlinkFrBack(&relinker);
-        AstNodeExpr* const exprp
-            = createVarExprp(nodep, randMode, smtName, isGlobalConstrained, memberselp, varp);
+        nodep->unlink_Fr_ਪਿੱਠ(&relinker);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp
+            = createVarExprp(nodep, rand_ਬਹੁਲਕ, smtName, isGlobalConstrained, memberselp, varp);
         relinker.relink(exprp);
 
         // Global / inline / class-level member-select refs key on the full path
         // (so same-type sub-objects c1.x, c2.x stay distinct); a plain class-level
         // variable keys on user3(). Inline 'with' dedups per function (own solver).
-        const bool alreadyWritten = m_inlineInitTaskp     ? m_inlineWrittenVars.count(smtName) > 0
-                                    : isGlobalConstrained ? m_writtenVars.count(smtName) > 0
-                                    : memberselp          ? m_writtenVars.count(smtName) > 0
+        ਅਚਲ ਤਾਰਕਿਕ alreadyWritten = m_inlineInitTaskp     ? m_inlineWrittenVars.ਗਿਣਤੀ_2(smtName) > 0
+                                    : isGlobalConstrained ? m_writtenVars.ਗਿਣਤੀ_2(smtName) > 0
+                                    : memberselp          ? m_writtenVars.ਗਿਣਤੀ_2(smtName) > 0
                                                           : varp->user3();
-        const bool shouldWriteVar = !alreadyWritten;
-        if (shouldWriteVar) {
+        ਅਚਲ ਤਾਰਕਿਕ shouldWriteVar = !alreadyWritten;
+        ਜੇ (shouldWriteVar) {
             // Track this variable path as written
-            if (m_inlineInitTaskp)
-                m_inlineWrittenVars.insert(smtName);
-            else if (isGlobalConstrained || memberselp)
-                m_writtenVars.insert(smtName);
+            ਜੇ (m_inlineInitTaskp)
+                m_inlineWrittenVars.ਪਾਓ(smtName);
+            ਨਹੀਂਤਾਂ ਜੇ (isGlobalConstrained || memberselp)
+                m_writtenVars.ਪਾਓ(smtName);
             // For global constraints, delete nodep after processing
-            if (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ਜੇ (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
 
-            bool isClassRefArray = false;
-            bool isUnpackedClassRefArray = false;
-            AstClassRefDType* elemClassRefDtp = nullptr;
+            ਤਾਰਕਿਕ isClassRefArray = ਝੂਠ;
+            ਤਾਰਕਿਕ isUnpackedClassRefArray = ਝੂਠ;
+            AstClassRefDType* elemClassRefDtp = ਖਾਲੀ_ਸੂਚਕ;
             {
-                AstNodeDType* varDtp = varp->dtypep()->skipRefp();
-                if (varDtp->isNonPackedArray()) {
-                    AstNodeDType* const elemDtp = varDtp->subDTypep()->skipRefp();
+                Ast_ਗੰਢ_DType* varDtp = varp->dtypep()->skipRefp();
+                ਜੇ (varDtp->isNonPackedArray()) {
+                    Ast_ਗੰਢ_DType* ਅਚਲ elemDtp = varDtp->subDTypep()->skipRefp();
                     elemClassRefDtp = VN_CAST(elemDtp, ClassRefDType);
-                    if (elemClassRefDtp) {
-                        isClassRefArray = true;
+                    ਜੇ (elemClassRefDtp) {
+                        isClassRefArray = ਸੱਚ;
                         isUnpackedClassRefArray = VN_IS(varDtp, UnpackArrayDType);
                     }
                 }
             }
 
-            AstNodeModule* const classp = getLeftmostVarModulep(memberselp, varp);
-            AstNodeFTask* const initTaskp
+            Ast_ਗੰਢ_Module* ਅਚਲ classp = getLeftmostVarModulep(memberselp, varp);
+            Ast_ਗੰਢ_FTask* ਅਚਲ initTaskp
                 = getInitTaskp(varp, memberselp || structSelOrCMeth, classp);
-            if (m_nestedAccess) {
-                AstStmtExpr* const writeVarStmtp = m_nestedAccess->makeWriteVarStmt(varp, m_genp);
-                addRegistrationStmt(writeVarStmtp, initTaskp);
-                if (isGlobalConstrained && memberselp && randMode.usesMode) {
-                    setRandMode(varp, memberselp, smtName, randMode, initTaskp);
+            ਜੇ (m_nestedAccess) {
+                Ast_Stmt_ਵਿਅੰਜਕ* ਅਚਲ writeVarStmtp = m_nestedAccess->makeWriteVarStmt(varp, m_genp);
+                ਜੋੜੋ_Registration_Stmt(writeVarStmtp, initTaskp);
+                ਜੇ (isGlobalConstrained && memberselp && rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+                    ਸੈੱਟ_Rand_ਬਹੁਲਕ(varp, memberselp, smtName, rand_ਬਹੁਲਕ, initTaskp);
                 }
                 // If randc, also emit markRandc() for cyclic tracking
-                if (varp->isRandC()) markRandc(varp, smtName, initTaskp);
-            } else if (isClassRefArray && !memberselp) {
+                ਜੇ (varp->isRandC()) markRandc(varp, smtName, initTaskp);
+            } ਨਹੀਂਤਾਂ ਜੇ (isClassRefArray && !memberselp) {
                 createSolverArrayHandle(varp, elemClassRefDtp, classOrPackagep,
                                         isUnpackedClassRefArray, smtName);
-            } else {
-                createSolverVarHandle(varp, structSelOrCMeth, isGlobalConstrained, randMode,
+            } ਨਹੀਂਤਾਂ {
+                createSolverVarHandle(varp, structSelOrCMeth, isGlobalConstrained, rand_ਬਹੁਲਕ,
                                       memberselp, smtName, classOrPackagep, classp, initTaskp);
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // Variable already written, clean up cloned memberselp if any
-            if (memberselp) VL_DO_DANGLING(memberselp->deleteTree(), memberselp);
+            ਜੇ (memberselp) VL_DO_DANGLING(memberselp->delete_ਰੁੱਖ(), memberselp);
             // Delete nodep if it's a global constraint (not deleted yet)
-            if (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            ਜੇ (isGlobalConstrained && !nodep->backp()) VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         }
-        if (m_nestedAccess) { VL_DO_DANGLING(delete m_nestedAccess, m_nestedAccess); }
+        ਜੇ (m_nestedAccess) { VL_DO_DANGLING(ਮਿਟਾਓ m_nestedAccess, m_nestedAccess); }
     }
     // Build popcount expansion: (x & 1) + ((x & 2) >> 1) + ...
     // argp is consumed; caller must clone if reusing.
-    AstNodeExpr* buildCountOnesExpansion(FileLine* fl, AstNodeExpr* argp) {
-        const V3Number numOne{fl, argp->width(), 1};
-        AstNodeExpr* sump = new AstAnd{fl, argp, new AstConst{fl, numOne}};
-        sump->user1(true);
-        for (int i = 1; i < argp->width(); i++) {
-            V3Number numBitMask{fl, argp->width(), 0};
-            numBitMask.setBit(i, 1);
-            AstAnd* const andp
-                = new AstAnd{fl, argp->cloneTreePure(false), new AstConst{fl, numBitMask}};
-            andp->user1(true);
-            AstShiftR* const shiftp
-                = new AstShiftR{fl, andp,
-                                new AstConst{fl, AstConst::WidthedValue{}, argp->width(),
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* build_ਗਿਣਤੀ_Ones_Expansion(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* argp) {
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_One{fl, argp->ਚੌੜਾਈ(), 1};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* sump = ਨਵਾਂ AstAnd{fl, argp, ਨਵਾਂ AstConst{fl, ਅੰਕ_One}};
+        sump->user1(ਸੱਚ);
+        ਲਈ (ਪੂਰਨ i = 1; i < argp->ਚੌੜਾਈ(); i++) {
+            V3_ਸੰਖਿਆ ਅੰਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ{fl, argp->ਚੌੜਾਈ(), 0};
+            ਅੰਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ.ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(i, 1);
+            AstAnd* ਅਚਲ andp
+                = ਨਵਾਂ AstAnd{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), ਨਵਾਂ AstConst{fl, ਅੰਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਨਕਾਬ}};
+            andp->user1(ਸੱਚ);
+            Ast_ਖਿਸਕਾਓ_R* ਅਚਲ shiftp
+                = ਨਵਾਂ Ast_ਖਿਸਕਾਓ_R{fl, andp,
+                                ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, argp->ਚੌੜਾਈ(),
                                              static_cast<uint32_t>(i)}};
-            shiftp->user1(true);
-            sump = new AstAdd{fl, sump, shiftp};
-            sump->user1(true);
+            shiftp->user1(ਸੱਚ);
+            sump = ਨਵਾਂ Ast_ਜੋੜੋ{fl, sump, shiftp};
+            sump->user1(ਸੱਚ);
         }
-        return sump;
+        ਵਾਪਸ sump;
     }
 
-    void visit(AstCountOnes* nodep) override {
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        AstNodeExpr* sump = buildCountOnesExpansion(fl, argp);
-        sump = adjustWidth(fl, sump, nodep->width(), nodep->dtypep()->numeric());
-        sump->user1(true);
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗਿਣਤੀ_Ones* nodep) override {
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* sump = build_ਗਿਣਤੀ_Ones_Expansion(fl, argp);
+        sump = adjust_ਚੌੜਾਈ(fl, sump, nodep->ਚੌੜਾਈ(), nodep->dtypep()->numeric());
+        sump->user1(ਸੱਚ);
         nodep->replaceWith(sump);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(sump);
     }
-    void visit(AstRedXor* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstRedXor* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
 
         // Build popcount expansion: (extract x 1 1) ^ (extract x 2 2) ^ ...
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
 
-        AstNodeExpr* redxorp = new AstSel{fl, argp, 0, 1};
-        redxorp->user1(true);
-        for (int i = 1; i < argp->width(); i++) {
-            AstSel* const selp = new AstSel{fl, argp->cloneTreePure(false), i, 1};
-            selp->user1(true);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* redxorp = ਨਵਾਂ AstSel{fl, argp, 0, 1};
+        redxorp->user1(ਸੱਚ);
+        ਲਈ (ਪੂਰਨ i = 1; i < argp->ਚੌੜਾਈ(); i++) {
+            AstSel* ਅਚਲ selp = ਨਵਾਂ AstSel{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), i, 1};
+            selp->user1(ਸੱਚ);
 
-            redxorp = new AstXor{fl, redxorp, selp};
-            redxorp->user1(true);
+            redxorp = ਨਵਾਂ AstXor{fl, redxorp, selp};
+            redxorp->user1(ਸੱਚ);
         }
 
         nodep->replaceWith(redxorp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(redxorp);
     }
-    void visit(AstRedAnd* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstRedAnd* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         // Convert to (~x == 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const V3Number numZero{fl, argp->width(), 0};
-        AstNodeExpr* const negp = new AstNot{fl, argp};
-        negp->user1(true);
-        AstNodeExpr* const eqp = new AstEq{fl, negp, new AstConst{fl, numZero}};
-        eqp->user1(true);
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero{fl, argp->ਚੌੜਾਈ(), 0};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ negp = ਨਵਾਂ AstNot{fl, argp};
+        negp->user1(ਸੱਚ);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ eqp = ਨਵਾਂ AstEq{fl, negp, ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero}};
+        eqp->user1(ਸੱਚ);
         nodep->replaceWith(eqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(eqp);
     }
-    void visit(AstRedOr* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstRedOr* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         // Convert to (x != 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const V3Number numZero{fl, argp->width(), 0};
-        AstNodeExpr* const neqp = new AstNeq{fl, argp, new AstConst{fl, numZero}};
-        neqp->user1(true);
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero{fl, argp->ਚੌੜਾਈ(), 0};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ neqp = ਨਵਾਂ AstNeq{fl, argp, ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero}};
+        neqp->user1(ਸੱਚ);
         nodep->replaceWith(neqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(neqp);
     }
-    void visit(AstOneHot* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstOneHot* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         // $onehot(x) = (x != 0) && ((x & (x-1)) == 0)
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int w = argp->width();
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ ਪੂਰਨ w = argp->ਚੌੜਾਈ();
 
-        const V3Number numZero{fl, w, 0};
-        AstNeq* const neZerop
-            = new AstNeq{fl, argp->cloneTreePure(false), new AstConst{fl, numZero}};
-        neZerop->user1(true);
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero{fl, w, 0};
+        AstNeq* ਅਚਲ neZerop
+            = ਨਵਾਂ AstNeq{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero}};
+        neZerop->user1(ਸੱਚ);
 
-        const V3Number numOne{fl, w, 1};
-        AstSub* const subp = new AstSub{fl, argp->cloneTreePure(false), new AstConst{fl, numOne}};
-        subp->user1(true);
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_One{fl, w, 1};
+        AstSub* ਅਚਲ subp = ਨਵਾਂ AstSub{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), ਨਵਾਂ AstConst{fl, ਅੰਕ_One}};
+        subp->user1(ਸੱਚ);
 
-        AstAnd* const andp = new AstAnd{fl, argp, subp};
-        andp->user1(true);
+        AstAnd* ਅਚਲ andp = ਨਵਾਂ AstAnd{fl, argp, subp};
+        andp->user1(ਸੱਚ);
 
-        const V3Number numZero2{fl, w, 0};
-        AstEq* const eqZerop = new AstEq{fl, andp, new AstConst{fl, numZero2}};
-        eqZerop->user1(true);
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero2{fl, w, 0};
+        AstEq* ਅਚਲ eqZerop = ਨਵਾਂ AstEq{fl, andp, ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero2}};
+        eqZerop->user1(ਸੱਚ);
 
-        AstLogAnd* const resultp = new AstLogAnd{fl, neZerop, eqZerop};
-        resultp->user1(true);
+        AstLogAnd* ਅਚਲ resultp = ਨਵਾਂ AstLogAnd{fl, neZerop, eqZerop};
+        resultp->user1(ਸੱਚ);
 
         nodep->replaceWith(resultp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(resultp);
     }
-    void visit(AstOneHot0* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstOneHot0* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         // $onehot0(x) = (x & (x-1)) == 0
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int w = argp->width();
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ ਪੂਰਨ w = argp->ਚੌੜਾਈ();
 
-        const V3Number numOne{fl, w, 1};
-        AstSub* const subp = new AstSub{fl, argp->cloneTreePure(false), new AstConst{fl, numOne}};
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_One{fl, w, 1};
+        AstSub* ਅਚਲ subp = ਨਵਾਂ AstSub{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), ਨਵਾਂ AstConst{fl, ਅੰਕ_One}};
         subp->dtypeFrom(argp);
-        subp->user1(true);
+        subp->user1(ਸੱਚ);
 
-        AstAnd* const andp = new AstAnd{fl, argp, subp};
+        AstAnd* ਅਚਲ andp = ਨਵਾਂ AstAnd{fl, argp, subp};
         andp->dtypeFrom(argp);
-        andp->user1(true);
+        andp->user1(ਸੱਚ);
 
-        const V3Number numZero{fl, w, 0};
-        AstEq* const eqp = new AstEq{fl, andp, new AstConst{fl, numZero}};
-        eqp->user1(true);
+        ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero{fl, w, 0};
+        AstEq* ਅਚਲ eqp = ਨਵਾਂ AstEq{fl, andp, ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero}};
+        eqp->user1(ਸੱਚ);
 
         nodep->replaceWith(eqp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(eqp);
     }
-    void visit(AstCountBits* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗਿਣਤੀ_ਬਿੱਟ* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
 
-        bool countOnes = false;
-        bool countZeros = false;
-        for (AstNodeExpr* ctrlp : {nodep->rhsp(), nodep->thsp(), nodep->fhsp()}) {
-            const AstConst* const cp = VN_CAST(ctrlp, Const);
-            if (!cp) {
+        ਤਾਰਕਿਕ ਗਿਣਤੀ_Ones = ਝੂਠ;
+        ਤਾਰਕਿਕ ਗਿਣਤੀ_Zeros = ਝੂਠ;
+        ਲਈ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ctrlp : {nodep->rhsp(), nodep->thsp(), nodep->fhsp()}) {
+            ਅਚਲ AstConst* ਅਚਲ cp = VN_CAST(ctrlp, Const);
+            ਜੇ (!cp) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: non-constant control in $countbits inside constraint");
-                AstConst* const zerop
-                    = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), 0U};
+                AstConst* ਅਚਲ zerop
+                    = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, nodep->ਚੌੜਾਈ(), 0U};
                 nodep->replaceWith(zerop);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                return;
+                VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                ਵਾਪਸ;
             }
-            if (cp->num().bitIs1(0) && !countOnes)
-                countOnes = true;
-            else if (cp->num().bitIs0(0) && !countZeros)
-                countZeros = true;
+            ਜੇ (cp->ਅੰਕ().ਦੋਆਧਾਰੀ_ਅੰਕ_Is1(0) && !ਗਿਣਤੀ_Ones)
+                ਗਿਣਤੀ_Ones = ਸੱਚ;
+            ਨਹੀਂਤਾਂ ਜੇ (cp->ਅੰਕ().ਦੋਆਧਾਰੀ_ਅੰਕ_Is0(0) && !ਗਿਣਤੀ_Zeros)
+                ਗਿਣਤੀ_Zeros = ਸੱਚ;
         }
 
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int argWidth = argp->width();
-        AstNodeExpr* sump = nullptr;
-        if (countOnes && countZeros) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ ਪੂਰਨ arg_ਚੌੜਾਈ = argp->ਚੌੜਾਈ();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* sump = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (ਗਿਣਤੀ_Ones && ਗਿਣਤੀ_Zeros) {
             // ones + zeros = width for 2-state types
-            sump = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), (uint32_t)argWidth};
-            VL_DO_DANGLING(argp->deleteTree(), argp);
-        } else if (countOnes) {
-            sump = buildCountOnesExpansion(fl, argp);
-        } else if (countZeros) {
+            sump = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, nodep->ਚੌੜਾਈ(), (uint32_t)arg_ਚੌੜਾਈ};
+            VL_DO_DANGLING(argp->delete_ਰੁੱਖ(), argp);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਗਿਣਤੀ_Ones) {
+            sump = build_ਗਿਣਤੀ_Ones_Expansion(fl, argp);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਗਿਣਤੀ_Zeros) {
             // width - countones(x)
-            AstNodeExpr* const onesCountp = buildCountOnesExpansion(fl, argp);
-            const V3Number widthVal{nodep, onesCountp->width(), (uint32_t)argWidth};
-            sump = new AstSub{fl, new AstConst{fl, widthVal}, onesCountp};
-            sump->user1(true);
-        } else {
-            sump = new AstConst{fl, AstConst::WidthedValue{}, nodep->width(), 0U};
-            VL_DO_DANGLING(argp->deleteTree(), argp);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ onesCountp = build_ਗਿਣਤੀ_Ones_Expansion(fl, argp);
+            ਅਚਲ V3_ਸੰਖਿਆ ਚੌੜਾਈ_Val{nodep, onesCountp->ਚੌੜਾਈ(), (uint32_t)arg_ਚੌੜਾਈ};
+            sump = ਨਵਾਂ AstSub{fl, ਨਵਾਂ AstConst{fl, ਚੌੜਾਈ_Val}, onesCountp};
+            sump->user1(ਸੱਚ);
+        } ਨਹੀਂਤਾਂ {
+            sump = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, nodep->ਚੌੜਾਈ(), 0U};
+            VL_DO_DANGLING(argp->delete_ਰੁੱਖ(), argp);
         }
 
-        sump = adjustWidth(fl, sump, nodep->width(), nodep->dtypep()->numeric());
-        sump->user1(true);
+        sump = adjust_ਚੌੜਾਈ(fl, sump, nodep->ਚੌੜਾਈ(), nodep->dtypep()->numeric());
+        sump->user1(ਸੱਚ);
 
         nodep->replaceWith(sump);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(sump);
     }
-    void visit(AstCLog2* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstCLog2* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         // $clog2(x): ITE chain (x<=1)?0 : (x<=2)?1 : ... : argWidth
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const argp = nodep->lhsp()->unlinkFrBack();
-        const int argWidth = argp->width();
-        const int resultWidth = nodep->width();
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+        ਅਚਲ ਪੂਰਨ arg_ਚੌੜਾਈ = argp->ਚੌੜਾਈ();
+        ਅਚਲ ਪੂਰਨ ਨਤੀਜਾ_ਚੌੜਾਈ = nodep->ਚੌੜਾਈ();
 
-        AstNodeExpr* resultp
-            = new AstConst{fl, AstConst::WidthedValue{}, resultWidth, (uint32_t)argWidth};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* resultp
+            = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, ਨਤੀਜਾ_ਚੌੜਾਈ, (uint32_t)arg_ਚੌੜਾਈ};
 
-        for (int k = argWidth - 1; k >= 0; k--) {
-            V3Number threshold{fl, argWidth, 0};
-            if (k < 32)
-                threshold.setLong(1ULL << k);
-            else
-                threshold.setBit(k, 1);
+        ਲਈ (ਪੂਰਨ k = arg_ਚੌੜਾਈ - 1; k >= 0; k--) {
+            V3_ਸੰਖਿਆ ਹੱਦ{fl, arg_ਚੌੜਾਈ, 0};
+            ਜੇ (k < 32)
+                ਹੱਦ.ਸੈੱਟ_Long(1ULL << k);
+            ਨਹੀਂਤਾਂ
+                ਹੱਦ.ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ(k, 1);
 
-            AstLte* const ltep
-                = new AstLte{fl, argp->cloneTreePure(false), new AstConst{fl, threshold}};
-            ltep->user1(true);
+            AstLte* ਅਚਲ ltep
+                = ਨਵਾਂ AstLte{fl, argp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), ਨਵਾਂ AstConst{fl, ਹੱਦ}};
+            ltep->user1(ਸੱਚ);
 
-            AstConst* const valuep
-                = new AstConst{fl, AstConst::WidthedValue{}, resultWidth, (uint32_t)k};
+            AstConst* ਅਚਲ valuep
+                = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, ਨਤੀਜਾ_ਚੌੜਾਈ, (uint32_t)k};
 
-            resultp = new AstCond{fl, ltep, valuep, resultp};
+            resultp = ਨਵਾਂ AstCond{fl, ltep, valuep, resultp};
             resultp->dtypeChgSigned(VSigning::SIGNED);
-            resultp->user1(true);
+            resultp->user1(ਸੱਚ);
         }
 
-        VL_DO_DANGLING(argp->deleteTree(), argp);
+        VL_DO_DANGLING(argp->delete_ਰੁੱਖ(), argp);
         nodep->replaceWith(resultp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         iterate(resultp);
     }
-    void visit(AstIsUnbounded* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstIsUnbounded* nodep) override {
         // Only true for the literal '$' token, never a real expression, so
         // this always folds to false. It has no runtime implementation of
         // its own, so it must be substituted now rather than left for later.
         nodep->v3warn(CONSTRAINTIGN,
                       "Unsupported: $isunbounded() in a constraint, treating as constant");
-        AstConst* const zerop = new AstConst{nodep->fileline(), AstConst::BitFalse{}};
+        AstConst* ਅਚਲ zerop = ਨਵਾਂ AstConst{nodep->fileline(), AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_False{}};
         nodep->replaceWith(zerop);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         // So the constant is rendered as an SMT literal like every other
         // folded constant here, instead of being left behind unconverted.
         iterate(zerop);
     }
-    void handlePow(AstNodeBiop* nodep) {
-        if (AstConst* const exponentp = VN_CAST(nodep->rhsp(), Const)) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const basep = nodep->lhsp();
-            const V3Number numOne{nodep, basep->width(), 1};
-            AstNodeExpr* powerp = new AstConst{fl, numOne};
-            const bool baseSigned = VN_IS(nodep, PowSS) || VN_IS(nodep, PowSU);
-            const int32_t exponent = baseSigned ? exponentp->toSInt() : exponentp->toUInt();
-            if (exponent > 0) {
-                for (int32_t i = 0; i < exponent; i++) {
-                    if (baseSigned) {
-                        powerp = new AstMulS{fl, powerp, basep->cloneTreePure(false)};
-                    } else {
-                        powerp = new AstMul{fl, powerp, basep->cloneTreePure(false)};
+    ਖਾਲੀ handlePow(Ast_ਗੰਢ_Biop* nodep) {
+        ਜੇ (AstConst* ਅਚਲ exponentp = VN_CAST(nodep->rhsp(), Const)) {
+            File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ basep = nodep->lhsp();
+            ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_One{nodep, basep->ਚੌੜਾਈ(), 1};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* powerp = ਨਵਾਂ AstConst{fl, ਅੰਕ_One};
+            ਅਚਲ ਤਾਰਕਿਕ ਅਧਾਰ_Signed = VN_IS(nodep, PowSS) || VN_IS(nodep, PowSU);
+            ਅਚਲ int32_t exponent = ਅਧਾਰ_Signed ? exponentp->ਮੰਜ਼ਿਲ_SInt() : exponentp->ਮੰਜ਼ਿਲ_UInt();
+            ਜੇ (exponent > 0) {
+                ਲਈ (int32_t i = 0; i < exponent; i++) {
+                    ਜੇ (ਅਧਾਰ_Signed) {
+                        powerp = ਨਵਾਂ AstMulS{fl, powerp, basep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    } ਨਹੀਂਤਾਂ {
+                        powerp = ਨਵਾਂ AstMul{fl, powerp, basep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
                     }
-                    powerp->user1(true);
+                    powerp->user1(ਸੱਚ);
                 }
-            } else if (exponent < 0) {
+            } ਨਹੀਂਤਾਂ ਜੇ (exponent < 0) {
                 // Limit chain of divisions to max 2, because operations are on integers.
                 // Two divisions are needed to preserve the sign.
-                if (baseSigned) {
-                    powerp = new AstDivS{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
-                    powerp = new AstDivS{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
-                } else {
-                    powerp = new AstDiv{fl, powerp, basep->cloneTreePure(false)};
-                    powerp->user1(true);
+                ਜੇ (ਅਧਾਰ_Signed) {
+                    powerp = ਨਵਾਂ AstDivS{fl, powerp, basep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    powerp->user1(ਸੱਚ);
+                    powerp = ਨਵਾਂ AstDivS{fl, powerp, basep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    powerp->user1(ਸੱਚ);
+                } ਨਹੀਂਤਾਂ {
+                    powerp = ਨਵਾਂ AstDiv{fl, powerp, basep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    powerp->user1(ਸੱਚ);
                 }
             }
             nodep->replaceWith(powerp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
             iterate(powerp);
-        } else if (const AstConst* const basep = VN_CAST(nodep->lhsp(), Const)) {
-            if (basep->num().toUInt() == 2) {
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstConst* ਅਚਲ basep = VN_CAST(nodep->lhsp(), Const)) {
+            ਜੇ (basep->ਅੰਕ().ਮੰਜ਼ਿਲ_UInt() == 2) {
                 // Non-constant exponent, base == 2: transform to shift-based SMT expression.
                 // AstPow/AstPowSU (unsigned exponent): 2**n -> 1<<n
                 // AstPowSS/AstPowUS (signed exponent): 2**n -> n>=0 ? 1<<n : 0
                 // IEEE 1800-2023 ss11.4.3: integer base with negative exponent gives 0,
                 // which ShiftL cannot represent; use SMT ite (AstCond -> bvsge + bvshl).
-                FileLine* const fl = nodep->fileline();
-                AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-                const int width = nodep->width();
-                const bool rhsDependent = rhsp->user1();
-                AstConst* const onep = new AstConst{fl, AstConst::WidthedValue{}, width, 1};
-                AstShiftL* const shiftp = new AstShiftL{fl, onep, rhsp, width};
+                File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = nodep->rhsp()->unlink_Fr_ਪਿੱਠ();
+                ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = nodep->ਚੌੜਾਈ();
+                ਅਚਲ ਤਾਰਕਿਕ rhsDependent = rhsp->user1();
+                AstConst* ਅਚਲ onep = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, ਚੌੜਾਈ, 1};
+                Ast_ਖਿਸਕਾਓ_L* ਅਚਲ shiftp = ਨਵਾਂ Ast_ਖਿਸਕਾਓ_L{fl, onep, rhsp, ਚੌੜਾਈ};
                 shiftp->dtypeFrom(nodep);
                 shiftp->user1(rhsDependent);
-                AstNodeExpr* resultp = shiftp;
-                if (VN_IS(nodep, PowSS) || VN_IS(nodep, PowUS)) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* resultp = shiftp;
+                ਜੇ (VN_IS(nodep, PowSS) || VN_IS(nodep, PowUS)) {
                     // Signed exponent: guard 1<<n with n>=0 check
-                    AstNodeExpr* const nClonep = rhsp->cloneTreePure(false);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ nClonep = rhsp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
                     nClonep->user1(rhsDependent);
-                    AstConst* const zeroNp
-                        = new AstConst{fl, AstConst::WidthedValue{}, rhsp->width(), 0};
-                    AstGteS* const condp = new AstGteS{fl, nClonep, zeroNp};
+                    AstConst* ਅਚਲ zeroNp
+                        = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, rhsp->ਚੌੜਾਈ(), 0};
+                    AstGteS* ਅਚਲ condp = ਨਵਾਂ AstGteS{fl, nClonep, zeroNp};
                     condp->user1(rhsDependent);
-                    AstConst* const zeroRp = new AstConst{fl, AstConst::WidthedValue{}, width, 0};
-                    resultp = new AstCond{fl, condp, shiftp, zeroRp};
+                    AstConst* ਅਚਲ zeroRp = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, ਚੌੜਾਈ, 0};
+                    resultp = ਨਵਾਂ AstCond{fl, condp, shiftp, zeroRp};
                     resultp->dtypeFrom(nodep);
                     resultp->user1(nodep->user1());
                 }
                 nodep->replaceWith(resultp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
+                VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
                 iterate(resultp);
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 nodep->v3warn(CONSTRAINTIGN,
                               "Unsupported: Power (**) expression with non-2 base in constraint");
             }
-        } else {
+        } ਨਹੀਂਤਾਂ {
             nodep->v3warn(
                 CONSTRAINTIGN,
                 "Unsupported: Power (**) expression with non-constant exponent in constraint");
         }
     }
-    void visit(AstPow* nodep) override { handlePow(nodep); }
-    void visit(AstPowSS* nodep) override { handlePow(nodep); }
-    void visit(AstPowSU* nodep) override { handlePow(nodep); }
-    void visit(AstPowUS* nodep) override { handlePow(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstPow* nodep) override { handlePow(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstPowSS* nodep) override { handlePow(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstPowSU* nodep) override { handlePow(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(AstPowUS* nodep) override { handlePow(nodep); }
     // SMT-LIB2 shift operations (bvshl/bvlshr/bvashr) require both operands
     // to have the same bitvector width. Extend the narrower operand, then
     // truncate the result if the value was widened. Never truncate the shift
     // amount, as large shifts must still shift out all of the original bits.
-    void handleShift(AstNodeBiop* nodep) {
-        if (editFormat(nodep)) return;
-        const int lhsWidth = nodep->lhsp()->width();
-        const int rhsWidth = nodep->rhsp()->width();
-        if (rhsWidth < lhsWidth) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeExpr* const rhsp = nodep->rhsp()->unlinkFrBack();
-            AstExtend* const extendp = new AstExtend{fl, rhsp, lhsWidth};
+    ਖਾਲੀ handle_ਖਿਸਕਾਓ(Ast_ਗੰਢ_Biop* nodep) {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        ਅਚਲ ਪੂਰਨ lhs_ਚੌੜਾਈ = nodep->lhsp()->ਚੌੜਾਈ();
+        ਅਚਲ ਪੂਰਨ rhs_ਚੌੜਾਈ = nodep->rhsp()->ਚੌੜਾਈ();
+        ਜੇ (rhs_ਚੌੜਾਈ < lhs_ਚੌੜਾਈ) {
+            File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = nodep->rhsp()->unlink_Fr_ਪਿੱਠ();
+            AstExtend* ਅਚਲ extendp = ਨਵਾਂ AstExtend{fl, rhsp, lhs_ਚੌੜਾਈ};
             // Always visit the wrapper: a rand MemberSel can have user1 unset until its
             // own visitor translates it. Copying that flag would format the entire
             // extension from the pre-randomize value. Non-rand children are still
             // formatted as constants by their own visitors.
-            extendp->user1(true);
+            extendp->user1(ਸੱਚ);
             nodep->rhsp(extendp);
-        } else if (rhsWidth > lhsWidth) {
-            FileLine* const fl = nodep->fileline();
-            AstNodeDType* const dtypep = nodep->dtypep();
-            AstNodeExpr* const lhsp = nodep->lhsp()->unlinkFrBack();
-            AstNodeExpr* const extendp
-                = VN_IS(nodep, ShiftRS)
-                      ? static_cast<AstNodeExpr*>(new AstExtendS{fl, lhsp, rhsWidth})
-                      : static_cast<AstNodeExpr*>(new AstExtend{fl, lhsp, rhsWidth});
+        } ਨਹੀਂਤਾਂ ਜੇ (rhs_ਚੌੜਾਈ > lhs_ਚੌੜਾਈ) {
+            File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+            Ast_ਗੰਢ_DType* ਅਚਲ dtypep = nodep->dtypep();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = nodep->lhsp()->unlink_Fr_ਪਿੱਠ();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ extendp
+                = VN_IS(nodep, ਖਿਸਕਾਓ_RS)
+                      ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਨਵਾਂ AstExtendS{fl, lhsp, rhs_ਚੌੜਾਈ})
+                      : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਨਵਾਂ AstExtend{fl, lhsp, rhs_ਚੌੜਾਈ});
             // Likewise, visit the extension instead of prematurely formatting rand
             // member selections as constants.
-            extendp->user1(true);
+            extendp->user1(ਸੱਚ);
             nodep->lhsp(extendp);
-            nodep->dtypeSetLogicSized(rhsWidth, dtypep->numeric());
+            nodep->dtype_ਸੈੱਟ_Logic_Sized(rhs_ਚੌੜਾਈ, dtypep->numeric());
             VNRelinker relinker;
-            nodep->unlinkFrBack(&relinker);
-            AstSel* const selp = new AstSel{fl, nodep, 0, lhsWidth};
+            nodep->unlink_Fr_ਪਿੱਠ(&relinker);
+            AstSel* ਅਚਲ selp = ਨਵਾਂ AstSel{fl, nodep, 0, lhs_ਚੌੜਾਈ};
             selp->dtypep(dtypep);
             selp->user1(nodep->user1());
             relinker.relink(selp);
             iterate(selp);
-            return;
+            ਵਾਪਸ;
         }
         editSMT(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstShiftL* nodep) override { handleShift(nodep); }
-    void visit(AstShiftR* nodep) override { handleShift(nodep); }
-    void visit(AstShiftRS* nodep) override { handleShift(nodep); }
-    void visit(AstNodeBiop* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਖਿਸਕਾਓ_L* nodep) override { handle_ਖਿਸਕਾਓ(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਖਿਸਕਾਓ_R* nodep) override { handle_ਖਿਸਕਾਓ(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਖਿਸਕਾਓ_RS* nodep) override { handle_ਖਿਸਕਾਓ(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Biop* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         editSMT(nodep, nodep->lhsp(), nodep->rhsp());
     }
-    void visit(AstNodeUniop* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Uniop* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         editSMT(nodep, nodep->lhsp());
     }
-    void visit(AstNodeTriop* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Triop* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         editSMT(nodep, nodep->lhsp(), nodep->rhsp(), nodep->thsp());
     }
-    void visit(AstCond* nodep) override {
-        if (editFormat(nodep)) return;
-        if (!nodep->condp()->user1()) {
+    ਖਾਲੀ ਦੇਖੋ(AstCond* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        ਜੇ (!nodep->condp()->user1()) {
             // Do not burden the solver if cond computable: (cond ? "then" : "else")
             iterate(nodep->thenp());
             iterate(nodep->elsep());
             UASSERT_OBJ(
                 nodep->thenp()->isString() && nodep->elsep()->isString(), nodep,
                 "Branches of conditional expression in constraint not converted to strings");
-            nodep->dtypeSetString();
-            return;
+            nodep->dtype_ਸੈੱਟ_String();
+            ਵਾਪਸ;
         }
         // Fall back to "(ite cond then else)"
-        visit(static_cast<AstNodeTriop*>(nodep));
+        ਦੇਖੋ(static_cast<Ast_ਗੰਢ_Triop*>(nodep));
     }
-    void visit(AstReplicate* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstReplicate* nodep) override {
         // Biop, but RHS is harmful
-        if (editFormat(nodep)) return;
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         editSMT(nodep, nodep->srcp());
     }
-    void visit(AstSel* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(AstSel* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         VNRelinker handle;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const msbp = new AstSFormatF{
-            fl, "%1d", false,
-            new AstAdd{fl, nodep->lsbp()->cloneTreePure(false),
-                       new AstConst{fl, static_cast<uint32_t>(nodep->widthConst() - 1)}}};
-        AstNodeExpr* const lsbp
-            = new AstSFormatF{fl, "%1d", false, nodep->lsbp()->unlinkFrBack(&handle)};
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ msbp = ਨਵਾਂ AstSFormatF{
+            fl, "%1d", ਝੂਠ,
+            ਨਵਾਂ Ast_ਜੋੜੋ{fl, nodep->lsbp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                       ਨਵਾਂ AstConst{fl, static_cast<uint32_t>(nodep->ਚੌੜਾਈ_Const() - 1)}}};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lsbp
+            = ਨਵਾਂ AstSFormatF{fl, "%1d", ਝੂਠ, nodep->lsbp()->unlink_Fr_ਪਿੱਠ(&handle)};
         handle.relink(lsbp);
 
         editSMT(nodep, nodep->fromp(), lsbp, msbp);
     }
-    void visit(AstStructSel* nodep) override {
-        if (editFormat(nodep)) return;
-        const bool outermost = !m_deferRandModeHoist;
-        AstNodeExpr* const origp = outermost ? nodep->cloneTree(false) : nullptr;
+    ਖਾਲੀ ਦੇਖੋ(AstStructSel* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        ਅਚਲ ਤਾਰਕਿਕ outermost = !m_defer_Rand_ਬਹੁਲਕ_Hoist;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origp = outermost ? nodep->clone_ਰੁੱਖ(ਝੂਠ) : ਖਾਲੀ_ਸੂਚਕ;
         VL_RESTORER(m_structSel);
-        m_structSel = true;
-        if (VN_IS(nodep->fromp()->dtypep()->skipRefp(), StructDType)) {
-            AstNodeExpr* const fromp = nodep->fromp();
-            AstStructDType* const structp = VN_AS(fromp->dtypep()->skipRefp(), StructDType);
+        m_structSel = ਸੱਚ;
+        ਜੇ (VN_IS(nodep->fromp()->dtypep()->skipRefp(), StructDType)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = nodep->fromp();
+            AstStructDType* ਅਚਲ structp = VN_AS(fromp->dtypep()->skipRefp(), StructDType);
             markConstrainedRandMember(structp, nodep->name());
-            if (isRandQualifiedPath(fromp)) {
+            ਜੇ (is_Rand_Qualified_ਰਸਤਾ(fromp)) {
                 markStructConstrainedRandRecurse(fromp->dtypep());
-            } else {
-                structp->markConstrainedRand(true);
+            } ਨਹੀਂਤਾਂ {
+                structp->markConstrainedRand(ਸੱਚ);
             }
         }
         // Mark Random for structArray
-        if (VN_IS(nodep->fromp(), ArraySel) || VN_IS(nodep->fromp(), CMethodHard)) {
-            AstNodeExpr* const fromp = VN_IS(nodep->fromp(), ArraySel)
+        ਜੇ (VN_IS(nodep->fromp(), ArraySel) || VN_IS(nodep->fromp(), CMethodHard)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = VN_IS(nodep->fromp(), ArraySel)
                                            ? VN_AS(nodep->fromp(), ArraySel)->fromp()
                                            : VN_AS(nodep->fromp(), CMethodHard)->fromp();
-            AstStructDType* const structp
+            AstStructDType* ਅਚਲ structp
                 = VN_AS(fromp->dtypep()->skipRefp()->subDTypep()->skipRefp(), StructDType);
             markConstrainedRandMember(structp, nodep->name());
-            if (isRandQualifiedPath(fromp)) {
+            ਜੇ (is_Rand_Qualified_ਰਸਤਾ(fromp)) {
                 markStructConstrainedRandRecurse(fromp->dtypep()->skipRefp()->subDTypep());
-            } else {
-                structp->markConstrainedRand(true);
+            } ਨਹੀਂਤਾਂ {
+                structp->markConstrainedRand(ਸੱਚ);
             }
         }
         {
-            VL_RESTORER(m_deferRandModeHoist);
-            m_deferRandModeHoist = true;
+            VL_RESTORER(m_defer_Rand_ਬਹੁਲਕ_Hoist);
+            m_defer_Rand_ਬਹੁਲਕ_Hoist = ਸੱਚ;
             iterateChildren(nodep);
         }
-        FileLine* const fl = nodep->fileline();
-        AstSFormatF* newp = nullptr;
-        if (VN_AS(nodep->fromp(), SFormatF)->name() == "%s.%s") {
-            newp = new AstSFormatF{fl, "%s.%s." + nodep->name(), false,
-                                   VN_AS(nodep->fromp(), SFormatF)->exprsp()->cloneTreePure(true)};
-            if (newp->exprsp()->nextp()->name().rfind("#x", 0) == 0)
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        AstSFormatF* newp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (VN_AS(nodep->fromp(), SFormatF)->name() == "%s.%s") {
+            newp = ਨਵਾਂ AstSFormatF{fl, "%s.%s." + nodep->name(), ਝੂਠ,
+                                   VN_AS(nodep->fromp(), SFormatF)->exprsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ)};
+            ਜੇ (newp->exprsp()->nextp()->name().rfind("#x", 0) == 0)
                 newp->exprsp()->nextp()->name("%x");  //  for #x%x to %x
-        } else {
-            newp = new AstSFormatF{fl, nodep->fromp()->name() + "." + nodep->name(), false,
-                                   nullptr};
+        } ਨਹੀਂਤਾਂ {
+            newp = ਨਵਾਂ AstSFormatF{fl, nodep->fromp()->name() + "." + nodep->name(), ਝੂਠ,
+                                   ਖਾਲੀ_ਸੂਚਕ};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        if (origp && !hoistRandModeOverSelectAndMember(newp, origp)) {
-            VL_DO_DANGLING(pushDeletep(origp), origp);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+        ਜੇ (origp && !hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(newp, origp)) {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(origp), origp);
         }
     }
-    void addStringNamePart(AstNodeExpr* const indexp, const std::string& fmt = "%32x") {
-        if (m_nestedAccess) {
-            AstNodeExpr* const bitp = indexp->cloneTreePure(false);
-            AstNodeExpr* const bitFormatp = new AstSFormatF{bitp->fileline(), fmt, false, bitp};
-            AstSFormatF* const herep
-                = new AstSFormatF{indexp->fileline(), "%s.%s", false, bitFormatp};
-            m_nestedAccess->addVarNamePart(herep, indexp->name());
+    ਖਾਲੀ ਜੋੜੋ_String_Name_Part(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ indexp, ਅਚਲ std::string& fmt = "%32x") {
+        ਜੇ (m_nestedAccess) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ bitp = indexp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਦੋਆਧਾਰੀ_ਅੰਕ_Formatp = ਨਵਾਂ AstSFormatF{bitp->fileline(), fmt, ਝੂਠ, bitp};
+            AstSFormatF* ਅਚਲ herep
+                = ਨਵਾਂ AstSFormatF{indexp->fileline(), "%s.%s", ਝੂਠ, ਦੋਆਧਾਰੀ_ਅੰਕ_Formatp};
+            m_nestedAccess->ਜੋੜੋ_Var_Name_Part(herep, indexp->name());
         }
     }
-    void visit(AstAssocSel* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ਖਾਲੀ ਦੇਖੋ(AstAssocSel* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
         // Keep a pre-edit clone for the rand_mode hoist below.
-        AstNodeExpr* const origp = nodep->cloneTree(false);
-        AstSFormatF* newp = nullptr;
-        if (VN_IS(nodep->bitp(), VarRef) && VN_AS(nodep->bitp(), VarRef)->isString()) {
-            addStringNamePart(nodep->bitp());
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origp = nodep->clone_ਰੁੱਖ(ਝੂਠ);
+        AstSFormatF* newp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (VN_IS(nodep->bitp(), VarRef) && VN_AS(nodep->bitp(), VarRef)->isString()) {
+            ਜੋੜੋ_String_Name_Part(nodep->bitp());
             VNRelinker handle;
-            AstNodeExpr* const idxp = new AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), false,
-                                                      nodep->bitp()->unlinkFrBack(&handle)};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxp = ਨਵਾਂ AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), ਝੂਠ,
+                                                      nodep->bitp()->unlink_Fr_ਪਿੱਠ(&handle)};
             handle.relink(idxp);
             newp = editSMT(nodep, nodep->fromp(), idxp);
-        } else if (VN_IS(nodep->bitp(), CvtPackString)
+        } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(nodep->bitp(), CvtPackString)
                    && VN_IS(nodep->bitp()->dtypep(), BasicDType)) {
-            AstCvtPackString* const stringp = VN_AS(nodep->bitp(), CvtPackString);
-            const size_t stringSize = VN_AS(stringp->lhsp(), Const)->width();
-            if (stringSize > 128) {
+            AstCvtPackString* ਅਚਲ stringp = VN_AS(nodep->bitp(), CvtPackString);
+            ਅਚਲ ਮਾਪ_t string_ਮਾਪ = VN_AS(stringp->lhsp(), Const)->ਚੌੜਾਈ();
+            ਜੇ (string_ਮਾਪ > 128) {
                 stringp->v3warn(
                     CONSTRAINTIGN,
                     "Unsupported: Constrained randomization of associative array keys of "
-                        << stringSize << "bits, limit is 128 bits");
+                        << string_ਮਾਪ << "bits, limit is 128 bits");
             }
-            addStringNamePart(nodep->bitp());
+            ਜੋੜੋ_String_Name_Part(nodep->bitp());
             VNRelinker handle;
-            AstNodeExpr* const idxp = new AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), false,
-                                                      stringp->lhsp()->unlinkFrBack(&handle)};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxp = ਨਵਾਂ AstSFormatF{fl, (m_structSel ? "%32x" : "#x%32x"), ਝੂਠ,
+                                                      stringp->lhsp()->unlink_Fr_ਪਿੱਠ(&handle)};
             handle.relink(idxp);
             newp = editSMT(nodep, nodep->fromp(), idxp);
-        } else {
-            if (VN_IS(nodep->bitp()->dtypep(), BasicDType)
+        } ਨਹੀਂਤਾਂ {
+            ਜੇ (VN_IS(nodep->bitp()->dtypep(), BasicDType)
                 || (VN_IS(nodep->bitp()->dtypep(), StructDType)
                     && VN_AS(nodep->bitp()->dtypep(), StructDType)->packed())
                 || VN_IS(nodep->bitp()->dtypep(), EnumDType)
                 || VN_IS(nodep->bitp()->dtypep(), PackArrayDType)) {
-                const int actual_width = nodep->bitp()->width();
+                ਅਚਲ ਪੂਰਨ actual_ਚੌੜਾਈ = nodep->bitp()->ਚੌੜਾਈ();
                 std::string fmt;
                 // Normalize to standard bit width
-                if (actual_width <= 8) {
+                ਜੇ (actual_ਚੌੜਾਈ <= 8) {
                     fmt = m_structSel ? "%2x" : "#x%2x";
-                } else if (actual_width <= 16) {
+                } ਨਹੀਂਤਾਂ ਜੇ (actual_ਚੌੜਾਈ <= 16) {
                     fmt = m_structSel ? "%4x" : "#x%4x";
-                } else {
+                } ਨਹੀਂਤਾਂ {
                     fmt = (m_structSel ? "%" : "#x%")
-                          + std::to_string(VL_WORDS_I(actual_width) * 8) + "x";
+                          + std::ਮੰਜ਼ਿਲ_string(VL_ਸ਼ਬਦ_I(actual_ਚੌੜਾਈ) * 8) + "x";
                 }
-                if (m_nestedAccess) addStringNamePart(nodep->bitp(), fmt);
+                ਜੇ (m_nestedAccess) ਜੋੜੋ_String_Name_Part(nodep->bitp(), fmt);
                 VNRelinker handle;
-                AstNodeExpr* const idxp
-                    = new AstSFormatF{fl, fmt, false, nodep->bitp()->unlinkFrBack(&handle)};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxp
+                    = ਨਵਾਂ AstSFormatF{fl, fmt, ਝੂਠ, nodep->bitp()->unlink_Fr_ਪਿੱਠ(&handle)};
                 handle.relink(idxp);
                 newp = editSMT(nodep, nodep->fromp(), idxp);
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 nodep->bitp()->v3error(
                     "Illegal non-integral expression or subexpression in random constraint."
                     " (IEEE 1800-2023 18.3)");
-                if (m_nestedAccess) m_nestedAccess->error();
+                ਜੇ (m_nestedAccess) m_nestedAccess->error();
             }
         }
-        if (newp && m_structSel && newp->name() == "(select %s %s)") { newp->name("%s.%s"); }
-        if (!newp || !hoistRandModeOverSelectAndMember(newp, origp)) {
-            VL_DO_DANGLING(origp->deleteTree(), origp);
+        ਜੇ (newp && m_structSel && newp->name() == "(select %s %s)") { newp->name("%s.%s"); }
+        ਜੇ (!newp || !hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(newp, origp)) {
+            VL_DO_DANGLING(origp->delete_ਰੁੱਖ(), origp);
         }
     }
-    void renameArrayExpr(AstSFormatF* const newp) const {
-        if (m_structSel) {
+    ਖਾਲੀ rename_Array_ਵਿਅੰਜਕ(AstSFormatF* ਅਚਲ newp) ਅਚਲ {
+        ਜੇ (m_structSel) {
             newp->name("%s.%s");
             newp->exprsp()->nextp()->name("%x");
         }
     }
-    void visit(AstArraySel* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ਖਾਲੀ ਦੇਖੋ(AstArraySel* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
         VNRelinker handle;
         // Check if index actually references a rand variable (not just user1,
         // which can be over-marked in sum/with expansion contexts). A
         // std::randomize() with-clause argument carries no rand qualifier of
         // its own but is still part of the solve.
-        bool indexIsRand = false;
-        nodep->bitp()->foreach([&](const AstNodeVarRef* vrefp) {
-            if (vrefp->varp()->rand().isRandomizable() || vrefp->varp()->isStdRandomizeArg()) {
-                indexIsRand = true;
+        ਤਾਰਕਿਕ ਸੂਚਕਾਂਕ_Is_Rand = ਝੂਠ;
+        nodep->bitp()->foreach([&](ਅਚਲ Ast_ਗੰਢ_Var_Ref* vrefp) {
+            ਜੇ (vrefp->varp()->rand().isRandomizable() || vrefp->varp()->isStdRandomizeArg()) {
+                ਸੂਚਕਾਂਕ_Is_Rand = ਸੱਚ;
             }
         });
-        if (m_nestedAccess) {
-            AstNodeExpr* const bitp = nodep->bitp()->cloneTreePure(false);
-            AstNodeExpr* const bitFormatp
-                = indexIsRand ? new AstSFormatF{bitp->fileline(), bitp->name(), false, nullptr}
-                              : new AstSFormatF{bitp->fileline(), "%x", false, bitp};
-            AstSFormatF* const herep
-                = new AstSFormatF{nodep->fileline(), "%s.%s", false, bitFormatp};
-            if (AstSel* const selp = VN_CAST(bitp, Sel)) {
-                m_nestedAccess->addVarNamePart(herep, selp->fromp()->name());
-            } else {
-                m_nestedAccess->addVarNamePart(herep, bitp->name());
+        ਜੇ (m_nestedAccess) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ bitp = nodep->bitp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਦੋਆਧਾਰੀ_ਅੰਕ_Formatp
+                = ਸੂਚਕਾਂਕ_Is_Rand ? ਨਵਾਂ AstSFormatF{bitp->fileline(), bitp->name(), ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ}
+                              : ਨਵਾਂ AstSFormatF{bitp->fileline(), "%x", ਝੂਠ, bitp};
+            AstSFormatF* ਅਚਲ herep
+                = ਨਵਾਂ AstSFormatF{nodep->fileline(), "%s.%s", ਝੂਠ, ਦੋਆਧਾਰੀ_ਅੰਕ_Formatp};
+            ਜੇ (AstSel* ਅਚਲ selp = VN_CAST(bitp, Sel)) {
+                m_nestedAccess->ਜੋੜੋ_Var_Name_Part(herep, selp->fromp()->name());
+            } ਨਹੀਂਤਾਂ {
+                m_nestedAccess->ਜੋੜੋ_Var_Name_Part(herep, bitp->name());
             }
-            if (indexIsRand) {
+            ਜੇ (ਸੂਚਕਾਂਕ_Is_Rand) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Randomized index in complex expression");
                 m_nestedAccess->error();
-                VL_DO_DANGLING(bitp->deleteTree(), bitp);
-                return;
+                VL_DO_DANGLING(bitp->delete_ਰੁੱਖ(), bitp);
+                ਵਾਪਸ;
             }
         }
-        if (indexIsRand) {
+        ਜੇ (ਸੂਚਕਾਂਕ_Is_Rand) {
             // Index depends on rand variable -- keep as SMT symbol.
             // Array index sort is 32-bit, so zero-extend narrower indices.
-            AstNodeExpr* indexp = nodep->bitp()->unlinkFrBack(&handle);
-            if (indexp->width() < 32) {
-                AstExtend* const extendp = new AstExtend{fl, indexp, 32};
-                extendp->user1(true);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* indexp = nodep->bitp()->unlink_Fr_ਪਿੱਠ(&handle);
+            ਜੇ (indexp->ਚੌੜਾਈ() < 32) {
+                AstExtend* ਅਚਲ extendp = ਨਵਾਂ AstExtend{fl, indexp, 32};
+                extendp->user1(ਸੱਚ);
                 indexp = extendp;
             }
             handle.relink(indexp);
-            AstSFormatF* const newp = editSMT(nodep, nodep->fromp(), indexp);
-            renameArrayExpr(newp);
-        } else {
+            AstSFormatF* ਅਚਲ newp = editSMT(nodep, nodep->fromp(), indexp);
+            rename_Array_ਵਿਅੰਜਕ(newp);
+        } ਨਹੀਂਤਾਂ {
             // Index is constant or non-rand -- format as hex literal.
             // Keep a pre-edit clone for the rand_mode hoist below.
-            AstNodeExpr* const origp = nodep->cloneTree(false);
-            AstNodeExpr* const indexp
-                = new AstSFormatF{fl, "#x%8x", false, nodep->bitp()->unlinkFrBack(&handle)};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origp = nodep->clone_ਰੁੱਖ(ਝੂਠ);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ indexp
+                = ਨਵਾਂ AstSFormatF{fl, "#x%8x", ਝੂਠ, nodep->bitp()->unlink_Fr_ਪਿੱਠ(&handle)};
             handle.relink(indexp);
-            AstSFormatF* const newp = editSMT(nodep, nodep->fromp(), indexp);
-            renameArrayExpr(newp);
-            if (!newp || !hoistRandModeOverSelectAndMember(newp, origp)) {
-                VL_DO_DANGLING(origp->deleteTree(), origp);
+            AstSFormatF* ਅਚਲ newp = editSMT(nodep, nodep->fromp(), indexp);
+            rename_Array_ਵਿਅੰਜਕ(newp);
+            ਜੇ (!newp || !hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(newp, origp)) {
+                VL_DO_DANGLING(origp->delete_ਰੁੱਖ(), origp);
             }
         }
     }
     // True iff exprp is an ARRAY_AT read of a class's own instance mode array.
-    static bool isRandModeGate(const AstNodeExpr* exprp) {
-        const AstCMethodHard* const atp = VN_CAST(exprp, CMethodHard);
-        if (!atp || atp->method() != VCMethod::ARRAY_AT) return false;
-        const AstVar* varp = nullptr;
-        if (const AstVarRef* const refp = VN_CAST(atp->fromp(), VarRef)) {
+    ਸਥਿਰ ਤਾਰਕਿਕ is_Rand_ਬਹੁਲਕ_Gate(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
+        ਅਚਲ AstCMethodHard* ਅਚਲ atp = VN_CAST(exprp, CMethodHard);
+        ਜੇ (!atp || atp->ਵਿਧੀ() != VCMethod::ARRAY_AT) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVar* varp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(atp->fromp(), VarRef)) {
             varp = refp->varp();
-        } else if (const AstMemberSel* const mselp = VN_CAST(atp->fromp(), MemberSel)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mselp = VN_CAST(atp->fromp(), MemberSel)) {
             varp = mselp->varp();
         }
-        if (!varp) return false;
-        const AstClass* const classp = VN_CAST(varp->user2p(), Class);
-        return classp && classp->user2p() == varp;
+        ਜੇ (!varp) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstClass* ਅਚਲ classp = VN_CAST(varp->user2p(), Class);
+        ਵਾਪਸ classp && classp->user2p() == varp;
     }
     // Lift a rand_mode Cond above the (select ...) chain of a frozen array element.
-    bool hoistRandModeOverSelectAndMember(AstSFormatF* newp, AstNodeExpr* origp) {
-        if (m_deferRandModeHoist) return false;
+    ਤਾਰਕਿਕ hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(AstSFormatF* newp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* origp) {
+        ਜੇ (m_defer_Rand_ਬਹੁਲਕ_Hoist) ਵਾਪਸ ਝੂਠ;
         // Only for selects yielding a non-array element (full chains)
-        if (VN_IS(origp->dtypep()->skipRefp(), UnpackArrayDType)) return false;
+        ਜੇ (VN_IS(origp->dtypep()->skipRefp(), UnpackArrayDType)) ਵਾਪਸ ਝੂਠ;
         // Walk nested "(select %s %s)" frames down to a mode-gating AstCond
-        std::vector<AstSFormatF*> frames;
-        AstCond* modeCondp = nullptr;
-        for (AstSFormatF* curp = newp;
+        std::ਸਦਿਸ਼<AstSFormatF*> ਚੌਖਟੇ;
+        AstCond* ਬਹੁਲਕ_Condp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (AstSFormatF* curp = newp;
              curp
              && (curp->name() == "(select %s %s)" || curp->name() == "%s.%s"
                  || curp->name().rfind("%s.", 0) == 0);) {
-            AstNodeExpr* const firstp = curp->exprsp();
-            frames.push_back(curp);
-            if (AstCond* const condp = VN_CAST(firstp, Cond)) {
-                if (isRandModeGate(condp->condp())) modeCondp = condp;
-                break;
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ firstp = curp->exprsp();
+            ਚੌਖਟੇ.ਧੱਕੋ_ਪਿੱਠ(curp);
+            ਜੇ (AstCond* ਅਚਲ condp = VN_CAST(firstp, Cond)) {
+                ਜੇ (is_Rand_ਬਹੁਲਕ_Gate(condp->condp())) ਬਹੁਲਕ_Condp = condp;
+                ਰੋਕੋ;
             }
             curp = VN_CAST(firstp, SFormatF);
         }
-        if (!modeCondp) return false;
-        FileLine* const fl = newp->fileline();
-        AstNodeExpr* const modep = modeCondp->condp()->unlinkFrBack();
-        AstNodeExpr* activep = modeCondp->thenp()->unlinkFrBack();
+        ਜੇ (!ਬਹੁਲਕ_Condp) ਵਾਪਸ ਝੂਠ;
+        File_ਸਤਰ* ਅਚਲ fl = newp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ modep = ਬਹੁਲਕ_Condp->condp()->unlink_Fr_ਪਿੱਠ();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* activep = ਬਹੁਲਕ_Condp->thenp()->unlink_Fr_ਪਿੱਠ();
         // Rebuild the select chain text around the SMT name, innermost first
-        for (auto it = frames.rbegin(); it != frames.rend(); ++it) {
-            AstNodeExpr* const remainingArgsp = VN_CAST((*it)->exprsp()->nextp(), NodeExpr);
-            if (remainingArgsp) { remainingArgsp->unlinkFrBackWithNext(); }
-            activep = new AstSFormatF{fl, (*it)->name(), false,
-                                      AstNode::addNext(activep, remainingArgsp)};
+        ਲਈ (ਸਵੈਚਾਲਿਤ it = ਚੌਖਟੇ.rbegin(); it != ਚੌਖਟੇ.rend(); ++it) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਬਚਿਆ_Argsp = VN_CAST((*it)->exprsp()->nextp(), ਗੰਢ_ਵਿਅੰਜਕ);
+            ਜੇ (ਬਚਿਆ_Argsp) { ਬਚਿਆ_Argsp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ(); }
+            activep = ਨਵਾਂ AstSFormatF{fl, (*it)->name(), ਝੂਠ,
+                                      Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(activep, ਬਚਿਆ_Argsp)};
         }
-        AstCond* const hoistp = new AstCond{fl, modep, activep, getConstFormat(origp)};
-        hoistp->user1(true);  // Mark as formatted
+        AstCond* ਅਚਲ hoistp = ਨਵਾਂ AstCond{fl, modep, activep, getConstFormat(origp)};
+        hoistp->user1(ਸੱਚ);  // Mark as formatted
         newp->replaceWith(hoistp);
-        VL_DO_DANGLING(pushDeletep(newp), newp);
-        return true;
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(newp), newp);
+        ਵਾਪਸ ਸੱਚ;
     }
-    void visit(AstMemberSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstMemberSel* nodep) override {
         // Check if rootVar is globalConstrained
-        if (nodep->varp()->rand().isRandomizable() && nodep->fromp()) {
-            FileLine* const fl = nodep->fileline();
-            if (m_nestedAccess) {
-                AstSFormatF* const formatp = new AstSFormatF{fl, nodep->name(), false, nullptr};
-                m_nestedAccess->addVarNamePart(new AstSFormatF{fl, "%s.%s", false, formatp},
+        ਜੇ (nodep->varp()->rand().isRandomizable() && nodep->fromp()) {
+            File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+            ਜੇ (m_nestedAccess) {
+                AstSFormatF* ਅਚਲ formatp = ਨਵਾਂ AstSFormatF{fl, nodep->name(), ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
+                m_nestedAccess->ਜੋੜੋ_Var_Name_Part(ਨਵਾਂ AstSFormatF{fl, "%s.%s", ਝੂਠ, formatp},
                                                nodep->name());
             }
-            AstNode* rootNode = nodep->fromp();
-            while (const AstMemberSel* const selp = VN_CAST(rootNode, MemberSel)) {
-                rootNode = selp->fromp();
+            Ast_ਗੰਢ* ਜੜ੍ਹ_ਗੰਢ = nodep->fromp();
+            ਜਦੋਂ (ਅਚਲ AstMemberSel* ਅਚਲ selp = VN_CAST(ਜੜ੍ਹ_ਗੰਢ, MemberSel)) {
+                ਜੜ੍ਹ_ਗੰਢ = selp->fromp();
             }
 
-            AstNodeSel* arraySelp = VN_CAST(rootNode, ArraySel);
-            if (!arraySelp) arraySelp = VN_CAST(rootNode, AssocSel);
+            Ast_ਗੰਢ_Sel* arraySelp = VN_CAST(ਜੜ੍ਹ_ਗੰਢ, ArraySel);
+            ਜੇ (!arraySelp) arraySelp = VN_CAST(ਜੜ੍ਹ_ਗੰਢ, AssocSel);
 
-            if (arraySelp) {
-                AstNodeDType* const arrayDtp = arraySelp->fromp()->dtypep()->skipRefp();
-                AstNodeDType* const elemDtp
-                    = arrayDtp->subDTypep() ? arrayDtp->subDTypep()->skipRefp() : nullptr;
-                if (elemDtp && VN_IS(elemDtp, ClassRefDType)) {
-                    const bool isSimple
-                        = nodep->fromp() == rootNode && VN_IS(arraySelp->fromp(), VarRef);
-                    if (!isSimple && !m_nestedAccess) {
-                        m_nestedAccess = new NestedAccessPath(nodep->cloneTree(false),
-                                                              &m_firstExpressionInsideIndexp);
-                        AstSFormatF* const formatp
-                            = new AstSFormatF{fl, nodep->name(), false, nullptr};
-                        m_nestedAccess->addVarNamePart(
-                            new AstSFormatF{fl, "%s.%s", false, formatp}, nodep->name());
+            ਜੇ (arraySelp) {
+                Ast_ਗੰਢ_DType* ਅਚਲ arrayDtp = arraySelp->fromp()->dtypep()->skipRefp();
+                Ast_ਗੰਢ_DType* ਅਚਲ elemDtp
+                    = arrayDtp->subDTypep() ? arrayDtp->subDTypep()->skipRefp() : ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (elemDtp && VN_IS(elemDtp, ClassRefDType)) {
+                    ਅਚਲ ਤਾਰਕਿਕ isSimple
+                        = nodep->fromp() == ਜੜ੍ਹ_ਗੰਢ && VN_IS(arraySelp->fromp(), VarRef);
+                    ਜੇ (!isSimple && !m_nestedAccess) {
+                        m_nestedAccess = ਨਵਾਂ Nested_Access_ਰਸਤਾ(nodep->clone_ਰੁੱਖ(ਝੂਠ),
+                                                              &m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_Indexp);
+                        AstSFormatF* ਅਚਲ formatp
+                            = ਨਵਾਂ AstSFormatF{fl, nodep->name(), ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
+                        m_nestedAccess->ਜੋੜੋ_Var_Name_Part(
+                            ਨਵਾਂ AstSFormatF{fl, "%s.%s", ਝੂਠ, formatp}, nodep->name());
                     }
                     VL_RESTORER(m_structSel);
-                    m_structSel = true;
-                    nodep->user1(true);
-                    arraySelp->user1(true);
-                    AstNodeExpr* const origp = nodep->cloneTree(false);
+                    m_structSel = ਸੱਚ;
+                    nodep->user1(ਸੱਚ);
+                    arraySelp->user1(ਸੱਚ);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origp = nodep->clone_ਰੁੱਖ(ਝੂਠ);
                     iterateChildren(nodep);
-                    AstSFormatF* const newp = new AstSFormatF{fl, "%s." + nodep->name(), false,
-                                                              nodep->fromp()->unlinkFrBack()};
+                    AstSFormatF* ਅਚਲ newp = ਨਵਾਂ AstSFormatF{fl, "%s." + nodep->name(), ਝੂਠ,
+                                                              nodep->fromp()->unlink_Fr_ਪਿੱਠ()};
                     nodep->replaceWith(newp);
-                    if (!hoistRandModeOverSelectAndMember(newp, origp))
-                        VL_DO_DANGLING(origp->deleteTree(), origp);
-                    VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                    VL_DO_DANGLING(delete m_nestedAccess, m_nestedAccess);
-                    return;
+                    ਜੇ (!hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(newp, origp))
+                        VL_DO_DANGLING(origp->delete_ਰੁੱਖ(), origp);
+                    VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+                    VL_DO_DANGLING(ਮਿਟਾਓ m_nestedAccess, m_nestedAccess);
+                    ਵਾਪਸ;
                 }
             }
             // Check if the root variable participates in global constraints
-            if (const AstVarRef* const varRefp = VN_CAST(rootNode, VarRef)) {
-                AstVar* const constrainedVar = varRefp->varp();
-                if (constrainedVar->globalConstrained()) {
-                    bool const beforeIterate = m_nestedAccess;
+            ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ varRefp = VN_CAST(ਜੜ੍ਹ_ਗੰਢ, VarRef)) {
+                AstVar* ਅਚਲ constrainedVar = varRefp->varp();
+                ਜੇ (constrainedVar->globalConstrained()) {
+                    ਤਾਰਕਿਕ ਅਚਲ beforeIterate = m_nestedAccess;
                     // Global constraint - unwrap the MemberSel
                     iterateChildren(nodep);
-                    if (beforeIterate) {
-                        nodep->replaceWith(new AstSFormatF{fl, "%s." + nodep->name(), false,
-                                                           nodep->fromp()->unlinkFrBack()});
-                    } else {
-                        nodep->replaceWith(nodep->fromp()->unlinkFrBack());
+                    ਜੇ (beforeIterate) {
+                        nodep->replaceWith(ਨਵਾਂ AstSFormatF{fl, "%s." + nodep->name(), ਝੂਠ,
+                                                           nodep->fromp()->unlink_Fr_ਪਿੱਠ()});
+                    } ਨਹੀਂਤਾਂ {
+                        nodep->replaceWith(nodep->fromp()->unlink_Fr_ਪਿੱਠ());
                     }
-                    VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                    return;
+                    VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                    ਵਾਪਸ;
                 }
             }
         }
         // Handle MemberSel references created by captureRefByThis()
-        if (VN_IS(nodep->fromp(), VarRef)
+        ਜੇ (VN_IS(nodep->fromp(), VarRef)
             && nodep->fromp()->user1()  // Depending on a randomized variable
             && nodep->user2p()  // Pointer to containing module
-            && VN_AS(nodep->user2p(), NodeModule) == nodep->varp()->user2p()) {
+            && VN_AS(nodep->user2p(), ਗੰਢ_Module) == nodep->varp()->user2p()) {
             // Convert to VarRef
-            AstVarRef* const varRefp
-                = new AstVarRef{nodep->fileline(), nodep->varp(), VAccess::READ};
+            AstVarRef* ਅਚਲ varRefp
+                = ਨਵਾਂ AstVarRef{nodep->fileline(), nodep->varp(), VAccess::READ};
             varRefp->user1(nodep->varp()->rand().isRandomizable());
-            varRefp->classOrPackagep(VN_AS(nodep->user2p(), NodeModule));
+            varRefp->classOrPackagep(VN_AS(nodep->user2p(), ਗੰਢ_Module));
             nodep->replaceWith(varRefp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            visit(varRefp);
-        } else if (nodep->user1() && VN_IS(nodep->fromp(), CMethodHard)
-                   && VN_AS(nodep->fromp(), CMethodHard)->method() == VCMethod::ARRAY_AT) {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            ਦੇਖੋ(varRefp);
+        } ਨਹੀਂਤਾਂ ਜੇ (nodep->user1() && VN_IS(nodep->fromp(), CMethodHard)
+                   && VN_AS(nodep->fromp(), CMethodHard)->ਵਿਧੀ() == VCMethod::ARRAY_AT) {
             // Class ref array element member access (e.g., items[i].val)
-            AstCMethodHard* const cmethodp = VN_AS(nodep->fromp(), CMethodHard);
-            AstNodeDType* const arrayDtp = cmethodp->fromp()->dtypep()->skipRefp();
-            AstNodeDType* const elemDtp = arrayDtp->subDTypep()->skipRefp();
-            if (VN_IS(elemDtp, ClassRefDType)) {
+            AstCMethodHard* ਅਚਲ cmethodp = VN_AS(nodep->fromp(), CMethodHard);
+            Ast_ਗੰਢ_DType* ਅਚਲ arrayDtp = cmethodp->fromp()->dtypep()->skipRefp();
+            Ast_ਗੰਢ_DType* ਅਚਲ elemDtp = arrayDtp->subDTypep()->skipRefp();
+            ਜੇ (VN_IS(elemDtp, ClassRefDType)) {
                 VL_RESTORER(m_structSel);
-                m_structSel = true;
+                m_structSel = ਸੱਚ;
                 iterateChildren(nodep);
-                FileLine* const fl = nodep->fileline();
-                AstSFormatF* newp = nullptr;
-                if (AstSFormatF* const fromp = VN_CAST(nodep->fromp(), SFormatF)) {
-                    if (fromp->name() == "%s.%s") {
-                        newp = new AstSFormatF{fl, "%s.%s." + nodep->name(), false,
-                                               fromp->exprsp()->cloneTreePure(true)};
-                    } else {
-                        newp = new AstSFormatF{fl, fromp->name() + "." + nodep->name(), false,
-                                               nullptr};
+                File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+                AstSFormatF* newp = ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (AstSFormatF* ਅਚਲ fromp = VN_CAST(nodep->fromp(), SFormatF)) {
+                    ਜੇ (fromp->name() == "%s.%s") {
+                        newp = ਨਵਾਂ AstSFormatF{fl, "%s.%s." + nodep->name(), ਝੂਠ,
+                                               fromp->exprsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ)};
+                    } ਨਹੀਂਤਾਂ {
+                        newp = ਨਵਾਂ AstSFormatF{fl, fromp->name() + "." + nodep->name(), ਝੂਠ,
+                                               ਖਾਲੀ_ਸੂਚਕ};
                     }
-                } else {
-                    newp = new AstSFormatF{fl, nodep->name(), false, nullptr};
+                } ਨਹੀਂਤਾਂ {
+                    newp = ਨਵਾਂ AstSFormatF{fl, nodep->name(), ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(pushDeletep(nodep), nodep);
-                return;
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+                ਵਾਪਸ;
             }
             // Not a class ref element, fall through to normal handling
             iterateChildren(nodep);
-            nodep->replaceWith(nodep->fromp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
-        } else if (nodep->user1()) {
+            nodep->replaceWith(nodep->fromp()->unlink_Fr_ਪਿੱਠ());
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
+        } ਨਹੀਂਤਾਂ ਜੇ (nodep->user1()) {
             iterateChildren(nodep);
-            nodep->replaceWith(nodep->fromp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
-        } else {
+            nodep->replaceWith(nodep->fromp()->unlink_Fr_ਪਿੱਠ());
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
+        } ਨਹੀਂਤਾਂ {
             editFormat(nodep);
         }
     }
-    void visit(AstSFormatF* nodep) override {}
-    void visit(AstStmtExpr* nodep) override {}
-    void visit(AstCStmt* nodep) override {}
-    void visit(AstIf* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstSFormatF* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(Ast_Stmt_ਵਿਅੰਜਕ* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstCStmt* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstIf* nodep) override {
         // Hoisted runtime-conditional disable_soft statements parked in the
         // constraint-items list by the pre-pass; already fully lowered.
     }
-    void visit(AstConstraintIf* nodep) override {
-        AstNodeExpr* newp = nullptr;
-        FileLine* const fl = nodep->fileline();
-        AstNodeExpr* const thenp = editSingle(fl, nodep->thensp());
-        AstNodeExpr* const elsep = editSingle(fl, nodep->elsesp());
-        if (thenp && elsep) {
-            newp = new AstCond{fl, nodep->condp()->unlinkFrBack(), thenp, elsep};
-        } else if (thenp) {
-            newp = new AstLogIf{fl, nodep->condp()->unlinkFrBack(), thenp};
-        } else if (elsep) {
-            newp = new AstLogIf{fl, new AstNot{fl, nodep->condp()->unlinkFrBack()}, elsep};
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintIf* nodep) override {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* newp = ਖਾਲੀ_ਸੂਚਕ;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ thenp = editSingle(fl, nodep->thensp());
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ elsep = editSingle(fl, nodep->elsesp());
+        ਜੇ (thenp && elsep) {
+            newp = ਨਵਾਂ AstCond{fl, nodep->condp()->unlink_Fr_ਪਿੱਠ(), thenp, elsep};
+        } ਨਹੀਂਤਾਂ ਜੇ (thenp) {
+            newp = ਨਵਾਂ AstLogIf{fl, nodep->condp()->unlink_Fr_ਪਿੱਠ(), thenp};
+        } ਨਹੀਂਤਾਂ ਜੇ (elsep) {
+            newp = ਨਵਾਂ AstLogIf{fl, ਨਵਾਂ AstNot{fl, nodep->condp()->unlink_Fr_ਪਿੱਠ()}, elsep};
         }
-        if (newp) {
-            newp->dtypeSetBit();  // Result is boolean (prevents bare-var != 0 wrapping)
-            newp->user1(true);  // Assume result-dependent
-            nodep->replaceWith(new AstConstraintExpr{fl, newp});
-        } else {
-            nodep->unlinkFrBack();
+        ਜੇ (newp) {
+            newp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();  // Result is boolean (prevents bare-var != 0 wrapping)
+            newp->user1(ਸੱਚ);  // Assume result-dependent
+            nodep->replaceWith(ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, newp});
+        } ਨਹੀਂਤਾਂ {
+            nodep->unlink_Fr_ਪਿੱਠ();
         }
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstGenBlock* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_Gen_ਖੰਡ* nodep) override {
         // Dubious but this is what we used to do. Does that mean no randomzie
         // methods work under a generage block?
     }
-    void visit(AstBegin* nodep) override {}
-    void visit(AstConstraintForeach* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstBegin* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintForeach* nodep) override {
         // Convert to plain foreach
-        FileLine* const fl = nodep->fileline();
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
 
-        if (!nodep->bodyp()) {
-            nodep->unlinkFrBack();
-        } else if (m_wantSingle) {
-            AstNodeExpr* const itemp = editSingle(fl, nodep->bodyp());
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            cstmtp->add("ret += \" \";\n");
-            cstmtp->add("ret += ");
-            cstmtp->add(itemp);
-            cstmtp->add(";");
-            AstNode* const bodyp = prependDistPreamble(nodep, cstmtp);
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->dtypeSetString();
-            cexprp->add("([&]{\nstd::string ret;\n");
-            cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                     new AstForeach{fl, nodep->headerp()->unlinkFrBack(), bodyp},
-                                     true});
-            cexprp->add("return ret.empty() ? \"#b1\" : \"(bvand\" + ret + \")\";\n})()");
-            nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-        } else {
+        ਜੇ (!nodep->bodyp()) {
+            nodep->unlink_Fr_ਪਿੱਠ();
+        } ਨਹੀਂਤਾਂ ਜੇ (m_wantSingle) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ itemp = editSingle(fl, nodep->bodyp());
+            AstCStmt* ਅਚਲ cstmtp = ਨਵਾਂ AstCStmt{fl};
+            cstmtp->ਜੋੜੋ("ret += \" \";\n");
+            cstmtp->ਜੋੜੋ("ret += ");
+            cstmtp->ਜੋੜੋ(itemp);
+            cstmtp->ਜੋੜੋ(";");
+            Ast_ਗੰਢ* ਅਚਲ bodyp = prependDistPreamble(nodep, cstmtp);
+            AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{fl};
+            cexprp->dtype_ਸੈੱਟ_String();
+            cexprp->ਜੋੜੋ("([&]{\nstd::string ret;\n");
+            cexprp->ਜੋੜੋ(ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"),
+                                     ਨਵਾਂ AstForeach{fl, nodep->headerp()->unlink_Fr_ਪਿੱਠ(), bodyp},
+                                     ਸੱਚ});
+            cexprp->ਜੋੜੋ("return ret.empty() ? \"#b1\" : \"(bvand\" + ret + \")\";\n})()");
+            nodep->replaceWith(ਨਵਾਂ AstSFormatF{fl, "%s", ਝੂਠ, cexprp});
+        } ਨਹੀਂਤਾਂ {
             VL_RESTORER(m_foreachp);
             VL_RESTORER_COPY(m_foreachIdxVars);
             m_foreachp = nodep;
-            for (AstNode* elemp = nodep->headerp()->elementsp(); elemp; elemp = elemp->nextp()) {
-                if (const AstVar* const varp = VN_CAST(elemp, Var)) m_foreachIdxVars.insert(varp);
+            ਲਈ (Ast_ਗੰਢ* elemp = nodep->headerp()->elementsp(); elemp; elemp = elemp->nextp()) {
+                ਜੇ (ਅਚਲ AstVar* ਅਚਲ varp = VN_CAST(elemp, Var)) m_foreachIdxVars.ਪਾਓ(varp);
             }
-            iterateAndNextNull(nodep->bodyp());
-            AstNode* const bodyp
-                = prependDistPreamble(nodep, nodep->bodyp()->unlinkFrBackWithNext());
+            iterate_And_ਅਗਲਾ_Null(nodep->bodyp());
+            Ast_ਗੰਢ* ਅਚਲ bodyp
+                = prependDistPreamble(nodep, nodep->bodyp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ());
             nodep->replaceWith(
-                new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                             new AstForeach{fl, nodep->headerp()->unlinkFrBack(), bodyp}, true});
+                ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"),
+                             ਨਵਾਂ AstForeach{fl, nodep->headerp()->unlink_Fr_ਪਿੱਠ(), bodyp}, ਸੱਚ});
         }
         UASSERT_OBJ(!nodep->user3p(), nodep, "Dist bucket preamble not injected into foreach");
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstConstraintBefore* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintBefore* nodep) override {
         // Generate solveBefore() calls for each (lhs, rhs) variable pair.
         // Do NOT iterate children -- these are variable references, not constraint expressions.
-        FileLine* const fl = nodep->fileline();
-        AstNodeModule* const genModp = VN_AS(m_genp->user2p(), NodeModule);
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(m_genp->user2p(), ਗੰਢ_Module);
 
-        for (AstNodeExpr* lhsp = nodep->lhssp(); lhsp; lhsp = VN_CAST(lhsp->nextp(), NodeExpr)) {
-            AstNodeExpr* const lhsTestp = buildSolveBeforeNameExpr(fl, lhsp);
-            if (!lhsTestp) {
+        ਲਈ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsp = nodep->lhssp(); lhsp; lhsp = VN_CAST(lhsp->nextp(), ਗੰਢ_ਵਿਅੰਜਕ)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsTestp = build_Solve_Before_Name_ਵਿਅੰਜਕ(fl, lhsp);
+            ਜੇ (!lhsTestp) {
                 lhsp->v3fatalSrc("Unexpected expression type in solve...before lhs");
-                continue;
+                ਜਾਰੀ;
             }
-            VL_DO_DANGLING(lhsTestp->deleteTree(), lhsTestp);
-            for (AstNodeExpr* rhsp = nodep->rhssp(); rhsp;
-                 rhsp = VN_CAST(rhsp->nextp(), NodeExpr)) {
-                AstNodeExpr* const rhsNamep = buildSolveBeforeNameExpr(fl, rhsp);
-                if (!rhsNamep) {
+            VL_DO_DANGLING(lhsTestp->delete_ਰੁੱਖ(), lhsTestp);
+            ਲਈ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* rhsp = nodep->rhssp(); rhsp;
+                 rhsp = VN_CAST(rhsp->nextp(), ਗੰਢ_ਵਿਅੰਜਕ)) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsNamep = build_Solve_Before_Name_ਵਿਅੰਜਕ(fl, rhsp);
+                ਜੇ (!rhsNamep) {
                     rhsp->v3fatalSrc("Unexpected expression type in solve...before rhs");
-                    continue;
+                    ਜਾਰੀ;
                 }
-                AstCMethodHard* const callp = new AstCMethodHard{
-                    fl, new AstVarRef{fl, genModp, m_genp, VAccess::READWRITE},
+                AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
+                    fl, ਨਵਾਂ AstVarRef{fl, genModp, m_genp, VAccess::READWRITE},
                     VCMethod::RANDOMIZER_SOLVE_BEFORE};
-                callp->dtypeSetVoid();
-                callp->addPinsp(buildSolveBeforeNameExpr(fl, lhsp));
-                callp->addPinsp(rhsNamep);
-                nodep->addHereThisAsNext(callp->makeStmt());
+                callp->dtype_ਸੈੱਟ_Void();
+                callp->ਜੋੜੋ_Pinsp(build_Solve_Before_Name_ਵਿਅੰਜਕ(fl, lhsp));
+                callp->ਜੋੜੋ_Pinsp(rhsNamep);
+                nodep->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(callp->makeStmt());
             }
         }
-        VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstConstraintUnique* nodep) override {
-        AstNodeFTask* initTaskp;
+    ਖਾਲੀ ਦੇਖੋ(AstConstraintUnique* nodep) override {
+        Ast_ਗੰਢ_FTask* initTaskp;
         AstVar* genVarp = m_genp;
-        FileLine* const fl = nodep->fileline();
-        AstNodeModule* genModp = nullptr;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        Ast_ਗੰਢ_Module* genModp = ਖਾਲੀ_ਸੂਚਕ;
 
-        if (m_classp) {
-            initTaskp = VN_AS(m_memberMap.findMember(m_classp, "new"), NodeFTask);
+        ਜੇ (m_classp) {
+            initTaskp = VN_AS(m_memberMap.ਲੱਭੋ_Member(m_classp, "new"), ਗੰਢ_FTask);
             genVarp = getRandomGenerator(m_classp);
-        } else {
+        } ਨਹੀਂਤਾਂ {
             initTaskp = m_inlineInitTaskp;
         }
         UASSERT_OBJ(initTaskp, nodep, "No init Task for unique constraint");
 
         // UASSERT_OBJ(genVarp, nodep, "No generator variable");
-        if (!genVarp) {
+        ਜੇ (!genVarp) {
             // This shall be substituted with an assert when it will be supported
             nodep->v3warn(CONSTRAINTIGN, "Unsupported: Unique constraint in randomize() with {}");
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep->unlink_Fr_ਪਿੱਠ()), nodep);
+            ਵਾਪਸ;
         }
-        if (m_classp) {
-            genModp = VN_AS(genVarp->user2p(), NodeModule);
+        ਜੇ (m_classp) {
+            genModp = VN_AS(genVarp->user2p(), ਗੰਢ_Module);
             UASSERT_OBJ(genModp, nodep, "genVarp inside m_classp has no NodeModule set");
         }
 
         // Registration calls emitted where the unique statement stood, so they end up
         // in the constraint setup task and re-run on every randomize()
-        AstNode* setupStmtsp = nullptr;
+        Ast_ਗੰਢ* ਤਿਆਰੀ_Stmtsp = ਖਾਲੀ_ਸੂਚਕ;
         // Under a condition the distinctness must instead become part of the guarded
         // constraint expression, which needs an element count known at verilation time
-        std::vector<std::string> smtExprs;
-        for (AstNode* itemp = nodep->rangesp(); itemp; itemp = itemp->nextp()) {
-            if (AstVarRef* const varRefp = VN_CAST(itemp, VarRef)) {
-                AstVar* const varp = varRefp->varp();
-                AstNodeModule* const varModp = VN_AS(varp->user2p(), NodeModule);
+        std::ਸਦਿਸ਼<std::string> smtExprs;
+        ਲਈ (Ast_ਗੰਢ* itemp = nodep->rangesp(); itemp; itemp = itemp->nextp()) {
+            ਜੇ (AstVarRef* ਅਚਲ varRefp = VN_CAST(itemp, VarRef)) {
+                AstVar* ਅਚਲ varp = varRefp->varp();
+                Ast_ਗੰਢ_Module* ਅਚਲ varModp = VN_AS(varp->user2p(), ਗੰਢ_Module);
                 UASSERT_OBJ(varModp, nodep, "varp has no NodeModule set");
-                AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
+                Ast_ਗੰਢ_DType* ਅਚਲ dtypep = varp->dtypep()->skipRefp();
 
-                const static auto dynDTypeSupported
-                    = [](const AstNodeDType* const dtypep) -> bool {
-                    return VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, QueueDType)
+                ਅਚਲ ਸਥਿਰ ਸਵੈਚਾਲਿਤ dynDTypeSupported
+                    = [](ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep) -> ਤਾਰਕਿਕ {
+                    ਵਾਪਸ VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, ਕਤਾਰ_DType)
                            || VN_IS(dtypep, AssocArrayDType);
                 };
 
                 // Establish it is an array before asking for its element type
-                uint64_t elemWidth;
-                uint32_t staticSize = 0;  // Element count, zero when only known at run time
-                if (const AstUnpackArrayDType* const up = VN_CAST(dtypep, UnpackArrayDType)) {
-                    const AstRange* const rangep = up->rangep();
+                uint64_t elem_ਚੌੜਾਈ;
+                uint32_t static_ਮਾਪ = 0;  // Element count, zero when only known at run time
+                ਜੇ (ਅਚਲ AstUnpackArrayDType* ਅਚਲ ਉੱਪਰ = VN_CAST(dtypep, UnpackArrayDType)) {
+                    ਅਚਲ AstRange* ਅਚਲ rangep = ਉੱਪਰ->rangep();
                     UASSERT_OBJ(rangep && VN_IS(rangep->leftp(), Const)
                                     && VN_IS(rangep->rightp(), Const),
                                 nodep, "Unpack array does not have a constant range");
-                    staticSize = up->elementsConst();
-                    if (staticSize > 100) {
+                    static_ਮਾਪ = ਉੱਪਰ->elementsConst();
+                    ਜੇ (static_ਮਾਪ > 100) {
                         nodep->v3warn(
                             CONSTRAINTIGN,
                             "Unsupported: Unique constraint on static arrays of size > 100");
-                        continue;
+                        ਜਾਰੀ;
                     }
-                    elemWidth = static_cast<uint64_t>(varp->dtypep()->width());
-                } else if (dynDTypeSupported(dtypep)) {
-                    elemWidth = static_cast<uint64_t>(dtypep->subDTypep()->width());
-                } else {
+                    elem_ਚੌੜਾਈ = static_cast<uint64_t>(varp->dtypep()->ਚੌੜਾਈ());
+                } ਨਹੀਂਤਾਂ ਜੇ (dynDTypeSupported(dtypep)) {
+                    elem_ਚੌੜਾਈ = static_cast<uint64_t>(dtypep->subDTypep()->ਚੌੜਾਈ());
+                } ਨਹੀਂਤਾਂ {
                     nodep->v3warn(CONSTRAINTIGN, "Unsupported: Unique constraint on "
-                                                     << dtypep->prettyDTypeName(false));
-                    continue;
+                                                     << dtypep->prettyDTypeName(ਝੂਠ));
+                    ਜਾਰੀ;
                 }
 
                 // Ensure it is ONLY 1-D by checking that the element type is not an array/queue
-                const AstNodeDType* const subp = dtypep->subDTypep()->skipRefp();
-                if (VN_IS(subp, NodeArrayDType) || VN_IS(subp, QueueDType)
+                ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ subp = dtypep->subDTypep()->skipRefp();
+                ਜੇ (VN_IS(subp, ਗੰਢ_Array_DType) || VN_IS(subp, ਕਤਾਰ_DType)
                     || VN_IS(subp, DynArrayDType) || VN_IS(subp, AssocArrayDType)
                     || VN_IS(subp, WildcardArrayDType)) {
                     nodep->v3warn(CONSTRAINTIGN,
                                   "Unsupported: Unique constraint on multidimensional arrays");
-                    continue;
+                    ਜਾਰੀ;
                 }
 
-                if (m_wantSingle && !staticSize) {
+                ਜੇ (m_wantSingle && !static_ਮਾਪ) {
                     nodep->v3warn(CONSTRAINTIGN,
                                   "Unsupported: Unique constraint on dynamically sized array "
                                   "inside conditional constraint");
-                    continue;
+                    ਜਾਰੀ;
                 }
 
-                if (!varp->user3()) {
-                    varp->user3(true);  // Solver owns it; __VBasicRand must not overwrite
+                ਜੇ (!varp->user3()) {
+                    varp->user3(ਸੱਚ);  // Solver owns it; __VBasicRand must not overwrite
                     // Convert to C string
-                    AstNodeExpr* const varnamep = new AstCExpr{
-                        fl, AstCExpr::Pure{}, "\"" + varp->name() + "\"", varp->width()};
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ varnamep = ਨਵਾਂ AstCExpr{
+                        fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + varp->name() + "\"", varp->ਚੌੜਾਈ()};
 
-                    AstCMethodHard* const writeVarCallp = new AstCMethodHard{
-                        fl, new AstVarRef{fl, genModp, genVarp, VAccess::READ},
+                    AstCMethodHard* ਅਚਲ writeVarCallp = ਨਵਾਂ AstCMethodHard{
+                        fl, ਨਵਾਂ AstVarRef{fl, genModp, genVarp, VAccess::READ},
                         VCMethod::RANDOMIZER_WRITE_VAR};
-                    AstVarRef* const argVarRefp = new AstVarRef{fl, varp, VAccess::READ};
-                    if (m_classp) argVarRefp->classOrPackagep(varModp);
-                    writeVarCallp->addPinsp(argVarRefp);
-                    writeVarCallp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, elemWidth});
-                    writeVarCallp->addPinsp(varnamep);
-                    writeVarCallp->addPinsp(new AstConst{fl, 1});  // Dimension
-                    const RandomizeMode randMode = {.asUQuad = varp->user1()};
-                    if (randMode.usesMode) {
-                        writeVarCallp->addPinsp(
-                            new AstConst{fl, AstConst::Unsized64{}, randMode.index});
+                    AstVarRef* ਅਚਲ argVarRefp = ਨਵਾਂ AstVarRef{fl, varp, VAccess::READ};
+                    ਜੇ (m_classp) argVarRefp->classOrPackagep(varModp);
+                    writeVarCallp->ਜੋੜੋ_Pinsp(argVarRefp);
+                    writeVarCallp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, elem_ਚੌੜਾਈ});
+                    writeVarCallp->ਜੋੜੋ_Pinsp(varnamep);
+                    writeVarCallp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, 1});  // Dimension
+                    ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = varp->user1()};
+                    ਜੇ (rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+                        writeVarCallp->ਜੋੜੋ_Pinsp(
+                            ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ});
                     }
-                    writeVarCallp->dtypeSetVoid();
-                    initTaskp->addStmtsp(new AstStmtExpr{fl, writeVarCallp});
+                    writeVarCallp->dtype_ਸੈੱਟ_Void();
+                    initTaskp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_Stmt_ਵਿਅੰਜਕ{fl, writeVarCallp});
                 }
 
                 // A solver-sized container is resized between solve passes; joining the
                 // size-constrained set gets its element table refreshed in between
-                if (varp->user4p() && m_sizeConstrainedArraysp) {
-                    m_sizeConstrainedArraysp->insert(varp);
+                ਜੇ (varp->user4p() && m_ਮਾਪ_Constrained_Arraysp) {
+                    m_ਮਾਪ_Constrained_Arraysp->ਪਾਓ(varp);
                 }
 
-                if (m_wantSingle) {
+                ਜੇ (m_wantSingle) {
                     // Fewer than two elements are trivially distinct
-                    if (staticSize < 2) continue;
-                    std::string exprStr = "(__Vbv (distinct";
-                    for (uint32_t i = 0; i < staticSize; ++i) {
-                        exprStr += " (select " + varp->name() + " #x";
-                        for (int shift = 28; shift >= 0; shift -= 4) {
-                            exprStr += "0123456789abcdef"[(i >> shift) & 0xf];
+                    ਜੇ (static_ਮਾਪ < 2) ਜਾਰੀ;
+                    std::string ਵਿਅੰਜਕ_Str = "(__Vbv (distinct";
+                    ਲਈ (uint32_t i = 0; i < static_ਮਾਪ; ++i) {
+                        ਵਿਅੰਜਕ_Str += " (select " + varp->name() + " #x";
+                        ਲਈ (ਪੂਰਨ ਖਿਸਕਾਓ_2 = 28; ਖਿਸਕਾਓ_2 >= 0; ਖਿਸਕਾਓ_2 -= 4) {
+                            ਵਿਅੰਜਕ_Str += "0123456789abcdef"[(i >> ਖਿਸਕਾਓ_2) & 0xf];
                         }
-                        exprStr += ')';
+                        ਵਿਅੰਜਕ_Str += ')';
                     }
-                    smtExprs.emplace_back(exprStr + "))");
-                    continue;
+                    smtExprs.emplace_ਪਿੱਠ(ਵਿਅੰਜਕ_Str + "))");
+                    ਜਾਰੀ;
                 }
 
-                AstNodeExpr* const namep = new AstConst{fl, AstConst::String{}, varp->name()};
-                AstCMethodHard* const randUniqueCallp
-                    = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genVarp, VAccess::READ},
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ namep = ਨਵਾਂ AstConst{fl, AstConst::String{}, varp->name()};
+                AstCMethodHard* ਅਚਲ randUniqueCallp
+                    = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, genModp, genVarp, VAccess::READ},
                                          VCMethod::RANDOMIZER_UNIQUE, namep};
-                randUniqueCallp->dtypep(nodep->findVoidDType());
-                randUniqueCallp->addPinsp(new AstConst{fl, *m_uniqueConstraintId});
-                setupStmtsp = AstNode::addNext(setupStmtsp, new AstStmtExpr{fl, randUniqueCallp});
+                randUniqueCallp->dtypep(nodep->ਲੱਭੋ_Void_DType());
+                randUniqueCallp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, *m_uniqueConstraintId});
+                ਤਿਆਰੀ_Stmtsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(ਤਿਆਰੀ_Stmtsp, ਨਵਾਂ Ast_Stmt_ਵਿਅੰਜਕ{fl, randUniqueCallp});
             }
         }
         ++(*m_uniqueConstraintId);
-        if (m_wantSingle && !smtExprs.empty()) {
-            std::string exprStr = smtExprs.front();
-            if (smtExprs.size() > 1) {
-                exprStr = "(bvand";
-                for (const std::string& oneExprp : smtExprs) exprStr += " " + oneExprp;
-                exprStr += ')';
+        ਜੇ (m_wantSingle && !smtExprs.ਖਾਲੀ_ਥਾਵਾਂ()) {
+            std::string ਵਿਅੰਜਕ_Str = smtExprs.front();
+            ਜੇ (smtExprs.ਮਾਪ() > 1) {
+                ਵਿਅੰਜਕ_Str = "(bvand";
+                ਲਈ (ਅਚਲ std::string& oneExprp : smtExprs) ਵਿਅੰਜਕ_Str += " " + oneExprp;
+                ਵਿਅੰਜਕ_Str += ')';
             }
-            AstSFormatF* const newp = new AstSFormatF{fl, exprStr, false, nullptr};
+            AstSFormatF* ਅਚਲ newp = ਨਵਾਂ AstSFormatF{fl, ਵਿਅੰਜਕ_Str, ਝੂਠ, ਖਾਲੀ_ਸੂਚਕ};
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            ਵਾਪਸ;
         }
-        if (setupStmtsp) nodep->addHereThisAsNext(setupStmtsp);
-        nodep->unlinkFrBack();
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        ਜੇ (ਤਿਆਰੀ_Stmtsp) nodep->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(ਤਿਆਰੀ_Stmtsp);
+        nodep->unlink_Fr_ਪਿੱਠ();
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
-    void visit(AstConstraintExpr* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_Constraint_ਵਿਅੰਜਕ* nodep) override {
         // IEEE 1800-2023 18.5.13: 'disable soft' is a meta-level directive on
         // the constraint graph, lowered to a void RANDOMIZER_DISABLE_SOFT
         // call.  Conditional occurrences (if / foreach / implication body)
         // are rewritten by extractConditionalDisableSofts() before this
         // visitor runs, so anything we see here is unconditional.
-        VL_RESTORER(m_firstExpressionInsideIndexp);
-        if (nodep->isDisableSoft()) {
+        VL_RESTORER(m_ਪਹਿਲਾ_ਵਿਅੰਜਕ_Inside_Indexp);
+        ਜੇ (nodep->isDisableSoft()) {
             nodep->replaceWith(buildDisableSoftCallStmt(nodep));
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
         }
         // IEEE 1800-2023 18.5.1: A bare expression used as a constraint is
         // implicitly treated as "expr != 0" when wider than 1 bit.
         // Must wrap before iterateChildren, which converts to SMT format.
         {
-            AstNodeExpr* const exprp = nodep->exprp();
-            if (exprp->width() > 1) {
-                FileLine* const fl = exprp->fileline();
-                const V3Number numZero{fl, exprp->width(), 0};
-                AstNodeExpr* const neqp
-                    = new AstNeq{fl, exprp->unlinkFrBack(), new AstConst{fl, numZero}};
-                neqp->user1(true);  // Mark as rand-dependent for SMT path
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = nodep->exprp();
+            ਜੇ (exprp->ਚੌੜਾਈ() > 1) {
+                File_ਸਤਰ* ਅਚਲ fl = exprp->fileline();
+                ਅਚਲ V3_ਸੰਖਿਆ ਅੰਕ_Zero{fl, exprp->ਚੌੜਾਈ(), 0};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ neqp
+                    = ਨਵਾਂ AstNeq{fl, exprp->unlink_Fr_ਪਿੱਠ(), ਨਵਾਂ AstConst{fl, ਅੰਕ_Zero}};
+                neqp->user1(ਸੱਚ);  // Mark as rand-dependent for SMT path
                 nodep->exprp(neqp);
             }
         }
         iterateChildren(nodep);
-        if (m_wantSingle) {
-            nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+        ਜੇ (m_wantSingle) {
+            nodep->replaceWith(nodep->exprp()->unlink_Fr_ਪਿੱਠ());
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
         }
         // Emit as soft or hard constraint per IEEE 1800-2023 18.5.13
-        const VCMethod method
+        ਅਚਲ VCMethod ਵਿਧੀ
             = nodep->isSoft() ? VCMethod::RANDOMIZER_SOFT : VCMethod::RANDOMIZER_HARD;
-        AstCMethodHard* const callp = new AstCMethodHard{
+        AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                           VAccess::READWRITE},
-            method, nodep->exprp()->unlinkFrBack()};
-        callp->dtypeSetVoid();
+            ਵਿਧੀ, nodep->exprp()->unlink_Fr_ਪਿੱਠ()};
+        callp->dtype_ਸੈੱਟ_Void();
         // Pass filename, lineno, and source as separate arguments
         // This allows EmitC to call protect() on filename, similar to VL_STOP
         // Add filename parameter
-        callp->addPinsp(new AstCExpr{nodep->fileline(), AstCExpr::Pure{},
+        callp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstCExpr{nodep->fileline(), AstCExpr::ਸ਼ੁੱਧ{},
                                      "\"" + nodep->fileline()->filename() + "\""});
         // Add line number parameter
-        const uint32_t lineno = static_cast<uint32_t>(nodep->fileline()->lineno());
-        callp->addPinsp(new AstConst{nodep->fileline(), lineno});
+        ਅਚਲ uint32_t lineno = static_cast<uint32_t>(nodep->fileline()->lineno());
+        callp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{nodep->fileline(), lineno});
         // Add source text parameter (empty if --protect-ids to avoid source leakage)
-        std::string prettyText;
-        if (!v3Global.opt.protectIds()) {
-            prettyText = nodep->fileline()->prettySource();
-            size_t pos = 0;
-            while ((pos = prettyText.find('"', pos)) != std::string::npos) {
-                prettyText.insert(pos, "\\");
-                pos += std::strlen("\\\"");
+        std::string pretty_ਪਾਠ;
+        ਜੇ (!v3Global.opt.protectIds()) {
+            pretty_ਪਾਠ = nodep->fileline()->pretty_ਸਰੋਤ();
+            ਮਾਪ_t pos = 0;
+            ਜਦੋਂ ((pos = pretty_ਪਾਠ.ਲੱਭੋ('"', pos)) != std::string::npos) {
+                pretty_ਪਾਠ.ਪਾਓ(pos, "\\");
+                pos += std::ਲੜੀ_ਲੰਬਾਈ("\\\"");
             }
         }
-        callp->addPinsp(
-            new AstCExpr{nodep->fileline(), AstCExpr::Pure{}, "\"" + prettyText + "\""});
+        callp->ਜੋੜੋ_Pinsp(
+            ਨਵਾਂ AstCExpr{nodep->fileline(), AstCExpr::ਸ਼ੁੱਧ{}, "\"" + pretty_ਪਾਠ + "\""});
         nodep->replaceWith(callp->makeStmt());
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
-        if (editFormat(nodep)) return;
-        FileLine* const fl = nodep->fileline();
+    ਖਾਲੀ ਦੇਖੋ(AstCMethodHard* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
 
-        if (nodep->method() == VCMethod::ARRAY_AT) {
-            addStringNamePart(nodep->pinsp(), "%x");
-            const bool indexIsRand = nodep->pinsp()->exists([](const AstNodeVarRef* const vrefp) {
-                return vrefp->varp()->rand().isRandomizable();
+        ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_AT) {
+            ਜੋੜੋ_String_Name_Part(nodep->pinsp(), "%x");
+            ਅਚਲ ਤਾਰਕਿਕ ਸੂਚਕਾਂਕ_Is_Rand = nodep->pinsp()->exists([](ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ vrefp) {
+                ਵਾਪਸ vrefp->varp()->rand().isRandomizable();
             });
-            if (nodep->fromp()->user1()) {
+            ਜੇ (nodep->fromp()->user1()) {
                 // Queue/dynamic element: pre-edit clone for the rand_mode hoist, non-rand index
                 // only. A std::randomize() with-clause argument carries no rand qualifier of its
                 // own but is still part of the solve.
                 {
-                    const AstNode* const basep = nodep->baseFromp(true);
-                    if (basep->name() == "__Vthis"
+                    ਅਚਲ Ast_ਗੰਢ* ਅਚਲ basep = nodep->ਅਧਾਰ_Fromp(ਸੱਚ);
+                    ਜੇ (basep->name() == "__Vthis"
                         && VN_AS(basep->backp(), MemberSel)->varp()->isRand()) {
                         nodep->fromp()->v3warn(E_UNSUPPORTED,
                                                "Unsupported: Complex expression captured from "
                                                "current scope with randomized variable");
-                        return;
+                        ਵਾਪਸ;
                     }
                 }
-                AstNodeExpr* const origp = indexIsRand ? nullptr : nodep->cloneTree(false);
-                const AstVarRef* const baseRefp
-                    = m_structSel ? VN_CAST(nodep->fromp()->baseFromp(true), VarRef) : nullptr;
-                if (baseRefp && VN_IS(nodep->pinsp(), Const)
-                    && VN_IS(baseRefp->varp()->dtypep()->skipRefp(), DynArrayDType)
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ origp = ਸੂਚਕਾਂਕ_Is_Rand ? ਖਾਲੀ_ਸੂਚਕ : nodep->clone_ਰੁੱਖ(ਝੂਠ);
+                ਅਚਲ AstVarRef* ਅਚਲ ਅਧਾਰ_Refp
+                    = m_structSel ? VN_CAST(nodep->fromp()->ਅਧਾਰ_Fromp(ਸੱਚ), VarRef) : ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (ਅਧਾਰ_Refp && VN_IS(nodep->pinsp(), Const)
+                    && VN_IS(ਅਧਾਰ_Refp->varp()->dtypep()->skipRefp(), DynArrayDType)
                     && m_prepareConstrainedArraysp) {
-                    AstNodeExpr* const indexp = nodep->pinsp()->cloneTreePure(false);
-                    AstNodeExpr* const arrayp = nodep->fromp()->cloneTreePure(false);
-                    AstCMethodHard* const currentSizep
-                        = new AstCMethodHard{fl, arrayp->cloneTreePure(false), VCMethod::DYN_SIZE};
-                    currentSizep->dtypeSetInt();
-                    AstNodeExpr* const inRangeRequiredp = new AstLogAnd{
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ indexp = nodep->pinsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ arrayp = nodep->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                    AstCMethodHard* ਅਚਲ currentSizep
+                        = ਨਵਾਂ AstCMethodHard{fl, arrayp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), VCMethod::DYN_ਮਾਪ};
+                    currentSizep->dtype_ਸੈੱਟ_Int();
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਵਿੱਚ_Range_Requiredp = ਨਵਾਂ AstLogAnd{
                         fl,
-                        new AstLteS{fl,
-                                    new AstConst{fl, AstConst::WidthedValue{}, indexp->width(), 0},
-                                    indexp->cloneTreePure(false)},
-                        new AstGteS{fl, indexp->cloneTreePure(false), currentSizep}};
-                    AstCMethodHard* const resizep
-                        = new AstCMethodHard{fl, arrayp, VCMethod::DYN_RESIZE,
-                                             new AstAdd{fl, indexp, new AstConst{fl, 1}}};
-                    resizep->dtypeSetVoid();
-                    m_prepareConstrainedArraysp->addStmtsp(
-                        new AstIf{fl, inRangeRequiredp, resizep->makeStmt()});
+                        ਨਵਾਂ AstLteS{fl,
+                                    ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, indexp->ਚੌੜਾਈ(), 0},
+                                    indexp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)},
+                        ਨਵਾਂ AstGteS{fl, indexp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), currentSizep}};
+                    AstCMethodHard* ਅਚਲ resizep
+                        = ਨਵਾਂ AstCMethodHard{fl, arrayp, VCMethod::DYN_RESIZE,
+                                             ਨਵਾਂ Ast_ਜੋੜੋ{fl, indexp, ਨਵਾਂ AstConst{fl, 1}}};
+                    resizep->dtype_ਸੈੱਟ_Void();
+                    m_prepareConstrainedArraysp->ਜੋੜੋ_Stmtsp(
+                        ਨਵਾਂ AstIf{fl, ਵਿੱਚ_Range_Requiredp, resizep->makeStmt()});
                 }
-                AstCMethodHard* const sizep
-                    = m_structSel ? new AstCMethodHard{fl, nodep->fromp()->cloneTreePure(false),
-                                                       VCMethod::DYN_SIZE}
-                                  : nullptr;
-                AstNodeExpr* const originalPinp = nodep->pinsp();
+                AstCMethodHard* ਅਚਲ sizep
+                    = m_structSel ? ਨਵਾਂ AstCMethodHard{fl, nodep->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                                                       VCMethod::DYN_ਮਾਪ}
+                                  : ਖਾਲੀ_ਸੂਚਕ;
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ originalPinp = nodep->pinsp();
                 iterateChildren(nodep);
-                AstNodeExpr* const pinp = nodep->pinsp()->unlinkFrBack();
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ pinp = nodep->pinsp()->unlink_Fr_ਪਿੱਠ();
                 AstSFormatF* newp;
-                if (m_structSel) {
-                    if (AstSFormatF* const sformatfp = VN_CAST(pinp, SFormatF)) {
+                ਜੇ (m_structSel) {
+                    ਜੇ (AstSFormatF* ਅਚਲ sformatfp = VN_CAST(pinp, SFormatF)) {
                         sformatfp->name("%x");
                     }
-                    AstNodeExpr* const argsp
-                        = AstNode::addNext(nodep->fromp()->unlinkFrBack(), pinp);
-                    sizep->dtypeSetInt();
-                    AstLogAnd* const condp
-                        = new AstLogAnd{fl,
-                                        new AstLteS{fl,
-                                                    new AstConst{fl, AstConst::WidthedValue{},
-                                                                 originalPinp->width(), 0},
-                                                    originalPinp->cloneTreePure(false)},
-                                        new AstLtS{fl, originalPinp->cloneTreePure(false), sizep}};
-                    m_conditionp = m_conditionp ? new AstLogAnd{fl, m_conditionp, condp} : condp;
-                    newp = new AstSFormatF{fl, "%s.%s", false, argsp};
-                } else {
-                    newp = createSolverArrDerefp(fl, nodep->fromp()->unlinkFrBack(), pinp);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argsp
+                        = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(nodep->fromp()->unlink_Fr_ਪਿੱਠ(), pinp);
+                    sizep->dtype_ਸੈੱਟ_Int();
+                    AstLogAnd* ਅਚਲ condp
+                        = ਨਵਾਂ AstLogAnd{fl,
+                                        ਨਵਾਂ AstLteS{fl,
+                                                    ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{},
+                                                                 originalPinp->ਚੌੜਾਈ(), 0},
+                                                    originalPinp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)},
+                                        ਨਵਾਂ AstLtS{fl, originalPinp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), sizep}};
+                    m_conditionp = m_conditionp ? ਨਵਾਂ AstLogAnd{fl, m_conditionp, condp} : condp;
+                    newp = ਨਵਾਂ AstSFormatF{fl, "%s.%s", ਝੂਠ, argsp};
+                } ਨਹੀਂਤਾਂ {
+                    newp = createSolverArrDerefp(fl, nodep->fromp()->unlink_Fr_ਪਿੱਠ(), pinp);
                 }
                 nodep->replaceWith(newp);
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                if (origp && !hoistRandModeOverSelectAndMember(newp, origp)) {
-                    VL_DO_DANGLING(origp->deleteTree(), origp);
+                VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                ਜੇ (origp && !hoist_Rand_ਬਹੁਲਕ_Over_Select_And_Member(newp, origp)) {
+                    VL_DO_DANGLING(origp->delete_ਰੁੱਖ(), origp);
                 }
 
-            } else if (indexIsRand) {
+            } ਨਹੀਂਤਾਂ ਜੇ (ਸੂਚਕਾਂਕ_Is_Rand) {
                 nodep->v3warn(E_UNSUPPORTED,
                               "Unsupported: Randomization of an index to a non-random variable");
 
-            } else {
-                nodep->user1(false);
+            } ਨਹੀਂਤਾਂ {
+                nodep->user1(ਝੂਠ);
                 UASSERT_OBJ(editFormat(nodep), nodep,
                             "editFormat should return true when user1 is false");
             }
-            return;
+            ਵਾਪਸ;
         }
 
-        if (nodep->method() == VCMethod::ARRAY_INSIDE) {
-            const bool randArr = nodep->fromp()->user1();
+        ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_INSIDE) {
+            ਅਚਲ ਤਾਰਕਿਕ randArr = nodep->fromp()->user1();
 
-            AstVar* const newVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, "__Vinside", nodep->findIntDType()};
-            AstNodeExpr* const idxRefp = new AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
-            AstForeachHeader* const headerp
-                = new AstForeachHeader{fl, nodep->fromp()->cloneTreePure(false), newVarp};
-            AstNodeExpr* const selp = newSel(nodep->fileline(), nodep->fromp(), idxRefp);
+            AstVar* ਅਚਲ newVarp
+                = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "__Vinside", nodep->ਲੱਭੋ_Int_DType()};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxRefp = ਨਵਾਂ AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
+            Ast_Foreach_ਸਿਰਲੇਖ* ਅਚਲ headerp
+                = ਨਵਾਂ Ast_Foreach_ਸਿਰਲੇਖ{fl, nodep->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), newVarp};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ selp = newSel(nodep->fileline(), nodep->fromp(), idxRefp);
             selp->user1(randArr);
-            AstNode* const itemp = new AstEq{fl, selp, nodep->pinsp()->unlinkFrBack()};
-            itemp->user1(true);
+            Ast_ਗੰਢ* ਅਚਲ itemp = ਨਵਾਂ AstEq{fl, selp, nodep->pinsp()->unlink_Fr_ਪਿੱਠ()};
+            itemp->user1(ਸੱਚ);
 
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            cstmtp->add("ret += \" \";\n");
-            cstmtp->add("ret += ");
-            cstmtp->add(iterateSubtreeReturnEdits(itemp));
-            cstmtp->add(";");
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->dtypeSetString();
-            cexprp->add("([&]{\nstd::string ret;\n");
-            cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                     new AstForeach{fl, headerp, cstmtp}, true});
-            cexprp->add("return ret.empty() ? \"#b0\" : \"(bvor\" + ret + \")\";\n})()");
-            nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            AstCStmt* ਅਚਲ cstmtp = ਨਵਾਂ AstCStmt{fl};
+            cstmtp->ਜੋੜੋ("ret += \" \";\n");
+            cstmtp->ਜੋੜੋ("ret += ");
+            cstmtp->ਜੋੜੋ(iterateSubtreeReturnEdits(itemp));
+            cstmtp->ਜੋੜੋ(";");
+            AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{fl};
+            cexprp->dtype_ਸੈੱਟ_String();
+            cexprp->ਜੋੜੋ("([&]{\nstd::string ret;\n");
+            cexprp->ਜੋੜੋ(ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"),
+                                     ਨਵਾਂ AstForeach{fl, headerp, cstmtp}, ਸੱਚ});
+            cexprp->ਜੋੜੋ("return ret.empty() ? \"#b0\" : \"(bvor\" + ret + \")\";\n})()");
+            nodep->replaceWith(ਨਵਾਂ AstSFormatF{fl, "%s", ਝੂਠ, cexprp});
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
         }
 
         // Array reduction methods (sum, product, and, or, xor)
-        if (nodep->method() == VCMethod::ARRAY_R_SUM
-            || nodep->method() == VCMethod::ARRAY_R_PRODUCT
-            || nodep->method() == VCMethod::ARRAY_R_AND || nodep->method() == VCMethod::ARRAY_R_OR
-            || nodep->method() == VCMethod::ARRAY_R_XOR) {
+        ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਜੋੜ
+            || nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਗੁਣਨਫਲ
+            || nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_AND || nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_OR
+            || nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_XOR) {
 
-            AstWith* const withp = nodep->withp();
+            AstWith* ਅਚਲ withp = nodep->withp();
 
             // For 'with' clause: check array size limit and item.index support
-            if (withp) {
-                if (AstUnpackArrayDType* const adtypep
+            ਜੇ (withp) {
+                ਜੇ (AstUnpackArrayDType* ਅਚਲ adtypep
                     = VN_CAST(nodep->fromp()->dtypep()->skipRefp(), UnpackArrayDType)) {
-                    const int arraySize = adtypep->elementsConst();
-                    if (arraySize > v3Global.opt.constraintArrayLimit()) {
+                    ਅਚਲ ਪੂਰਨ array_ਮਾਪ_2 = adtypep->elementsConst();
+                    ਜੇ (array_ਮਾਪ_2 > v3Global.opt.constraint_Array_ਹੱਦਬੰਦੀ()) {
                         nodep->v3warn(CONSTRAINTIGN,
                                       "Constraint array reduction ignored (array size "
-                                          + cvtToStr(arraySize)
+                                          + cvt_ਮੰਜ਼ਿਲ_Str(array_ਮਾਪ_2)
                                           + " exceeds --constraint-array-limit of "
-                                          + cvtToStr(v3Global.opt.constraintArrayLimit())
+                                          + cvt_ਮੰਜ਼ਿਲ_Str(v3Global.opt.constraint_Array_ਹੱਦਬੰਦੀ())
                                           + "), treating as state");
-                        nodep->user1(false);
-                        if (editFormat(nodep)) return;
+                        nodep->user1(ਝੂਠ);
+                        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
                         nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
-                        return;
+                        ਵਾਪਸ;
                     }
                 }
             }
 
             // For without 'with' clause: need random array for variable registration
-            const bool hasRandomArray = nodep->fromp()->user1();
-            if (!withp && !hasRandomArray) {
+            ਅਚਲ ਤਾਰਕਿਕ hasRandomArray = nodep->fromp()->user1();
+            ਜੇ (!withp && !hasRandomArray) {
                 // No 'with' clause and not a random array - can't handle
                 nodep->v3warn(CONSTRAINTIGN,
                               "Unsupported: randomizing this expression, treating as state");
-                nodep->user1(false);
-                if (editFormat(nodep)) return;
+                nodep->user1(ਝੂਠ);
+                ਜੇ (editFormat(nodep)) ਵਾਪਸ;
                 nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
-                return;
+                ਵਾਪਸ;
             }
-            if (!VN_IS(nodep->fromp(), VarRef)) {
+            ਜੇ (!VN_IS(nodep->fromp(), VarRef)) {
                 // Non-dynamic subarrays and member arrays are handled in other parts of code
                 nodep->v3warn(CONSTRAINTIGN, "Unsupported: Array reduction constraint on dynamic "
                                              "array inside array or struct");
-                return;
+                ਵਾਪਸ;
             }
 
             // Create loop variable and header
-            AstVar* const loopVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, "__Vreduce", nodep->findIntDType()};
-            AstForeachHeader* const headerp
-                = new AstForeachHeader{fl, nodep->fromp()->cloneTreePure(false), loopVarp};
+            AstVar* ਅਚਲ loopVarp
+                = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "__Vreduce", nodep->ਲੱਭੋ_Int_DType()};
+            Ast_Foreach_ਸਿਰਲੇਖ* ਅਚਲ headerp
+                = ਨਵਾਂ Ast_Foreach_ਸਿਰਲੇਖ{fl, nodep->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), loopVarp};
 
             // Determine SMT operation and compute identity elements
-            const char* smtOp = nullptr;
-            std::string identity;
-            if (withp) {
+            ਅਚਲ ਅੱਖਰ* smtOp = ਖਾਲੀ_ਸੂਚਕ;
+            std::string ਪਛਾਣ_ਤੱਤ;
+            ਜੇ (withp) {
                 // For 'with' clause: use binary format, compute from result width
-                const int width = nodep->dtypep()->width();
-                if (nodep->method() == VCMethod::ARRAY_R_SUM) {
+                ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = nodep->dtypep()->ਚੌੜਾਈ();
+                ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਜੋੜ) {
                     smtOp = "bvadd";
-                    identity = "#b" + std::string(width, '0');
-                } else if (nodep->method() == VCMethod::ARRAY_R_PRODUCT) {
+                    ਪਛਾਣ_ਤੱਤ = "#b" + std::string(ਚੌੜਾਈ, '0');
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਗੁਣਨਫਲ) {
                     smtOp = "bvmul";
-                    identity = (width > 0) ? "#b" + std::string(width - 1, '0') + "1" : "#b0";
-                } else if (nodep->method() == VCMethod::ARRAY_R_AND) {
+                    ਪਛਾਣ_ਤੱਤ = (ਚੌੜਾਈ > 0) ? "#b" + std::string(ਚੌੜਾਈ - 1, '0') + "1" : "#b0";
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_AND) {
                     smtOp = "bvand";
-                    identity = "#b" + std::string(width, '1');
-                } else if (nodep->method() == VCMethod::ARRAY_R_OR) {
+                    ਪਛਾਣ_ਤੱਤ = "#b" + std::string(ਚੌੜਾਈ, '1');
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_OR) {
                     smtOp = "bvor";
-                    identity = "#b" + std::string(width, '0');
-                } else {  // ARRAY_R_XOR
+                    ਪਛਾਣ_ਤੱਤ = "#b" + std::string(ਚੌੜਾਈ, '0');
+                } ਨਹੀਂਤਾਂ {  // ARRAY_R_XOR
                     smtOp = "bvxor";
-                    identity = "#b" + std::string(width, '0');
+                    ਪਛਾਣ_ਤੱਤ = "#b" + std::string(ਚੌੜਾਈ, '0');
                 }
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 // For without 'with' clause: use hex format, compute from element width
-                AstVarRef* const arrRefp = VN_CAST(nodep->fromp(), VarRef);
+                AstVarRef* ਅਚਲ arrRefp = VN_CAST(nodep->fromp(), VarRef);
                 UASSERT_OBJ(arrRefp, nodep, "Array reduction in constraint has non-VarRef source");
-                AstVar* const arrVarp = arrRefp->varp();
-                AstNodeDType* elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
-                const int elemWidth = elemDtp->width();
-                const int hexDigits = (elemWidth + 3) / 4;
+                AstVar* ਅਚਲ arrVarp = arrRefp->varp();
+                Ast_ਗੰਢ_DType* elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
+                ਅਚਲ ਪੂਰਨ elem_ਚੌੜਾਈ = elemDtp->ਚੌੜਾਈ();
+                ਅਚਲ ਪੂਰਨ hexDigits = (elem_ਚੌੜਾਈ + 3) / 4;
 
-                const std::string zeroIdentity = "#x" + std::string(hexDigits, '0');
-                const std::string oneIdentity = "#x" + std::string(hexDigits - 1, '0') + "1";
-                const std::string allOnesIdentity = "#x" + std::string(hexDigits, 'f');
+                ਅਚਲ std::string zero_ਪਛਾਣ_ਤੱਤ = "#x" + std::string(hexDigits, '0');
+                ਅਚਲ std::string one_ਪਛਾਣ_ਤੱਤ = "#x" + std::string(hexDigits - 1, '0') + "1";
+                ਅਚਲ std::string all_Ones_ਪਛਾਣ_ਤੱਤ = "#x" + std::string(hexDigits, 'f');
 
-                if (nodep->method() == VCMethod::ARRAY_R_SUM) {
+                ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਜੋੜ) {
                     smtOp = "bvadd";
-                    identity = zeroIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_PRODUCT) {
+                    ਪਛਾਣ_ਤੱਤ = zero_ਪਛਾਣ_ਤੱਤ;
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_ਗੁਣਨਫਲ) {
                     smtOp = "bvmul";
-                    identity = oneIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_AND) {
+                    ਪਛਾਣ_ਤੱਤ = one_ਪਛਾਣ_ਤੱਤ;
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_AND) {
                     smtOp = "bvand";
-                    identity = allOnesIdentity;
-                } else if (nodep->method() == VCMethod::ARRAY_R_OR) {
+                    ਪਛਾਣ_ਤੱਤ = all_Ones_ਪਛਾਣ_ਤੱਤ;
+                } ਨਹੀਂਤਾਂ ਜੇ (nodep->ਵਿਧੀ() == VCMethod::ARRAY_R_OR) {
                     smtOp = "bvor";
-                    identity = zeroIdentity;
-                } else {  // ARRAY_R_XOR
+                    ਪਛਾਣ_ਤੱਤ = zero_ਪਛਾਣ_ਤੱਤ;
+                } ਨਹੀਂਤਾਂ {  // ARRAY_R_XOR
                     smtOp = "bvxor";
-                    identity = zeroIdentity;
+                    ਪਛਾਣ_ਤੱਤ = zero_ਪਛਾਣ_ਤੱਤ;
                 }
             }
 
             // Build loop body based on whether we have a 'with' clause
-            AstCStmt* const cstmtp = new AstCStmt{fl};
-            if (withp) {
+            AstCStmt* ਅਚਲ cstmtp = ਨਵਾਂ AstCStmt{fl};
+            ਜੇ (withp) {
                 // With 'with' clause: evaluate expression for each element
-                const bool randArr = nodep->fromp()->user1();
-                AstNodeExpr* const idxRefp = new AstVarRef{fl, loopVarp, VAccess::READ};
-                AstNodeExpr* const elemSelp = newSel(fl, nodep->fromp(), idxRefp);
+                ਅਚਲ ਤਾਰਕਿਕ randArr = nodep->fromp()->user1();
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ idxRefp = ਨਵਾਂ AstVarRef{fl, loopVarp, VAccess::READ};
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ elemSelp = newSel(fl, nodep->fromp(), idxRefp);
                 elemSelp->user1(randArr);
 
                 // Get the result width for the reduction
-                const int resultWidth = nodep->dtypep()->width();
-                const VSigning resultSigning = nodep->dtypep()->numeric();
+                ਅਚਲ ਪੂਰਨ ਨਤੀਜਾ_ਚੌੜਾਈ = nodep->dtypep()->ਚੌੜਾਈ();
+                ਅਚਲ VSigning ਨਤੀਜਾ_Signing = nodep->dtypep()->numeric();
 
-                AstNode* perElemExprp = withp->exprp()->cloneTreePure(false);
-                if (AstLambdaArgRef* const rootRefp = VN_CAST(perElemExprp, LambdaArgRef)) {
-                    if (rootRefp->index()) {
+                Ast_ਗੰਢ* ਪ੍ਰਤੀ_Elem_Exprp = withp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                ਜੇ (AstLambdaArgRef* ਅਚਲ ਜੜ੍ਹ_Refp = VN_CAST(ਪ੍ਰਤੀ_Elem_Exprp, LambdaArgRef)) {
+                    ਜੇ (ਜੜ੍ਹ_Refp->ਸੂਚਕਾਂਕ()) {
                         // item.index at root -> replace with loop variable, adjust width
-                        AstVarRef* const loopRef = new AstVarRef{fl, loopVarp, VAccess::READ};
-                        perElemExprp = adjustWidth(fl, loopRef, resultWidth, resultSigning);
-                    } else {
+                        AstVarRef* ਅਚਲ loopRef = ਨਵਾਂ AstVarRef{fl, loopVarp, VAccess::READ};
+                        ਪ੍ਰਤੀ_Elem_Exprp = adjust_ਚੌੜਾਈ(fl, loopRef, ਨਤੀਜਾ_ਚੌੜਾਈ, ਨਤੀਜਾ_Signing);
+                    } ਨਹੀਂਤਾਂ {
                         // item at root -> replace with array element
-                        perElemExprp = elemSelp->cloneTreePure(false);
+                        ਪ੍ਰਤੀ_Elem_Exprp = elemSelp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
                     }
-                    VL_DO_DANGLING(rootRefp->deleteTree(), rootRefp);
-                } else {
-                    perElemExprp->foreach([&](AstLambdaArgRef* refp) {
-                        if (refp->index()) {
+                    VL_DO_DANGLING(ਜੜ੍ਹ_Refp->delete_ਰੁੱਖ(), ਜੜ੍ਹ_Refp);
+                } ਨਹੀਂਤਾਂ {
+                    ਪ੍ਰਤੀ_Elem_Exprp->foreach([&](AstLambdaArgRef* refp) {
+                        ਜੇ (refp->ਸੂਚਕਾਂਕ()) {
                             // item.index -> replace with loop variable, adjust width
-                            AstVarRef* const loopRef = new AstVarRef{fl, loopVarp, VAccess::READ};
-                            AstNode* const replacement
-                                = adjustWidth(fl, loopRef, resultWidth, resultSigning);
+                            AstVarRef* ਅਚਲ loopRef = ਨਵਾਂ AstVarRef{fl, loopVarp, VAccess::READ};
+                            Ast_ਗੰਢ* ਅਚਲ replacement
+                                = adjust_ਚੌੜਾਈ(fl, loopRef, ਨਤੀਜਾ_ਚੌੜਾਈ, ਨਤੀਜਾ_Signing);
                             refp->replaceWith(replacement);
-                        } else {
+                        } ਨਹੀਂਤਾਂ {
                             // item -> replace with array element
-                            refp->replaceWith(elemSelp->cloneTreePure(false));
+                            refp->replaceWith(elemSelp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
                         }
-                        VL_DO_DANGLING(pushDeletep(refp), refp);
+                        VL_DO_DANGLING(ਧੱਕੋ_Deletep(refp), refp);
                     });
                 }
-                VL_DO_DANGLING(elemSelp->deleteTree(), elemSelp);
+                VL_DO_DANGLING(elemSelp->delete_ਰੁੱਖ(), elemSelp);
 
                 // enum-literal folding pass already ran -- re-fold the literals.
-                perElemExprp = V3Const::constifyEdit(perElemExprp);
+                ਪ੍ਰਤੀ_Elem_Exprp = V3Const::constifyEdit(ਪ੍ਰਤੀ_Elem_Exprp);
 
-                perElemExprp->foreach([&](AstNode* nodep) {
+                ਪ੍ਰਤੀ_Elem_Exprp->foreach([&](Ast_ਗੰਢ* nodep) {
                     // Don't mark loop variable references as randomizable
-                    if (!VN_IS(nodep, Const)) {
-                        if (AstNodeVarRef* const vrefp = VN_CAST(nodep, NodeVarRef)) {
-                            if (vrefp->varp() != loopVarp) nodep->user1(true);
-                        } else {
-                            nodep->user1(true);
+                    ਜੇ (!VN_IS(nodep, Const)) {
+                        ਜੇ (Ast_ਗੰਢ_Var_Ref* ਅਚਲ vrefp = VN_CAST(nodep, ਗੰਢ_Var_Ref)) {
+                            ਜੇ (vrefp->varp() != loopVarp) nodep->user1(ਸੱਚ);
+                        } ਨਹੀਂਤਾਂ {
+                            nodep->user1(ਸੱਚ);
                         }
                     }
                 });
 
-                cstmtp->add("ret = \"(" + std::string(smtOp) + " \" + ret + \" \";\n");
-                cstmtp->add("ret += ");
-                cstmtp->add(iterateSubtreeReturnEdits(perElemExprp));
-                cstmtp->add(";\n");
-                cstmtp->add("ret += \")\";\n");
-            } else {
+                cstmtp->ਜੋੜੋ("ret = \"(" + std::string(smtOp) + " \" + ret + \" \";\n");
+                cstmtp->ਜੋੜੋ("ret += ");
+                cstmtp->ਜੋੜੋ(iterateSubtreeReturnEdits(ਪ੍ਰਤੀ_Elem_Exprp));
+                cstmtp->ਜੋੜੋ(";\n");
+                cstmtp->ਜੋੜੋ("ret += \")\";\n");
+            } ਨਹੀਂਤਾਂ {
                 // Without 'with' clause: register each element as solver variable
-                AstVarRef* const arrRefp = VN_CAST(nodep->fromp(), VarRef);
-                AstVar* const arrVarp = arrRefp->varp();
-                const std::string smtArrayName = arrVarp->name();
-                AstNodeDType* const elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
-                const int elemWidth = elemDtp->width();
-                AstNodeModule* const arrModulep = VN_AS(arrVarp->user2p(), NodeModule);
-                AstNodeModule* const genModulep = VN_AS(m_genp->user2p(), NodeModule);
-                arrVarp->user3(true);
+                AstVarRef* ਅਚਲ arrRefp = VN_CAST(nodep->fromp(), VarRef);
+                AstVar* ਅਚਲ arrVarp = arrRefp->varp();
+                ਅਚਲ std::string smtArrayName = arrVarp->name();
+                Ast_ਗੰਢ_DType* ਅਚਲ elemDtp = arrVarp->dtypep()->skipRefp()->subDTypep();
+                ਅਚਲ ਪੂਰਨ elem_ਚੌੜਾਈ = elemDtp->ਚੌੜਾਈ();
+                Ast_ਗੰਢ_Module* ਅਚਲ arrModulep = VN_AS(arrVarp->user2p(), ਗੰਢ_Module);
+                Ast_ਗੰਢ_Module* ਅਚਲ genModulep = VN_AS(m_genp->user2p(), ਗੰਢ_Module);
+                arrVarp->user3(ਸੱਚ);
 
                 // Add write_var call to init task
-                AstNodeExpr* const arrVarNamep
-                    = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + smtArrayName + "\"", elemWidth};
-                AstCMethodHard* const writeVarCallp
-                    = new AstCMethodHard{fl, new AstVarRef{fl, genModulep, m_genp, VAccess::READ},
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ arrVarNamep
+                    = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + smtArrayName + "\"", elem_ਚੌੜਾਈ};
+                AstCMethodHard* ਅਚਲ writeVarCallp
+                    = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, genModulep, m_genp, VAccess::READ},
                                          VCMethod::RANDOMIZER_WRITE_VAR};
-                writeVarCallp->addPinsp(new AstVarRef{fl, arrModulep, arrVarp, VAccess::READ});
-                writeVarCallp->addPinsp(
-                    new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(elemWidth)});
-                writeVarCallp->addPinsp(arrVarNamep);
-                const uint32_t unpackedDims = arrVarp->dtypep()->dimensions(false).second;
+                writeVarCallp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstVarRef{fl, arrModulep, arrVarp, VAccess::READ});
+                writeVarCallp->ਜੋੜੋ_Pinsp(
+                    ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(elem_ਚੌੜਾਈ)});
+                writeVarCallp->ਜੋੜੋ_Pinsp(arrVarNamep);
+                ਅਚਲ uint32_t unpackedDims = arrVarp->dtypep()->dimensions(ਝੂਠ).ਦੂਜਾ;
                 UASSERT_OBJ(unpackedDims == 1, arrVarp, "Array isn't 1-D");
-                writeVarCallp->addPinsp(new AstConst{fl, 1});  // Dimension
+                writeVarCallp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, 1});  // Dimension
 
-                const RandomizeMode randMode = {.asUQuad = arrVarp->user1()};
-                if (randMode.usesMode) {
-                    writeVarCallp->addPinsp(
-                        new AstConst{fl, AstConst::Unsized64{}, randMode.index});
+                ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = arrVarp->user1()};
+                ਜੇ (rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+                    writeVarCallp->ਜੋੜੋ_Pinsp(
+                        ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ});
                 }
-                writeVarCallp->dtypeSetVoid();
-                AstNodeFTask* initTaskp = m_inlineInitTaskp;
-                if (!initTaskp) {
-                    initTaskp = VN_AS(m_memberMap.findMember(arrModulep, "new"), NodeFTask);
+                writeVarCallp->dtype_ਸੈੱਟ_Void();
+                Ast_ਗੰਢ_FTask* initTaskp = m_inlineInitTaskp;
+                ਜੇ (!initTaskp) {
+                    initTaskp = VN_AS(m_memberMap.ਲੱਭੋ_Member(arrModulep, "new"), ਗੰਢ_FTask);
                     UASSERT_OBJ(initTaskp, arrModulep, "No new() in class");
                 }
-                initTaskp->addStmtsp(writeVarCallp->makeStmt());
+                initTaskp->ਜੋੜੋ_Stmtsp(writeVarCallp->makeStmt());
 
                 // Create solver constraints
-                AstSFormatF* const idxFormatp = new AstSFormatF{
-                    fl, "#x%08x", false, new AstVarRef{fl, loopVarp, VAccess::READ}};
+                AstSFormatF* ਅਚਲ idxFormatp = ਨਵਾਂ AstSFormatF{
+                    fl, "#x%08x", ਝੂਠ, ਨਵਾਂ AstVarRef{fl, loopVarp, VAccess::READ}};
                 iterateChildren(nodep);
-                AstSFormatF* const varNamep
-                    = createSolverArrDerefp(fl, nodep->fromp()->unlinkFrBack(), idxFormatp);
+                AstSFormatF* ਅਚਲ varNamep
+                    = createSolverArrDerefp(fl, nodep->fromp()->unlink_Fr_ਪਿੱਠ(), idxFormatp);
 
-                cstmtp->add("ret += \" \";\n");
-                cstmtp->add("ret += ");
-                cstmtp->add(varNamep);
-                cstmtp->add(";\n");
+                cstmtp->ਜੋੜੋ("ret += \" \";\n");
+                cstmtp->ਜੋੜੋ("ret += ");
+                cstmtp->ਜੋੜੋ(varNamep);
+                cstmtp->ਜੋੜੋ(";\n");
             }
 
             // Build final expression
-            if (withp) {
+            ਜੇ (withp) {
                 // For 'with' clause: use lambda expression with AstCExpr
-                AstCExpr* const cexprp = new AstCExpr{fl};
-                cexprp->dtypeSetString();
-                cexprp->add("([&]{\nstd::string ret = \"" + identity + "\";\n");
-                cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                         new AstForeach{fl, headerp, cstmtp}, true});
-                cexprp->add("return ret;\n})()");
-                nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
-            } else {
+                AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{fl};
+                cexprp->dtype_ਸੈੱਟ_String();
+                cexprp->ਜੋੜੋ("([&]{\nstd::string ret = \"" + ਪਛਾਣ_ਤੱਤ + "\";\n");
+                cexprp->ਜੋੜੋ(ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"),
+                                         ਨਵਾਂ AstForeach{fl, headerp, cstmtp}, ਸੱਚ});
+                cexprp->ਜੋੜੋ("return ret;\n})()");
+                nodep->replaceWith(ਨਵਾਂ AstSFormatF{fl, "%s", ਝੂਠ, cexprp});
+            } ਨਹੀਂਤਾਂ {
                 // For without 'with' clause: use AstCExpr with conditional
-                AstCExpr* const cexprp = new AstCExpr{fl};
-                cexprp->dtypeSetString();
-                cexprp->add("([&]{\nstd::string ret;\n");
-                cexprp->add(new AstBegin{fl, m_uniqueNames.get("__VrandBlock"),
-                                         new AstForeach{fl, headerp, cstmtp}, true});
-                cexprp->add("return ret.empty() ? \"" + identity + "\" : \"(" + smtOp
+                AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{fl};
+                cexprp->dtype_ਸੈੱਟ_String();
+                cexprp->ਜੋੜੋ("([&]{\nstd::string ret;\n");
+                cexprp->ਜੋੜੋ(ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"),
+                                         ਨਵਾਂ AstForeach{fl, headerp, cstmtp}, ਸੱਚ});
+                cexprp->ਜੋੜੋ("return ret.empty() ? \"" + ਪਛਾਣ_ਤੱਤ + "\" : \"(" + smtOp
                             + "\" + ret + \")\";\n})()");
-                nodep->replaceWith(new AstSFormatF{fl, "%s", false, cexprp});
+                nodep->replaceWith(ਨਵਾਂ AstSFormatF{fl, "%s", ਝੂਠ, cexprp});
             }
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
-            return;
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+            ਵਾਪਸ;
         }
 
         // We've handled DYN_SIZE already if they should be randomized
-        if (nodep->method() == VCMethod::DYN_SIZE || nodep->method() == VCMethod::ASSOC_SIZE) {
-            AstNodeExpr* nodeExprp = nodep->fromp();
+        ਜੇ (nodep->ਵਿਧੀ() == VCMethod::DYN_ਮਾਪ || nodep->ਵਿਧੀ() == VCMethod::ASSOC_ਮਾਪ) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਗੰਢ_Exprp = nodep->fromp();
             // Check if it is a pure chain of MemberSel ended with VarRef
             // if not throw warning
-            while (VN_IS(nodeExprp, MemberSel)) {
-                nodeExprp = VN_AS(nodeExprp, MemberSel)->fromp();
+            ਜਦੋਂ (VN_IS(ਗੰਢ_Exprp, MemberSel)) {
+                ਗੰਢ_Exprp = VN_AS(ਗੰਢ_Exprp, MemberSel)->fromp();
             }
-            if (VN_IS(nodeExprp, VarRef)) {
-                nodep->replaceWith(getConstFormat(nodep->cloneTreePure(false)));
-                VL_DO_DANGLING(nodep->deleteTree(), nodep);
-                return;
+            ਜੇ (VN_IS(ਗੰਢ_Exprp, VarRef)) {
+                nodep->replaceWith(getConstFormat(nodep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)));
+                VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
+                ਵਾਪਸ;
             }
         }
 
         nodep->v3warn(CONSTRAINTIGN,
                       "Unsupported: randomizing this expression, treating as state");
-        nodep->user1(false);
+        nodep->user1(ਝੂਠ);
 
-        if (editFormat(nodep)) return;
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         nodep->v3fatalSrc("Method not handled in constraints? " << nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask_Ref* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
 
-        AstFunc* const funcp = VN_CAST(nodep->taskp(), Func);
-        if (!funcp) {
+        AstFunc* ਅਚਲ funcp = VN_CAST(nodep->taskp(), Func);
+        ਜੇ (!funcp) {
             // Tasks have no return value and can't appear in expressions.
             // Parser rejects this, so reaching here indicates a compiler bug.
             nodep->v3fatalSrc("Unexpected task call in constraint expression");
-            return;
+            ਵਾਪਸ;
         }
 
-        AstNodeExpr* const retExprp = extractReturnExpr(funcp);
-        if (!retExprp) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ retExprp = ਕੱਢੋ_Return_ਵਿਅੰਜਕ(funcp);
+        ਜੇ (!retExprp) {
             nodep->v3warn(CONSTRAINTIGN,
                           "Unsupported: complex function in constraint, treating as state");
-            nodep->user1(false);
-            if (editFormat(nodep)) return;
-            return;
+            nodep->user1(ਝੂਠ);
+            ਜੇ (editFormat(nodep)) ਵਾਪਸ;
+            ਵਾਪਸ;
         }
 
         // Map formal parameters to actual arguments using V3Task infrastructure
-        const V3TaskConnects tconnects
-            = V3Task::taskConnects(nodep, funcp->stmtsp(), nullptr, false);
+        ਅਚਲ V3TaskConnects tconnects
+            = V3Task::taskConnects(nodep, funcp->stmtsp(), ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ);
 
         // Clone return expression, substitute params with args.
         // Track the root via a local pointer: when the root itself is a VarRef to a port
         // (e.g. body `F = d;`), the cloned root has no back pointer, so foreach's
         // replaceWith would trip the "no back" assertion -- substitute the root pointer
         // directly instead.
-        AstNodeExpr* inlinedp = retExprp->cloneTreePure(false);
-        for (const auto& tconnect : tconnects) {
-            const AstVar* const portp = tconnect.first;
-            AstArg* const argp = tconnect.second;
-            if (!argp || !argp->exprp()) continue;
-            if (AstVarRef* const rootRefp = VN_CAST(inlinedp, VarRef)) {
-                if (rootRefp->varp() == portp) {
-                    inlinedp = argp->exprp()->cloneTreePure(false);
-                    VL_DO_DANGLING(rootRefp->deleteTree(), rootRefp);
-                    continue;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* inlinedp = retExprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& tconnect : tconnects) {
+            ਅਚਲ AstVar* ਅਚਲ portp = tconnect.ਪਹਿਲਾ;
+            AstArg* ਅਚਲ argp = tconnect.ਦੂਜਾ;
+            ਜੇ (!argp || !argp->exprp()) ਜਾਰੀ;
+            ਜੇ (AstVarRef* ਅਚਲ ਜੜ੍ਹ_Refp = VN_CAST(inlinedp, VarRef)) {
+                ਜੇ (ਜੜ੍ਹ_Refp->varp() == portp) {
+                    inlinedp = argp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                    VL_DO_DANGLING(ਜੜ੍ਹ_Refp->delete_ਰੁੱਖ(), ਜੜ੍ਹ_Refp);
+                    ਜਾਰੀ;
                 }
             }
             inlinedp->foreach([&](AstVarRef* refp) {
-                if (refp->varp() == portp) {
-                    refp->replaceWith(argp->exprp()->cloneTreePure(false));
-                    VL_DO_DANGLING(refp->deleteTree(), refp);
+                ਜੇ (refp->varp() == portp) {
+                    refp->replaceWith(argp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+                    VL_DO_DANGLING(refp->delete_ਰੁੱਖ(), refp);
                 }
             });
         }
@@ -3558,17 +3558,17 @@ class ConstraintExprVisitor final : public VNVisitor {
         inlinedp->dtypep(nodep->dtypep());
         propagateUser1InlineRecurse(inlinedp);
         nodep->replaceWith(inlinedp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         iterate(inlinedp);
     }
     // Skip non-constraint stmts appended to the iterating list during inline randomize-with
-    void visit(AstNodeStmt* nodep) override {}
-    void visit(AstNodeExpr* nodep) override {
-        if (editFormat(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Stmt* nodep) override {}
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) override {
+        ਜੇ (editFormat(nodep)) ਵਾਪਸ;
         nodep->v3fatalSrc(
             "Visit function missing? Constraint function missing for math node: " << nodep);
     }
-    void visit(AstNode* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
         nodep->v3fatalSrc(
             "Visit function missing? Constraint function missing for node: " << nodep);
     }
@@ -3576,23 +3576,23 @@ class ConstraintExprVisitor final : public VNVisitor {
     // Build the runtime statement that calls RANDOMIZER_DISABLE_SOFT on the
     // variable referenced by the given AstConstraintExpr.  Parser enforces
     // constraint_primary operand (verilog.y, IEEE 1800-2023 18.5.13).
-    AstNode* buildDisableSoftCallStmt(AstConstraintExpr* nodep) {
+    Ast_ਗੰਢ* buildDisableSoftCallStmt(Ast_Constraint_ਵਿਅੰਜਕ* nodep) {
         std::string varName;
-        if (const AstNodeVarRef* const vrefp = VN_CAST(nodep->exprp(), NodeVarRef)) {
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ vrefp = VN_CAST(nodep->exprp(), ਗੰਢ_Var_Ref)) {
             varName = vrefp->name();
-        } else if (const AstMemberSel* const mselp = VN_CAST(nodep->exprp(), MemberSel)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mselp = VN_CAST(nodep->exprp(), MemberSel)) {
             varName = mselp->name();
-        } else {
+        } ਨਹੀਂਤਾਂ {
             nodep->v3fatalSrc("Unexpected expression type in disable soft");
         }
-        AstCMethodHard* const callp = new AstCMethodHard{
+        AstCMethodHard* ਅਚਲ callp = ਨਵਾਂ AstCMethodHard{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), NodeModule), m_genp,
+            ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(m_genp->user2p(), ਗੰਢ_Module), m_genp,
                           VAccess::READWRITE},
             VCMethod::RANDOMIZER_DISABLE_SOFT,
-            new AstConst{nodep->fileline(), AstConst::String{}, varName}};
-        callp->dtypeSetVoid();
-        return callp->makeStmt();
+            ਨਵਾਂ AstConst{nodep->fileline(), AstConst::String{}, varName}};
+        callp->dtype_ਸੈੱਟ_Void();
+        ਵਾਪਸ callp->makeStmt();
     }
 
     // Pre-pass: for every AstConstraintExpr(isDisableSoft) nested inside an
@@ -3604,349 +3604,349 @@ class ConstraintExprVisitor final : public VNVisitor {
     // list to the constraint-items chain; that chain becomes the setup task
     // body, which runs before the solver on every randomize() call -- giving
     // disable-soft real conditional semantics per IEEE 1800-2023 18.5.13.
-    AstNode* extractConditionalDisableSofts(AstNode* itemsp, AstNodeExpr* outerCondp) {
-        AstNode* hoistListp = nullptr;
-        for (AstNode *stmtp = itemsp, *nextp; stmtp; stmtp = nextp) {
+    Ast_ਗੰਢ* ਕੱਢੋ_Conditional_Disable_Softs(Ast_ਗੰਢ* itemsp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* outerCondp) {
+        Ast_ਗੰਢ* hoistListp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (Ast_ਗੰਢ *stmtp = itemsp, *nextp; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();
-            if (AstConstraintIf* const ifp = VN_CAST(stmtp, ConstraintIf)) {
-                FileLine* const fl = ifp->fileline();
+            ਜੇ (AstConstraintIf* ਅਚਲ ifp = VN_CAST(stmtp, ConstraintIf)) {
+                File_ਸਤਰ* ਅਚਲ fl = ifp->fileline();
                 // then branch: accumulated = outer && this.cond
-                AstNodeExpr* const thenCondp
-                    = outerCondp ? static_cast<AstNodeExpr*>(
-                                       new AstLogAnd{fl, outerCondp->cloneTreePure(false),
-                                                     ifp->condp()->cloneTreePure(false)})
-                                 : ifp->condp()->cloneTreePure(false);
-                if (AstNode* const thenHoistp
-                    = extractConditionalDisableSofts(ifp->thensp(), thenCondp)) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ thenCondp
+                    = outerCondp ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                                       ਨਵਾਂ AstLogAnd{fl, outerCondp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                                                     ifp->condp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)})
+                                 : ifp->condp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                ਜੇ (Ast_ਗੰਢ* ਅਚਲ thenHoistp
+                    = ਕੱਢੋ_Conditional_Disable_Softs(ifp->thensp(), thenCondp)) {
                     hoistListp
-                        = hoistListp ? AstNode::addNext(hoistListp, thenHoistp) : thenHoistp;
+                        = hoistListp ? Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(hoistListp, thenHoistp) : thenHoistp;
                 }
-                VL_DO_DANGLING(thenCondp->deleteTree(), thenCondp);
-                if (ifp->elsesp()) {
+                VL_DO_DANGLING(thenCondp->delete_ਰੁੱਖ(), thenCondp);
+                ਜੇ (ifp->elsesp()) {
                     // else branch: accumulated = outer && !this.cond
-                    AstNodeExpr* const notInnerp
-                        = new AstLogNot{fl, ifp->condp()->cloneTreePure(false)};
-                    AstNodeExpr* const elseCondp
-                        = outerCondp ? static_cast<AstNodeExpr*>(new AstLogAnd{
-                                           fl, outerCondp->cloneTreePure(false), notInnerp})
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ notInnerp
+                        = ਨਵਾਂ AstLogNot{fl, ifp->condp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ elseCondp
+                        = outerCondp ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(ਨਵਾਂ AstLogAnd{
+                                           fl, outerCondp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), notInnerp})
                                      : notInnerp;
-                    if (AstNode* const elseHoistp
-                        = extractConditionalDisableSofts(ifp->elsesp(), elseCondp)) {
+                    ਜੇ (Ast_ਗੰਢ* ਅਚਲ elseHoistp
+                        = ਕੱਢੋ_Conditional_Disable_Softs(ifp->elsesp(), elseCondp)) {
                         hoistListp
-                            = hoistListp ? AstNode::addNext(hoistListp, elseHoistp) : elseHoistp;
+                            = hoistListp ? Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(hoistListp, elseHoistp) : elseHoistp;
                     }
-                    VL_DO_DANGLING(elseCondp->deleteTree(), elseCondp);
+                    VL_DO_DANGLING(elseCondp->delete_ਰੁੱਖ(), elseCondp);
                 }
-            } else if (AstConstraintExpr* const exprp = VN_CAST(stmtp, ConstraintExpr)) {
-                if (exprp->isDisableSoft() && outerCondp) {
-                    FileLine* const fl = exprp->fileline();
-                    AstIf* const hoistIfp = new AstIf{fl, outerCondp->cloneTreePure(false),
-                                                      buildDisableSoftCallStmt(exprp), nullptr};
-                    hoistListp = hoistListp ? AstNode::addNext(hoistListp,
-                                                               static_cast<AstNode*>(hoistIfp))
-                                            : static_cast<AstNode*>(hoistIfp);
+            } ਨਹੀਂਤਾਂ ਜੇ (Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ exprp = VN_CAST(stmtp, Constraint_ਵਿਅੰਜਕ)) {
+                ਜੇ (exprp->isDisableSoft() && outerCondp) {
+                    File_ਸਤਰ* ਅਚਲ fl = exprp->fileline();
+                    AstIf* ਅਚਲ hoistIfp = ਨਵਾਂ AstIf{fl, outerCondp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                                                      buildDisableSoftCallStmt(exprp), ਖਾਲੀ_ਸੂਚਕ};
+                    hoistListp = hoistListp ? Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(hoistListp,
+                                                               static_cast<Ast_ਗੰਢ*>(hoistIfp))
+                                            : static_cast<Ast_ਗੰਢ*>(hoistIfp);
                     // Replace in-tree disable-soft with a no-op boolean
                     // constraint so editSingle() folds cleanly.
-                    AstConstraintExpr* const truep
-                        = new AstConstraintExpr{fl, new AstConst{fl, AstConst::BitTrue{}}};
+                    Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ truep
+                        = ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}}};
                     exprp->replaceWith(truep);
-                    VL_DO_DANGLING(exprp->deleteTree(), exprp);
+                    VL_DO_DANGLING(exprp->delete_ਰੁੱਖ(), exprp);
                 }
             }
             // foreach/unique bodies are left untouched: disable-soft inside
             // a foreach would need per-iteration condition support, and
             // unique cannot legally contain disable-soft.
         }
-        return hoistListp;
+        ਵਾਪਸ hoistListp;
     }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit ConstraintExprVisitor(AstClass* classp, VMemberMap& memberMap, AstNode* nodep,
-                                   AstNodeFTask* inlineInitTaskp, AstVar* genp,
-                                   AstVar* randModeVarp, std::set<std::string>& writtenVars,
-                                   uint32_t* uniqueConstraintId, V3UniqueNames& uniqueNames,
-                                   AstNodeFTask* memberselInitTaskp = nullptr,
-                                   VInsertionSet<AstVar*>* sizeConstrainedArraysp = nullptr,
-                                   AstNodeFTask* prepareConstrainedArraysp = nullptr)
+    ਸਪਸ਼ਟ Constraint_ਵਿਅੰਜਕ_Visitor(AstClass* classp, VMemberMap& memberMap, Ast_ਗੰਢ* nodep,
+                                   Ast_ਗੰਢ_FTask* inlineInitTaskp, AstVar* genp,
+                                   AstVar* rand_ਬਹੁਲਕ_Varp, std::ਸੈੱਟ<std::string>& writtenVars,
+                                   uint32_t* uniqueConstraintId, V3_Unique_ਨਾਂ& unique_ਨਾਂ,
+                                   Ast_ਗੰਢ_FTask* memberselInitTaskp = ਖਾਲੀ_ਸੂਚਕ,
+                                   VInsertion_ਸੈੱਟ<AstVar*>* ਮਾਪ_Constrained_Arraysp = ਖਾਲੀ_ਸੂਚਕ,
+                                   Ast_ਗੰਢ_FTask* prepareConstrainedArraysp = ਖਾਲੀ_ਸੂਚਕ)
         : m_classp{classp}
         , m_inlineInitTaskp{inlineInitTaskp}
         , m_memberselInitTaskp{memberselInitTaskp}
         , m_genp{genp}
-        , m_randModeVarp{randModeVarp}
+        , m_rand_ਬਹੁਲਕ_Varp{rand_ਬਹੁਲਕ_Varp}
         , m_memberMap{memberMap}
         , m_writtenVars{writtenVars}
-        , m_sizeConstrainedArraysp{sizeConstrainedArraysp}
+        , m_ਮਾਪ_Constrained_Arraysp{ਮਾਪ_Constrained_Arraysp}
         , m_prepareConstrainedArraysp{prepareConstrainedArraysp}
         , m_uniqueConstraintId{uniqueConstraintId}
-        , m_uniqueNames{uniqueNames} {
+        , m_unique_ਨਾਂ{unique_ਨਾਂ} {
         // Pre-pass before SMT lowering: extract conditional disable-soft
         // directives as runtime AstIf statements and append them to the
         // constraint-items chain so they reach the setup task body.  The SMT
         // visitor skips these via visit(AstIf) above.
-        if (AstNode* const hoistListp
-            = nodep ? extractConditionalDisableSofts(nodep, nullptr) : nullptr) {
-            nodep->addNext(hoistListp);
+        ਜੇ (Ast_ਗੰਢ* ਅਚਲ hoistListp
+            = nodep ? ਕੱਢੋ_Conditional_Disable_Softs(nodep, ਖਾਲੀ_ਸੂਚਕ) : ਖਾਲੀ_ਸੂਚਕ) {
+            nodep->ਜੋੜੋ_ਅਗਲਾ(hoistListp);
         }
-        iterateAndNextNull(nodep);
+        iterate_And_ਅਗਲਾ_Null(nodep);
     }
 };
 
-enum class CaptureMode : uint8_t {
+ਗਿਣਤੀ ਵਰਗ Capture_ਬਹੁਲਕ : uint8_t {
     CAP_NO = 0x0,
-    CAP_VALUE = 0x01,
+    CAP_ਮੁੱਲ = 0x01,
     CAP_THIS = 0x02,
-    CAP_F_SET_CLASSORPACKAGEP = 0x4,
+    CAP_F_ਸੈੱਟ_CLASSORPACKAGEP = 0x4,
     CAP_F_XREF = 0x8
 };
-CaptureMode operator|(CaptureMode a, CaptureMode b) {
-    return static_cast<CaptureMode>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+Capture_ਬਹੁਲਕ ਸੰਚਾਲਕ|(Capture_ਬਹੁਲਕ a, Capture_ਬਹੁਲਕ b) {
+    ਵਾਪਸ static_cast<Capture_ਬਹੁਲਕ>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
 }
-CaptureMode operator&(CaptureMode a, CaptureMode b) {
-    return static_cast<CaptureMode>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+Capture_ਬਹੁਲਕ ਸੰਚਾਲਕ&(Capture_ਬਹੁਲਕ a, Capture_ਬਹੁਲਕ b) {
+    ਵਾਪਸ static_cast<Capture_ਬਹੁਲਕ>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
 }
-CaptureMode mode(CaptureMode a) { return a & static_cast<CaptureMode>(0x3); }
-bool hasFlags(CaptureMode a, CaptureMode flags) {
-    return ((static_cast<uint8_t>(a) & 0xc & static_cast<uint8_t>(flags))
+Capture_ਬਹੁਲਕ ਬਹੁਲਕ(Capture_ਬਹੁਲਕ a) { ਵਾਪਸ a & static_cast<Capture_ਬਹੁਲਕ>(0x3); }
+ਤਾਰਕਿਕ hasFlags(Capture_ਬਹੁਲਕ a, Capture_ਬਹੁਲਕ flags) {
+    ਵਾਪਸ ((static_cast<uint8_t>(a) & 0xc & static_cast<uint8_t>(flags))
             == static_cast<uint8_t>(flags));
 }
 
-class CaptureVisitor final : public VNVisitor {
-    AstArg* m_argsp = nullptr;  // Original references turned into arguments
-    AstNodeModule* m_callerp;  // Module of the outer context (for capturing `this`)
+ਵਰਗ CaptureVisitor final : ਜਨਤਕ VNVisitor {
+    AstArg* m_argsp = ਖਾਲੀ_ਸੂਚਕ;  // Original references turned into arguments
+    Ast_ਗੰਢ_Module* m_callerp;  // Module of the outer context (for capturing `this`)
     AstClass* m_targetp;  // Module of inner context (for symbol lookup)
-    std::map<const AstVar*, AstVar*> m_varCloneMap;  // Map original var nodes to their clones
-    std::set<AstNode*> m_ignore;  // Nodes to ignore for capturing
-    AstVar* m_thisp = nullptr;  // Variable for outer context's object, if necessary
-    bool m_staticContext = false;  // True when capturing from a static function context
+    std::map<ਅਚਲ AstVar*, AstVar*> m_varCloneMap;  // Map original var nodes to their clones
+    std::ਸੈੱਟ<Ast_ਗੰਢ*> m_ignore;  // Nodes to ignore for capturing
+    AstVar* m_thisp = ਖਾਲੀ_ਸੂਚਕ;  // Variable for outer context's object, if necessary
+    ਤਾਰਕਿਕ m_staticContext = ਝੂਠ;  // True when capturing from a static function context
 
     // METHODS
 
-    bool captureVariable(FileLine* const fileline, AstNodeVarRef* varrefp, AstVar*& varp) {
-        auto it = m_varCloneMap.find(varrefp->varp());
-        if (it == m_varCloneMap.end()) {
-            AstVar* const newVarp = varrefp->varp()->cloneTree(false);
+    ਤਾਰਕਿਕ captureVariable(File_ਸਤਰ* ਅਚਲ fileline, Ast_ਗੰਢ_Var_Ref* varrefp, AstVar*& varp) {
+        ਸਵੈਚਾਲਿਤ it = m_varCloneMap.ਲੱਭੋ(varrefp->varp());
+        ਜੇ (it == m_varCloneMap.ਸਿਰਾ()) {
+            AstVar* ਅਚਲ newVarp = varrefp->varp()->clone_ਰੁੱਖ(ਝੂਠ);
             newVarp->fileline(fileline);
             newVarp->varType(VVarType::BLOCKTEMP);
-            newVarp->funcLocal(true);
-            newVarp->direction(VDirection::INPUT);
+            newVarp->funcLocal(ਸੱਚ);
+            newVarp->direction(VDirection::ਨਿਵੇਸ਼);
             newVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
             m_varCloneMap.emplace(varrefp->varp(), newVarp);
             varp = newVarp;
-            return true;
+            ਵਾਪਸ ਸੱਚ;
         }
-        varp = it->second;
-        return false;
+        varp = it->ਦੂਜਾ;
+        ਵਾਪਸ ਝੂਠ;
     }
 
-    template <typename T_Node>
-    void fixupClassOrPackage(AstNode* memberp, T_Node refp) {
-        AstNodeModule* const declClassp = VN_AS(memberp->user2p(), NodeModule);
-        if (declClassp != m_targetp) refp->classOrPackagep(declClassp);
+    ਸਾਂਚਾ <ਕਿਸਮ_ਨਾਂ T_ਗੰਢ>
+    ਖਾਲੀ fixupClassOrPackage(Ast_ਗੰਢ* memberp, T_ਗੰਢ refp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ declClassp = VN_AS(memberp->user2p(), ਗੰਢ_Module);
+        ਜੇ (declClassp != m_targetp) refp->classOrPackagep(declClassp);
     }
 
-    template <typename T_Node>
-    bool isReferenceToInnerMember(T_Node nodep) {
-        return VN_IS(nodep->fromp(), LambdaArgRef);
+    ਸਾਂਚਾ <ਕਿਸਮ_ਨਾਂ T_ਗੰਢ>
+    ਤਾਰਕਿਕ is_Reference_ਮੰਜ਼ਿਲ_Inner_Member(T_ਗੰਢ nodep) {
+        ਵਾਪਸ VN_IS(nodep->fromp(), LambdaArgRef);
     }
 
-    AstVar* importThisp(FileLine* fl) {
-        if (!m_thisp) {
-            AstClassRefDType* const refDTypep
-                = new AstClassRefDType{fl, VN_AS(m_callerp, Class), nullptr};
-            v3Global.rootp()->typeTablep()->addTypesp(refDTypep);
-            m_thisp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vthis", refDTypep};
-            m_thisp->funcLocal(true);
+    AstVar* importThisp(File_ਸਤਰ* fl) {
+        ਜੇ (!m_thisp) {
+            AstClassRefDType* ਅਚਲ refDTypep
+                = ਨਵਾਂ AstClassRefDType{fl, VN_AS(m_callerp, Class), ਖਾਲੀ_ਸੂਚਕ};
+            v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(refDTypep);
+            m_thisp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "__Vthis", refDTypep};
+            m_thisp->funcLocal(ਸੱਚ);
             m_thisp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            m_thisp->direction(VDirection::INPUT);
-            m_argsp = AstNode::addNext(m_argsp, new AstArg{fl, "", new AstThisRef{fl, refDTypep}});
+            m_thisp->direction(VDirection::ਨਿਵੇਸ਼);
+            m_argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(m_argsp, ਨਵਾਂ AstArg{fl, "", ਨਵਾਂ AstThisRef{fl, refDTypep}});
         }
-        return m_thisp;
+        ਵਾਪਸ m_thisp;
     }
 
-    AstVar* getVar(AstVar* const varp) const {
-        const auto it = m_varCloneMap.find(varp);
-        if (it == m_varCloneMap.end()) return nullptr;
-        if (it->second->isStdRandomizeArg()) return nullptr;
-        return it->second;
+    AstVar* getVar(AstVar* ਅਚਲ varp) ਅਚਲ {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_varCloneMap.ਲੱਭੋ(varp);
+        ਜੇ (it == m_varCloneMap.ਸਿਰਾ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (it->ਦੂਜਾ->isStdRandomizeArg()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        ਵਾਪਸ it->ਦੂਜਾ;
     }
 
-    CaptureMode getVarRefCaptureMode(AstNodeVarRef* varRefp) {
-        AstNodeModule* const varModp = VN_AS(varRefp->varp()->user2p(), NodeModule);
-        AstClass* const varClassp = VN_CAST(varModp, Class);
-        AstClass* const callerClassp = VN_CAST(m_callerp, Class);
+    Capture_ਬਹੁਲਕ get_Var_Ref_Capture_ਬਹੁਲਕ(Ast_ਗੰਢ_Var_Ref* varRefp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ varModp = VN_AS(varRefp->varp()->user2p(), ਗੰਢ_Module);
+        AstClass* ਅਚਲ varClassp = VN_CAST(varModp, Class);
+        AstClass* ਅਚਲ callerClassp = VN_CAST(m_callerp, Class);
 
-        const bool callerIsClass = callerClassp;
-        const bool refIsXref = VN_IS(varRefp, VarXRef);
-        const bool varIsFuncLocal = varRefp->varp()->isFuncLocal();
-        const bool varHasAutomaticLifetime = varRefp->varp()->lifetime().isAutomatic();
-        const bool varIsFieldOfCaller = AstClass::isClassExtendedFrom(callerClassp, varClassp);
-        const bool varIsParam = varRefp->varp()->isParam();
-        const bool varIsConstraintIterator
-            = VN_IS(varRefp->varp()->firstAbovep(), ForeachHeader)
-              && VN_IS(varRefp->varp()->firstAbovep()->firstAbovep(), ConstraintForeach);
-        if (refIsXref) return CaptureMode::CAP_VALUE | CaptureMode::CAP_F_XREF;
-        if (varIsConstraintIterator) return CaptureMode::CAP_NO;
-        if (varIsFuncLocal && varHasAutomaticLifetime) return CaptureMode::CAP_VALUE;
-        if (varIsParam) return CaptureMode::CAP_VALUE;
+        ਅਚਲ ਤਾਰਕਿਕ callerIsClass = callerClassp;
+        ਅਚਲ ਤਾਰਕਿਕ refIsXref = VN_IS(varRefp, VarXRef);
+        ਅਚਲ ਤਾਰਕਿਕ varIsFuncLocal = varRefp->varp()->isFuncLocal();
+        ਅਚਲ ਤਾਰਕਿਕ varHasAutomaticLifetime = varRefp->varp()->lifetime().isAutomatic();
+        ਅਚਲ ਤਾਰਕਿਕ var_Is_ਖੇਤਰ_ਦਾ_Caller = AstClass::isClassExtendedFrom(callerClassp, varClassp);
+        ਅਚਲ ਤਾਰਕਿਕ varIsParam = varRefp->varp()->isParam();
+        ਅਚਲ ਤਾਰਕਿਕ varIsConstraintIterator
+            = VN_IS(varRefp->varp()->ਪਹਿਲਾ_Abovep(), Foreach_ਸਿਰਲੇਖ)
+              && VN_IS(varRefp->varp()->ਪਹਿਲਾ_Abovep()->ਪਹਿਲਾ_Abovep(), ConstraintForeach);
+        ਜੇ (refIsXref) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ | Capture_ਬਹੁਲਕ::CAP_F_XREF;
+        ਜੇ (varIsConstraintIterator) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_NO;
+        ਜੇ (varIsFuncLocal && varHasAutomaticLifetime) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ;
+        ਜੇ (varIsParam) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ;
         // Static var in function (will not be inlined, because it's in class)
-        if (callerIsClass && varIsFuncLocal) return CaptureMode::CAP_VALUE;
+        ਜੇ (callerIsClass && varIsFuncLocal) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ;
         // Static class members in static context don't need 'this' capture;
         // V3Class will move both the function and the member to __Vclpkg
-        if (m_staticContext && callerIsClass && varIsFieldOfCaller
+        ਜੇ (m_staticContext && callerIsClass && var_Is_ਖੇਤਰ_ਦਾ_Caller
             && varRefp->varp()->lifetime().isStatic())
-            return CaptureMode::CAP_NO;
-        if (callerIsClass && varIsFieldOfCaller) return CaptureMode::CAP_THIS;
+            ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_NO;
+        ਜੇ (callerIsClass && var_Is_ਖੇਤਰ_ਦਾ_Caller) ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_THIS;
         // Static member of a different class: V3Width replaces AstMemberSel with a bare
         // AstVarRef (classOrPackagep set). Capture current value as a function argument.
-        if (callerIsClass && varClassp && !varIsFieldOfCaller
+        ਜੇ (callerIsClass && varClassp && !var_Is_ਖੇਤਰ_ਦਾ_Caller
             && varRefp->varp()->lifetime().isStatic())
-            return CaptureMode::CAP_VALUE;
+            ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ;
         UASSERT_OBJ(!callerIsClass, varRefp, "Invalid reference?");
-        return CaptureMode::CAP_VALUE;
+        ਵਾਪਸ Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ;
     }
 
-    void captureRefByValue(AstNodeVarRef* nodep, CaptureMode capModeFlags) {
+    ਖਾਲੀ capture_Ref_By_ਮੁੱਲ(Ast_ਗੰਢ_Var_Ref* nodep, Capture_ਬਹੁਲਕ cap_ਬਹੁਲਕ_Flags) {
         AstVar* newVarp;
-        const bool newCapture = captureVariable(nodep->fileline(), nodep, newVarp /*ref*/);
-        AstNodeVarRef* const newVarRefp = newCapture ? nodep->cloneTree(false) : nullptr;
-        if (!hasFlags(capModeFlags, CaptureMode::CAP_F_SET_CLASSORPACKAGEP)) {
+        ਅਚਲ ਤਾਰਕਿਕ newCapture = captureVariable(nodep->fileline(), nodep, newVarp /*ref*/);
+        Ast_ਗੰਢ_Var_Ref* ਅਚਲ newVarRefp = newCapture ? nodep->clone_ਰੁੱਖ(ਝੂਠ) : ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (!hasFlags(cap_ਬਹੁਲਕ_Flags, Capture_ਬਹੁਲਕ::CAP_F_ਸੈੱਟ_CLASSORPACKAGEP)) {
             // Keeping classOrPackagep will cause a broken link after inlining
-            nodep->classOrPackagep(nullptr);  // AstScope will figure this out
+            nodep->classOrPackagep(ਖਾਲੀ_ਸੂਚਕ);  // AstScope will figure this out
         }
         nodep->varp(newVarp);
-        if (!newCapture) return;
-        if (hasFlags(capModeFlags, CaptureMode::CAP_F_XREF)) {
-            AstVarRef* const notXVarRefp
-                = new AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
+        ਜੇ (!newCapture) ਵਾਪਸ;
+        ਜੇ (hasFlags(cap_ਬਹੁਲਕ_Flags, Capture_ਬਹੁਲਕ::CAP_F_XREF)) {
+            AstVarRef* ਅਚਲ notXVarRefp
+                = ਨਵਾਂ AstVarRef{nodep->fileline(), newVarp, VAccess::READ};
             notXVarRefp->classOrPackagep(nodep->classOrPackagep());
             nodep->replaceWith(notXVarRefp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
             nodep = notXVarRefp;
         }
         m_ignore.emplace(nodep);
-        m_argsp = AstNode::addNext(m_argsp, new AstArg{nodep->fileline(), "", newVarRefp});
+        m_argsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(m_argsp, ਨਵਾਂ AstArg{nodep->fileline(), "", newVarRefp});
     }
 
-    void captureRefByThis(AstNodeVarRef* nodep, CaptureMode /*capModeFlags*/) {
-        AstVar* const thisp = importThisp(nodep->fileline());
-        AstVarRef* const thisRefp = new AstVarRef{nodep->fileline(), thisp, nodep->access()};
-        thisRefp->user1(true);
+    ਖਾਲੀ captureRefByThis(Ast_ਗੰਢ_Var_Ref* nodep, Capture_ਬਹੁਲਕ /*capModeFlags*/) {
+        AstVar* ਅਚਲ thisp = importThisp(nodep->fileline());
+        AstVarRef* ਅਚਲ thisRefp = ਨਵਾਂ AstVarRef{nodep->fileline(), thisp, nodep->access()};
+        thisRefp->user1(ਸੱਚ);
         m_ignore.emplace(thisRefp);
-        AstMemberSel* const memberSelp
-            = new AstMemberSel{nodep->fileline(), thisRefp, nodep->varp()};
+        AstMemberSel* ਅਚਲ memberSelp
+            = ਨਵਾਂ AstMemberSel{nodep->fileline(), thisRefp, nodep->varp()};
         // Propagate random-dependence marking; forcing it on read-only operands
         // would route them through the solver write path.
-        if (!m_targetp && nodep->user1()) memberSelp->user1(true);
+        ਜੇ (!m_targetp && nodep->user1()) memberSelp->user1(ਸੱਚ);
         memberSelp->user2p(m_targetp);
         nodep->replaceWith(memberSelp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         m_ignore.emplace(memberSelp);
     }
 
     // VISITORS
 
-    void visit(AstNodeVarRef* nodep) override {
-        if (m_ignore.count(nodep)) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Var_Ref* nodep) override {
+        ਜੇ (m_ignore.ਗਿਣਤੀ_2(nodep)) ਵਾਪਸ;
         m_ignore.emplace(nodep);
         UASSERT_OBJ(nodep->varp(), nodep, "Variable unlinked");
-        if (nodep->varp()->isStdRandomizeArg()) return;
-        const CaptureMode capMode = getVarRefCaptureMode(nodep);
-        if (mode(capMode) == CaptureMode::CAP_NO) return;
-        if (mode(capMode) == CaptureMode::CAP_VALUE) captureRefByValue(nodep, capMode);
-        if (mode(capMode) == CaptureMode::CAP_THIS) captureRefByThis(nodep, capMode);
+        ਜੇ (nodep->varp()->isStdRandomizeArg()) ਵਾਪਸ;
+        ਅਚਲ Capture_ਬਹੁਲਕ cap_ਬਹੁਲਕ = get_Var_Ref_Capture_ਬਹੁਲਕ(nodep);
+        ਜੇ (ਬਹੁਲਕ(cap_ਬਹੁਲਕ) == Capture_ਬਹੁਲਕ::CAP_NO) ਵਾਪਸ;
+        ਜੇ (ਬਹੁਲਕ(cap_ਬਹੁਲਕ) == Capture_ਬਹੁਲਕ::CAP_ਮੁੱਲ) capture_Ref_By_ਮੁੱਲ(nodep, cap_ਬਹੁਲਕ);
+        ਜੇ (ਬਹੁਲਕ(cap_ਬਹੁਲਕ) == Capture_ਬਹੁਲਕ::CAP_THIS) captureRefByThis(nodep, cap_ਬਹੁਲਕ);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (m_ignore.count(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask_Ref* nodep) override {
+        ਜੇ (m_ignore.ਗਿਣਤੀ_2(nodep)) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
         m_ignore.emplace(nodep);
         UASSERT_OBJ(nodep->taskp(), nodep, "Task unlinked");
         // We assume that constraint targets are not referenced this way.
-        if (VN_IS(nodep, MethodCall) || VN_IS(nodep, New)) {
+        ਜੇ (VN_IS(nodep, ਵਿਧੀ_Call) || VN_IS(nodep, New)) {
             m_ignore.emplace(nodep);
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        AstClass* const classp = VN_CAST(nodep->taskp()->user2p(), Class);
-        if ((classp == m_callerp) && VN_IS(m_callerp, Class)) {
-            AstArg* const argsp = nodep->argsp();
-            if (argsp) argsp->unlinkFrBack();  // TODO: should this be unlinkFrBackWithNext?
-            AstVar* const thisp = importThisp(nodep->fileline());
-            AstVarRef* const thisRefp = new AstVarRef{
-                nodep->fileline(), thisp, nodep->isPure() ? VAccess::READ : VAccess::READWRITE};
+        AstClass* ਅਚਲ classp = VN_CAST(nodep->taskp()->user2p(), Class);
+        ਜੇ ((classp == m_callerp) && VN_IS(m_callerp, Class)) {
+            AstArg* ਅਚਲ argsp = nodep->argsp();
+            ਜੇ (argsp) argsp->unlink_Fr_ਪਿੱਠ();  // TODO: should this be unlinkFrBackWithNext?
+            AstVar* ਅਚਲ thisp = importThisp(nodep->fileline());
+            AstVarRef* ਅਚਲ thisRefp = ਨਵਾਂ AstVarRef{
+                nodep->fileline(), thisp, nodep->is_ਸ਼ੁੱਧ() ? VAccess::READ : VAccess::READWRITE};
             m_ignore.emplace(thisRefp);
-            AstMethodCall* const methodCallp
-                = new AstMethodCall{nodep->fileline(), thisRefp, thisp->name(), argsp};
-            methodCallp->taskp(nodep->taskp());
-            methodCallp->dtypep(nodep->dtypep());
-            nodep->replaceWith(methodCallp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            m_ignore.emplace(methodCallp);
+            Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp
+                = ਨਵਾਂ Ast_ਵਿਧੀ_Call{nodep->fileline(), thisRefp, thisp->name(), argsp};
+            ਵਿਧੀ_Callp->taskp(nodep->taskp());
+            ਵਿਧੀ_Callp->dtypep(nodep->dtypep());
+            nodep->replaceWith(ਵਿਧੀ_Callp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            m_ignore.emplace(ਵਿਧੀ_Callp);
         }
     }
-    void visit(AstMemberSel* nodep) override {
-        if (!isReferenceToInnerMember(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(AstMemberSel* nodep) override {
+        ਜੇ (!is_Reference_ਮੰਜ਼ਿਲ_Inner_Member(nodep)) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        AstVarRef* const varRefp
-            = new AstVarRef{nodep->fileline(), nodep->varp(), nodep->access()};
+        AstVarRef* ਅਚਲ varRefp
+            = ਨਵਾਂ AstVarRef{nodep->fileline(), nodep->varp(), nodep->access()};
         fixupClassOrPackage(nodep->varp(), varRefp);
         varRefp->user1(nodep->user1());
         nodep->replaceWith(varRefp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         m_ignore.emplace(varRefp);
     }
-    void visit(AstMethodCall* nodep) override {
-        if (!isReferenceToInnerMember(nodep) || m_ignore.count(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਵਿਧੀ_Call* nodep) override {
+        ਜੇ (!is_Reference_ਮੰਜ਼ਿਲ_Inner_Member(nodep) || m_ignore.ਗਿਣਤੀ_2(nodep)) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        AstArg* const argsp = nodep->argsp();
-        if (argsp) argsp->unlinkFrBackWithNext();
-        AstNodeFTaskRef* taskRefp = nullptr;
-        if (AstTask* const taskp = VN_CAST(nodep->taskp(), Task)) {
-            taskRefp = new AstTaskRef{nodep->fileline(), taskp, argsp};
-        } else if (AstFunc* const taskp = VN_CAST(nodep->taskp(), Func)) {
-            taskRefp = new AstFuncRef{nodep->fileline(), taskp, argsp};
-        } else {
+        AstArg* ਅਚਲ argsp = nodep->argsp();
+        ਜੇ (argsp) argsp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+        Ast_ਗੰਢ_FTask_Ref* taskRefp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (AstTask* ਅਚਲ taskp = VN_CAST(nodep->taskp(), Task)) {
+            taskRefp = ਨਵਾਂ AstTaskRef{nodep->fileline(), taskp, argsp};
+        } ਨਹੀਂਤਾਂ ਜੇ (AstFunc* ਅਚਲ taskp = VN_CAST(nodep->taskp(), Func)) {
+            taskRefp = ਨਵਾਂ AstFuncRef{nodep->fileline(), taskp, argsp};
+        } ਨਹੀਂਤਾਂ {
             nodep->v3fatalSrc("Node needs to point to regular method");
         }
         fixupClassOrPackage(nodep->taskp(), taskRefp);
         taskRefp->user1(nodep->user1());
         nodep->replaceWith(taskRefp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         m_ignore.emplace(taskRefp);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
-    explicit CaptureVisitor(AstNode* const nodep, AstNodeModule* callerp, AstClass* const targetp,
-                            bool staticContext = false)
+ਜਨਤਕ:
+    ਸਪਸ਼ਟ CaptureVisitor(Ast_ਗੰਢ* ਅਚਲ nodep, Ast_ਗੰਢ_Module* callerp, AstClass* ਅਚਲ targetp,
+                            ਤਾਰਕਿਕ staticContext = ਝੂਠ)
         : m_callerp{callerp}
         , m_targetp{targetp}
         , m_staticContext{staticContext} {
-        iterateAndNextNull(nodep);
+        iterate_And_ਅਗਲਾ_Null(nodep);
     }
 
     // PUBLIC METHODS
 
-    AstArg* getArgs() const { return m_argsp; }
-    AstVar* getThisp() const { return m_thisp; }
+    AstArg* get_ਦਲੀਲਾਂ() ਅਚਲ { ਵਾਪਸ m_argsp; }
+    AstVar* getThisp() ਅਚਲ { ਵਾਪਸ m_thisp; }
 
-    void addFunctionArguments(AstNodeFTask* funcp) const {
-        for (AstArg* argp = getArgs(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-            if (AstNodeVarRef* varrefp = VN_CAST(argp->exprp(), NodeVarRef)) {
-                if ((varrefp->classOrPackagep() == m_callerp) || VN_IS(varrefp, VarXRef)) {
+    ਖਾਲੀ ਜੋੜੋ_Function_Arguments(Ast_ਗੰਢ_FTask* funcp) ਅਚਲ {
+        ਲਈ (AstArg* argp = get_ਦਲੀਲਾਂ(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+            ਜੇ (Ast_ਗੰਢ_Var_Ref* varrefp = VN_CAST(argp->exprp(), ਗੰਢ_Var_Ref)) {
+                ਜੇ ((varrefp->classOrPackagep() == m_callerp) || VN_IS(varrefp, VarXRef)) {
                     // Keeping classOrPackagep will cause a broken link after inlining
-                    varrefp->classOrPackagep(nullptr);
+                    varrefp->classOrPackagep(ਖਾਲੀ_ਸੂਚਕ);
                 }
-                funcp->addStmtsp(getVar(varrefp->varp()));
-            } else {
+                funcp->ਜੋੜੋ_Stmtsp(getVar(varrefp->varp()));
+            } ਨਹੀਂਤਾਂ {
                 UASSERT_OBJ(VN_IS(argp->exprp(), ThisRef), argp->exprp(), "Wrong arg expression");
-                funcp->addStmtsp(m_thisp);
+                funcp->ਜੋੜੋ_Stmtsp(m_thisp);
             }
         }
     }
@@ -3955,7 +3955,7 @@ public:
 //######################################################################
 // Visitor that defines a randomize method where needed
 
-class RandomizeVisitor final : public VNVisitor {
+ਵਰਗ RandomizeVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     // Cleared on Netlist
     //  AstClass::user1()       -> bool.  Set true to indicate needs randomize processing
@@ -3974,343 +3974,343 @@ class RandomizeVisitor final : public VNVisitor {
     //  AstMemberSel::user2p()  -> AstNodeModule*. Pointer to containing module
     // VNUser1InUse    m_inuser1;      (Allocated for use in RandomizeMarkVisitor)
     // VNUser2InUse    m_inuser2;      (Allocated for use in RandomizeMarkVisitor)
-    const VNUser3InUse m_inuser3;
-    const VNUser4InUse m_inuser4;
+    ਅਚਲ VNUser3_ਵਿੱਚ_Use m_inuser3;
+    ਅਚਲ VNUser4_ਵਿੱਚ_Use m_inuser4;
 
     // STATE
-    V3UniqueNames m_inlineUniqueNames;  // For generating unique function names
-    V3UniqueNames m_randArrayUniqueNames{"__Vrandarr"};  // Random array loop indices
-    V3UniqueNames m_modeUniqueNames{"__Vmode"};  // For generating unique rand/constraint
+    V3_Unique_ਨਾਂ m_inline_Unique_ਨਾਂ;  // For generating unique function names
+    V3_Unique_ਨਾਂ m_rand_Array_Unique_ਨਾਂ{"__Vrandarr"};  // Random array loop indices
+    V3_Unique_ਨਾਂ m_ਬਹੁਲਕ_Unique_ਨਾਂ{"__Vmode"};  // For generating unique rand/constraint
                                                  // mode state var names
-    V3UniqueNames m_inlineUniqueStdName{"__VStdrand"};
-    V3UniqueNames m_uniqueNames;  // Unique names of temporaries, and of blocks holding them
+    V3_Unique_ਨਾਂ m_inlineUniqueStdName{"__VStdrand"};
+    V3_Unique_ਨਾਂ m_unique_ਨਾਂ;  // Unique names of temporaries, and of blocks holding them
     VMemberMap m_memberMap;  // Member names cached for fast lookup
-    AstNodeModule* m_modp = nullptr;  // Current module
-    std::unordered_map<AstNodeModule*, AstVar*> m_stdMap;  // Map from module/class to AST Var
-    AstNodeFTask* m_ftaskp = nullptr;  // Current function/task
-    AstNodeStmt* m_stmtp = nullptr;  // Current statement
-    AstDynArrayDType* m_dynarrayDtp = nullptr;  // Dynamic array type (for rand mode)
-    int m_randCaseNum = 0;  // Randcase number within a module for var naming
-    int m_distNum = 0;  // Dist bucket variable counter within a module for var naming
+    Ast_ਗੰਢ_Module* m_modp = ਖਾਲੀ_ਸੂਚਕ;  // Current module
+    std::unordered_map<Ast_ਗੰਢ_Module*, AstVar*> m_stdMap;  // Map from module/class to AST Var
+    Ast_ਗੰਢ_FTask* m_ftaskp = ਖਾਲੀ_ਸੂਚਕ;  // Current function/task
+    Ast_ਗੰਢ_Stmt* m_stmtp = ਖਾਲੀ_ਸੂਚਕ;  // Current statement
+    AstDynArrayDType* m_dynarrayDtp = ਖਾਲੀ_ਸੂਚਕ;  // Dynamic array type (for rand mode)
+    ਪੂਰਨ m_rand_Case_ਅੰਕ = 0;  // Randcase number within a module for var naming
+    ਪੂਰਨ m_dist_ਅੰਕ = 0;  // Dist bucket variable counter within a module for var naming
     std::map<std::string, AstCDType*> m_randcDtypes;  // RandC data type deduplication
-    AstConstraint* m_constraintp = nullptr;  // Current constraint
-    std::set<std::string> m_writtenVars;  // Track write_var calls per class to avoid duplicates
-    std::map<AstClass*, VInsertionSet<AstVar*>> m_sizeConstrainedArrays;  // Per-class arrays
+    AstConstraint* m_constraintp = ਖਾਲੀ_ਸੂਚਕ;  // Current constraint
+    std::ਸੈੱਟ<std::string> m_writtenVars;  // Track write_var calls per class to avoid duplicates
+    std::map<AstClass*, VInsertion_ਸੈੱਟ<AstVar*>> m_ਮਾਪ_Constrained_Arrays;  // Per-class arrays
     std::map<AstClass*, AstVar*>
-        m_staticConstraintModeVars;  // Static constraint mode vars per class
-    std::map<AstClass*, AstVar*> m_staticRandModeVars;  // Static rand mode vars per class
-    std::map<AstClass*, std::pair<bool, bool>>
+        m_static_Constraint_ਬਹੁਲਕ_Vars;  // Static constraint mode vars per class
+    std::map<AstClass*, AstVar*> m_static_Rand_ਬਹੁਲਕ_Vars;  // Static rand mode vars per class
+    std::map<AstClass*, std::pair<ਤਾਰਕਿਕ, ਤਾਰਕਿਕ>>
         m_prePostWrap;  // Per-handle-type pre/post virtual wrapper presence
     uint32_t m_uniqueConstraintId = 0;  // current ID of unique call
 
     // METHODS
     // Check if two nodes are semantically equivalent (not pointer equality):
-    static bool isSimilarNode(const AstNodeExpr* withExpr, const AstNodeExpr* argExpr) {
+    ਸਥਿਰ ਤਾਰਕਿਕ is_Similar_ਗੰਢ(ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* with_ਵਿਅੰਜਕ, ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* arg_ਵਿਅੰਜਕ) {
         // VarRef: compare variable pointers
-        if (VN_IS(argExpr, VarRef) && VN_IS(withExpr, VarRef)) {
-            return VN_AS(withExpr, VarRef)->varp() == VN_AS(argExpr, VarRef)->varp();
+        ਜੇ (VN_IS(arg_ਵਿਅੰਜਕ, VarRef) && VN_IS(with_ਵਿਅੰਜਕ, VarRef)) {
+            ਵਾਪਸ VN_AS(with_ਵਿਅੰਜਕ, VarRef)->varp() == VN_AS(arg_ਵਿਅੰਜਕ, VarRef)->varp();
         }
         // MemberSel: compare object and member (obj.y)
-        if (VN_IS(argExpr, MemberSel) && VN_IS(withExpr, MemberSel)) {
-            const AstMemberSel* const withMSp = VN_AS(withExpr, MemberSel);
-            const AstMemberSel* const argMSp = VN_AS(argExpr, MemberSel);
-            if (withMSp->varp() != argMSp->varp()) return false;
+        ਜੇ (VN_IS(arg_ਵਿਅੰਜਕ, MemberSel) && VN_IS(with_ਵਿਅੰਜਕ, MemberSel)) {
+            ਅਚਲ AstMemberSel* ਅਚਲ withMSp = VN_AS(with_ਵਿਅੰਜਕ, MemberSel);
+            ਅਚਲ AstMemberSel* ਅਚਲ argMSp = VN_AS(arg_ਵਿਅੰਜਕ, MemberSel);
+            ਜੇ (withMSp->varp() != argMSp->varp()) ਵਾਪਸ ਝੂਠ;
             // Recursively compare the base object expression
-            return isSimilarNode(withMSp->fromp(), argMSp->fromp());
+            ਵਾਪਸ is_Similar_ਗੰਢ(withMSp->fromp(), argMSp->fromp());
         }
         // ArraySel: compare array base and index (arr[i])
-        if (VN_IS(argExpr, ArraySel) && VN_IS(withExpr, ArraySel)) {
-            const AstArraySel* const withASp = VN_AS(withExpr, ArraySel);
-            const AstArraySel* const argASp = VN_AS(argExpr, ArraySel);
+        ਜੇ (VN_IS(arg_ਵਿਅੰਜਕ, ArraySel) && VN_IS(with_ਵਿਅੰਜਕ, ArraySel)) {
+            ਅਚਲ AstArraySel* ਅਚਲ withASp = VN_AS(with_ਵਿਅੰਜਕ, ArraySel);
+            ਅਚਲ AstArraySel* ਅਚਲ argASp = VN_AS(arg_ਵਿਅੰਜਕ, ArraySel);
             // Before checking Sel type index, check if both are Const
-            if (VN_IS(withASp->bitp(), Const) && VN_IS(argASp->bitp(), Const)) {
-                const AstConst* const withIdxp = VN_AS(withASp->bitp(), Const);
-                const AstConst* const argIdxp = VN_AS(argASp->bitp(), Const);
-                return isSimilarNode(withASp->fromp(), argASp->fromp())
-                       && withIdxp->num().isCaseEq(argIdxp->num());
+            ਜੇ (VN_IS(withASp->bitp(), Const) && VN_IS(argASp->bitp(), Const)) {
+                ਅਚਲ AstConst* ਅਚਲ withIdxp = VN_AS(withASp->bitp(), Const);
+                ਅਚਲ AstConst* ਅਚਲ argIdxp = VN_AS(argASp->bitp(), Const);
+                ਵਾਪਸ is_Similar_ਗੰਢ(withASp->fromp(), argASp->fromp())
+                       && withIdxp->ਅੰਕ().isCaseEq(argIdxp->ਅੰਕ());
             }
             // Index must be Sel type, extract VarRef using fromp()
-            if (!VN_IS(withASp->bitp(), Sel) || !VN_IS(argASp->bitp(), Sel)) return false;
-            const AstNodeExpr* const withIdxp = VN_AS(withASp->bitp(), Sel)->fromp();
-            const AstNodeExpr* const argIdxp = VN_AS(argASp->bitp(), Sel)->fromp();
-            return isSimilarNode(withASp->fromp(), argASp->fromp())
-                   && isSimilarNode(withIdxp, argIdxp);
+            ਜੇ (!VN_IS(withASp->bitp(), Sel) || !VN_IS(argASp->bitp(), Sel)) ਵਾਪਸ ਝੂਠ;
+            ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ withIdxp = VN_AS(withASp->bitp(), Sel)->fromp();
+            ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argIdxp = VN_AS(argASp->bitp(), Sel)->fromp();
+            ਵਾਪਸ is_Similar_ਗੰਢ(withASp->fromp(), argASp->fromp())
+                   && is_Similar_ਗੰਢ(withIdxp, argIdxp);
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
     // Expand unique{a,b,c} with explicit elements into pairwise != constraints.
     // Whole-array unique{arr} is left for ConstraintExprVisitor's rand_unique handling.
     // Recurses into conditional and foreach bodies, so that the pairwise
     // constraints stay under the guard they were written under.
-    static void expandUniqueElementList(AstNode* itemsp) {
-        AstNode* itemp = itemsp;
-        while (itemp) {
-            AstNode* const nextp = itemp->nextp();
-            if (const AstConstraintIf* const ifp = VN_CAST(itemp, ConstraintIf)) {
+    ਸਥਿਰ ਖਾਲੀ expandUniqueElementList(Ast_ਗੰਢ* itemsp) {
+        Ast_ਗੰਢ* itemp = itemsp;
+        ਜਦੋਂ (itemp) {
+            Ast_ਗੰਢ* ਅਚਲ nextp = itemp->nextp();
+            ਜੇ (ਅਚਲ AstConstraintIf* ਅਚਲ ifp = VN_CAST(itemp, ConstraintIf)) {
                 expandUniqueElementList(ifp->thensp());
                 expandUniqueElementList(ifp->elsesp());
                 itemp = nextp;
-                continue;
+                ਜਾਰੀ;
             }
-            if (const AstConstraintForeach* const foreachp = VN_CAST(itemp, ConstraintForeach)) {
+            ਜੇ (ਅਚਲ AstConstraintForeach* ਅਚਲ foreachp = VN_CAST(itemp, ConstraintForeach)) {
                 expandUniqueElementList(foreachp->bodyp());
                 itemp = nextp;
-                continue;
+                ਜਾਰੀ;
             }
-            AstConstraintUnique* const uniquep = VN_CAST(itemp, ConstraintUnique);
-            if (!uniquep) {
+            AstConstraintUnique* ਅਚਲ uniquep = VN_CAST(itemp, ConstraintUnique);
+            ਜੇ (!uniquep) {
                 itemp = nextp;
-                continue;
+                ਜਾਰੀ;
             }
 
-            std::vector<AstNodeExpr*> exprItems;
-            bool hasArrayVarRef = false;
-            for (AstNode* rp = uniquep->rangesp(); rp; rp = rp->nextp()) {
-                if (const AstVarRef* const vrp = VN_CAST(rp, VarRef)) {
+            std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ;
+            ਤਾਰਕਿਕ hasArrayVarRef = ਝੂਠ;
+            ਲਈ (Ast_ਗੰਢ* rp = uniquep->rangesp(); rp; rp = rp->nextp()) {
+                ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ vrp = VN_CAST(rp, VarRef)) {
                     // A container's elements are made distinct by rand_unique, not pairwise
-                    const AstNodeDType* const dtypep = vrp->varp()->dtypep()->skipRefp();
-                    if (VN_IS(dtypep, NodeArrayDType) || VN_IS(dtypep, QueueDType)
+                    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = vrp->varp()->dtypep()->skipRefp();
+                    ਜੇ (VN_IS(dtypep, ਗੰਢ_Array_DType) || VN_IS(dtypep, ਕਤਾਰ_DType)
                         || VN_IS(dtypep, DynArrayDType) || VN_IS(dtypep, AssocArrayDType)
                         || VN_IS(dtypep, WildcardArrayDType)) {
-                        hasArrayVarRef = true;
-                        continue;
+                        hasArrayVarRef = ਸੱਚ;
+                        ਜਾਰੀ;
                     }
                 }
-                exprItems.push_back(VN_AS(rp, NodeExpr));
+                ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ.ਧੱਕੋ_ਪਿੱਠ(VN_AS(rp, ਗੰਢ_ਵਿਅੰਜਕ));
             }
 
-            if (exprItems.size() >= 2) {
-                FileLine* const fl = uniquep->fileline();
-                for (size_t i = 0; i < exprItems.size(); i++) {
-                    for (size_t j = i + 1; j < exprItems.size(); j++) {
-                        AstNodeExpr* const lhsp = exprItems[i]->cloneTree(false);
-                        AstNodeExpr* const rhsp = exprItems[j]->cloneTree(false);
-                        AstNeq* const neqp = new AstNeq{fl, lhsp, rhsp};
-                        neqp->user1(true);
-                        AstConstraintExpr* const cexprp = new AstConstraintExpr{fl, neqp};
-                        uniquep->addNextHere(cexprp);
+            ਜੇ (ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ.ਮਾਪ() >= 2) {
+                File_ਸਤਰ* ਅਚਲ fl = uniquep->fileline();
+                ਲਈ (ਮਾਪ_t i = 0; i < ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ.ਮਾਪ(); i++) {
+                    ਲਈ (ਮਾਪ_t j = i + 1; j < ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ.ਮਾਪ(); j++) {
+                        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ[i]->clone_ਰੁੱਖ(ਝੂਠ);
+                        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ[j]->clone_ਰੁੱਖ(ਝੂਠ);
+                        AstNeq* ਅਚਲ neqp = ਨਵਾਂ AstNeq{fl, lhsp, rhsp};
+                        neqp->user1(ਸੱਚ);
+                        Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ cexprp = ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, neqp};
+                        uniquep->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(cexprp);
                     }
                 }
-                if (!hasArrayVarRef) {
-                    uniquep->unlinkFrBack();
-                    VL_DO_DANGLING(uniquep->deleteTree(), uniquep);
+                ਜੇ (!hasArrayVarRef) {
+                    uniquep->unlink_Fr_ਪਿੱਠ();
+                    VL_DO_DANGLING(uniquep->delete_ਰੁੱਖ(), uniquep);
                 }
-            } else if (exprItems.size() == 1 && !hasArrayVarRef) {
+            } ਨਹੀਂਤਾਂ ਜੇ (ਵਿਅੰਜਕ_ਚੀਜ਼ਾਂ.ਮਾਪ() == 1 && !hasArrayVarRef) {
                 // A set of one element is unique whatever that element holds
-                uniquep->unlinkFrBack();
-                VL_DO_DANGLING(uniquep->deleteTree(), uniquep);
+                uniquep->unlink_Fr_ਪਿੱਠ();
+                VL_DO_DANGLING(uniquep->delete_ਰੁੱਖ(), uniquep);
             }
             itemp = nextp;
         }
     }
-    void createRandomGenerator(AstClass* const classp) {
-        if (classp->user3p()) return;
-        if (classp->extendsp()) {
+    ਖਾਲੀ createRandomGenerator(AstClass* ਅਚਲ classp) {
+        ਜੇ (classp->user3p()) ਵਾਪਸ;
+        ਜੇ (classp->extendsp()) {
             createRandomGenerator(classp->extendsp()->classp());
-            return;
+            ਵਾਪਸ;
         }
-        AstVar* const genp = new AstVar{classp->fileline(), VVarType::MEMBER, "constraint",
-                                        classp->findBasicDType(VBasicDTypeKwd::RANDOM_GENERATOR)};
+        AstVar* ਅਚਲ genp = ਨਵਾਂ AstVar{classp->fileline(), VVarType::MEMBER, "constraint",
+                                        classp->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::RANDOM_GENERATOR)};
         genp->user2p(classp);
-        classp->addMembersp(genp);
+        classp->ਜੋੜੋ_Membersp(genp);
         classp->user3p(genp);
     }
-    AstVar* createStdRandomGenerator(AstNodeModule* const modp) {
-        auto it = m_stdMap.find(modp);
-        if (it == m_stdMap.end()) {
-            AstVar* const stdgenp
-                = new AstVar{modp->fileline(), VVarType::MEMBER, "stdrand",
-                             modp->findBasicDType(VBasicDTypeKwd::RANDOM_STDGENERATOR)};
-            stdgenp->fileline()->warnOff(V3ErrorCode::IMPURE, true);
-            modp->addStmtsp(stdgenp);
+    AstVar* createStdRandomGenerator(Ast_ਗੰਢ_Module* ਅਚਲ modp) {
+        ਸਵੈਚਾਲਿਤ it = m_stdMap.ਲੱਭੋ(modp);
+        ਜੇ (it == m_stdMap.ਸਿਰਾ()) {
+            AstVar* ਅਚਲ stdgenp
+                = ਨਵਾਂ AstVar{modp->fileline(), VVarType::MEMBER, "stdrand",
+                             modp->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::RANDOM_STDGENERATOR)};
+            stdgenp->fileline()->warnOff(V3_Error_ਕੋਡ::IMPURE, ਸੱਚ);
+            modp->ਜੋੜੋ_Stmtsp(stdgenp);
             m_stdMap.emplace(modp, stdgenp);
-            return stdgenp;
+            ਵਾਪਸ stdgenp;
         }
-        return it->second;
+        ਵਾਪਸ it->ਦੂਜਾ;
     }
-    AstTask* createPrepareConstrainedArraysTask(AstClass* const classp) {
-        static const char* const name = "__Vprepare_constrained_arrays";
-        AstTask* const taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        return taskp;
+    AstTask* createPrepareConstrainedArraysTask(AstClass* ਅਚਲ classp) {
+        ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ name = "__Vprepare_constrained_arrays";
+        AstTask* ਅਚਲ taskp = ਨਵਾਂ AstTask{classp->fileline(), name, ਖਾਲੀ_ਸੂਚਕ};
+        taskp->class_ਵਿਧੀ(ਸੱਚ);
+        classp->ਜੋੜੋ_Membersp(taskp);
+        m_memberMap.ਪਾਓ(classp, taskp);
+        ਵਾਪਸ taskp;
     }
-    AstTask* getCreateAggrResizeTask(AstClass* const classp) {
-        static constexpr const char* const name = "__Vresize_constrained_arrays";
-        AstTask* resizeTaskp = VN_AS(m_memberMap.findMember(classp, name), Task);
-        if (resizeTaskp) return resizeTaskp;
-        resizeTaskp = new AstTask{classp->fileline(), name, nullptr};
-        resizeTaskp->classMethod(true);
-        resizeTaskp->isVirtual(true);
-        classp->addMembersp(resizeTaskp);
-        m_memberMap.insert(classp, resizeTaskp);
-        return resizeTaskp;
+    AstTask* getCreateAggrResizeTask(AstClass* ਅਚਲ classp) {
+        ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* ਅਚਲ name = "__Vresize_constrained_arrays";
+        AstTask* resizeTaskp = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, name), Task);
+        ਜੇ (resizeTaskp) ਵਾਪਸ resizeTaskp;
+        resizeTaskp = ਨਵਾਂ AstTask{classp->fileline(), name, ਖਾਲੀ_ਸੂਚਕ};
+        resizeTaskp->class_ਵਿਧੀ(ਸੱਚ);
+        resizeTaskp->isVirtual(ਸੱਚ);
+        classp->ਜੋੜੋ_Membersp(resizeTaskp);
+        m_memberMap.ਪਾਓ(classp, resizeTaskp);
+        ਵਾਪਸ resizeTaskp;
     }
-    AstVar* getCreateRandModeVar(AstClass* const classp) {
-        if (classp->user2p()) return VN_AS(classp->user2p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateRandModeVar(extendsp->classp());
+    AstVar* get_Create_Rand_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਜੇ (classp->user2p()) ਵਾਪਸ VN_AS(classp->user2p(), Var);
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Create_Rand_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        AstVar* const randModeVarp = createModeVar(classp, "__Vrandmode");
-        classp->user2p(randModeVarp);
-        return randModeVarp;
+        AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = create_ਬਹੁਲਕ_Var(classp, "__Vrandmode");
+        classp->user2p(rand_ਬਹੁਲਕ_Varp);
+        ਵਾਪਸ rand_ਬਹੁਲਕ_Varp;
     }
-    AstVar* getCreateConstraintModeVar(AstClass* const classp) {
-        if (classp->user4p()) return VN_AS(classp->user4p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateConstraintModeVar(extendsp->classp());
+    AstVar* get_Create_Constraint_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਜੇ (classp->user4p()) ਵਾਪਸ VN_AS(classp->user4p(), Var);
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Create_Constraint_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        AstVar* const constraintModeVarp = createModeVar(classp, "__Vconstraintmode");
-        classp->user4p(constraintModeVarp);
-        return constraintModeVarp;
+        AstVar* ਅਚਲ constraint_ਬਹੁਲਕ_Varp = create_ਬਹੁਲਕ_Var(classp, "__Vconstraintmode");
+        classp->user4p(constraint_ਬਹੁਲਕ_Varp);
+        ਵਾਪਸ constraint_ਬਹੁਲਕ_Varp;
     }
-    static AstVar* getConstraintModeVar(AstClass* const classp) {
-        if (classp->user4p()) return VN_AS(classp->user4p(), Var);
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getConstraintModeVar(extendsp->classp());
+    ਸਥਿਰ AstVar* get_Constraint_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਜੇ (classp->user4p()) ਵਾਪਸ VN_AS(classp->user4p(), Var);
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Constraint_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
-    AstVar* getCreateStaticConstraintModeVar(AstClass* const classp) {
-        auto it = m_staticConstraintModeVars.find(classp);
-        if (it != m_staticConstraintModeVars.end()) return it->second;
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateStaticConstraintModeVar(extendsp->classp());
+    AstVar* get_Create_Static_Constraint_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਸਵੈਚਾਲਿਤ it = m_static_Constraint_ਬਹੁਲਕ_Vars.ਲੱਭੋ(classp);
+        ਜੇ (it != m_static_Constraint_ਬਹੁਲਕ_Vars.ਸਿਰਾ()) ਵਾਪਸ it->ਦੂਜਾ;
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Create_Static_Constraint_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        AstVar* const staticModeVarp = createStaticModeVar(classp, "__Vstaticconstraintmode");
-        m_staticConstraintModeVars[classp] = staticModeVarp;
-        return staticModeVarp;
+        AstVar* ਅਚਲ static_ਬਹੁਲਕ_Varp = create_Static_ਬਹੁਲਕ_Var(classp, "__Vstaticconstraintmode");
+        m_static_Constraint_ਬਹੁਲਕ_Vars[classp] = static_ਬਹੁਲਕ_Varp;
+        ਵਾਪਸ static_ਬਹੁਲਕ_Varp;
     }
-    AstVar* getStaticConstraintModeVar(AstClass* const classp) {
-        auto it = m_staticConstraintModeVars.find(classp);
-        if (it != m_staticConstraintModeVars.end()) return it->second;
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getStaticConstraintModeVar(extendsp->classp());
+    AstVar* get_Static_Constraint_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਸਵੈਚਾਲਿਤ it = m_static_Constraint_ਬਹੁਲਕ_Vars.ਲੱਭੋ(classp);
+        ਜੇ (it != m_static_Constraint_ਬਹੁਲਕ_Vars.ਸਿਰਾ()) ਵਾਪਸ it->ਦੂਜਾ;
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Static_Constraint_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
-    AstVar* getCreateStaticRandModeVar(AstClass* const classp) {
-        if (m_staticRandModeVars.count(classp)) return m_staticRandModeVars[classp];
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getCreateStaticRandModeVar(extendsp->classp());
+    AstVar* get_Create_Static_Rand_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਜੇ (m_static_Rand_ਬਹੁਲਕ_Vars.ਗਿਣਤੀ_2(classp)) ਵਾਪਸ m_static_Rand_ਬਹੁਲਕ_Vars[classp];
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Create_Static_Rand_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        AstVar* const staticModeVarp = createStaticModeVar(classp, "__Vstaticrandmode");
-        m_staticRandModeVars[classp] = staticModeVarp;
-        return staticModeVarp;
+        AstVar* ਅਚਲ static_ਬਹੁਲਕ_Varp = create_Static_ਬਹੁਲਕ_Var(classp, "__Vstaticrandmode");
+        m_static_Rand_ਬਹੁਲਕ_Vars[classp] = static_ਬਹੁਲਕ_Varp;
+        ਵਾਪਸ static_ਬਹੁਲਕ_Varp;
     }
-    AstVar* getStaticRandModeVar(AstClass* const classp) {
-        if (m_staticRandModeVars.count(classp)) return m_staticRandModeVars[classp];
-        if (AstClassExtends* const extendsp = classp->extendsp()) {
-            return getStaticRandModeVar(extendsp->classp());
+    AstVar* get_Static_Rand_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp) {
+        ਜੇ (m_static_Rand_ਬਹੁਲਕ_Vars.ਗਿਣਤੀ_2(classp)) ਵਾਪਸ m_static_Rand_ਬਹੁਲਕ_Vars[classp];
+        ਜੇ (AstClassExtends* ਅਚਲ extendsp = classp->extendsp()) {
+            ਵਾਪਸ get_Static_Rand_ਬਹੁਲਕ_Var(extendsp->classp());
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
-    AstVar* createModeVar(AstClass* const classp, const char* const name) {
-        FileLine* const fl = classp->fileline();
-        if (!m_dynarrayDtp) {
-            m_dynarrayDtp = new AstDynArrayDType{
-                fl, v3Global.rootp()->typeTablep()->findBitDType()->dtypep()};
+    AstVar* create_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp, ਅਚਲ ਅੱਖਰ* ਅਚਲ name) {
+        File_ਸਤਰ* ਅਚਲ fl = classp->fileline();
+        ਜੇ (!m_dynarrayDtp) {
+            m_dynarrayDtp = ਨਵਾਂ AstDynArrayDType{
+                fl, v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType()->dtypep()};
             m_dynarrayDtp->dtypep(m_dynarrayDtp);
-            v3Global.rootp()->typeTablep()->addTypesp(m_dynarrayDtp);
+            v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(m_dynarrayDtp);
         }
         // MEMBER, not MODULETEMP, so V3Localize does not localize it into new().
-        AstVar* const modeVarp = new AstVar{fl, VVarType::MEMBER, name, m_dynarrayDtp};
-        modeVarp->user2p(classp);
-        classp->addStmtsp(modeVarp);
-        return modeVarp;
+        AstVar* ਅਚਲ ਬਹੁਲਕ_Varp = ਨਵਾਂ AstVar{fl, VVarType::MEMBER, name, m_dynarrayDtp};
+        ਬਹੁਲਕ_Varp->user2p(classp);
+        classp->ਜੋੜੋ_Stmtsp(ਬਹੁਲਕ_Varp);
+        ਵਾਪਸ ਬਹੁਲਕ_Varp;
     }
-    AstVar* createStaticModeVar(AstClass* const classp, const char* const name) {
+    AstVar* create_Static_ਬਹੁਲਕ_Var(AstClass* ਅਚਲ classp, ਅਚਲ ਅੱਖਰ* ਅਚਲ name) {
         // Create a static variable that will be shared across all instances.
         // By setting lifetime to STATIC_EXPLICIT, V3Class will move this to the class package.
-        FileLine* const fl = classp->fileline();
-        if (!m_dynarrayDtp) {
-            m_dynarrayDtp = new AstDynArrayDType{
-                fl, v3Global.rootp()->typeTablep()->findBitDType()->dtypep()};
+        File_ਸਤਰ* ਅਚਲ fl = classp->fileline();
+        ਜੇ (!m_dynarrayDtp) {
+            m_dynarrayDtp = ਨਵਾਂ AstDynArrayDType{
+                fl, v3Global.rootp()->typeTablep()->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType()->dtypep()};
             m_dynarrayDtp->dtypep(m_dynarrayDtp);
-            v3Global.rootp()->typeTablep()->addTypesp(m_dynarrayDtp);
+            v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(m_dynarrayDtp);
         }
-        AstVar* const modeVarp = new AstVar{fl, VVarType::MODULETEMP, name, m_dynarrayDtp};
-        modeVarp->lifetime(VLifetime::STATIC_EXPLICIT);
+        AstVar* ਅਚਲ ਬਹੁਲਕ_Varp = ਨਵਾਂ AstVar{fl, VVarType::MODULETEMP, name, m_dynarrayDtp};
+        ਬਹੁਲਕ_Varp->lifetime(VLifetime::STATIC_EXPLICIT);
         // Note: user2p is set to classp here. V3Scope will later update varScopep
         // to point to the package scope when the variable is moved by V3Class.
-        modeVarp->user2p(classp);
-        classp->addStmtsp(modeVarp);
+        ਬਹੁਲਕ_Varp->user2p(classp);
+        classp->ਜੋੜੋ_Stmtsp(ਬਹੁਲਕ_Varp);
         // Register so findStaticRandModeVarMember sees it through the already
         // scanned member cache
-        m_memberMap.insert(classp, modeVarp);
-        return modeVarp;
+        m_memberMap.ਪਾਓ(classp, ਬਹੁਲਕ_Varp);
+        ਵਾਪਸ ਬਹੁਲਕ_Varp;
     }
-    static void addSetRandMode(AstNodeFTask* const ftaskp, AstVar* const genp,
-                               AstVar* const randModeVarp) {
-        FileLine* const fl = ftaskp->fileline();
-        AstCMethodHard* const setRandModep = new AstCMethodHard{
-            fl, new AstVarRef{fl, VN_AS(genp->user2p(), NodeModule), genp, VAccess::WRITE},
-            VCMethod::CLASS_SET_RANDMODE,
-            new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+    ਸਥਿਰ ਖਾਲੀ ਜੋੜੋ_ਸੈੱਟ_Rand_ਬਹੁਲਕ(Ast_ਗੰਢ_FTask* ਅਚਲ ftaskp, AstVar* ਅਚਲ genp,
+                               AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp) {
+        File_ਸਤਰ* ਅਚਲ fl = ftaskp->fileline();
+        AstCMethodHard* ਅਚਲ ਸੈੱਟ_Rand_Modep = ਨਵਾਂ AstCMethodHard{
+            fl, ਨਵਾਂ AstVarRef{fl, VN_AS(genp->user2p(), ਗੰਢ_Module), genp, VAccess::WRITE},
+            VCMethod::CLASS_ਸੈੱਟ_RANDMODE,
+            ਨਵਾਂ AstVarRef{fl, VN_AS(rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), rand_ਬਹੁਲਕ_Varp,
                           VAccess::READ}};
-        setRandModep->dtypeSetVoid();
-        ftaskp->addStmtsp(setRandModep->makeStmt());
+        ਸੈੱਟ_Rand_Modep->dtype_ਸੈੱਟ_Void();
+        ftaskp->ਜੋੜੋ_Stmtsp(ਸੈੱਟ_Rand_Modep->makeStmt());
     }
-    static void addSetStaticRandMode(AstNodeFTask* const ftaskp, AstVar* const genp,
-                                     AstVar* const staticRandModeVarp) {
-        FileLine* const fl = ftaskp->fileline();
-        AstCMethodHard* const setp = new AstCMethodHard{
-            fl, new AstVarRef{fl, VN_AS(genp->user2p(), NodeModule), genp, VAccess::WRITE},
-            VCMethod::RANDOMIZER_SET_STATIC_RANDMODE,
-            new AstVarRef{fl, VN_AS(staticRandModeVarp->user2p(), NodeModule), staticRandModeVarp,
+    ਸਥਿਰ ਖਾਲੀ ਜੋੜੋ_ਸੈੱਟ_Static_Rand_ਬਹੁਲਕ(Ast_ਗੰਢ_FTask* ਅਚਲ ftaskp, AstVar* ਅਚਲ genp,
+                                     AstVar* ਅਚਲ static_Rand_ਬਹੁਲਕ_Varp) {
+        File_ਸਤਰ* ਅਚਲ fl = ftaskp->fileline();
+        AstCMethodHard* ਅਚਲ setp = ਨਵਾਂ AstCMethodHard{
+            fl, ਨਵਾਂ AstVarRef{fl, VN_AS(genp->user2p(), ਗੰਢ_Module), genp, VAccess::WRITE},
+            VCMethod::RANDOMIZER_ਸੈੱਟ_STATIC_RANDMODE,
+            ਨਵਾਂ AstVarRef{fl, VN_AS(static_Rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), static_Rand_ਬਹੁਲਕ_Varp,
                           VAccess::READ}};
-        setp->dtypeSetVoid();
-        ftaskp->addStmtsp(setp->makeStmt());
+        setp->dtype_ਸੈੱਟ_Void();
+        ftaskp->ਜੋੜੋ_Stmtsp(setp->makeStmt());
     }
-    void createRandomizeClassVars(AstNetlist* const netlistp) {
+    ਖਾਲੀ createRandomizeClassVars(AstNetlist* ਅਚਲ netlistp) {
         // Defer init to one emission per root with max descendant count;
         // super.new() runs Base ctor before Derived can resize the static array.
-        std::map<AstClass*, uint32_t> rootStaticRandModeCount;
-        netlistp->foreach([this, &rootStaticRandModeCount](AstClass* const classp) {
-            bool hasConstraints = false;
-            uint32_t randModeCount = 0;
-            uint32_t staticRandModeCount = 0;
-            uint32_t constraintModeCount = 0;
-            uint32_t staticConstraintModeCount = 0;
-            classp->foreachMember([&](AstClass*, AstNode* memberp) {
+        std::map<AstClass*, uint32_t> ਜੜ੍ਹ_Static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ;
+        netlistp->foreach([ਇਹ, &ਜੜ੍ਹ_Static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ](AstClass* ਅਚਲ classp) {
+            ਤਾਰਕਿਕ hasConstraints = ਝੂਠ;
+            uint32_t rand_ਬਹੁਲਕ_ਗਿਣਤੀ = 0;
+            uint32_t static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ = 0;
+            uint32_t constraint_ਬਹੁਲਕ_ਗਿਣਤੀ = 0;
+            uint32_t static_Constraint_ਬਹੁਲਕ_ਗਿਣਤੀ = 0;
+            classp->foreachMember([&](AstClass*, Ast_ਗੰਢ* memberp) {
                 // SystemVerilog only allows single inheritance, so we don't need to worry about
                 // index overlap. If the index > 0, it's already been set.
-                if (AstConstraint* const constrp = VN_CAST(memberp, Constraint)) {
-                    hasConstraints = true;
-                    RandomizeMode constraintMode = {.asUQuad = memberp->user1()};
-                    if (!constraintMode.usesMode) return;
-                    if (constraintMode.index == 0) {
+                ਜੇ (AstConstraint* ਅਚਲ constrp = VN_CAST(memberp, Constraint)) {
+                    hasConstraints = ਸੱਚ;
+                    Randomize_ਬਹੁਲਕ constraint_ਬਹੁਲਕ = {.asUQuad = memberp->user1()};
+                    ਜੇ (!constraint_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) ਵਾਪਸ;
+                    ਜੇ (constraint_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ == 0) {
                         // Use separate index counters for static vs non-static constraints
-                        if (constrp->isStatic()) {
-                            constraintMode.index = staticConstraintModeCount++;
-                        } else {
-                            constraintMode.index = constraintModeCount++;
+                        ਜੇ (constrp->isStatic()) {
+                            constraint_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ = static_Constraint_ਬਹੁਲਕ_ਗਿਣਤੀ++;
+                        } ਨਹੀਂਤਾਂ {
+                            constraint_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ = constraint_ਬਹੁਲਕ_ਗਿਣਤੀ++;
                         }
-                        memberp->user1(constraintMode.asUQuad);
-                    } else {
-                        if (constrp->isStatic()) {
-                            staticConstraintModeCount = constraintMode.index + 1;
-                        } else {
-                            constraintModeCount = constraintMode.index + 1;
+                        memberp->user1(constraint_ਬਹੁਲਕ.asUQuad);
+                    } ਨਹੀਂਤਾਂ {
+                        ਜੇ (constrp->isStatic()) {
+                            static_Constraint_ਬਹੁਲਕ_ਗਿਣਤੀ = constraint_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ + 1;
+                        } ਨਹੀਂਤਾਂ {
+                            constraint_ਬਹੁਲਕ_ਗਿਣਤੀ = constraint_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ + 1;
                         }
                     }
-                } else if (AstVar* const varp = VN_CAST(memberp, Var)) {
-                    RandomizeMode randMode = {.asUQuad = memberp->user1()};
-                    if (!randMode.usesMode) return;
-                    const bool isStaticVar = varp->lifetime().isStatic();
-                    if (randMode.index == 0) {
-                        if (isStaticVar) {
-                            randMode.index = staticRandModeCount++;
-                        } else {
-                            randMode.index = randModeCount++;
+                } ਨਹੀਂਤਾਂ ਜੇ (AstVar* ਅਚਲ varp = VN_CAST(memberp, Var)) {
+                    Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = memberp->user1()};
+                    ਜੇ (!rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) ਵਾਪਸ;
+                    ਅਚਲ ਤਾਰਕਿਕ isStaticVar = varp->lifetime().isStatic();
+                    ਜੇ (rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ == 0) {
+                        ਜੇ (isStaticVar) {
+                            rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ = static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ++;
+                        } ਨਹੀਂਤਾਂ {
+                            rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ = rand_ਬਹੁਲਕ_ਗਿਣਤੀ++;
                         }
-                        memberp->user1(randMode.asUQuad);
-                    } else {
-                        if (isStaticVar) {
-                            staticRandModeCount = randMode.index + 1;
-                        } else {
-                            randModeCount = randMode.index + 1;
+                        memberp->user1(rand_ਬਹੁਲਕ.asUQuad);
+                    } ਨਹੀਂਤਾਂ {
+                        ਜੇ (isStaticVar) {
+                            static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ = rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ + 1;
+                        } ਨਹੀਂਤਾਂ {
+                            rand_ਬਹੁਲਕ_ਗਿਣਤੀ = rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ + 1;
                         }
                     }
                 }
@@ -4320,431 +4320,431 @@ class RandomizeVisitor final : public VNVisitor {
             // setup functions, the generated code references this->__Vrandmode.at(index).
             // We must ensure this class's __Vrandmode is initialized to cover those indices.
             {
-                std::function<void(AstClass*)> findSubObjRandModes = [&](AstClass* subClassp) {
-                    subClassp->foreachMember([&](AstClass*, AstNode* subMemberp) {
-                        if (AstVar* const subVarp = VN_CAST(subMemberp, Var)) {
-                            const RandomizeMode rm = {.asUQuad = subVarp->user1()};
-                            if (!rm.usesMode) return;
+                std::function<ਖਾਲੀ(AstClass*)> ਲੱਭੋ_Sub_Obj_Rand_Modes = [&](AstClass* subClassp) {
+                    subClassp->foreachMember([&](AstClass*, Ast_ਗੰਢ* subMemberp) {
+                        ਜੇ (AstVar* ਅਚਲ subVarp = VN_CAST(subMemberp, Var)) {
+                            ਅਚਲ Randomize_ਬਹੁਲਕ rm = {.asUQuad = subVarp->user1()};
+                            ਜੇ (!rm.ਵਰਤਦਾ_ਬਹੁਲਕ) ਵਾਪਸ;
                             // Static rand vars index into their own class's static
                             // rand mode array, not into the outer __Vrandmode.
-                            if (subVarp->lifetime().isStatic()) return;
-                            const uint32_t needed = rm.index + 1;
-                            if (needed > randModeCount) randModeCount = needed;
+                            ਜੇ (subVarp->lifetime().isStatic()) ਵਾਪਸ;
+                            ਅਚਲ uint32_t needed = rm.ਸੂਚਕਾਂਕ + 1;
+                            ਜੇ (needed > rand_ਬਹੁਲਕ_ਗਿਣਤੀ) rand_ਬਹੁਲਕ_ਗਿਣਤੀ = needed;
                         }
                     });
                 };
                 classp->foreachMember([&](AstClass*, AstVar* memberVarp) {
-                    if (!memberVarp->globalConstrained()) return;
-                    const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-                    const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-                    if (!classRefp) return;
-                    findSubObjRandModes(classRefp->classp());
+                    ਜੇ (!memberVarp->globalConstrained()) ਵਾਪਸ;
+                    ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = memberVarp->dtypep()->skipRefp();
+                    ਅਚਲ AstClassRefDType* ਅਚਲ classRefp = VN_CAST(dtypep, ClassRefDType);
+                    ਜੇ (!classRefp) ਵਾਪਸ;
+                    ਲੱਭੋ_Sub_Obj_Rand_Modes(classRefp->classp());
                 });
             }
-            if (hasConstraints) createRandomGenerator(classp);
-            if (randModeCount > 0) {
-                AstVar* const randModeVarp = getCreateRandModeVar(classp);
-                makeModeInit(randModeVarp, classp, randModeCount);
+            ਜੇ (hasConstraints) createRandomGenerator(classp);
+            ਜੇ (rand_ਬਹੁਲਕ_ਗਿਣਤੀ > 0) {
+                AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = get_Create_Rand_ਬਹੁਲਕ_Var(classp);
+                make_ਬਹੁਲਕ_Init(rand_ਬਹੁਲਕ_Varp, classp, rand_ਬਹੁਲਕ_ਗਿਣਤੀ);
             }
-            if (constraintModeCount > 0) {
-                AstVar* const constraintModeVarp = getCreateConstraintModeVar(classp);
-                makeModeInit(constraintModeVarp, classp, constraintModeCount);
+            ਜੇ (constraint_ਬਹੁਲਕ_ਗਿਣਤੀ > 0) {
+                AstVar* ਅਚਲ constraint_ਬਹੁਲਕ_Varp = get_Create_Constraint_ਬਹੁਲਕ_Var(classp);
+                make_ਬਹੁਲਕ_Init(constraint_ਬਹੁਲਕ_Varp, classp, constraint_ਬਹੁਲਕ_ਗਿਣਤੀ);
             }
-            if (staticConstraintModeCount > 0) {
-                AstVar* const staticConstraintModeVarp = getCreateStaticConstraintModeVar(classp);
-                makeStaticModeInit(staticConstraintModeVarp, classp, staticConstraintModeCount);
+            ਜੇ (static_Constraint_ਬਹੁਲਕ_ਗਿਣਤੀ > 0) {
+                AstVar* ਅਚਲ static_Constraint_ਬਹੁਲਕ_Varp = get_Create_Static_Constraint_ਬਹੁਲਕ_Var(classp);
+                make_Static_ਬਹੁਲਕ_Init(static_Constraint_ਬਹੁਲਕ_Varp, classp, static_Constraint_ਬਹੁਲਕ_ਗਿਣਤੀ);
             }
-            if (staticRandModeCount > 0) {
-                getCreateStaticRandModeVar(classp);
+            ਜੇ (static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ > 0) {
+                get_Create_Static_Rand_ਬਹੁਲਕ_Var(classp);
                 AstClass* rootp = classp;
-                while (AstClassExtends* const ep = rootp->extendsp()) rootp = ep->classp();
-                uint32_t& slot = rootStaticRandModeCount[rootp];
-                if (staticRandModeCount > slot) slot = staticRandModeCount;
+                ਜਦੋਂ (AstClassExtends* ਅਚਲ ep = rootp->extendsp()) rootp = ep->classp();
+                uint32_t& ਥਾਂ_2 = ਜੜ੍ਹ_Static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ[rootp];
+                ਜੇ (static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ > ਥਾਂ_2) ਥਾਂ_2 = static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ;
             }
         });
-        for (const auto& kv : rootStaticRandModeCount) emitRootStaticModeInit(kv.first, kv.second);
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& kv : ਜੜ੍ਹ_Static_Rand_ਬਹੁਲਕ_ਗਿਣਤੀ) emit_ਜੜ੍ਹ_Static_ਬਹੁਲਕ_Init(kv.ਪਹਿਲਾ, kv.ਦੂਜਾ);
     }
-    void emitRootStaticModeInit(AstClass* const rootp, const uint32_t count) {
-        AstVar* const staticRandModeVarp = m_staticRandModeVars[rootp];
-        UASSERT_OBJ(staticRandModeVarp, rootp, "Root must have a static rand-mode var");
-        makeStaticModeInit(staticRandModeVarp, rootp, count);
+    ਖਾਲੀ emit_ਜੜ੍ਹ_Static_ਬਹੁਲਕ_Init(AstClass* ਅਚਲ rootp, ਅਚਲ uint32_t ਗਿਣਤੀ_2) {
+        AstVar* ਅਚਲ static_Rand_ਬਹੁਲਕ_Varp = m_static_Rand_ਬਹੁਲਕ_Vars[rootp];
+        UASSERT_OBJ(static_Rand_ਬਹੁਲਕ_Varp, rootp, "Root must have a static rand-mode var");
+        make_Static_ਬਹੁਲਕ_Init(static_Rand_ਬਹੁਲਕ_Varp, rootp, ਗਿਣਤੀ_2);
     }
-    void makeModeInit(AstVar* modeVarp, AstClass* classp, uint32_t modeCount) {
-        AstNodeModule* const modeVarModp = VN_AS(modeVarp->user2p(), NodeModule);
-        FileLine* const fl = modeVarp->fileline();
-        AstVar* const oldSizeVarp = new AstVar{
-            fl, VVarType::BLOCKTEMP, m_uniqueNames.get("__VoldSize"), modeVarp->findUInt32DType()};
-        oldSizeVarp->funcLocal(true);
-        oldSizeVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        AstCMethodHard* const oldSizep
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::READ},
-                                 VCMethod::DYN_SIZE, nullptr};
-        oldSizep->dtypeSetUInt32();
-        AstCMethodHard* const dynarrayNewp
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                                 VCMethod::DYN_RESIZE, new AstConst{fl, modeCount}};
-        dynarrayNewp->dtypeSetVoid();
-        AstNodeFTask* const ctorNewp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+    ਖਾਲੀ make_ਬਹੁਲਕ_Init(AstVar* ਬਹੁਲਕ_Varp, AstClass* classp, uint32_t ਬਹੁਲਕ_ਗਿਣਤੀ) {
+        Ast_ਗੰਢ_Module* ਅਚਲ ਬਹੁਲਕ_Var_Modp = VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module);
+        File_ਸਤਰ* ਅਚਲ fl = ਬਹੁਲਕ_Varp->fileline();
+        AstVar* ਅਚਲ old_ਮਾਪ_Varp = ਨਵਾਂ AstVar{
+            fl, VVarType::BLOCKTEMP, m_unique_ਨਾਂ.get("__VoldSize"), ਬਹੁਲਕ_Varp->ਲੱਭੋ_UInt32_DType()};
+        old_ਮਾਪ_Varp->funcLocal(ਸੱਚ);
+        old_ਮਾਪ_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        AstCMethodHard* ਅਚਲ oldSizep
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::READ},
+                                 VCMethod::DYN_ਮਾਪ, ਖਾਲੀ_ਸੂਚਕ};
+        oldSizep->dtype_ਸੈੱਟ_UInt32();
+        AstCMethodHard* ਅਚਲ dynarrayNewp
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::WRITE},
+                                 VCMethod::DYN_RESIZE, ਨਵਾਂ AstConst{fl, ਬਹੁਲਕ_ਗਿਣਤੀ}};
+        dynarrayNewp->dtype_ਸੈੱਟ_Void();
+        Ast_ਗੰਢ_FTask* ਅਚਲ ctorNewp = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, "new"), ਗੰਢ_FTask);
         UASSERT_OBJ(ctorNewp, classp, "No new() in class");
         // Preserve inherited modes set by super.new() and initialize only newly added entries.
-        AstNode* const initFirstp = oldSizeVarp;
-        initFirstp->addNext(
-            new AstAssign{fl, new AstVarRef{fl, oldSizeVarp, VAccess::WRITE}, oldSizep});
-        initFirstp->addNext(dynarrayNewp->makeStmt());
-        initFirstp->addNext(makeModeSetLoop(
-            fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE}, new AstConst{fl, 1},
-            true, new AstVarRef{fl, oldSizeVarp, VAccess::READ}));
+        Ast_ਗੰਢ* ਅਚਲ initFirstp = old_ਮਾਪ_Varp;
+        initFirstp->ਜੋੜੋ_ਅਗਲਾ(
+            ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, old_ਮਾਪ_Varp, VAccess::WRITE}, oldSizep});
+        initFirstp->ਜੋੜੋ_ਅਗਲਾ(dynarrayNewp->makeStmt());
+        initFirstp->ਜੋੜੋ_ਅਗਲਾ(make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(
+            fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::WRITE}, ਨਵਾਂ AstConst{fl, 1},
+            ਸੱਚ, ਨਵਾਂ AstVarRef{fl, old_ਮਾਪ_Varp, VAccess::READ}));
         // Prepend init code before user statements in constructor body, but after
         // var declarations and super.new(). This ensures that user's constraint_mode()
         // or rand_mode() calls in the constructor execute after mode arrays are initialized.
         // Pattern from V3LinkDot::addImplicitSuperNewCall.
-        for (AstNode* stmtp = ctorNewp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-            if (!VN_IS(stmtp, NodeStmt)) continue;  // Skip var declarations
-            if (const AstStmtExpr* const sep = VN_CAST(stmtp, StmtExpr)) {
-                if (VN_IS(sep->exprp(), New)) continue;  // Skip super.new()
+        ਲਈ (Ast_ਗੰਢ* stmtp = ctorNewp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+            ਜੇ (!VN_IS(stmtp, ਗੰਢ_Stmt)) ਜਾਰੀ;  // Skip var declarations
+            ਜੇ (ਅਚਲ Ast_Stmt_ਵਿਅੰਜਕ* ਅਚਲ sep = VN_CAST(stmtp, Stmt_ਵਿਅੰਜਕ)) {
+                ਜੇ (VN_IS(sep->exprp(), New)) ਜਾਰੀ;  // Skip super.new()
             }
             // Found first user statement - insert init code before it
-            stmtp->addHereThisAsNext(initFirstp);
-            return;
+            stmtp->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(initFirstp);
+            ਵਾਪਸ;
         }
         // No user statements (empty constructor or only var decls/super.new)
-        ctorNewp->addStmtsp(initFirstp);
+        ctorNewp->ਜੋੜੋ_Stmtsp(initFirstp);
     }
-    void makeStaticModeInit(AstVar* modeVarp, AstClass* classp, uint32_t modeCount) {
+    ਖਾਲੀ make_Static_ਬਹੁਲਕ_Init(AstVar* ਬਹੁਲਕ_Varp, AstClass* classp, uint32_t ਬਹੁਲਕ_ਗਿਣਤੀ) {
         // For static constraint mode, we need lazy initialization since it's shared across
         // instances. Generate: if (size() == 0) { resize(N); set all to 1; }
-        AstNodeModule* const modeVarModp = VN_AS(modeVarp->user2p(), NodeModule);
-        FileLine* const fl = modeVarp->fileline();
+        Ast_ਗੰਢ_Module* ਅਚਲ ਬਹੁਲਕ_Var_Modp = VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module);
+        File_ਸਤਰ* ਅਚਲ fl = ਬਹੁਲਕ_Varp->fileline();
 
         // Build the condition: size() == 0
-        AstCMethodHard* const sizep
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::READ},
-                                 VCMethod::DYN_SIZE, nullptr};
-        sizep->dtypeSetUInt32();
-        AstEq* const condp = new AstEq{fl, sizep, new AstConst{fl, 0}};
+        AstCMethodHard* ਅਚਲ sizep
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::READ},
+                                 VCMethod::DYN_ਮਾਪ, ਖਾਲੀ_ਸੂਚਕ};
+        sizep->dtype_ਸੈੱਟ_UInt32();
+        AstEq* ਅਚਲ condp = ਨਵਾਂ AstEq{fl, sizep, ਨਵਾਂ AstConst{fl, 0}};
 
         // Build the then-block: resize and set all to 1
-        AstCMethodHard* const dynarrayNewp
-            = new AstCMethodHard{fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                                 VCMethod::DYN_RESIZE, new AstConst{fl, modeCount}};
-        dynarrayNewp->dtypeSetVoid();
-        AstNode* const thenStmtsp = dynarrayNewp->makeStmt();
-        thenStmtsp->addNext(
-            makeModeSetLoop(fl, new AstVarRef{fl, modeVarModp, modeVarp, VAccess::WRITE},
-                            new AstConst{fl, 1}, true));
+        AstCMethodHard* ਅਚਲ dynarrayNewp
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::WRITE},
+                                 VCMethod::DYN_RESIZE, ਨਵਾਂ AstConst{fl, ਬਹੁਲਕ_ਗਿਣਤੀ}};
+        dynarrayNewp->dtype_ਸੈੱਟ_Void();
+        Ast_ਗੰਢ* ਅਚਲ thenStmtsp = dynarrayNewp->makeStmt();
+        thenStmtsp->ਜੋੜੋ_ਅਗਲਾ(
+            make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(fl, ਨਵਾਂ AstVarRef{fl, ਬਹੁਲਕ_Var_Modp, ਬਹੁਲਕ_Varp, VAccess::WRITE},
+                            ਨਵਾਂ AstConst{fl, 1}, ਸੱਚ));
 
         // Build the if statement
-        AstIf* const ifp = new AstIf{fl, condp, thenStmtsp};
+        AstIf* ਅਚਲ ifp = ਨਵਾਂ AstIf{fl, condp, thenStmtsp};
 
         // Add to new() constructor
-        AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
+        Ast_ਗੰਢ_FTask* ਅਚਲ newp = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, "new"), ਗੰਢ_FTask);
         UASSERT_OBJ(newp, classp, "No new() in class");
-        newp->addStmtsp(ifp);
+        newp->ਜੋੜੋ_Stmtsp(ifp);
     }
-    AstNode* makeModeSetLoop(FileLine* const fl, AstNodeExpr* const lhsp, AstNodeExpr* const rhsp,
-                             bool inTask, AstNodeExpr* const startp = nullptr) {
-        AstVar* const iterVarp = new AstVar{fl, VVarType::BLOCKTEMP, "i", lhsp->findUInt32DType()};
-        iterVarp->funcLocal(inTask);
+    Ast_ਗੰਢ* make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(File_ਸਤਰ* ਅਚਲ fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp,
+                             ਤਾਰਕਿਕ ਵਿੱਚ_Task, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ startp = ਖਾਲੀ_ਸੂਚਕ) {
+        AstVar* ਅਚਲ iterVarp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "i", lhsp->ਲੱਭੋ_UInt32_DType()};
+        iterVarp->funcLocal(ਵਿੱਚ_Task);
         iterVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        AstCMethodHard* const sizep = new AstCMethodHard{fl, lhsp, VCMethod::DYN_SIZE, nullptr};
-        sizep->dtypeSetUInt32();
-        AstCMethodHard* const setp
-            = new AstCMethodHard{fl, lhsp->cloneTree(false), VCMethod::ARRAY_AT_WRITE,
-                                 new AstVarRef{fl, iterVarp, VAccess::READ}};
-        setp->dtypeSetUInt32();
-        AstNode* const stmtsp = iterVarp;
-        stmtsp->addNext(new AstAssign{fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-                                      startp ? startp : new AstConst{fl, 0}});
+        AstCMethodHard* ਅਚਲ sizep = ਨਵਾਂ AstCMethodHard{fl, lhsp, VCMethod::DYN_ਮਾਪ, ਖਾਲੀ_ਸੂਚਕ};
+        sizep->dtype_ਸੈੱਟ_UInt32();
+        AstCMethodHard* ਅਚਲ setp
+            = ਨਵਾਂ AstCMethodHard{fl, lhsp->clone_ਰੁੱਖ(ਝੂਠ), VCMethod::ARRAY_AT_WRITE,
+                                 ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}};
+        setp->dtype_ਸੈੱਟ_UInt32();
+        Ast_ਗੰਢ* ਅਚਲ stmtsp = iterVarp;
+        stmtsp->ਜੋੜੋ_ਅਗਲਾ(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::WRITE},
+                                      startp ? startp : ਨਵਾਂ AstConst{fl, 0}});
 
-        AstLoop* const loopp = new AstLoop{fl};
-        stmtsp->addNext(loopp);
-        loopp->addStmtsp(new AstLoopTest{
-            fl, loopp, new AstLt{fl, new AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
-        loopp->addStmtsp(new AstAssign{fl, setp, rhsp});
-        loopp->addStmtsp(new AstAssign{
-            fl, new AstVarRef{fl, iterVarp, VAccess::WRITE},
-            new AstAdd{fl, new AstConst{fl, 1}, new AstVarRef{fl, iterVarp, VAccess::READ}}});
-        return new AstBegin{fl, m_uniqueNames.get("__VrandBlock"), stmtsp, true};
+        AstLoop* ਅਚਲ loopp = ਨਵਾਂ AstLoop{fl};
+        stmtsp->ਜੋੜੋ_ਅਗਲਾ(loopp);
+        loopp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstLoopTest{
+            fl, loopp, ਨਵਾਂ AstLt{fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}, sizep}});
+        loopp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, setp, rhsp});
+        loopp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+            fl, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::WRITE},
+            ਨਵਾਂ Ast_ਜੋੜੋ{fl, ਨਵਾਂ AstConst{fl, 1}, ਨਵਾਂ AstVarRef{fl, iterVarp, VAccess::READ}}});
+        ਵਾਪਸ ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"), stmtsp, ਸੱਚ};
     }
-    void addTempVarsp(AstVar* varsp) {
-        for (AstVar* varp = varsp; varp; varp = VN_AS(varp->nextp(), Var)) {
-            if (m_ftaskp) {
-                varp->funcLocal(true);
-            } else {
+    ਖਾਲੀ ਜੋੜੋ_ਆਰਜ਼ੀ_Varsp(AstVar* varsp) {
+        ਲਈ (AstVar* varp = varsp; varp; varp = VN_AS(varp->nextp(), Var)) {
+            ਜੇ (m_ftaskp) {
+                varp->funcLocal(ਸੱਚ);
+            } ਨਹੀਂਤਾਂ {
                 varp->varType(VVarType::MODULETEMP);
                 varp->lifetime(VLifetime::STATIC_EXPLICIT);
             }
         }
-        if (!m_ftaskp) {
-            m_modp->addStmtsp(varsp);
-        } else {
+        ਜੇ (!m_ftaskp) {
+            m_modp->ਜੋੜੋ_Stmtsp(varsp);
+        } ਨਹੀਂਤਾਂ {
             m_ftaskp->prependStmtsp(varsp);
         }
     }
-    AstNodeStmt* wrapIfRandMode(AstClass* classp, AstVar* const varp, AstNodeStmt* stmtp) {
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        AstVar* const modeVarp = varp->lifetime().isStatic() ? getStaticRandModeVar(classp)
-                                                             : getRandModeVarFromClass(classp);
-        return VN_AS(wrapIfMode(rmode, modeVarp, stmtp), NodeStmt);
+    Ast_ਗੰਢ_Stmt* wrap_If_Rand_ਬਹੁਲਕ(AstClass* classp, AstVar* ਅਚਲ varp, Ast_ਗੰਢ_Stmt* stmtp) {
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = varp->user1()};
+        AstVar* ਅਚਲ ਬਹੁਲਕ_Varp = varp->lifetime().isStatic() ? get_Static_Rand_ਬਹੁਲਕ_Var(classp)
+                                                             : get_Rand_ਬਹੁਲਕ_Var_From_Class(classp);
+        ਵਾਪਸ VN_AS(wrap_If_ਬਹੁਲਕ(rmode, ਬਹੁਲਕ_Varp, stmtp), ਗੰਢ_Stmt);
     }
-    AstNode* wrapIfConstraintMode(AstClass* classp, AstConstraint* const constrp, AstNode* stmtp) {
-        const RandomizeMode rmode = {.asUQuad = constrp->user1()};
-        AstVar* const modeVarp = constrp->isStatic() ? getStaticConstraintModeVar(classp)
-                                                     : getConstraintModeVar(classp);
-        return wrapIfMode(rmode, modeVarp, stmtp);
+    Ast_ਗੰਢ* wrap_If_Constraint_ਬਹੁਲਕ(AstClass* classp, AstConstraint* ਅਚਲ constrp, Ast_ਗੰਢ* stmtp) {
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = constrp->user1()};
+        AstVar* ਅਚਲ ਬਹੁਲਕ_Varp = constrp->isStatic() ? get_Static_Constraint_ਬਹੁਲਕ_Var(classp)
+                                                     : get_Constraint_ਬਹੁਲਕ_Var(classp);
+        ਵਾਪਸ wrap_If_ਬਹੁਲਕ(rmode, ਬਹੁਲਕ_Varp, stmtp);
     }
-    static AstNode* wrapIfMode(const RandomizeMode mode, AstVar* modeVarp, AstNode* stmtp) {
-        FileLine* const fl = stmtp->fileline();
-        if (mode.usesMode) {
+    ਸਥਿਰ Ast_ਗੰਢ* wrap_If_ਬਹੁਲਕ(ਅਚਲ Randomize_ਬਹੁਲਕ ਬਹੁਲਕ, AstVar* ਬਹੁਲਕ_Varp, Ast_ਗੰਢ* stmtp) {
+        File_ਸਤਰ* ਅਚਲ fl = stmtp->fileline();
+        ਜੇ (ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ) {
             // user2p can be either AstClass or AstClassPackage (for static constraints)
-            AstNodeModule* const modp = VN_AS(modeVarp->user2p(), NodeModule);
-            AstCMethodHard* const atp
-                = new AstCMethodHard{fl, new AstVarRef{fl, modp, modeVarp, VAccess::READ},
-                                     VCMethod::ARRAY_AT, new AstConst{fl, mode.index}};
-            atp->dtypeSetUInt32();
-            return new AstIf{fl, atp, stmtp};
+            Ast_ਗੰਢ_Module* ਅਚਲ modp = VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module);
+            AstCMethodHard* ਅਚਲ atp
+                = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, modp, ਬਹੁਲਕ_Varp, VAccess::READ},
+                                     VCMethod::ARRAY_AT, ਨਵਾਂ AstConst{fl, ਬਹੁਲਕ.ਸੂਚਕਾਂਕ}};
+            atp->dtype_ਸੈੱਟ_UInt32();
+            ਵਾਪਸ ਨਵਾਂ AstIf{fl, atp, stmtp};
         }
-        return stmtp;
+        ਵਾਪਸ stmtp;
     }
-    AstVarRef* enumValueTabRefp(AstEnumDType* const nodep) {
+    AstVarRef* enum_ਮੁੱਲ_Tab_Refp(AstEnumDType* ਅਚਲ nodep) {
         // Return a reference to a constant table of the values of the given enum. The reference
         // is cached, so the table is built only once.
-        if (nodep->user2p()) return VN_AS(nodep->user2p(), VarRef)->cloneTree(false);
+        ਜੇ (nodep->user2p()) ਵਾਪਸ VN_AS(nodep->user2p(), VarRef)->clone_ਰੁੱਖ(ਝੂਠ);
         UINFO(9, "Construct enum value table " << nodep);
-        AstNodeArrayDType* const vardtypep = new AstUnpackArrayDType{
+        Ast_ਗੰਢ_Array_DType* ਅਚਲ vardtypep = ਨਵਾਂ AstUnpackArrayDType{
             nodep->fileline(), nodep->dtypep(),
-            new AstRange{nodep->fileline(), static_cast<int>(nodep->itemCount()) - 1, 0}};
-        v3Global.rootp()->typeTablep()->addTypesp(vardtypep);
-        AstConsArray* const consp = new AstConsArray{nodep->fileline(), vardtypep};
+            ਨਵਾਂ AstRange{nodep->fileline(), static_cast<ਪੂਰਨ>(nodep->ਵਸਤੂ_ਗਿਣਤੀ()) - 1, 0}};
+        v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(vardtypep);
+        AstConsArray* ਅਚਲ consp = ਨਵਾਂ AstConsArray{nodep->fileline(), vardtypep};
         UASSERT_OBJ(nodep->itemsp(), nodep, "Enum without items");
-        uint64_t index = 0;
-        for (AstEnumItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), EnumItem)) {
-            AstConst* const vconstp = VN_AS(itemp->valuep(), Const);
+        uint64_t ਸੂਚਕਾਂਕ = 0;
+        ਲਈ (Ast_Enum_ਵਸਤੂ* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Enum_ਵਸਤੂ)) {
+            AstConst* ਅਚਲ vconstp = VN_AS(itemp->valuep(), Const);
             UASSERT_OBJ(vconstp, nodep, "Enum item without constified value");
-            consp->valuep(index++, vconstp->cloneTree(false));
+            consp->valuep(ਸੂਚਕਾਂਕ++, vconstp->clone_ਰੁੱਖ(ਝੂਠ));
         }
         // Share identical tables via the constant pool
-        AstVarRef* const refp = V3ConstPool::find(consp);
-        VL_DO_DANGLING(consp->deleteTree(), consp);  // V3ConstPool::find clones it
-        pushDeletep(refp);  // Deleted with the visitor - always cloned
+        AstVarRef* ਅਚਲ refp = V3ConstPool::ਲੱਭੋ(consp);
+        VL_DO_DANGLING(consp->delete_ਰੁੱਖ(), consp);  // V3ConstPool::find clones it
+        ਧੱਕੋ_Deletep(refp);  // Deleted with the visitor - always cloned
         nodep->user2p(refp);
-        return refp->cloneTree(false);
+        ਵਾਪਸ refp->clone_ਰੁੱਖ(ਝੂਠ);
     }
 
-    AstCDType* findVlRandCDType(FileLine* const fl, uint64_t items) {
+    AstCDType* ਲੱਭੋ_Vl_Rand_CDType(File_ਸਤਰ* ਅਚਲ fl, uint64_t ਚੀਜ਼ਾਂ) {
         // For 8 items we need to have a 9 item LFSR so items is max count
         // width(items) = log2(items) + 1
-        const std::string type = AstCDType::typeToHold(V3Number::log2bQuad(items) + 1);
-        const std::string name = "VlRandC<" + type + ", " + cvtToStr(items) + "ULL>";
+        ਅਚਲ std::string type = AstCDType::type_ਮੰਜ਼ਿਲ_Hold(V3_ਸੰਖਿਆ::log2bQuad(ਚੀਜ਼ਾਂ) + 1);
+        ਅਚਲ std::string name = "VlRandC<" + type + ", " + cvt_ਮੰਜ਼ਿਲ_Str(ਚੀਜ਼ਾਂ) + "ULL>";
         // Create or reuse (to avoid duplicates) randomization object dtype
-        const auto pair = m_randcDtypes.emplace(name, nullptr);
-        if (pair.second) {
-            AstCDType* const newp = new AstCDType{fl, name};
-            v3Global.rootp()->typeTablep()->addTypesp(newp);
-            pair.first->second = newp;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_randcDtypes.emplace(name, ਖਾਲੀ_ਸੂਚਕ);
+        ਜੇ (pair.ਦੂਜਾ) {
+            AstCDType* ਅਚਲ newp = ਨਵਾਂ AstCDType{fl, name};
+            v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(newp);
+            pair.ਪਹਿਲਾ->ਦੂਜਾ = newp;
         }
-        return pair.first->second;
+        ਵਾਪਸ pair.ਪਹਿਲਾ->ਦੂਜਾ;
     }
 
-    AstVar* newRandcVarsp(AstVar* const varp, AstClass* const classp) {
+    AstVar* newRandcVarsp(AstVar* ਅਚਲ varp, AstClass* ਅਚਲ classp) {
         // Might be called multiple times on same var, if var is referenced in class extends,
         // If so, each is randomized separately, so the select lands in the extending class
 
         // If a randc, make a VlRandC object to hold the state
-        if (!varp->isRandC()) return nullptr;
+        ਜੇ (!varp->isRandC()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
 
-        uint64_t items = 0;
-        if (AstEnumDType* const enumDtp = VN_CAST(varp->dtypep()->skipRefToEnump(), EnumDType)) {
-            items = static_cast<uint64_t>(enumDtp->itemCount());
-        } else if (AstBasicDType* const basicp = varp->dtypep()->skipRefp()->basicp()) {
-            if (basicp->width() > 32) {
+        uint64_t ਚੀਜ਼ਾਂ = 0;
+        ਜੇ (AstEnumDType* ਅਚਲ enumDtp = VN_CAST(varp->dtypep()->skip_Ref_ਮੰਜ਼ਿਲ_Enump(), EnumDType)) {
+            ਚੀਜ਼ਾਂ = static_cast<uint64_t>(enumDtp->ਵਸਤੂ_ਗਿਣਤੀ());
+        } ਨਹੀਂਤਾਂ ਜੇ (AstBasicDType* ਅਚਲ basicp = varp->dtypep()->skipRefp()->basicp()) {
+            ਜੇ (basicp->ਚੌੜਾਈ() > 32) {
                 // Real/chandle/string/event are rejected by type upstream already;
                 // an over-width integral type isn't, so still needs its own message.
-                if (!V3Error::errorCount()) {
+                ਜੇ (!V3Error::error_ਗਿਣਤੀ()) {
                     varp->v3error("Maximum implemented width for randc is 32 bits, "
-                                  << varp->prettyNameQ() << " is " << basicp->width() << " bits");
+                                  << varp->prettyNameQ() << " is " << basicp->ਚੌੜਾਈ() << " bits");
                 }
                 varp->rand(VRandAttr::RAND);
-                return nullptr;
+                ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             }
-            items = 1ULL << basicp->width();
-        } else if (AstStructDType* const dtp = VN_CAST(varp->dtypep()->skipRefp(), StructDType)) {
+            ਚੀਜ਼ਾਂ = 1ULL << basicp->ਚੌੜਾਈ();
+        } ਨਹੀਂਤਾਂ ਜੇ (AstStructDType* ਅਚਲ dtp = VN_CAST(varp->dtypep()->skipRefp(), StructDType)) {
             UASSERT_OBJ(!dtp->packed(), dtp, "skipRef should have hidden packed before got here");
             dtp->v3error("Unpacked structs shall not be declared as randc"
                          " (IEEE 1800-2023 18.4)");
-            return nullptr;
-        } else {
+            ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        } ਨਹੀਂਤਾਂ {
             // Only remaining possibility: an object handle, virtual interface,
             // or unpacked union declared randc -- checkRandTypeEligibility()
             // already rejected each of those with its own error, earlier in
             // this same pass, before newRandcVarsp() ever runs on this var.
-            UASSERT_OBJ(V3Error::errorCount(), varp, "Unexpected randc variable dtype");
-            return nullptr;
+            UASSERT_OBJ(V3Error::error_ਗਿਣਤੀ(), varp, "Unexpected randc variable dtype");
+            ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         }
-        AstCDType* const newdtp = findVlRandCDType(varp->fileline(), items);
-        AstVar* const newp
-            = new AstVar{varp->fileline(), VVarType::MEMBER, varp->name() + "__Vrandc", newdtp};
-        newp->isInternal(true);
-        classp->addStmtsp(newp);
+        AstCDType* ਅਚਲ newdtp = ਲੱਭੋ_Vl_Rand_CDType(varp->fileline(), ਚੀਜ਼ਾਂ);
+        AstVar* ਅਚਲ newp
+            = ਨਵਾਂ AstVar{varp->fileline(), VVarType::MEMBER, varp->name() + "__Vrandc", newdtp};
+        newp->is_ਅੰਦਰੂਨੀ(ਸੱਚ);
+        classp->ਜੋੜੋ_Stmtsp(newp);
         UINFO(9, "created " << varp);
-        return newp;
+        ਵਾਪਸ newp;
     }
-    AstNodeStmt* createArrayForeachLoop(FileLine* const fl, AstNodeDType* const dtypep,
-                                        AstNodeExpr* exprp, AstVar* const outputVarp) {
-        AstNodeDType* tempDTypep = dtypep;
-        AstVar* randLoopIndxp = nullptr;
-        auto createLoopIndex = [&](AstNodeDType* tempDTypep) {
-            if (VN_IS(tempDTypep, AssocArrayDType)) {
-                return new AstVar{fl, VVarType::VAR, m_randArrayUniqueNames.get(""),
-                                  VN_AS(tempDTypep, AssocArrayDType)->keyDTypep()};
+    Ast_ਗੰਢ_Stmt* createArrayForeachLoop(File_ਸਤਰ* ਅਚਲ fl, Ast_ਗੰਢ_DType* ਅਚਲ dtypep,
+                                        Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, AstVar* ਅਚਲ outputVarp) {
+        Ast_ਗੰਢ_DType* ਆਰਜ਼ੀ_DTypep = dtypep;
+        AstVar* randLoopIndxp = ਖਾਲੀ_ਸੂਚਕ;
+        ਸਵੈਚਾਲਿਤ create_Loop_ਸੂਚਕਾਂਕ = [&](Ast_ਗੰਢ_DType* ਆਰਜ਼ੀ_DTypep) {
+            ਜੇ (VN_IS(ਆਰਜ਼ੀ_DTypep, AssocArrayDType)) {
+                ਵਾਪਸ ਨਵਾਂ AstVar{fl, VVarType::VAR, m_rand_Array_Unique_ਨਾਂ.get(""),
+                                  VN_AS(ਆਰਜ਼ੀ_DTypep, AssocArrayDType)->ਕੁੰਜੀ_DTypep()};
             }
-            return new AstVar{fl, VVarType::VAR, m_randArrayUniqueNames.get(""),
-                              dtypep->findBasicDType(VBasicDTypeKwd::UINT32)};
+            ਵਾਪਸ ਨਵਾਂ AstVar{fl, VVarType::VAR, m_rand_Array_Unique_ਨਾਂ.get(""),
+                              dtypep->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::UINT32)};
         };
-        AstNodeExpr* tempElementp = nullptr;
-        while (tempDTypep->isNonPackedArray()) {
-            AstVar* const newRandLoopIndxp = createLoopIndex(tempDTypep);
-            randLoopIndxp = AstNode::addNext(randLoopIndxp, newRandLoopIndxp);
-            AstNodeExpr* const tempExprp = tempElementp ? tempElementp : exprp;
-            AstVarRef* const tempRefp = new AstVarRef{fl, newRandLoopIndxp, VAccess::READ};
-            if (VN_IS(tempDTypep, DynArrayDType)) {
-                tempElementp
-                    = new AstCMethodHard{fl, tempExprp, VCMethod::ARRAY_AT_WRITE, tempRefp};
-            } else if (VN_IS(tempDTypep, UnpackArrayDType)) {
-                AstNodeArrayDType* const aryDTypep = VN_CAST(tempDTypep, NodeArrayDType);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਆਰਜ਼ੀ_Elementp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜਦੋਂ (ਆਰਜ਼ੀ_DTypep->isNonPackedArray()) {
+            AstVar* ਅਚਲ newRandLoopIndxp = create_Loop_ਸੂਚਕਾਂਕ(ਆਰਜ਼ੀ_DTypep);
+            randLoopIndxp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(randLoopIndxp, newRandLoopIndxp);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਆਰਜ਼ੀ_Exprp = ਆਰਜ਼ੀ_Elementp ? ਆਰਜ਼ੀ_Elementp : exprp;
+            AstVarRef* ਅਚਲ ਆਰਜ਼ੀ_Refp = ਨਵਾਂ AstVarRef{fl, newRandLoopIndxp, VAccess::READ};
+            ਜੇ (VN_IS(ਆਰਜ਼ੀ_DTypep, DynArrayDType)) {
+                ਆਰਜ਼ੀ_Elementp
+                    = ਨਵਾਂ AstCMethodHard{fl, ਆਰਜ਼ੀ_Exprp, VCMethod::ARRAY_AT_WRITE, ਆਰਜ਼ੀ_Refp};
+            } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਆਰਜ਼ੀ_DTypep, UnpackArrayDType)) {
+                Ast_ਗੰਢ_Array_DType* ਅਚਲ aryDTypep = VN_CAST(ਆਰਜ਼ੀ_DTypep, ਗੰਢ_Array_DType);
                 // Adjust the bitp to ensure it covers all possible indices
-                tempElementp = new AstArraySel{
-                    fl, tempExprp,
-                    new AstSel{
+                ਆਰਜ਼ੀ_Elementp = ਨਵਾਂ AstArraySel{
+                    fl, ਆਰਜ਼ੀ_Exprp,
+                    ਨਵਾਂ AstSel{
                         fl,
-                        new AstSub{fl, tempRefp,
-                                   new AstConst{fl, static_cast<uint32_t>(aryDTypep->lo())}},
-                        new AstConst{fl, 0}, V3Number::log2b(aryDTypep->hi()) + 1}};
-            } else if (VN_IS(tempDTypep, AssocArrayDType)) {
-                tempElementp = new AstAssocSel{fl, tempExprp, tempRefp};
-            } else if (VN_IS(tempDTypep, QueueDType)) {
-                tempElementp
-                    = new AstCMethodHard{fl, tempExprp, VCMethod::DYN_AT_WRITE_APPEND, tempRefp};
+                        ਨਵਾਂ AstSub{fl, ਆਰਜ਼ੀ_Refp,
+                                   ਨਵਾਂ AstConst{fl, static_cast<uint32_t>(aryDTypep->lo())}},
+                        ਨਵਾਂ AstConst{fl, 0}, V3_ਸੰਖਿਆ::log2b(aryDTypep->hi()) + 1}};
+            } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਆਰਜ਼ੀ_DTypep, AssocArrayDType)) {
+                ਆਰਜ਼ੀ_Elementp = ਨਵਾਂ AstAssocSel{fl, ਆਰਜ਼ੀ_Exprp, ਆਰਜ਼ੀ_Refp};
+            } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(ਆਰਜ਼ੀ_DTypep, ਕਤਾਰ_DType)) {
+                ਆਰਜ਼ੀ_Elementp
+                    = ਨਵਾਂ AstCMethodHard{fl, ਆਰਜ਼ੀ_Exprp, VCMethod::DYN_AT_WRITE_APPEND, ਆਰਜ਼ੀ_Refp};
             }
-            tempElementp->dtypep(tempDTypep->subDTypep());
-            tempDTypep = tempDTypep->virtRefDTypep();
+            ਆਰਜ਼ੀ_Elementp->dtypep(ਆਰਜ਼ੀ_DTypep->subDTypep());
+            ਆਰਜ਼ੀ_DTypep = ਆਰਜ਼ੀ_DTypep->virtRefDTypep();
         }
 
-        AstForeachHeader* const headerp
-            = new AstForeachHeader{fl, exprp->cloneTree(false), randLoopIndxp};
-        AstNodeStmt* const randStmtsp = newRandStmtsp(fl, tempElementp, nullptr, outputVarp);
+        Ast_Foreach_ਸਿਰਲੇਖ* ਅਚਲ headerp
+            = ਨਵਾਂ Ast_Foreach_ਸਿਰਲੇਖ{fl, exprp->clone_ਰੁੱਖ(ਝੂਠ), randLoopIndxp};
+        Ast_ਗੰਢ_Stmt* ਅਚਲ randStmtsp = newRandStmtsp(fl, ਆਰਜ਼ੀ_Elementp, ਖਾਲੀ_ਸੂਚਕ, outputVarp);
         // TODO: we should just not clone in 'newRandStmtsp' if not necessary
-        if (!tempElementp->backp()) VL_DO_DANGLING(pushDeletep(tempElementp), tempElementp);
-        return new AstForeach{fl, headerp, randStmtsp};
+        ਜੇ (!ਆਰਜ਼ੀ_Elementp->backp()) VL_DO_DANGLING(ਧੱਕੋ_Deletep(ਆਰਜ਼ੀ_Elementp), ਆਰਜ਼ੀ_Elementp);
+        ਵਾਪਸ ਨਵਾਂ AstForeach{fl, headerp, randStmtsp};
     }
-    AstNodeStmt* newRandStmtsp(FileLine* fl, AstNodeExpr* exprp, AstVar* randcVarp,
-                               AstVar* const outputVarp, int offset = 0,
-                               AstMemberDType* memberp = nullptr) {
-        AstNodeDType* const memberDtp
+    Ast_ਗੰਢ_Stmt* newRandStmtsp(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, AstVar* randcVarp,
+                               AstVar* ਅਚਲ outputVarp, ਪੂਰਨ ਵਿੱਥ = 0,
+                               AstMemberDType* memberp = ਖਾਲੀ_ਸੂਚਕ) {
+        Ast_ਗੰਢ_DType* ਅਚਲ memberDtp
             = memberp ? memberp->subDTypep()->skipRefp() : exprp->dtypep()->skipRefp();
-        if (const auto* const structDtp = VN_CAST(memberDtp, StructDType)) {
-            AstNodeStmt* stmtsp = nullptr;
-            if (structDtp->packed()) offset += memberp ? memberp->lsb() : 0;
-            for (AstMemberDType* smemberp = structDtp->membersp(); smemberp;
+        ਜੇ (ਅਚਲ ਸਵੈਚਾਲਿਤ* ਅਚਲ structDtp = VN_CAST(memberDtp, StructDType)) {
+            Ast_ਗੰਢ_Stmt* stmtsp = ਖਾਲੀ_ਸੂਚਕ;
+            ਜੇ (structDtp->packed()) ਵਿੱਥ += memberp ? memberp->lsb() : 0;
+            ਲਈ (AstMemberDType* smemberp = structDtp->membersp(); smemberp;
                  smemberp = VN_AS(smemberp->nextp(), MemberDType)) {
-                AstNodeStmt* randp = nullptr;
-                if (structDtp->packed()) {
-                    randp = newRandStmtsp(fl, stmtsp ? exprp->cloneTree(false) : exprp, nullptr,
-                                          outputVarp, offset, smemberp);
-                } else if (smemberp->rand().isRandomizable()) {
+                Ast_ਗੰਢ_Stmt* randp = ਖਾਲੀ_ਸੂਚਕ;
+                ਜੇ (structDtp->packed()) {
+                    randp = newRandStmtsp(fl, stmtsp ? exprp->clone_ਰੁੱਖ(ਝੂਠ) : exprp, ਖਾਲੀ_ਸੂਚਕ,
+                                          outputVarp, ਵਿੱਥ, smemberp);
+                } ਨਹੀਂਤਾਂ ਜੇ (smemberp->rand().isRandomizable()) {
                     // IEEE 1800-2023 18.4: an unpacked struct member is only
                     // randomized if its own declaration carries rand/randc.
                     AstStructSel* structSelp
-                        = new AstStructSel{fl, exprp->cloneTree(false), smemberp->name()};
-                    structSelp->dtypep(smemberp->childDTypep());
-                    if (!structSelp->dtypep()) structSelp->dtypep(smemberp->subDTypep());
-                    randp = newRandStmtsp(fl, structSelp, nullptr, outputVarp);
+                        = ਨਵਾਂ AstStructSel{fl, exprp->clone_ਰੁੱਖ(ਝੂਠ), smemberp->name()};
+                    structSelp->dtypep(smemberp->ਬੱਚਾ_DTypep());
+                    ਜੇ (!structSelp->dtypep()) structSelp->dtypep(smemberp->subDTypep());
+                    randp = newRandStmtsp(fl, structSelp, ਖਾਲੀ_ਸੂਚਕ, outputVarp);
                 }
-                stmtsp = AstNode::addNextNull(stmtsp, randp);
+                stmtsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ_Null(stmtsp, randp);
             }
-            return stmtsp;
-        } else if (const auto* const unionDtp = VN_CAST(memberDtp, UnionDType)) {
+            ਵਾਪਸ stmtsp;
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ ਸਵੈਚਾਲਿਤ* ਅਚਲ unionDtp = VN_CAST(memberDtp, UnionDType)) {
             // Illegal for rand/randc, rejected by type upstream for every such
             // case; nothing valid to build a randomize statement for here.
-            if (!unionDtp->packed()) return nullptr;
-            AstMemberDType* const firstMemberp = unionDtp->membersp();
-            return newRandStmtsp(fl, exprp, nullptr, outputVarp, offset, firstMemberp);
-        } else if (const AstClassRefDType* const classRefDtp = VN_CAST(memberDtp, ClassRefDType)) {
-            AstFunc* const memberFuncp
+            ਜੇ (!unionDtp->packed()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+            AstMemberDType* ਅਚਲ ਪਹਿਲਾ_Memberp = unionDtp->membersp();
+            ਵਾਪਸ newRandStmtsp(fl, exprp, ਖਾਲੀ_ਸੂਚਕ, outputVarp, ਵਿੱਥ, ਪਹਿਲਾ_Memberp);
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstClassRefDType* ਅਚਲ classRefDtp = VN_CAST(memberDtp, ClassRefDType)) {
+            AstFunc* ਅਚਲ memberFuncp
                 = V3Randomize::newRandomizeFunc(m_memberMap, classRefDtp->classp());
-            AstMethodCall* const callp = new AstMethodCall{fl, exprp, "randomize"};
+            Ast_ਵਿਧੀ_Call* ਅਚਲ callp = ਨਵਾਂ Ast_ਵਿਧੀ_Call{fl, exprp, "randomize"};
             callp->taskp(memberFuncp);
             callp->dtypeFrom(memberFuncp);
-            AstAssign* const assignp = new AstAssign{
-                fl, new AstVarRef{fl, outputVarp, VAccess::WRITE},
-                new AstAnd{fl, new AstVarRef{fl, outputVarp, VAccess::READ}, callp}};
-            return new AstIf{
-                fl, new AstNeq{fl, exprp->cloneTree(false), new AstConst{fl, AstConst::Null{}}},
+            Ast_ਸੌਂਪੋ* ਅਚਲ assignp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                fl, ਨਵਾਂ AstVarRef{fl, outputVarp, VAccess::WRITE},
+                ਨਵਾਂ AstAnd{fl, ਨਵਾਂ AstVarRef{fl, outputVarp, VAccess::READ}, callp}};
+            ਵਾਪਸ ਨਵਾਂ AstIf{
+                fl, ਨਵਾਂ AstNeq{fl, exprp->clone_ਰੁੱਖ(ਝੂਠ), ਨਵਾਂ AstConst{fl, AstConst::Null{}}},
                 assignp};
-        } else if (AstDynArrayDType* const dynarrayDtp = VN_CAST(memberDtp, DynArrayDType)) {
-            return createArrayForeachLoop(fl, dynarrayDtp, exprp, outputVarp);
-        } else if (AstQueueDType* const queueDtp = VN_CAST(memberDtp, QueueDType)) {
-            return createArrayForeachLoop(fl, queueDtp, exprp, outputVarp);
-        } else if (AstUnpackArrayDType* const unpackarrayDtp
+        } ਨਹੀਂਤਾਂ ਜੇ (AstDynArrayDType* ਅਚਲ dynarrayDtp = VN_CAST(memberDtp, DynArrayDType)) {
+            ਵਾਪਸ createArrayForeachLoop(fl, dynarrayDtp, exprp, outputVarp);
+        } ਨਹੀਂਤਾਂ ਜੇ (Ast_ਕਤਾਰ_DType* ਅਚਲ ਕਤਾਰ_Dtp = VN_CAST(memberDtp, ਕਤਾਰ_DType)) {
+            ਵਾਪਸ createArrayForeachLoop(fl, ਕਤਾਰ_Dtp, exprp, outputVarp);
+        } ਨਹੀਂਤਾਂ ਜੇ (AstUnpackArrayDType* ਅਚਲ unpackarrayDtp
                    = VN_CAST(memberDtp, UnpackArrayDType)) {
-            return createArrayForeachLoop(fl, unpackarrayDtp, exprp, outputVarp);
-        } else if (AstAssocArrayDType* const assocarrayDtp = VN_CAST(memberDtp, AssocArrayDType)) {
-            return createArrayForeachLoop(fl, assocarrayDtp, exprp, outputVarp);
-        } else {
-            AstNodeExpr* valp;
-            if (AstEnumDType* const enumDtp = VN_CAST(memberp ? memberp->subDTypep()->subDTypep()
+            ਵਾਪਸ createArrayForeachLoop(fl, unpackarrayDtp, exprp, outputVarp);
+        } ਨਹੀਂਤਾਂ ਜੇ (AstAssocArrayDType* ਅਚਲ assocarrayDtp = VN_CAST(memberDtp, AssocArrayDType)) {
+            ਵਾਪਸ createArrayForeachLoop(fl, assocarrayDtp, exprp, outputVarp);
+        } ਨਹੀਂਤਾਂ {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* valp;
+            ਜੇ (AstEnumDType* ਅਚਲ enumDtp = VN_CAST(memberp ? memberp->subDTypep()->subDTypep()
                                                               : exprp->dtypep()->subDTypep(),
                                                       EnumDType)) {
-                AstVarRef* const tabRefp = enumValueTabRefp(enumDtp);
-                AstNodeExpr* const randp
-                    = newRandValue(fl, randcVarp, exprp->findBasicDType(VBasicDTypeKwd::UINT32));
-                AstNodeExpr* const moddivp = new AstModDiv{
-                    fl, randp, new AstConst{fl, static_cast<uint32_t>(enumDtp->itemCount())}};
+                AstVarRef* ਅਚਲ tabRefp = enum_ਮੁੱਲ_Tab_Refp(enumDtp);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ randp
+                    = new_Rand_ਮੁੱਲ(fl, randcVarp, exprp->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::UINT32));
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ moddivp = ਨਵਾਂ AstModDiv{
+                    fl, randp, ਨਵਾਂ AstConst{fl, static_cast<uint32_t>(enumDtp->ਵਸਤੂ_ਗਿਣਤੀ())}};
                 moddivp->dtypep(enumDtp);
-                valp = new AstArraySel{fl, tabRefp, moddivp};
-            } else {
+                valp = ਨਵਾਂ AstArraySel{fl, tabRefp, moddivp};
+            } ਨਹੀਂਤਾਂ {
                 valp
-                    = newRandValue(fl, randcVarp, (memberp ? memberp->dtypep() : exprp->dtypep()));
+                    = new_Rand_ਮੁੱਲ(fl, randcVarp, (memberp ? memberp->dtypep() : exprp->dtypep()));
             }
-            AstAssign* assignp
-                = new AstAssign{fl,
-                                new AstSel{fl, exprp, offset + (memberp ? memberp->lsb() : 0),
-                                           memberp ? memberp->width() : exprp->width()},
+            Ast_ਸੌਂਪੋ* assignp
+                = ਨਵਾਂ Ast_ਸੌਂਪੋ{fl,
+                                ਨਵਾਂ AstSel{fl, exprp, ਵਿੱਥ + (memberp ? memberp->lsb() : 0),
+                                           memberp ? memberp->ਚੌੜਾਈ() : exprp->ਚੌੜਾਈ()},
                                 valp};
-            AstVar* varp = nullptr;
-            exprp->exists([&](const AstVarRef* varrefp) {
-                if (varrefp->access().isWriteOrRW()) varp = varrefp->varp();
-                return varp != nullptr;
+            AstVar* varp = ਖਾਲੀ_ਸੂਚਕ;
+            exprp->exists([&](ਅਚਲ AstVarRef* varrefp) {
+                ਜੇ (varrefp->access().isWriteOrRW()) varp = varrefp->varp();
+                ਵਾਪਸ varp != ਖਾਲੀ_ਸੂਚਕ;
             });
-            return wrapIfRandMode(VN_AS(m_modp, Class), varp, assignp);
+            ਵਾਪਸ wrap_If_Rand_ਬਹੁਲਕ(VN_AS(m_modp, Class), varp, assignp);
         }
     }
-    AstNodeExpr* newRandValue(FileLine* const fl, AstVar* const randcVarp,
-                              AstNodeDType* const dtypep) {
-        if (randcVarp) {
-            AstCExpr* const cexprp = new AstCExpr{fl};
-            cexprp->add(new AstVarRef{fl, randcVarp, VAccess::READWRITE});
-            cexprp->add(".randomize(__Vm_rng)");
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* new_Rand_ਮੁੱਲ(File_ਸਤਰ* ਅਚਲ fl, AstVar* ਅਚਲ randcVarp,
+                              Ast_ਗੰਢ_DType* ਅਚਲ dtypep) {
+        ਜੇ (randcVarp) {
+            AstCExpr* ਅਚਲ cexprp = ਨਵਾਂ AstCExpr{fl};
+            cexprp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, randcVarp, VAccess::READWRITE});
+            cexprp->ਜੋੜੋ(".randomize(__Vm_rng)");
             cexprp->dtypep(dtypep);
-            return cexprp;
+            ਵਾਪਸ cexprp;
         }
 
-        return new AstRandRNG{fl, dtypep};
+        ਵਾਪਸ ਨਵਾਂ AstRandRNG{fl, dtypep};
     }
     // Find pre_randomize/post_randomize task in class hierarchy (walks extendsp chain)
-    AstTask* findPrePostTask(AstClass* classp, const string& name) {
-        for (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : nullptr) {
-            if (AstTask* const taskp = VN_CAST(m_memberMap.findMember(cp, name), Task)) {
-                return taskp;
+    AstTask* ਲੱਭੋ_Pre_Post_Task(AstClass* classp, ਅਚਲ string& name) {
+        ਲਈ (AstClass* cp = classp; cp; cp = cp->extendsp() ? cp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ) {
+            ਜੇ (AstTask* ਅਚਲ taskp = VN_CAST(m_memberMap.ਲੱਭੋ_Member(cp, name), Task)) {
+                ਵਾਪਸ taskp;
             }
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
-    void addPrePostCall(AstClass* const classp, AstNodeFTask* const funcp, const string& name) {
-        if (AstTask* const userFuncp = findPrePostTask(classp, name)) {
-            AstTaskRef* const callp = new AstTaskRef{userFuncp->fileline(), userFuncp};
-            funcp->addStmtsp(callp->makeStmt());
+    ਖਾਲੀ ਜੋੜੋ_Pre_Post_Call(AstClass* ਅਚਲ classp, Ast_ਗੰਢ_FTask* ਅਚਲ funcp, ਅਚਲ string& name) {
+        ਜੇ (AstTask* ਅਚਲ userFuncp = ਲੱਭੋ_Pre_Post_Task(classp, name)) {
+            AstTaskRef* ਅਚਲ callp = ਨਵਾਂ AstTaskRef{userFuncp->fileline(), userFuncp};
+            funcp->ਜੋੜੋ_Stmtsp(callp->makeStmt());
         }
     }
     // Per-class virtual wrapper that invokes the class's effective
@@ -4753,538 +4753,538 @@ class RandomizeVisitor final : public VNVisitor {
     // is virtual. The inline `randomize() with` path builds a non-virtual
     // function on the static handle type, so it dispatches pre/post through
     // this wrapper to reach the dynamic type's override.
-    AstTask* getCreatePrePostCallback(AstClass* const classp, const string& which) {
-        const string name = "__V" + which;
-        if (AstTask* const existingp = VN_CAST(m_memberMap.findMember(classp, name), Task)) {
-            return existingp;
+    AstTask* getCreatePrePostCallback(AstClass* ਅਚਲ classp, ਅਚਲ string& which) {
+        ਅਚਲ string name = "__V" + which;
+        ਜੇ (AstTask* ਅਚਲ existingp = VN_CAST(m_memberMap.ਲੱਭੋ_Member(classp, name), Task)) {
+            ਵਾਪਸ existingp;
         }
-        AstTask* const taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
+        AstTask* ਅਚਲ taskp = ਨਵਾਂ AstTask{classp->fileline(), name, ਖਾਲੀ_ਸੂਚਕ};
+        taskp->class_ਵਿਧੀ(ਸੱਚ);
         taskp->isVirtual(classp->isExtended());
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        addPrePostCall(classp, taskp, which);
-        return taskp;
+        classp->ਜੋੜੋ_Membersp(taskp);
+        m_memberMap.ਪਾਓ(classp, taskp);
+        ਜੋੜੋ_Pre_Post_Call(classp, taskp, which);
+        ਵਾਪਸ taskp;
     }
     // Build the virtual pre/post wrappers across classp's whole hierarchy so a
     // `randomize() with` through a base handle dispatches to a derived
     // override. Returns whether a pre/post wrapper exists anywhere in the
     // hierarchy (cached per static handle type).
-    std::pair<bool, bool> buildPrePostVirtualWrappers(AstClass* const classp) {
-        const auto cachedIt = m_prePostWrap.find(classp);
-        if (cachedIt != m_prePostWrap.end()) return cachedIt->second;
-        std::vector<AstClass*> hierp{classp};
+    std::pair<ਤਾਰਕਿਕ, ਤਾਰਕਿਕ> buildPrePostVirtualWrappers(AstClass* ਅਚਲ classp) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ cachedIt = m_prePostWrap.ਲੱਭੋ(classp);
+        ਜੇ (cachedIt != m_prePostWrap.ਸਿਰਾ()) ਵਾਪਸ cachedIt->ਦੂਜਾ;
+        std::ਸਦਿਸ਼<AstClass*> hierp{classp};
         v3Global.rootp()->foreach([&](AstClass* subp) {
-            if (subp != classp && AstClass::isClassExtendedFrom(subp, classp))
-                hierp.push_back(subp);
+            ਜੇ (subp != classp && AstClass::isClassExtendedFrom(subp, classp))
+                hierp.ਧੱਕੋ_ਪਿੱਠ(subp);
         });
-        bool hasPre = false;
-        bool hasPost = false;
-        for (AstClass* const cp : hierp) {
-            if (findPrePostTask(cp, "pre_randomize")) {
+        ਤਾਰਕਿਕ hasPre = ਝੂਠ;
+        ਤਾਰਕਿਕ hasPost = ਝੂਠ;
+        ਲਈ (AstClass* ਅਚਲ cp : hierp) {
+            ਜੇ (ਲੱਭੋ_Pre_Post_Task(cp, "pre_randomize")) {
                 getCreatePrePostCallback(cp, "pre_randomize");
-                hasPre = true;
+                hasPre = ਸੱਚ;
             }
-            if (findPrePostTask(cp, "post_randomize")) {
+            ਜੇ (ਲੱਭੋ_Pre_Post_Task(cp, "post_randomize")) {
                 getCreatePrePostCallback(cp, "post_randomize");
-                hasPost = true;
+                hasPost = ਸੱਚ;
             }
         }
         // Ensure the static handle type owns the slot whenever a subclass
         // overrides, so the virtual call resolves on a base handle.
-        if (hasPre) getCreatePrePostCallback(classp, "pre_randomize");
-        if (hasPost) getCreatePrePostCallback(classp, "post_randomize");
-        const std::pair<bool, bool> result{hasPre, hasPost};
-        m_prePostWrap.emplace(classp, result);
-        return result;
+        ਜੇ (hasPre) getCreatePrePostCallback(classp, "pre_randomize");
+        ਜੇ (hasPost) getCreatePrePostCallback(classp, "post_randomize");
+        ਅਚਲ std::pair<ਤਾਰਕਿਕ, ਤਾਰਕਿਕ> ਨਤੀਜਾ{hasPre, hasPost};
+        m_prePostWrap.emplace(classp, ਨਤੀਜਾ);
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
-    void addVirtualPrePostCall(AstFunc* const randomizeFuncp, AstClass* const classp,
-                               const string& which) {
-        FileLine* const fl = classp->fileline();
-        AstTask* const wrapperp = getCreatePrePostCallback(classp, which);
-        AstClassRefDType* const refDTypep = new AstClassRefDType{fl, classp, nullptr};
-        v3Global.rootp()->typeTablep()->addTypesp(refDTypep);
-        AstMethodCall* const callp
-            = new AstMethodCall{fl, new AstThisRef{fl, refDTypep}, wrapperp->name(), nullptr};
+    ਖਾਲੀ ਜੋੜੋ_Virtual_Pre_Post_Call(AstFunc* ਅਚਲ randomizeFuncp, AstClass* ਅਚਲ classp,
+                               ਅਚਲ string& which) {
+        File_ਸਤਰ* ਅਚਲ fl = classp->fileline();
+        AstTask* ਅਚਲ wrapperp = getCreatePrePostCallback(classp, which);
+        AstClassRefDType* ਅਚਲ refDTypep = ਨਵਾਂ AstClassRefDType{fl, classp, ਖਾਲੀ_ਸੂਚਕ};
+        v3Global.rootp()->typeTablep()->ਜੋੜੋ_Typesp(refDTypep);
+        Ast_ਵਿਧੀ_Call* ਅਚਲ callp
+            = ਨਵਾਂ Ast_ਵਿਧੀ_Call{fl, ਨਵਾਂ AstThisRef{fl, refDTypep}, wrapperp->name(), ਖਾਲੀ_ਸੂਚਕ};
         callp->taskp(wrapperp);
-        callp->dtypeSetVoid();
-        randomizeFuncp->addStmtsp(callp->makeStmt());
+        callp->dtype_ਸੈੱਟ_Void();
+        randomizeFuncp->ਜੋੜੋ_Stmtsp(callp->makeStmt());
     }
     // Check if a class (including inherited members) has any rand class-type members
-    bool classHasRandClassMembers(AstClass* classp) {
-        return classp->existsMember([](const AstClass*, const AstVar* varp) {
-            if (!varp->rand().isRandomizable()) return false;
-            const AstNodeDType* const dtypep = varp->dtypep()->skipRefp();
-            return VN_IS(dtypep, ClassRefDType);
+    ਤਾਰਕਿਕ classHasRandClassMembers(AstClass* classp) {
+        ਵਾਪਸ classp->existsMember([](ਅਚਲ AstClass*, ਅਚਲ AstVar* varp) {
+            ਜੇ (!varp->rand().isRandomizable()) ਵਾਪਸ ਝੂਠ;
+            ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = varp->dtypep()->skipRefp();
+            ਵਾਪਸ VN_IS(dtypep, ClassRefDType);
         });
     }
     // True if this class owns a global constraint: a member-select chain rooted
     // at a rand class-typed handle reaching into a sub-object.
-    bool classOwnsGlobalConstraint(const AstClass* classp) const {
-        return classp->existsMember([](const AstClass*, const AstConstraint* constrp) {
-            bool owns = false;
-            constrp->foreach([&](const AstMemberSel* memberSelp) {
-                const AstNode* const rootp
-                    = const_cast<AstMemberSel*>(memberSelp)->baseFromp(true);
-                if (const AstVarRef* const refp = VN_CAST(rootp, VarRef)) {
+    ਤਾਰਕਿਕ classOwnsGlobalConstraint(ਅਚਲ AstClass* classp) ਅਚਲ {
+        ਵਾਪਸ classp->existsMember([](ਅਚਲ AstClass*, ਅਚਲ AstConstraint* constrp) {
+            ਤਾਰਕਿਕ owns = ਝੂਠ;
+            constrp->foreach([&](ਅਚਲ AstMemberSel* memberSelp) {
+                ਅਚਲ Ast_ਗੰਢ* ਅਚਲ rootp
+                    = const_cast<AstMemberSel*>(memberSelp)->ਅਧਾਰ_Fromp(ਸੱਚ);
+                ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(rootp, VarRef)) {
                     // Owns a sub-object constraint if the root is a class handle, or
                     // an array/assoc/queue/unpacked array of class handles.
-                    const AstNodeDType* dtypep = refp->varp()->dtypep()->skipRefp();
-                    while (const AstNodeDType* const subp = dtypep->subDTypep())
+                    ਅਚਲ Ast_ਗੰਢ_DType* dtypep = refp->varp()->dtypep()->skipRefp();
+                    ਜਦੋਂ (ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ subp = dtypep->subDTypep())
                         dtypep = subp->skipRefp();
-                    if (VN_IS(dtypep, ClassRefDType)) owns = true;
+                    ਜੇ (VN_IS(dtypep, ClassRefDType)) owns = ਸੱਚ;
                 }
             });
-            return owns;
+            ਵਾਪਸ owns;
         });
     }
     // Get or create __VrandCb_pre/__VrandCb_post task for nested callbacks
-    AstTask* getCreateNestedCallbackTask(AstClass* classp, const string& suffix) {
-        const string name = "__VrandCb_" + suffix;
-        AstTask* taskp = VN_CAST(m_memberMap.findMember(classp, name), Task);
-        if (taskp) return taskp;
-        taskp = new AstTask{classp->fileline(), name, nullptr};
-        taskp->classMethod(true);
-        classp->addMembersp(taskp);
-        m_memberMap.insert(classp, taskp);
-        return taskp;
+    AstTask* getCreateNestedCallbackTask(AstClass* classp, ਅਚਲ string& suffix) {
+        ਅਚਲ string name = "__VrandCb_" + suffix;
+        AstTask* taskp = VN_CAST(m_memberMap.ਲੱਭੋ_Member(classp, name), Task);
+        ਜੇ (taskp) ਵਾਪਸ taskp;
+        taskp = ਨਵਾਂ AstTask{classp->fileline(), name, ਖਾਲੀ_ਸੂਚਕ};
+        taskp->class_ਵਿਧੀ(ਸੱਚ);
+        classp->ਜੋੜੋ_Membersp(taskp);
+        m_memberMap.ਪਾਓ(classp, taskp);
+        ਵਾਪਸ taskp;
     }
     // Populate nested callback task body: calls pre/post_randomize on nested rand class members
-    void populateNestedCallbackTask(AstTask* const callbackTaskp, AstClass* const classp,
-                                    const string& cbName) {
-        FileLine* const fl = classp->fileline();
+    ਖਾਲੀ populateNestedCallbackTask(AstTask* ਅਚਲ callbackTaskp, AstClass* ਅਚਲ classp,
+                                    ਅਚਲ string& cbName) {
+        File_ਸਤਰ* ਅਚਲ fl = classp->fileline();
         classp->foreachMember([&](AstClass* ownerClassp, AstVar* memberVarp) {
-            if (!memberVarp->rand().isRandomizable()) return;
-            const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-            const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType);
-            if (!classRefp) return;
-            AstClass* const memberClassp = classRefp->classp();
-            if (memberClassp == classp) return;  // Avoid self-reference
+            ਜੇ (!memberVarp->rand().isRandomizable()) ਵਾਪਸ;
+            ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = memberVarp->dtypep()->skipRefp();
+            ਅਚਲ AstClassRefDType* ਅਚਲ classRefp = VN_CAST(dtypep, ClassRefDType);
+            ਜੇ (!classRefp) ਵਾਪਸ;
+            AstClass* ਅਚਲ memberClassp = classRefp->classp();
+            ਜੇ (memberClassp == classp) ਵਾਪਸ;  // Avoid self-reference
 
             // Force-visit member class if not yet processed
-            if (memberClassp->user1()) {
+            ਜੇ (memberClassp->user1()) {
                 iterate(memberClassp);
                 m_writtenVars.clear();
             }
 
-            AstNode* stmtsp = nullptr;
+            Ast_ਗੰਢ* stmtsp = ਖਾਲੀ_ਸੂਚਕ;
 
             // 1. Call member.pre/post_randomize() if exists in hierarchy
-            if (AstTask* const userFuncp = findPrePostTask(memberClassp, cbName)) {
-                AstMethodCall* const callp = new AstMethodCall{
-                    fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE}, cbName};
+            ਜੇ (AstTask* ਅਚਲ userFuncp = ਲੱਭੋ_Pre_Post_Task(memberClassp, cbName)) {
+                Ast_ਵਿਧੀ_Call* ਅਚਲ callp = ਨਵਾਂ Ast_ਵਿਧੀ_Call{
+                    fl, ਨਵਾਂ AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE}, cbName};
                 callp->taskp(userFuncp);
-                callp->dtypeSetVoid();
-                stmtsp = AstNode::addNext(stmtsp, callp->makeStmt());
+                callp->dtype_ਸੈੱਟ_Void();
+                stmtsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(stmtsp, callp->makeStmt());
             }
 
             // 2. Call member.__VrandCb_pre/post() for deeper recursion
-            if (classHasRandClassMembers(memberClassp)) {
-                const string suffix = (cbName == "pre_randomize") ? "pre" : "post";
-                AstTask* const nestedTaskp = getCreateNestedCallbackTask(memberClassp, suffix);
-                AstMethodCall* const recurseCallp = new AstMethodCall{
-                    fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE},
+            ਜੇ (classHasRandClassMembers(memberClassp)) {
+                ਅਚਲ string suffix = (cbName == "pre_randomize") ? "pre" : "post";
+                AstTask* ਅਚਲ nestedTaskp = getCreateNestedCallbackTask(memberClassp, suffix);
+                Ast_ਵਿਧੀ_Call* ਅਚਲ recurseCallp = ਨਵਾਂ Ast_ਵਿਧੀ_Call{
+                    fl, ਨਵਾਂ AstVarRef{fl, ownerClassp, memberVarp, VAccess::WRITE},
                     nestedTaskp->name()};
                 recurseCallp->taskp(nestedTaskp);
-                recurseCallp->dtypeSetVoid();
-                stmtsp = AstNode::addNext(stmtsp, recurseCallp->makeStmt());
+                recurseCallp->dtype_ਸੈੱਟ_Void();
+                stmtsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(stmtsp, recurseCallp->makeStmt());
             }
 
-            if (!stmtsp) return;
+            ਜੇ (!stmtsp) ਵਾਪਸ;
 
             // Wrap in null check
-            AstIf* const nullCheckp = new AstIf{
+            AstIf* ਅਚਲ nullCheckp = ਨਵਾਂ AstIf{
                 fl,
-                new AstNeq{fl, new AstVarRef{fl, ownerClassp, memberVarp, VAccess::READ},
-                           new AstConst{fl, AstConst::Null{}}},
+                ਨਵਾਂ AstNeq{fl, ਨਵਾਂ AstVarRef{fl, ownerClassp, memberVarp, VAccess::READ},
+                           ਨਵਾਂ AstConst{fl, AstConst::Null{}}},
                 stmtsp};
 
             // Wrap in rand_mode check
-            callbackTaskp->addStmtsp(wrapIfRandMode(classp, memberVarp, nullCheckp));
+            callbackTaskp->ਜੋੜੋ_Stmtsp(wrap_If_Rand_ਬਹੁਲਕ(classp, memberVarp, nullCheckp));
         });
     }
-    AstTask* newSetupConstraintTask(AstClass* const nodep, const std::string& name) {
-        AstTask* const taskp = new AstTask{nodep->fileline(), name + "_setup_constraint", nullptr};
-        taskp->classMethod(true);
-        nodep->addMembersp(taskp);
-        return taskp;
+    AstTask* new_ਤਿਆਰੀ_Constraint_Task(AstClass* ਅਚਲ nodep, ਅਚਲ std::string& name) {
+        AstTask* ਅਚਲ taskp = ਨਵਾਂ AstTask{nodep->fileline(), name + "_setup_constraint", ਖਾਲੀ_ਸੂਚਕ};
+        taskp->class_ਵਿਧੀ(ਸੱਚ);
+        nodep->ਜੋੜੋ_Membersp(taskp);
+        ਵਾਪਸ taskp;
     }
-    AstTask* newResizeConstrainedArrayTask(AstClass* const nodep, const std::string& name) {
-        AstTask* const taskp
-            = new AstTask{nodep->fileline(), name + "_resize_constrained_array", nullptr};
-        taskp->classMethod(true);
-        nodep->addMembersp(taskp);
-        return taskp;
+    AstTask* newResizeConstrainedArrayTask(AstClass* ਅਚਲ nodep, ਅਚਲ std::string& name) {
+        AstTask* ਅਚਲ taskp
+            = ਨਵਾਂ AstTask{nodep->fileline(), name + "_resize_constrained_array", ਖਾਲੀ_ਸੂਚਕ};
+        taskp->class_ਵਿਧੀ(ਸੱਚ);
+        nodep->ਜੋੜੋ_Membersp(taskp);
+        ਵਾਪਸ taskp;
     }
-    AstNodeStmt* implementConstraintsClear(FileLine* const fileline, AstVar* const genp) {
-        AstCMethodHard* const clearp = new AstCMethodHard{
+    Ast_ਗੰਢ_Stmt* implementConstraintsClear(File_ਸਤਰ* ਅਚਲ fileline, AstVar* ਅਚਲ genp) {
+        AstCMethodHard* ਅਚਲ clearp = ਨਵਾਂ AstCMethodHard{
             fileline,
-            new AstVarRef{fileline, VN_AS(genp->user2p(), NodeModule), genp, VAccess::READWRITE},
+            ਨਵਾਂ AstVarRef{fileline, VN_AS(genp->user2p(), ਗੰਢ_Module), genp, VAccess::READWRITE},
             VCMethod::RANDOMIZER_CLEARCONSTRAINTS};
-        clearp->dtypeSetVoid();
-        return clearp->makeStmt();
+        clearp->dtype_ਸੈੱਟ_Void();
+        ਵਾਪਸ clearp->makeStmt();
     }
-    AstNodeStmt* implementConstraintsClearAll(FileLine* const fileline, AstVar* const genp) {
-        AstCMethodHard* const clearp = new AstCMethodHard{
+    Ast_ਗੰਢ_Stmt* implementConstraintsClearAll(File_ਸਤਰ* ਅਚਲ fileline, AstVar* ਅਚਲ genp) {
+        AstCMethodHard* ਅਚਲ clearp = ਨਵਾਂ AstCMethodHard{
             fileline,
-            new AstVarRef{fileline, VN_AS(genp->user2p(), NodeModule), genp, VAccess::READWRITE},
+            ਨਵਾਂ AstVarRef{fileline, VN_AS(genp->user2p(), ਗੰਢ_Module), genp, VAccess::READWRITE},
             VCMethod::RANDOMIZER_CLEARALL};
-        clearp->dtypeSetVoid();
-        return clearp->makeStmt();
+        clearp->dtype_ਸੈੱਟ_Void();
+        ਵਾਪਸ clearp->makeStmt();
     }
-    AstVar* getVarFromRef(AstNodeExpr* const exprp) {
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            return memberSelp->varp();
-        } else if (AstVarRef* const varrefp = VN_CAST(exprp, VarRef)) {
-            return varrefp->varp();
+    AstVar* getVarFromRef(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp) {
+        ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(exprp, MemberSel)) {
+            ਵਾਪਸ memberSelp->varp();
+        } ਨਹੀਂਤਾਂ ਜੇ (AstVarRef* ਅਚਲ varrefp = VN_CAST(exprp, VarRef)) {
+            ਵਾਪਸ varrefp->varp();
         }
         exprp->v3fatalSrc("Not a MemberSel nor VarRef");
-        return nullptr;  // LCOV_EXCL_LINE
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;  // LCOV_EXCL_LINE
     }
     // Build a reference to a rand_mode/constraint_mode dyn-array.
     // Static-mode vars live on the class package; V3Scope resolves the VarRef later.
-    AstNodeExpr* makeModeVarRef(AstNodeExpr* const exprp, AstVar* const modeVarp,
-                                const VAccess access) {
-        if (modeVarp->lifetime().isStatic()) {
-            return new AstVarRef{exprp->fileline(), VN_AS(modeVarp->user2p(), NodeModule),
-                                 modeVarp, access};
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* make_ਬਹੁਲਕ_Var_Ref(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp, AstVar* ਅਚਲ ਬਹੁਲਕ_Varp,
+                                ਅਚਲ VAccess access) {
+        ਜੇ (ਬਹੁਲਕ_Varp->lifetime().isStatic()) {
+            ਵਾਪਸ ਨਵਾਂ AstVarRef{exprp->fileline(), VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module),
+                                 ਬਹੁਲਕ_Varp, access};
         }
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            AstMemberSel* const newMemberSelp = new AstMemberSel{
-                exprp->fileline(), memberSelp->fromp()->cloneTree(false), modeVarp};
+        ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(exprp, MemberSel)) {
+            AstMemberSel* ਅਚਲ newMemberSelp = ਨਵਾਂ AstMemberSel{
+                exprp->fileline(), memberSelp->fromp()->clone_ਰੁੱਖ(ਝੂਠ), ਬਹੁਲਕ_Varp};
             newMemberSelp->foreach([access](AstVarRef* varrefp) { varrefp->access(access); });
-            return newMemberSelp;
+            ਵਾਪਸ newMemberSelp;
         }
         UASSERT_OBJ(VN_IS(exprp, VarRef), exprp, "Should be a VarRef");
-        return new AstVarRef{exprp->fileline(), VN_AS(modeVarp->user2p(), Class), modeVarp,
+        ਵਾਪਸ ਨਵਾਂ AstVarRef{exprp->fileline(), VN_AS(ਬਹੁਲਕ_Varp->user2p(), Class), ਬਹੁਲਕ_Varp,
                              access};
     }
     // Get or create a size variable for a constrained dynamic/queue/assoc array.
     // Returns the size variable. Sets wasCreated=true if a new variable was made.
-    AstVar* createOrGetSizeVar(AstClass* const classp, AstVar* const arrVarp, FileLine* const fl,
-                               AstNodeDType* const signed32DTypep, bool& wasCreated) {
-        AstVar* sizeVarp = VN_CAST(arrVarp->user4p(), Var);
-        wasCreated = false;
-        if (!sizeVarp) {
-            sizeVarp = new AstVar{fl, VVarType::MEMBER, "__V" + arrVarp->name() + "_size",
+    AstVar* create_Or_Get_ਮਾਪ_Var(AstClass* ਅਚਲ classp, AstVar* ਅਚਲ arrVarp, File_ਸਤਰ* ਅਚਲ fl,
+                               Ast_ਗੰਢ_DType* ਅਚਲ signed32DTypep, ਤਾਰਕਿਕ& wasCreated) {
+        AstVar* ਮਾਪ_Varp = VN_CAST(arrVarp->user4p(), Var);
+        wasCreated = ਝੂਠ;
+        ਜੇ (!ਮਾਪ_Varp) {
+            ਮਾਪ_Varp = ਨਵਾਂ AstVar{fl, VVarType::MEMBER, "__V" + arrVarp->name() + "_size",
                                   signed32DTypep};
-            classp->addMembersp(sizeVarp);
-            m_memberMap.insert(classp, sizeVarp);
-            sizeVarp->user2p(classp);
-            arrVarp->user4p(sizeVarp);
-            wasCreated = true;
+            classp->ਜੋੜੋ_Membersp(ਮਾਪ_Varp);
+            m_memberMap.ਪਾਓ(classp, ਮਾਪ_Varp);
+            ਮਾਪ_Varp->user2p(classp);
+            arrVarp->user4p(ਮਾਪ_Varp);
+            wasCreated = ਸੱਚ;
         }
-        return sizeVarp;
+        ਵਾਪਸ ਮਾਪ_Varp;
     }
     // Build a size >= 0 constraint expression (signed int size must be non-negative).
     // Returns a new AstConstraintExpr with user1 bits set for solver visibility.
-    AstConstraintExpr* createSizeGteZeroConstraint(FileLine* const fl, AstVar* const sizeVarp,
-                                                   AstNodeExpr* derefFromp = nullptr) {
-        AstNodeExpr* sizeNodeExprp = nullptr;
-        if (derefFromp) {
-            sizeNodeExprp = buildMemberSelExprp(derefFromp, sizeVarp);
-        } else {
-            sizeNodeExprp = new AstVarRef{fl, sizeVarp, VAccess::READ};
+    Ast_Constraint_ਵਿਅੰਜਕ* create_ਮਾਪ_Gte_Zero_Constraint(File_ਸਤਰ* ਅਚਲ fl, AstVar* ਅਚਲ ਮਾਪ_Varp,
+                                                   Ast_ਗੰਢ_ਵਿਅੰਜਕ* derefFromp = ਖਾਲੀ_ਸੂਚਕ) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਮਾਪ_ਗੰਢ_Exprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (derefFromp) {
+            ਮਾਪ_ਗੰਢ_Exprp = buildMemberSelExprp(derefFromp, ਮਾਪ_Varp);
+        } ਨਹੀਂਤਾਂ {
+            ਮਾਪ_ਗੰਢ_Exprp = ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Varp, VAccess::READ};
         }
-        sizeNodeExprp->user1(true);
-        AstGteS* const sizeGtep = new AstGteS{fl, sizeNodeExprp, new AstConst{fl, 0}};
-        sizeGtep->user1(true);
-        return new AstConstraintExpr{fl, sizeGtep};
+        ਮਾਪ_ਗੰਢ_Exprp->user1(ਸੱਚ);
+        AstGteS* ਅਚਲ ਮਾਪ_Gtep = ਨਵਾਂ AstGteS{fl, ਮਾਪ_ਗੰਢ_Exprp, ਨਵਾਂ AstConst{fl, 0}};
+        ਮਾਪ_Gtep->user1(ਸੱਚ);
+        ਵਾਪਸ ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, ਮਾਪ_Gtep};
     }
-    AstNodeExpr* getFromp(AstNodeExpr* const exprp) {
-        if (AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            return memberSelp->fromp();
-        } else if (AstMethodCall* const methodCallp = VN_CAST(exprp, MethodCall)) {
-            return methodCallp->fromp();
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* getFromp(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp) {
+        ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(exprp, MemberSel)) {
+            ਵਾਪਸ memberSelp->fromp();
+        } ਨਹੀਂਤਾਂ ਜੇ (Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(exprp, ਵਿਧੀ_Call)) {
+            ਵਾਪਸ ਵਿਧੀ_Callp->fromp();
         }
-        return nullptr;
+        ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
     }
-    AstVar* makeTmpRandModeVar(AstNodeExpr* siblingExprp, AstVar* randModeVarp,
-                               AstNode*& storeStmtspr, AstNodeStmt*& restoreStmtspr) {
-        FileLine* const fl = randModeVarp->fileline();
-        AstVar* const randModeTmpVarp = new AstVar{
-            fl, VVarType::BLOCKTEMP, m_modeUniqueNames.get(randModeVarp), randModeVarp->dtypep()};
-        randModeTmpVarp->funcLocal(m_ftaskp);
-        randModeTmpVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        storeStmtspr = AstNode::addNext(
+    AstVar* make_Tmp_Rand_ਬਹੁਲਕ_Var(Ast_ਗੰਢ_ਵਿਅੰਜਕ* siblingExprp, AstVar* rand_ਬਹੁਲਕ_Varp,
+                               Ast_ਗੰਢ*& storeStmtspr, Ast_ਗੰਢ_Stmt*& restoreStmtspr) {
+        File_ਸਤਰ* ਅਚਲ fl = rand_ਬਹੁਲਕ_Varp->fileline();
+        AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Tmp_Varp = ਨਵਾਂ AstVar{
+            fl, VVarType::BLOCKTEMP, m_ਬਹੁਲਕ_Unique_ਨਾਂ.get(rand_ਬਹੁਲਕ_Varp), rand_ਬਹੁਲਕ_Varp->dtypep()};
+        rand_ਬਹੁਲਕ_Tmp_Varp->funcLocal(m_ftaskp);
+        rand_ਬਹੁਲਕ_Tmp_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+        storeStmtspr = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(
             storeStmtspr,
-            new AstAssign{fl, new AstVarRef{fl, randModeTmpVarp, VAccess::WRITE},
-                          makeModeVarRef(siblingExprp, randModeVarp, VAccess::READ)});
-        storeStmtspr = AstNode::addNext(
+            ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, rand_ਬਹੁਲਕ_Tmp_Varp, VAccess::WRITE},
+                          make_ਬਹੁਲਕ_Var_Ref(siblingExprp, rand_ਬਹੁਲਕ_Varp, VAccess::READ)});
+        storeStmtspr = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(
             storeStmtspr,
-            makeModeSetLoop(fl, makeModeVarRef(siblingExprp, randModeVarp, VAccess::WRITE),
-                            new AstConst{fl, 0}, m_ftaskp));
-        restoreStmtspr = AstNode::addNext(
+            make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(fl, make_ਬਹੁਲਕ_Var_Ref(siblingExprp, rand_ਬਹੁਲਕ_Varp, VAccess::WRITE),
+                            ਨਵਾਂ AstConst{fl, 0}, m_ftaskp));
+        restoreStmtspr = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(
             restoreStmtspr,
-            new AstAssign{fl, makeModeVarRef(siblingExprp, randModeVarp, VAccess::WRITE),
-                          new AstVarRef{fl, randModeTmpVarp, VAccess::READ}});
-        return randModeTmpVarp;
+            ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, make_ਬਹੁਲਕ_Var_Ref(siblingExprp, rand_ਬਹੁਲਕ_Varp, VAccess::WRITE),
+                          ਨਵਾਂ AstVarRef{fl, rand_ਬਹੁਲਕ_Tmp_Varp, VAccess::READ}});
+        ਵਾਪਸ rand_ਬਹੁਲਕ_Tmp_Varp;
     }
     // Returns the common prefix of two hierarchical accesses, or nullptr if there is none
     // e.g. a.b.c and a.b.d -> a.b
-    AstNodeExpr* sliceToCommonPrefix(AstNodeExpr* thisp, AstNodeExpr* otherp) {
-        static std::vector<AstNodeExpr*> thisHier, otherHier;  // Keep around
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਟੁਕੜਾ_ਮੰਜ਼ਿਲ_Common_ਅਗੇਤਰ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* thisp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* otherp) {
+        ਸਥਿਰ std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> thisHier, otherHier;  // Keep around
                                                                // to avoid reallocations
         thisHier.clear();
         otherHier.clear();
-        while (thisp) {
-            thisHier.push_back(thisp);
+        ਜਦੋਂ (thisp) {
+            thisHier.ਧੱਕੋ_ਪਿੱਠ(thisp);
             thisp = getFromp(thisp);
         }
-        while (otherp) {
-            otherHier.push_back(otherp);
+        ਜਦੋਂ (otherp) {
+            otherHier.ਧੱਕੋ_ਪਿੱਠ(otherp);
             otherp = getFromp(otherp);
         }
-        AstNodeExpr* commonp = nullptr;
-        for (auto thisIt = thisHier.rbegin(), otherIt = otherHier.rbegin();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* commonp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਸਵੈਚਾਲਿਤ thisIt = thisHier.rbegin(), otherIt = otherHier.rbegin();
              thisIt != thisHier.rend() && otherIt != otherHier.rend(); ++thisIt, ++otherIt) {
-            if ((*thisIt)->type() != (*otherIt)->type()) break;
-            if (AstMemberSel* const memberSelp = VN_CAST(*thisIt, MemberSel)) {
-                AstMemberSel* const otherMemberSelp = VN_AS(*otherIt, MemberSel);
-                if (memberSelp->varp() == otherMemberSelp->varp()) {
+            ਜੇ ((*thisIt)->type() != (*otherIt)->type()) ਰੋਕੋ;
+            ਜੇ (AstMemberSel* ਅਚਲ memberSelp = VN_CAST(*thisIt, MemberSel)) {
+                AstMemberSel* ਅਚਲ otherMemberSelp = VN_AS(*otherIt, MemberSel);
+                ਜੇ (memberSelp->varp() == otherMemberSelp->varp()) {
                     commonp = memberSelp;
-                    continue;
+                    ਜਾਰੀ;
                 }
-            } else if (AstMethodCall* const thisMethodCallp = VN_CAST(*thisIt, MethodCall)) {
-                AstMethodCall* const otherMethodCallp = VN_AS(*otherIt, MethodCall);
-                if (thisMethodCallp->taskp() == otherMethodCallp->taskp()) {
-                    commonp = thisMethodCallp;
-                    continue;
+            } ਨਹੀਂਤਾਂ ਜੇ (Ast_ਵਿਧੀ_Call* ਅਚਲ this_ਵਿਧੀ_Callp = VN_CAST(*thisIt, ਵਿਧੀ_Call)) {
+                Ast_ਵਿਧੀ_Call* ਅਚਲ other_ਵਿਧੀ_Callp = VN_AS(*otherIt, ਵਿਧੀ_Call);
+                ਜੇ (this_ਵਿਧੀ_Callp->taskp() == other_ਵਿਧੀ_Callp->taskp()) {
+                    commonp = this_ਵਿਧੀ_Callp;
+                    ਜਾਰੀ;
                 }
-            } else if (AstVarRef* const firstVarRefp = VN_CAST(*thisIt, VarRef)) {
-                AstVarRef* const secondVarRefp = VN_AS(*otherIt, VarRef);
-                if (firstVarRefp->varp() == secondVarRefp->varp()) {
-                    commonp = firstVarRefp;
-                    continue;
+            } ਨਹੀਂਤਾਂ ਜੇ (AstVarRef* ਅਚਲ ਪਹਿਲਾ_Var_Refp = VN_CAST(*thisIt, VarRef)) {
+                AstVarRef* ਅਚਲ ਦੂਜਾ_Var_Refp = VN_AS(*otherIt, VarRef);
+                ਜੇ (ਪਹਿਲਾ_Var_Refp->varp() == ਦੂਜਾ_Var_Refp->varp()) {
+                    commonp = ਪਹਿਲਾ_Var_Refp;
+                    ਜਾਰੀ;
                 }
             }
-            break;
+            ਰੋਕੋ;
         }
-        return commonp;
+        ਵਾਪਸ commonp;
     }
     // Returns MemberSel chain, with deepest VarRef being reference to deepestVarp
-    AstNodeExpr* buildMemberSelExprp(AstNodeExpr* exprp, AstVar* deepestVarp) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* buildMemberSelExprp(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, AstVar* ਸਭ_ਤੋਂ_ਡੂੰਘਾ_Varp) {
         UASSERT_OBJ(VN_IS(exprp, MemberSel) || VN_IS(exprp, VarRef), exprp,
                     "Should be MemberSel or VarRef");
 
-        AstNodeExpr* resExprp = nullptr;
-        if (const AstMemberSel* const memberSelp = VN_CAST(exprp, MemberSel)) {
-            resExprp = buildMemberSelExprp(memberSelp->fromp(), nullptr);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* resExprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ memberSelp = VN_CAST(exprp, MemberSel)) {
+            resExprp = buildMemberSelExprp(memberSelp->fromp(), ਖਾਲੀ_ਸੂਚਕ);
             AstVar* varp = memberSelp->varp();
-            if (deepestVarp) varp = deepestVarp;
-            resExprp = new AstMemberSel{exprp->fileline(), resExprp, varp};
-        } else if (const AstVarRef* const varRefp = VN_CAST(exprp, VarRef)) {
+            ਜੇ (ਸਭ_ਤੋਂ_ਡੂੰਘਾ_Varp) varp = ਸਭ_ਤੋਂ_ਡੂੰਘਾ_Varp;
+            resExprp = ਨਵਾਂ AstMemberSel{exprp->fileline(), resExprp, varp};
+        } ਨਹੀਂਤਾਂ ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ varRefp = VN_CAST(exprp, VarRef)) {
             AstVar* varp = varRefp->varp();
-            if (deepestVarp) varp = deepestVarp;
-            resExprp = new AstVarRef{exprp->fileline(), VN_AS(varp->user2p(), NodeModule), varp,
+            ਜੇ (ਸਭ_ਤੋਂ_ਡੂੰਘਾ_Varp) varp = ਸਭ_ਤੋਂ_ਡੂੰਘਾ_Varp;
+            resExprp = ਨਵਾਂ AstVarRef{exprp->fileline(), VN_AS(varp->user2p(), ਗੰਢ_Module), varp,
                                      VAccess::READWRITE};
         }
 
-        resExprp->user1(true);
-        return resExprp;
+        resExprp->user1(ਸੱਚ);
+        ਵਾਪਸ resExprp;
     }
 
-    void addUpdateRandVarsBody(AstClass* const nodep, AstFunc* const randomizep) {
+    ਖਾਲੀ ਜੋੜੋ_Update_Rand_Vars_Body(AstClass* ਅਚਲ nodep, AstFunc* ਅਚਲ randomizep) {
         UASSERT_OBJ(!nodep->hasRandVarsUpdate(), nodep, "__VupdateRandVars already exists");
-        AstFunc* const updatep
-            = new AstFunc{nodep->fileline(), "__VupdateRandVars", nullptr, nullptr};
-        updatep->classMethod(true);
-        updatep->isVirtual(true);
-        updatep->keepAlive(true);
-        updatep->needsSyms(false);
-        nodep->addMembersp(updatep);
-        nodep->hasRandVarsUpdate(true);
+        AstFunc* ਅਚਲ updatep
+            = ਨਵਾਂ AstFunc{nodep->fileline(), "__VupdateRandVars", ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ};
+        updatep->class_ਵਿਧੀ(ਸੱਚ);
+        updatep->isVirtual(ਸੱਚ);
+        updatep->keepAlive(ਸੱਚ);
+        updatep->needsSyms(ਝੂਠ);
+        nodep->ਜੋੜੋ_Membersp(updatep);
+        nodep->hasRandVarsUpdate(ਸੱਚ);
 
-        for (AstClass* classp = nodep; classp;
-             classp = classp->extendsp() ? classp->extendsp()->classp() : nullptr) {
-            AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(classp, "new"), NodeFTask);
-            for (AstNode* stmtp = newp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                AstStmtExpr* const stmtExprp = VN_CAST(stmtp, StmtExpr);
-                if (!stmtExprp) continue;
-                AstCMethodHard* const methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
-                if (!methodp || methodp->method() != VCMethod::RANDOMIZER_WRITE_VAR) continue;
+        ਲਈ (AstClass* classp = nodep; classp;
+             classp = classp->extendsp() ? classp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ) {
+            Ast_ਗੰਢ_FTask* ਅਚਲ newp = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, "new"), ਗੰਢ_FTask);
+            ਲਈ (Ast_ਗੰਢ* stmtp = newp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                Ast_Stmt_ਵਿਅੰਜਕ* ਅਚਲ stmtExprp = VN_CAST(stmtp, Stmt_ਵਿਅੰਜਕ);
+                ਜੇ (!stmtExprp) ਜਾਰੀ;
+                AstCMethodHard* ਅਚਲ methodp = VN_CAST(stmtExprp->exprp(), CMethodHard);
+                ਜੇ (!methodp || methodp->ਵਿਧੀ() != VCMethod::RANDOMIZER_WRITE_VAR) ਜਾਰੀ;
 
-                AstNodeVarRef* const varRefp = VN_AS(methodp->pinsp(), NodeVarRef);
-                if (varRefp->varp()->lifetime().isStatic()) {
+                Ast_ਗੰਢ_Var_Ref* ਅਚਲ varRefp = VN_AS(methodp->pinsp(), ਗੰਢ_Var_Ref);
+                ਜੇ (varRefp->varp()->lifetime().isStatic()) {
                     // There is no need to update pointer to a static variable
-                    continue;
+                    ਜਾਰੀ;
                 }
-                AstCMethodHard* const updateMethodp = new AstCMethodHard{
-                    methodp->fileline(), methodp->fromp()->cloneTreePure(false),
-                    VCMethod::RANDOMIZER_UPDATE_VAR, varRefp->cloneTreePure(false)};
-                updateMethodp->dtypeSetVoid();
-                AstNodeExpr* const namep = VN_AS(varRefp->nextp()->nextp(), NodeExpr);
-                updateMethodp->addPinsp(namep->cloneTreePure(false));
-                updateMethodp->method(VCMethod::RANDOMIZER_UPDATE_VAR);
-                updatep->addStmtsp(updateMethodp->makeStmt());
+                AstCMethodHard* ਅਚਲ updateMethodp = ਨਵਾਂ AstCMethodHard{
+                    methodp->fileline(), methodp->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                    VCMethod::RANDOMIZER_UPDATE_VAR, varRefp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                updateMethodp->dtype_ਸੈੱਟ_Void();
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ namep = VN_AS(varRefp->nextp()->nextp(), ਗੰਢ_ਵਿਅੰਜਕ);
+                updateMethodp->ਜੋੜੋ_Pinsp(namep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ));
+                updateMethodp->ਵਿਧੀ(VCMethod::RANDOMIZER_UPDATE_VAR);
+                updatep->ਜੋੜੋ_Stmtsp(updateMethodp->makeStmt());
             }
         }
     }
 
-    void addBasicRandomizeBody(AstFunc* const basicRandomizep, AstClass* const nodep,
-                               AstVar* randModeVarp) {
+    ਖਾਲੀ ਜੋੜੋ_Basic_Randomize_Body(AstFunc* ਅਚਲ basicRandomizep, AstClass* ਅਚਲ nodep,
+                               AstVar* rand_ਬਹੁਲਕ_Varp) {
         UINFO(9, "addBasicRTB " << nodep);
-        FileLine* const fl = nodep->fileline();
-        AstVar* const basicFvarp = VN_AS(basicRandomizep->fvarp(), Var);
-        AstVarRef* const basicFvarRefp = new AstVarRef{fl, basicFvarp, VAccess::WRITE};
-        AstConst* const beginBasicValp = new AstConst{fl, AstConst::WidthedValue{}, 32, 1};
-        basicRandomizep->addStmtsp(new AstAssign{fl, basicFvarRefp, beginBasicValp});
-        AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(nodep, "new"), NodeFTask);
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        AstVar* ਅਚਲ basicFvarp = VN_AS(basicRandomizep->fvarp(), Var);
+        AstVarRef* ਅਚਲ basicFvarRefp = ਨਵਾਂ AstVarRef{fl, basicFvarp, VAccess::WRITE};
+        AstConst* ਅਚਲ beginBasicValp = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, 32, 1};
+        basicRandomizep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, basicFvarRefp, beginBasicValp});
+        Ast_ਗੰਢ_FTask* ਅਚਲ newp = VN_AS(m_memberMap.ਲੱਭੋ_Member(nodep, "new"), ਗੰਢ_FTask);
         UASSERT_OBJ(newp, nodep, "No new() in class");
         nodep->foreachMember([&](AstClass* classp, AstVar* memberVarp) {
-            if (!memberVarp->rand().isRandomizable()) return;
-            const RandomizeMode randMode = {.asUQuad = memberVarp->user1()};
-            if (randMode.usesMode
+            ਜੇ (!memberVarp->rand().isRandomizable()) ਵਾਪਸ;
+            ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = memberVarp->user1()};
+            ਜੇ (rand_ਬਹੁਲਕ.ਵਰਤਦਾ_ਬਹੁਲਕ
                 && !memberVarp->rand().isRand()) {  // Not randomizable by default
-                AstCMethodHard* const setp = new AstCMethodHard{
+                AstCMethodHard* ਅਚਲ setp = ਨਵਾਂ AstCMethodHard{
                     nodep->fileline(),
-                    new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+                    ਨਵਾਂ AstVarRef{fl, VN_AS(rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), rand_ਬਹੁਲਕ_Varp,
                                   VAccess::WRITE},
-                    VCMethod::ARRAY_AT_WRITE, new AstConst{nodep->fileline(), randMode.index}};
-                setp->dtypeSetUInt32();
-                newp->addStmtsp(new AstAssign{fl, setp, new AstConst{fl, 0}});
+                    VCMethod::ARRAY_AT_WRITE, ਨਵਾਂ AstConst{nodep->fileline(), rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ}};
+                setp->dtype_ਸੈੱਟ_UInt32();
+                newp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, setp, ਨਵਾਂ AstConst{fl, 0}});
             }
-            if (memberVarp->user3()) return;  // Handled in constraints
-            const AstNodeDType* const dtypep = memberVarp->dtypep()->skipRefp();
-            if (const AstClassRefDType* const classRefp = VN_CAST(dtypep, ClassRefDType)) {
-                if (classRefp->classp() == nodep) {
+            ਜੇ (memberVarp->user3()) ਵਾਪਸ;  // Handled in constraints
+            ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep = memberVarp->dtypep()->skipRefp();
+            ਜੇ (ਅਚਲ AstClassRefDType* ਅਚਲ classRefp = VN_CAST(dtypep, ClassRefDType)) {
+                ਜੇ (classRefp->classp() == nodep) {
                     memberVarp->v3warn(E_UNSUPPORTED,
                                        "Unsupported: random member variable with the "
                                        "type of the containing class");
-                    return;
+                    ਵਾਪਸ;
                 }
-                AstFunc* const memberFuncp
+                AstFunc* ਅਚਲ memberFuncp
                     = memberVarp->globalConstrained()
                           ? V3Randomize::newRandomizeFunc(m_memberMap, classRefp->classp(),
                                                           BASIC_RANDOMIZE_FUNC_NAME)
                           : V3Randomize::newRandomizeFunc(m_memberMap, classRefp->classp());
-                AstMethodCall* const callp
+                Ast_ਵਿਧੀ_Call* ਅਚਲ callp
                     = memberVarp->globalConstrained()
-                          ? new AstMethodCall{fl,
-                                              new AstVarRef{fl, classp, memberVarp,
+                          ? ਨਵਾਂ Ast_ਵਿਧੀ_Call{fl,
+                                              ਨਵਾਂ AstVarRef{fl, classp, memberVarp,
                                                             VAccess::WRITE},
                                               BASIC_RANDOMIZE_FUNC_NAME}
-                          : new AstMethodCall{
-                                fl, new AstVarRef{fl, classp, memberVarp, VAccess::WRITE},
+                          : ਨਵਾਂ Ast_ਵਿਧੀ_Call{
+                                fl, ਨਵਾਂ AstVarRef{fl, classp, memberVarp, VAccess::WRITE},
                                 "randomize"};
                 callp->taskp(memberFuncp);
                 callp->dtypeFrom(memberFuncp);
-                AstVarRef* const basicFvarRefReadp = basicFvarRefp->cloneTree(false);
+                AstVarRef* ਅਚਲ basicFvarRefReadp = basicFvarRefp->clone_ਰੁੱਖ(ਝੂਠ);
                 basicFvarRefReadp->access(VAccess::READ);
-                AstIf* const assignIfNotNullp = new AstIf{
+                AstIf* ਅਚਲ ਸੌਂਪੋ_If_Not_Nullp = ਨਵਾਂ AstIf{
                     fl,
-                    new AstNeq{fl, new AstVarRef{fl, classp, memberVarp, VAccess::READ},
-                               new AstConst{fl, AstConst::Null{}}},
-                    new AstAssign{fl, basicFvarRefp->cloneTree(false),
-                                  new AstAnd{fl, basicFvarRefReadp, callp}}};
-                basicRandomizep->addStmtsp(wrapIfRandMode(nodep, memberVarp, assignIfNotNullp));
-            } else {
-                AstVar* const randcVarp = newRandcVarsp(memberVarp, nodep);
-                AstVarRef* const refp
-                    = new AstVarRef{memberVarp->fileline(), classp, memberVarp, VAccess::WRITE};
-                AstNodeStmt* const stmtp = newRandStmtsp(fl, refp, randcVarp, basicFvarp);
-                if (!refp->backp()) VL_DO_DANGLING(refp->deleteTree(), refp);
-                basicRandomizep->addStmtsp(
-                    new AstBegin{fl, m_uniqueNames.get("__VrandBlock"), stmtp, false});
+                    ਨਵਾਂ AstNeq{fl, ਨਵਾਂ AstVarRef{fl, classp, memberVarp, VAccess::READ},
+                               ਨਵਾਂ AstConst{fl, AstConst::Null{}}},
+                    ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, basicFvarRefp->clone_ਰੁੱਖ(ਝੂਠ),
+                                  ਨਵਾਂ AstAnd{fl, basicFvarRefReadp, callp}}};
+                basicRandomizep->ਜੋੜੋ_Stmtsp(wrap_If_Rand_ਬਹੁਲਕ(nodep, memberVarp, ਸੌਂਪੋ_If_Not_Nullp));
+            } ਨਹੀਂਤਾਂ {
+                AstVar* ਅਚਲ randcVarp = newRandcVarsp(memberVarp, nodep);
+                AstVarRef* ਅਚਲ refp
+                    = ਨਵਾਂ AstVarRef{memberVarp->fileline(), classp, memberVarp, VAccess::WRITE};
+                Ast_ਗੰਢ_Stmt* ਅਚਲ stmtp = newRandStmtsp(fl, refp, randcVarp, basicFvarp);
+                ਜੇ (!refp->backp()) VL_DO_DANGLING(refp->delete_ਰੁੱਖ(), refp);
+                basicRandomizep->ਜੋੜੋ_Stmtsp(
+                    ਨਵਾਂ AstBegin{fl, m_unique_ਨਾਂ.get("__VrandBlock"), stmtp, ਝੂਠ});
             }
         });
     }
 
     // Creates a lvalue reference to the randomize mode var. Called by visit(AstNodeFTaskRef*)
-    AstNodeExpr* makeModeAssignLhs(FileLine* const fl, AstClass* const classp,
-                                   AstNodeExpr* const fromp, AstVar* const modeVarp) {
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* make_ਬਹੁਲਕ_ਸੌਂਪੋ_Lhs(File_ਸਤਰ* ਅਚਲ fl, AstClass* ਅਚਲ classp,
+                                   Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp, AstVar* ਅਚਲ ਬਹੁਲਕ_Varp) {
         // For static constraint mode vars, always use VarRef (not MemberSel).
         // At this point V3Class hasn't run yet, so user2p may be nullptr.
         // Generate VarRef with classp as module; V3Scope will update varScopep later
         // when the variable is moved to the class package.
-        if (modeVarp->lifetime().isStatic()) {
+        ਜੇ (ਬਹੁਲਕ_Varp->lifetime().isStatic()) {
             // Hint owning class so V3Scope resolves from derived call sites.
-            if (fromp) VL_DO_DANGLING(fromp->unlinkFrBack()->deleteTree(), fromp);
-            return new AstVarRef{fl, VN_AS(modeVarp->user2p(), NodeModule), modeVarp,
+            ਜੇ (fromp) VL_DO_DANGLING(fromp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), fromp);
+            ਵਾਪਸ ਨਵਾਂ AstVarRef{fl, VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), ਬਹੁਲਕ_Varp,
                                  VAccess::WRITE};
-        } else if (classp == m_modp) {
+        } ਨਹੀਂਤਾਂ ਜੇ (classp == m_modp) {
             // Called on 'this' or a member of 'this'
-            return new AstVarRef{fl, VN_AS(modeVarp->user2p(), NodeModule), modeVarp,
+            ਵਾਪਸ ਨਵਾਂ AstVarRef{fl, VN_AS(ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), ਬਹੁਲਕ_Varp,
                                  VAccess::WRITE};
-        } else {
-            AstMemberSel* const memberselp = new AstMemberSel{fl, fromp->unlinkFrBack(), modeVarp};
+        } ਨਹੀਂਤਾਂ {
+            AstMemberSel* ਅਚਲ memberselp = ਨਵਾਂ AstMemberSel{fl, fromp->unlink_Fr_ਪਿੱਠ(), ਬਹੁਲਕ_Varp};
             memberselp->foreach([](AstVarRef* varrefp) { varrefp->access(VAccess::WRITE); });
-            return memberselp;
+            ਵਾਪਸ memberselp;
         }
     }
     // Replace the node with an assignment to the mode variable. Called by visit(AstNodeFTaskRef*)
-    void replaceWithModeAssign(AstNodeFTaskRef* const ftaskRefp, AstNode* const receiverp,
-                               AstNodeExpr* const lhsp) {
-        replaceWithModeAssignAndAppend(ftaskRefp, receiverp, lhsp, nullptr);
+    ਖਾਲੀ replace_With_ਬਹੁਲਕ_ਸੌਂਪੋ(Ast_ਗੰਢ_FTask_Ref* ਅਚਲ ftaskRefp, Ast_ਗੰਢ* ਅਚਲ receiverp,
+                               Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp) {
+        replace_With_ਬਹੁਲਕ_ਸੌਂਪੋ_And_Append(ftaskRefp, receiverp, lhsp, ਖਾਲੀ_ਸੂਚਕ);
     }
     // Append BEFORE swap; backp()/nextp() unreliable after replaceWith.
-    void replaceWithModeAssignAndAppend(AstNodeFTaskRef* const ftaskRefp, AstNode* const receiverp,
-                                        AstNodeExpr* const lhsp, AstNode* const appendStmtp) {
-        FileLine* const fl = ftaskRefp->fileline();
-        if (ftaskRefp->argsp()) {
-            UASSERT_OBJ(VN_IS(ftaskRefp->backp(), StmtExpr), ftaskRefp, "Should be a statement");
-            AstNodeExpr* const rhsp = ftaskRefp->argsp()->exprp()->unlinkFrBack();
-            AstNode* newStmtp = nullptr;
-            if (receiverp) {
+    ਖਾਲੀ replace_With_ਬਹੁਲਕ_ਸੌਂਪੋ_And_Append(Ast_ਗੰਢ_FTask_Ref* ਅਚਲ ftaskRefp, Ast_ਗੰਢ* ਅਚਲ receiverp,
+                                        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp, Ast_ਗੰਢ* ਅਚਲ appendStmtp) {
+        File_ਸਤਰ* ਅਚਲ fl = ftaskRefp->fileline();
+        ਜੇ (ftaskRefp->argsp()) {
+            UASSERT_OBJ(VN_IS(ftaskRefp->backp(), Stmt_ਵਿਅੰਜਕ), ftaskRefp, "Should be a statement");
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = ftaskRefp->argsp()->exprp()->unlink_Fr_ਪਿੱਠ();
+            Ast_ਗੰਢ* newStmtp = ਖਾਲੀ_ਸੂਚਕ;
+            ਜੇ (receiverp) {
                 // Called on a rand member variable/constraint. Set the variable/constraint's
-                // mode
-                const RandomizeMode rmode = {.asUQuad = receiverp->user1()};
-                UASSERT_OBJ(rmode.usesMode, ftaskRefp, "Failed to set usesMode");
-                AstCMethodHard* const setp = new AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
-                                                                new AstConst{fl, rmode.index}};
-                setp->dtypeSetUInt32();
-                newStmtp = new AstAssign{fl, setp, rhsp};
-            } else {
+                //ਬਹੁਲਕ
+                ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = receiverp->user1()};
+                UASSERT_OBJ(rmode.ਵਰਤਦਾ_ਬਹੁਲਕ, ftaskRefp, "Failed to set usesMode");
+                AstCMethodHard* ਅਚਲ setp = ਨਵਾਂ AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
+                                                                ਨਵਾਂ AstConst{fl, rmode.ਸੂਚਕਾਂਕ}};
+                setp->dtype_ਸੈੱਟ_UInt32();
+                newStmtp = ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, setp, rhsp};
+            } ਨਹੀਂਤਾਂ {
                 // For rand_mode: Called on 'this' or a non-rand class instance.
                 // For constraint_mode: Called on a class instance.
                 // Set the rand mode of all members
-                newStmtp = makeModeSetLoop(fl, lhsp, rhsp, m_ftaskp);
+                newStmtp = make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(fl, lhsp, rhsp, m_ftaskp);
             }
-            if (appendStmtp) newStmtp->addNext(appendStmtp);
+            ਜੇ (appendStmtp) newStmtp->ਜੋੜੋ_ਅਗਲਾ(appendStmtp);
             m_stmtp->replaceWith(newStmtp);
-            VL_DO_CLEAR(pushDeletep(m_stmtp), m_stmtp = nullptr);
-        } else {
+            VL_DO_CLEAR(ਧੱਕੋ_Deletep(m_stmtp), m_stmtp = ਖਾਲੀ_ਸੂਚਕ);
+        } ਨਹੀਂਤਾਂ {
             UASSERT_OBJ(receiverp, ftaskRefp, "Should have receiver");
             UASSERT_OBJ(!appendStmtp, ftaskRefp, "Append path requires arg-form rand_mode");
-            const RandomizeMode rmode = {.asUQuad = receiverp->user1()};
-            UASSERT_OBJ(rmode.usesMode, ftaskRefp, "Failed to set usesMode");
-            AstCMethodHard* const setp = new AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
-                                                            new AstConst{fl, rmode.index}};
-            setp->dtypeSetUInt32();
+            ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = receiverp->user1()};
+            UASSERT_OBJ(rmode.ਵਰਤਦਾ_ਬਹੁਲਕ, ftaskRefp, "Failed to set usesMode");
+            AstCMethodHard* ਅਚਲ setp = ਨਵਾਂ AstCMethodHard{fl, lhsp, VCMethod::ARRAY_AT_WRITE,
+                                                            ਨਵਾਂ AstConst{fl, rmode.ਸੂਚਕਾਂਕ}};
+            setp->dtype_ਸੈੱਟ_UInt32();
             ftaskRefp->replaceWith(setp);
-            VL_DO_DANGLING(pushDeletep(ftaskRefp), ftaskRefp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(ftaskRefp), ftaskRefp);
         }
     };
 
     // Wrap obj.randomize() with null guard: (obj != null) ? obj.randomize() : 0
     // IEEE 1800 requires randomize() on null handle to return 0.
     // Uses user4() to prevent re-wrapping during iterateChildren.
-    void wrapRandomizeCallWithNullGuard(AstNodeFTaskRef* nodep) {
-        AstMethodCall* const callp = VN_CAST(nodep, MethodCall);
-        if (!callp) return;
-        if (callp->user4SetOnce()) return;
-        FileLine* const fl = callp->fileline();
-        AstNodeExpr* const checkp
-            = new AstNeq{fl, callp->fromp()->cloneTree(false), new AstConst{fl, AstConst::Null{}}};
+    ਖਾਲੀ wrapRandomizeCallWithNullGuard(Ast_ਗੰਢ_FTask_Ref* nodep) {
+        Ast_ਵਿਧੀ_Call* ਅਚਲ callp = VN_CAST(nodep, ਵਿਧੀ_Call);
+        ਜੇ (!callp) ਵਾਪਸ;
+        ਜੇ (callp->user4_ਸੈੱਟ_Once()) ਵਾਪਸ;
+        File_ਸਤਰ* ਅਚਲ fl = callp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ checkp
+            = ਨਵਾਂ AstNeq{fl, callp->fromp()->clone_ਰੁੱਖ(ਝੂਠ), ਨਵਾਂ AstConst{fl, AstConst::Null{}}};
         VNRelinker relinker;
-        callp->unlinkFrBack(&relinker);
-        relinker.relink(new AstCond{fl, checkp, callp, new AstConst{fl, 0}});
+        callp->unlink_Fr_ਪਿੱਠ(&relinker);
+        relinker.relink(ਨਵਾਂ AstCond{fl, checkp, callp, ਨਵਾਂ AstConst{fl, 0}});
     }
 
     // Handle inline random variable control. After this, the randomize() call has no args
-    void handleRandomizeArgs(AstNodeFTaskRef* const nodep) {
-        if (!nodep->argsp()) return;
+    ਖਾਲੀ handle_Randomize_ਦਲੀਲਾਂ(Ast_ਗੰਢ_FTask_Ref* ਅਚਲ nodep) {
+        ਜੇ (!nodep->argsp()) ਵਾਪਸ;
         // Strip the null literal arg. V3Width already rejected mixed/non-null
         // AstConst args.
-        bool hasNullArg = false;
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        ਤਾਰਕਿਕ hasNullArg = ਝੂਠ;
+        ਲਈ (AstArg *argp = nodep->argsp(), *nextp = ਖਾਲੀ_ਸੂਚਕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            if (const AstConst* const constp = VN_CAST(argp->exprp(), Const)) {
-                UASSERT_OBJ(constp->num().isNull(), constp,
+            ਜੇ (ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(argp->exprp(), Const)) {
+                UASSERT_OBJ(constp->ਅੰਕ().isNull(), constp,
                             "Non-null AstConst arg to randomize() should have been "
                             "rejected by V3Width");
-                hasNullArg = true;
-                VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+                hasNullArg = ਸੱਚ;
+                VL_DO_DANGLING(argp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), argp);
             }
         }
         // This assumes arguments to always be a member sel from nodep->fromp(), if applicable
@@ -5292,96 +5292,96 @@ class RandomizeVisitor final : public VNVisitor {
         // Merge pins with common prefixes so that setting their rand mode doesn't interfere
         // with each other.
         // e.g. a.randomize(a.b, a.c, a.b.d) -> a.randomize(a.b, a.c)
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        ਲਈ (AstArg *argp = nodep->argsp(), *nextp = ਖਾਲੀ_ਸੂਚਕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            for (AstArg *otherArgp = nextp, *otherNextp = nullptr; otherArgp;
+            ਲਈ (AstArg *otherArgp = nextp, *otherNextp = ਖਾਲੀ_ਸੂਚਕ; otherArgp;
                  otherArgp = otherNextp) {
                 otherNextp = VN_AS(otherArgp->nextp(), Arg);
-                if (AstNodeExpr* const prefixp
-                    = sliceToCommonPrefix(argp->exprp(), otherArgp->exprp())) {
-                    if (prefixp == argp->exprp()) {
-                        if (nextp == otherArgp) nextp = VN_AS(nextp->nextp(), Arg);
-                        VL_DO_DANGLING(otherArgp->unlinkFrBack()->deleteTree(), otherArgp);
-                        continue;
+                ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ prefixp
+                    = ਟੁਕੜਾ_ਮੰਜ਼ਿਲ_Common_ਅਗੇਤਰ(argp->exprp(), otherArgp->exprp())) {
+                    ਜੇ (prefixp == argp->exprp()) {
+                        ਜੇ (nextp == otherArgp) nextp = VN_AS(nextp->nextp(), Arg);
+                        VL_DO_DANGLING(otherArgp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), otherArgp);
+                        ਜਾਰੀ;
                     }
                 }
-                if (AstNodeExpr* const prefixp
-                    = sliceToCommonPrefix(otherArgp->exprp(), argp->exprp())) {
-                    if (prefixp == otherArgp->exprp()) {
-                        VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
-                        break;
+                ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ prefixp
+                    = ਟੁਕੜਾ_ਮੰਜ਼ਿਲ_Common_ਅਗੇਤਰ(otherArgp->exprp(), argp->exprp())) {
+                    ਜੇ (prefixp == otherArgp->exprp()) {
+                        VL_DO_DANGLING(argp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), argp);
+                        ਰੋਕੋ;
                     }
                 }
             }
         }
         // Construct temp vars, and store and restore statements
-        std::set<AstVar*> savedRandModeVarps;
-        AstVar* tmpVarps = nullptr;
-        AstNode* storeStmtsp = nullptr;
-        AstNode* setStmtsp = nullptr;
-        AstNodeStmt* restoreStmtsp = nullptr;
-        for (AstArg *argp = nodep->argsp(), *nextp = nullptr; argp; argp = nextp) {
+        std::ਸੈੱਟ<AstVar*> saved_Rand_ਬਹੁਲਕ_Varps;
+        AstVar* tmpVarps = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ* storeStmtsp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ* ਸੈੱਟ_Stmtsp = ਖਾਲੀ_ਸੂਚਕ;
+        Ast_ਗੰਢ_Stmt* restoreStmtsp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (AstArg *argp = nodep->argsp(), *nextp = ਖਾਲੀ_ਸੂਚਕ; argp; argp = nextp) {
             nextp = VN_AS(argp->nextp(), Arg);
-            AstNodeExpr* exprp = argp->exprp();
-            AstNodeExpr* const commonPrefixp = sliceToCommonPrefix(exprp, nodep);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = argp->exprp();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ commonPrefixp = ਟੁਕੜਾ_ਮੰਜ਼ਿਲ_Common_ਅਗੇਤਰ(exprp, nodep);
             UASSERT_OBJ(commonPrefixp != exprp, nodep,
                         "Common prefix should be different than pin");
-            FileLine* const fl = argp->fileline();
-            while (exprp) {
-                if (commonPrefixp == exprp) break;
-                AstVar* const randVarp = getVarFromRef(exprp);
-                AstClass* const classp = VN_AS(randVarp->user2p(), Class);
-                AstVar* const randModeVarp = randVarp->lifetime().isStatic()
-                                                 ? getStaticRandModeVar(classp)
-                                                 : getRandModeVarFromClass(classp);
-                UASSERT_OBJ(randModeVarp, randVarp,
+            File_ਸਤਰ* ਅਚਲ fl = argp->fileline();
+            ਜਦੋਂ (exprp) {
+                ਜੇ (commonPrefixp == exprp) ਰੋਕੋ;
+                AstVar* ਅਚਲ randVarp = getVarFromRef(exprp);
+                AstClass* ਅਚਲ classp = VN_AS(randVarp->user2p(), Class);
+                AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = randVarp->lifetime().isStatic()
+                                                 ? get_Static_Rand_ਬਹੁਲਕ_Var(classp)
+                                                 : get_Rand_ਬਹੁਲਕ_Var_From_Class(classp);
+                UASSERT_OBJ(rand_ਬਹੁਲਕ_Varp, randVarp,
                             "Rand var with rand_mode must have a mode array");
-                if (savedRandModeVarps.find(randModeVarp) == savedRandModeVarps.end()) {
-                    AstVar* const randModeTmpVarp
-                        = makeTmpRandModeVar(exprp, randModeVarp, storeStmtsp, restoreStmtsp);
-                    savedRandModeVarps.insert(randModeVarp);
-                    tmpVarps = AstNode::addNext(tmpVarps, randModeTmpVarp);
+                ਜੇ (saved_Rand_ਬਹੁਲਕ_Varps.ਲੱਭੋ(rand_ਬਹੁਲਕ_Varp) == saved_Rand_ਬਹੁਲਕ_Varps.ਸਿਰਾ()) {
+                    AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Tmp_Varp
+                        = make_Tmp_Rand_ਬਹੁਲਕ_Var(exprp, rand_ਬਹੁਲਕ_Varp, storeStmtsp, restoreStmtsp);
+                    saved_Rand_ਬਹੁਲਕ_Varps.ਪਾਓ(rand_ਬਹੁਲਕ_Varp);
+                    tmpVarps = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(tmpVarps, rand_ਬਹੁਲਕ_Tmp_Varp);
                 }
-                const RandomizeMode randMode = {.asUQuad = randVarp->user1()};
-                AstCMethodHard* setp = new AstCMethodHard{
-                    fl, makeModeVarRef(exprp, randModeVarp, VAccess::WRITE),
-                    VCMethod::ARRAY_AT_WRITE, new AstConst{fl, randMode.index}};
-                setp->dtypeSetUInt32();
-                setStmtsp
-                    = AstNode::addNext(setStmtsp, new AstAssign{fl, setp, new AstConst{fl, 1}});
+                ਅਚਲ Randomize_ਬਹੁਲਕ rand_ਬਹੁਲਕ = {.asUQuad = randVarp->user1()};
+                AstCMethodHard* setp = ਨਵਾਂ AstCMethodHard{
+                    fl, make_ਬਹੁਲਕ_Var_Ref(exprp, rand_ਬਹੁਲਕ_Varp, VAccess::WRITE),
+                    VCMethod::ARRAY_AT_WRITE, ਨਵਾਂ AstConst{fl, rand_ਬਹੁਲਕ.ਸੂਚਕਾਂਕ}};
+                setp->dtype_ਸੈੱਟ_UInt32();
+                ਸੈੱਟ_Stmtsp
+                    = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(ਸੈੱਟ_Stmtsp, ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, setp, ਨਵਾਂ AstConst{fl, 1}});
                 exprp = getFromp(exprp);
             }
-            VL_DO_DANGLING(argp->unlinkFrBack()->deleteTree(), argp);
+            VL_DO_DANGLING(argp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), argp);
         }
-        if (hasNullArg) {  // Re-point to the per-class __Vrandomize_null wrapper
-            AstClass* targetClassp = nullptr;
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            if (methodCallp) {
-                const AstNodeDType* const fromDTypep = methodCallp->fromp()->dtypep();
-                const AstClassRefDType* const crdtp
+        ਜੇ (hasNullArg) {  // Re-point to the per-class __Vrandomize_null wrapper
+            AstClass* ਨਿਸ਼ਾਨਾ_Classp = ਖਾਲੀ_ਸੂਚਕ;
+            Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call);
+            ਜੇ (ਵਿਧੀ_Callp) {
+                ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ fromDTypep = ਵਿਧੀ_Callp->fromp()->dtypep();
+                ਅਚਲ AstClassRefDType* ਅਚਲ crdtp
                     = VN_CAST(fromDTypep->skipRefp(), ClassRefDType);
                 UASSERT_OBJ(crdtp, nodep, "randomize(null) receiver is not a class type");
-                targetClassp = crdtp->classp();
-            } else {
-                targetClassp = VN_CAST(m_modp, Class);
+                ਨਿਸ਼ਾਨਾ_Classp = crdtp->classp();
+            } ਨਹੀਂਤਾਂ {
+                ਨਿਸ਼ਾਨਾ_Classp = VN_CAST(m_modp, Class);
             }
-            UASSERT_OBJ(targetClassp, nodep, "randomize(null) target class unresolved");
-            AstFunc* const checkOnlyFuncp = getCreateRandomizeNullFunc(targetClassp);
+            UASSERT_OBJ(ਨਿਸ਼ਾਨਾ_Classp, nodep, "randomize(null) target class unresolved");
+            AstFunc* ਅਚਲ checkOnlyFuncp = getCreateRandomizeNullFunc(ਨਿਸ਼ਾਨਾ_Classp);
             nodep->name(checkOnlyFuncp->name());
             nodep->taskp(checkOnlyFuncp);
             nodep->dtypeFrom(checkOnlyFuncp->dtypep());
         }
-        if (tmpVarps) {
-            UASSERT_OBJ(storeStmtsp && setStmtsp && restoreStmtsp, nodep, "Should have stmts");
+        ਜੇ (tmpVarps) {
+            UASSERT_OBJ(storeStmtsp && ਸੈੱਟ_Stmtsp && restoreStmtsp, nodep, "Should have stmts");
             VNRelinker relinker;
-            m_stmtp->unlinkFrBack(&relinker);
-            AstNode* const stmtsp = storeStmtsp;
-            stmtsp->addNext(setStmtsp);
-            stmtsp->addNext(m_stmtp);
-            stmtsp->addNext(restoreStmtsp);
+            m_stmtp->unlink_Fr_ਪਿੱਠ(&relinker);
+            Ast_ਗੰਢ* ਅਚਲ stmtsp = storeStmtsp;
+            stmtsp->ਜੋੜੋ_ਅਗਲਾ(ਸੈੱਟ_Stmtsp);
+            stmtsp->ਜੋੜੋ_ਅਗਲਾ(m_stmtp);
+            stmtsp->ਜੋੜੋ_ਅਗਲਾ(restoreStmtsp);
             relinker.relink(stmtsp);
             // After relinking, so the function body is complete
-            addTempVarsp(tmpVarps);
+            ਜੋੜੋ_ਆਰਜ਼ੀ_Varsp(tmpVarps);
         }
     }
 
@@ -5396,751 +5396,751 @@ class RandomizeVisitor final : public VNVisitor {
     //        `__Vsetup_constraints`, then `fvar = gen.next_check_only(rng)`.
     //   3. if (fvar) post_randomize() -- IEEE 1800-2023 18.6.3 says
     //      post_randomize is not called when randomize() fails.
-    AstFunc* getCreateRandomizeNullFunc(AstClass* const classp) {
-        static constexpr const char* const name = "__Vrandomize_null";
-        if (AstFunc* const existingp = VN_AS(m_memberMap.findMember(classp, name), Func)) {
-            return existingp;
+    AstFunc* getCreateRandomizeNullFunc(AstClass* ਅਚਲ classp) {
+        ਸਥਿਰ constexpr ਅਚਲ ਅੱਖਰ* ਅਚਲ name = "__Vrandomize_null";
+        ਜੇ (AstFunc* ਅਚਲ existingp = VN_AS(m_memberMap.ਲੱਭੋ_Member(classp, name), Func)) {
+            ਵਾਪਸ existingp;
         }
-        FileLine* const fl = classp->fileline();
-        AstFunc* const funcp = V3Randomize::newRandomizeFunc(m_memberMap, classp, name);
-        AstVar* const fvarp = VN_AS(funcp->fvarp(), Var);
+        File_ਸਤਰ* ਅਚਲ fl = classp->fileline();
+        AstFunc* ਅਚਲ funcp = V3Randomize::newRandomizeFunc(m_memberMap, classp, name);
+        AstVar* ਅਚਲ fvarp = VN_AS(funcp->fvarp(), Var);
 
         // 1. pre_randomize -- always
-        addPrePostCall(classp, funcp, "pre_randomize");
+        ਜੋੜੋ_Pre_Post_Call(classp, funcp, "pre_randomize");
 
         // 2. Compute result
-        AstVar* const classGenp = getRandomGenerator(classp);
-        if (!classGenp) {
-            funcp->addStmtsp(new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE},
-                                           new AstConst{fl, AstConst::WidthedValue{}, 32, 1}});
-        } else {
-            AstNodeModule* const genModp = VN_AS(classGenp->user2p(), NodeModule);
-            funcp->addStmtsp(implementConstraintsClear(fl, classGenp));
-            AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(classp, m_memberMap);
-            funcp->addStmtsp((new AstTaskRef{fl, setupAllTaskp})->makeStmt());
-            AstCExpr* const solverCallp = new AstCExpr{fl};
-            solverCallp->dtypeSetBit();
-            solverCallp->add(new AstVarRef{fl, genModp, classGenp, VAccess::READWRITE});
-            solverCallp->add(".next_check_only(__Vm_rng)");
-            funcp->addStmtsp(
-                new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE}, solverCallp});
-            classp->needRNG(true);
+        AstVar* ਅਚਲ classGenp = getRandomGenerator(classp);
+        ਜੇ (!classGenp) {
+            funcp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::WRITE},
+                                           ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, 32, 1}});
+        } ਨਹੀਂਤਾਂ {
+            Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(classGenp->user2p(), ਗੰਢ_Module);
+            funcp->ਜੋੜੋ_Stmtsp(implementConstraintsClear(fl, classGenp));
+            AstTask* ਅਚਲ ਤਿਆਰੀ_All_Taskp = get_Create_Constraint_ਤਿਆਰੀ_Func(classp, m_memberMap);
+            funcp->ਜੋੜੋ_Stmtsp((ਨਵਾਂ AstTaskRef{fl, ਤਿਆਰੀ_All_Taskp})->makeStmt());
+            AstCExpr* ਅਚਲ solverCallp = ਨਵਾਂ AstCExpr{fl};
+            solverCallp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+            solverCallp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, genModp, classGenp, VAccess::READWRITE});
+            solverCallp->ਜੋੜੋ(".next_check_only(__Vm_rng)");
+            funcp->ਜੋੜੋ_Stmtsp(
+                ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::WRITE}, solverCallp});
+            classp->needRNG(ਸੱਚ);
         }
 
         // 3. post_randomize -- only if result is non-zero
-        if (AstTask* const userPostp = findPrePostTask(classp, "post_randomize")) {
-            AstTaskRef* const callp = new AstTaskRef{userPostp->fileline(), userPostp};
-            funcp->addStmtsp(
-                new AstIf{fl, new AstVarRef{fl, fvarp, VAccess::READ}, callp->makeStmt()});
+        ਜੇ (AstTask* ਅਚਲ userPostp = ਲੱਭੋ_Pre_Post_Task(classp, "post_randomize")) {
+            AstTaskRef* ਅਚਲ callp = ਨਵਾਂ AstTaskRef{userPostp->fileline(), userPostp};
+            funcp->ਜੋੜੋ_Stmtsp(
+                ਨਵਾਂ AstIf{fl, ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::READ}, callp->makeStmt()});
         }
 
-        return funcp;
+        ਵਾਪਸ funcp;
     }
 
     // Rewrite a LogIf-of-Dist chain into nested AstConstraintIf. The outermost
     // AstLogIf shell is left for the caller's AstConstraintExpr to free; inner
     // shells are deleted here once their children are transplanted.
-    AstConstraintIf* liftLogIfChainToConstraintIf(AstLogIf* logIfp) {
-        FileLine* const fl = logIfp->fileline();
-        AstNodeExpr* const condp = logIfp->lhsp()->unlinkFrBack();
-        AstNodeExpr* const rhsp = logIfp->rhsp()->unlinkFrBack();
-        AstNode* thenBodyp;
-        if (AstLogIf* const innerLogIfp = VN_CAST(rhsp, LogIf)) {
-            thenBodyp = liftLogIfChainToConstraintIf(innerLogIfp);
-            VL_DO_DANGLING(pushDeletep(innerLogIfp), innerLogIfp);
-        } else {
-            thenBodyp = new AstConstraintExpr{fl, rhsp};
+    AstConstraintIf* lift_Log_If_Chain_ਮੰਜ਼ਿਲ_Constraint_If(AstLogIf* logIfp) {
+        File_ਸਤਰ* ਅਚਲ fl = logIfp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp = logIfp->lhsp()->unlink_Fr_ਪਿੱਠ();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = logIfp->rhsp()->unlink_Fr_ਪਿੱਠ();
+        Ast_ਗੰਢ* thenBodyp;
+        ਜੇ (AstLogIf* ਅਚਲ innerLogIfp = VN_CAST(rhsp, LogIf)) {
+            thenBodyp = lift_Log_If_Chain_ਮੰਜ਼ਿਲ_Constraint_If(innerLogIfp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(innerLogIfp), innerLogIfp);
+        } ਨਹੀਂਤਾਂ {
+            thenBodyp = ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, rhsp};
         }
-        return new AstConstraintIf{fl, condp, thenBodyp, nullptr};
+        ਵਾਪਸ ਨਵਾਂ AstConstraintIf{fl, condp, thenBodyp, ਖਾਲੀ_ਸੂਚਕ};
     }
 
-    static bool distBoundRefsRandVar(const AstNode* boundp) {
-        return boundp->exists(
-            [](const AstVarRef* vrefp) { return vrefp->varp()->rand().isRandomizable(); });
+    ਸਥਿਰ ਤਾਰਕਿਕ distBoundRefsRandVar(ਅਚਲ Ast_ਗੰਢ* boundp) {
+        ਵਾਪਸ boundp->exists(
+            [](ਅਚਲ AstVarRef* vrefp) { ਵਾਪਸ vrefp->varp()->rand().isRandomizable(); });
     }
 
-    static bool distBoundRefsModeVar(const AstNode* boundp) {
-        return boundp->exists([](const AstVarRef* vrefp) {
-            if (!vrefp->varp()->rand().isRandomizable()) return false;
-            const RandomizeMode rmode = {.asUQuad = vrefp->varp()->user1()};
-            return rmode.usesMode;
+    ਸਥਿਰ ਤਾਰਕਿਕ dist_Bound_Refs_ਬਹੁਲਕ_Var(ਅਚਲ Ast_ਗੰਢ* boundp) {
+        ਵਾਪਸ boundp->exists([](ਅਚਲ AstVarRef* vrefp) {
+            ਜੇ (!vrefp->varp()->rand().isRandomizable()) ਵਾਪਸ ਝੂਠ;
+            ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = vrefp->varp()->user1()};
+            ਵਾਪਸ rmode.ਵਰਤਦਾ_ਬਹੁਲਕ;
         });
     }
 
     // (distExpr >= lo) && (distExpr <= hi); signed comparisons for signed vars
-    static AstNodeExpr* newDistRangeMembership(AstDist* distp, const AstInsideRange* irp) {
-        FileLine* const fl = distp->fileline();
-        const bool isSigned = distp->exprp()->isSigned();
-        AstNodeExpr* const distExprGtep = distp->exprp()->cloneTreePure(false);
-        AstNodeExpr* const distExprLtep = distp->exprp()->cloneTreePure(false);
-        distExprGtep->user1(true);
-        distExprLtep->user1(true);
-        AstNodeExpr* const gep
-            = isSigned ? static_cast<AstNodeExpr*>(
-                             new AstGteS{fl, distExprGtep, irp->lhsp()->cloneTreePure(false)})
-                       : static_cast<AstNodeExpr*>(
-                             new AstGte{fl, distExprGtep, irp->lhsp()->cloneTreePure(false)});
-        AstNodeExpr* const lep
-            = isSigned ? static_cast<AstNodeExpr*>(
-                             new AstLteS{fl, distExprLtep, irp->rhsp()->cloneTreePure(false)})
-                       : static_cast<AstNodeExpr*>(
-                             new AstLte{fl, distExprLtep, irp->rhsp()->cloneTreePure(false)});
-        gep->user1(true);
-        lep->user1(true);
-        AstNodeExpr* const andp = new AstLogAnd{fl, gep, lep};
-        andp->user1(true);
-        return andp;
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* newDistRangeMembership(AstDist* distp, ਅਚਲ AstInsideRange* irp) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        ਅਚਲ ਤਾਰਕਿਕ isSigned = distp->exprp()->isSigned();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ dist_ਵਿਅੰਜਕ_Gtep = distp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ dist_ਵਿਅੰਜਕ_Ltep = distp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+        dist_ਵਿਅੰਜਕ_Gtep->user1(ਸੱਚ);
+        dist_ਵਿਅੰਜਕ_Ltep->user1(ਸੱਚ);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ gep
+            = isSigned ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                             ਨਵਾਂ AstGteS{fl, dist_ਵਿਅੰਜਕ_Gtep, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)})
+                       : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                             ਨਵਾਂ AstGte{fl, dist_ਵਿਅੰਜਕ_Gtep, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)});
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lep
+            = isSigned ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                             ਨਵਾਂ AstLteS{fl, dist_ਵਿਅੰਜਕ_Ltep, irp->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)})
+                       : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                             ਨਵਾਂ AstLte{fl, dist_ਵਿਅੰਜਕ_Ltep, irp->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)});
+        gep->user1(ਸੱਚ);
+        lep->user1(ਸੱਚ);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ andp = ਨਵਾਂ AstLogAnd{fl, gep, lep};
+        andp->user1(ਸੱਚ);
+        ਵਾਪਸ andp;
     }
 
-    struct DistBucket final {
-        AstNodeExpr* rangep;  // A single value or an InsideRange
-        AstNodeExpr* weightExprp;  // Effective 64-bit weight (range weight scaled by size)
+    ਬਣਤਰ Dist_ਬਾਲਟੀ final {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* rangep;  // A single value or an InsideRange
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਭਾਰ_Exprp;  // Effective 64-bit weight (range weight scaled by size)
     };
 
     // Non-zero-weight buckets with each weight extended to 64 bits.
-    std::vector<DistBucket> collectDistBuckets(AstDist* const distp) {
-        FileLine* const fl = distp->fileline();
-        std::vector<DistBucket> buckets;
-        for (AstDistItem* ditemp = distp->itemsp(); ditemp;
-             ditemp = VN_AS(ditemp->nextp(), DistItem)) {
-            if (const AstConst* const constp = VN_CAST(ditemp->weightp(), Const)) {
-                if (constp->toUQuad() == 0) continue;
+    std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ> collectDistBuckets(AstDist* ਅਚਲ distp) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ> buckets;
+        ਲਈ (Ast_Dist_ਵਸਤੂ* ditemp = distp->itemsp(); ditemp;
+             ditemp = VN_AS(ditemp->nextp(), Dist_ਵਸਤੂ)) {
+            ਜੇ (ਅਚਲ AstConst* ਅਚਲ constp = VN_CAST(ditemp->weightp(), Const)) {
+                ਜੇ (constp->ਮੰਜ਼ਿਲ_UQuad() == 0) ਜਾਰੀ;
             }
-            AstNodeExpr* weightExprp
-                = new AstExtend{fl, ditemp->weightp()->cloneTreePure(false), 64};
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਭਾਰ_Exprp
+                = ਨਵਾਂ AstExtend{fl, ditemp->weightp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64};
             // := on a range weights every element, so scale by the range size.
-            if (!ditemp->isWhole()) {
-                if (const AstInsideRange* const irp = VN_CAST(ditemp->rangep(), InsideRange)) {
-                    const AstConst* const lop = VN_CAST(irp->lhsp(), Const);
-                    const AstConst* const hip = VN_CAST(irp->rhsp(), Const);
-                    AstNodeExpr* rangeSizep;
-                    if (lop && hip) {
-                        const uint64_t rangeSize = hip->toUQuad() - lop->toUQuad() + 1;
-                        rangeSizep = new AstConst{fl, AstConst::Unsized64{}, rangeSize};
-                    } else {
-                        rangeSizep = new AstAdd{
-                            fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                            new AstSub{fl,
-                                       new AstExtend{fl, irp->rhsp()->cloneTreePure(false), 64},
-                                       new AstExtend{fl, irp->lhsp()->cloneTreePure(false), 64}}};
+            ਜੇ (!ditemp->is_ਸਾਰਾ()) {
+                ਜੇ (ਅਚਲ AstInsideRange* ਅਚਲ irp = VN_CAST(ditemp->rangep(), InsideRange)) {
+                    ਅਚਲ AstConst* ਅਚਲ lop = VN_CAST(irp->lhsp(), Const);
+                    ਅਚਲ AstConst* ਅਚਲ hip = VN_CAST(irp->rhsp(), Const);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* rangeSizep;
+                    ਜੇ (lop && hip) {
+                        ਅਚਲ uint64_t range_ਮਾਪ = hip->ਮੰਜ਼ਿਲ_UQuad() - lop->ਮੰਜ਼ਿਲ_UQuad() + 1;
+                        rangeSizep = ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, range_ਮਾਪ};
+                    } ਨਹੀਂਤਾਂ {
+                        rangeSizep = ਨਵਾਂ Ast_ਜੋੜੋ{
+                            fl, ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 1},
+                            ਨਵਾਂ AstSub{fl,
+                                       ਨਵਾਂ AstExtend{fl, irp->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64},
+                                       ਨਵਾਂ AstExtend{fl, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64}}};
                     }
-                    weightExprp = new AstMul{fl, weightExprp, rangeSizep};
+                    ਭਾਰ_Exprp = ਨਵਾਂ AstMul{fl, ਭਾਰ_Exprp, rangeSizep};
                 }
             }
-            buckets.push_back({ditemp->rangep(), weightExprp});
+            buckets.ਧੱਕੋ_ਪਿੱਠ({ditemp->rangep(), ਭਾਰ_Exprp});
         }
-        return buckets;
+        ਵਾਪਸ buckets;
     }
 
     // Membership test for one bucket: a range comparison or an equality.
-    static AstNodeExpr* newDistMembershipTerm(AstDist* distp, AstNodeExpr* rangep) {
-        if (const AstInsideRange* const irp = VN_CAST(rangep, InsideRange)) {
-            return newDistRangeMembership(distp, irp);
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* new_Dist_Membership_ਪਦ(AstDist* distp, Ast_ਗੰਢ_ਵਿਅੰਜਕ* rangep) {
+        ਜੇ (ਅਚਲ AstInsideRange* ਅਚਲ irp = VN_CAST(rangep, InsideRange)) {
+            ਵਾਪਸ newDistRangeMembership(distp, irp);
         }
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* const eqExprp = distp->exprp()->cloneTreePure(false);
-        eqExprp->user1(true);
-        AstNodeExpr* const eqp = new AstEq{fl, eqExprp, rangep->cloneTreePure(false)};
-        eqp->user1(true);
-        return eqp;
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ eqExprp = distp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+        eqExprp->user1(ਸੱਚ);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ eqp = ਨਵਾਂ AstEq{fl, eqExprp, rangep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+        eqp->user1(ਸੱਚ);
+        ਵਾਪਸ eqp;
     }
 
     // Hard constraint that the dist value stays inside the union of its ranges
     // (IEEE 1800-2023 18.5.3: values outside the set must never appear).
-    AstConstraintExpr* buildDistMembership(AstDist* distp,
-                                           const std::vector<DistBucket>& buckets) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* unionExprp = nullptr;
-        for (const auto& bucket : buckets) {
-            AstNodeExpr* const memberp = newDistMembershipTerm(distp, bucket.rangep);
-            if (!unionExprp) {
+    Ast_Constraint_ਵਿਅੰਜਕ* buildDistMembership(AstDist* distp,
+                                           ਅਚਲ std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ>& buckets) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* unionExprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& ਬਾਲਟੀ : buckets) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ memberp = new_Dist_Membership_ਪਦ(distp, ਬਾਲਟੀ.rangep);
+            ਜੇ (!unionExprp) {
                 unionExprp = memberp;
-            } else {
-                unionExprp = new AstLogOr{fl, memberp, unionExprp};
-                unionExprp->user1(true);
+            } ਨਹੀਂਤਾਂ {
+                unionExprp = ਨਵਾਂ AstLogOr{fl, memberp, unionExprp};
+                unionExprp->user1(ਸੱਚ);
             }
         }
-        return new AstConstraintExpr{fl, unionExprp};
+        ਵਾਪਸ ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, unionExprp};
     }
 
     // Gate junction with constants folded and identical terms merged.
-    AstNodeExpr* newGateJoin(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp, bool isAnd) {
-        if (ap->sameTree(bp)) {
-            VL_DO_DANGLING(pushDeletep(bp), bp);
-            return ap;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newGateJoin(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ap, Ast_ਗੰਢ_ਵਿਅੰਜਕ* bp, ਤਾਰਕਿਕ isAnd) {
+        ਜੇ (ap->same_ਰੁੱਖ(bp)) {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(bp), bp);
+            ਵਾਪਸ ap;
         }
-        if (VN_IS(bp, Const)) std::swap(ap, bp);
-        if (VN_IS(ap, Const)) {
-            const bool constWins = VN_AS(ap, Const)->isZero() == isAnd;
-            if (!constWins) std::swap(ap, bp);
-            VL_DO_DANGLING(pushDeletep(bp), bp);
-            return ap;
+        ਜੇ (VN_IS(bp, Const)) std::ਅਦਲਾ_ਬਦਲੀ(ap, bp);
+        ਜੇ (VN_IS(ap, Const)) {
+            ਅਚਲ ਤਾਰਕਿਕ constWins = VN_AS(ap, Const)->isZero() == isAnd;
+            ਜੇ (!constWins) std::ਅਦਲਾ_ਬਦਲੀ(ap, bp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(bp), bp);
+            ਵਾਪਸ ap;
         }
-        if (isAnd) return new AstLogAnd{fl, ap, bp};
-        return new AstLogOr{fl, ap, bp};
+        ਜੇ (isAnd) ਵਾਪਸ ਨਵਾਂ AstLogAnd{fl, ap, bp};
+        ਵਾਪਸ ਨਵਾਂ AstLogOr{fl, ap, bp};
     }
-    AstNodeExpr* newGateOr(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp) {
-        return newGateJoin(fl, ap, bp, false);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newGateOr(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ap, Ast_ਗੰਢ_ਵਿਅੰਜਕ* bp) {
+        ਵਾਪਸ newGateJoin(fl, ap, bp, ਝੂਠ);
     }
-    AstNodeExpr* newGateAnd(FileLine* fl, AstNodeExpr* ap, AstNodeExpr* bp) {
-        return newGateJoin(fl, ap, bp, true);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newGateAnd(File_ਸਤਰ* fl, Ast_ਗੰਢ_ਵਿਅੰਜਕ* ap, Ast_ਗੰਢ_ਵਿਅੰਜਕ* bp) {
+        ਵਾਪਸ newGateJoin(fl, ap, bp, ਸੱਚ);
     }
 
     // The rand_mode bit of varp: static class var, owner object's array via the
     // member select, or this object's array.
-    AstNodeExpr* newModeBitRead(AstVar* varp, const AstMemberSel* mselp, AstVar* randModeVarp,
-                                FileLine* fl) {
-        AstNodeExpr* arrayp = nullptr;
-        if (varp->lifetime().isStatic()) {
-            AstClass* const ownerp = VN_CAST(varp->user2p(), Class);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* new_ਬਹੁਲਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_Read(AstVar* varp, ਅਚਲ AstMemberSel* mselp, AstVar* rand_ਬਹੁਲਕ_Varp,
+                                File_ਸਤਰ* fl) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* arrayp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (varp->lifetime().isStatic()) {
+            AstClass* ਅਚਲ ownerp = VN_CAST(varp->user2p(), Class);
             UASSERT_OBJ(ownerp, varp, "usesMode static var without an owning class");
-            AstVar* const smodep = getStaticRandModeVar(ownerp);
+            AstVar* ਅਚਲ smodep = get_Static_Rand_ਬਹੁਲਕ_Var(ownerp);
             UASSERT_OBJ(smodep, varp, "usesMode static var without a static rand-mode array");
-            arrayp = new AstVarRef{fl, VN_AS(smodep->user2p(), NodeModule), smodep, VAccess::READ};
-        } else if (mselp) {
-            AstVar* const memberModep = getRandModeVarFromClass(VN_AS(varp->user2p(), NodeModule));
+            arrayp = ਨਵਾਂ AstVarRef{fl, VN_AS(smodep->user2p(), ਗੰਢ_Module), smodep, VAccess::READ};
+        } ਨਹੀਂਤਾਂ ਜੇ (mselp) {
+            AstVar* ਅਚਲ memberModep = get_Rand_ਬਹੁਲਕ_Var_From_Class(VN_AS(varp->user2p(), ਗੰਢ_Module));
             UASSERT_OBJ(memberModep, varp, "usesMode member without a class rand-mode array");
-            arrayp = new AstMemberSel{fl, mselp->fromp()->cloneTreePure(false), memberModep};
-        } else {
-            UASSERT_OBJ(randModeVarp, varp, "rand_mode variable without a class mode array");
-            arrayp = new AstVarRef{fl, VN_AS(randModeVarp->user2p(), NodeModule), randModeVarp,
+            arrayp = ਨਵਾਂ AstMemberSel{fl, mselp->fromp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), memberModep};
+        } ਨਹੀਂਤਾਂ {
+            UASSERT_OBJ(rand_ਬਹੁਲਕ_Varp, varp, "rand_mode variable without a class mode array");
+            arrayp = ਨਵਾਂ AstVarRef{fl, VN_AS(rand_ਬਹੁਲਕ_Varp->user2p(), ਗੰਢ_Module), rand_ਬਹੁਲਕ_Varp,
                                    VAccess::READ};
         }
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        AstCMethodHard* const atp
-            = new AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, new AstConst{fl, rmode.index}};
-        atp->dtypeSetUInt32();
-        return atp;
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = varp->user1()};
+        AstCMethodHard* ਅਚਲ atp
+            = ਨਵਾਂ AstCMethodHard{fl, arrayp, VCMethod::ARRAY_AT, ਨਵਾਂ AstConst{fl, rmode.ਸੂਚਕਾਂਕ}};
+        atp->dtype_ਸੈੱਟ_UInt32();
+        ਵਾਪਸ atp;
     }
 
     // The rand_mode bit of one variable access, or a constant when it has none.
     // A non-rand value can never be re-drawn; a non-rand owner level is skipped.
-    AstNodeExpr* newVarGate(AstVar* varp, const AstMemberSel* mselp, bool ownerLevel,
-                            AstVar* randModeVarp, FileLine* fl) {
-        if (!varp->rand().isRandomizable()) {
-            return new AstConst{fl, AstConst::BitTrue{}, ownerLevel};
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newVarGate(AstVar* varp, ਅਚਲ AstMemberSel* mselp, ਤਾਰਕਿਕ ownerLevel,
+                            AstVar* rand_ਬਹੁਲਕ_Varp, File_ਸਤਰ* fl) {
+        ਜੇ (!varp->rand().isRandomizable()) {
+            ਵਾਪਸ ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}, ownerLevel};
         }
-        const RandomizeMode rmode = {.asUQuad = varp->user1()};
-        if (!rmode.usesMode) return new AstConst{fl, AstConst::BitTrue{}};
-        return newModeBitRead(varp, mselp, randModeVarp, fl);
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = varp->user1()};
+        ਜੇ (!rmode.ਵਰਤਦਾ_ਬਹੁਲਕ) ਵਾਪਸ ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}};
+        ਵਾਪਸ new_ਬਹੁਲਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_Read(varp, mselp, rand_ਬਹੁਲਕ_Varp, fl);
     }
 
     // Change bit of one variable access, ANDed level by level down the
     // member-select owner path.
-    AstNodeExpr* newAccessGate(const AstNode* nodep, bool ownerLevel, AstVar* randModeVarp,
-                               FileLine* fl) {
-        if (const AstMemberSel* const mselp = VN_CAST(nodep, MemberSel)) {
-            return newGateAnd(fl, newVarGate(mselp->varp(), mselp, ownerLevel, randModeVarp, fl),
-                              newAccessGate(mselp->fromp(), true, randModeVarp, fl));
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newAccessGate(ਅਚਲ Ast_ਗੰਢ* nodep, ਤਾਰਕਿਕ ownerLevel, AstVar* rand_ਬਹੁਲਕ_Varp,
+                               File_ਸਤਰ* fl) {
+        ਜੇ (ਅਚਲ AstMemberSel* ਅਚਲ mselp = VN_CAST(nodep, MemberSel)) {
+            ਵਾਪਸ newGateAnd(fl, newVarGate(mselp->varp(), mselp, ownerLevel, rand_ਬਹੁਲਕ_Varp, fl),
+                              newAccessGate(mselp->fromp(), ਸੱਚ, rand_ਬਹੁਲਕ_Varp, fl));
         }
-        if (const AstNodeVarRef* const refp = VN_CAST(nodep, NodeVarRef)) {
-            return newVarGate(refp->varp(), nullptr, ownerLevel, randModeVarp, fl);
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Var_Ref* ਅਚਲ refp = VN_CAST(nodep, ਗੰਢ_Var_Ref)) {
+            ਵਾਪਸ newVarGate(refp->varp(), ਖਾਲੀ_ਸੂਚਕ, ownerLevel, rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-            return newAccessGate(selp->fromp(), true, randModeVarp, fl);
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Sel* ਅਚਲ selp = VN_CAST(nodep, ਗੰਢ_Sel)) {
+            ਵਾਪਸ newAccessGate(selp->fromp(), ਸੱਚ, rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (distBoundRefsModeVar(nodep)) {
+        ਜੇ (dist_Bound_Refs_ਬਹੁਲਕ_Var(nodep)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: 'rand_mode' on a variable used inside this form of"
                           " 'dist' expression");
         }
-        return new AstConst{fl, AstConst::BitTrue{}};
+        ਵਾਪਸ ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}};
     }
 
     // Gate of one dist expression node: nonzero while its value can still be
     // freshly drawn. Constant when no runtime rand_mode bit is involved.
-    AstNodeExpr* newDistGate(const AstNode* nodep, AstVar* randModeVarp, FileLine* fl) {
-        if (VN_IS(nodep, NodeVarRef) || VN_IS(nodep, MemberSel)) {
-            return newAccessGate(nodep, false, randModeVarp, fl);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* newDistGate(ਅਚਲ Ast_ਗੰਢ* nodep, AstVar* rand_ਬਹੁਲਕ_Varp, File_ਸਤਰ* fl) {
+        ਜੇ (VN_IS(nodep, ਗੰਢ_Var_Ref) || VN_IS(nodep, MemberSel)) {
+            ਵਾਪਸ newAccessGate(nodep, ਝੂਠ, rand_ਬਹੁਲਕ_Varp, fl);
         }
         // A selection is drawn through its base; the index never gates.
-        if (const AstNodeSel* const selp = VN_CAST(nodep, NodeSel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Sel* ਅਚਲ selp = VN_CAST(nodep, ਗੰਢ_Sel)) {
+            ਵਾਪਸ newDistGate(selp->fromp(), rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (const AstSel* const selp = VN_CAST(nodep, Sel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ਜੇ (ਅਚਲ AstSel* ਅਚਲ selp = VN_CAST(nodep, Sel)) {
+            ਵਾਪਸ newDistGate(selp->fromp(), rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (const AstStructSel* const selp = VN_CAST(nodep, StructSel)) {
-            return newDistGate(selp->fromp(), randModeVarp, fl);
+        ਜੇ (ਅਚਲ AstStructSel* ਅਚਲ selp = VN_CAST(nodep, StructSel)) {
+            ਵਾਪਸ newDistGate(selp->fromp(), rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (const AstCMethodHard* const methodp = VN_CAST(nodep, CMethodHard)) {
-            if (methodp->method() == VCMethod::ARRAY_AT
+        ਜੇ (ਅਚਲ AstCMethodHard* ਅਚਲ methodp = VN_CAST(nodep, CMethodHard)) {
+            ਜੇ (methodp->ਵਿਧੀ() == VCMethod::ARRAY_AT
                 && VN_IS(methodp->fromp()->dtypep()->skipRefp(),  // LCOV_EXCL_BR_LINE
                          DynArrayDType)) {  // Queue form is rejected before dist lowering
-                return newDistGate(methodp->fromp(), randModeVarp, fl);
+                ਵਾਪਸ newDistGate(methodp->fromp(), rand_ਬਹੁਲਕ_Varp, fl);
             }
         }
         // A conditional re-draws through an active selector or the selected arm.
-        if (const AstCond* const condp = VN_CAST(nodep, Cond)) {
-            AstNodeExpr* const thenGatep = newDistGate(condp->thenp(), randModeVarp, fl);
-            AstNodeExpr* const elseGatep = newDistGate(condp->elsep(), randModeVarp, fl);
-            AstNodeExpr* armGatep = thenGatep;
-            if (thenGatep->sameTree(elseGatep)) {
-                VL_DO_DANGLING(pushDeletep(elseGatep), elseGatep);
-            } else {
+        ਜੇ (ਅਚਲ AstCond* ਅਚਲ condp = VN_CAST(nodep, Cond)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ thenGatep = newDistGate(condp->thenp(), rand_ਬਹੁਲਕ_Varp, fl);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ elseGatep = newDistGate(condp->elsep(), rand_ਬਹੁਲਕ_Varp, fl);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* armGatep = thenGatep;
+            ਜੇ (thenGatep->same_ਰੁੱਖ(elseGatep)) {
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(elseGatep), elseGatep);
+            } ਨਹੀਂਤਾਂ {
                 armGatep
-                    = new AstCond{fl, condp->condp()->cloneTreePure(false), thenGatep, elseGatep};
+                    = ਨਵਾਂ AstCond{fl, condp->condp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), thenGatep, elseGatep};
             }
-            return newGateOr(fl, newDistGate(condp->condp(), randModeVarp, fl), armGatep);
+            ਵਾਪਸ newGateOr(fl, newDistGate(condp->condp(), rand_ਬਹੁਲਕ_Varp, fl), armGatep);
         }
-        if (const AstNodeUniop* const uopp = VN_CAST(nodep, NodeUniop)) {
-            return newDistGate(uopp->lhsp(), randModeVarp, fl);
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Uniop* ਅਚਲ uopp = VN_CAST(nodep, ਗੰਢ_Uniop)) {
+            ਵਾਪਸ newDistGate(uopp->lhsp(), rand_ਬਹੁਲਕ_Varp, fl);
         }
-        if (const AstNodeBiop* const bopp = VN_CAST(nodep, NodeBiop)) {
-            return newGateOr(fl, newDistGate(bopp->lhsp(), randModeVarp, fl),
-                             newDistGate(bopp->rhsp(), randModeVarp, fl));
+        ਜੇ (ਅਚਲ Ast_ਗੰਢ_Biop* ਅਚਲ bopp = VN_CAST(nodep, ਗੰਢ_Biop)) {
+            ਵਾਪਸ newGateOr(fl, newDistGate(bopp->lhsp(), rand_ਬਹੁਲਕ_Varp, fl),
+                             newDistGate(bopp->rhsp(), rand_ਬਹੁਲਕ_Varp, fl));
         }
-        if (distBoundRefsModeVar(nodep)) {
+        ਜੇ (dist_Bound_Refs_ਬਹੁਲਕ_Var(nodep)) {
             nodep->v3warn(E_UNSUPPORTED,
                           "Unsupported: 'rand_mode' on a variable used inside this form of"
                           " 'dist' expression");
         }
         // Constants and remaining forms re-draw only if a rand var is inside.
-        return new AstConst{fl, AstConst::BitTrue{}, distBoundRefsRandVar(nodep)};
+        ਵਾਪਸ ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}, distBoundRefsRandVar(nodep)};
     }
 
     // Membership union of the dist set, with runtime-zero weights excluded.
-    AstConstraintExpr* buildFrozenMembership(AstDist* distp,
-                                             const std::vector<DistBucket>& buckets) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* unionExprp = nullptr;
-        for (const auto& bucket : buckets) {
-            AstNodeExpr* termp = newDistMembershipTerm(distp, bucket.rangep);
+    Ast_Constraint_ਵਿਅੰਜਕ* buildFrozenMembership(AstDist* distp,
+                                             ਅਚਲ std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ>& buckets) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* unionExprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& ਬਾਲਟੀ : buckets) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* termp = new_Dist_Membership_ਪਦ(distp, ਬਾਲਟੀ.rangep);
             // A weight that is zero only at runtime excludes the bucket's values too.
-            const bool runtimeWeight
-                = bucket.weightExprp->exists([](const AstNodeVarRef*) { return true; });
-            if (runtimeWeight) {
-                AstNeq* const nzp = new AstNeq{fl, bucket.weightExprp->cloneTreePure(false),
-                                               new AstConst{fl, AstConst::Unsized64{}, 0}};
-                nzp->user1(true);
-                termp = new AstLogAnd{fl, termp, nzp};
-                termp->user1(true);
+            ਅਚਲ ਤਾਰਕਿਕ runtime_ਭਾਰ
+                = ਬਾਲਟੀ.ਭਾਰ_Exprp->exists([](ਅਚਲ Ast_ਗੰਢ_Var_Ref*) { ਵਾਪਸ ਸੱਚ; });
+            ਜੇ (runtime_ਭਾਰ) {
+                AstNeq* ਅਚਲ nzp = ਨਵਾਂ AstNeq{fl, ਬਾਲਟੀ.ਭਾਰ_Exprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ),
+                                               ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 0}};
+                nzp->user1(ਸੱਚ);
+                termp = ਨਵਾਂ AstLogAnd{fl, termp, nzp};
+                termp->user1(ਸੱਚ);
             }
-            if (unionExprp) {
-                unionExprp = new AstLogOr{fl, unionExprp, termp};
-                unionExprp->user1(true);
-            } else {
+            ਜੇ (unionExprp) {
+                unionExprp = ਨਵਾਂ AstLogOr{fl, unionExprp, termp};
+                unionExprp->user1(ਸੱਚ);
+            } ਨਹੀਂਤਾਂ {
                 unionExprp = termp;
             }
         }
-        return new AstConstraintExpr{fl, unionExprp};
+        ਵਾਪਸ ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, unionExprp};
     }
 
     // Weighted chain while the dist value can still be freshly drawn, membership
     // once it is frozen; membership only when it can never be re-drawn.
-    AstNode* gateFrozenDist(AstNode* chainp, AstDist* distp,
-                            const std::vector<DistBucket>& buckets, AstVar* randModeVarp) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* gatep = newDistGate(distp->exprp(), randModeVarp, fl);
-        if (VN_IS(gatep, Const)) {
-            const bool drawable = !VN_AS(gatep, Const)->isZero();
-            VL_DO_DANGLING(pushDeletep(gatep), gatep);
-            if (drawable) return chainp;
-            VL_DO_DANGLING(pushDeletep(chainp), chainp);
-            return buildFrozenMembership(distp, buckets);
+    Ast_ਗੰਢ* gateFrozenDist(Ast_ਗੰਢ* chainp, AstDist* distp,
+                            ਅਚਲ std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ>& buckets, AstVar* rand_ਬਹੁਲਕ_Varp) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* gatep = newDistGate(distp->exprp(), rand_ਬਹੁਲਕ_Varp, fl);
+        ਜੇ (VN_IS(gatep, Const)) {
+            ਅਚਲ ਤਾਰਕਿਕ drawable = !VN_AS(gatep, Const)->isZero();
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(gatep), gatep);
+            ਜੇ (drawable) ਵਾਪਸ chainp;
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(chainp), chainp);
+            ਵਾਪਸ buildFrozenMembership(distp, buckets);
         }
-        return new AstConstraintIf{fl, gatep, chainp, buildFrozenMembership(distp, buckets)};
+        ਵਾਪਸ ਨਵਾਂ AstConstraintIf{fl, gatep, chainp, buildFrozenMembership(distp, buckets)};
     }
 
-    AstNodeExpr* newUniformRangePick(AstDist* distp, const AstInsideRange* irp) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* const distExprCopyp = distp->exprp()->cloneTreePure(false);
-        distExprCopyp->user1(true);
-        const int distWidth = distp->exprp()->width();
-        const AstConst* const lopC = VN_CAST(irp->lhsp(), Const);
-        const AstConst* const hipC = VN_CAST(irp->rhsp(), Const);
-        AstNodeExpr* rangeSzp;
-        if (lopC && hipC) {
-            const uint64_t rsz = hipC->toUQuad() - lopC->toUQuad() + 1;
-            rangeSzp = new AstConst{fl, AstConst::Unsized64{}, rsz};
-        } else {
-            const bool isSigned = irp->lhsp()->isSigned();
-            AstNodeExpr* const lo64p
-                = isSigned ? static_cast<AstNodeExpr*>(
-                                 new AstExtendS{fl, irp->lhsp()->cloneTreePure(false), 64})
-                           : static_cast<AstNodeExpr*>(
-                                 new AstExtend{fl, irp->lhsp()->cloneTreePure(false), 64});
-            AstNodeExpr* const hi64p
-                = isSigned ? static_cast<AstNodeExpr*>(
-                                 new AstExtendS{fl, irp->rhsp()->cloneTreePure(false), 64})
-                           : static_cast<AstNodeExpr*>(
-                                 new AstExtend{fl, irp->rhsp()->cloneTreePure(false), 64});
-            rangeSzp = new AstAdd{fl, new AstConst{fl, AstConst::Unsized64{}, 1ULL},
-                                  new AstSub{fl, hi64p, lo64p}};
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* new_ਇਕਸਾਰ_Range_Pick(AstDist* distp, ਅਚਲ AstInsideRange* irp) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ dist_ਵਿਅੰਜਕ_Copyp = distp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+        dist_ਵਿਅੰਜਕ_Copyp->user1(ਸੱਚ);
+        ਅਚਲ ਪੂਰਨ dist_ਚੌੜਾਈ = distp->exprp()->ਚੌੜਾਈ();
+        ਅਚਲ AstConst* ਅਚਲ lopC = VN_CAST(irp->lhsp(), Const);
+        ਅਚਲ AstConst* ਅਚਲ hipC = VN_CAST(irp->rhsp(), Const);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* rangeSzp;
+        ਜੇ (lopC && hipC) {
+            ਅਚਲ uint64_t rsz = hipC->ਮੰਜ਼ਿਲ_UQuad() - lopC->ਮੰਜ਼ਿਲ_UQuad() + 1;
+            rangeSzp = ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, rsz};
+        } ਨਹੀਂਤਾਂ {
+            ਅਚਲ ਤਾਰਕਿਕ isSigned = irp->lhsp()->isSigned();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lo64p
+                = isSigned ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                                 ਨਵਾਂ AstExtendS{fl, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64})
+                           : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                                 ਨਵਾਂ AstExtend{fl, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64});
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ hi64p
+                = isSigned ? static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                                 ਨਵਾਂ AstExtendS{fl, irp->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64})
+                           : static_cast<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>(
+                                 ਨਵਾਂ AstExtend{fl, irp->rhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), 64});
+            rangeSzp = ਨਵਾਂ Ast_ਜੋੜੋ{fl, ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 1ULL},
+                                  ਨਵਾਂ AstSub{fl, hi64p, lo64p}};
         }
-        AstNodeExpr* const rand64p = new AstRand{fl, nullptr, false};
-        rand64p->dtypeSetUInt64();
-        AstNodeExpr* const offsetp
-            = new AstCCast{fl, new AstModDiv{fl, rand64p, rangeSzp}, distWidth};
-        AstNodeExpr* const valuep = new AstAdd{fl, irp->lhsp()->cloneTreePure(false), offsetp};
-        AstNodeExpr* const eqp = new AstEq{fl, distExprCopyp, valuep};
-        eqp->user1(true);
-        return eqp;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rand64p = ਨਵਾਂ AstRand{fl, ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ};
+        rand64p->dtype_ਸੈੱਟ_UInt64();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ offsetp
+            = ਨਵਾਂ AstCCast{fl, ਨਵਾਂ AstModDiv{fl, rand64p, rangeSzp}, dist_ਚੌੜਾਈ};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ valuep = ਨਵਾਂ Ast_ਜੋੜੋ{fl, irp->lhsp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), offsetp};
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ eqp = ਨਵਾਂ AstEq{fl, dist_ਵਿਅੰਜਕ_Copyp, valuep};
+        eqp->user1(ਸੱਚ);
+        ਵਾਪਸ eqp;
     }
 
     // Soft weighted bucket chain: select a bucket by bucketVar against cumulative weights.
-    AstNode* buildWeightedBucketChain(AstDist* distp, const std::vector<DistBucket>& buckets,
-                                      AstVar* bucketVarp,
-                                      const std::vector<AstNodeExpr*>& cumSums) {
-        FileLine* const fl = distp->fileline();
-        AstNodeExpr* chainp = nullptr;
-        for (int i = static_cast<int>(buckets.size()) - 1; i >= 0; --i) {
-            AstNodeExpr* constraintExprp;
-            const AstInsideRange* const irp = VN_CAST(buckets[i].rangep, InsideRange);
-            if (irp && (distBoundRefsRandVar(irp->lhsp()) || distBoundRefsRandVar(irp->rhsp()))) {
+    Ast_ਗੰਢ* build_Weighted_ਬਾਲਟੀ_Chain(AstDist* distp, ਅਚਲ std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ>& buckets,
+                                      AstVar* ਬਾਲਟੀ_Varp,
+                                      ਅਚਲ std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>& cumSums) {
+        File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* chainp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਪੂਰਨ i = static_cast<ਪੂਰਨ>(buckets.ਮਾਪ()) - 1; i >= 0; --i) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* constraintExprp;
+            ਅਚਲ AstInsideRange* ਅਚਲ irp = VN_CAST(buckets[i].rangep, InsideRange);
+            ਜੇ (irp && (distBoundRefsRandVar(irp->lhsp()) || distBoundRefsRandVar(irp->rhsp()))) {
                 constraintExprp = newDistRangeMembership(distp, irp);
-            } else if (irp) {
-                constraintExprp = newUniformRangePick(distp, irp);
-            } else {
-                AstNodeExpr* const distExprCopyp = distp->exprp()->cloneTreePure(false);
-                distExprCopyp->user1(true);
+            } ਨਹੀਂਤਾਂ ਜੇ (irp) {
+                constraintExprp = new_ਇਕਸਾਰ_Range_Pick(distp, irp);
+            } ਨਹੀਂਤਾਂ {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ dist_ਵਿਅੰਜਕ_Copyp = distp->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                dist_ਵਿਅੰਜਕ_Copyp->user1(ਸੱਚ);
                 constraintExprp
-                    = new AstEq{fl, distExprCopyp, buckets[i].rangep->cloneTreePure(false)};
-                constraintExprp->user1(true);
+                    = ਨਵਾਂ AstEq{fl, dist_ਵਿਅੰਜਕ_Copyp, buckets[i].rangep->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                constraintExprp->user1(ਸੱਚ);
             }
-            if (!chainp) {
+            ਜੇ (!chainp) {
                 chainp = constraintExprp;
-            } else {
-                AstNodeExpr* const condp
-                    = new AstLte{fl, new AstVarRef{fl, bucketVarp, VAccess::READ}, cumSums[i]};
-                condp->user1(true);
-                chainp = new AstCond{fl, condp, constraintExprp, chainp};
-                chainp->user1(true);
+            } ਨਹੀਂਤਾਂ {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp
+                    = ਨਵਾਂ AstLte{fl, ਨਵਾਂ AstVarRef{fl, ਬਾਲਟੀ_Varp, VAccess::READ}, cumSums[i]};
+                condp->user1(ਸੱਚ);
+                chainp = ਨਵਾਂ AstCond{fl, condp, constraintExprp, chainp};
+                chainp->user1(ਸੱਚ);
             }
         }
-        AstConstraintExpr* const chainExprp = new AstConstraintExpr{fl, chainp};
-        chainExprp->isSoft(true);
-        return chainExprp;
+        Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ chainExprp = ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, chainp};
+        chainExprp->isSoft(ਸੱਚ);
+        ਵਾਪਸ chainExprp;
     }
 
     // Replace AstDist with weighted bucket selection via AstConstraintIf chain.
     // Supports both constant and variable weight expressions.
-    void lowerDistConstraints(AstTask* taskp, AstNode* constrItemsp, AstVar* randModeVarp,
-                              AstConstraintForeach* foreachp = nullptr) {
+    ਖਾਲੀ ਹੇਠਲਾ_Dist_Constraints(AstTask* taskp, Ast_ਗੰਢ* constrItemsp, AstVar* rand_ਬਹੁਲਕ_Varp,
+                              AstConstraintForeach* foreachp = ਖਾਲੀ_ਸੂਚਕ) {
         // When inside a foreach, bucket preamble stmts are stored in foreachp->user3p()
         // (as a linked list) so visit(AstConstraintForeach*) can inject them into the
         // real AstForeach body. Outside a foreach, they go directly into taskp.
-        AstNode* foreachTailp = nullptr;
-        auto addStmt = [&](AstNode* nodep) {
-            if (foreachp) {
-                if (!foreachTailp) {
+        Ast_ਗੰਢ* foreachTailp = ਖਾਲੀ_ਸੂਚਕ;
+        ਸਵੈਚਾਲਿਤ ਜੋੜੋ_Stmt = [&](Ast_ਗੰਢ* nodep) {
+            ਜੇ (foreachp) {
+                ਜੇ (!foreachTailp) {
                     foreachp->user3p(nodep);
                     foreachTailp = nodep;
-                } else {
-                    foreachTailp->addNext(nodep);
+                } ਨਹੀਂਤਾਂ {
+                    foreachTailp->ਜੋੜੋ_ਅਗਲਾ(nodep);
                     foreachTailp = nodep;
                 }
-            } else {
-                taskp->addStmtsp(nodep);
+            } ਨਹੀਂਤਾਂ {
+                taskp->ਜੋੜੋ_Stmtsp(nodep);
             }
         };
 
-        for (AstNode *nextip, *itemp = constrItemsp; itemp; itemp = nextip) {
+        ਲਈ (Ast_ਗੰਢ *nextip, *itemp = constrItemsp; itemp; itemp = nextip) {
             nextip = itemp->nextp();
 
             // dist can appear inside an if/else or foreach constraint.
-            if (AstConstraintIf* const cifp = VN_CAST(itemp, ConstraintIf)) {
+            ਜੇ (AstConstraintIf* ਅਚਲ cifp = VN_CAST(itemp, ConstraintIf)) {
                 UASSERT_OBJ(cifp->thensp(), cifp, "constraint if without a then body");
-                lowerDistConstraints(taskp, cifp->thensp(), randModeVarp, foreachp);
-                if (cifp->elsesp()) {
-                    lowerDistConstraints(taskp, cifp->elsesp(), randModeVarp, foreachp);
+                ਹੇਠਲਾ_Dist_Constraints(taskp, cifp->thensp(), rand_ਬਹੁਲਕ_Varp, foreachp);
+                ਜੇ (cifp->elsesp()) {
+                    ਹੇਠਲਾ_Dist_Constraints(taskp, cifp->elsesp(), rand_ਬਹੁਲਕ_Varp, foreachp);
                 }
-                continue;
+                ਜਾਰੀ;
             }
-            if (AstConstraintForeach* const cfep = VN_CAST(itemp, ConstraintForeach)) {
+            ਜੇ (AstConstraintForeach* ਅਚਲ cfep = VN_CAST(itemp, ConstraintForeach)) {
                 UASSERT_OBJ(cfep->bodyp(), cfep, "constraint foreach without a body");
-                lowerDistConstraints(taskp, cfep->bodyp(), randModeVarp, cfep);
-                continue;
+                ਹੇਠਲਾ_Dist_Constraints(taskp, cfep->bodyp(), rand_ਬਹੁਲਕ_Varp, cfep);
+                ਜਾਰੀ;
             }
 
-            AstConstraintExpr* const constrExprp = VN_CAST(itemp, ConstraintExpr);
-            if (!constrExprp) continue;
+            Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ constrExprp = VN_CAST(itemp, Constraint_ਵਿਅੰਜਕ);
+            ਜੇ (!constrExprp) ਜਾਰੀ;
 
             // `cond -> x dist {...}` parses as ConstraintExpr(LogIf(cond, Dist)).
             // This pass only scans ConstraintExpr/If/Foreach for Dist, so lift the
             // LogIf chain into nested ConstraintIf first. Chains like
             // `a -> b -> dist` nest accordingly.
-            if (AstLogIf* const topLogIfp = VN_CAST(constrExprp->exprp(), LogIf)) {
-                AstNode* chainEndp = topLogIfp->rhsp();
-                while (AstLogIf* const innerp = VN_CAST(chainEndp, LogIf)) {
+            ਜੇ (AstLogIf* ਅਚਲ ਸਿਖਰ_Log_Ifp = VN_CAST(constrExprp->exprp(), LogIf)) {
+                Ast_ਗੰਢ* chainEndp = ਸਿਖਰ_Log_Ifp->rhsp();
+                ਜਦੋਂ (AstLogIf* ਅਚਲ innerp = VN_CAST(chainEndp, LogIf)) {
                     chainEndp = innerp->rhsp();
                 }
-                if (VN_IS(chainEndp, Dist)) {
-                    AstConstraintIf* const liftedp = liftLogIfChainToConstraintIf(topLogIfp);
+                ਜੇ (VN_IS(chainEndp, Dist)) {
+                    AstConstraintIf* ਅਚਲ liftedp = lift_Log_If_Chain_ਮੰਜ਼ਿਲ_Constraint_If(ਸਿਖਰ_Log_Ifp);
                     constrExprp->replaceWith(liftedp);
-                    VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
-                    lowerDistConstraints(taskp, liftedp->thensp(), randModeVarp, foreachp);
-                    continue;
+                    VL_DO_DANGLING(ਧੱਕੋ_Deletep(constrExprp), constrExprp);
+                    ਹੇਠਲਾ_Dist_Constraints(taskp, liftedp->thensp(), rand_ਬਹੁਲਕ_Varp, foreachp);
+                    ਜਾਰੀ;
                 }
             }
 
-            AstDist* const distp = VN_CAST(constrExprp->exprp(), Dist);
-            if (!distp) continue;
+            AstDist* ਅਚਲ distp = VN_CAST(constrExprp->exprp(), Dist);
+            ਜੇ (!distp) ਜਾਰੀ;
 
-            FileLine* const fl = distp->fileline();
+            File_ਸਤਰ* ਅਚਲ fl = distp->fileline();
 
-            std::vector<DistBucket> buckets = collectDistBuckets(distp);
+            std::ਸਦਿਸ਼<Dist_ਬਾਲਟੀ> buckets = collectDistBuckets(distp);
 
-            if (buckets.empty()) {
+            ਜੇ (buckets.ਖਾਲੀ_ਥਾਵਾਂ()) {
                 // All weights are zero: dist is vacuously true (unconstrained)
-                AstConstraintExpr* const truep
-                    = new AstConstraintExpr{fl, new AstConst{fl, AstConst::BitTrue{}}};
+                Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ truep
+                    = ਨਵਾਂ Ast_Constraint_ਵਿਅੰਜਕ{fl, ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_True{}}};
                 constrExprp->replaceWith(truep);
-                VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
-                continue;
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(constrExprp), constrExprp);
+                ਜਾਰੀ;
             }
 
-            AstConstraintExpr* const membershipp = buildDistMembership(distp, buckets);
+            Ast_Constraint_ਵਿਅੰਜਕ* ਅਚਲ membershipp = buildDistMembership(distp, buckets);
 
             // Build totalWeight expression: w[0] + w[1] + ... + w[N-1]
-            AstNodeExpr* totalWeightExprp = nullptr;
-            for (auto& bucket : buckets) {
-                if (!totalWeightExprp) {
-                    totalWeightExprp = bucket.weightExprp->cloneTreePure(false);
-                } else {
-                    totalWeightExprp = new AstAdd{fl, totalWeightExprp,
-                                                  bucket.weightExprp->cloneTreePure(false)};
-                    totalWeightExprp->dtypeSetUInt64();
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਕੁੱਲ_ਭਾਰ_Exprp = ਖਾਲੀ_ਸੂਚਕ;
+            ਲਈ (ਸਵੈਚਾਲਿਤ& ਬਾਲਟੀ : buckets) {
+                ਜੇ (!ਕੁੱਲ_ਭਾਰ_Exprp) {
+                    ਕੁੱਲ_ਭਾਰ_Exprp = ਬਾਲਟੀ.ਭਾਰ_Exprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                } ਨਹੀਂਤਾਂ {
+                    ਕੁੱਲ_ਭਾਰ_Exprp = ਨਵਾਂ Ast_ਜੋੜੋ{fl, ਕੁੱਲ_ਭਾਰ_Exprp,
+                                                  ਬਾਲਟੀ.ਭਾਰ_Exprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    ਕੁੱਲ_ਭਾਰ_Exprp->dtype_ਸੈੱਟ_UInt64();
                 }
             }
 
             // Store totalWeight in temp var (evaluated once, used twice)
-            const int distId = m_distNum++;
-            const std::string totalName = "__Vdist_total" + cvtToStr(distId);
-            AstVar* const totalVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, totalName, taskp->findUInt64DType()};
-            totalVarp->noSubst(true);
-            totalVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            totalVarp->funcLocal(true);
-            totalVarp->isInternal(true);
-            addStmt(totalVarp);
-            addStmt(
-                new AstAssign{fl, new AstVarRef{fl, totalVarp, VAccess::WRITE}, totalWeightExprp});
+            ਅਚਲ ਪੂਰਨ distId = m_dist_ਅੰਕ++;
+            ਅਚਲ std::string ਕੁੱਲ_Name = "__Vdist_total" + cvt_ਮੰਜ਼ਿਲ_Str(distId);
+            AstVar* ਅਚਲ ਕੁੱਲ_Varp
+                = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, ਕੁੱਲ_Name, taskp->ਲੱਭੋ_UInt64_DType()};
+            ਕੁੱਲ_Varp->noSubst(ਸੱਚ);
+            ਕੁੱਲ_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+            ਕੁੱਲ_Varp->funcLocal(ਸੱਚ);
+            ਕੁੱਲ_Varp->is_ਅੰਦਰੂਨੀ(ਸੱਚ);
+            ਜੋੜੋ_Stmt(ਕੁੱਲ_Varp);
+            ਜੋੜੋ_Stmt(
+                ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, ਕੁੱਲ_Varp, VAccess::WRITE}, ਕੁੱਲ_ਭਾਰ_Exprp});
 
             // bucketVar = (rand64() % totalWeight) + 1
-            const std::string bucketName = "__Vdist_bucket" + cvtToStr(distId);
-            AstVar* const bucketVarp
-                = new AstVar{fl, VVarType::BLOCKTEMP, bucketName, taskp->findUInt64DType()};
-            bucketVarp->noSubst(true);
-            bucketVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-            bucketVarp->funcLocal(true);
-            bucketVarp->isInternal(true);
-            addStmt(bucketVarp);
+            ਅਚਲ std::string ਬਾਲਟੀ_Name = "__Vdist_bucket" + cvt_ਮੰਜ਼ਿਲ_Str(distId);
+            AstVar* ਅਚਲ ਬਾਲਟੀ_Varp
+                = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, ਬਾਲਟੀ_Name, taskp->ਲੱਭੋ_UInt64_DType()};
+            ਬਾਲਟੀ_Varp->noSubst(ਸੱਚ);
+            ਬਾਲਟੀ_Varp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
+            ਬਾਲਟੀ_Varp->funcLocal(ਸੱਚ);
+            ਬਾਲਟੀ_Varp->is_ਅੰਦਰੂਨੀ(ਸੱਚ);
+            ਜੋੜੋ_Stmt(ਬਾਲਟੀ_Varp);
 
-            AstNodeExpr* const randp = new AstRand{fl, nullptr, false};
-            randp->dtypeSetUInt64();
-            addStmt(new AstAssign{
-                fl, new AstVarRef{fl, bucketVarp, VAccess::WRITE},
-                new AstAdd{
-                    fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                    new AstModDiv{fl, randp, new AstVarRef{fl, totalVarp, VAccess::READ}}}});
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ randp = ਨਵਾਂ AstRand{fl, ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ};
+            randp->dtype_ਸੈੱਟ_UInt64();
+            ਜੋੜੋ_Stmt(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                fl, ਨਵਾਂ AstVarRef{fl, ਬਾਲਟੀ_Varp, VAccess::WRITE},
+                ਨਵਾਂ Ast_ਜੋੜੋ{
+                    fl, ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 1},
+                    ਨਵਾਂ AstModDiv{fl, randp, ਨਵਾਂ AstVarRef{fl, ਕੁੱਲ_Varp, VAccess::READ}}}});
 
             // Build cumulative sum expressions forward: cumSum[i] = w[0]+...+w[i]
-            std::vector<AstNodeExpr*> cumSums;
-            AstNodeExpr* runningSump = nullptr;
-            for (size_t i = 0; i < buckets.size(); ++i) {
-                if (!runningSump) {
-                    runningSump = buckets[i].weightExprp->cloneTreePure(false);
-                } else {
-                    runningSump = new AstAdd{fl, runningSump,
-                                             buckets[i].weightExprp->cloneTreePure(false)};
-                    runningSump->dtypeSetUInt64();
+            std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> cumSums;
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* runningSump = ਖਾਲੀ_ਸੂਚਕ;
+            ਲਈ (ਮਾਪ_t i = 0; i < buckets.ਮਾਪ(); ++i) {
+                ਜੇ (!runningSump) {
+                    runningSump = buckets[i].ਭਾਰ_Exprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                } ਨਹੀਂਤਾਂ {
+                    runningSump = ਨਵਾਂ Ast_ਜੋੜੋ{fl, runningSump,
+                                             buckets[i].ਭਾਰ_Exprp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ)};
+                    runningSump->dtype_ਸੈੱਟ_UInt64();
                 }
-                cumSums.push_back(runningSump->cloneTreePure(true));
+                cumSums.ਧੱਕੋ_ਪਿੱਠ(runningSump->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ));
             }
 
-            AstNode* chainp = buildWeightedBucketChain(distp, buckets, bucketVarp, cumSums);
+            Ast_ਗੰਢ* chainp = build_Weighted_ਬਾਲਟੀ_Chain(distp, buckets, ਬਾਲਟੀ_Varp, cumSums);
 
-            chainp = gateFrozenDist(chainp, distp, buckets, randModeVarp);
+            chainp = gateFrozenDist(chainp, distp, buckets, rand_ਬਹੁਲਕ_Varp);
 
             constrExprp->replaceWith(chainp);
-            VL_DO_DANGLING(pushDeletep(constrExprp), constrExprp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(constrExprp), constrExprp);
             // Hard membership precedes the soft bucket chain in the constraint list.
-            chainp->addHereThisAsNext(membershipp);
+            chainp->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(membershipp);
 
             // Clean up nodes used only as clone templates (never inserted into tree)
-            for (auto& bucket : buckets) {
-                VL_DO_DANGLING(pushDeletep(bucket.weightExprp), bucket.weightExprp);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& ਬਾਲਟੀ : buckets) {
+                VL_DO_DANGLING(ਧੱਕੋ_Deletep(ਬਾਲਟੀ.ਭਾਰ_Exprp), ਬਾਲਟੀ.ਭਾਰ_Exprp);
             }
-            VL_DO_DANGLING(pushDeletep(runningSump), runningSump);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(runningSump), runningSump);
             // Last cumSum is unused (last bucket is unconditional default)
-            pushDeletep(cumSums.back());
+            ਧੱਕੋ_Deletep(cumSums.ਪਿੱਠ());
         }
     }
 
-    static bool isDynArrOfClassTypeRecurse(const AstNodeDType* const dtypep) {
-        const AstNodeDType* const refp = dtypep->skipRefp();
-        if (VN_IS(refp, DynArrayDType) || VN_IS(refp, QueueDType)) {
-            return isDynArrOfClassTypeRecurse(refp->subDTypep());
-        } else if (VN_IS(refp, ClassRefDType)) {
-            return true;
+    ਸਥਿਰ ਤਾਰਕਿਕ is_Dyn_Arr_ਦਾ_Class_Type_Recurse(ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ dtypep) {
+        ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ refp = dtypep->skipRefp();
+        ਜੇ (VN_IS(refp, DynArrayDType) || VN_IS(refp, ਕਤਾਰ_DType)) {
+            ਵਾਪਸ is_Dyn_Arr_ਦਾ_Class_Type_Recurse(refp->subDTypep());
+        } ਨਹੀਂਤਾਂ ਜੇ (VN_IS(refp, ClassRefDType)) {
+            ਵਾਪਸ ਸੱਚ;
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
 
     // Add write_var calls for each array element after resizing it with array-size constraint
-    void addArrayElemRefresh(FileLine* const fl, AstVar* const arrVarp, AstFunc* const randomizep,
-                             AstVar* const genp) {
-        AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
+    ਖਾਲੀ ਜੋੜੋ_Array_Elem_Refresh(File_ਸਤਰ* ਅਚਲ fl, AstVar* ਅਚਲ arrVarp, AstFunc* ਅਚਲ randomizep,
+                             AstVar* ਅਚਲ genp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(genp->user2p(), ਗੰਢ_Module);
         // Array elements of class data type are passed to the solver as separate
         // variables, so passing the original array variable is redundant, because it
         // won't be referenced
-        const uint32_t unpackedDims = arrVarp->dtypep()->dimensions(false).second;
-        if (isDynArrOfClassTypeRecurse(arrVarp->dtypep())) {
-            if (unpackedDims > 1) {
+        ਅਚਲ uint32_t unpackedDims = arrVarp->dtypep()->dimensions(ਝੂਠ).ਦੂਜਾ;
+        ਜੇ (is_Dyn_Arr_ਦਾ_Class_Type_Recurse(arrVarp->dtypep())) {
+            ਜੇ (unpackedDims > 1) {
                 arrVarp->v3warn(E_UNSUPPORTED,
                                 "Unsupported: Nested array element access in global constraint");
             }
-            return;
+            ਵਾਪਸ;
         }
-        AstCMethodHard* const methodp
-            = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genp, VAccess::READWRITE},
+        AstCMethodHard* ਅਚਲ methodp
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, genModp, genp, VAccess::READWRITE},
                                  VCMethod::RANDOMIZER_WRITE_VAR};
-        methodp->dtypeSetVoid();
+        methodp->dtype_ਸੈੱਟ_Void();
 
-        AstNodeModule* const classp = VN_AS(arrVarp->user2p(), NodeModule);
-        AstVarRef* const varRefp = new AstVarRef{fl, classp, arrVarp, VAccess::WRITE};
+        Ast_ਗੰਢ_Module* ਅਚਲ classp = VN_AS(arrVarp->user2p(), ਗੰਢ_Module);
+        AstVarRef* ਅਚਲ varRefp = ਨਵਾਂ AstVarRef{fl, classp, arrVarp, VAccess::WRITE};
         varRefp->classOrPackagep(classp);
-        methodp->addPinsp(varRefp);
+        methodp->ਜੋੜੋ_Pinsp(varRefp);
 
-        const size_t width = arrayElementDTypep(arrVarp->dtypep())->width();
+        ਅਚਲ ਮਾਪ_t ਚੌੜਾਈ = arrayElementDTypep(arrVarp->dtypep())->ਚੌੜਾਈ();
 
-        methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, width});
-        AstNodeExpr* const varnamep
-            = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + arrVarp->name() + "\"", arrVarp->width()};
+        methodp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, ਚੌੜਾਈ});
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ varnamep
+            = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + arrVarp->name() + "\"", arrVarp->ਚੌੜਾਈ()};
         varnamep->dtypep(arrVarp->dtypep());
-        methodp->addPinsp(varnamep);
-        methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, unpackedDims});
-        const RandomizeMode rmode = {.asUQuad = arrVarp->user1()};
-        if (rmode.usesMode) {
-            methodp->addPinsp(new AstConst{fl, AstConst::Unsized64{}, rmode.index});
+        methodp->ਜੋੜੋ_Pinsp(varnamep);
+        methodp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, unpackedDims});
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = arrVarp->user1()};
+        ਜੇ (rmode.ਵਰਤਦਾ_ਬਹੁਲਕ) {
+            methodp->ਜੋੜੋ_Pinsp(ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, rmode.ਸੂਚਕਾਂਕ});
         }
 
-        randomizep->addStmtsp(methodp->makeStmt());
+        randomizep->ਜੋੜੋ_Stmtsp(methodp->makeStmt());
     }
 
-    AstNodeStmt* newPinSizeVariable(FileLine* const fl, AstVar* const arrVarp,
-                                    AstVar* const genp) {
-        AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
-        AstVar* const sizeVarp = VN_AS(arrVarp->user4p(), Var);
-        AstCMethodHard* const pinp
-            = new AstCMethodHard{fl, new AstVarRef{fl, genModp, genp, VAccess::READWRITE},
+    Ast_ਗੰਢ_Stmt* new_Pin_ਮਾਪ_Variable(File_ਸਤਰ* ਅਚਲ fl, AstVar* ਅਚਲ arrVarp,
+                                    AstVar* ਅਚਲ genp) {
+        Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(genp->user2p(), ਗੰਢ_Module);
+        AstVar* ਅਚਲ ਮਾਪ_Varp = VN_AS(arrVarp->user4p(), Var);
+        AstCMethodHard* ਅਚਲ pinp
+            = ਨਵਾਂ AstCMethodHard{fl, ਨਵਾਂ AstVarRef{fl, genModp, genp, VAccess::READWRITE},
                                  VCMethod::RANDOMIZER_PIN_VAR};
-        pinp->dtypeSetVoid();
-        AstCExpr* const namep = new AstCExpr{fl, AstCExpr::Pure{}, "\"" + sizeVarp->name() + "\""};
-        namep->dtypeSetUInt32();
-        pinp->addPinsp(namep);
-        pinp->addPinsp(
-            new AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(sizeVarp->width())});
+        pinp->dtype_ਸੈੱਟ_Void();
+        AstCExpr* ਅਚਲ namep = ਨਵਾਂ AstCExpr{fl, AstCExpr::ਸ਼ੁੱਧ{}, "\"" + ਮਾਪ_Varp->name() + "\""};
+        namep->dtype_ਸੈੱਟ_UInt32();
+        pinp->ਜੋੜੋ_Pinsp(namep);
+        pinp->ਜੋੜੋ_Pinsp(
+            ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, static_cast<uint64_t>(ਮਾਪ_Varp->ਚੌੜਾਈ())});
         // sizeVarp may live in a base class when the constrained array is inherited; route the
         // reference through its declaring class so V3Scope can resolve it.
-        AstVarRef* const sizeVarRefp = new AstVarRef{fl, sizeVarp, VAccess::READ};
-        sizeVarRefp->classOrPackagep(VN_AS(sizeVarp->user2p(), NodeModule));
-        pinp->addPinsp(sizeVarRefp);
-        return pinp->makeStmt();
+        AstVarRef* ਅਚਲ ਮਾਪ_Var_Refp = ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Varp, VAccess::READ};
+        ਮਾਪ_Var_Refp->classOrPackagep(VN_AS(ਮਾਪ_Varp->user2p(), ਗੰਢ_Module));
+        pinp->ਜੋੜੋ_Pinsp(ਮਾਪ_Var_Refp);
+        ਵਾਪਸ pinp->makeStmt();
     }
 
-    void addFrozenSizePin(FileLine* const fl, AstVar* const arrVarp, AstFunc* const randomizep,
-                          AstVar* const genp, AstVar* const randModeVarp) {
-        const RandomizeMode rmode = {.asUQuad = arrVarp->user1()};
-        if (!rmode.usesMode) return;
-        AstVar* const sizeVarp = VN_AS(arrVarp->user4p(), Var);
-        AstNodeModule* const arrClassp = VN_AS(arrVarp->user2p(), NodeModule);
-        AstNodeModule* const sizeClassp = VN_AS(sizeVarp->user2p(), NodeModule);
-        AstVarRef* const sizeWritep = new AstVarRef{fl, sizeClassp, sizeVarp, VAccess::WRITE};
-        const VCMethod sizeMethod = VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)
-                                        ? VCMethod::ASSOC_SIZE
-                                        : VCMethod::DYN_SIZE;
-        AstCMethodHard* const currentSizep = new AstCMethodHard{
-            fl, new AstVarRef{fl, arrClassp, arrVarp, VAccess::READ}, sizeMethod};
-        currentSizep->dtypep(sizeVarp->dtypep());
-        randomizep->addStmtsp(new AstAssign{fl, sizeWritep, currentSizep});
-        AstNodeExpr* const modep = newModeBitRead(arrVarp, nullptr, randModeVarp, fl);
-        randomizep->addStmtsp(
-            new AstIf{fl, new AstLogNot{fl, modep}, newPinSizeVariable(fl, arrVarp, genp)});
+    ਖਾਲੀ ਜੋੜੋ_Frozen_ਮਾਪ_Pin(File_ਸਤਰ* ਅਚਲ fl, AstVar* ਅਚਲ arrVarp, AstFunc* ਅਚਲ randomizep,
+                          AstVar* ਅਚਲ genp, AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp) {
+        ਅਚਲ Randomize_ਬਹੁਲਕ rmode = {.asUQuad = arrVarp->user1()};
+        ਜੇ (!rmode.ਵਰਤਦਾ_ਬਹੁਲਕ) ਵਾਪਸ;
+        AstVar* ਅਚਲ ਮਾਪ_Varp = VN_AS(arrVarp->user4p(), Var);
+        Ast_ਗੰਢ_Module* ਅਚਲ arrClassp = VN_AS(arrVarp->user2p(), ਗੰਢ_Module);
+        Ast_ਗੰਢ_Module* ਅਚਲ ਮਾਪ_Classp = VN_AS(ਮਾਪ_Varp->user2p(), ਗੰਢ_Module);
+        AstVarRef* ਅਚਲ ਮਾਪ_Writep = ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Classp, ਮਾਪ_Varp, VAccess::WRITE};
+        ਅਚਲ VCMethod ਮਾਪ_ਵਿਧੀ = VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)
+                                        ? VCMethod::ASSOC_ਮਾਪ
+                                        : VCMethod::DYN_ਮਾਪ;
+        AstCMethodHard* ਅਚਲ currentSizep = ਨਵਾਂ AstCMethodHard{
+            fl, ਨਵਾਂ AstVarRef{fl, arrClassp, arrVarp, VAccess::READ}, ਮਾਪ_ਵਿਧੀ};
+        currentSizep->dtypep(ਮਾਪ_Varp->dtypep());
+        randomizep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਮਾਪ_Writep, currentSizep});
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ modep = new_ਬਹੁਲਕ_ਦੋਆਧਾਰੀ_ਅੰਕ_Read(arrVarp, ਖਾਲੀ_ਸੂਚਕ, rand_ਬਹੁਲਕ_Varp, fl);
+        randomizep->ਜੋੜੋ_Stmtsp(
+            ਨਵਾਂ AstIf{fl, ਨਵਾਂ AstLogNot{fl, modep}, new_Pin_ਮਾਪ_Variable(fl, arrVarp, genp)});
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Module* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_randCaseNum);
-        VL_RESTORER_COPY(m_randArrayUniqueNames);
+        VL_RESTORER(m_rand_Case_ਅੰਕ);
+        VL_RESTORER_COPY(m_rand_Array_Unique_ਨਾਂ);
         m_modp = nodep;
-        m_randCaseNum = 0;
-        m_randArrayUniqueNames.reset();
+        m_rand_Case_ਅੰਕ = 0;
+        m_rand_Array_Unique_ਨਾਂ.reset();
         iterateChildren(nodep);
     }
-    void visit(AstNodeFTask* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask* nodep) override {
         VL_RESTORER(m_ftaskp);
         m_ftaskp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstClass* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstClass* nodep) override {
         VL_RESTORER(m_modp);
-        VL_RESTORER(m_randCaseNum);
-        VL_RESTORER(m_distNum);
+        VL_RESTORER(m_rand_Case_ਅੰਕ);
+        VL_RESTORER(m_dist_ਅੰਕ);
         m_modp = nodep;
-        m_randCaseNum = 0;
-        m_distNum = 0;
+        m_rand_Case_ਅੰਕ = 0;
+        m_dist_ਅੰਕ = 0;
         m_writtenVars.clear();  // Each class has its own set of written variables
 
         iterateChildren(nodep);
-        if (!nodep->user1()) return;  // Doesn't need randomize, or already processed
+        ਜੇ (!nodep->user1()) ਵਾਪਸ;  // Doesn't need randomize, or already processed
         UINFO(9, "Define randomize() for " << nodep);
-        nodep->baseMostClassp()->needRNG(true);
+        nodep->ਅਧਾਰ_Most_Classp()->needRNG(ਸੱਚ);
 
         // Detect global-constraint ownership BEFORE the constraint items are
         // unlinked into setup tasks below (after that the member-selects are gone).
-        const bool basicFirst = classOwnsGlobalConstraint(nodep);
+        ਅਚਲ ਤਾਰਕਿਕ basic_ਪਹਿਲਾ = classOwnsGlobalConstraint(nodep);
 
-        FileLine* const fl = nodep->fileline();
-        AstFunc* const randomizep = V3Randomize::newRandomizeFunc(m_memberMap, nodep);
-        AstVar* const fvarp = VN_AS(randomizep->fvarp(), Var);
-        AstVar* const randModeVarp = getRandModeVarFromClass(nodep);
-        addPrePostCall(nodep, randomizep, "pre_randomize");
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        AstFunc* ਅਚਲ randomizep = V3Randomize::newRandomizeFunc(m_memberMap, nodep);
+        AstVar* ਅਚਲ fvarp = VN_AS(randomizep->fvarp(), Var);
+        AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = get_Rand_ਬਹੁਲਕ_Var_From_Class(nodep);
+        ਜੋੜੋ_Pre_Post_Call(nodep, randomizep, "pre_randomize");
 
         // Call nested pre_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(nodep)) {
-            AstTask* const preTaskp = getCreateNestedCallbackTask(nodep, "pre");
+        ਜੇ (classHasRandClassMembers(nodep)) {
+            AstTask* ਅਚਲ preTaskp = getCreateNestedCallbackTask(nodep, "pre");
             populateNestedCallbackTask(preTaskp, nodep, "pre_randomize");
-            randomizep->addStmtsp((new AstTaskRef{fl, preTaskp})->makeStmt());
+            randomizep->ਜੋੜੋ_Stmtsp((ਨਵਾਂ AstTaskRef{fl, preTaskp})->makeStmt());
         }
 
         // Both IS_RANDOMIZED and IS_RANDOMIZED_GLOBAL classes need full constraint support
         // IS_RANDOMIZED_GLOBAL classes can be randomized independently
-        AstNodeExpr* beginValp = nullptr;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* beginValp = ਖਾਲੀ_ਸੂਚਕ;
         AstVar* genp = getRandomGenerator(nodep);
-        if (genp) {
+        ਜੇ (genp) {
             // Phase 1: Process all constraints (create tasks, run ConstraintExprVisitor)
             // Setup task refs are NOT added to setupAllTaskp here -- done in phase 2
-            AstTask* const prepareArraysTaskp = createPrepareConstrainedArraysTask(nodep);
-            nodep->foreachMember([&](AstClass* const classp, AstConstraint* const constrp) {
+            AstTask* ਅਚਲ prepareArraysTaskp = createPrepareConstrainedArraysTask(nodep);
+            nodep->foreachMember([&](AstClass* ਅਚਲ classp, AstConstraint* ਅਚਲ constrp) {
                 AstTask* taskp = VN_AS(constrp->user2p(), Task);
-                if (!taskp) {
-                    taskp = newSetupConstraintTask(classp, constrp->name());
+                ਜੇ (!taskp) {
+                    taskp = new_ਤਿਆਰੀ_Constraint_Task(classp, constrp->name());
                     constrp->user2p(taskp);
                 }
 
-                if (AstTask* const resizeTaskp = VN_CAST(constrp->user3p(), Task)) {
-                    AstTask* const resizeAllTaskp = getCreateAggrResizeTask(nodep);
-                    AstTaskRef* const resizeTaskRefp
-                        = new AstTaskRef{constrp->fileline(), resizeTaskp};
+                ਜੇ (AstTask* ਅਚਲ resizeTaskp = VN_CAST(constrp->user3p(), Task)) {
+                    AstTask* ਅਚਲ resizeAllTaskp = getCreateAggrResizeTask(nodep);
+                    AstTaskRef* ਅਚਲ resizeTaskRefp
+                        = ਨਵਾਂ AstTaskRef{constrp->fileline(), resizeTaskp};
                     resizeTaskRefp->classOrPackagep(classp);
-                    resizeAllTaskp->addStmtsp(resizeTaskRefp->makeStmt());
+                    resizeAllTaskp->ਜੋੜੋ_Stmtsp(resizeTaskRefp->makeStmt());
                 }
 
-                if (constrp->itemsp()) expandUniqueElementList(constrp->itemsp());
-                if (constrp->itemsp()) {
-                    lowerDistConstraints(taskp, constrp->itemsp(), randModeVarp);
+                ਜੇ (constrp->itemsp()) expandUniqueElementList(constrp->itemsp());
+                ਜੇ (constrp->itemsp()) {
+                    ਹੇਠਲਾ_Dist_Constraints(taskp, constrp->itemsp(), rand_ਬਹੁਲਕ_Varp);
                 }
-                VInsertionSet<AstVar*>& sizeArrays = m_sizeConstrainedArrays[classp];
-                ConstraintExprVisitor{
-                    classp,        m_memberMap,  constrp->itemsp(), nullptr,
-                    genp,          randModeVarp, m_writtenVars,     &m_uniqueConstraintId,
-                    m_uniqueNames, randomizep,   &sizeArrays,       prepareArraysTaskp};
-                if (constrp->itemsp()) {
-                    taskp->addStmtsp(wrapIfConstraintMode(
-                        nodep, constrp, constrp->itemsp()->unlinkFrBackWithNext()));
+                VInsertion_ਸੈੱਟ<AstVar*>& ਮਾਪ_Arrays = m_ਮਾਪ_Constrained_Arrays[classp];
+                Constraint_ਵਿਅੰਜਕ_Visitor{
+                    classp,        m_memberMap,  constrp->itemsp(), ਖਾਲੀ_ਸੂਚਕ,
+                    genp,          rand_ਬਹੁਲਕ_Varp, m_writtenVars,     &m_uniqueConstraintId,
+                    m_unique_ਨਾਂ, randomizep,   &ਮਾਪ_Arrays,       prepareArraysTaskp};
+                ਜੇ (constrp->itemsp()) {
+                    taskp->ਜੋੜੋ_Stmtsp(wrap_If_Constraint_ਬਹੁਲਕ(
+                        nodep, constrp, constrp->itemsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ()));
                 }
             });
 
@@ -6148,221 +6148,221 @@ class RandomizeVisitor final : public VNVisitor {
             // Ensures outer-scope soft constraints override inner-scope (IEEE 18.5.13)
             {
                 // Count nesting depth by GLOBAL_CONSTRAINT_SEPARATOR occurrences
-                const auto constraintDepth = [](const AstConstraint* constrp) {
-                    int depth = 0;
-                    size_t pos = 0;
-                    while ((pos = constrp->name().find(GLOBAL_CONSTRAINT_SEPARATOR, pos))
+                ਅਚਲ ਸਵੈਚਾਲਿਤ constraint_ਡੂੰਘਾਈ = [](ਅਚਲ AstConstraint* constrp) {
+                    ਪੂਰਨ ਡੂੰਘਾਈ = 0;
+                    ਮਾਪ_t pos = 0;
+                    ਜਦੋਂ ((pos = constrp->name().ਲੱਭੋ(GLOBAL_CONSTRAINT_SEPARATOR, pos))
                            != std::string::npos) {
-                        ++depth;
-                        pos += std::strlen(GLOBAL_CONSTRAINT_SEPARATOR);
+                        ++ਡੂੰਘਾਈ;
+                        pos += std::ਲੜੀ_ਲੰਬਾਈ(GLOBAL_CONSTRAINT_SEPARATOR);
                     }
-                    return depth;
+                    ਵਾਪਸ ਡੂੰਘਾਈ;
                 };
-                int maxDepth = 0;
-                nodep->foreachMember([&](AstClass* const, AstConstraint* const constrp) {
-                    maxDepth = std::max(maxDepth, constraintDepth(constrp));
+                ਪੂਰਨ max_ਡੂੰਘਾਈ = 0;
+                nodep->foreachMember([&](AstClass* ਅਚਲ, AstConstraint* ਅਚਲ constrp) {
+                    max_ਡੂੰਘਾਈ = std::max(max_ਡੂੰਘਾਈ, constraint_ਡੂੰਘਾਈ(constrp));
                 });
-                AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(nodep, m_memberMap);
-                for (int d = maxDepth; d >= 0; --d) {
+                AstTask* ਅਚਲ ਤਿਆਰੀ_All_Taskp = get_Create_Constraint_ਤਿਆਰੀ_Func(nodep, m_memberMap);
+                ਲਈ (ਪੂਰਨ d = max_ਡੂੰਘਾਈ; d >= 0; --d) {
                     nodep->foreachMember(
-                        [&](AstClass* const classp, AstConstraint* const constrp) {
-                            if (constraintDepth(constrp) != d) return;
-                            AstTask* const taskp = VN_AS(constrp->user2p(), Task);
-                            AstTaskRef* const setupTaskRefp
-                                = new AstTaskRef{constrp->fileline(), taskp};
-                            setupTaskRefp->classOrPackagep(classp);
-                            setupAllTaskp->addStmtsp(setupTaskRefp->makeStmt());
+                        [&](AstClass* ਅਚਲ classp, AstConstraint* ਅਚਲ constrp) {
+                            ਜੇ (constraint_ਡੂੰਘਾਈ(constrp) != d) ਵਾਪਸ;
+                            AstTask* ਅਚਲ taskp = VN_AS(constrp->user2p(), Task);
+                            AstTaskRef* ਅਚਲ ਤਿਆਰੀ_Task_Refp
+                                = ਨਵਾਂ AstTaskRef{constrp->fileline(), taskp};
+                            ਤਿਆਰੀ_Task_Refp->classOrPackagep(classp);
+                            ਤਿਆਰੀ_All_Taskp->ਜੋੜੋ_Stmtsp(ਤਿਆਰੀ_Task_Refp->makeStmt());
                         });
                 }
             }
             // For derived classes: clone write_var calls from parent's randomize()
             // and save every array that has is size-constrained array to generate
             // array element refresh later
-            VInsertionSet<AstVar*> sizeArrayVars;
-            if (nodep->extendsp()) {
-                AstClass* parentClassp = nodep->extendsp()->classp();
-                while (parentClassp) {
-                    const auto sizeArraysIt = m_sizeConstrainedArrays.find(parentClassp);
-                    if (sizeArraysIt != m_sizeConstrainedArrays.end()) {
-                        for (AstVar* const arrVarp : sizeArraysIt->second) {
-                            sizeArrayVars.insert(arrVarp);
+            VInsertion_ਸੈੱਟ<AstVar*> ਮਾਪ_Array_Vars;
+            ਜੇ (nodep->extendsp()) {
+                AstClass* ਮਾਪਾ_Classp = nodep->extendsp()->classp();
+                ਜਦੋਂ (ਮਾਪਾ_Classp) {
+                    ਅਚਲ ਸਵੈਚਾਲਿਤ ਮਾਪ_Arrays_It = m_ਮਾਪ_Constrained_Arrays.ਲੱਭੋ(ਮਾਪਾ_Classp);
+                    ਜੇ (ਮਾਪ_Arrays_It != m_ਮਾਪ_Constrained_Arrays.ਸਿਰਾ()) {
+                        ਲਈ (AstVar* ਅਚਲ arrVarp : ਮਾਪ_Arrays_It->ਦੂਜਾ) {
+                            ਮਾਪ_Array_Vars.ਪਾਓ(arrVarp);
                         }
                     }
-                    AstFunc* const parentRandomizep
-                        = VN_CAST(m_memberMap.findMember(parentClassp, "randomize"), Func);
-                    if (parentRandomizep && parentRandomizep->stmtsp()) {
+                    AstFunc* ਅਚਲ ਮਾਪਾ_Randomizep
+                        = VN_CAST(m_memberMap.ਲੱਭੋ_Member(ਮਾਪਾ_Classp, "randomize"), Func);
+                    ਜੇ (ਮਾਪਾ_Randomizep && ਮਾਪਾ_Randomizep->stmtsp()) {
                         // Clone write_var statements from parent (stop at clearConstraints)
-                        for (AstNode* stmtp = parentRandomizep->stmtsp(); stmtp;
+                        ਲਈ (Ast_ਗੰਢ* stmtp = ਮਾਪਾ_Randomizep->stmtsp(); stmtp;
                              stmtp = stmtp->nextp()) {
-                            bool foundClearConstraints = false;
+                            ਤਾਰਕਿਕ ਮਿਲਿਆ_Clear_Constraints = ਝੂਠ;
                             stmtp->foreach([&](AstCMethodHard* methodp) {
-                                if (methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR
-                                    || methodp->method() == VCMethod::RANDOMIZER_MARK_RANDC) {
-                                    randomizep->addStmtsp(stmtp->cloneTree(false));
-                                } else if (methodp->method()
+                                ਜੇ (methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_WRITE_VAR
+                                    || methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_MARK_RANDC) {
+                                    randomizep->ਜੋੜੋ_Stmtsp(stmtp->clone_ਰੁੱਖ(ਝੂਠ));
+                                } ਨਹੀਂਤਾਂ ਜੇ (methodp->ਵਿਧੀ()
                                            == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
-                                    foundClearConstraints = true;
+                                    ਮਿਲਿਆ_Clear_Constraints = ਸੱਚ;
                                 }
                             });
-                            if (foundClearConstraints) break;
+                            ਜੇ (ਮਿਲਿਆ_Clear_Constraints) ਰੋਕੋ;
                         }
                     }
-                    parentClassp
-                        = parentClassp->extendsp() ? parentClassp->extendsp()->classp() : nullptr;
+                    ਮਾਪਾ_Classp
+                        = ਮਾਪਾ_Classp->extendsp() ? ਮਾਪਾ_Classp->extendsp()->classp() : ਖਾਲੀ_ਸੂਚਕ;
                 }
             }
-            randomizep->addStmtsp(implementConstraintsClear(fl, genp));
+            randomizep->ਜੋੜੋ_Stmtsp(implementConstraintsClear(fl, genp));
 
-            const auto sizeArraysIt = m_sizeConstrainedArrays.find(nodep);
-            if (sizeArraysIt != m_sizeConstrainedArrays.end()) {
-                for (AstVar* const arrVarp : sizeArraysIt->second) sizeArrayVars.insert(arrVarp);
+            ਅਚਲ ਸਵੈਚਾਲਿਤ ਮਾਪ_Arrays_It = m_ਮਾਪ_Constrained_Arrays.ਲੱਭੋ(nodep);
+            ਜੇ (ਮਾਪ_Arrays_It != m_ਮਾਪ_Constrained_Arrays.ਸਿਰਾ()) {
+                ਲਈ (AstVar* ਅਚਲ arrVarp : ਮਾਪ_Arrays_It->ਦੂਜਾ) ਮਾਪ_Array_Vars.ਪਾਓ(arrVarp);
             }
-            AstTask* const setupAllTaskp = getCreateConstraintSetupFunc(nodep, m_memberMap);
-            if (!sizeArrayVars.empty() && prepareArraysTaskp->stmtsp()) {
-                AstNodeStmt* const preparep = (new AstTaskRef{fl, prepareArraysTaskp})->makeStmt();
+            AstTask* ਅਚਲ ਤਿਆਰੀ_All_Taskp = get_Create_Constraint_ਤਿਆਰੀ_Func(nodep, m_memberMap);
+            ਜੇ (!ਮਾਪ_Array_Vars.ਖਾਲੀ_ਥਾਵਾਂ() && prepareArraysTaskp->stmtsp()) {
+                Ast_ਗੰਢ_Stmt* ਅਚਲ preparep = (ਨਵਾਂ AstTaskRef{fl, prepareArraysTaskp})->makeStmt();
                 // A size-constrained array always has a preceding write_var registration.
-                for (AstNode* stmtp = randomizep->stmtsp(); stmtp;  // LCOV_EXCL_BR_LINE
+                ਲਈ (Ast_ਗੰਢ* stmtp = randomizep->stmtsp(); stmtp;  // LCOV_EXCL_BR_LINE
                      stmtp = stmtp->nextp()) {
-                    bool writesArray = false;
+                    ਤਾਰਕਿਕ writesArray = ਝੂਠ;
                     stmtp->foreach([&](AstCMethodHard* methodp) {
-                        writesArray |= methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR;
+                        writesArray |= methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_WRITE_VAR;
                     });
-                    if (!writesArray) continue;
-                    stmtp->addHereThisAsNext(preparep);
-                    break;
+                    ਜੇ (!writesArray) ਜਾਰੀ;
+                    stmtp->ਜੋੜੋ_ਇੱਥੇ_This_As_ਅਗਲਾ(preparep);
+                    ਰੋਕੋ;
                 }
             }
-            AstTaskRef* const setupTaskRefp = new AstTaskRef{fl, setupAllTaskp};
-            randomizep->addStmtsp(setupTaskRefp->makeStmt());
+            AstTaskRef* ਅਚਲ ਤਿਆਰੀ_Task_Refp = ਨਵਾਂ AstTaskRef{fl, ਤਿਆਰੀ_All_Taskp};
+            randomizep->ਜੋੜੋ_Stmtsp(ਤਿਆਰੀ_Task_Refp->makeStmt());
 
-            AstNodeModule* const genModp = VN_AS(genp->user2p(), NodeModule);
+            Ast_ਗੰਢ_Module* ਅਚਲ genModp = VN_AS(genp->user2p(), ਗੰਢ_Module);
 
-            AstCExpr* const solverCallp = new AstCExpr{fl};
-            solverCallp->dtypeSetBit();
-            solverCallp->add(new AstVarRef{fl, genModp, genp, VAccess::READWRITE});
-            solverCallp->add(".next(__Vm_rng)");
-            if (!sizeArrayVars.empty()) {
-                AstVar* const sizeOkVarp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vsize_ok",
-                                                      nodep->findBasicDType(VBasicDTypeKwd::BIT)};
-                sizeOkVarp->funcLocal(true);
-                randomizep->addStmtsp(sizeOkVarp);
+            AstCExpr* ਅਚਲ solverCallp = ਨਵਾਂ AstCExpr{fl};
+            solverCallp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+            solverCallp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, genModp, genp, VAccess::READWRITE});
+            solverCallp->ਜੋੜੋ(".next(__Vm_rng)");
+            ਜੇ (!ਮਾਪ_Array_Vars.ਖਾਲੀ_ਥਾਵਾਂ()) {
+                AstVar* ਅਚਲ ਮਾਪ_Ok_Varp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "__Vsize_ok",
+                                                      nodep->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::ਦੋਆਧਾਰੀ_ਅੰਕ)};
+                ਮਾਪ_Ok_Varp->funcLocal(ਸੱਚ);
+                randomizep->ਜੋੜੋ_Stmtsp(ਮਾਪ_Ok_Varp);
 
-                AstVar* const finalOkVarp = new AstVar{fl, VVarType::BLOCKTEMP, "__Vfinal_ok",
-                                                       nodep->findBasicDType(VBasicDTypeKwd::BIT)};
-                finalOkVarp->funcLocal(true);
-                randomizep->addStmtsp(finalOkVarp);
+                AstVar* ਅਚਲ finalOkVarp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, "__Vfinal_ok",
+                                                       nodep->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::ਦੋਆਧਾਰੀ_ਅੰਕ)};
+                finalOkVarp->funcLocal(ਸੱਚ);
+                randomizep->ਜੋੜੋ_Stmtsp(finalOkVarp);
 
                 // A disabled array keeps its current size. Pin its size proxy before solving so
                 // an incompatible size constraint fails instead of resizing the frozen array.
-                for (AstVar* const arrVarp : sizeArrayVars)
-                    addFrozenSizePin(fl, arrVarp, randomizep, genp, randModeVarp);
+                ਲਈ (AstVar* ਅਚਲ arrVarp : ਮਾਪ_Array_Vars)
+                    ਜੋੜੋ_Frozen_ਮਾਪ_Pin(fl, arrVarp, randomizep, genp, rand_ਬਹੁਲਕ_Varp);
 
                 // First pass: solve size variables (and other constraints) to determine sizes
-                randomizep->addStmtsp(
-                    new AstAssign{fl, new AstVarRef{fl, sizeOkVarp, VAccess::WRITE}, solverCallp});
+                randomizep->ਜੋੜੋ_Stmtsp(
+                    ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Ok_Varp, VAccess::WRITE}, solverCallp});
 
                 // Resize constrained arrays before rebuilding constraints
-                if (AstTask* const resizeAllTaskp
-                    = VN_AS(m_memberMap.findMember(nodep, "__Vresize_constrained_arrays"), Task)) {
-                    AstTaskRef* const resizeTaskRefp = new AstTaskRef{fl, resizeAllTaskp};
-                    AstIf* const ifp = new AstIf{fl, new AstVarRef{fl, sizeOkVarp, VAccess::READ},
-                                                 resizeTaskRefp->makeStmt(), nullptr};
-                    randomizep->addStmtsp(ifp);
+                ਜੇ (AstTask* ਅਚਲ resizeAllTaskp
+                    = VN_AS(m_memberMap.ਲੱਭੋ_Member(nodep, "__Vresize_constrained_arrays"), Task)) {
+                    AstTaskRef* ਅਚਲ resizeTaskRefp = ਨਵਾਂ AstTaskRef{fl, resizeAllTaskp};
+                    AstIf* ਅਚਲ ifp = ਨਵਾਂ AstIf{fl, ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Ok_Varp, VAccess::READ},
+                                                 resizeTaskRefp->makeStmt(), ਖਾਲੀ_ਸੂਚਕ};
+                    randomizep->ਜੋੜੋ_Stmtsp(ifp);
                 }
 
                 // Refresh array element tables after resize
-                for (const auto& arrVarp : sizeArrayVars) {
-                    addArrayElemRefresh(fl, arrVarp, randomizep, genp);
+                ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& arrVarp : ਮਾਪ_Array_Vars) {
+                    ਜੋੜੋ_Array_Elem_Refresh(fl, arrVarp, randomizep, genp);
                 }
 
                 // Rebuild constraints after resize and pin size variables
-                randomizep->addStmtsp(implementConstraintsClear(fl, genp));
-                AstTaskRef* const setupTaskRefp2 = new AstTaskRef{fl, setupAllTaskp};
-                randomizep->addStmtsp(setupTaskRefp2->makeStmt());
+                randomizep->ਜੋੜੋ_Stmtsp(implementConstraintsClear(fl, genp));
+                AstTaskRef* ਅਚਲ ਤਿਆਰੀ_Task_Refp2 = ਨਵਾਂ AstTaskRef{fl, ਤਿਆਰੀ_All_Taskp};
+                randomizep->ਜੋੜੋ_Stmtsp(ਤਿਆਰੀ_Task_Refp2->makeStmt());
 
-                for (AstVar* const arrVarp : sizeArrayVars) {
-                    randomizep->addStmtsp(newPinSizeVariable(fl, arrVarp, genp));
+                ਲਈ (AstVar* ਅਚਲ arrVarp : ਮਾਪ_Array_Vars) {
+                    randomizep->ਜੋੜੋ_Stmtsp(new_Pin_ਮਾਪ_Variable(fl, arrVarp, genp));
                 }
 
                 // Final pass: solve full constraints with sizes pinned
-                AstCExpr* const solverCallp2 = new AstCExpr{fl};
-                solverCallp2->dtypeSetBit();
-                solverCallp2->add(new AstVarRef{fl, genModp, genp, VAccess::READWRITE});
-                solverCallp2->add(".next(__Vm_rng)");
-                randomizep->addStmtsp(new AstAssign{
-                    fl, new AstVarRef{fl, finalOkVarp, VAccess::WRITE}, solverCallp2});
+                AstCExpr* ਅਚਲ solverCallp2 = ਨਵਾਂ AstCExpr{fl};
+                solverCallp2->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+                solverCallp2->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, genModp, genp, VAccess::READWRITE});
+                solverCallp2->ਜੋੜੋ(".next(__Vm_rng)");
+                randomizep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                    fl, ਨਵਾਂ AstVarRef{fl, finalOkVarp, VAccess::WRITE}, solverCallp2});
 
-                beginValp = new AstAnd{fl, new AstVarRef{fl, sizeOkVarp, VAccess::READ},
-                                       new AstVarRef{fl, finalOkVarp, VAccess::READ}};
-            } else {
+                beginValp = ਨਵਾਂ AstAnd{fl, ਨਵਾਂ AstVarRef{fl, ਮਾਪ_Ok_Varp, VAccess::READ},
+                                       ਨਵਾਂ AstVarRef{fl, finalOkVarp, VAccess::READ}};
+            } ਨਹੀਂਤਾਂ {
                 beginValp = solverCallp;
             }
-            if (randModeVarp) {
-                AstNodeModule* const randModeClassp = VN_AS(randModeVarp->user2p(), Class);
-                AstNodeFTask* const newp
-                    = VN_AS(m_memberMap.findMember(randModeClassp, "new"), NodeFTask);
-                UASSERT_OBJ(newp, randModeClassp, "No new() in class");
-                addSetRandMode(newp, genp, randModeVarp);
+            ਜੇ (rand_ਬਹੁਲਕ_Varp) {
+                Ast_ਗੰਢ_Module* ਅਚਲ rand_ਬਹੁਲਕ_Classp = VN_AS(rand_ਬਹੁਲਕ_Varp->user2p(), Class);
+                Ast_ਗੰਢ_FTask* ਅਚਲ newp
+                    = VN_AS(m_memberMap.ਲੱਭੋ_Member(rand_ਬਹੁਲਕ_Classp, "new"), ਗੰਢ_FTask);
+                UASSERT_OBJ(newp, rand_ਬਹੁਲਕ_Classp, "No new() in class");
+                ਜੋੜੋ_ਸੈੱਟ_Rand_ਬਹੁਲਕ(newp, genp, rand_ਬਹੁਲਕ_Varp);
             }
-            if (AstVar* const staticRandModeVarp = getStaticRandModeVar(nodep)) {
+            ਜੇ (AstVar* ਅਚਲ static_Rand_ਬਹੁਲਕ_Varp = get_Static_Rand_ਬਹੁਲਕ_Var(nodep)) {
                 // Wire the shared static rand_mode queue into the class generator.
-                AstNodeFTask* const newp = VN_AS(m_memberMap.findMember(nodep, "new"), NodeFTask);
+                Ast_ਗੰਢ_FTask* ਅਚਲ newp = VN_AS(m_memberMap.ਲੱਭੋ_Member(nodep, "new"), ਗੰਢ_FTask);
                 UASSERT_OBJ(newp, nodep, "No new() in class");
-                addSetStaticRandMode(newp, genp, staticRandModeVarp);
+                ਜੋੜੋ_ਸੈੱਟ_Static_Rand_ਬਹੁਲਕ(newp, genp, static_Rand_ਬਹੁਲਕ_Varp);
             }
-        } else {
-            beginValp = new AstConst{fl, AstConst::WidthedValue{}, 32, 1};
+        } ਨਹੀਂਤਾਂ {
+            beginValp = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, 32, 1};
         }
 
-        addUpdateRandVarsBody(nodep, randomizep);
+        ਜੋੜੋ_Update_Rand_Vars_Body(nodep, randomizep);
 
-        AstFunc* const basicRandomizep
+        AstFunc* ਅਚਲ basicRandomizep
             = V3Randomize::newRandomizeFunc(m_memberMap, nodep, BASIC_RANDOMIZE_FUNC_NAME);
-        addBasicRandomizeBody(basicRandomizep, nodep, randModeVarp);
+        ਜੋੜੋ_Basic_Randomize_Body(basicRandomizep, nodep, rand_ਬਹੁਲਕ_Varp);
         // A basicFirst owner basic-randomizes first, then the solver overrides the
         // constrained leaves, so a globally-constrained leaf (not user3) is still
         // basic-randomized when its type is randomized standalone.
-        AstVarRef* const fvarRefp = new AstVarRef{fl, fvarp, VAccess::WRITE};
-        randomizep->addStmtsp(new AstAssign{
-            fl, fvarRefp, basicFirst ? new AstFuncRef{fl, basicRandomizep} : beginValp});
+        AstVarRef* ਅਚਲ fvarRefp = ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::WRITE};
+        randomizep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+            fl, fvarRefp, basic_ਪਹਿਲਾ ? ਨਵਾਂ AstFuncRef{fl, basicRandomizep} : beginValp});
 
-        const auto sizeArraysIt = m_sizeConstrainedArrays.find(nodep);
-        const bool needsSizePhase
-            = sizeArraysIt != m_sizeConstrainedArrays.end() && !sizeArraysIt->second.empty();
+        ਅਚਲ ਸਵੈਚਾਲਿਤ ਮਾਪ_Arrays_It = m_ਮਾਪ_Constrained_Arrays.ਲੱਭੋ(nodep);
+        ਅਚਲ ਤਾਰਕਿਕ needs_ਮਾਪ_Phase
+            = ਮਾਪ_Arrays_It != m_ਮਾਪ_Constrained_Arrays.ਸਿਰਾ() && !ਮਾਪ_Arrays_It->ਦੂਜਾ.ਖਾਲੀ_ਥਾਵਾਂ();
         // Size-only resize fallback (no element constraint, so no two-pass phase).
         // Must run after the solver .next() that sets the size variable; emit it
         // after whichever assignment below holds the solver call.
-        const auto emitResizeFallback = [&]() {
-            if (needsSizePhase) return;
-            if (AstTask* const resizeAllTaskp
-                = VN_AS(m_memberMap.findMember(nodep, "__Vresize_constrained_arrays"), Task)) {
-                AstTaskRef* const resizeTaskRefp = new AstTaskRef{fl, resizeAllTaskp};
-                randomizep->addStmtsp(resizeTaskRefp->makeStmt());
+        ਅਚਲ ਸਵੈਚਾਲਿਤ emitResizeFallback = [&]() {
+            ਜੇ (needs_ਮਾਪ_Phase) ਵਾਪਸ;
+            ਜੇ (AstTask* ਅਚਲ resizeAllTaskp
+                = VN_AS(m_memberMap.ਲੱਭੋ_Member(nodep, "__Vresize_constrained_arrays"), Task)) {
+                AstTaskRef* ਅਚਲ resizeTaskRefp = ਨਵਾਂ AstTaskRef{fl, resizeAllTaskp};
+                randomizep->ਜੋੜੋ_Stmtsp(resizeTaskRefp->makeStmt());
             }
         };
-        if (!basicFirst) emitResizeFallback();
+        ਜੇ (!basic_ਪਹਿਲਾ) emitResizeFallback();
 
-        AstVarRef* const fvarRefReadp = fvarRefp->cloneTree(false);
+        AstVarRef* ਅਚਲ fvarRefReadp = fvarRefp->clone_ਰੁੱਖ(ਝੂਠ);
         fvarRefReadp->access(VAccess::READ);
 
-        AstNodeExpr* const secondHalfp
-            = basicFirst ? beginValp : new AstFuncRef{fl, basicRandomizep};
-        randomizep->addStmtsp(new AstAssign{fl, fvarRefp->cloneTree(false),
-                                            new AstAnd{fl, fvarRefReadp, secondHalfp}});
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਦੂਜਾ_Halfp
+            = basic_ਪਹਿਲਾ ? beginValp : ਨਵਾਂ AstFuncRef{fl, basicRandomizep};
+        randomizep->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, fvarRefp->clone_ਰੁੱਖ(ਝੂਠ),
+                                            ਨਵਾਂ AstAnd{fl, fvarRefReadp, ਦੂਜਾ_Halfp}});
 
-        if (basicFirst) emitResizeFallback();
+        ਜੇ (basic_ਪਹਿਲਾ) emitResizeFallback();
 
         // Call nested post_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(nodep)) {
-            AstTask* const postTaskp = getCreateNestedCallbackTask(nodep, "post");
+        ਜੇ (classHasRandClassMembers(nodep)) {
+            AstTask* ਅਚਲ postTaskp = getCreateNestedCallbackTask(nodep, "post");
             populateNestedCallbackTask(postTaskp, nodep, "post_randomize");
-            randomizep->addStmtsp((new AstTaskRef{fl, postTaskp})->makeStmt());
+            randomizep->ਜੋੜੋ_Stmtsp((ਨਵਾਂ AstTaskRef{fl, postTaskp})->makeStmt());
         }
 
-        addPrePostCall(nodep, randomizep, "post_randomize");
-        nodep->user1(false);
+        ਜੋੜੋ_Pre_Post_Call(nodep, randomizep, "post_randomize");
+        nodep->user1(ਝੂਠ);
     }
-    void visit(AstRandCase* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstRandCase* nodep) override {
         // RANDCASE
         //   CASEITEM expr1 : stmt1
         //   CASEITEM expr2 : stmt2
@@ -6374,248 +6374,248 @@ class RandomizeVisitor final : public VNVisitor {
         // Note this code assumes that the expressions after V3Const are fast to compute
         // Optimize: we would be better with a binary search tree to reduce ifs that execute
         UINFOTREE(9, nodep, "", "rcin:");
-        AstNodeDType* const sumDTypep = nodep->findUInt64DType();
+        Ast_ਗੰਢ_DType* ਅਚਲ ਜੋੜ_DTypep = nodep->ਲੱਭੋ_UInt64_DType();
 
-        FileLine* const fl = nodep->fileline();
-        const std::string name = "__Vrandcase" + cvtToStr(m_randCaseNum++);
-        AstVar* const randVarp = new AstVar{fl, VVarType::BLOCKTEMP, name, sumDTypep};
-        randVarp->noSubst(true);
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        ਅਚਲ std::string name = "__Vrandcase" + cvt_ਮੰਜ਼ਿਲ_Str(m_rand_Case_ਅੰਕ++);
+        AstVar* ਅਚਲ randVarp = ਨਵਾਂ AstVar{fl, VVarType::BLOCKTEMP, name, ਜੋੜ_DTypep};
+        randVarp->noSubst(ਸੱਚ);
         randVarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        addTempVarsp(randVarp);
-        AstNodeExpr* sump = new AstConst{fl, AstConst::WidthedValue{}, 64, 0};
-        AstNodeIf* const firstIfsp
-            = new AstIf{fl, new AstConst{fl, AstConst::BitFalse{}}, nullptr, nullptr};
-        AstNodeIf* ifsp = firstIfsp;
+        ਜੋੜੋ_ਆਰਜ਼ੀ_Varsp(randVarp);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* sump = ਨਵਾਂ AstConst{fl, AstConst::Widthed_ਮੁੱਲ{}, 64, 0};
+        Ast_ਗੰਢ_If* ਅਚਲ ਪਹਿਲਾ_Ifsp
+            = ਨਵਾਂ AstIf{fl, ਨਵਾਂ AstConst{fl, AstConst::ਦੋਆਧਾਰੀ_ਅੰਕ_False{}}, ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ};
+        Ast_ਗੰਢ_If* ifsp = ਪਹਿਲਾ_Ifsp;
 
-        for (AstCaseItem* itemp = nodep->itemsp(); itemp;
-             itemp = VN_AS(itemp->nextp(), CaseItem)) {
-            AstNodeExpr* const condp = itemp->condsp()->unlinkFrBack();
+        ਲਈ (Ast_Case_ਵਸਤੂ* itemp = nodep->itemsp(); itemp;
+             itemp = VN_AS(itemp->nextp(), Case_ਵਸਤੂ)) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp = itemp->condsp()->unlink_Fr_ਪਿੱਠ();
             sump
-                = new AstAdd{condp->fileline(), sump, new AstExtend{itemp->fileline(), condp, 64}};
-            AstNode* const stmtsp
-                = itemp->stmtsp() ? itemp->stmtsp()->unlinkFrBackWithNext() : nullptr;
-            AstVarRef* const randVarRefp = new AstVarRef{fl, randVarp, VAccess::WRITE};
-            AstNodeIf* const newifp
-                = new AstIf{itemp->fileline(),
-                            new AstLte{condp->fileline(), randVarRefp, sump->cloneTreePure(true)},
-                            stmtsp, nullptr};
-            ifsp->addElsesp(newifp);
+                = ਨਵਾਂ Ast_ਜੋੜੋ{condp->fileline(), sump, ਨਵਾਂ AstExtend{itemp->fileline(), condp, 64}};
+            Ast_ਗੰਢ* ਅਚਲ stmtsp
+                = itemp->stmtsp() ? itemp->stmtsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ() : ਖਾਲੀ_ਸੂਚਕ;
+            AstVarRef* ਅਚਲ randVarRefp = ਨਵਾਂ AstVarRef{fl, randVarp, VAccess::WRITE};
+            Ast_ਗੰਢ_If* ਅਚਲ newifp
+                = ਨਵਾਂ AstIf{itemp->fileline(),
+                            ਨਵਾਂ AstLte{condp->fileline(), randVarRefp, sump->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ)},
+                            stmtsp, ਖਾਲੀ_ਸੂਚਕ};
+            ifsp->ਜੋੜੋ_Elsesp(newifp);
             ifsp = newifp;
         }
-        AstDisplay* const dispp = new AstDisplay{
+        AstDisplay* ਅਚਲ dispp = ਨਵਾਂ AstDisplay{
             fl, VDisplayType::DT_ERROR, "All randcase items had 0 weights (IEEE 1800-2023 18.16)",
-            nullptr, nullptr};
+            ਖਾਲੀ_ਸੂਚਕ, ਖਾਲੀ_ਸੂਚਕ};
         UASSERT_OBJ(m_modp, nodep, "randcase not under module");
         dispp->fmtp()->timeunit(m_modp->timeunit());
-        ifsp->addElsesp(dispp);
+        ifsp->ਜੋੜੋ_Elsesp(dispp);
 
-        AstNodeExpr* const randp = new AstRand{fl, nullptr, false};
-        randp->dtypeSetUInt64();
-        AstVarRef* const randVarRefp = new AstVarRef{fl, randVarp, VAccess::WRITE};
-        AstNode* const newp
-            = new AstAssign{fl, randVarRefp,
-                            new AstAdd{fl, new AstConst{fl, AstConst::Unsized64{}, 1},
-                                       new AstModDiv{fl, randp, sump}}};
-        newp->addNext(firstIfsp);
-        if (debug() >= 9) newp->dumpTreeAndNext(cout, "-  rcnew: ");
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ randp = ਨਵਾਂ AstRand{fl, ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ};
+        randp->dtype_ਸੈੱਟ_UInt64();
+        AstVarRef* ਅਚਲ randVarRefp = ਨਵਾਂ AstVarRef{fl, randVarp, VAccess::WRITE};
+        Ast_ਗੰਢ* ਅਚਲ newp
+            = ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, randVarRefp,
+                            ਨਵਾਂ Ast_ਜੋੜੋ{fl, ਨਵਾਂ AstConst{fl, AstConst::Unsized64{}, 1},
+                                       ਨਵਾਂ AstModDiv{fl, randp, sump}}};
+        newp->ਜੋੜੋ_ਅਗਲਾ(ਪਹਿਲਾ_Ifsp);
+        ਜੇ (debug() >= 9) newp->dump_ਰੁੱਖ_And_ਅਗਲਾ(ਬਾਹਰ, "-  rcnew: ");
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
-    void visit(AstNodeFTaskRef* nodep) override {
-        if (nodep->name() == "rand_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* const fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            const RandModeTarget randModeTarget = RandModeTarget::get(fromp, m_modp);
-            UASSERT_OBJ(randModeTarget.classp, nodep,
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_FTask_Ref* nodep) override {
+        ਜੇ (nodep->name() == "rand_mode") {
+            Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = ਵਿਧੀ_Callp ? ਵਿਧੀ_Callp->fromp() : ਖਾਲੀ_ਸੂਚਕ;
+            ਅਚਲ Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ = Rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ::get(fromp, m_modp);
+            UASSERT_OBJ(rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp, nodep,
                         "Should have checked in RandomizeMarkVisitor");
-            AstVar* const receiverp = randModeTarget.receiverp;
-            const bool isClassLevel = !(receiverp && receiverp->rand().isRand());
+            AstVar* ਅਚਲ receiverp = rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.receiverp;
+            ਅਚਲ ਤਾਰਕਿਕ isClassLevel = !(receiverp && receiverp->rand().isRand());
             // Class-level rand_mode(N) must also flush the shared static array.
-            AstNode* classLevelStaticLoopp = nullptr;
-            if (isClassLevel && nodep->argsp()) {
-                if (AstVar* const sVarp = getStaticRandModeVar(randModeTarget.classp)) {
-                    FileLine* const fl = nodep->fileline();
-                    AstNodeExpr* const staticLhsp
-                        = makeModeAssignLhs(fl, randModeTarget.classp, nullptr, sVarp);
-                    AstNodeExpr* const argClonep = nodep->argsp()->exprp()->cloneTreePure(false);
-                    classLevelStaticLoopp = makeModeSetLoop(fl, staticLhsp, argClonep, m_ftaskp);
+            Ast_ਗੰਢ* classLevelStaticLoopp = ਖਾਲੀ_ਸੂਚਕ;
+            ਜੇ (isClassLevel && nodep->argsp()) {
+                ਜੇ (AstVar* ਅਚਲ sVarp = get_Static_Rand_ਬਹੁਲਕ_Var(rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp)) {
+                    File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ staticLhsp
+                        = make_ਬਹੁਲਕ_ਸੌਂਪੋ_Lhs(fl, rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp, ਖਾਲੀ_ਸੂਚਕ, sVarp);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ argClonep = nodep->argsp()->exprp()->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
+                    classLevelStaticLoopp = make_ਬਹੁਲਕ_ਸੈੱਟ_Loop(fl, staticLhsp, argClonep, m_ftaskp);
                 }
             }
-            const bool receiverIsStaticRand
+            ਅਚਲ ਤਾਰਕਿਕ receiverIsStaticRand
                 = receiverp && receiverp->rand().isRand() && receiverp->lifetime().isStatic();
-            AstVar* const randModeVarp = receiverIsStaticRand
-                                             ? getStaticRandModeVar(randModeTarget.classp)
-                                             : getRandModeVarFromClass(randModeTarget.classp);
-            if (!randModeVarp) {
+            AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = receiverIsStaticRand
+                                             ? get_Static_Rand_ਬਹੁਲਕ_Var(rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp)
+                                             : get_Rand_ਬਹੁਲਕ_Var_From_Class(rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp);
+            ਜੇ (!rand_ਬਹੁਲਕ_Varp) {
                 UASSERT_OBJ(isClassLevel && classLevelStaticLoopp, nodep,
                             "Per-instance rand_mode var missing without static fallback");
-                UASSERT_OBJ(VN_IS(nodep->backp(), StmtExpr), nodep, "Should be a statement");
+                UASSERT_OBJ(VN_IS(nodep->backp(), Stmt_ਵਿਅੰਜਕ), nodep, "Should be a statement");
                 m_stmtp->replaceWith(classLevelStaticLoopp);
-                VL_DO_CLEAR(pushDeletep(m_stmtp), m_stmtp = nullptr);
-                return;
+                VL_DO_CLEAR(ਧੱਕੋ_Deletep(m_stmtp), m_stmtp = ਖਾਲੀ_ਸੂਚਕ);
+                ਵਾਪਸ;
             }
-            AstNodeExpr* const lhsp = makeModeAssignLhs(nodep->fileline(), randModeTarget.classp,
-                                                        randModeTarget.fromp, randModeVarp);
-            replaceWithModeAssignAndAppend(
-                nodep, receiverp && receiverp->rand().isRand() ? receiverp : nullptr, lhsp,
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = make_ਬਹੁਲਕ_ਸੌਂਪੋ_Lhs(nodep->fileline(), rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.classp,
+                                                        rand_ਬਹੁਲਕ_ਨਿਸ਼ਾਨਾ.fromp, rand_ਬਹੁਲਕ_Varp);
+            replace_With_ਬਹੁਲਕ_ਸੌਂਪੋ_And_Append(
+                nodep, receiverp && receiverp->rand().isRand() ? receiverp : ਖਾਲੀ_ਸੂਚਕ, lhsp,
                 classLevelStaticLoopp);
-            return;
+            ਵਾਪਸ;
         }
 
-        if (nodep->name() == "constraint_mode") {
-            AstMethodCall* const methodCallp = VN_CAST(nodep, MethodCall);
-            AstNodeExpr* fromp = methodCallp ? methodCallp->fromp() : nullptr;
-            AstConstraint* constrp = nullptr;
+        ਜੇ (nodep->name() == "constraint_mode") {
+            Ast_ਵਿਧੀ_Call* ਅਚਲ ਵਿਧੀ_Callp = VN_CAST(nodep, ਵਿਧੀ_Call);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* fromp = ਵਿਧੀ_Callp ? ਵਿਧੀ_Callp->fromp() : ਖਾਲੀ_ਸੂਚਕ;
+            AstConstraint* constrp = ਖਾਲੀ_ਸੂਚਕ;
             AstClass* classp = VN_CAST(m_modp, Class);
-            if (AstConstraintRef* const constrRefp = VN_CAST(fromp, ConstraintRef)) {
+            ਜੇ (AstConstraintRef* ਅਚਲ constrRefp = VN_CAST(fromp, ConstraintRef)) {
                 constrp = constrRefp->constrp();
-                if (constrRefp->fromp()) {
+                ਜੇ (constrRefp->fromp()) {
                     fromp = constrRefp->fromp();
                     classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
                 }
-            } else if (fromp) {
+            } ਨਹੀਂਤਾਂ ਜੇ (fromp) {
                 classp = VN_AS(fromp->dtypep()->skipRefp(), ClassRefDType)->classp();
             }
             UASSERT_OBJ(classp, nodep, "Failed to find class");
             // Use correct mode variable based on whether constraint is static
-            AstVar* const constraintModeVarp = (constrp && constrp->isStatic())
-                                                   ? getStaticConstraintModeVar(classp)
-                                                   : getConstraintModeVar(classp);
-            AstNodeExpr* const lhsp
-                = makeModeAssignLhs(nodep->fileline(), classp, fromp, constraintModeVarp);
-            replaceWithModeAssign(nodep, constrp, lhsp);
-            return;
+            AstVar* ਅਚਲ constraint_ਬਹੁਲਕ_Varp = (constrp && constrp->isStatic())
+                                                   ? get_Static_Constraint_ਬਹੁਲਕ_Var(classp)
+                                                   : get_Constraint_ਬਹੁਲਕ_Var(classp);
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp
+                = make_ਬਹੁਲਕ_ਸੌਂਪੋ_Lhs(nodep->fileline(), classp, fromp, constraint_ਬਹੁਲਕ_Varp);
+            replace_With_ਬਹੁਲਕ_ਸੌਂਪੋ(nodep, constrp, lhsp);
+            ਵਾਪਸ;
         }
 
-        if (nodep->name() != "randomize") {
+        ਜੇ (nodep->name() != "randomize") {
             // Iterate children so nested rand_mode/constraint_mode/randomize calls
             // inside function arguments are still visited and transformed
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
 
-        if (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
+        ਜੇ (nodep->classOrPackagep() && nodep->classOrPackagep()->name() == "std") {
             // Handle std::randomize; create wrapper function that calls basicStdRandomization on
             // each varref argument, then transform nodep to call that wrapper
-            const bool inStaticContext = m_ftaskp && m_ftaskp->isStatic();
-            AstVar* const stdrand = createStdRandomGenerator(m_modp);
-            AstFunc* const randomizeFuncp
+            ਅਚਲ ਤਾਰਕਿਕ ਵਿੱਚ_Static_Context = m_ftaskp && m_ftaskp->isStatic();
+            AstVar* ਅਚਲ stdrand = createStdRandomGenerator(m_modp);
+            AstFunc* ਅਚਲ randomizeFuncp
                 = V3Randomize::newRandomizeStdFunc(m_modp, m_inlineUniqueStdName.get(nodep));
             // When called from a static function, mark helper and stdrand as static
             // so V3Class moves them to __Vclpkg alongside the calling function
-            if (inStaticContext) {
+            ਜੇ (ਵਿੱਚ_Static_Context) {
                 stdrand->lifetime(VLifetime::STATIC_EXPLICIT);
-                randomizeFuncp->isStatic(true);
+                randomizeFuncp->isStatic(ਸੱਚ);
             }
-            randomizeFuncp->addStmtsp(
-                new AstAssign{nodep->fileline(),
-                              new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
+            randomizeFuncp->ਜੋੜੋ_Stmtsp(
+                ਨਵਾਂ Ast_ਸੌਂਪੋ{nodep->fileline(),
+                              ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
                                             VAccess::WRITE},
-                              new AstConst{nodep->fileline(), AstConst::WidthedValue{}, 32, 1}});
+                              ਨਵਾਂ AstConst{nodep->fileline(), AstConst::Widthed_ਮੁੱਲ{}, 32, 1}});
             std::unique_ptr<CaptureVisitor> withCapturep;
-            int argn = 0;
-            AstWith* const withp = nodep->withp();
-            for (const AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
-                AstNodeExpr* const exprp = argp->exprp();
-                AstCMethodHard* const basicMethodp = new AstCMethodHard{
+            ਪੂਰਨ argn = 0;
+            AstWith* ਅਚਲ withp = nodep->withp();
+            ਲਈ (ਅਚਲ AstArg* argp = nodep->argsp(); argp; argp = VN_AS(argp->nextp(), Arg)) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = argp->exprp();
+                AstCMethodHard* ਅਚਲ basicMethodp = ਨਵਾਂ AstCMethodHard{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), stdrand, VAccess::READWRITE},
+                    ਨਵਾਂ AstVarRef{nodep->fileline(), stdrand, VAccess::READWRITE},
                     VCMethod::RANDOMIZER_BASIC_STD_RANDOMIZATION};
-                AstVar* const refvarp
-                    = new AstVar{exprp->fileline(), VVarType::MEMBER,
-                                 "__Varg"s + std::to_string(++argn), exprp->dtypep()};
-                refvarp->setStdRandomizeArg();
+                AstVar* ਅਚਲ refvarp
+                    = ਨਵਾਂ AstVar{exprp->fileline(), VVarType::MEMBER,
+                                 "__Varg"s + std::ਮੰਜ਼ਿਲ_string(++argn), exprp->dtypep()};
+                refvarp->ਸੈੱਟ_Std_Randomize_Arg();
                 // Replace argument occurrences in 'with' clause with __Varg* reference.
-                if (withp) {
-                    withp->foreach([&](AstNodeExpr* exp) {
-                        if (isSimilarNode(exp, exprp)) {
-                            AstVarRef* const replaceVar
-                                = new AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE};
-                            exp->replaceWith(replaceVar);
-                            replaceVar->user1(exp->user1());
+                ਜੇ (withp) {
+                    withp->foreach([&](Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਘਾਤਾਂਕ) {
+                        ਜੇ (is_Similar_ਗੰਢ(ਘਾਤਾਂਕ, exprp)) {
+                            AstVarRef* ਅਚਲ replaceVar
+                                = ਨਵਾਂ AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE};
+                            ਘਾਤਾਂਕ->replaceWith(replaceVar);
+                            replaceVar->user1(ਘਾਤਾਂਕ->user1());
                             replaceVar->varp()->user2p(m_modp);
-                            VL_DO_DANGLING(pushDeletep(exp), exp);
+                            VL_DO_DANGLING(ਧੱਕੋ_Deletep(ਘਾਤਾਂਕ), ਘਾਤਾਂਕ);
                         }
                     });
                 }
                 refvarp->direction(VDirection::REF);
-                refvarp->funcLocal(true);
+                refvarp->funcLocal(ਸੱਚ);
                 refvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-                randomizeFuncp->addStmtsp(refvarp);
+                randomizeFuncp->ਜੋੜੋ_Stmtsp(refvarp);
 
-                const size_t width = exprp->width();
-                basicMethodp->addPinsp(
-                    new AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE});
+                ਅਚਲ ਮਾਪ_t ਚੌੜਾਈ = exprp->ਚੌੜਾਈ();
+                basicMethodp->ਜੋੜੋ_Pinsp(
+                    ਨਵਾਂ AstVarRef{exprp->fileline(), refvarp, VAccess::READWRITE});
 
-                basicMethodp->addPinsp(
-                    new AstConst{nodep->fileline(), AstConst::Unsized64{}, width});
-                basicMethodp->dtypeSetBit();
+                basicMethodp->ਜੋੜੋ_Pinsp(
+                    ਨਵਾਂ AstConst{nodep->fileline(), AstConst::Unsized64{}, ਚੌੜਾਈ});
+                basicMethodp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
 
-                randomizeFuncp->addStmtsp(new AstAssign{
+                randomizeFuncp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
                     nodep->fileline(),
-                    new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
+                    ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var),
                                   VAccess::WRITE},
-                    new AstAnd{nodep->fileline(),
-                               new AstVarRef{nodep->fileline(),
+                    ਨਵਾਂ AstAnd{nodep->fileline(),
+                               ਨਵਾਂ AstVarRef{nodep->fileline(),
                                              VN_AS(randomizeFuncp->fvarp(), Var), VAccess::READ},
                                basicMethodp}});
             }
-            if (withp) {
-                FileLine* const fl = nodep->fileline();
-                withCapturep = std::make_unique<CaptureVisitor>(withp->exprp(), m_modp, nullptr,
-                                                                inStaticContext);
-                withCapturep->addFunctionArguments(randomizeFuncp);
+            ਜੇ (withp) {
+                File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+                withCapturep = std::make_unique<CaptureVisitor>(withp->exprp(), m_modp, ਖਾਲੀ_ਸੂਚਕ,
+                                                                ਵਿੱਚ_Static_Context);
+                withCapturep->ਜੋੜੋ_Function_Arguments(randomizeFuncp);
                 // Clear old constraints and variables for std::randomize with clause
-                if (stdrand) {
-                    randomizeFuncp->addStmtsp(
+                ਜੇ (stdrand) {
+                    randomizeFuncp->ਜੋੜੋ_Stmtsp(
                         implementConstraintsClearAll(randomizeFuncp->fileline(), stdrand));
                 }
-                AstNode* const capturedTreep = withp->exprp()->unlinkFrBackWithNext();
-                randomizeFuncp->addStmtsp(capturedTreep);
+                Ast_ਗੰਢ* ਅਚਲ capturedTreep = withp->exprp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+                randomizeFuncp->ਜੋੜੋ_Stmtsp(capturedTreep);
                 {
                     expandUniqueElementList(capturedTreep);
-                    ConstraintExprVisitor{
-                        nullptr, m_memberMap,   capturedTreep,         randomizeFuncp, stdrand,
-                        nullptr, m_writtenVars, &m_uniqueConstraintId, m_uniqueNames,  nullptr};
+                    Constraint_ਵਿਅੰਜਕ_Visitor{
+                        ਖਾਲੀ_ਸੂਚਕ, m_memberMap,   capturedTreep,         randomizeFuncp, stdrand,
+                        ਖਾਲੀ_ਸੂਚਕ, m_writtenVars, &m_uniqueConstraintId, m_unique_ਨਾਂ,  ਖਾਲੀ_ਸੂਚਕ};
                 }
-                AstCExpr* const solverCallp = new AstCExpr{fl};
-                solverCallp->dtypeSetBit();
-                solverCallp->add(new AstVarRef{fl, stdrand, VAccess::READWRITE});
-                solverCallp->add(".next()");
-                AstVar* const fvarp = VN_AS(randomizeFuncp->fvarp(), Var);
-                AstNodeExpr* const andExprp
-                    = new AstAnd{fl, new AstVarRef{fl, fvarp, VAccess::READ}, solverCallp};
-                randomizeFuncp->addStmtsp(
-                    new AstAssign{fl, new AstVarRef{fl, fvarp, VAccess::WRITE}, andExprp});
+                AstCExpr* ਅਚਲ solverCallp = ਨਵਾਂ AstCExpr{fl};
+                solverCallp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+                solverCallp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{fl, stdrand, VAccess::READWRITE});
+                solverCallp->ਜੋੜੋ(".next()");
+                AstVar* ਅਚਲ fvarp = VN_AS(randomizeFuncp->fvarp(), Var);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ andExprp
+                    = ਨਵਾਂ AstAnd{fl, ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::READ}, solverCallp};
+                randomizeFuncp->ਜੋੜੋ_Stmtsp(
+                    ਨਵਾਂ Ast_ਸੌਂਪੋ{fl, ਨਵਾਂ AstVarRef{fl, fvarp, VAccess::WRITE}, andExprp});
                 // Remove With nodes as processed
-                VL_DO_DANGLING(withp->unlinkFrBack()->deleteTree(), withp);
+                VL_DO_DANGLING(withp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), withp);
             }
             // Replace the node with a call to that function
             nodep->name(randomizeFuncp->name());
             nodep->taskp(randomizeFuncp);
             nodep->dtypeFrom(randomizeFuncp->dtypep());
-            if (VN_IS(m_modp, Class)) nodep->classOrPackagep(m_modp);
-            if (withCapturep) nodep->addArgsp(withCapturep->getArgs());
+            ਜੇ (VN_IS(m_modp, Class)) nodep->classOrPackagep(m_modp);
+            ਜੇ (withCapturep) nodep->ਜੋੜੋ_Argsp(withCapturep->get_ਦਲੀਲਾਂ());
             UINFOTREE(9, nodep, "", "std::rnd-call");
             UINFOTREE(9, randomizeFuncp, "", "std::rnd-func");
-            return;
+            ਵਾਪਸ;
         }
-        handleRandomizeArgs(nodep);
+        handle_Randomize_ਦਲੀਲਾਂ(nodep);
 
-        AstWith* const withp = nodep->withp();
-        if (!withp) {
+        AstWith* ਅਚਲ withp = nodep->withp();
+        ਜੇ (!withp) {
             iterateChildren(nodep);
             wrapRandomizeCallWithNullGuard(nodep);
-            return;
+            ਵਾਪਸ;
         }
-        withp->unlinkFrBack();
+        withp->unlink_Fr_ਪਿੱਠ();
         iterateChildren(nodep);
 
-        AstClass* classp = nullptr;
-        if (AstMethodCall* const callp = VN_CAST(nodep, MethodCall)) {
-            const AstNodeDType* const fromDTypep = callp->fromp()->dtypep();
+        AstClass* classp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (Ast_ਵਿਧੀ_Call* ਅਚਲ callp = VN_CAST(nodep, ਵਿਧੀ_Call)) {
+            ਅਚਲ Ast_ਗੰਢ_DType* ਅਚਲ fromDTypep = callp->fromp()->dtypep();
             UASSERT_OBJ(fromDTypep, callp->fromp(), "Object dtype is not linked");
-            const AstClassRefDType* const classrefdtypep
+            ਅਚਲ AstClassRefDType* ਅਚਲ classrefdtypep
                 = VN_CAST(fromDTypep->skipRefp(), ClassRefDType);
             UASSERT_OBJ(classrefdtypep, callp->fromp(),
                         "Randomize called on expression of non-class type "
@@ -6623,286 +6623,286 @@ class RandomizeVisitor final : public VNVisitor {
                             << " (it should be detected earlier)");
             classp = classrefdtypep->classp();
             UASSERT_OBJ(classp, classrefdtypep, "Class type is unlinked to its ref type");
-        } else {
+        } ਨਹੀਂਤਾਂ {
             classp = VN_CAST(m_modp, Class);
             UASSERT_OBJ(classp, m_modp, "Module not class, should have failed in V3Width");
         }
-        if (classp->user1()) {
+        ਜੇ (classp->user1()) {
             // We need to first ensure that the class constraints are transformed
             // NOTE: This is safe only because AstClass visit function overwrites all
             // nesting-dependent state variables
             iterate(classp);
         }
 
-        AstVar* const classGenp = getRandomGenerator(classp);
-        AstVar* const localGenp
-            = new AstVar{nodep->fileline(), VVarType::BLOCKTEMP, "randomizer",
-                         classp->findBasicDType(VBasicDTypeKwd::RANDOM_GENERATOR)};
-        localGenp->funcLocal(true);
+        AstVar* ਅਚਲ classGenp = getRandomGenerator(classp);
+        AstVar* ਅਚਲ localGenp
+            = ਨਵਾਂ AstVar{nodep->fileline(), VVarType::BLOCKTEMP, "randomizer",
+                         classp->ਲੱਭੋ_Basic_DType(VBasicDTypeKwd::RANDOM_GENERATOR)};
+        localGenp->funcLocal(ਸੱਚ);
 
-        AstFunc* const randomizeFuncp = V3Randomize::newRandomizeFunc(
-            m_memberMap, classp, m_inlineUniqueNames.get(nodep), false);
+        AstFunc* ਅਚਲ randomizeFuncp = V3Randomize::newRandomizeFunc(
+            m_memberMap, classp, m_inline_Unique_ਨਾਂ.get(nodep), ਝੂਠ);
 
         // A base-handle `randomize() with` must still reach a derived
         // pre/post_randomize. Route them through per-class virtual wrappers
         // when the static handle type participates in inheritance.
-        const std::pair<bool, bool> prePostWrap = classp->isExtended()
+        ਅਚਲ std::pair<ਤਾਰਕਿਕ, ਤਾਰਕਿਕ> prePostWrap = classp->isExtended()
                                                       ? buildPrePostVirtualWrappers(classp)
-                                                      : std::pair<bool, bool>{false, false};
-        if (prePostWrap.first) {
-            addVirtualPrePostCall(randomizeFuncp, classp, "pre_randomize");
-        } else {
-            addPrePostCall(classp, randomizeFuncp, "pre_randomize");
+                                                      : std::pair<ਤਾਰਕਿਕ, ਤਾਰਕਿਕ>{ਝੂਠ, ਝੂਠ};
+        ਜੇ (prePostWrap.ਪਹਿਲਾ) {
+            ਜੋੜੋ_Virtual_Pre_Post_Call(randomizeFuncp, classp, "pre_randomize");
+        } ਨਹੀਂਤਾਂ {
+            ਜੋੜੋ_Pre_Post_Call(classp, randomizeFuncp, "pre_randomize");
         }
 
         // Call nested pre_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(classp)) {
-            AstTask* const preTaskp = getCreateNestedCallbackTask(classp, "pre");
-            if (!preTaskp->stmtsp()) {
+        ਜੇ (classHasRandClassMembers(classp)) {
+            AstTask* ਅਚਲ preTaskp = getCreateNestedCallbackTask(classp, "pre");
+            ਜੇ (!preTaskp->stmtsp()) {
                 populateNestedCallbackTask(preTaskp, classp, "pre_randomize");
             }
-            randomizeFuncp->addStmtsp((new AstTaskRef{nodep->fileline(), preTaskp})->makeStmt());
+            randomizeFuncp->ਜੋੜੋ_Stmtsp((ਨਵਾਂ AstTaskRef{nodep->fileline(), preTaskp})->makeStmt());
         }
 
         // Detach the expression and prepare variable copies
-        const CaptureVisitor captured{withp->exprp(), m_modp, classp};
+        ਅਚਲ CaptureVisitor captured{withp->exprp(), m_modp, classp};
         // Add function arguments
-        captured.addFunctionArguments(randomizeFuncp);
+        captured.ਜੋੜੋ_Function_Arguments(randomizeFuncp);
 
         // Add constraints clearing code
-        if (classGenp) {
+        ਜੇ (classGenp) {
             // Clone write_var calls from main randomize() for path-connected variables
-            AstFunc* const mainRandomizep
-                = VN_CAST(m_memberMap.findMember(classp, "randomize"), Func);
-            if (mainRandomizep && mainRandomizep->stmtsp()) {
-                for (AstNode* stmtp = mainRandomizep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                    bool foundClearConstraints = false;
+            AstFunc* ਅਚਲ mainRandomizep
+                = VN_CAST(m_memberMap.ਲੱਭੋ_Member(classp, "randomize"), Func);
+            ਜੇ (mainRandomizep && mainRandomizep->stmtsp()) {
+                ਲਈ (Ast_ਗੰਢ* stmtp = mainRandomizep->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                    ਤਾਰਕਿਕ ਮਿਲਿਆ_Clear_Constraints = ਝੂਠ;
                     stmtp->foreach([&](AstCMethodHard* methodp) {
-                        if (methodp->method() == VCMethod::RANDOMIZER_WRITE_VAR
-                            || methodp->method() == VCMethod::RANDOMIZER_MARK_RANDC) {
-                            randomizeFuncp->addStmtsp(stmtp->cloneTree(false));
-                        } else if (methodp->method() == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
-                            foundClearConstraints = true;
+                        ਜੇ (methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_WRITE_VAR
+                            || methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_MARK_RANDC) {
+                            randomizeFuncp->ਜੋੜੋ_Stmtsp(stmtp->clone_ਰੁੱਖ(ਝੂਠ));
+                        } ਨਹੀਂਤਾਂ ਜੇ (methodp->ਵਿਧੀ() == VCMethod::RANDOMIZER_CLEARCONSTRAINTS) {
+                            ਮਿਲਿਆ_Clear_Constraints = ਸੱਚ;
                         }
                     });
-                    if (foundClearConstraints) break;
+                    ਜੇ (ਮਿਲਿਆ_Clear_Constraints) ਰੋਕੋ;
                 }
             }
-            randomizeFuncp->addStmtsp(
+            randomizeFuncp->ਜੋੜੋ_Stmtsp(
                 implementConstraintsClear(randomizeFuncp->fileline(), classGenp));
         }
 
-        randomizeFuncp->addStmtsp(localGenp);
+        randomizeFuncp->ਜੋੜੋ_Stmtsp(localGenp);
 
-        AstFunc* const basicRandomizeFuncp
+        AstFunc* ਅਚਲ basicRandomizeFuncp
             = V3Randomize::newRandomizeFunc(m_memberMap, classp, BASIC_RANDOMIZE_FUNC_NAME);
-        AstFuncRef* const basicRandomizeFuncCallp
-            = new AstFuncRef{nodep->fileline(), basicRandomizeFuncp};
+        AstFuncRef* ਅਚਲ basicRandomizeFuncCallp
+            = ਨਵਾਂ AstFuncRef{nodep->fileline(), basicRandomizeFuncp};
 
         // Copy (derive) class constraints if present
-        if (classGenp) {
-            AstTask* const constrSetupFuncp = getCreateConstraintSetupFunc(classp, m_memberMap);
-            AstTaskRef* const callp = new AstTaskRef{nodep->fileline(), constrSetupFuncp};
-            randomizeFuncp->addStmtsp(callp->makeStmt());
-            randomizeFuncp->addStmtsp(new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), localGenp, VAccess::WRITE},
-                new AstVarRef{nodep->fileline(), VN_AS(classGenp->user2p(), NodeModule), classGenp,
+        ਜੇ (classGenp) {
+            AstTask* ਅਚਲ constr_ਤਿਆਰੀ_Funcp = get_Create_Constraint_ਤਿਆਰੀ_Func(classp, m_memberMap);
+            AstTaskRef* ਅਚਲ callp = ਨਵਾਂ AstTaskRef{nodep->fileline(), constr_ਤਿਆਰੀ_Funcp};
+            randomizeFuncp->ਜੋੜੋ_Stmtsp(callp->makeStmt());
+            randomizeFuncp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                nodep->fileline(), ਨਵਾਂ AstVarRef{nodep->fileline(), localGenp, VAccess::WRITE},
+                ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(classGenp->user2p(), ਗੰਢ_Module), classGenp,
                               VAccess::READ}});
         }
 
         // Set rand mode if present (not needed if classGenp exists and was copied)
-        AstVar* const randModeVarp = getRandModeVarFromClass(classp);
-        if (!classGenp && randModeVarp) addSetRandMode(randomizeFuncp, localGenp, randModeVarp);
-        if (!classGenp) {
-            if (AstVar* const sVarp = getStaticRandModeVar(classp)) {
-                addSetStaticRandMode(randomizeFuncp, localGenp, sVarp);
+        AstVar* ਅਚਲ rand_ਬਹੁਲਕ_Varp = get_Rand_ਬਹੁਲਕ_Var_From_Class(classp);
+        ਜੇ (!classGenp && rand_ਬਹੁਲਕ_Varp) ਜੋੜੋ_ਸੈੱਟ_Rand_ਬਹੁਲਕ(randomizeFuncp, localGenp, rand_ਬਹੁਲਕ_Varp);
+        ਜੇ (!classGenp) {
+            ਜੇ (AstVar* ਅਚਲ sVarp = get_Static_Rand_ਬਹੁਲਕ_Var(classp)) {
+                ਜੋੜੋ_ਸੈੱਟ_Static_Rand_ਬਹੁਲਕ(randomizeFuncp, localGenp, sVarp);
             }
         }
 
         // Generate constraint setup code and a hardcoded call to the solver
-        AstNode* const capturedTreep = withp->exprp()->unlinkFrBackWithNext();
-        randomizeFuncp->addStmtsp(capturedTreep);
+        Ast_ਗੰਢ* ਅਚਲ capturedTreep = withp->exprp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+        randomizeFuncp->ਜੋੜੋ_Stmtsp(capturedTreep);
 
         // Pre-scan captured tree for .size on dynamic/assoc arrays and replace
         // with size variables, using shared createOrGetSizeVar helper.
         // After CaptureVisitor, fromp() of .size is AstMemberSel (not VarRef),
         // so extract the underlying variable from the MemberSel chain.
         // Collect resize statements to add after solver call, guarded by success.
-        AstNode* inlineResizeStmtsp = nullptr;
+        Ast_ਗੰਢ* inlineResizeStmtsp = ਖਾਲੀ_ਸੂਚਕ;
         {
-            std::vector<AstCMethodHard*> sizeMethodps;
-            capturedTreep->foreachAndNext([&](AstCMethodHard* methodp) {
-                if (methodp->method() == VCMethod::DYN_SIZE
-                    || methodp->method() == VCMethod::ASSOC_SIZE) {
-                    sizeMethodps.push_back(methodp);
+            std::ਸਦਿਸ਼<AstCMethodHard*> ਮਾਪ_Methodps;
+            capturedTreep->foreach_And_ਅਗਲਾ([&](AstCMethodHard* methodp) {
+                ਜੇ (methodp->ਵਿਧੀ() == VCMethod::DYN_ਮਾਪ
+                    || methodp->ਵਿਧੀ() == VCMethod::ASSOC_ਮਾਪ) {
+                    ਮਾਪ_Methodps.ਧੱਕੋ_ਪਿੱਠ(methodp);
                 }
             });
-            for (AstCMethodHard* const methodp : sizeMethodps) {
+            ਲਈ (AstCMethodHard* ਅਚਲ methodp : ਮਾਪ_Methodps) {
                 // Extract array variable from fromp (VarRef or MemberSel after capture)
-                AstVar* arrVarp = nullptr;
-                AstNodeExpr* const rootExprp = methodp->fromp();
-                if (AstMemberSel* memberSelp = VN_CAST(rootExprp, MemberSel)) {
+                AstVar* arrVarp = ਖਾਲੀ_ਸੂਚਕ;
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਜੜ੍ਹ_Exprp = methodp->fromp();
+                ਜੇ (AstMemberSel* memberSelp = VN_CAST(ਜੜ੍ਹ_Exprp, MemberSel)) {
                     arrVarp = memberSelp->varp();
-                    while (VN_IS(memberSelp->fromp(), MemberSel)) {
+                    ਜਦੋਂ (VN_IS(memberSelp->fromp(), MemberSel)) {
                         memberSelp = VN_CAST(memberSelp->fromp(), MemberSel);
                     }
                     // Only variables that are part of object that randomize is called on shall be
                     // randomized (18.6.1), skip randomization if deepest variable is reference to
                     // __Vthis
-                    const AstNodeExpr* const fromp = memberSelp->fromp();
-                    if (const AstVarRef* const varRefp = VN_CAST(fromp, VarRef)) {
-                        if (varRefp->varp() == captured.getThisp()) continue;
-                    } else {
+                    ਅਚਲ Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ fromp = memberSelp->fromp();
+                    ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ varRefp = VN_CAST(fromp, VarRef)) {
+                        ਜੇ (varRefp->varp() == captured.getThisp()) ਜਾਰੀ;
+                    } ਨਹੀਂਤਾਂ {
                         fromp->v3warn(E_UNSUPPORTED, "Unsupported: Unsupported size constraint "
                                                      "inside 'with' statement of type "
                                                          << fromp->dtypep()->prettyTypeName());
                     }
-                } else if (AstVarRef* const varRefp = VN_CAST(rootExprp, VarRef)) {
+                } ਨਹੀਂਤਾਂ ਜੇ (AstVarRef* ਅਚਲ varRefp = VN_CAST(ਜੜ੍ਹ_Exprp, VarRef)) {
                     arrVarp = varRefp->varp();
                 }
-                if (!arrVarp) continue;
+                ਜੇ (!arrVarp) ਜਾਰੀ;
                 // Only handle rand-declared dynamic/assoc array variables
-                if (!arrVarp->rand().isRandomizable()) continue;
+                ਜੇ (!arrVarp->rand().isRandomizable()) ਜਾਰੀ;
                 // Do not randomize associative array size (IEEE 18.4)
-                if (VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)) continue;
-                FileLine* const fl = methodp->fileline();
-                bool wasCreated = false;
-                AstClass* const varClassp = VN_AS(arrVarp->user2p(), Class);
-                AstVar* const sizeVarp = createOrGetSizeVar(varClassp, arrVarp, fl,
-                                                            methodp->findIntDType(), wasCreated);
+                ਜੇ (VN_IS(arrVarp->dtypep()->skipRefp(), AssocArrayDType)) ਜਾਰੀ;
+                File_ਸਤਰ* ਅਚਲ fl = methodp->fileline();
+                ਤਾਰਕਿਕ wasCreated = ਝੂਠ;
+                AstClass* ਅਚਲ varClassp = VN_AS(arrVarp->user2p(), Class);
+                AstVar* ਅਚਲ ਮਾਪ_Varp = create_Or_Get_ਮਾਪ_Var(varClassp, arrVarp, fl,
+                                                            methodp->ਲੱਭੋ_Int_DType(), wasCreated);
                 // arrVarp and sizeVarp may live in a base class when the
                 // array is inherited; route VarRefs through their declaring
                 // class so V3Scope can resolve them.
-                if (wasCreated) {
-                    AstNodeExpr* const resizeVarRefp = buildMemberSelExprp(rootExprp, arrVarp);
-                    AstNodeExpr* const sizeExprp = buildMemberSelExprp(rootExprp, sizeVarp);
+                ਜੇ (wasCreated) {
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ resizeVarRefp = buildMemberSelExprp(ਜੜ੍ਹ_Exprp, arrVarp);
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਮਾਪ_Exprp = buildMemberSelExprp(ਜੜ੍ਹ_Exprp, ਮਾਪ_Varp);
                     // Append size >= 0 constraint so ConstraintExprVisitor processes it
-                    capturedTreep->addNext(createSizeGteZeroConstraint(fl, sizeVarp, rootExprp));
-                    AstCMethodHard* const resizep
-                        = new AstCMethodHard{fl, resizeVarRefp, VCMethod::DYN_RESIZE, sizeExprp};
-                    resizep->dtypep(methodp->findVoidDType());
+                    capturedTreep->ਜੋੜੋ_ਅਗਲਾ(create_ਮਾਪ_Gte_Zero_Constraint(fl, ਮਾਪ_Varp, ਜੜ੍ਹ_Exprp));
+                    AstCMethodHard* ਅਚਲ resizep
+                        = ਨਵਾਂ AstCMethodHard{fl, resizeVarRefp, VCMethod::DYN_RESIZE, ਮਾਪ_Exprp};
+                    resizep->dtypep(methodp->ਲੱਭੋ_Void_DType());
                     inlineResizeStmtsp
-                        = AstNode::addNext(inlineResizeStmtsp, new AstStmtExpr{fl, resizep});
+                        = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(inlineResizeStmtsp, ਨਵਾਂ Ast_Stmt_ਵਿਅੰਜਕ{fl, resizep});
                 }
-                AstNodeExpr* const sizeNodeExprp = buildMemberSelExprp(rootExprp, sizeVarp);
-                methodp->replaceWith(sizeNodeExprp);
-                VL_DO_DANGLING(methodp->deleteTree(), methodp);
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ ਮਾਪ_ਗੰਢ_Exprp = buildMemberSelExprp(ਜੜ੍ਹ_Exprp, ਮਾਪ_Varp);
+                methodp->replaceWith(ਮਾਪ_ਗੰਢ_Exprp);
+                VL_DO_DANGLING(methodp->delete_ਰੁੱਖ(), methodp);
             }
         }
 
         {
             expandUniqueElementList(capturedTreep);
-            ConstraintExprVisitor{
+            Constraint_ਵਿਅੰਜਕ_Visitor{
                 classp,       m_memberMap,   capturedTreep,         randomizeFuncp, localGenp,
-                randModeVarp, m_writtenVars, &m_uniqueConstraintId, m_uniqueNames,  nullptr};
+                rand_ਬਹੁਲਕ_Varp, m_writtenVars, &m_uniqueConstraintId, m_unique_ਨਾਂ,  ਖਾਲੀ_ਸੂਚਕ};
         }
 
         // Call the solver and set return value
-        AstCExpr* const solverCallp = new AstCExpr{nodep->fileline()};
-        solverCallp->dtypeSetBit();
-        solverCallp->add(new AstVarRef{nodep->fileline(), localGenp, VAccess::READWRITE});
-        solverCallp->add(".next(__Vm_rng)");
-        randomizeFuncp->addStmtsp(new AstAssign{
+        AstCExpr* ਅਚਲ solverCallp = ਨਵਾਂ AstCExpr{nodep->fileline()};
+        solverCallp->dtype_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ();
+        solverCallp->ਜੋੜੋ(ਨਵਾਂ AstVarRef{nodep->fileline(), localGenp, VAccess::READWRITE});
+        solverCallp->ਜੋੜੋ(".next(__Vm_rng)");
+        randomizeFuncp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{
             nodep->fileline(),
-            new AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var), VAccess::WRITE},
-            new AstAnd{nodep->fileline(), basicRandomizeFuncCallp, solverCallp}});
+            ਨਵਾਂ AstVarRef{nodep->fileline(), VN_AS(randomizeFuncp->fvarp(), Var), VAccess::WRITE},
+            ਨਵਾਂ AstAnd{nodep->fileline(), basicRandomizeFuncCallp, solverCallp}});
 
         // Resize constrained arrays only when solver succeeds, mirroring
         // the class-level if(__Vsize_ok) guard pattern
-        if (inlineResizeStmtsp) {
-            AstVar* const retVarp = VN_AS(randomizeFuncp->fvarp(), Var);
-            AstIf* const ifp = new AstIf{nodep->fileline(),
-                                         new AstVarRef{nodep->fileline(), retVarp, VAccess::READ},
-                                         inlineResizeStmtsp, nullptr};
-            randomizeFuncp->addStmtsp(ifp);
+        ਜੇ (inlineResizeStmtsp) {
+            AstVar* ਅਚਲ retVarp = VN_AS(randomizeFuncp->fvarp(), Var);
+            AstIf* ਅਚਲ ifp = ਨਵਾਂ AstIf{nodep->fileline(),
+                                         ਨਵਾਂ AstVarRef{nodep->fileline(), retVarp, VAccess::READ},
+                                         inlineResizeStmtsp, ਖਾਲੀ_ਸੂਚਕ};
+            randomizeFuncp->ਜੋੜੋ_Stmtsp(ifp);
         }
 
         // Call nested post_randomize on rand class-type members (IEEE 18.4.1)
-        if (classHasRandClassMembers(classp)) {
-            AstTask* const postTaskp = getCreateNestedCallbackTask(classp, "post");
-            if (!postTaskp->stmtsp()) {
+        ਜੇ (classHasRandClassMembers(classp)) {
+            AstTask* ਅਚਲ postTaskp = getCreateNestedCallbackTask(classp, "post");
+            ਜੇ (!postTaskp->stmtsp()) {
                 populateNestedCallbackTask(postTaskp, classp, "post_randomize");
             }
-            randomizeFuncp->addStmtsp((new AstTaskRef{nodep->fileline(), postTaskp})->makeStmt());
+            randomizeFuncp->ਜੋੜੋ_Stmtsp((ਨਵਾਂ AstTaskRef{nodep->fileline(), postTaskp})->makeStmt());
         }
 
-        if (prePostWrap.second) {
-            addVirtualPrePostCall(randomizeFuncp, classp, "post_randomize");
-        } else {
-            addPrePostCall(classp, randomizeFuncp, "post_randomize");
+        ਜੇ (prePostWrap.ਦੂਜਾ) {
+            ਜੋੜੋ_Virtual_Pre_Post_Call(randomizeFuncp, classp, "post_randomize");
+        } ਨਹੀਂਤਾਂ {
+            ਜੋੜੋ_Pre_Post_Call(classp, randomizeFuncp, "post_randomize");
         }
 
         // Replace the node with a call to that function
         nodep->name(randomizeFuncp->name());
-        nodep->addArgsp(captured.getArgs());
+        nodep->ਜੋੜੋ_Argsp(captured.get_ਦਲੀਲਾਂ());
         nodep->taskp(randomizeFuncp);
         nodep->dtypeFrom(randomizeFuncp->dtypep());
         nodep->classOrPackagep(classp);
         UINFO(9, "Added `%s` randomization procedure");
         wrapRandomizeCallWithNullGuard(nodep);
-        VL_DO_DANGLING(withp->deleteTree(), withp);
+        VL_DO_DANGLING(withp->delete_ਰੁੱਖ(), withp);
     }
-    void visit(AstConstraint* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConstraint* nodep) override {
         VL_RESTORER(m_constraintp);
         m_constraintp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        FileLine* const fl = nodep->fileline();
-        if (m_constraintp && nodep->fromp()->user1()
-            && (nodep->method() == VCMethod::ASSOC_SIZE
-                || nodep->method() == VCMethod::DYN_SIZE)) {
-            AstClass* const classp = VN_AS(m_modp, Class);
-            AstVarRef* const queueVarRefp = VN_CAST(nodep->fromp(), VarRef);
-            if (!queueVarRefp) {
+        File_ਸਤਰ* ਅਚਲ fl = nodep->fileline();
+        ਜੇ (m_constraintp && nodep->fromp()->user1()
+            && (nodep->ਵਿਧੀ() == VCMethod::ASSOC_ਮਾਪ
+                || nodep->ਵਿਧੀ() == VCMethod::DYN_ਮਾਪ)) {
+            AstClass* ਅਚਲ classp = VN_AS(m_modp, Class);
+            AstVarRef* ਅਚਲ ਕਤਾਰ_Var_Refp = VN_CAST(nodep->fromp(), VarRef);
+            ਜੇ (!ਕਤਾਰ_Var_Refp) {
                 // Warning from ConstraintExprVisitor will be thrown
-                return;
+                ਵਾਪਸ;
             }
-            AstVar* const queueVarp = queueVarRefp->varp();
-            bool wasCreated = false;
-            AstVar* const sizeVarp
-                = createOrGetSizeVar(classp, queueVarp, fl, nodep->findIntDType(), wasCreated);
-            if (wasCreated) {
+            AstVar* ਅਚਲ ਕਤਾਰ_Varp = ਕਤਾਰ_Var_Refp->varp();
+            ਤਾਰਕਿਕ wasCreated = ਝੂਠ;
+            AstVar* ਅਚਲ ਮਾਪ_Varp
+                = create_Or_Get_ਮਾਪ_Var(classp, ਕਤਾਰ_Varp, fl, nodep->ਲੱਭੋ_Int_DType(), wasCreated);
+            ਜੇ (wasCreated) {
                 // Associative arrays have no resize(); only generate resize
                 // for dynamic arrays and queues
-                if (!VN_IS(queueVarp->dtypep()->skipRefp(), AssocArrayDType)) {
+                ਜੇ (!VN_IS(ਕਤਾਰ_Varp->dtypep()->skipRefp(), AssocArrayDType)) {
                     AstTask* resizerTaskp = VN_AS(m_constraintp->user3p(), Task);
-                    if (!resizerTaskp) {
+                    ਜੇ (!resizerTaskp) {
                         resizerTaskp
                             = newResizeConstrainedArrayTask(classp, m_constraintp->name());
                         m_constraintp->user3p(resizerTaskp);
                     }
-                    AstVarRef* const sizeVarRefp = new AstVarRef{
-                        fl, VN_AS(sizeVarp->user2p(), NodeModule), sizeVarp, VAccess::READ};
-                    AstCMethodHard* const resizep = new AstCMethodHard{
-                        fl, nodep->fromp()->unlinkFrBack(), VCMethod::DYN_RESIZE, sizeVarRefp};
-                    resizep->dtypep(nodep->findVoidDType());
-                    resizerTaskp->addStmtsp(new AstStmtExpr{fl, resizep});
+                    AstVarRef* ਅਚਲ ਮਾਪ_Var_Refp = ਨਵਾਂ AstVarRef{
+                        fl, VN_AS(ਮਾਪ_Varp->user2p(), ਗੰਢ_Module), ਮਾਪ_Varp, VAccess::READ};
+                    AstCMethodHard* ਅਚਲ resizep = ਨਵਾਂ AstCMethodHard{
+                        fl, nodep->fromp()->unlink_Fr_ਪਿੱਠ(), VCMethod::DYN_RESIZE, ਮਾਪ_Var_Refp};
+                    resizep->dtypep(nodep->ਲੱਭੋ_Void_DType());
+                    resizerTaskp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_Stmt_ਵਿਅੰਜਕ{fl, resizep});
                 }
 
                 // Since size variable is signed int, we need additional constraint
                 // to make sure it is always >= 0.
-                m_constraintp->addItemsp(createSizeGteZeroConstraint(fl, sizeVarp));
+                m_constraintp->ਜੋੜੋ_Itemsp(create_ਮਾਪ_Gte_Zero_Constraint(fl, ਮਾਪ_Varp));
             }
-            AstVarRef* const sizeVarRefp = new AstVarRef{fl, VN_AS(sizeVarp->user2p(), NodeModule),
-                                                         sizeVarp, VAccess::READ};
-            sizeVarRefp->user1(true);
-            nodep->replaceWith(sizeVarRefp);
-            VL_DO_DANGLING(nodep->deleteTree(), nodep);
+            AstVarRef* ਅਚਲ ਮਾਪ_Var_Refp = ਨਵਾਂ AstVarRef{fl, VN_AS(ਮਾਪ_Varp->user2p(), ਗੰਢ_Module),
+                                                         ਮਾਪ_Varp, VAccess::READ};
+            ਮਾਪ_Var_Refp->user1(ਸੱਚ);
+            nodep->replaceWith(ਮਾਪ_Var_Refp);
+            VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         }
     }
-    void visit(AstNodeStmt* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Stmt* nodep) override {
         VL_RESTORER(m_stmtp);
         m_stmtp = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit RandomizeVisitor(AstNetlist* nodep)
-        : m_inlineUniqueNames{"__Vrandwith"} {
+    ਸਪਸ਼ਟ RandomizeVisitor(AstNetlist* nodep)
+        : m_inline_Unique_ਨਾਂ{"__Vrandwith"} {
         createRandomizeClassVars(nodep);
         // Flag local constraint leaves as solver-owned so __VBasicRand skips them.
         // Runs before any class is lowered. Only a randomized class counts, and
@@ -6910,114 +6910,114 @@ public:
         // a global constraint stays basic-randomized so a standalone randomize()
         // of its type still randomizes it (issue #7833); a class-typed sub-object
         // is skipped so its own members are still basic-randomized.
-        nodep->foreach([&](AstClass* const classp) {
-            if (!classp->user1()) return;
-            classp->foreachMember([&](AstClass* const ownerClassp, AstConstraint* const constrp) {
-                constrp->foreach([&](AstMemberSel* const memberSelp) {
-                    AstVar* const varp = memberSelp->varp();
-                    if (VN_IS(varp->dtypep()->skipRefp(), ClassRefDType)) return;
-                    if (VN_AS(varp->user2p(), NodeModule) != ownerClassp) return;
-                    if (!varp->user3()) varp->user3(true);
+        nodep->foreach([&](AstClass* ਅਚਲ classp) {
+            ਜੇ (!classp->user1()) ਵਾਪਸ;
+            classp->foreachMember([&](AstClass* ਅਚਲ ownerClassp, AstConstraint* ਅਚਲ constrp) {
+                constrp->foreach([&](AstMemberSel* ਅਚਲ memberSelp) {
+                    AstVar* ਅਚਲ varp = memberSelp->varp();
+                    ਜੇ (VN_IS(varp->dtypep()->skipRefp(), ClassRefDType)) ਵਾਪਸ;
+                    ਜੇ (VN_AS(varp->user2p(), ਗੰਢ_Module) != ownerClassp) ਵਾਪਸ;
+                    ਜੇ (!varp->user3()) varp->user3(ਸੱਚ);
                 });
             });
         });
 
         iterate(nodep);
         nodep->foreach([&](AstConstraint* constrp) {
-            VL_DO_DANGLING(pushDeletep(constrp->unlinkFrBack()), constrp);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(constrp->unlink_Fr_ਪਿੱਠ()), constrp);
         });
     }
-    ~RandomizeVisitor() override = default;
+    ~RandomizeVisitor() override = ਮੂਲ;
 };
 
 //######################################################################
 // Randomize method class functions
 
-void V3Randomize::randomizeNetlist(AstNetlist* nodep) {
+ਖਾਲੀ V3Randomize::randomizeNetlist(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
-        const RandomizeMarkVisitor markVisitor{nodep};
-        const RandomizeVisitor randomizeVisitor{nodep};
+        ਅਚਲ RandomizeMarkVisitor markVisitor{nodep};
+        ਅਚਲ RandomizeVisitor randomizeVisitor{nodep};
     }
-    V3Global::dumpCheckGlobalTree("randomize", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("randomize", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }
 
 AstFunc* V3Randomize::newRandomizeFunc(VMemberMap& memberMap, AstClass* nodep,
-                                       const std::string& name, bool allowVirtual,
-                                       bool childDType) {
-    AstFunc* funcp = VN_AS(memberMap.findMember(nodep, name), Func);
-    if (!funcp) {
-        v3Global.useRandomizeMethods(true);
-        AstNodeDType* const dtypep
-            = childDType
-                  ? new AstBasicDType{nodep->fileline(), VBasicDTypeKwd::INT}
-                  : nodep->findBitDType(32, 32, VSigning::SIGNED);  // IEEE says int return of 0/1
-        AstVar* const fvarp = childDType
-                                  ? new AstVar{nodep->fileline(), VVarType::MEMBER, name,
-                                               VFlagChildDType{}, dtypep}
-                                  : new AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
-        fvarp->fileline()->warnOff(V3ErrorCode::NORETURN, true);
+                                       ਅਚਲ std::string& name, ਤਾਰਕਿਕ allowVirtual,
+                                       ਤਾਰਕਿਕ ਬੱਚਾ_DType) {
+    AstFunc* funcp = VN_AS(memberMap.ਲੱਭੋ_Member(nodep, name), Func);
+    ਜੇ (!funcp) {
+        v3Global.useRandomizeMethods(ਸੱਚ);
+        Ast_ਗੰਢ_DType* ਅਚਲ dtypep
+            = ਬੱਚਾ_DType
+                  ? ਨਵਾਂ AstBasicDType{nodep->fileline(), VBasicDTypeKwd::INT}
+                  : nodep->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(32, 32, VSigning::SIGNED);  // IEEE says int return of 0/1
+        AstVar* ਅਚਲ fvarp = ਬੱਚਾ_DType
+                                  ? ਨਵਾਂ AstVar{nodep->fileline(), VVarType::MEMBER, name,
+                                               VFlag_ਬੱਚਾ_DType{}, dtypep}
+                                  : ਨਵਾਂ AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
+        fvarp->fileline()->warnOff(V3_Error_ਕੋਡ::NORETURN, ਸੱਚ);
         fvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        fvarp->funcLocal(true);
-        fvarp->funcReturn(true);
+        fvarp->funcLocal(ਸੱਚ);
+        fvarp->funcReturn(ਸੱਚ);
         fvarp->direction(VDirection::OUTPUT);
-        nodep->addMembersp(funcp);
-        funcp = new AstFunc{nodep->fileline(), name, nullptr, fvarp};
-        if (!childDType) funcp->dtypep(dtypep);
-        funcp->classMethod(true);
+        nodep->ਜੋੜੋ_Membersp(funcp);
+        funcp = ਨਵਾਂ AstFunc{nodep->fileline(), name, ਖਾਲੀ_ਸੂਚਕ, fvarp};
+        ਜੇ (!ਬੱਚਾ_DType) funcp->dtypep(dtypep);
+        funcp->class_ਵਿਧੀ(ਸੱਚ);
         funcp->isVirtual(allowVirtual && nodep->isExtended());
-        nodep->addMembersp(funcp);
-        memberMap.insert(nodep, funcp);
+        nodep->ਜੋੜੋ_Membersp(funcp);
+        memberMap.ਪਾਓ(nodep, funcp);
     }
-    return funcp;
+    ਵਾਪਸ funcp;
 }
 
-AstFunc* V3Randomize::newRandomizeStdFunc(AstNodeModule* nodep, const std::string& name) {
-    AstFunc* funcp = nullptr;
-    v3Global.useRandomizeMethods(true);
-    AstNodeDType* const dtypep = nodep->findBitDType(32, 32, VSigning::SIGNED);
-    AstVar* const fvarp = new AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
+AstFunc* V3Randomize::newRandomizeStdFunc(Ast_ਗੰਢ_Module* nodep, ਅਚਲ std::string& name) {
+    AstFunc* funcp = ਖਾਲੀ_ਸੂਚਕ;
+    v3Global.useRandomizeMethods(ਸੱਚ);
+    Ast_ਗੰਢ_DType* ਅਚਲ dtypep = nodep->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(32, 32, VSigning::SIGNED);
+    AstVar* ਅਚਲ fvarp = ਨਵਾਂ AstVar{nodep->fileline(), VVarType::MEMBER, name, dtypep};
     fvarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-    fvarp->funcLocal(true);
-    fvarp->funcReturn(true);
+    fvarp->funcLocal(ਸੱਚ);
+    fvarp->funcReturn(ਸੱਚ);
     fvarp->direction(VDirection::OUTPUT);
-    funcp = new AstFunc{nodep->fileline(), name, nullptr, fvarp};
+    funcp = ਨਵਾਂ AstFunc{nodep->fileline(), name, ਖਾਲੀ_ਸੂਚਕ, fvarp};
     funcp->dtypep(dtypep);
-    if (VN_IS(nodep, Class)) {
-        funcp->classMethod(true);
-    } else {
-        funcp->classMethod(true);
-        funcp->isStatic(true);
+    ਜੇ (VN_IS(nodep, Class)) {
+        funcp->class_ਵਿਧੀ(ਸੱਚ);
+    } ਨਹੀਂਤਾਂ {
+        funcp->class_ਵਿਧੀ(ਸੱਚ);
+        funcp->isStatic(ਸੱਚ);
     }
-    nodep->addStmtsp(funcp);
-    return funcp;
+    nodep->ਜੋੜੋ_Stmtsp(funcp);
+    ਵਾਪਸ funcp;
 }
 
 AstFunc* V3Randomize::newSRandomFunc(VMemberMap& memberMap, AstClass* nodep) {
-    AstClass* const basep = nodep->baseMostClassp();
-    AstFunc* funcp = VN_AS(memberMap.findMember(basep, "srandom"), Func);
-    if (!funcp) {
-        v3Global.useRandomizeMethods(true);
-        AstNodeDType* const dtypep
-            = basep->findBitDType(32, 32, VSigning::SIGNED);  // IEEE says argument 0/1
-        AstVar* const ivarp = new AstVar{basep->fileline(), VVarType::MEMBER, "seed", dtypep};
+    AstClass* ਅਚਲ basep = nodep->ਅਧਾਰ_Most_Classp();
+    AstFunc* funcp = VN_AS(memberMap.ਲੱਭੋ_Member(basep, "srandom"), Func);
+    ਜੇ (!funcp) {
+        v3Global.useRandomizeMethods(ਸੱਚ);
+        Ast_ਗੰਢ_DType* ਅਚਲ dtypep
+            = basep->ਲੱਭੋ_ਦੋਆਧਾਰੀ_ਅੰਕ_DType(32, 32, VSigning::SIGNED);  // IEEE says argument 0/1
+        AstVar* ਅਚਲ ivarp = ਨਵਾਂ AstVar{basep->fileline(), VVarType::MEMBER, "seed", dtypep};
         ivarp->lifetime(VLifetime::AUTOMATIC_EXPLICIT);
-        ivarp->funcLocal(true);
-        ivarp->direction(VDirection::INPUT);
-        funcp = new AstFunc{basep->fileline(), "srandom", ivarp, nullptr};
-        funcp->dtypep(basep->findVoidDType());
-        funcp->classMethod(true);
-        funcp->isVirtual(false);
-        basep->addMembersp(funcp);
-        memberMap.insert(nodep, funcp);
+        ivarp->funcLocal(ਸੱਚ);
+        ivarp->direction(VDirection::ਨਿਵੇਸ਼);
+        funcp = ਨਵਾਂ AstFunc{basep->fileline(), "srandom", ivarp, ਖਾਲੀ_ਸੂਚਕ};
+        funcp->dtypep(basep->ਲੱਭੋ_Void_DType());
+        funcp->class_ਵਿਧੀ(ਸੱਚ);
+        funcp->isVirtual(ਝੂਠ);
+        basep->ਜੋੜੋ_Membersp(funcp);
+        memberMap.ਪਾਓ(nodep, funcp);
         // For std::process, seed the per-process RNG via m_process->srandom()
         // For regular classes, seed the per-object RNG via __Vm_rng
-        if (basep->name() == "process") {
-            funcp->addStmtsp(new AstCStmt{basep->fileline(), "m_process->srandom(seed);"});
-        } else {
-            funcp->addStmtsp(new AstCStmt{basep->fileline(), "__Vm_rng.srandom(seed);"});
-            basep->needRNG(true);
+        ਜੇ (basep->name() == "process") {
+            funcp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstCStmt{basep->fileline(), "m_process->srandom(seed);"});
+        } ਨਹੀਂਤਾਂ {
+            funcp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstCStmt{basep->fileline(), "__Vm_rng.srandom(seed);"});
+            basep->needRNG(ਸੱਚ);
         }
     }
-    return funcp;
+    ਵਾਪਸ funcp;
 }

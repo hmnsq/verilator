@@ -29,188 +29,188 @@
 //
 //*************************************************************************
 
-#include "V3PchAstMT.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstMT.h"
 
-#include "V3FuncOpt.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3FuncOpt.h"
 
-#include "V3Global.h"
-#include "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class BalanceConcatTree final {
+ਵਰਗ Balance_Concat_ਰੁੱਖ final {
     // STATELESS
 
     // We keep the expressions, together with their offsets within a concatenation tree
-    struct Term final {
-        AstNodeExpr* exprp = nullptr;
-        size_t offset = 0;
+    ਬਣਤਰ ਪਦ_2 final {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਮਾਪ_t ਵਿੱਥ = 0;
 
-        Term() = default;
-        Term(AstNodeExpr* exprp, size_t offset)
+        ਪਦ_2() = ਮੂਲ;
+        ਪਦ_2(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, ਮਾਪ_t ਵਿੱਥ)
             : exprp{exprp}
-            , offset{offset} {}
+            , ਵਿੱਥ{ਵਿੱਥ} {}
     };
 
     // Recursive implementation of 'gatherTerms' below.
-    static void gatherTermsRecursive(AstNodeExpr* exprp, std::vector<AstNodeExpr*>& terms) {
-        if (AstConcat* const catp = VN_CAST(exprp, Concat)) {
+    ਸਥਿਰ ਖਾਲੀ gatherTermsRecursive(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*>& terms) {
+        ਜੇ (AstConcat* ਅਚਲ catp = VN_CAST(exprp, Concat)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-            return;
+            ਵਾਪਸ;
         }
-        if (AstExtend* const extp = VN_CAST(exprp, Extend)) {
+        ਜੇ (AstExtend* ਅਚਲ extp = VN_CAST(exprp, Extend)) {
             // Recursive case: gather sub terms, right to left
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-            return;
+            terms.emplace_ਪਿੱਠ(extp);
+            ਵਾਪਸ;
         }
 
         // Base case: different operation
-        terms.emplace_back(exprp);
+        terms.emplace_ਪਿੱਠ(exprp);
     }
 
     // Gather terms in the tree rooted at the given node.
     // Results are right to left, that is, index 0 in the returned vector
     // is the rightmost term, index size()-1 is the leftmost term.
     // If a term is an AstExtend, it represents the extension part only.
-    static std::vector<AstNodeExpr*> gatherTerms(AstNodeExpr* rootp) {
-        std::vector<AstNodeExpr*> terms;
-        if (AstConcat* const catp = VN_CAST(rootp, Concat)) {
+    ਸਥਿਰ std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> gatherTerms(Ast_ਗੰਢ_ਵਿਅੰਜਕ* rootp) {
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> terms;
+        ਜੇ (AstConcat* ਅਚਲ catp = VN_CAST(rootp, Concat)) {
             gatherTermsRecursive(catp->rhsp(), terms);
             gatherTermsRecursive(catp->lhsp(), terms);
-        } else if (AstExtend* const extp = VN_CAST(rootp, Extend)) {
+        } ਨਹੀਂਤਾਂ ਜੇ (AstExtend* ਅਚਲ extp = VN_CAST(rootp, Extend)) {
             gatherTermsRecursive(extp->lhsp(), terms);
-            terms.emplace_back(extp);
-        } else {
+            terms.emplace_ਪਿੱਠ(extp);
+        } ਨਹੀਂਤਾਂ {
             rootp->v3fatalSrc("Unexpected node type");
         }
-        return terms;
+        ਵਾਪਸ terms;
     }
 
     // Construct a balanced concatenation from the given terms,
     // between indices begin (inclusive), and end (exclusive).
     // Note term[end].offset must be valid. term[end].vtxp is
     // never referenced.
-    static AstNodeExpr* construct(const std::vector<Term>& terms, const size_t begin,
-                                  const size_t end) {
-        UASSERT(end < terms.size(), "Invalid end");
-        UASSERT(begin < end, "Invalid range");
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* construct(ਅਚਲ std::ਸਦਿਸ਼<ਪਦ_2>& terms, ਅਚਲ ਮਾਪ_t begin,
+                                  ਅਚਲ ਮਾਪ_t ਸਿਰਾ) {
+        UASSERT(ਸਿਰਾ < terms.ਮਾਪ(), "Invalid end");
+        UASSERT(begin < ਸਿਰਾ, "Invalid range");
         // Base case: just return the term
-        if (end == begin + 1) return terms[begin].exprp;
+        ਜੇ (ਸਿਰਾ == begin + 1) ਵਾਪਸ terms[begin].exprp;
 
         // Recursive case:
         // Compute the mid-point, trying to create roughly equal width intermediates
-        const size_t width = terms[end].offset - terms[begin].offset;
-        const size_t midOffset = width / 2 + terms[begin].offset;
-        const auto beginIt = terms.begin() + begin;
-        const auto endIt = terms.begin() + end;
-        const auto midIt = std::lower_bound(beginIt + 1, endIt - 1, midOffset,  //
-                                            [&](const Term& term, size_t value) {  //
-                                                return term.offset < value;
+        ਅਚਲ ਮਾਪ_t ਚੌੜਾਈ = terms[ਸਿਰਾ].ਵਿੱਥ - terms[begin].ਵਿੱਥ;
+        ਅਚਲ ਮਾਪ_t mid_ਵਿੱਥ = ਚੌੜਾਈ / 2 + terms[begin].ਵਿੱਥ;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ beginIt = terms.begin() + begin;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ ਸਿਰਾ_It = terms.begin() + ਸਿਰਾ;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ midIt = std::ਹੇਠਲਾ_bound(beginIt + 1, ਸਿਰਾ_It - 1, mid_ਵਿੱਥ,  //
+                                            [&](ਅਚਲ ਪਦ_2& ਪਦ, ਮਾਪ_t ਮੁੱਲ) {  //
+                                                ਵਾਪਸ ਪਦ.ਵਿੱਥ < ਮੁੱਲ;
                                             });
-        const size_t mid = begin + std::distance(beginIt, midIt);
-        UASSERT(begin < mid && mid < end, "Must make some progress");
+        ਅਚਲ ਮਾਪ_t mid = begin + std::ਦੂਰੀ(beginIt, midIt);
+        UASSERT(begin < mid && mid < ਸਿਰਾ, "Must make some progress");
         // Construct the subtrees
-        AstNodeExpr* const rhsp = construct(terms, begin, mid);
-        AstNodeExpr* const lhsp = construct(terms, mid, end);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = construct(terms, begin, mid);
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ lhsp = construct(terms, mid, ਸਿਰਾ);
         // Construct new node
-        AstNodeExpr* newp = new AstConcat{lhsp->fileline(), lhsp, rhsp};
-        newp->user1(true);  // Must not attempt to balance again.
-        return newp;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* newp = ਨਵਾਂ AstConcat{lhsp->fileline(), lhsp, rhsp};
+        newp->user1(ਸੱਚ);  // Must not attempt to balance again.
+        ਵਾਪਸ newp;
     }
 
     // Returns replacement node, or nullptr if no change
-    static AstConcat* balance(AstNodeExpr* const rootp) {
+    ਸਥਿਰ AstConcat* balance(Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rootp) {
         UINFO(9, "balanceConcat " << rootp);
         // Gather all input vertices of the tree
-        const std::vector<AstNodeExpr*> exprps = gatherTerms(rootp);
+        ਅਚਲ std::ਸਦਿਸ਼<Ast_ਗੰਢ_ਵਿਅੰਜਕ*> exprps = gatherTerms(rootp);
         // Don't bother with trivial trees
-        if (exprps.size() <= 3) return nullptr;
+        ਜੇ (exprps.ਮਾਪ() <= 3) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         // Don't do it if any of the terms are impure
-        for (AstNodeExpr* const exprp : exprps) {
-            if (!exprp->isPure()) return nullptr;
+        ਲਈ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp : exprps) {
+            ਜੇ (!exprp->is_ਸ਼ੁੱਧ()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
         }
 
         // Construct the terms Vector that we are going to do processing on
-        std::vector<Term> terms(exprps.size() + 1);
+        std::ਸਦਿਸ਼<ਪਦ_2> terms(exprps.ਮਾਪ() + 1);
         // These are redundant (constructor does the same), but here they are for clarity
-        terms[0].offset = 0;
-        terms[exprps.size()].exprp = nullptr;
-        for (size_t i = 0; i < exprps.size(); ++i) {
-            AstNodeExpr* const exprp = [&]() -> AstNodeExpr* {
-                if (AstExtend* const extp = VN_CAST(exprps[i], Extend)) {
-                    const int width = extp->width() - extp->lhsp()->width();
-                    return new AstConst{extp->fileline(), AstConst::WidthedValue{}, width, 0};
+        terms[0].ਵਿੱਥ = 0;
+        terms[exprps.ਮਾਪ()].exprp = ਖਾਲੀ_ਸੂਚਕ;
+        ਲਈ (ਮਾਪ_t i = 0; i < exprps.ਮਾਪ(); ++i) {
+            Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = [&]() -> Ast_ਗੰਢ_ਵਿਅੰਜਕ* {
+                ਜੇ (AstExtend* ਅਚਲ extp = VN_CAST(exprps[i], Extend)) {
+                    ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = extp->ਚੌੜਾਈ() - extp->lhsp()->ਚੌੜਾਈ();
+                    ਵਾਪਸ ਨਵਾਂ AstConst{extp->fileline(), AstConst::Widthed_ਮੁੱਲ{}, ਚੌੜਾਈ, 0};
                 }
-                return exprps[i]->cloneTreePure(false);
+                ਵਾਪਸ exprps[i]->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ);
             }();
             terms[i].exprp = exprp;
-            terms[i + 1].offset = terms[i].offset + exprp->width();
+            terms[i + 1].ਵਿੱਥ = terms[i].ਵਿੱਥ + exprp->ਚੌੜਾਈ();
         }
 
         // Round 1: try to create terms ending on VL_EDATASIZE boundaries.
         // This ensures we pack bits within a VL_EDATASIZE first is possible,
         // and then hopefully we can just assemble VL_EDATASIZE words afterward.
-        std::vector<Term> terms2;
+        std::ਸਦਿਸ਼<ਪਦ_2> terms2;
         {
-            terms2.reserve(terms.size());
+            terms2.reserve(terms.ਮਾਪ());
 
-            size_t begin = 0;  // Start of current range considered
-            size_t end = 0;  // End of current range considered
-            size_t offset = 0;  // Offset of current range considered
+            ਮਾਪ_t begin = 0;  // Start of current range considered
+            ਮਾਪ_t ਸਿਰਾ = 0;  // End of current range considered
+            ਮਾਪ_t ਵਿੱਥ = 0;  // Offset of current range considered
 
             // Create a term from the current range
-            const auto makeTerm = [&]() {
-                AstNodeExpr* const exprp = construct(terms, begin, end);
-                terms2.emplace_back(exprp, offset);
-                offset += exprp->width();
-                begin = end;
+            ਅਚਲ ਸਵੈਚਾਲਿਤ make_ਪਦ = [&]() {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = construct(terms, begin, ਸਿਰਾ);
+                terms2.emplace_ਪਿੱਠ(exprp, ਵਿੱਥ);
+                ਵਿੱਥ += exprp->ਚੌੜਾਈ();
+                begin = ਸਿਰਾ;
             };
 
             // Create all terms ending on a boundary.
-            while (++end < terms.size() - 1) {
-                if (terms[end].offset % VL_EDATASIZE == 0) makeTerm();
+            ਜਦੋਂ (++ਸਿਰਾ < terms.ਮਾਪ() - 1) {
+                ਜੇ (terms[ਸਿਰਾ].ਵਿੱਥ % VL_EDATASIZE == 0) make_ਪਦ();
             }
             // Final term. Loop condition above ensures this always exists,
             // and might or might not be on a boundary.
-            makeTerm();
+            make_ਪਦ();
             // Sentinel term
-            terms2.emplace_back(nullptr, offset);
+            terms2.emplace_ਪਿੱਠ(ਖਾਲੀ_ਸੂਚਕ, ਵਿੱਥ);
             // should have ended up with the same number of bits at least...
-            UASSERT(terms2.back().offset == terms.back().offset, "Inconsistent terms");
+            UASSERT(terms2.ਪਿੱਠ().ਵਿੱਥ == terms.ਪਿੱਠ().ਵਿੱਥ, "Inconsistent terms");
         }
 
         // Round 2: Combine the partial terms
-        return VN_AS(construct(terms2, 0, terms2.size() - 1), Concat);
+        ਵਾਪਸ VN_AS(construct(terms2, 0, terms2.ਮਾਪ() - 1), Concat);
     }
 
-public:
-    static AstNodeExpr* apply(AstNodeExpr* nodep) {
-        if (!v3Global.opt.fFuncBalanceCat()) return nullptr;
-        if (nodep->user1()) return nullptr;  // Created by us, don't try to balance again
-        if (VN_IS(nodep->backp(), Concat)) return nullptr;  // Not root of tree
-        if (VN_IS(nodep->backp(), Extend)) return nullptr;  // Not root of tree
-        AstNodeExpr* const exprp = balance(nodep);
-        if (exprp) exprp->user1(true);  // Must not attempt again.
-        return exprp;
+ਜਨਤਕ:
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* apply(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਜੇ (!v3Global.opt.fFuncBalanceCat()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (nodep->user1()) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;  // Created by us, don't try to balance again
+        ਜੇ (VN_IS(nodep->backp(), Concat)) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;  // Not root of tree
+        ਜੇ (VN_IS(nodep->backp(), Extend)) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;  // Not root of tree
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ exprp = balance(nodep);
+        ਜੇ (exprp) exprp->user1(ਸੱਚ);  // Must not attempt again.
+        ਵਾਪਸ exprp;
     }
 };
 
-struct FuncOptStats final {
+ਬਣਤਰ FuncOptStats final {
     // STATE - Statistic tracking
-    VDouble0 m_balancedConcats;  // Number of concatenations balanced
+    VDouble0 m_ਸੰਤੁਲਿਤ_Concats;  // Number of concatenations balanced
     VDouble0 m_concatSplits;  // Number of splits in assignments with Concat on RHS
 
-    FuncOptStats() = default;
+    FuncOptStats() = ਮੂਲ;
     ~FuncOptStats() {
-        V3Stats::addStat("Optimizations, FuncOpt concat trees balanced", m_balancedConcats);
-        V3Stats::addStat("Optimizations, FuncOpt concat splits", m_concatSplits);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, FuncOpt concat trees balanced", m_ਸੰਤੁਲਿਤ_Concats);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, FuncOpt concat splits", m_concatSplits);
     }
 };
 
-class FuncOptVisitor final : public VNVisitor {
+ਵਰਗ FuncOptVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     //  AstNodeAssign::user()     -> bool.  Already checked, safe to split. Omit expensive check.
     //  AstConcat::user()         -> bool.  Already balanced.
@@ -219,179 +219,179 @@ class FuncOptVisitor final : public VNVisitor {
     FuncOptStats& m_stats;  // Statistics
 
     // True for e.g.: foo = foo >> 1; or foo[foo[0]] = ...;
-    static bool readsLhs(AstNodeAssign* nodep) {
+    ਸਥਿਰ ਤਾਰਕਿਕ readsLhs(Ast_ਗੰਢ_ਸੌਂਪੋ* nodep) {
         // It is expected that the number of vars written on the LHS is very small (should be 1).
-        std::unordered_set<const AstVar*> lhsWrVarps;
-        std::unordered_set<const AstVar*> lhsRdVarps;
-        nodep->lhsp()->foreach([&](const AstVarRef* refp) {
-            if (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
-            if (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
+        std::unordered_ਸੈੱਟ<ਅਚਲ AstVar*> lhsWrVarps;
+        std::unordered_ਸੈੱਟ<ਅਚਲ AstVar*> lhsRdVarps;
+        nodep->lhsp()->foreach([&](ਅਚਲ AstVarRef* refp) {
+            ਜੇ (refp->access().isWriteOrRW()) lhsWrVarps.emplace(refp->varp());
+            ਜੇ (refp->access().isReadOrRW()) lhsRdVarps.emplace(refp->varp());
         });
 
         // Common case of 1 variable on the LHS - special handling for speed
-        if (lhsWrVarps.size() == 1) {
-            const AstVar* const lhsWrVarp = *lhsWrVarps.begin();
+        ਜੇ (lhsWrVarps.ਮਾਪ() == 1) {
+            ਅਚਲ AstVar* ਅਚਲ lhsWrVarp = *lhsWrVarps.begin();
             // Check Rhs doesn't read the written var
-            const bool rhsReadsWritten = nodep->rhsp()->exists([=](const AstVarRef* refp) {  //
-                return refp->varp() == lhsWrVarp;
+            ਅਚਲ ਤਾਰਕਿਕ rhsReadsWritten = nodep->rhsp()->exists([=](ਅਚਲ AstVarRef* refp) {  //
+                ਵਾਪਸ refp->varp() == lhsWrVarp;
             });
-            if (rhsReadsWritten) return true;
+            ਜੇ (rhsReadsWritten) ਵਾਪਸ ਸੱਚ;
             // Check Lhs doesn't read the written var
-            return lhsRdVarps.count(lhsWrVarp);
+            ਵਾਪਸ lhsRdVarps.ਗਿਣਤੀ_2(lhsWrVarp);
         }
 
         // Generic case of multiple vars written on LHS
         // TODO: this might be impossible due to earlier transforms, not sure
         // Check Rhs doesn't read the written vars
-        const bool rhsReadsWritten = nodep->rhsp()->exists([&](const AstVarRef* refp) {  //
-            return lhsWrVarps.count(refp->varp());
+        ਅਚਲ ਤਾਰਕਿਕ rhsReadsWritten = nodep->rhsp()->exists([&](ਅਚਲ AstVarRef* refp) {  //
+            ਵਾਪਸ lhsWrVarps.ਗਿਣਤੀ_2(refp->varp());
         });
-        if (rhsReadsWritten) return true;
+        ਜੇ (rhsReadsWritten) ਵਾਪਸ ਸੱਚ;
         // Check Lhs doesn't read the written vars
-        for (const AstVar* const lhsWrVarp : lhsWrVarps) {
-            if (lhsRdVarps.count(lhsWrVarp)) return true;
+        ਲਈ (ਅਚਲ AstVar* ਅਚਲ lhsWrVarp : lhsWrVarps) {
+            ਜੇ (lhsRdVarps.ਗਿਣਤੀ_2(lhsWrVarp)) ਵਾਪਸ ਸੱਚ;
         }
-        return false;
+        ਵਾਪਸ ਝੂਠ;
     }
 
     // METHODS
     // Split wide assignments with a wide concatenation on the RHS.
     // Returns true if 'nodep' was deleted
-    bool splitConcat(AstNodeAssign* nodep) {
+    ਤਾਰਕਿਕ ਵੰਡੋ_Concat(Ast_ਗੰਢ_ਸੌਂਪੋ* nodep) {
         UINFO(9, "splitConcat " << nodep);
-        AstNodeExpr* const rhsp = nodep->rhsp();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = nodep->rhsp();
         // Only care about concatenations an zero extend on the RHS
-        if (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) return false;
+        ਜੇ (!VN_IS(rhsp, Concat) && !VN_IS(rhsp, Extend)) ਵਾਪਸ ਝੂਠ;
         // Will need the LHS
-        AstNodeExpr* lhsp = nodep->lhsp();
-        if (!VN_IS(lhsp->dtypep()->skipRefp(), QueueDType))
-            UASSERT_OBJ(lhsp->width() == rhsp->width(), nodep, "Inconsistent assignment");
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* lhsp = nodep->lhsp();
+        ਜੇ (!VN_IS(lhsp->dtypep()->skipRefp(), ਕਤਾਰ_DType))
+            UASSERT_OBJ(lhsp->ਚੌੜਾਈ() == rhsp->ਚੌੜਾਈ(), nodep, "Inconsistent assignment");
         // Only consider pure assignments. Nodes inserted below are safe.
-        if (!nodep->user1() && (!lhsp->isPure() || !rhsp->isPure())) return false;
+        ਜੇ (!nodep->user1() && (!lhsp->is_ਸ਼ੁੱਧ() || !rhsp->is_ਸ਼ੁੱਧ())) ਵਾਪਸ ਝੂਠ;
         // Do not split assignments to SC variables, they cannot be assigned in parts
-        if (lhsp->exists([](AstVarRef* refp) { return refp->varp()->isSc(); })) return false;
+        ਜੇ (lhsp->exists([](AstVarRef* refp) { ਵਾਪਸ refp->varp()->isSc(); })) ਵਾਪਸ ਝੂਠ;
         // Check for a Sel on the LHS if present, and skip over it
         uint32_t lsb = 0;
-        if (AstSel* const selp = VN_CAST(lhsp, Sel)) {
-            if (AstConst* const lsbp = VN_CAST(selp->lsbp(), Const)) {
+        ਜੇ (AstSel* ਅਚਲ selp = VN_CAST(lhsp, Sel)) {
+            ਜੇ (AstConst* ਅਚਲ lsbp = VN_CAST(selp->lsbp(), Const)) {
                 lhsp = selp->fromp();
-                lsb = lsbp->toUInt();
-            } else {
+                lsb = lsbp->ਮੰਜ਼ਿਲ_UInt();
+            } ਨਹੀਂਤਾਂ {
                 // Don't optimize if it's a variable select
-                return false;
+                ਵਾਪਸ ਝੂਠ;
             }
         }
         // No need to split assignments targeting storage smaller than a machine register
-        if (lhsp->width() <= VL_QUADSIZE) return false;
+        ਜੇ (lhsp->ਚੌੜਾਈ() <= VL_QUADSIZE) ਵਾਪਸ ਝੂਠ;
 
         // If it's a concat straddling a word boundary, try to split it.
         // The next visit on the new nodes will split it recursively.
         // Otherwise, keep the original assignment.
-        const int lsbWord = lsb / VL_EDATASIZE;
-        const int msbWord = (lsb + rhsp->width() - 1) / VL_EDATASIZE;
-        if (lsbWord == msbWord) return false;
+        ਅਚਲ ਪੂਰਨ lsb_ਸ਼ਬਦ = lsb / VL_EDATASIZE;
+        ਅਚਲ ਪੂਰਨ msb_ਸ਼ਬਦ = (lsb + rhsp->ਚੌੜਾਈ() - 1) / VL_EDATASIZE;
+        ਜੇ (lsb_ਸ਼ਬਦ == msb_ਸ਼ਬਦ) ਵਾਪਸ ਝੂਠ;
 
         // If the RHS reads the LHS, we can't actually do this. Nodes inserted below are safe.
-        if (!nodep->user1() && readsLhs(nodep)) return false;
+        ਜੇ (!nodep->user1() && readsLhs(nodep)) ਵਾਪਸ ਝੂਠ;
 
         // Ok, actually split it now
         UINFO(5, "splitConcat optimizing " << nodep);
         ++m_stats.m_concatSplits;
         // The 2 parts and their offsets
-        AstNodeExpr* const rrp = [rhsp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->rhsp()->unlinkFrBack();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rrp = [rhsp]() -> Ast_ਗੰਢ_ਵਿਅੰਜਕ* {
+            ਜੇ (AstConcat* ਅਚਲ catp = VN_CAST(rhsp, Concat)) {
+                ਵਾਪਸ catp->rhsp()->unlink_Fr_ਪਿੱਠ();
             }
-            return VN_AS(rhsp, Extend)->lhsp()->unlinkFrBack();
+            ਵਾਪਸ VN_AS(rhsp, Extend)->lhsp()->unlink_Fr_ਪਿੱਠ();
         }();
-        AstNodeExpr* const rlp = [rhsp, rrp]() -> AstNodeExpr* {
-            if (AstConcat* const catp = VN_CAST(rhsp, Concat)) {
-                return catp->lhsp()->unlinkFrBack();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rlp = [rhsp, rrp]() -> Ast_ਗੰਢ_ਵਿਅੰਜਕ* {
+            ਜੇ (AstConcat* ਅਚਲ catp = VN_CAST(rhsp, Concat)) {
+                ਵਾਪਸ catp->lhsp()->unlink_Fr_ਪਿੱਠ();
             }
-            const int lWidth = rhsp->width() - rrp->width();
-            return new AstConst{rhsp->fileline(), AstConst::WidthedValue{}, lWidth, 0};
+            ਅਚਲ ਪੂਰਨ l_ਚੌੜਾਈ = rhsp->ਚੌੜਾਈ() - rrp->ਚੌੜਾਈ();
+            ਵਾਪਸ ਨਵਾਂ AstConst{rhsp->fileline(), AstConst::Widthed_ਮੁੱਲ{}, l_ਚੌੜਾਈ, 0};
         }();
-        const int rLsb = lsb;
-        const int lLsb = lsb + rrp->width();
+        ਅਚਲ ਪੂਰਨ rLsb = lsb;
+        ਅਚਲ ਪੂਰਨ lLsb = lsb + rrp->ਚੌੜਾਈ();
         // Insert the 2 assignment right after the original. They will be visited next.
-        AstAssign* const arp = new AstAssign{
+        Ast_ਸੌਂਪੋ* ਅਚਲ arp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->cloneTreePure(false), rLsb, rrp->width()}, rrp};
-        AstAssign* const alp = new AstAssign{
+            ਨਵਾਂ AstSel{lhsp->fileline(), lhsp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਝੂਠ), rLsb, rrp->ਚੌੜਾਈ()}, rrp};
+        Ast_ਸੌਂਪੋ* ਅਚਲ alp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
             nodep->fileline(),
-            new AstSel{lhsp->fileline(), lhsp->unlinkFrBack(), lLsb, rlp->width()}, rlp};
-        nodep->addNextHere(arp);
-        arp->addNextHere(alp);
+            ਨਵਾਂ AstSel{lhsp->fileline(), lhsp->unlink_Fr_ਪਿੱਠ(), lLsb, rlp->ਚੌੜਾਈ()}, rlp};
+        nodep->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(arp);
+        arp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(alp);
         // Safe to split these.
-        arp->user1(true);
-        alp->user1(true);
+        arp->user1(ਸੱਚ);
+        alp->user1(ਸੱਚ);
         // Nuke what is left
-        VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        return true;
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep->unlink_Fr_ਪਿੱਠ()), nodep);
+        ਵਾਪਸ ਸੱਚ;
     }
 
-    // VISIT
-    void visit(AstNodeAssign* nodep) override {
+    //ਦੇਖੋ
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਸੌਂਪੋ* nodep) override {
         // TODO: Only thing remaining inside functions should be AstAssign (that is, an actual
         //       assignment statement), but we stil use AstAssignW, AstAssignDly, and all, fix.
         iterateChildren(nodep);
 
-        if (v3Global.opt.fFuncSplitCat()) {
-            if (splitConcat(nodep)) return;  // Must return here, in case more code is added below
+        ਜੇ (v3Global.opt.f_Func_ਵੰਡੋ_Cat()) {
+            ਜੇ (ਵੰਡੋ_Concat(nodep)) ਵਾਪਸ;  // Must return here, in case more code is added below
         }
     }
 
-    void visit(AstConcat* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(AstConcat* nodep) override {
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ newp = Balance_Concat_ਰੁੱਖ::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_ਸੰਤੁਲਿਤ_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            ਵਾਪਸ;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstExtend* nodep) override {
-        if (AstNodeExpr* const newp = BalanceConcatTree::apply(nodep)) {
+    ਖਾਲੀ ਦੇਖੋ(AstExtend* nodep) override {
+        ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ newp = Balance_Concat_ਰੁੱਖ::apply(nodep)) {
             UINFO(5, "balanceConcat optimizing " << nodep);
-            ++m_stats.m_balancedConcats;
+            ++m_stats.m_ਸੰਤੁਲਿਤ_Concats;
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;  // The new node will be iterated next
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+            ਵਾਪਸ;  // The new node will be iterated next
         }
         iterateChildren(nodep);
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTORS
-    explicit FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
+    ਸਪਸ਼ਟ FuncOptVisitor(FuncOptStats& stats, AstCFunc* funcp)
         : m_stats{stats} {
         iterateChildren(funcp);
     }
 
-public:
-    static void apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ apply(FuncOptStats& stats, AstCFunc* funcp) { FuncOptVisitor{stats, funcp}; }
 };
 
 //######################################################################
 
-void V3FuncOpt::funcOptAll(AstNetlist* nodep) {
+ਖਾਲੀ V3FuncOpt::funcOptAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     {
         // NODE STATE
         //  AstNode::user1()     -> bool.  Processed
-        const VNUser1InUse user1InUse;
+        ਅਚਲ VNUser1_ਵਿੱਚ_Use user1_ਵਿੱਚ_Use;
         FuncOptStats stats;
-        for (AstNodeModule* modp = nodep->modulesp(); modp;
-             modp = VN_AS(modp->nextp(), NodeModule)) {
-            for (AstNode* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
-                if (AstCFunc* const cfuncp = VN_CAST(stmtp, CFunc)) {
+        ਲਈ (Ast_ਗੰਢ_Module* modp = nodep->modulesp(); modp;
+             modp = VN_AS(modp->nextp(), ਗੰਢ_Module)) {
+            ਲਈ (Ast_ਗੰਢ* stmtp = modp->stmtsp(); stmtp; stmtp = stmtp->nextp()) {
+                ਜੇ (AstCFunc* ਅਚਲ cfuncp = VN_CAST(stmtp, CFunc)) {
                     FuncOptVisitor::apply(stats, cfuncp);
                 }
             }
         }
     }
-    V3Global::dumpCheckGlobalTree("funcopt", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("funcopt", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

@@ -14,12 +14,12 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3GRAPHPATHCHECKER_H_
-#define VERILATOR_V3GRAPHPATHCHECKER_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3GRAPHPATHCHECKER_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3GRAPHPATHCHECKER_H_
 
-#include "V3Error.h"
-#include "V3Graph.h"
-#include "V3GraphAlg.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3GraphAlg.h"
 
 //######################################################################
 
@@ -29,35 +29,35 @@
 ///
 /// The graph (or at least, the subset the algorithm sees through
 /// edgeFuncp) must not change during the lifetime of the checker.
-class GraphPathChecker final : GraphAlg<V3Graph> {
+class ਗ੍ਰਾਫ_ਰਸਤਾ_Checker final : ਗ੍ਰਾਫ_Alg<V3_ਗ੍ਰਾਫ> {
     // Count "generations" which increases on operations that scan through
     // the graph. Each node is marked with the last generation that scanned
     // it, to enable asserting there are no cycles, and to avoid recursing
     // through the same node twice while searching for a path.
     uint64_t m_generation = 0;
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit GraphPathChecker(V3Graph* graphp, V3EdgeFuncP edgeFuncp
-                                               = V3GraphEdge::followAlwaysTrue) VL_MT_DISABLED;
-    ~GraphPathChecker() VL_MT_DISABLED;
+    explicit ਗ੍ਰਾਫ_ਰਸਤਾ_Checker(V3_ਗ੍ਰਾਫ* graphp, V3_ਕਿਨਾਰਾ_Func_P ਕਿਨਾਰਾ_Funcp
+                                               = V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue) VL_MT_DISABLED;
+    ~ਗ੍ਰਾਫ_ਰਸਤਾ_Checker() VL_MT_DISABLED;
 
     // METHODS
-    bool pathExistsFrom(const V3GraphVertex* fromp, const V3GraphVertex* top) VL_MT_DISABLED;
+    bool ਰਸਤਾ_Exists_From(ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp, ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ) VL_MT_DISABLED;
 
     // If have edges A->B, B->C, and A->C then A->C is considered a
     // "transitive" edge (implied by A->B and B->C) and it could be safely
     // removed. Detect such an edge.
-    bool isTransitiveEdge(const V3GraphEdge* edgep) VL_MT_DISABLED;
+    bool is_ਸੰਕ੍ਰਾਮਕ_ਕਿਨਾਰਾ(ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ* edgep) VL_MT_DISABLED;
 
-private:
-    bool pathExistsInternal(const V3GraphVertex* ap, const V3GraphVertex* bp,
-                            unsigned* costp = nullptr) VL_MT_DISABLED;
-    template <GraphWay::en N_Way>
-    void initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
-    void incGeneration() { ++m_generation; }
+ਨਿਜੀ:
+    bool ਰਸਤਾ_Exists_ਅੰਦਰੂਨੀ(ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ap, ਅਚਲ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* bp,
+                            ਬਿਨਾਨਿਸ਼ਾਨੀ* costp = nullptr) VL_MT_DISABLED;
+    ਸਾਂਚਾ <ਗ੍ਰਾਫ_Way::en N_Way>
+    ਖਾਲੀ initHalfCriticalPaths(bool checkOnly) VL_MT_DISABLED;
+    ਖਾਲੀ incGeneration() { ++m_generation; }
 
-    VL_UNCOPYABLE(GraphPathChecker);
+    VL_UNCOPYABLE(ਗ੍ਰਾਫ_ਰਸਤਾ_Checker);
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

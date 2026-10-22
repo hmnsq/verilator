@@ -18,35 +18,35 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Unroll.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Unroll.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Const.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Statistics tracking
 
-struct UnrollStats final {
-    class Stat final {
-        size_t m_value = 0;  // Statistics value
-        const char* const m_name;  // Name for stats file and UDEBUG
+ਬਣਤਰ UnrollStats final {
+    ਵਰਗ Stat final {
+        ਮਾਪ_t m_ਮੁੱਲ = 0;  // Statistics value
+        ਅਚਲ ਅੱਖਰ* ਅਚਲ m_name;  // Name for stats file and UDEBUG
 
-    public:
-        explicit Stat(const char* const name)
+    ਜਨਤਕ:
+        ਸਪਸ਼ਟ Stat(ਅਚਲ ਅੱਖਰ* ਅਚਲ name)
             : m_name{name} {}
-        ~Stat() { V3Stats::addStat("Optimizations, Loop unrolling, "s + m_name, m_value); }
-        const char* name() const { return m_name; }
-        Stat& operator++() {
-            ++m_value;
-            return *this;
+        ~Stat() { V3Stats::ਜੋੜੋ_Stat("Optimizations, Loop unrolling, "s + m_name, m_ਮੁੱਲ); }
+        ਅਚਲ ਅੱਖਰ* name() ਅਚਲ { ਵਾਪਸ m_name; }
+        Stat& ਸੰਚਾਲਕ++() {
+            ++m_ਮੁੱਲ;
+            ਵਾਪਸ *ਇਹ;
         }
-        Stat& operator+=(size_t v) {
-            m_value += v;
-            return *this;
+        Stat& ਸੰਚਾਲਕ+=(ਮਾਪ_t v) {
+            m_ਮੁੱਲ += v;
+            ਵਾਪਸ *ਇਹ;
         }
     };
 
@@ -57,55 +57,55 @@ struct UnrollStats final {
     Stat m_nFailInfinite{"Failed - infinite loop"};
     Stat m_nFailNestedLoopTest{"Failed - loop test in sub-statement"};
     Stat m_nFailTimingControl{"Failed - contains timing control"};
-    Stat m_nFailUnrollCount{"Failed - reached --unroll-count"};
+    Stat m_n_Fail_Unroll_ਗਿਣਤੀ{"Failed - reached --unroll-count"};
     Stat m_nFailUnrollStmts{"Failed - reached --unroll-stmts"};
     Stat m_nPragmaDisabled{"Pragma unroll_disable"};
     Stat m_nUnrolledLoops{"Unrolled loops"};
     Stat m_nUnrolledIters{"Unrolled iterations"};
-    Stat m_bitScanLowered{"Lowered priority-encoder to mostsetbitp1"};
-    Stat m_countOnesLowered{"Lowered count-set-bits to countones"};
+    Stat m_ਦੋਆਧਾਰੀ_ਅੰਕ_ਜਾਂਚ_Lowered{"Lowered priority-encoder to mostsetbitp1"};
+    Stat m_ਗਿਣਤੀ_Ones_Lowered{"Lowered count-set-bits to countones"};
 };
 
 //######################################################################
 // Variable bindings
-class UnrolllBindings final {
+ਵਰਗ UnrolllBindings final {
     // NODE STATE
     // AstVarScope::user1()    int: index of the binding in m_bindings
-    const VNUser1InUse m_inuser1;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
 
     // STATE
     // Map from AstVarScope::user1() to current variable value, nullptr if not bound - idx 0 unused
-    std::vector<AstConst*> m_curr{nullptr};
+    std::ਸਦਿਸ਼<AstConst*> m_curr{ਖਾਲੀ_ਸੂਚਕ};
     // Stack of binding checkpoints
-    std::vector<std::vector<AstConst*>> m_checkpoints;
+    std::ਸਦਿਸ਼<std::ਸਦਿਸ਼<AstConst*>> m_checkpoints;
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTOR
-    UnrolllBindings() = default;
-    ~UnrolllBindings() = default;
+    UnrolllBindings() = ਮੂਲ;
+    ~UnrolllBindings() = ਮੂਲ;
     VL_UNCOPYABLE(UnrolllBindings);
     VL_UNMOVABLE(UnrolllBindings);
 
     // METHODS
-    void clear() {
+    ਖਾਲੀ clear() {
         m_curr.resize(1);
         m_checkpoints.clear();
-        AstNode::user1ClearTree();
+        Ast_ਗੰਢ::user1_Clear_ਰੁੱਖ();
     }
 
-    void checkpoint() { m_checkpoints.push_back(m_curr); }
+    ਖਾਲੀ checkpoint() { m_checkpoints.ਧੱਕੋ_ਪਿੱਠ(m_curr); }
 
-    void revert() {
-        m_curr = std::move(m_checkpoints.back());
-        m_checkpoints.pop_back();
+    ਖਾਲੀ revert() {
+        m_curr = std::move(m_checkpoints.ਪਿੱਠ());
+        m_checkpoints.ਕੱਢੋ_ਪਿੱਠ();
     }
 
-    void commit() { m_checkpoints.pop_back(); }
+    ਖਾਲੀ commit() { m_checkpoints.ਕੱਢੋ_ਪਿੱਠ(); }
 
-    void set(AstVarScope* vscp, AstConst* valp) {
-        if (!vscp->user1()) {
-            vscp->user1(m_curr.size());
-            m_curr.push_back(nullptr);
+    ਖਾਲੀ ਸੈੱਟ(AstVarScope* vscp, AstConst* valp) {
+        ਜੇ (!vscp->user1()) {
+            vscp->user1(m_curr.ਮਾਪ());
+            m_curr.ਧੱਕੋ_ਪਿੱਠ(ਖਾਲੀ_ਸੂਚਕ);
         }
         UINFO(6, "Binding SET " << vscp->name() << " / " << vscp->user1() << " := " << valp);
         m_curr[vscp->user1()] = valp;
@@ -113,175 +113,175 @@ public:
 
     AstConst* get(AstVarScope* vscp) {
         // It's possible after a revert that user1 is set, but the vector is shorter, pad up
-        if (static_cast<size_t>(vscp->user1()) >= m_curr.size()) {
-            m_curr.resize(vscp->user1() + 1, nullptr);
+        ਜੇ (static_cast<ਮਾਪ_t>(vscp->user1()) >= m_curr.ਮਾਪ()) {
+            m_curr.resize(vscp->user1() + 1, ਖਾਲੀ_ਸੂਚਕ);
         }
-        AstConst* const valp = vscp->user1() ? m_curr[vscp->user1()] : nullptr;
+        AstConst* ਅਚਲ valp = vscp->user1() ? m_curr[vscp->user1()] : ਖਾਲੀ_ਸੂਚਕ;
         UINFO(6, "Binding GET " << vscp->name() << " / " << vscp->user1() << " == " << valp);
-        return valp;
+        ਵਾਪਸ valp;
     }
 };
 
 //######################################################################
 // Unroll one AstLoop
 
-class UnrollOneVisitor final : VNVisitor {
+ਵਰਗ UnrollOneVisitor final : VNVisitor {
     // STATE
     UnrollStats& m_stats;  // Statistics tracking
     UnrolllBindings& m_bindings;  // Variable bindings
-    AstLoop* const m_loopp;  // The loop we are trying to unroll
-    AstNode* m_stmtsp = nullptr;  // Resulting unrolled statement
-    size_t m_unrolledSize = 0;  // Number of nodes in unrolled loop
+    AstLoop* ਅਚਲ m_loopp;  // The loop we are trying to unroll
+    Ast_ਗੰਢ* m_stmtsp = ਖਾਲੀ_ਸੂਚਕ;  // Resulting unrolled statement
+    ਮਾਪ_t m_unrolled_ਮਾਪ = 0;  // Number of nodes in unrolled loop
     // Temporary block needed for iteration of cloned statements
-    AstBegin* const m_wrapp = new AstBegin{m_loopp->fileline(), "[EditWrapper]", nullptr, false};
-    const bool m_unrollFull = m_loopp->unroll().isSetTrue();  // Completely unroll the loop?
-    bool m_ok = true;  // Unrolling successful so far, gave up if false
+    AstBegin* ਅਚਲ m_wrapp = ਨਵਾਂ AstBegin{m_loopp->fileline(), "[EditWrapper]", ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ};
+    ਅਚਲ ਤਾਰਕਿਕ m_unroll_ਭਰਿਆ = m_loopp->unroll().is_ਸੈੱਟ_True();  // Completely unroll the loop?
+    ਤਾਰਕਿਕ m_ok = ਸੱਚ;  // Unrolling successful so far, gave up if false
 
     // METHODS
-    void cantUnroll(AstNode* nodep, UnrollStats::Stat& stat) {
-        m_ok = false;
+    ਖਾਲੀ cantUnroll(Ast_ਗੰਢ* nodep, UnrollStats::Stat& stat) {
+        m_ok = ਝੂਠ;
         ++stat;
         UINFO(4, "   Can't Unroll: " << stat.name() << " :" << nodep);
     }
 
     // Returns false if the loop terminated (or we gave up)
-    bool unrollOneIteration(AstNode* stmtsp) {
+    ਤਾਰਕਿਕ unrollOneIteration(Ast_ਗੰਢ* stmtsp) {
         // True if the loop contains at least one dependent AstLoopTest
-        bool foundLoopTest = false;
+        ਤਾਰਕਿਕ ਮਿਲਿਆ_Loop_Test = ਝੂਠ;
         // Process one body statement at a time
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+        ਲਈ (Ast_ਗੰਢ* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Check if this is a loop test - before substitution
-            if (AstLoopTest* const testp = VN_CAST(stmtp, LoopTest)) {
-                AstNode* const condp = V3Const::constifyEdit(testp->condp());
-                if (condp->isZero()) {
+            ਜੇ (AstLoopTest* ਅਚਲ testp = VN_CAST(stmtp, LoopTest)) {
+                Ast_ਗੰਢ* ਅਚਲ condp = V3Const::constifyEdit(testp->condp());
+                ਜੇ (condp->isZero()) {
                     // Loop terminates
-                    return false;
-                } else if (condp->isNeqZero()) {
+                    ਵਾਪਸ ਝੂਠ;
+                } ਨਹੀਂਤਾਂ ਜੇ (condp->isNeqZero()) {
                     // Loop test is unconditionally true, ignore
-                    continue;
+                    ਜਾਰੀ;
                 }
             }
 
             // Clone and iterate one body statement
-            m_wrapp->addStmtsp(stmtp->cloneTree(false));
-            iterateAndNextNull(m_wrapp->stmtsp());
+            m_wrapp->ਜੋੜੋ_Stmtsp(stmtp->clone_ਰੁੱਖ(ਝੂਠ));
+            iterate_And_ਅਗਲਾ_Null(m_wrapp->stmtsp());
             // Give up if failed
-            if (!m_ok) return false;
+            ਜੇ (!m_ok) ਵਾਪਸ ਝੂਠ;
 
             // Add statements to unrolled body
-            while (AstNode* const nodep = m_wrapp->stmtsp()) {
+            ਜਦੋਂ (Ast_ਗੰਢ* ਅਚਲ nodep = m_wrapp->stmtsp()) {
                 // Check if we reached the size limit, unless full unrolling is requested
-                if (!m_unrollFull) {
-                    m_unrolledSize += nodep->nodeCount();
-                    if (m_unrolledSize > static_cast<size_t>(v3Global.opt.unrollStmts())) {
+                ਜੇ (!m_unroll_ਭਰਿਆ) {
+                    m_unrolled_ਮਾਪ += nodep->ਗੰਢ_ਗਿਣਤੀ();
+                    ਜੇ (m_unrolled_ਮਾਪ > static_cast<ਮਾਪ_t>(v3Global.opt.unrollStmts())) {
                         cantUnroll(m_loopp, m_stats.m_nFailUnrollStmts);
-                        return false;
+                        ਵਾਪਸ ਝੂਠ;
                     }
                 }
 
                 // Will be adding to results (or deleting)
-                nodep->unlinkFrBack();
+                nodep->unlink_Fr_ਪਿੱਠ();
 
                 // If a LoopTest, check how it resolved
-                if (AstLoopTest* const testp = VN_CAST(nodep, LoopTest)) {
-                    foundLoopTest = true;
+                ਜੇ (AstLoopTest* ਅਚਲ testp = VN_CAST(nodep, LoopTest)) {
+                    ਮਿਲਿਆ_Loop_Test = ਸੱਚ;
                     // Will not actually need it, nor any subsequent
-                    pushDeletep(testp);  // TODO testp used past here
+                    ਧੱਕੋ_Deletep(testp);  // TODO testp used past here
                     // Loop continues - add rest of statements
-                    if (testp->condp()->isNeqZero()) continue;
+                    ਜੇ (testp->condp()->isNeqZero()) ਜਾਰੀ;
                     // Won't need any of the trailing statements
-                    if (m_wrapp->stmtsp()) pushDeletep(m_wrapp->stmtsp()->unlinkFrBackWithNext());
+                    ਜੇ (m_wrapp->stmtsp()) ਧੱਕੋ_Deletep(m_wrapp->stmtsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ());
                     // Loop terminates
-                    if (testp->condp()->isZero()) return false;
+                    ਜੇ (testp->condp()->isZero()) ਵਾਪਸ ਝੂਠ;
                     // Loop condition unknown - cannot unroll
                     cantUnroll(testp->condp(), m_stats.m_nFailCondition);
-                    return false;
+                    ਵਾਪਸ ਝੂਠ;
                 }
 
                 // Add this statement to the result list
-                m_stmtsp = AstNode::addNext(m_stmtsp, nodep);
+                m_stmtsp = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(m_stmtsp, nodep);
 
                 // Check if terminated via JumpGo
-                if (VN_IS(nodep, JumpGo)) {
+                ਜੇ (VN_IS(nodep, JumpGo)) {
                     UASSERT_OBJ(!m_wrapp->stmtsp(), nodep, "Statements after JumpGo");
                     // This JumpGo is going directly into the body of the unrolled loop.
                     // A JumpGo always redirects to the end of an enclosing JumpBlock,
                     // so this JumpGo must go outside the loop. The loop terminates.
-                    return false;
+                    ਵਾਪਸ ਝੂਠ;
                 }
             }
         }
         // If there is no loop test in the body, give up, it's an infinite loop
-        if (!foundLoopTest) {
+        ਜੇ (!ਮਿਲਿਆ_Loop_Test) {
             cantUnroll(m_loopp, m_stats.m_nFailInfinite);
-            return false;
+            ਵਾਪਸ ਝੂਠ;
         }
         // One iteration done, loop continues
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
     // Substitute all reads of bound variables with their value. If a write is
     // encountered, remove the binding and don't substitute that variable.
     // Returns false if we can't unroll
-    bool process(AstNode* nodep) {
+    ਤਾਰਕਿਕ process(Ast_ਗੰਢ* nodep) {
         UASSERT_OBJ(m_ok, nodep, "Should not call 'substituteCondVscp' if we gave up");
-        if (!nodep) return true;
+        ਜੇ (!nodep) ਵਾਪਸ ਸੱਚ;
         // Variable references we should try to substitute
-        std::vector<AstVarRef*> toSubstitute;
+        std::ਸਦਿਸ਼<AstVarRef*> ਮੰਜ਼ਿਲ_Substitute;
         // Iterate subtree
-        nodep->foreach([&](AstNode* np) {
+        nodep->foreach([&](Ast_ਗੰਢ* np) {
             // Failed earlier
-            if (!m_ok) return;
+            ਜੇ (!m_ok) ਵਾਪਸ;
             // Check for AstLoopTest
-            if (AstLoopTest* const testp = VN_CAST(np, LoopTest)) {
+            ਜੇ (AstLoopTest* ਅਚਲ testp = VN_CAST(np, LoopTest)) {
                 // Nested loop is OK, bail only if the nested LoopTest is for the current loop
-                if (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
-                return;
+                ਜੇ (testp->loopp() == m_loopp) cantUnroll(np, m_stats.m_nFailNestedLoopTest);
+                ਵਾਪਸ;
             }
             // Check for AstFork - can't unroll
-            if (VN_IS(np, Fork)) {
+            ਜੇ (VN_IS(np, Fork)) {
                 cantUnroll(np, m_stats.m_nFailFork);
-                return;
+                ਵਾਪਸ;
             }
             // Check for calls - can't unroll if not pure might modify bindings
-            if (AstNodeCCall* const callp = VN_CAST(np, NodeCCall)) {
-                if (!callp->isPure()) {
+            ਜੇ (Ast_ਗੰਢ_CCall* ਅਚਲ callp = VN_CAST(np, ਗੰਢ_CCall)) {
+                ਜੇ (!callp->is_ਸ਼ੁੱਧ()) {
                     cantUnroll(np, m_stats.m_nFailCall);
-                    return;
+                    ਵਾਪਸ;
                 }
             }
             // Check for timing control - can't unroll, might modify bindings
-            if (np->isTimingControl()) {
+            ਜੇ (np->isTimingControl()) {
                 cantUnroll(np, m_stats.m_nFailTimingControl);
-                return;
+                ਵਾਪਸ;
             }
             // Process variable references
-            AstVarRef* const refp = VN_CAST(np, VarRef);
-            if (!refp) return;
+            AstVarRef* ਅਚਲ refp = VN_CAST(np, VarRef);
+            ਜੇ (!refp) ਵਾਪਸ;
             // Ignore if the referenced variable has no binding
-            AstConst* const valp = m_bindings.get(refp->varScopep());
-            if (!valp) return;
+            AstConst* ਅਚਲ valp = m_bindings.get(refp->varScopep());
+            ਜੇ (!valp) ਵਾਪਸ;
             // If writen, remove the binding
-            if (refp->access().isWriteOrRW()) {
-                m_bindings.set(refp->varScopep(), nullptr);
-                return;
+            ਜੇ (refp->access().isWriteOrRW()) {
+                m_bindings.ਸੈੱਟ(refp->varScopep(), ਖਾਲੀ_ਸੂਚਕ);
+                ਵਾਪਸ;
             }
             // Otherwise add it to the list of variables to substitute
-            toSubstitute.push_back(refp);
+            ਮੰਜ਼ਿਲ_Substitute.ਧੱਕੋ_ਪਿੱਠ(refp);
         });
         // Give up if we have to
-        if (!m_ok) return false;
+        ਜੇ (!m_ok) ਵਾਪਸ ਝੂਠ;
         // Actually substitute the variables that still have bindings
-        for (AstVarRef* const refp : toSubstitute) {
+        ਲਈ (AstVarRef* ਅਚਲ refp : ਮੰਜ਼ਿਲ_Substitute) {
             // Pick up bound value
-            AstConst* const valp = m_bindings.get(refp->varScopep());
+            AstConst* ਅਚਲ valp = m_bindings.get(refp->varScopep());
             // Binding might have been removed after adding to 'toSubstitute'
-            if (!valp) continue;
+            ਜੇ (!valp) ਜਾਰੀ;
             // Substitute it
-            refp->replaceWith(valp->cloneTree(false));
-            VL_DO_DANGLING(pushDeletep(refp), refp);
+            refp->replaceWith(valp->clone_ਰੁੱਖ(ਝੂਠ));
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(refp), refp);
         }
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
     // CONSTRUCTOR
@@ -291,135 +291,135 @@ class UnrollOneVisitor final : VNVisitor {
         , m_loopp{loopp} {
         UASSERT_OBJ(!loopp->contsp(), loopp, "'contsp' only used before LinkJump");
         // Do not unroll if we are told not to
-        if (loopp->unroll().isSetFalse()) {
+        ਜੇ (loopp->unroll().is_ਸੈੱਟ_False()) {
             cantUnroll(loopp, m_stats.m_nPragmaDisabled);
-            return;
+            ਵਾਪਸ;
         }
         // Attempt to unroll the loop
-        const size_t iterLimit = m_unrollFull ? v3Global.opt.unrollLimit()  //
-                                              : v3Global.opt.unrollCount();
-        size_t iterCount = 0;
-        do {
-            if (iterCount > iterLimit) {
-                cantUnroll(m_loopp, m_stats.m_nFailUnrollCount);
-                if (m_unrollFull) {
+        ਅਚਲ ਮਾਪ_t iter_ਹੱਦਬੰਦੀ = m_unroll_ਭਰਿਆ ? v3Global.opt.unroll_ਹੱਦਬੰਦੀ()  //
+                                              : v3Global.opt.unroll_ਗਿਣਤੀ();
+        ਮਾਪ_t iter_ਗਿਣਤੀ = 0;
+        ਕਰੋ {
+            ਜੇ (iter_ਗਿਣਤੀ > iter_ਹੱਦਬੰਦੀ) {
+                cantUnroll(m_loopp, m_stats.m_n_Fail_Unroll_ਗਿਣਤੀ);
+                ਜੇ (m_unroll_ਭਰਿਆ) {
                     loopp->v3error("Unrolling procedural loop with '/* verilator unroll_full */' "
                                    "took too long; probably this is an infinite loop, otherwise "
                                    "set '--unroll-limit' above "
-                                   << iterLimit);
+                                   << iter_ਹੱਦਬੰਦੀ);
                 }
-                return;
+                ਵਾਪਸ;
             }
-            ++iterCount;
-        } while (unrollOneIteration(loopp->stmtsp()));
+            ++iter_ਗਿਣਤੀ;
+        } ਜਦੋਂ (unrollOneIteration(loopp->stmtsp()));
 
-        if (m_ok) {
+        ਜੇ (m_ok) {
             ++m_stats.m_nUnrolledLoops;
-            m_stats.m_nUnrolledIters += iterCount;
+            m_stats.m_nUnrolledIters += iter_ਗਿਣਤੀ;
         }
     }
-    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->deleteTree(), m_wrapp); }
+    ~UnrollOneVisitor() { VL_DO_DANGLING(m_wrapp->delete_ਰੁੱਖ(), m_wrapp); }
 
     // VISIT - these are called for the statements directly in the loop body
-    void visit(AstNode* nodep) override {
-        if (!m_ok) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
         // Generic body statement, just substitute
         process(nodep);
     }
-    void visit(AstLoopTest* nodep) override {
-        if (!m_ok) return;
+    ਖਾਲੀ ਦੇਖੋ(AstLoopTest* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
         // If the condition is a ExprStmt, move it before the LoopTest
-        if (AstExprStmt* const exprp = VN_CAST(nodep->condp(), ExprStmt)) {
-            AstNode* const stmtsp = exprp->stmtsp()->unlinkFrBackWithNext();
-            exprp->replaceWith(exprp->resultp()->unlinkFrBack());
-            VL_DO_DANGLING(pushDeletep(exprp), exprp);
+        ਜੇ (Ast_ਵਿਅੰਜਕ_Stmt* ਅਚਲ exprp = VN_CAST(nodep->condp(), ਵਿਅੰਜਕ_Stmt)) {
+            Ast_ਗੰਢ* ਅਚਲ stmtsp = exprp->stmtsp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ();
+            exprp->replaceWith(exprp->resultp()->unlink_Fr_ਪਿੱਠ());
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(exprp), exprp);
             VNRelinker relinker;
-            nodep->unlinkFrBack(&relinker);
-            stmtsp->addNext(nodep);
+            nodep->unlink_Fr_ਪਿੱਠ(&relinker);
+            stmtsp->ਜੋੜੋ_ਅਗਲਾ(nodep);
             relinker.relink(stmtsp);
-            return;
+            ਵਾਪਸ;
         }
         // Substitute the condition only, this is not a nested AstLoopTest
         process(nodep->condp());
         // Also simplify it, it will be checked later
         V3Const::constifyEdit(nodep->condp());
     }
-    void visit(AstAssign* nodep) override {
-        if (!m_ok) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
         // Can't do it if delayed
-        if (nodep->timingControlp()) {
+        ਜੇ (nodep->timingControlp()) {
             cantUnroll(nodep, m_stats.m_nFailTimingControl);
-            return;
+            ਵਾਪਸ;
         }
-        if (!process(nodep->rhsp())) return;
+        ਜੇ (!process(nodep->rhsp())) ਵਾਪਸ;
         // If a simple variable assignment, update the binding
-        AstVarRef* const lhsp = VN_CAST(nodep->lhsp(), VarRef);
-        AstConst* const valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
-        if (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
-            m_bindings.set(lhsp->varScopep(), valp);
-            return;
+        AstVarRef* ਅਚਲ lhsp = VN_CAST(nodep->lhsp(), VarRef);
+        AstConst* ਅਚਲ valp = VN_CAST(V3Const::constifyEdit(nodep->rhsp()), Const);
+        ਜੇ (lhsp && valp && !lhsp->varp()->isForced() && !lhsp->varp()->isSigUserRWPublic()) {
+            m_bindings.ਸੈੱਟ(lhsp->varScopep(), valp);
+            ਵਾਪਸ;
         }
         // Otherwise just like a generic statement
         process(nodep->lhsp());
     }
-    void visit(AstIf* nodep) override {
-        if (!m_ok) return;
-        if (!process(nodep->condp())) return;
+    ਖਾਲੀ ਦੇਖੋ(AstIf* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
+        ਜੇ (!process(nodep->condp())) ਵਾਪਸ;
         // If condition is constant, replce with the relevant branch
-        if (AstConst* const condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
-            if (AstNode* const bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
-                nodep->addNextHere(bodyp->unlinkFrBackWithNext());  // This will be iterated next
+        ਜੇ (AstConst* ਅਚਲ condp = VN_CAST(V3Const::constifyEdit(nodep->condp()), Const)) {
+            ਜੇ (Ast_ਗੰਢ* ਅਚਲ bodyp = condp->isNeqZero() ? nodep->thensp() : nodep->elsesp()) {
+                nodep->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(bodyp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ());  // This will be iterated next
             }
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep->unlink_Fr_ਪਿੱਠ()), nodep);
+            ਵਾਪਸ;
         }
         // Otherwise just like a generic statement
         process(nodep);
     }
-    void visit(AstJumpGo* nodep) override {
-        if (!m_ok) return;
+    ਖਾਲੀ ਦੇਖੋ(AstJumpGo* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
         // Remove trailing dead code
-        if (nodep->nextp()) pushDeletep(nodep->nextp()->unlinkFrBackWithNext());
+        ਜੇ (nodep->nextp()) ਧੱਕੋ_Deletep(nodep->nextp()->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ());
     }
-    void visit(AstLoop* nodep) override {
-        if (!m_ok) return;
+    ਖਾਲੀ ਦੇਖੋ(AstLoop* nodep) override {
+        ਜੇ (!m_ok) ਵਾਪਸ;
         m_bindings.checkpoint();
-        std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        std::pair<Ast_ਗੰਢ*, ਤਾਰਕਿਕ> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, revert the bindings and process the loop as a generic statement
-        if (!pair.second) {
+        ਜੇ (!pair.ਦੂਜਾ) {
             m_bindings.revert();
             process(nodep);
-            return;
+            ਵਾਪਸ;
         }
 
         // Commit the bindings and replace the loop with the unrolled code
         m_bindings.commit();
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-        } else {
-            nodep->unlinkFrBack();
+        ਜੇ (pair.ਪਹਿਲਾ) {
+            nodep->replaceWith(pair.ਪਹਿਲਾ);
+        } ਨਹੀਂਤਾਂ {
+            nodep->unlink_Fr_ਪਿੱਠ();
         }
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
-public:
+ਜਨਤਕ:
     // Unroll the given loop. Returns the resulting statements and a flag indicating success
-    static std::pair<AstNode*, bool> apply(UnrollStats& stats, UnrolllBindings& bindings,
+    ਸਥਿਰ std::pair<Ast_ਗੰਢ*, ਤਾਰਕਿਕ> apply(UnrollStats& stats, UnrolllBindings& bindings,
                                            AstLoop* loopp) {
         UnrollOneVisitor visitor{stats, bindings, loopp};
         // If successfully unrolled, return the resulting list of statements - might be empty
-        if (visitor.m_ok) return {visitor.m_stmtsp, true};
+        ਜੇ (visitor.m_ok) ਵਾਪਸ {visitor.m_stmtsp, ਸੱਚ};
         // Otherwise delete intermediate results
-        if (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->deleteTree(), visitor.m_stmtsp);
-        return {nullptr, false};
+        ਜੇ (visitor.m_stmtsp) VL_DO_DANGLING(visitor.m_stmtsp->delete_ਰੁੱਖ(), visitor.m_stmtsp);
+        ਵਾਪਸ {ਖਾਲੀ_ਸੂਚਕ, ਝੂਠ};
     }
 };
 
 //######################################################################
 // Unroll all AstLoop statements
 
-class UnrollAllVisitor final : VNVisitor {
+ਵਰਗ UnrollAllVisitor final : VNVisitor {
     // STATE
     UnrollStats m_stats;  // Statistic tracking
     UnrolllBindings m_bindings;  // Variable bindings
@@ -428,62 +428,62 @@ class UnrollAllVisitor final : VNVisitor {
     // Peel value-preserving width casts (Extend/ExtendS, or a low-bits Sel with lsb 0) to the
     // underlying VarRef.  A Sel kept narrower than 'minWidth' is a lossy narrowing (idx[1:0])
     // and is rejected.
-    static AstVarRef* unwrapToVarRef(AstNodeExpr* nodep, int minWidth) {
-        while (true) {
-            if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) return refp;
-            if (AstExtend* const ep = VN_CAST(nodep, Extend)) {
+    ਸਥਿਰ AstVarRef* unwrap_ਮੰਜ਼ਿਲ_Var_Ref(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep, ਪੂਰਨ min_ਚੌੜਾਈ) {
+        ਜਦੋਂ (ਸੱਚ) {
+            ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(nodep, VarRef)) ਵਾਪਸ refp;
+            ਜੇ (AstExtend* ਅਚਲ ep = VN_CAST(nodep, Extend)) {
                 nodep = ep->lhsp();
-            } else if (AstExtendS* const ep = VN_CAST(nodep, ExtendS)) {
+            } ਨਹੀਂਤਾਂ ਜੇ (AstExtendS* ਅਚਲ ep = VN_CAST(nodep, ExtendS)) {
                 nodep = ep->lhsp();
-            } else if (AstSel* const sp = VN_CAST(nodep, Sel)) {
-                const AstConst* const lsbp = VN_CAST(sp->lsbp(), Const);
-                if (!lsbp || lsbp->toUInt() != 0 || sp->width() < minWidth) return nullptr;
+            } ਨਹੀਂਤਾਂ ਜੇ (AstSel* ਅਚਲ sp = VN_CAST(nodep, Sel)) {
+                ਅਚਲ AstConst* ਅਚਲ lsbp = VN_CAST(sp->lsbp(), Const);
+                ਜੇ (!lsbp || lsbp->ਮੰਜ਼ਿਲ_UInt() != 0 || sp->ਚੌੜਾਈ() < min_ਚੌੜਾਈ) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
                 nodep = sp->fromp();
-            } else {
-                return nullptr;
+            } ਨਹੀਂਤਾਂ {
+                ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             }
         }
     }
     // True if 'nodep' is exactly '1 + var' for 'vscp' (V3Const puts the constant on the LHS).
     // Passing the add's width as minWidth rejects a lossy increment like 32'(i[1:0]) + 1.
-    bool isVarPlus1(AstNode* nodep, const AstVarScope* vscp) {
-        AstAdd* const addp = VN_CAST(nodep, Add);
-        if (!addp || !addp->lhsp()->isOne()) return false;
-        const AstVarRef* const r = unwrapToVarRef(addp->rhsp(), addp->width());
-        return r && r->varScopep() == vscp;
+    ਤਾਰਕਿਕ isVarPlus1(Ast_ਗੰਢ* nodep, ਅਚਲ AstVarScope* vscp) {
+        Ast_ਜੋੜੋ* ਅਚਲ addp = VN_CAST(nodep, ਜੋੜੋ_2);
+        ਜੇ (!addp || !addp->lhsp()->isOne()) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVarRef* ਅਚਲ r = unwrap_ਮੰਜ਼ਿਲ_Var_Ref(addp->rhsp(), addp->ਚੌੜਾਈ());
+        ਵਾਪਸ r && r->varScopep() == vscp;
     }
     // Resize the 32-bit reduction to the accumulator width; truncating the low bits matches
     // the original counted loop's wrap-around.
-    static AstNodeExpr* resizeToWidth(AstNodeExpr* exprp, const AstVarRef* targetRefp) {
-        const int width = targetRefp->width();
-        if (width == 32) return exprp;
-        FileLine* const flp = exprp->fileline();
-        if (width < 32) return new AstSel{flp, exprp, 0, width};
-        AstExtend* const extp = new AstExtend{flp, exprp};
-        extp->dtypeFrom(targetRefp);
-        return extp;
+    ਸਥਿਰ Ast_ਗੰਢ_ਵਿਅੰਜਕ* resize_ਮੰਜ਼ਿਲ_ਚੌੜਾਈ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp, ਅਚਲ AstVarRef* ਨਿਸ਼ਾਨਾ_Refp) {
+        ਅਚਲ ਪੂਰਨ ਚੌੜਾਈ = ਨਿਸ਼ਾਨਾ_Refp->ਚੌੜਾਈ();
+        ਜੇ (ਚੌੜਾਈ == 32) ਵਾਪਸ exprp;
+        File_ਸਤਰ* ਅਚਲ flp = exprp->fileline();
+        ਜੇ (ਚੌੜਾਈ < 32) ਵਾਪਸ ਨਵਾਂ AstSel{flp, exprp, 0, ਚੌੜਾਈ};
+        AstExtend* ਅਚਲ extp = ਨਵਾਂ AstExtend{flp, exprp};
+        extp->dtypeFrom(ਨਿਸ਼ਾਨਾ_Refp);
+        ਵਾਪਸ extp;
     }
     // Match a strict ascending loop bound 'idx < W'.  V3Const canonicalizes this to the
     // 'W > idx' form (Gt unsigned, GtS signed), so only that form is matched.
-    static bool ascendingBound(AstNodeExpr* condp, AstConst*& wp, AstVarRef*& idxRefp) {
-        if (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
+    ਸਥਿਰ ਤਾਰਕਿਕ ascendingBound(Ast_ਗੰਢ_ਵਿਅੰਜਕ* condp, AstConst*& wp, AstVarRef*& idxRefp) {
+        ਜੇ (!VN_IS(condp, Gt) && !VN_IS(condp, GtS)) ਵਾਪਸ ਝੂਠ;
+        Ast_ਗੰਢ_Biop* ਅਚਲ bp = VN_AS(condp, ਗੰਢ_Biop);
         wp = VN_CAST(bp->lhsp(), Const);
         idxRefp = VN_CAST(bp->rhsp(), VarRef);
-        return wp && idxRefp && !wp->num().isFourState();
+        ਵਾਪਸ wp && idxRefp && !wp->ਅੰਕ().isFourState();
     }
     // Recognize the redundant in-range guard Verilator auto-inserts for a select into a
     // non-power-of-two vector.  V3Const canonicalizes 'idx <= C' to '(C >= idx)' (Gte/GteS,
     // const on the LHS), so only that form occurs; with C >= W-1 it is always true for idx
     // in 0..W-1.
-    static bool isInRangeGuard(AstNodeExpr* condp, const AstVarScope* idxVscp, uint32_t width,
-                               int addrBits) {
-        if (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) return false;
-        AstNodeBiop* const bp = VN_AS(condp, NodeBiop);
-        const AstConst* const cp = VN_CAST(bp->lhsp(), Const);
-        if (!cp || cp->num().isFourState() || cp->toUInt() < width - 1) return false;
-        const AstVarRef* const r = unwrapToVarRef(bp->rhsp(), addrBits);
-        return r && r->varScopep() == idxVscp;
+    ਸਥਿਰ ਤਾਰਕਿਕ is_ਵਿੱਚ_Range_Guard(Ast_ਗੰਢ_ਵਿਅੰਜਕ* condp, ਅਚਲ AstVarScope* idxVscp, uint32_t ਚੌੜਾਈ,
+                               ਪੂਰਨ addr_ਬਿੱਟ) {
+        ਜੇ (!VN_IS(condp, Gte) && !VN_IS(condp, GteS)) ਵਾਪਸ ਝੂਠ;
+        Ast_ਗੰਢ_Biop* ਅਚਲ bp = VN_AS(condp, ਗੰਢ_Biop);
+        ਅਚਲ AstConst* ਅਚਲ cp = VN_CAST(bp->lhsp(), Const);
+        ਜੇ (!cp || cp->ਅੰਕ().isFourState() || cp->ਮੰਜ਼ਿਲ_UInt() < ਚੌੜਾਈ - 1) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVarRef* ਅਚਲ r = unwrap_ਮੰਜ਼ਿਲ_Var_Ref(bp->rhsp(), addr_ਬਿੱਟ);
+        ਵਾਪਸ r && r->varScopep() == idxVscp;
     }
     // Recognize a single-bit scan loop over all W bits of 'vec' (idx 0..W-1, target
     // pre-zeroed) and lower it to a bit-reduction primitive.  Two idioms are matched:
@@ -492,151 +492,151 @@ class UnrollAllVisitor final : VNVisitor {
     // where, when W == width(vec):
     //   <e> = idx + 1     => target = $mostsetbitp1(vec)  (leading-one / bit-width)
     //   <e> = target + 1  => target = $countones(vec)     (population count)
-    bool tryLowerBitScanLoop(AstLoop* loopp) {
-        AstLoopTest* const testp = VN_CAST(loopp->stmtsp(), LoopTest);
-        if (!testp) return false;
-        AstIf* const ifp = VN_CAST(testp->nextp(), If);
-        if (!ifp) return false;
-        AstAssign* const incp = VN_CAST(ifp->nextp(), Assign);
-        if (!incp || incp->nextp()) return false;
-        AstConst* wp = nullptr;
-        AstVarRef* idxRefp = nullptr;
-        if (!ascendingBound(testp->condp(), wp, idxRefp)) return false;
-        AstVarScope* const idxVscp = idxRefp->varScopep();
-        const uint32_t width = wp->toUInt();
+    ਤਾਰਕਿਕ try_ਹੇਠਲਾ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਜਾਂਚ_Loop(AstLoop* loopp) {
+        AstLoopTest* ਅਚਲ testp = VN_CAST(loopp->stmtsp(), LoopTest);
+        ਜੇ (!testp) ਵਾਪਸ ਝੂਠ;
+        AstIf* ਅਚਲ ifp = VN_CAST(testp->nextp(), If);
+        ਜੇ (!ifp) ਵਾਪਸ ਝੂਠ;
+        Ast_ਸੌਂਪੋ* ਅਚਲ incp = VN_CAST(ifp->nextp(), ਸੌਂਪੋ);
+        ਜੇ (!incp || incp->nextp()) ਵਾਪਸ ਝੂਠ;
+        AstConst* wp = ਖਾਲੀ_ਸੂਚਕ;
+        AstVarRef* idxRefp = ਖਾਲੀ_ਸੂਚਕ;
+        ਜੇ (!ascendingBound(testp->condp(), wp, idxRefp)) ਵਾਪਸ ਝੂਠ;
+        AstVarScope* ਅਚਲ idxVscp = idxRefp->varScopep();
+        ਅਚਲ uint32_t ਚੌੜਾਈ = wp->ਮੰਜ਼ਿਲ_UInt();
         // Bits needed to address all W bits of 'vec' (clog2(W)); a narrower index is lossy.
-        const int addrBits = width <= 1 ? 1 : V3Number::log2b(width - 1) + 1;
-        const AstConst* const idxInitp = m_bindings.get(idxVscp);
-        if (!idxInitp || !idxInitp->isZero()) return false;
-        AstVarRef* const incLhsp = VN_CAST(incp->lhsp(), VarRef);
-        if (!incLhsp || incLhsp->varScopep() != idxVscp) return false;
-        if (!isVarPlus1(incp->rhsp(), idxVscp)) return false;
-        if (ifp->elsesp()) return false;
-        AstAssign* const thenp = VN_CAST(ifp->thensp(), Assign);
-        if (!thenp || thenp->nextp()) return false;
-        AstVarRef* const targetRefp = VN_CAST(thenp->lhsp(), VarRef);
-        if (!targetRefp) return false;
-        AstVarScope* const targetVscp = targetRefp->varScopep();
-        if (targetVscp == idxVscp) return false;
-        const bool isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
-        const bool isCountOnes = !isLeadingOne && isVarPlus1(thenp->rhsp(), targetVscp);
-        if (!isLeadingOne && !isCountOnes) return false;
+        ਅਚਲ ਪੂਰਨ addr_ਬਿੱਟ = ਚੌੜਾਈ <= 1 ? 1 : V3_ਸੰਖਿਆ::log2b(ਚੌੜਾਈ - 1) + 1;
+        ਅਚਲ AstConst* ਅਚਲ idxInitp = m_bindings.get(idxVscp);
+        ਜੇ (!idxInitp || !idxInitp->isZero()) ਵਾਪਸ ਝੂਠ;
+        AstVarRef* ਅਚਲ incLhsp = VN_CAST(incp->lhsp(), VarRef);
+        ਜੇ (!incLhsp || incLhsp->varScopep() != idxVscp) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (!isVarPlus1(incp->rhsp(), idxVscp)) ਵਾਪਸ ਝੂਠ;
+        ਜੇ (ifp->elsesp()) ਵਾਪਸ ਝੂਠ;
+        Ast_ਸੌਂਪੋ* ਅਚਲ thenp = VN_CAST(ifp->thensp(), ਸੌਂਪੋ);
+        ਜੇ (!thenp || thenp->nextp()) ਵਾਪਸ ਝੂਠ;
+        AstVarRef* ਅਚਲ ਨਿਸ਼ਾਨਾ_Refp = VN_CAST(thenp->lhsp(), VarRef);
+        ਜੇ (!ਨਿਸ਼ਾਨਾ_Refp) ਵਾਪਸ ਝੂਠ;
+        AstVarScope* ਅਚਲ ਨਿਸ਼ਾਨਾ_Vscp = ਨਿਸ਼ਾਨਾ_Refp->varScopep();
+        ਜੇ (ਨਿਸ਼ਾਨਾ_Vscp == idxVscp) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ ਤਾਰਕਿਕ isLeadingOne = isVarPlus1(thenp->rhsp(), idxVscp);
+        ਅਚਲ ਤਾਰਕਿਕ is_ਗਿਣਤੀ_Ones = !isLeadingOne && isVarPlus1(thenp->rhsp(), ਨਿਸ਼ਾਨਾ_Vscp);
+        ਜੇ (!isLeadingOne && !is_ਗਿਣਤੀ_Ones) ਵਾਪਸ ਝੂਠ;
         // If-cond is the 1-bit select 'vec[idx]', possibly wrapped in the redundant in-range
         // guard Verilator auto-inserts (as 'guard && sel') for a non-power-of-two vector:
         //   '(idx <= W-1) && vec[idx]'        (default / --x-assign 0; a LogAnd), or
         //   '(idx <= W-1) ? vec[idx] : <x>'   (--x-assign unique; a Cond).
         // The guard is always true for idx in 0..W-1, so peel it to reach the select.  Any
         // other compound condition (e.g. 'vec[idx] && en') leaves a non-select, rejected below.
-        AstNodeExpr* condp = ifp->condp();
-        if (AstLogAnd* const andp = VN_CAST(condp, LogAnd)) {
-            if (isInRangeGuard(andp->lhsp(), idxVscp, width, addrBits)) condp = andp->rhsp();
-        } else if (AstCond* const ternp = VN_CAST(condp, Cond)) {
-            if (isInRangeGuard(ternp->condp(), idxVscp, width, addrBits)) condp = ternp->thenp();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* condp = ifp->condp();
+        ਜੇ (AstLogAnd* ਅਚਲ andp = VN_CAST(condp, LogAnd)) {
+            ਜੇ (is_ਵਿੱਚ_Range_Guard(andp->lhsp(), idxVscp, ਚੌੜਾਈ, addr_ਬਿੱਟ)) condp = andp->rhsp();
+        } ਨਹੀਂਤਾਂ ਜੇ (AstCond* ਅਚਲ ternp = VN_CAST(condp, Cond)) {
+            ਜੇ (is_ਵਿੱਚ_Range_Guard(ternp->condp(), idxVscp, ਚੌੜਾਈ, addr_ਬਿੱਟ)) condp = ternp->thenp();
         }
-        AstSel* const selp = VN_CAST(condp, Sel);
-        if (!selp || selp->width() != 1) return false;
-        const AstVarRef* const fromp = VN_CAST(selp->fromp(), VarRef);
-        if (!fromp) return false;
-        const AstVarScope* const fromVscp = fromp->varScopep();
-        if (fromVscp == idxVscp || fromVscp == targetVscp) return false;
-        AstNodeExpr* const vecExprp = selp->fromp();
+        AstSel* ਅਚਲ selp = VN_CAST(condp, Sel);
+        ਜੇ (!selp || selp->ਚੌੜਾਈ() != 1) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVarRef* ਅਚਲ fromp = VN_CAST(selp->fromp(), VarRef);
+        ਜੇ (!fromp) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVarScope* ਅਚਲ fromVscp = fromp->varScopep();
+        ਜੇ (fromVscp == idxVscp || fromVscp == ਨਿਸ਼ਾਨਾ_Vscp) ਵਾਪਸ ਝੂਠ;
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ vecExprp = selp->fromp();
         // Must scan all W bits of 'vec', indexed by exactly 'idx' (address kept >= clog2(W),
         // so a lossy narrowing like vec[idx[2:0]] is rejected).
-        if (static_cast<int>(width) != vecExprp->width()) return false;
-        const AstVarRef* const idxInSel = unwrapToVarRef(selp->lsbp(), addrBits);
-        if (!idxInSel || idxInSel->varScopep() != idxVscp) return false;
+        ਜੇ (static_cast<ਪੂਰਨ>(ਚੌੜਾਈ) != vecExprp->ਚੌੜਾਈ()) ਵਾਪਸ ਝੂਠ;
+        ਅਚਲ AstVarRef* ਅਚਲ idx_ਵਿੱਚ_Sel = unwrap_ਮੰਜ਼ਿਲ_Var_Ref(selp->lsbp(), addr_ਬਿੱਟ);
+        ਜੇ (!idx_ਵਿੱਚ_Sel || idx_ਵਿੱਚ_Sel->varScopep() != idxVscp) ਵਾਪਸ ਝੂਠ;
         // 'target' must be const-0 immediately before the loop (collected in m_bindings),
         // so that an all-zero 'vec' yields 0, matching $mostsetbitp1's definition.
-        const AstConst* const targetInitp = m_bindings.get(targetVscp);
-        if (!targetInitp || !targetInitp->isZero()) return false;
+        ਅਚਲ AstConst* ਅਚਲ ਨਿਸ਼ਾਨਾ_Initp = m_bindings.get(ਨਿਸ਼ਾਨਾ_Vscp);
+        ਜੇ (!ਨਿਸ਼ਾਨਾ_Initp || !ਨਿਸ਼ਾਨਾ_Initp->isZero()) ਵਾਪਸ ਝੂਠ;
         // Rewrite to 'target = <reduction>(vec); idx = W'.  The 'idx = W' store preserves the
         // loop's exit value, so this is sound even if idx is read afterwards (else DCE drops it).
-        FileLine* const flp = loopp->fileline();
-        AstNodeExpr* reducep;
-        if (isLeadingOne) {
-            reducep = new AstMostSetBitP1{flp, vecExprp->cloneTree(false)};
-        } else {
-            AstCountOnes* const conep = new AstCountOnes{flp, vecExprp->cloneTree(false)};
+        File_ਸਤਰ* ਅਚਲ flp = loopp->fileline();
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* reducep;
+        ਜੇ (isLeadingOne) {
+            reducep = ਨਵਾਂ Ast_Most_ਸੈੱਟ_ਦੋਆਧਾਰੀ_ਅੰਕ_P1{flp, vecExprp->clone_ਰੁੱਖ(ਝੂਠ)};
+        } ਨਹੀਂਤਾਂ {
+            Ast_ਗਿਣਤੀ_Ones* ਅਚਲ conep = ਨਵਾਂ Ast_ਗਿਣਤੀ_Ones{flp, vecExprp->clone_ਰੁੱਖ(ਝੂਠ)};
             reducep = conep;
         }
-        reducep = resizeToWidth(reducep, targetRefp);
-        AstAssign* const newp = new AstAssign{flp, targetRefp->cloneTree(false), reducep};
-        newp->addNext(new AstAssign{flp, incLhsp->cloneTree(false), wp->cloneTree(false)});
+        reducep = resize_ਮੰਜ਼ਿਲ_ਚੌੜਾਈ(reducep, ਨਿਸ਼ਾਨਾ_Refp);
+        Ast_ਸੌਂਪੋ* ਅਚਲ newp = ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, ਨਿਸ਼ਾਨਾ_Refp->clone_ਰੁੱਖ(ਝੂਠ), reducep};
+        newp->ਜੋੜੋ_ਅਗਲਾ(ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, incLhsp->clone_ਰੁੱਖ(ਝੂਠ), wp->clone_ਰੁੱਖ(ਝੂਠ)});
         loopp->replaceWith(newp);
-        VL_DO_DANGLING(pushDeletep(loopp), loopp);
-        if (isLeadingOne) {
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(loopp), loopp);
+        ਜੇ (isLeadingOne) {
             UINFO(4, "Lowered priority-encoder loop to $mostsetbitp1: " << newp);
-            ++m_stats.m_bitScanLowered;
-        } else {
+            ++m_stats.m_ਦੋਆਧਾਰੀ_ਅੰਕ_ਜਾਂਚ_Lowered;
+        } ਨਹੀਂਤਾਂ {
             UINFO(4, "Lowered count-set-bits loop to $countones: " << newp);
-            ++m_stats.m_countOnesLowered;
+            ++m_stats.m_ਗਿਣਤੀ_Ones_Lowered;
         }
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
-    // VISIT
-    void visit(AstLoop* nodep) override {
+    //ਦੇਖੋ
+    ਖਾਲੀ ਦੇਖੋ(AstLoop* nodep) override {
         // Gather variable bindings from the preceding statements
         m_bindings.clear();
-        for (AstNode *succp = nodep, *currp = nodep->backp(); true;
+        ਲਈ (Ast_ਗੰਢ *succp = nodep, *currp = nodep->backp(); ਸੱਚ;
              succp = currp, currp = currp->backp()) {
             // If the current statement is in higher list, proceed carefully
-            if (currp->nextp() != succp) {
+            ਜੇ (currp->nextp() != succp) {
                 // Jump block is OK, there is only one way to get here
-                if (VN_IS(currp, JumpBlock)) continue;
+                ਜੇ (VN_IS(currp, Jump_ਖੰਡ)) ਜਾਰੀ;
                 // TODO: if?
                 // Otherwise we dont' know the control flow, give up
-                break;
+                ਰੋਕੋ;
             }
-            AstAssign* const assignp = VN_CAST(currp, Assign);
-            if (!assignp) break;
-            AstConst* const valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
-            if (!valp) break;
-            AstVarRef* const lhsp = VN_CAST(assignp->lhsp(), VarRef);
-            if (!lhsp) break;
+            Ast_ਸੌਂਪੋ* ਅਚਲ assignp = VN_CAST(currp, ਸੌਂਪੋ);
+            ਜੇ (!assignp) ਰੋਕੋ;
+            AstConst* ਅਚਲ valp = VN_CAST(V3Const::constifyEdit(assignp->rhsp()), Const);
+            ਜੇ (!valp) ਰੋਕੋ;
+            AstVarRef* ਅਚਲ lhsp = VN_CAST(assignp->lhsp(), VarRef);
+            ਜੇ (!lhsp) ਰੋਕੋ;
             // Don't bind if volatile
-            if (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) continue;
+            ਜੇ (lhsp->varp()->isForced() || lhsp->varp()->isSigUserRWPublic()) ਜਾਰੀ;
             // Don't overwrite a later binding
-            if (m_bindings.get(lhsp->varScopep())) continue;
+            ਜੇ (m_bindings.get(lhsp->varScopep())) ਜਾਰੀ;
             // Set up the binding
-            m_bindings.set(lhsp->varScopep(), valp);
+            m_bindings.ਸੈੱਟ(lhsp->varScopep(), valp);
         }
 
         // Recognize a bit counting loop and lower it to a builtin
-        if (v3Global.opt.fBitScanLoops() && tryLowerBitScanLoop(nodep)) return;
+        ਜੇ (v3Global.opt.f_ਦੋਆਧਾਰੀ_ਅੰਕ_ਜਾਂਚ_Loops() && try_ਹੇਠਲਾ_ਦੋਆਧਾਰੀ_ਅੰਕ_ਜਾਂਚ_Loop(nodep)) ਵਾਪਸ;
 
         // Attempt to unroll this loop
-        const std::pair<AstNode*, bool> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
+        ਅਚਲ std::pair<Ast_ਗੰਢ*, ਤਾਰਕਿਕ> pair = UnrollOneVisitor::apply(m_stats, m_bindings, nodep);
 
         // If failed, carry on with nested loop
-        if (!pair.second) {
+        ਜੇ (!pair.ਦੂਜਾ) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
 
         // Otherwise replace the loop with the unrolled code - might be empty
-        if (pair.first) {
-            nodep->replaceWith(pair.first);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
+        ਜੇ (pair.ਪਹਿਲਾ) {
+            nodep->replaceWith(pair.ਪਹਿਲਾ);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
+        } ਨਹੀਂਤਾਂ {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep->unlink_Fr_ਪਿੱਠ()), nodep);
         }
         // Iteration continues with the unrolled body
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
     // CONSTRUCTOR
-    explicit UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
+    ਸਪਸ਼ਟ UnrollAllVisitor(AstNetlist* netlistp) { iterate(netlistp); }
 
-public:
-    static void apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ apply(AstNetlist* netlistp) { UnrollAllVisitor{netlistp}; }
 };
 
 //######################################################################
 // V3Unroll class functions
 
-void V3Unroll::unrollAll(AstNetlist* nodep) {
+ਖਾਲੀ V3Unroll::unrollAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     UnrollAllVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("unroll", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("unroll", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

@@ -14,13 +14,13 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VL_MT_DISABLED_ਕੋਡ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Global.h"
-#include "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Global.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
@@ -28,84 +28,84 @@ VL_DEFINE_DEBUG_FUNCTIONS;
 //######################################################################
 // Test class
 
-class V3GraphTest VL_NOT_FINAL {
-protected:
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test VL_NOT_FINAL {
+ਸੁਰੱਖਿਅਤ:
     // MEMBERS
-    V3Graph m_graph;
+    V3_ਗ੍ਰਾਫ m_ਗ੍ਰਾਫ;
 
     // METHODS - for children
-    virtual void runTest() = 0;  // Run the test
-    virtual string name() = 0;  // Name of the test
+    ਆਭਾਸੀ ਖਾਲੀ ਲੜੀਵਾਰ_Test() = 0;  // Run the test
+    ਆਭਾਸੀ string name() = 0;  // Name of the test
 
     // Utilities
-    void dumpSelf() {
-        if (dumpGraphLevel() >= 9) m_graph.dumpDotFilePrefixed("v3graphtest_" + name());
+    ਖਾਲੀ dumpSelf() {
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_ਗ੍ਰਾਫ.dumpDotFilePrefixed("v3graphtest_" + name());
     }
 
-public:
-    V3GraphTest() = default;
-    virtual ~V3GraphTest() = default;
+ਜਨਤਕ:
+    V3_ਗ੍ਰਾਫ_Test() = ਮੂਲ;
+    ਆਭਾਸੀ ~V3_ਗ੍ਰਾਫ_Test() = ਮੂਲ;
 
-    void run() { runTest(); }
+    ਖਾਲੀ ਲੜੀਵਾਰ() { ਲੜੀਵਾਰ_Test(); }
 };
 
 //######################################################################
 //######################################################################
 // Vertices and nodes
 
-class V3GraphTestVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(V3GraphTestVertex, V3GraphVertex)
-    const string m_name;
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼ VL_NOT_FINAL : ਜਨਤਕ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼)
+    ਅਚਲ string m_name;
 
-public:
-    V3GraphTestVertex(V3Graph* graphp, const string& name)
-        : V3GraphVertex{graphp}
+ਜਨਤਕ:
+    V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, ਅਚਲ string& name)
+        : V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{graphp}
         , m_name{name} {}
-    ~V3GraphTestVertex() override = default;
+    ~V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼() override = ਮੂਲ;
     // ACCESSORS
-    string name() const override VL_MT_STABLE { return m_name; }
+    string name() ਅਚਲ override VL_MT_STABLE { ਵਾਪਸ m_name; }
 };
 
-class V3GraphTestVarVertex final : public V3GraphTestVertex {
-public:
-    V3GraphTestVarVertex(V3Graph* graphp, const string& name)
-        : V3GraphTestVertex{graphp, name} {}
-    ~V3GraphTestVarVertex() override = default;
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼ {
+ਜਨਤਕ:
+    V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, ਅਚਲ string& name)
+        : V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{graphp, name} {}
+    ~V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼() override = ਮੂਲ;
     // ACCESSORS
-    string dotColor() const override { return "blue"; }
+    string dotColor() ਅਚਲ override { ਵਾਪਸ "blue"; }
 };
 
 //######################################################################
 //######################################################################
 // Test vertices and nodes
 
-class V3GraphTestStrong final : public V3GraphTest {
-public:
-    string name() override { return "strong"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_Strong final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_Test {
+ਜਨਤਕ:
+    string name() override { ਵਾਪਸ "strong"; }
+    ਖਾਲੀ ਲੜੀਵਾਰ_Test() override {
+        V3_ਗ੍ਰਾਫ* gp = &m_ਗ੍ਰਾਫ;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        V3GraphTestVertex* q = new V3GraphTestVarVertex{gp, "q"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g3, g2, 2, true};
-        new V3GraphEdge{gp, g2, g3, 2, true};
-        new V3GraphEdge{gp, g1, q, 2, true};
-        new V3GraphEdge{gp, g2, q, 2, true};
-        new V3GraphEdge{gp, g3, q, 2, true};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* i = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "*INPUTS*"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* a = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "a"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* b = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "b"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g1 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g1"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g2 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g2"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g3 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g3"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* q = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "q"};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, i, a, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, a, b, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g1, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g2, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g3, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g1, a, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g3, g2, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g2, g3, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g1, q, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g2, q, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g3, q, 2, ਸੱਚ};
 
-        gp->stronglyConnected(&V3GraphEdge::followAlwaysTrue);
+        gp->stronglyConnected(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
         dumpSelf();
 
         UASSERT(i->color() != a->color() && a->color() != g2->color() && g2->color() != q->color(),
@@ -117,56 +117,56 @@ public:
     }
 };
 
-class V3GraphTestAcyc final : public V3GraphTest {
-public:
-    string name() override { return "acyc"; }
-    void runTest() override {
-        V3Graph* gp = &m_graph;
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_Acyc final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_Test {
+ਜਨਤਕ:
+    string name() override { ਵਾਪਸ "acyc"; }
+    ਖਾਲੀ ਲੜੀਵਾਰ_Test() override {
+        V3_ਗ੍ਰਾਫ* gp = &m_ਗ੍ਰਾਫ;
         // Verify we break edges at a good point
         // A simple alg would make 3 breaks, below only requires b->i to break
-        V3GraphTestVertex* i = new V3GraphTestVarVertex{gp, "*INPUTS*"};
-        V3GraphTestVertex* a = new V3GraphTestVarVertex{gp, "a"};
-        V3GraphTestVertex* b = new V3GraphTestVarVertex{gp, "b"};
-        V3GraphTestVertex* g1 = new V3GraphTestVarVertex{gp, "g1"};
-        V3GraphTestVertex* g2 = new V3GraphTestVarVertex{gp, "g2"};
-        V3GraphTestVertex* g3 = new V3GraphTestVarVertex{gp, "g3"};
-        new V3GraphEdge{gp, i, a, 2, true};
-        new V3GraphEdge{gp, a, b, 2, true};
-        new V3GraphEdge{gp, b, g1, 2, true};
-        new V3GraphEdge{gp, b, g2, 2, true};
-        new V3GraphEdge{gp, b, g3, 2, true};
-        new V3GraphEdge{gp, g1, a, 2, true};
-        new V3GraphEdge{gp, g2, a, 2, true};
-        new V3GraphEdge{gp, g3, a, 2, true};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* i = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "*INPUTS*"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* a = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "a"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* b = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "b"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g1 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g1"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g2 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g2"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* g3 = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "g3"};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, i, a, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, a, b, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g1, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g2, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, g3, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g1, a, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g2, a, 2, ਸੱਚ};
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, g3, a, 2, ਸੱਚ};
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
+        gp->ਕ੍ਰਮ();
         dumpSelf();
     }
 };
 
-class V3GraphTestVars final : public V3GraphTest {
-public:
-    string name() override { return "vars"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_Vars final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_Test {
+ਜਨਤਕ:
+    string name() override { ਵਾਪਸ "vars"; }
+    ਖਾਲੀ ਲੜੀਵਾਰ_Test() override {
+        V3_ਗ੍ਰਾਫ* ਅਚਲ gp = &m_ਗ੍ਰਾਫ;
 
-        V3GraphTestVertex* const clk = new V3GraphTestVarVertex{gp, "$clk"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ clk = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$clk"};
 
-        V3GraphTestVertex* const a = new V3GraphTestVarVertex{gp, "$a"};
-        V3GraphTestVertex* const a_dly = new V3GraphTestVarVertex{gp, "$a_dly"};
-        V3GraphTestVertex* const a_dlyblk = new V3GraphTestVarVertex{gp, "$a_dlyblk"};
-        V3GraphTestVertex* const b = new V3GraphTestVarVertex{gp, "$b"};
-        V3GraphTestVertex* const b_dly = new V3GraphTestVarVertex{gp, "$b_dly"};
-        V3GraphTestVertex* const b_dlyblk = new V3GraphTestVarVertex{gp, "$b_dlyblk"};
-        V3GraphTestVertex* const c = new V3GraphTestVarVertex{gp, "$c"};
-        V3GraphTestVertex* const i = new V3GraphTestVarVertex{gp, "$i"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ a = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$a"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ a_dly = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$a_dly"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ a_dlyblk = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$a_dlyblk"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ b = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$b"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ b_dly = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$b_dly"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ b_dlyblk = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$b_dlyblk"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ c = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$c"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ i = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$i"};
 
-        V3GraphTestVertex* const ap = new V3GraphTestVarVertex{gp, "$a_pre"};
-        V3GraphTestVertex* const bp = new V3GraphTestVarVertex{gp, "$b_pre"};
-        V3GraphTestVertex* const cp = new V3GraphTestVarVertex{gp, "$c_pre"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ ap = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$a_pre"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ bp = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$b_pre"};
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ cp = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_Var_ਸ਼ੀਰਸ਼{gp, "$c_pre"};
 
-        V3GraphTestVertex* n;
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* n;
 
         // Logical order between clk, and posedge blocks
         //   implemented by special CLK prod/cons?
@@ -179,68 +179,68 @@ public:
         // Desired order between different _DLY blocks so we can elim temporaries
         //   implemented by cutable "pre" signal dependencies
 
-        n = new V3GraphTestVertex{gp, "*INPUTS*"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "*INPUTS*"};
         {
-            new V3GraphEdge{gp, n, clk, 2};
-            new V3GraphEdge{gp, n, i, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, clk, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, i, 2};
         }
 
-        V3GraphTestVertex* const posedge = n = new V3GraphTestVertex{gp, "*posedge clk*"};
-        { new V3GraphEdge{gp, clk, n, 2}; }
+        V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼* ਅਚਲ posedge = n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "*posedge clk*"};
+        { ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, clk, n, 2}; }
 
         // AlwaysPre's     VarRefs on LHS:  generate special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume 'pre' (required to save cutable tests)
-        n = new V3GraphTestVertex{gp, "a_dly<PRE=a"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "a_dly<PRE=a"};
         {
-            new V3GraphEdge{gp, n, a_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, a_dly, 2};
-            new V3GraphEdge{gp, ap, n, 2, true};  // DESIRED delayed ordering (inp is required)
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, a_dlyblk, 2};  // Block ordering
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, a_dly, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, ap, n, 2, ਸੱਚ};  // DESIRED delayed ordering (inp is required)
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<PRE=b"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "b_dly<PRE=b"};
         {
-            new V3GraphEdge{gp, n, b_dlyblk, 2};  // Block ordering
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, bp, n, 2, true};  // DESIRED delayed ordering
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, b_dlyblk, 2};  // Block ordering
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, b_dly, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, bp, n, 2, ਸੱਚ};  // DESIRED delayed ordering
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
 
         // AssignDly's     VarRefs on LHS:  consume special BLK
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  generate 'pre' signals (cutable)
         //    SenItems:    consume CLOCK dependency
-        n = new V3GraphTestVertex{gp, "a_dly<=b|c"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "a_dly<=b|c"};
         {
-            new V3GraphEdge{gp, a_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, a_dly, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, a_dlyblk, n, 2};  // Block ordering in
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, a_dly, 2};
             // Note we don't include ap as we're generating a_dly
-            new V3GraphEdge{gp, n, bp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, n, cp, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, bp, 2};  // DESIRED delayed usage
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, cp, 2};  // DESIRED delayed usage
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b_dly<=a"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "b_dly<=a"};
         {
-            new V3GraphEdge{gp, b_dlyblk, n, 2};  // Block ordering in
-            new V3GraphEdge{gp, n, b_dly, 2};
-            new V3GraphEdge{gp, n, ap, 2};  // DESIRED delayed usage
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b_dlyblk, n, 2};  // Block ordering in
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, b_dly, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, ap, 2};  // DESIRED delayed usage
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
 
         // AlwaysPost's
         //    normal:      VarRefs on LHS:  generate normal
         //    underSBlock: VarRefs on RHS:  consume normal
-        n = new V3GraphTestVertex{gp, "a=POST=a_dly"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "a=POST=a_dly"};
         {
-            new V3GraphEdge{gp, n, a, 3};
-            new V3GraphEdge{gp, a_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, a, 3};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, a_dly, n, 3};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
-        n = new V3GraphTestVertex{gp, "b=POST=b_dly"};
+        n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "b=POST=b_dly"};
         {
-            new V3GraphEdge{gp, n, b, 3};
-            new V3GraphEdge{gp, b_dly, n, 3};
-            new V3GraphEdge{gp, posedge, n, 2};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, b, 3};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b_dly, n, 3};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, posedge, n, 2};
         }
 
         // COMBO
@@ -248,18 +248,18 @@ public:
         // Outbound are cutable, as we may need to evaluate multiple times
 
         {
-            n = new V3GraphTestVertex{gp, "c=a|b|i"};
-            new V3GraphEdge{gp, n, c, 1, true};
-            new V3GraphEdge{gp, a, n, 1, false};
-            new V3GraphEdge{gp, b, n, 1, false};
-            new V3GraphEdge{gp, i, n, 1, false};
+            n = ਨਵਾਂ V3_ਗ੍ਰਾਫ_Test_ਸ਼ੀਰਸ਼{gp, "c=a|b|i"};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, n, c, 1, ਸੱਚ};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, a, n, 1, ਝੂਠ};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, b, n, 1, ਝੂਠ};
+            ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{gp, i, n, 1, ਝੂਠ};
         }
 
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
-        gp->order();
+        gp->acyclic(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
+        gp->ਕ੍ਰਮ();
 
         // Test debug function
-        gp->dumpEdges(std::cout, *ap);
+        gp->dump_ਕਿਨਾਰੇ(std::ਬਾਹਰ, *ap);
 
         dumpSelf();
     }
@@ -267,40 +267,40 @@ public:
 
 //======================================================================
 
-class V3GraphTestImport final : public V3GraphTest {
+ਵਰਗ V3_ਗ੍ਰਾਫ_Test_Import final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_Test {
 
-#ifdef GRAPH_IMPORT
-    void dotImport();
-#else
-    void dotImport() {}
-#endif
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ ਗ੍ਰਾਫ_IMPORT
+    ਖਾਲੀ dotImport();
+#ਨਹੀਂਤਾਂ
+    ਖਾਲੀ dotImport() {}
+#ਜੇ_ਅੰਤ
 
-public:
-    string name() override { return "import"; }
-    void runTest() override {
-        V3Graph* const gp = &m_graph;
+ਜਨਤਕ:
+    string name() override { ਵਾਪਸ "import"; }
+    ਖਾਲੀ ਲੜੀਵਾਰ_Test() override {
+        V3_ਗ੍ਰਾਫ* ਅਚਲ gp = &m_ਗ੍ਰਾਫ;
         dotImport();
         dumpSelf();
-        gp->acyclic(&V3GraphEdge::followAlwaysTrue);
+        gp->acyclic(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
         dumpSelf();
-        gp->rank(&V3GraphEdge::followAlwaysTrue);
+        gp->rank(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
         dumpSelf();
     }
 };
 
 // clang-format off
-#ifdef GRAPH_IMPORT
+#ਜੇ_ਪਰਿਭਾਸ਼ਿਤ ਗ੍ਰਾਫ_IMPORT
 # include "graph_export.cpp"
-#endif
+#ਜੇ_ਅੰਤ
 // clang-format on
 
 //======================================================================
 
-void V3Graph::selfTest() {
+ਖਾਲੀ V3_ਗ੍ਰਾਫ::selfTest() {
     // Execute all of the tests
     UINFO(2, __FUNCTION__ << ":");
-    { V3GraphTestStrong{}.run(); }
-    { V3GraphTestAcyc{}.run(); }
-    { V3GraphTestVars{}.run(); }
-    { V3GraphTestImport{}.run(); }
+    { V3_ਗ੍ਰਾਫ_Test_Strong{}.ਲੜੀਵਾਰ(); }
+    { V3_ਗ੍ਰਾਫ_Test_Acyc{}.ਲੜੀਵਾਰ(); }
+    { V3_ਗ੍ਰਾਫ_Test_Vars{}.ਲੜੀਵਾਰ(); }
+    { V3_ਗ੍ਰਾਫ_Test_Import{}.ਲੜੀਵਾਰ(); }
 }

@@ -14,140 +14,140 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3STRING_H_
-#define VERILATOR_V3STRING_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3STRING_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3STRING_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
 // No V3 headers here - this is a base class for Vlc etc
 
-#include <deque>
-#include <iomanip>
-#include <map>
-#include <set>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include <unordered_map>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <deque>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sstream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <type_traits>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
-using VStringList = std::vector<std::string>;
-using VStringSet = std::set<std::string>;
+using VStringList = std::ਸਦਿਸ਼<std::string>;
+using VString_ਸੈੱਟ = std::ਸੈੱਟ<std::string>;
 
 //######################################################################
 // Global string-related functions
 
-template <typename T>
-std::string cvtToStr(const T& t) VL_PURE {
+ਸਾਂਚਾ <typename T>
+std::string cvt_ਮੰਜ਼ਿਲ_Str(ਅਚਲ T& t) VL_ਸ਼ੁੱਧ {
     std::ostringstream os;
     os << t;
-    return os.str();
+    ਵਾਪਸ os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_pointer<T>::value, std::string>::type
-cvtToHex(const T tp) VL_PURE {
+ਸਾਂਚਾ <typename T>
+typename std::enable_if<std::is_ਸੂਚਕ<T>::ਮੁੱਲ, std::string>::type
+cvt_ਮੰਜ਼ਿਲ_Hex(ਅਚਲ T tp) VL_ਸ਼ੁੱਧ {
     std::ostringstream os;
-    os << static_cast<const void*>(tp);
-    return os.str();
+    os << static_cast<ਅਚਲ ਖਾਲੀ*>(tp);
+    ਵਾਪਸ os.str();
 }
-template <typename T>
-typename std::enable_if<std::is_integral<T>::value, std::string>::type cvtToHex(const T t) {
+ਸਾਂਚਾ <typename T>
+typename std::enable_if<std::is_integral<T>::ਮੁੱਲ, std::string>::type cvt_ਮੰਜ਼ਿਲ_Hex(ਅਚਲ T t) {
     std::ostringstream os;
-    os << std::hex << std::setw(sizeof(T) * 8 / 4) << std::setfill('0') << t;
-    return os.str();
+    os << std::hex << std::setw(ਆਕਾਰ(T) * 8 / 4) << std::setfill('0') << t;
+    ਵਾਪਸ os.str();
 }
 
-inline string ucfirst(const string& text) {
-    string result = text;
-    result[0] = std::toupper(result[0]);
-    return result;
+ਸਤਰਅੰਦਰ string ucfirst(ਅਚਲ string& ਪਾਠ) {
+    string ਨਤੀਜਾ = ਪਾਠ;
+    ਨਤੀਜਾ[0] = std::ਵੱਡਾ_ਅੱਖਰ(ਨਤੀਜਾ[0]);
+    ਵਾਪਸ ਨਤੀਜਾ;
 }
 
 //######################################################################
 // VString - String manipulation
 
 class VString final {
-    static bool wildmatchi(const char* s, const char* p) VL_PURE;
+    ਸਥਿਰ bool wildmatchi(ਅਚਲ ਅੱਖਰ* s, ਅਚਲ ਅੱਖਰ* p) VL_ਸ਼ੁੱਧ;
 
-public:
+ਜਨਤਕ:
     // METHODS (generic string utilities)
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const char* s, const char* p) VL_PURE;
+    ਸਥਿਰ bool wildmatch(ਅਚਲ ਅੱਖਰ* s, ਅਚਲ ਅੱਖਰ* p) VL_ਸ਼ੁੱਧ;
     // Return true if p with ? or *'s matches s
-    static bool wildmatch(const string& s, const string& p) VL_PURE;
+    ਸਥਿਰ bool wildmatch(ਅਚਲ string& s, ਅਚਲ string& p) VL_ਸ਼ੁੱਧ;
     // Return {a}{dot}{b}, omitting dot if a or b are empty
-    static string dot(const string& a, const string& dot, const string& b);
+    ਸਥਿਰ string dot(ਅਚਲ string& a, ਅਚਲ string& dot, ਅਚਲ string& b);
     // Convert string to lowercase (tolower)
-    static string downcase(const string& str) VL_PURE;
+    ਸਥਿਰ string downcase(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ;
     // Convert string to upper case (toupper)
-    static string upcase(const string& str) VL_PURE;
+    ਸਥਿਰ string upcase(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ;
     // Insert esc just before tgt
-    static string quoteAny(const string& str, char tgt, char esc) VL_PURE;
+    ਸਥਿਰ string quoteAny(ਅਚਲ string& str, ਅੱਖਰ tgt, ਅੱਖਰ esc) VL_ਸ਼ੁੱਧ;
     // Replace any \'s with \\  (two consecutive backslashes)
-    static string quoteBackslash(const string& str) VL_PURE { return quoteAny(str, '\\', '\\'); }
+    ਸਥਿਰ string quoteBackslash(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ { ਵਾਪਸ quoteAny(str, '\\', '\\'); }
     // Replace any %'s with %%
-    static string quotePercent(const string& str) VL_PURE { return quoteAny(str, '%', '%'); }
+    ਸਥਿਰ string quotePercent(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ { ਵਾਪਸ quoteAny(str, '%', '%'); }
     // Replace any %%'s with %
-    static string dequotePercent(const string& str);
+    ਸਥਿਰ string dequotePercent(ਅਚਲ string& str);
     // Surround a raw string by double quote and escape if necessary
     // e.g. input abc's  becomes "\"abc\'s\""
-    static string escapeStringForPath(const string& str);
+    ਸਥਿਰ string escape_String_For_ਰਸਤਾ(ਅਚਲ string& str);
     // Convert SV quoted string input from source code to normal form.
     // Reverse is V3OutFormatter::quoteNameControls(...)
-    static string unquoteSVString(const string& text, string& errOut);
+    ਸਥਿਰ string unquoteSVString(ਅਚਲ string& ਪਾਠ, string& err_ਬਾਹਰਲਾ);
     // Position just past the string literal 'pos' opens with '"', as written by
     // V3OutFormatter::quoteNameControls(...), whose escapes each begin with '\', or npos if the
     // literal does not end
-    static size_t quotedEnd(const string& str, size_t pos) VL_PURE;
+    ਸਥਿਰ ਮਾਪ_t quoted_ਸਿਰਾ(ਅਚਲ string& str, ਮਾਪ_t pos) VL_ਸ਼ੁੱਧ;
     // Escape path in Windows
     // e.g. input `C:\Program Files\My Program\My Program.exe` becomes
     // `C:\\Program\ Files\\My\ Program\\My\ Program.exe`
-    static string quoteStringLiteralForShell(const string& str);
+    ਸਥਿਰ string quoteStringLiteralForShell(ਅਚਲ string& str);
     // Replace any unprintable with space
     // This includes removing tabs, so column tracking is correct
-    static string spaceUnprintable(const string& str) VL_PURE;
+    ਸਥਿਰ string spaceUnprintable(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ;
     // Remove any whitespace
-    static string removeWhitespace(const string& str);
+    ਸਥਿਰ string removeWhitespace(ਅਚਲ string& str);
     // Trim leading/trailing whitespace on each line
-    static string trimWhitespace(const string& str);
+    ਸਥਿਰ string trimWhitespace(ਅਚਲ string& str);
     // Return true if only identifer or ""
-    static bool isIdentifier(const string& str);
+    ਸਥਿਰ bool isIdentifier(ਅਚਲ string& str);
     // Return true if char is valid character in C identifiers
-    static bool isIdentifierChar(char c) { return isalnum(c) || c == '_'; }
+    ਸਥਿਰ bool isIdentifierChar(ਅੱਖਰ c) { ਵਾਪਸ ਅੱਖਰ_ਜਾਂ_ਅੰਕ(c) || c == '_'; }
     // Return true if only whitespace or ""
-    static bool isWhitespace(const string& str);
+    ਸਥਿਰ bool isWhitespace(ਅਚਲ string& str);
     // Return number of spaces/tabs leading in string
-    static string::size_type leadingWhitespaceCount(const string& str);
+    ਸਥਿਰ string::ਮਾਪ_type leading_Whitespace_ਗਿਣਤੀ(ਅਚਲ string& str);
     // Return double by parsing string
-    static double parseDouble(const string& str, bool* successp);
+    ਸਥਿਰ ਦੁੱਗਣਾ parseDouble(ਅਚਲ string& str, bool* successp);
     // Replace substring. Often replaceWord is more appropriate.
-    static string replaceSubstr(const string& str, const string& from, const string& to);
+    ਸਥਿਰ string replaceSubstr(ਅਚਲ string& str, ਅਚਲ string& from, ਅਚਲ string& ਮੰਜ਼ਿਲ);
     // Replace all occurrences of the word 'from' in 'str' with 'to'. A word is considered
     // to be a consecutive sequence of the characters [a-zA-Z0-9_]. Sub-words are not replaced.
     // e.g.: replaceWords("one apple bad_apple", "apple", "banana") -> "one banana bad_apple"
-    static string replaceWord(const string& str, const string& from, const string& to);
+    ਸਥਿਰ string replace_ਸ਼ਬਦ(ਅਚਲ string& str, ਅਚਲ string& from, ਅਚਲ string& ਮੰਜ਼ਿਲ);
     // Return deque of strings split by the given delimiter
-    static std::deque<string> split(const string& str, char delimiter = ',');
+    ਸਥਿਰ std::deque<string> ਵੰਡੋ(ਅਚਲ string& str, ਅੱਖਰ delimiter = ',');
     // Predicate to check if 'str' starts with 'prefix'
-    static bool startsWith(const string& str, const char* prefixp) {
-        return !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
+    ਸਥਿਰ bool startsWith(ਅਚਲ string& str, ਅਚਲ ਅੱਖਰ* prefixp) {
+        ਵਾਪਸ !str.rfind(prefixp, 0);  // Faster than .find(_) == 0
     }
-    static bool startsWith(const string& str, const string& prefix) {
-        return !str.rfind(prefix, 0);  // Faster than .find(_) == 0
+    ਸਥਿਰ bool startsWith(ਅਚਲ string& str, ਅਚਲ string& ਅਗੇਤਰ) {
+        ਵਾਪਸ !str.rfind(ਅਗੇਤਰ, 0);  // Faster than .find(_) == 0
     }
     // Predicate to check if 'str' ends with 'suffix'
-    static bool endsWith(const string& str, const string& suffix);
+    ਸਥਿਰ bool ਸਿਰੇ_With(ਅਚਲ string& str, ਅਚਲ string& suffix);
     // Return proper article (a/an) for a word. May be inaccurate for some special words
-    static string aOrAn(const char* word);
-    static string aOrAn(const string& word) { return aOrAn(word.c_str()); }
+    ਸਥਿਰ string aOrAn(ਅਚਲ ਅੱਖਰ* ਸ਼ਬਦ);
+    ਸਥਿਰ string aOrAn(ਅਚਲ string& ਸ਼ਬਦ) { ਵਾਪਸ aOrAn(ਸ਼ਬਦ.c_str()); }
     // Hash the string
-    static uint64_t hashMurmur(const string& str) VL_PURE;
+    ਸਥਿਰ uint64_t hashMurmur(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ;
 
     // Base 64 encode
-    static string base64Enc(const string& str) VL_PURE;
+    ਸਥਿਰ string base64Enc(ਅਚਲ string& str) VL_ਸ਼ੁੱਧ;
 
-    static void selfTest();  // Test this class
+    ਸਥਿਰ ਖਾਲੀ selfTest();  // Test this class
 };
 
 //######################################################################
@@ -162,9 +162,9 @@ class VHashSha512 final {
     // MEMBERS
     uint64_t m_inthash[8];  // Intermediate hash, in host order
     string m_remainder;  // Unhashed data
-    size_t m_totLength = 0;  // Total all-chunk length as needed by output digest
+    ਮਾਪ_t m_tot_ਲੰਮਾਈ = 0;  // Total all-chunk length as needed by output digest
     bool m_final = false;  // Finalized
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
     VHashSha512() {
         m_inthash[0] = 0x6a09e667f3bcc908ULL;
@@ -176,36 +176,36 @@ public:
         m_inthash[6] = 0x1f83d9abfb41bd6bULL;
         m_inthash[7] = 0x5be0cd19137e2179ULL;
     }
-    explicit VHashSha512(const string& data)
+    explicit VHashSha512(ਅਚਲ string& ਅੰਕੜੇ)
         : VHashSha512{} {
-        insert(data);
+        ਪਾਓ(ਅੰਕੜੇ);
     }
-    ~VHashSha512() = default;
+    ~VHashSha512() = ਮੂਲ;
 
     // CONSTANTS
     // Characters digestSymbol24 keeps, 6 bits each, so 144 bits and no collisions in practice
-    static constexpr size_t DIGEST_SYMBOL24_LENGTH = 24;
+    ਸਥਿਰ constexpr ਮਾਪ_t DIGEST_SYMBOL24_ਲੰਮਾਈ = 24;
 
     // METHODS
     string digestBase64();  // Return digest formatted in Base64 (non-URL flavor)
-    string digestBinary();  // Return digest as 64 character binary
+    string digest_ਦੁਆਧਾਰੀ();  // Return digest as 64 character binary
     string digestHex();  // Return digest formatted as a hex string
     string digestSymbol24();  // Return non-reversable short-formatted as C symbol/base64ish
     uint64_t digestUInt64();  // Return 64-bits of digest
-    static void selfTest();  // Test this class
+    ਸਥਿਰ ਖਾਲੀ selfTest();  // Test this class
 
     // Inserting hash data
-    void insert(const void* datap, size_t length);  // Process data into the digest
-    void insert(const string& data) {
-        insert(data.data(), data.length());
+    ਖਾਲੀ ਪਾਓ(ਅਚਲ ਖਾਲੀ* datap, ਮਾਪ_t ਲੰਮਾਈ);  // Process data into the digest
+    ਖਾਲੀ ਪਾਓ(ਅਚਲ string& ਅੰਕੜੇ) {
+        ਪਾਓ(ਅੰਕੜੇ.ਅੰਕੜੇ(), ਅੰਕੜੇ.ਲੰਮਾਈ());
     }  // Process data into the digest
-    void insert(uint64_t value) { insert(cvtToStr(value)); }
-    void insertFile(const string& filename);
+    ਖਾਲੀ ਪਾਓ(uint64_t ਮੁੱਲ) { ਪਾਓ(cvt_ਮੰਜ਼ਿਲ_Str(ਮੁੱਲ)); }
+    ਖਾਲੀ ਪਾਓ_File(ਅਚਲ string& filename);
 
-private:
-    static void selfTestOne(const string& data, const string& data2, const string& exp,
-                            const string& exp64, const string& exp24);
-    void finalize();  // Process remaining data
+ਨਿਜੀ:
+    ਸਥਿਰ ਖਾਲੀ selfTestOne(ਅਚਲ string& ਅੰਕੜੇ, ਅਚਲ string& data2, ਅਚਲ string& ਘਾਤਾਂਕ,
+                            ਅਚਲ string& exp64, ਅਚਲ string& exp24);
+    ਖਾਲੀ finalize();  // Process remaining data
 };
 
 //######################################################################
@@ -215,27 +215,27 @@ private:
 class VName final {
     string m_name;  // Pre-hashed symbol name
     string m_hashed;  // Hashed version of symbol name
-    static std::map<string, string> s_dehashMap;  // hashed -> original decoder
+    ਸਥਿਰ std::map<string, string> s_dehashMap;  // hashed -> original decoder
 
-    static size_t s_maxLength;  // Length at which to start hashing
-    static size_t s_minLength;  // Length to preserve if over maxLength
+    ਸਥਿਰ ਮਾਪ_t s_max_ਲੰਮਾਈ;  // Length at which to start hashing
+    ਸਥਿਰ ਮਾਪ_t s_min_ਲੰਮਾਈ;  // Length to preserve if over maxLength
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit VName(const string& name)
+    explicit VName(ਅਚਲ string& name)
         : m_name{name} {}
-    ~VName() = default;
+    ~VName() = ਮੂਲ;
     // METHODS
-    void name(const string& name) {
+    ਖਾਲੀ name(ਅਚਲ string& name) {
         m_name = name;
         m_hashed = "";
     }
-    string name() const { return m_name; }
+    string name() ਅਚਲ { ਵਾਪਸ m_name; }
     string hashedName();
     // CONFIG STATIC METHODS
     // Length at which to start hashing, 0=disable
-    static void maxLength(size_t flag) { s_maxLength = flag; }
-    static string dehash(const string& in);
+    ਸਥਿਰ ਖਾਲੀ max_ਲੰਮਾਈ(ਮਾਪ_t flag) { s_max_ਲੰਮਾਈ = flag; }
+    ਸਥਿਰ string dehash(ਅਚਲ string& ਵਿੱਚ_2);
 };
 
 //######################################################################
@@ -243,56 +243,56 @@ public:
 
 class VSpellCheck final {
     // CONSTANTS
-    static constexpr unsigned NUM_CANDIDATE_LIMIT = 10000;  // Avoid searching huge netlists
-    static constexpr unsigned LENGTH_LIMIT = 100;  // Maximum string length to search
+    ਸਥਿਰ constexpr ਬਿਨਾਨਿਸ਼ਾਨੀ ਅੰਕ_CANDIDATE_ਹੱਦਬੰਦੀ = 10000;  // Avoid searching huge netlists
+    ਸਥਿਰ constexpr ਬਿਨਾਨਿਸ਼ਾਨੀ ਲੰਮਾਈ_ਹੱਦਬੰਦੀ = 100;  // Maximum string length to search
     // TYPES
-    using EditDistance = unsigned int;
-    struct Candidate final {
+    using Edit_ਦੂਰੀ = ਬਿਨਾਨਿਸ਼ਾਨੀ ਪੂਰਨ;
+    ਬਣਤਰ Candidate final {
         std::string str;  // String to be matched
-        std::string msg;  // Message to print on a match
+        std::string ਸੁਨੇਹਾ_2;  // Message to print on a match
     };
     // MEMBERS
-    std::vector<Candidate> m_candidates;  // Strings we try to match
-public:
+    std::ਸਦਿਸ਼<Candidate> m_candidates;  // Strings we try to match
+ਜਨਤਕ:
     // CONSTRUCTORS
-    VSpellCheck() = default;
-    ~VSpellCheck() = default;
+    VSpellCheck() = ਮੂਲ;
+    ~VSpellCheck() = ਮੂਲ;
     // METHODS
     // Push a symbol table value to be considered as a candidate
     // The first item pushed has highest priority, all else being equal
-    void pushCandidate(const string& str) { pushCandidate(str, str); }
+    ਖਾਲੀ ਧੱਕੋ_Candidate(ਅਚਲ string& str) { ਧੱਕੋ_Candidate(str, str); }
     // First argument is string to be matched, the second one is message to print on success
-    void pushCandidate(const string& str, const string& msg) {
-        if (m_candidates.size() < NUM_CANDIDATE_LIMIT) m_candidates.push_back({str, msg});
+    ਖਾਲੀ ਧੱਕੋ_Candidate(ਅਚਲ string& str, ਅਚਲ string& ਸੁਨੇਹਾ_2) {
+        ਜੇ (m_candidates.ਮਾਪ() < ਅੰਕ_CANDIDATE_ਹੱਦਬੰਦੀ) m_candidates.ਧੱਕੋ_ਪਿੱਠ({str, ਸੁਨੇਹਾ_2});
     }
     // Return candidate is closest to provided string, or "" for none
-    VSpellCheck::Candidate bestCandidate(const string& goal) const {
-        EditDistance dist;
-        return bestCandidateInfo(goal, dist /*ref*/);
+    VSpellCheck::Candidate ਉੱਤਮ_Candidate(ਅਚਲ string& goal) ਅਚਲ {
+        Edit_ਦੂਰੀ dist;
+        ਵਾਪਸ ਉੱਤਮ_Candidate_Info(goal, dist /*ref*/);
     }
     // Return friendly message
-    string bestCandidateMsg(const string& goal) const {
-        const auto candidate = bestCandidate(goal);
-        if (candidate.msg.empty()) return "";
-        return "... Suggested alternative: '"s + candidate.msg + "'";
+    string ਉੱਤਮ_Candidate_ਸੁਨੇਹਾ(ਅਚਲ string& goal) ਅਚਲ {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ candidate = ਉੱਤਮ_Candidate(goal);
+        ਜੇ (candidate.ਸੁਨੇਹਾ_2.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ "";
+        ਵਾਪਸ "... Suggested alternative: '"s + candidate.ਸੁਨੇਹਾ_2 + "'";
     }
-    static void selfTest();
-    std::vector<std::string> candidates() const {
-        std::vector<std::string> result;
-        result.reserve(m_candidates.size());
-        for (const auto& candidate : m_candidates) { result.push_back(candidate.msg); }
-        return result;
+    ਸਥਿਰ ਖਾਲੀ selfTest();
+    std::ਸਦਿਸ਼<std::string> candidates() ਅਚਲ {
+        std::ਸਦਿਸ਼<std::string> ਨਤੀਜਾ;
+        ਨਤੀਜਾ.reserve(m_candidates.ਮਾਪ());
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& candidate : m_candidates) { ਨਤੀਜਾ.ਧੱਕੋ_ਪਿੱਠ(candidate.ਸੁਨੇਹਾ_2); }
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 
-private:
-    static EditDistance editDistance(const string& s, const string& t);
-    static EditDistance cutoffDistance(size_t goal_len, size_t candidate_len);
-    VSpellCheck::Candidate bestCandidateInfo(const string& goal, EditDistance& distancer) const;
-    static void selfTestDistanceOne(const string& a, const string& b, EditDistance expected);
-    static void selfTestSuggestOne(bool matches, const string& c, const string& goal,
-                                   EditDistance dist);
+ਨਿਜੀ:
+    ਸਥਿਰ Edit_ਦੂਰੀ edit_ਦੂਰੀ(ਅਚਲ string& s, ਅਚਲ string& t);
+    ਸਥਿਰ Edit_ਦੂਰੀ cutoff_ਦੂਰੀ(ਮਾਪ_t goal_len, ਮਾਪ_t candidate_len);
+    VSpellCheck::Candidate ਉੱਤਮ_Candidate_Info(ਅਚਲ string& goal, Edit_ਦੂਰੀ& distancer) ਅਚਲ;
+    ਸਥਿਰ ਖਾਲੀ self_Test_ਦੂਰੀ_One(ਅਚਲ string& a, ਅਚਲ string& b, Edit_ਦੂਰੀ expected);
+    ਸਥਿਰ ਖਾਲੀ selfTestSuggestOne(bool matches, ਅਚਲ string& c, ਅਚਲ string& goal,
+                                   Edit_ਦੂਰੀ dist);
 };
 
 //######################################################################
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard

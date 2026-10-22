@@ -16,52 +16,52 @@
 // AstSenTree related utilities.
 //*************************************************************************
 
-#ifndef VERILATOR_V3SENTREE_H_
-#define VERILATOR_V3SENTREE_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3SENTREE_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3SENTREE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Hasher.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Hasher.h"
 
-#include <unordered_set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_set>
 
 //######################################################################
 // Collect SenTrees under the entire scope
 // And provide functions to find/add a new one
 
-class SenTreeFinder final {
+class Sen_ਰੁੱਖ_Finder final {
     // STATE - across all visitors
-    AstTopScope* const m_topScopep;  // Top scope to add global SenTrees to
-    std::unordered_set<VNRef<AstSenTree>> m_trees;  // Set of global SenTrees
-    AstSenTree* m_combop = nullptr;  // The unique combinational domain SenTree
-    AstSenTree* m_initialp = nullptr;  // The unique initial domain SenTree
+    Ast_ਸਿਖਰ_Scope* ਅਚਲ m_ਸਿਖਰ_Scopep;  // Top scope to add global SenTrees to
+    std::unordered_ਸੈੱਟ<VNRef<Ast_Sen_ਰੁੱਖ>> m_trees;  // Set of global SenTrees
+    Ast_Sen_ਰੁੱਖ* m_combop = nullptr;  // The unique combinational domain SenTree
+    Ast_Sen_ਰੁੱਖ* m_initialp = nullptr;  // The unique initial domain SenTree
 
-    VL_UNCOPYABLE(SenTreeFinder);
+    VL_UNCOPYABLE(Sen_ਰੁੱਖ_Finder);
 
-    template <typename T_Domain>  //
-    AstSenTree* makeUnique() {
-        FileLine* const fl = m_topScopep->fileline();
-        AstSenTree* const senTreep = new AstSenTree{fl, new AstSenItem{fl, T_Domain{}}};
-        AstSenTree* const restultp = getSenTree(senTreep);
-        VL_DO_DANGLING(senTreep->deleteTree(), senTreep);  // getSenTree clones, so can delete
-        return restultp;
+    ਸਾਂਚਾ <typename T_Domain>  //
+    Ast_Sen_ਰੁੱਖ* makeUnique() {
+        File_ਸਤਰ* ਅਚਲ fl = m_ਸਿਖਰ_Scopep->fileline();
+        Ast_Sen_ਰੁੱਖ* ਅਚਲ senTreep = new Ast_Sen_ਰੁੱਖ{fl, new Ast_Sen_ਵਸਤੂ{fl, T_Domain{}}};
+        Ast_Sen_ਰੁੱਖ* ਅਚਲ restultp = get_Sen_ਰੁੱਖ(senTreep);
+        VL_DO_DANGLING(senTreep->delete_ਰੁੱਖ(), senTreep);  // getSenTree clones, so can delete
+        ਵਾਪਸ restultp;
     }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    SenTreeFinder()
-        : SenTreeFinder{v3Global.rootp()} {}
+    Sen_ਰੁੱਖ_Finder()
+        : Sen_ਰੁੱਖ_Finder{v3Global.rootp()} {}
 
-    explicit SenTreeFinder(AstNetlist* netlistp)
-        : m_topScopep{netlistp->topScopep()} {
+    explicit Sen_ਰੁੱਖ_Finder(AstNetlist* netlistp)
+        : m_ਸਿਖਰ_Scopep{netlistp->ਸਿਖਰ_Scopep()} {
         // Gather existing global SenTrees
-        for (AstSenTree* senTreep = m_topScopep->senTreesp(); senTreep;
-             senTreep = VN_AS(senTreep->nextp(), SenTree)) {
+        ਲਈ (Ast_Sen_ਰੁੱਖ* senTreep = m_ਸਿਖਰ_Scopep->senTreesp(); senTreep;
+             senTreep = VN_AS(senTreep->nextp(), Sen_ਰੁੱਖ)) {
             m_trees.emplace(*senTreep);
-            if (senTreep->hasCombo()) m_combop = senTreep;
-            if (senTreep->hasInitial()) m_initialp = senTreep;
+            ਜੇ (senTreep->hasCombo()) m_combop = senTreep;
+            ਜੇ (senTreep->hasInitial()) m_initialp = senTreep;
         }
     }
 
@@ -69,31 +69,31 @@ public:
 
     // Return a global AstSenTree equivalent to the given senTreep.
     // If no such global AstSenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getSenTree(AstSenTree* senTreep) {
-        auto it = m_trees.find(*senTreep);
+    Ast_Sen_ਰੁੱਖ* get_Sen_ਰੁੱਖ(Ast_Sen_ਰੁੱਖ* senTreep) {
+        ਸਵੈਚਾਲਿਤ it = m_trees.ਲੱਭੋ(*senTreep);
         // If match found, return it.
-        if (it != m_trees.end()) return &(*it).get();
+        ਜੇ (it != m_trees.ਸਿਰਾ()) ਵਾਪਸ &(*it).get();
 
         // Not found, create a new one
-        AstSenTree* const newSenTreep = senTreep->cloneTree(false);
-        m_topScopep->addSenTreesp(newSenTreep);
+        Ast_Sen_ਰੁੱਖ* ਅਚਲ newSenTreep = senTreep->clone_ਰੁੱਖ(false);
+        m_ਸਿਖਰ_Scopep->ਜੋੜੋ_Sen_Treesp(newSenTreep);
         m_trees.emplace(*newSenTreep);
-        return newSenTreep;
+        ਵਾਪਸ newSenTreep;
     }
 
     // Return the global combinational AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getComb() {
-        if (!m_combop) m_combop = makeUnique<AstSenItem::Combo>();
-        return m_combop;
+    Ast_Sen_ਰੁੱਖ* getComb() {
+        ਜੇ (!m_combop) m_combop = makeUnique<Ast_Sen_ਵਸਤੂ::Combo>();
+        ਵਾਪਸ m_combop;
     }
 
     // Return the global initial AstSenTree.
     // If no such global SenTree exists create one and add it to the stored AstTopScope.
-    AstSenTree* getInitial() {
-        if (!m_initialp) m_initialp = makeUnique<AstSenItem::Initial>();
-        return m_initialp;
+    Ast_Sen_ਰੁੱਖ* getInitial() {
+        ਜੇ (!m_initialp) m_initialp = makeUnique<Ast_Sen_ਵਸਤੂ::Initial>();
+        ਵਾਪਸ m_initialp;
     }
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

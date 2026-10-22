@@ -15,21 +15,21 @@
 //*************************************************************************
 
 // clang-format off
-#include "V3Error.h"
-#include "V3Os.h"
-#ifndef V3ERROR_NO_GLOBAL_
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Os.h"
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
 # include "V3Ast.h"
 # include "V3DiagSarif.h"
 # include "V3Global.h"
 # include "V3Stats.h"
 VL_DEFINE_DEBUG_FUNCTIONS;
-#endif
-#include <thread>
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ <thread>
 // clang-format on
 
 //======================================================================
 
-struct v3errorIniter final {
+ਬਣਤਰ v3errorIniter final {
     v3errorIniter() { V3Error::init(); }
 };
 v3errorIniter v3errorInit;
@@ -37,58 +37,58 @@ v3errorIniter v3errorInit;
 //######################################################################
 // ErrorCode class functions
 
-V3ErrorCode::V3ErrorCode(const char* msgp) {
+V3_Error_ਕੋਡ::V3_Error_ਕੋਡ(ਅਚਲ ਅੱਖਰ* msgp) {
     // Return error encoding for given string, or ERROR, which is a bad code
-    for (int codei = V3ErrorCode::EC_MIN; codei < V3ErrorCode::_ENUM_MAX; codei++) {
-        const V3ErrorCode code{codei};
-        if (0 == VL_STRCASECMP(msgp, code.ascii())) {
-            m_e = code;
-            if (isRenamed()) m_e = renamedTo().m_e;
-            return;
+    ਲਈ (ਪੂਰਨ codei = V3_Error_ਕੋਡ::EC_MIN; codei < V3_Error_ਕੋਡ::_ENUM_MAX; codei++) {
+        ਅਚਲ V3_Error_ਕੋਡ ਕੋਡ{codei};
+        ਜੇ (0 == VL_STRCASECMP(msgp, ਕੋਡ.ascii())) {
+            m_e = ਕੋਡ;
+            ਜੇ (isRenamed()) m_e = renamed_ਮੰਜ਼ਿਲ().m_e;
+            ਵਾਪਸ;
         }
     }
-    m_e = V3ErrorCode::EC_ERROR;
+    m_e = V3_Error_ਕੋਡ::EC_ERROR;
 }
 
-string V3ErrorCode::url() const {
-    if (!isNamed())
-        return "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
-    return "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_VERSION_NUMBER_STRING;
+string V3_Error_ਕੋਡ::url() ਅਚਲ {
+    ਜੇ (!isNamed())
+        ਵਾਪਸ "https://verilator.org/verilator_doc.html"s + "?v=" + PACKAGE_ਸੰਸਕਰਣ_ਸੰਖਿਆ_STRING;
+    ਵਾਪਸ "https://verilator.org/warn/"s + ascii() + "?v=" + PACKAGE_ਸੰਸਕਰਣ_ਸੰਖਿਆ_STRING;
 }
 
 //######################################################################
 // V3ErrorGuarded class functions
 //
 
-bool V3ErrorGuarded::isError(V3ErrorCode code, bool supp) VL_REQUIRES(m_mutex) {
-    if (code.hardError()) return true;
-    if (supp) return false;
-    if (code.severityInfo()) return false;
-    if (pretendError(code)) return true;
-    return false;
+ਤਾਰਕਿਕ V3ErrorGuarded::isError(V3_Error_ਕੋਡ ਕੋਡ, ਤਾਰਕਿਕ supp) VL_REQUIRES(m_mutex) {
+    ਜੇ (ਕੋਡ.hardError()) ਵਾਪਸ ਸੱਚ;
+    ਜੇ (supp) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (ਕੋਡ.severityInfo()) ਵਾਪਸ ਝੂਠ;
+    ਜੇ (pretendError(ਕੋਡ)) ਵਾਪਸ ਸੱਚ;
+    ਵਾਪਸ ਝੂਠ;
 }
 
-string V3ErrorGuarded::msgPrefix() VL_REQUIRES(m_mutex) {
-    const V3ErrorCode code = m_message.code();
-    const bool supp = m_errorSuppressed;
-    if (supp) return "-arning-suppressed-" + std::string{code.ascii()} + ": ";
-    if (code.severityInfo()) return "-Info: ";
-    if (code == V3ErrorCode::EC_FATAL) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALMANY) return "%Error: ";
-    if (code == V3ErrorCode::EC_FATALSRC) return "%Error: Internal Error: ";
-    if (code == V3ErrorCode::EC_ERROR) return "%Error: ";
-    if (isError(code, supp)) return "%Error-" + std::string{code.ascii()} + ": ";
-    return "%Warning-" + std::string{code.ascii()} + ": ";
+string V3ErrorGuarded::ਸੁਨੇਹਾ_ਅਗੇਤਰ() VL_REQUIRES(m_mutex) {
+    ਅਚਲ V3_Error_ਕੋਡ ਕੋਡ = m_ਸੁਨੇਹਾ.ਕੋਡ();
+    ਅਚਲ ਤਾਰਕਿਕ supp = m_errorSuppressed;
+    ਜੇ (supp) ਵਾਪਸ "-arning-suppressed-" + std::string{ਕੋਡ.ascii()} + ": ";
+    ਜੇ (ਕੋਡ.severityInfo()) ਵਾਪਸ "-Info: ";
+    ਜੇ (ਕੋਡ == V3_Error_ਕੋਡ::EC_FATAL) ਵਾਪਸ "%Error: ";
+    ਜੇ (ਕੋਡ == V3_Error_ਕੋਡ::EC_FATALMANY) ਵਾਪਸ "%Error: ";
+    ਜੇ (ਕੋਡ == V3_Error_ਕੋਡ::EC_FATALSRC) ਵਾਪਸ "%Error: Internal Error: ";
+    ਜੇ (ਕੋਡ == V3_Error_ਕੋਡ::EC_ERROR) ਵਾਪਸ "%Error: ";
+    ਜੇ (isError(ਕੋਡ, supp)) ਵਾਪਸ "%Error-" + std::string{ਕੋਡ.ascii()} + ": ";
+    ਵਾਪਸ "%Warning-" + std::string{ਕੋਡ.ascii()} + ": ";
 }
 
-void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
-    if (V3Error::debugDefault()) {
-        std::cerr << msgPrefix() << "Aborting since under --debug" << endl;
+ਖਾਲੀ V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
+    ਜੇ (V3Error::debugDefault()) {
+        std::cerr << ਸੁਨੇਹਾ_ਅਗੇਤਰ() << "Aborting since under --debug" << ਸਤਰ_ਅੰਤ;
         V3Error::vlAbort();
     }
 
-#ifndef V3ERROR_NO_GLOBAL_
-    if (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+    ਜੇ (v3Global.opt.verilateJobs() > 1 && v3Global.mainThreadId() != std::this_thread::get_id()) {
         // No static destructors are called, thus must be called manually.
         VL_GCOV_DUMP();
         // Exit without triggering any global destructors. Used to prevent
@@ -96,187 +96,187 @@ void V3ErrorGuarded::vlAbortOrExit() VL_REQUIRES(m_mutex) {
         ::_exit(1);  // LCOV_EXCL_LINE
     }
     v3Global.vlExit(1);
-#else
-    std::exit(1);
-#endif
+#ਨਹੀਂਤਾਂ
+    std::ਬਾਹਰ_ਨਿਕਲੋ(1);
+#ਜੇ_ਅੰਤ
 }
 
-string V3ErrorGuarded::warnMoreSpaces() VL_REQUIRES(m_mutex) {
-    UASSERT_STATIC(!m_message.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
-    return string(msgPrefix().size(), ' ');
+string V3ErrorGuarded::warn_ਹੋਰ_Spaces() VL_REQUIRES(m_mutex) {
+    UASSERT_STATIC(!m_ਸੁਨੇਹਾ.isClear(), "warnMore() outside of v3errorPrep...v3errorEnd");
+    ਵਾਪਸ string(ਸੁਨੇਹਾ_ਅਗੇਤਰ().ਮਾਪ(), ' ');
 }
 
-void V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
-#ifndef V3ERROR_NO_GLOBAL_
-    V3Stats::addStatSum("Warnings, Suppressed "s + errorCode().ascii(), 1);
-#endif
-    errorSuppressed(true);
+ਖਾਲੀ V3ErrorGuarded::suppressThisWarning() VL_REQUIRES(m_mutex) {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+    V3Stats::ਜੋੜੋ_Stat_ਜੋੜ("Warnings, Suppressed "s + error_ਕੋਡ().ascii(), 1);
+#ਜੇ_ਅੰਤ
+    errorSuppressed(ਸੱਚ);
 }
 
-void V3ErrorGuarded::v3errorPrep(V3ErrorCode code) VL_REQUIRES(m_mutex) {
+ਖਾਲੀ V3ErrorGuarded::v3errorPrep(V3_Error_ਕੋਡ ਕੋਡ) VL_REQUIRES(m_mutex) {
     m_errorStr.str("");
-    UASSERT_STATIC(m_message.isClear(), "Attempted v3errorPrep inside v3errorPrep...v3errorEnd");
-    m_message.init(code);
-    m_errorContexted = false;
-    m_errorSuppressed = false;
+    UASSERT_STATIC(m_ਸੁਨੇਹਾ.isClear(), "Attempted v3errorPrep inside v3errorPrep...v3errorEnd");
+    m_ਸੁਨੇਹਾ.init(ਕੋਡ);
+    m_errorContexted = ਝੂਠ;
+    m_errorSuppressed = ਝੂਠ;
 }
 
-void V3ErrorGuarded::v3errorEnd(const std::ostringstream& sstr, const string& extra,
-                                FileLine* fileline) VL_REQUIRES(m_mutex) {
-    static bool s_firedTooMany = false;
-    v3errorEndGuts(sstr, extra, fileline);
-    m_message.clear();
-    if (errorLimit() && errorCount() >= errorLimit() && !s_firedTooMany) {
-        s_firedTooMany = true;
+ਖਾਲੀ V3ErrorGuarded::v3error_ਸਿਰਾ(ਅਚਲ std::ostringstream& sstr, ਅਚਲ string& extra,
+                                File_ਸਤਰ* fileline) VL_REQUIRES(m_mutex) {
+    ਸਥਿਰ ਤਾਰਕਿਕ s_firedTooMany = ਝੂਠ;
+    v3error_ਸਿਰਾ_Guts(sstr, extra, fileline);
+    m_ਸੁਨੇਹਾ.clear();
+    ਜੇ (error_ਹੱਦਬੰਦੀ() && error_ਗਿਣਤੀ() >= error_ਹੱਦਬੰਦੀ() && !s_firedTooMany) {
+        s_firedTooMany = ਸੱਚ;
         // Recurses here
-        v3errorEnd((v3errorPrep(V3ErrorCode::EC_FATALMANY),
+        v3error_ਸਿਰਾ((v3errorPrep(V3_Error_ਕੋਡ::EC_FATALMANY),
                     (v3errorStr() << "Exiting due to too many errors encountered; --error-limit="
-                                  << errorCount() << std::endl),
+                                  << error_ਗਿਣਤੀ() << std::ਸਤਰ_ਅੰਤ),
                     v3errorStr()),
-                   "", nullptr);
-        assert(0);  // LCOV_EXCL_LINE
+                   "", ਖਾਲੀ_ਸੂਚਕ);
+        ਪ੍ਰਤਿਜ੍ਞਾ(0);  // LCOV_EXCL_LINE
         VL_UNREACHABLE;
     }
 }
 
 // cppcheck-has-bug-suppress constParameter
-void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string& extra,
-                                    FileLine* fileline) VL_REQUIRES(m_mutex) {
+ਖਾਲੀ V3ErrorGuarded::v3error_ਸਿਰਾ_Guts(ਅਚਲ std::ostringstream& sstr, ਅਚਲ string& extra,
+                                    File_ਸਤਰ* fileline) VL_REQUIRES(m_mutex) {
     // 'extra' is appended to the message, and is is excluded in check for
     // duplicate messages. Currently used for reporting instance name.
-#if defined(__COVERITY__) || defined(__cppcheck__)
-    if (m_errorCode == V3ErrorCode::EC_FATAL) __coverity_panic__(x);
-#endif
+#ਜੇ defined(__COVERITY__) || defined(__cppcheck__)
+    ਜੇ (m_error_ਕੋਡ == V3_Error_ਕੋਡ::EC_FATAL) __coverity_panic__(x);
+#ਜੇ_ਅੰਤ
 
-    UASSERT_STATIC(!m_message.isClear(), "v3errorEnd() outside of v3errorPrep...v3errorEnd");
-    m_message.fileline(fileline);
+    UASSERT_STATIC(!m_ਸੁਨੇਹਾ.isClear(), "v3errorEnd() outside of v3errorPrep...v3errorEnd");
+    m_ਸੁਨੇਹਾ.fileline(fileline);
 
     // Skip suppressed messages
-    if (m_errorSuppressed) {
+    ਜੇ (m_errorSuppressed) {
         // On debug, show only non default-off warning to prevent pages of warnings
-        if (m_message.code().defaultsOff()) return;
-        if (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_message.code()))) return;
-        m_showedSuppressed.set(m_message.code(), true);
+        ਜੇ (m_ਸੁਨੇਹਾ.ਕੋਡ().defaultsOff()) ਵਾਪਸ;
+        ਜੇ (debug() < 3 || (debug() < 9 && m_showedSuppressed.test(m_ਸੁਨੇਹਾ.ਕੋਡ()))) ਵਾਪਸ;
+        m_showedSuppressed.ਸੈੱਟ(m_ਸੁਨੇਹਾ.ਕੋਡ(), ਸੱਚ);
     }
-    string msg
-        = V3Error::warnContextBegin() + msgPrefix() + V3Error::warnContextEnd() + sstr.str();
+    string ਸੁਨੇਹਾ_2
+        = V3Error::warnContextBegin() + ਸੁਨੇਹਾ_ਅਗੇਤਰ() + V3Error::warn_Context_ਸਿਰਾ() + sstr.str();
 
     // If suppressed print only first line to reduce verbosity
-    string firstLine = msg;
+    string ਪਹਿਲਾ_ਸਤਰ = ਸੁਨੇਹਾ_2;
     {
-        const string::size_type pos = firstLine.find('\n');
-        if (pos != string::npos) {
-            firstLine.erase(pos, firstLine.length() - pos);
-            firstLine += "...";
+        ਅਚਲ string::ਮਾਪ_type pos = ਪਹਿਲਾ_ਸਤਰ.ਲੱਭੋ('\n');
+        ਜੇ (pos != string::npos) {
+            ਪਹਿਲਾ_ਸਤਰ.erase(pos, ਪਹਿਲਾ_ਸਤਰ.ਲੰਮਾਈ() - pos);
+            ਪਹਿਲਾ_ਸਤਰ += "...";
         }
     }
-    if (m_errorSuppressed) msg = firstLine;
+    ਜੇ (m_errorSuppressed) ਸੁਨੇਹਾ_2 = ਪਹਿਲਾ_ਸਤਰ;
     // Suppress duplicate messages
-    if (!m_messages.insert(firstLine).second) return;
+    ਜੇ (!m_messages.ਪਾਓ(ਪਹਿਲਾ_ਸਤਰ).ਦੂਜਾ) ਵਾਪਸ;
 
-    msg = VString::replaceSubstr(msg, V3Error::warnMore(), warnMoreSpaces());
+    ਸੁਨੇਹਾ_2 = VString::replaceSubstr(ਸੁਨੇਹਾ_2, V3Error::warn_ਹੋਰ(), warn_ਹੋਰ_Spaces());
 
-    string msg_additional;
+    string ਸੁਨੇਹਾ_additional;
     {
-        const string::size_type pos = msg.find(V3Error::warnAdditionalInfo());
-        if (pos != string::npos) {
-            msg_additional = msg.substr(pos + V3Error::warnAdditionalInfo().size());
-            msg.erase(pos);
+        ਅਚਲ string::ਮਾਪ_type pos = ਸੁਨੇਹਾ_2.ਲੱਭੋ(V3Error::warnAdditionalInfo());
+        ਜੇ (pos != string::npos) {
+            ਸੁਨੇਹਾ_additional = ਸੁਨੇਹਾ_2.substr(pos + V3Error::warnAdditionalInfo().ਮਾਪ());
+            ਸੁਨੇਹਾ_2.erase(pos);
         }
     }
-    msg += '\n';  // Trailing newlines generally not put on messages so add
-    if (!extra.empty() && !m_errorSuppressed) {
-        string extraMsg = VString::replaceSubstr(extra, V3Error::warnMore(), warnMoreSpaces());
-        extraMsg = warnMoreSpaces() + extraMsg + "\n";
-        const size_t pos = msg.find('\n');
-        msg.insert(pos + 1, extraMsg);
+    ਸੁਨੇਹਾ_2 += '\n';  // Trailing newlines generally not put on messages so add
+    ਜੇ (!extra.ਖਾਲੀ_ਥਾਵਾਂ() && !m_errorSuppressed) {
+        string extra_ਸੁਨੇਹਾ = VString::replaceSubstr(extra, V3Error::warn_ਹੋਰ(), warn_ਹੋਰ_Spaces());
+        extra_ਸੁਨੇਹਾ = warn_ਹੋਰ_Spaces() + extra_ਸੁਨੇਹਾ + "\n";
+        ਅਚਲ ਮਾਪ_t pos = ਸੁਨੇਹਾ_2.ਲੱਭੋ('\n');
+        ਸੁਨੇਹਾ_2.ਪਾਓ(pos + 1, extra_ਸੁਨੇਹਾ);
     }
     // Output
-    string text;
-    if (
-#ifndef V3ERROR_NO_GLOBAL_
-        !(v3Global.opt.quietExit() && m_message.code() == V3ErrorCode::EC_FATALMANY)
-#else
-        true
-#endif
+    string ਪਾਠ;
+    ਜੇ (
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+        !(v3Global.opt.quietExit() && m_ਸੁਨੇਹਾ.ਕੋਡ() == V3_Error_ਕੋਡ::EC_FATALMANY)
+#ਨਹੀਂਤਾਂ
+        ਸੱਚ
+#ਜੇ_ਅੰਤ
     )
-        text += msg;
-    if (m_errorSuppressed || m_message.code().severityInfo()) {
-        std::cerr << V3Error::stripMetaText(text, false);
-        m_message.text(text);
-#ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
-#endif
-    } else {
-        const bool anError = isError(m_message.code(), m_errorSuppressed);
-        if (m_message.code()
-                != V3ErrorCode::EC_FATALMANY  // Not verbose on final too-many-errors error
-            && !m_describedEachWarn.test(m_message.code())) {
-            m_describedEachWarn.set(m_message.code(), true);
-            if (m_message.code() >= V3ErrorCode::EC_FIRST_NAMED) {
-                text += warnMoreSpaces() + "... For " + (anError ? "error" : "warning")
-                        + " description see " + m_message.code().url() + '\n';
-            } else if (m_errCount >= 1 && m_message.code().severityFatal() && !m_tellInternal) {
-                m_tellInternal = true;
-                text += warnMoreSpaces()
+        ਪਾਠ += ਸੁਨੇਹਾ_2;
+    ਜੇ (m_errorSuppressed || m_ਸੁਨੇਹਾ.ਕੋਡ().severityInfo()) {
+        std::cerr << V3Error::strip_Meta_ਪਾਠ(ਪਾਠ, ਝੂਠ);
+        m_ਸੁਨੇਹਾ.ਪਾਠ(ਪਾਠ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+        V3DiagSarif::ਧੱਕੋ_ਸੁਨੇਹਾ(m_ਸੁਨੇਹਾ);
+#ਜੇ_ਅੰਤ
+    } ਨਹੀਂਤਾਂ {
+        ਅਚਲ ਤਾਰਕਿਕ anError = isError(m_ਸੁਨੇਹਾ.ਕੋਡ(), m_errorSuppressed);
+        ਜੇ (m_ਸੁਨੇਹਾ.ਕੋਡ()
+                != V3_Error_ਕੋਡ::EC_FATALMANY  // Not verbose on final too-many-errors error
+            && !m_describedEachWarn.test(m_ਸੁਨੇਹਾ.ਕੋਡ())) {
+            m_describedEachWarn.ਸੈੱਟ(m_ਸੁਨੇਹਾ.ਕੋਡ(), ਸੱਚ);
+            ਜੇ (m_ਸੁਨੇਹਾ.ਕੋਡ() >= V3_Error_ਕੋਡ::EC_ਪਹਿਲਾ_NAMED) {
+                ਪਾਠ += warn_ਹੋਰ_Spaces() + "... For " + (anError ? "error" : "warning")
+                        + " description see " + m_ਸੁਨੇਹਾ.ਕੋਡ().url() + '\n';
+            } ਨਹੀਂਤਾਂ ਜੇ (m_err_ਗਿਣਤੀ >= 1 && m_ਸੁਨੇਹਾ.ਕੋਡ().severityFatal() && !m_tell_ਅੰਦਰੂਨੀ) {
+                m_tell_ਅੰਦਰੂਨੀ = ਸੱਚ;
+                ਪਾਠ += warn_ਹੋਰ_Spaces()
                         + "... This fatal error may be caused by the earlier error(s);"
                           " resolve those first.\n";
-            } else if (!m_tellManual) {
-                m_tellManual = true;
-                text += warnMoreSpaces() + "... See the manual at " + m_message.code().url()
+            } ਨਹੀਂਤਾਂ ਜੇ (!m_tellManual) {
+                m_tellManual = ਸੱਚ;
+                ਪਾਠ += warn_ਹੋਰ_Spaces() + "... See the manual at " + m_ਸੁਨੇਹਾ.ਕੋਡ().url()
                         + " for more assistance.\n";
             }
-            if (!m_pretendError.test(m_message.code()) && !m_message.code().hardError()) {
-                text += warnMoreSpaces() + "... Use \"/* verilator lint_off "
-                        + m_message.code().ascii()
+            ਜੇ (!m_pretendError.test(m_ਸੁਨੇਹਾ.ਕੋਡ()) && !m_ਸੁਨੇਹਾ.ਕੋਡ().hardError()) {
+                ਪਾਠ += warn_ਹੋਰ_Spaces() + "... Use \"/* verilator lint_off "
+                        + m_ਸੁਨੇਹਾ.ਕੋਡ().ascii()
                         + " */\" and lint_on around source to disable this message.\n";
-                if (m_message.code().dangerous()) {
-                    text += warnMoreSpaces() + "*** See " + m_message.code().url()
+                ਜੇ (m_ਸੁਨੇਹਾ.ਕੋਡ().dangerous()) {
+                    ਪਾਠ += warn_ਹੋਰ_Spaces() + "*** See " + m_ਸੁਨੇਹਾ.ਕੋਡ().url()
                             + " before disabling this,\n";
-                    text += warnMoreSpaces() + "else you may end up with different sim results.\n";
+                    ਪਾਠ += warn_ਹੋਰ_Spaces() + "else you may end up with different sim results.\n";
                 }
             }
         }
-        if (!msg_additional.empty()) text += msg_additional;
-        std::cerr << V3Error::stripMetaText(text, false);
-        m_message.text(text);
-#ifndef V3ERROR_NO_GLOBAL_
-        V3DiagSarif::pushMessage(m_message);
-#endif
+        ਜੇ (!ਸੁਨੇਹਾ_additional.ਖਾਲੀ_ਥਾਵਾਂ()) ਪਾਠ += ਸੁਨੇਹਾ_additional;
+        std::cerr << V3Error::strip_Meta_ਪਾਠ(ਪਾਠ, ਝੂਠ);
+        m_ਸੁਨੇਹਾ.ਪਾਠ(ਪਾਠ);
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+        V3DiagSarif::ਧੱਕੋ_ਸੁਨੇਹਾ(m_ਸੁਨੇਹਾ);
+#ਜੇ_ਅੰਤ
 
-        if (anError) {
+        ਜੇ (anError) {
             incErrors();
-        } else {
+        } ਨਹੀਂਤਾਂ {
             incWarnings();
         }
-        if (m_message.code().severityFatal()) {
-            static bool s_inFatal = false;
+        ਜੇ (m_ਸੁਨੇਹਾ.ਕੋਡ().severityFatal()) {
+            ਸਥਿਰ ਤਾਰਕਿਕ s_ਵਿੱਚ_Fatal = ਝੂਠ;
             // cppcheck-suppress duplicateConditionalAssign // Used by VlcMain.cpp
-            if (!s_inFatal) {
-                s_inFatal = true;
-#ifndef V3ERROR_NO_GLOBAL_
-                if (dumpTreeLevel() || dumpTreeJsonLevel() || debug()) {
-                    V3Broken::allowMidvisitorCheck(true);
-                    if (dumpTreeLevel()) {
-                        v3Global.rootp()->dumpTreeFile(v3Global.debugFilename("final.tree", 990));
+            ਜੇ (!s_ਵਿੱਚ_Fatal) {
+                s_ਵਿੱਚ_Fatal = ਸੱਚ;
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+                ਜੇ (dump_ਰੁੱਖ_Level() || dump_ਰੁੱਖ_Json_Level() || debug()) {
+                    V3Broken::allowMidvisitorCheck(ਸੱਚ);
+                    ਜੇ (dump_ਰੁੱਖ_Level()) {
+                        v3Global.rootp()->dump_ਰੁੱਖ_File(v3Global.debugFilename("final.tree", 990));
                     }
-                    if (dumpTreeJsonLevel()) {
-                        v3Global.rootp()->dumpTreeJsonFile(
+                    ਜੇ (dump_ਰੁੱਖ_Json_Level()) {
+                        v3Global.rootp()->dump_ਰੁੱਖ_Json_File(
                             v3Global.debugFilename("final.tree.json", 990));
                     }
-                    if (debug()) {
+                    ਜੇ (debug()) {
                         execErrorExitCb();
                         V3Stats::statsStageAll(v3Global.rootp(), "Final");
                         V3Stats::statsReport();
                     }
                     vlAbortOrExit();
                 }
-                V3DiagSarif::output(false);
-#endif
+                V3DiagSarif::output(ਝੂਠ);
+#ਜੇ_ਅੰਤ
             }
 
             vlAbortOrExit();
-        } else if (anError) {
+        } ਨਹੀਂਤਾਂ ਜੇ (anError) {
             // We don't dump tree on any error because a Visitor may be in middle of
             // a tree cleanup and cause a false broken problem.
             execErrorExitCb();
@@ -287,106 +287,106 @@ void V3ErrorGuarded::v3errorEndGuts(const std::ostringstream& sstr, const string
 //######################################################################
 // V3Error class functions
 
-void V3Error::init() {
-    for (int i = 0; i < V3ErrorCode::_ENUM_MAX; i++) {
-        const V3ErrorCode code{i};
-        describedEachWarn(code, false);
-        pretendError(code, code.pretendError());
+ਖਾਲੀ V3Error::init() {
+    ਲਈ (ਪੂਰਨ i = 0; i < V3_Error_ਕੋਡ::_ENUM_MAX; i++) {
+        ਅਚਲ V3_Error_ਕੋਡ ਕੋਡ{i};
+        describedEachWarn(ਕੋਡ, ਝੂਠ);
+        pretendError(ਕੋਡ, ਕੋਡ.pretendError());
     }
     // Not an UASSERT as failure would call V3Error and it's broken due to this
-    assert(std::string{V3ErrorCode{V3ErrorCode::_ENUM_MAX}.ascii()} == " MAX");
+    ਪ੍ਰਤਿਜ੍ਞਾ(std::string{V3_Error_ਕੋਡ{V3_Error_ਕੋਡ::_ENUM_MAX}.ascii()} == " MAX");
 }
 
-string V3Error::lineStr(const char* filename, int lineno) VL_PURE {
-    std::ostringstream out;
-    out << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
-    out << std::string(std::max<int>(0, 20 - static_cast<int>(out.str().length())), ' ');
-    return out.str();
+string V3Error::ਸਤਰ_Str(ਅਚਲ ਅੱਖਰ* filename, ਪੂਰਨ lineno) VL_ਸ਼ੁੱਧ {
+    std::ostringstream ਬਾਹਰਲਾ;
+    ਬਾਹਰਲਾ << V3Os::filenameNonDir(filename) << ":" << std::dec << lineno << ":";
+    ਬਾਹਰਲਾ << std::string(std::max<ਪੂਰਨ>(0, 20 - static_cast<ਪੂਰਨ>(ਬਾਹਰਲਾ.str().ਲੰਮਾਈ())), ' ');
+    ਵਾਪਸ ਬਾਹਰਲਾ.str();
 }
 
-string V3Error::stripMetaText(const string& text, bool stripContext) VL_PURE {
-    string result;
-    result.reserve(text.size());
-    int inBegins = 0;
-    for (string::size_type pos = 0; pos < text.size();) {
+string V3Error::strip_Meta_ਪਾਠ(ਅਚਲ string& ਪਾਠ, ਤਾਰਕਿਕ stripContext) VL_ਸ਼ੁੱਧ {
+    string ਨਤੀਜਾ;
+    ਨਤੀਜਾ.reserve(ਪਾਠ.ਮਾਪ());
+    ਪੂਰਨ ਵਿੱਚ_Begins = 0;
+    ਲਈ (string::ਮਾਪ_type pos = 0; pos < ਪਾਠ.ਮਾਪ();) {
         // string::starts_with is C++20
-        if (0 == text.compare(pos, std::strlen("__WARN"), "__WARN")) {
-            if (0 == text.compare(pos, std::strlen("__WARNRELATED("), "__WARNRELATED(")) {
-                while (pos < text.size() && text[pos] != ')') ++pos;
-                if (pos < text.size() && text[pos] == ')') ++pos;
-                continue;
+        ਜੇ (0 == ਪਾਠ.compare(pos, std::ਲੜੀ_ਲੰਬਾਈ("__WARN"), "__WARN")) {
+            ਜੇ (0 == ਪਾਠ.compare(pos, std::ਲੜੀ_ਲੰਬਾਈ("__WARNRELATED("), "__WARNRELATED(")) {
+                ਜਦੋਂ (pos < ਪਾਠ.ਮਾਪ() && ਪਾਠ[pos] != ')') ++pos;
+                ਜੇ (pos < ਪਾਠ.ਮਾਪ() && ਪਾਠ[pos] == ')') ++pos;
+                ਜਾਰੀ;
             }
-            if (0
-                == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_BEGIN),
+            ਜੇ (0
+                == ਪਾਠ.compare(pos, std::ਲੜੀ_ਲੰਬਾਈ(V3Error::WARN_CONTEXT_BEGIN),
                                 V3Error::WARN_CONTEXT_BEGIN)) {
-                pos += std::strlen(V3Error::WARN_CONTEXT_BEGIN);
-                ++inBegins;
-                continue;
+                pos += std::ਲੜੀ_ਲੰਬਾਈ(V3Error::WARN_CONTEXT_BEGIN);
+                ++ਵਿੱਚ_Begins;
+                ਜਾਰੀ;
             }
-            if (0
-                == text.compare(pos, std::strlen(V3Error::WARN_CONTEXT_END),
-                                V3Error::WARN_CONTEXT_END)) {
-                pos += std::strlen(V3Error::WARN_CONTEXT_END);
+            ਜੇ (0
+                == ਪਾਠ.compare(pos, std::ਲੜੀ_ਲੰਬਾਈ(V3Error::WARN_CONTEXT_ਸਿਰਾ),
+                                V3Error::WARN_CONTEXT_ਸਿਰਾ)) {
+                pos += std::ਲੜੀ_ਲੰਬਾਈ(V3Error::WARN_CONTEXT_ਸਿਰਾ);
                 // No assert, is not VL_PURE
                 // UASSERT_STATIC(inBegins, "warnContextEnd() outside of warnContextBegin()");
-                --inBegins;
-                continue;
+                --ਵਿੱਚ_Begins;
+                ਜਾਰੀ;
             }
         }
-        if (!stripContext || inBegins == 0) {
+        ਜੇ (!stripContext || ਵਿੱਚ_Begins == 0) {
             // Remove double newlines
-            if (!(text[pos] == '\n' && !result.empty() && result[result.size() - 1] == '\n'))
-                result += text[pos];
+            ਜੇ (!(ਪਾਠ[pos] == '\n' && !ਨਤੀਜਾ.ਖਾਲੀ_ਥਾਵਾਂ() && ਨਤੀਜਾ[ਨਤੀਜਾ.ਮਾਪ() - 1] == '\n'))
+                ਨਤੀਜਾ += ਪਾਠ[pos];
         }
         ++pos;
     }
-    return result;
+    ਵਾਪਸ ਨਤੀਜਾ;
 }
 
-void V3Error::abortIfWarnings() {
-    if (!isErrorOrWarn()) return;
-    const bool exwarn = warnFatal() && warnCount();
-    if (errorCount() && exwarn) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s), "  //
-                                      << V3Error::s().warnCount() << " warning(s)\n");
-    } else if (errorCount()) {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().errorCount() << " error(s)\n");
-    } else {
-        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warnCount() << " warning(s)\n");
+ਖਾਲੀ V3Error::abortIfWarnings() {
+    ਜੇ (!isErrorOrWarn()) ਵਾਪਸ;
+    ਅਚਲ ਤਾਰਕਿਕ exwarn = warnFatal() && warn_ਗਿਣਤੀ();
+    ਜੇ (error_ਗਿਣਤੀ() && exwarn) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_ਗਿਣਤੀ() << " error(s), "  //
+                                      << V3Error::s().warn_ਗਿਣਤੀ() << " warning(s)\n");
+    } ਨਹੀਂਤਾਂ ਜੇ (error_ਗਿਣਤੀ()) {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().error_ਗਿਣਤੀ() << " error(s)\n");
+    } ਨਹੀਂਤਾਂ {
+        v3fatalMany("Exiting due to " << std::dec << V3Error::s().warn_ਗਿਣਤੀ() << " warning(s)\n");
     }
 }
 
 //======================================================================
 // Abort/exit
 
-void V3Error::vlAbort() {
-#ifndef V3ERROR_NO_GLOBAL_
+ਖਾਲੀ V3Error::vlAbort() {
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
     v3Global.shutdown();
-#endif
+#ਜੇ_ਅੰਤ
     VL_GCOV_DUMP();
     std::abort();  // LCOV_EXCL_LINE
 }
-std::ostringstream& V3Error::v3errorPrep(V3ErrorCode code) VL_ACQUIRE(s().m_mutex) {
-    V3Error::s().m_mutex.lock();
-    s().v3errorPrep(code);
-    return v3errorStr();
+std::ostringstream& V3Error::v3errorPrep(V3_Error_ਕੋਡ ਕੋਡ) VL_ACQUIRE(s().m_mutex) {
+    V3Error::s().m_mutex.ਤਾਲਾ_2();
+    s().v3errorPrep(ਕੋਡ);
+    ਵਾਪਸ v3errorStr();
 }
-std::ostringstream& V3Error::v3errorPrepFileLine(V3ErrorCode code, const char* file, int line)
+std::ostringstream& V3Error::v3error_Prep_File_ਸਤਰ(V3_Error_ਕੋਡ ਕੋਡ, ਅਚਲ ਅੱਖਰ* file, ਪੂਰਨ ਸਤਰ)
     VL_ACQUIRE(s().m_mutex) {
-    v3errorPrep(code) << file << ":" << std::dec << line << ": ";
-    return v3errorStr();
+    v3errorPrep(ਕੋਡ) << file << ":" << std::dec << ਸਤਰ << ": ";
+    ਵਾਪਸ v3errorStr();
 }
-void V3Error::v3errorEnd(const std::ostringstream& sstr, const string& extra, FileLine* fileline)
+ਖਾਲੀ V3Error::v3error_ਸਿਰਾ(ਅਚਲ std::ostringstream& sstr, ਅਚਲ string& extra, File_ਸਤਰ* fileline)
     VL_RELEASE(s().m_mutex) {
-    s().v3errorEnd(sstr, extra, fileline);
+    s().v3error_ਸਿਰਾ(sstr, extra, fileline);
     V3Error::s().m_mutex.unlock();
 }
 
-void v3errorEnd(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
-    V3Error::v3errorEnd(sstr, "", nullptr);
+ਖਾਲੀ v3error_ਸਿਰਾ(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
+    V3Error::v3error_ਸਿਰਾ(sstr, "", ਖਾਲੀ_ਸੂਚਕ);
 }
-void v3errorEndFatal(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
-    V3Error::v3errorEnd(sstr, "", nullptr);
-    assert(0);  // LCOV_EXCL_LINE
+ਖਾਲੀ v3error_ਸਿਰਾ_Fatal(std::ostringstream& sstr) VL_RELEASE(V3Error::s().m_mutex) {
+    V3Error::v3error_ਸਿਰਾ(sstr, "", ਖਾਲੀ_ਸੂਚਕ);
+    ਪ੍ਰਤਿਜ੍ਞਾ(0);  // LCOV_EXCL_LINE
     VL_UNREACHABLE;
 }

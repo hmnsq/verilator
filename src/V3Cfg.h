@@ -53,266 +53,266 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CFG_H_
-#define VERILATOR_V3CFG_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3CFG_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3CFG_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
 
-#include <functional>
-#include <limits>
-#include <memory>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <functional>
+#ਅਨ੍ਤਰ੍ਭਾਵ <limits>
+#ਅਨ੍ਤਰ੍ਭਾਵ <memory>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 //######################################################################
 // Control Flow Graph (CFG) and related data structures
 
-class CfgGraph;
-class CfgBlock;
-class CfgEdge;
+class Cfg_ਗ੍ਰਾਫ;
+class Cfg_ਖੰਡ;
+class Cfg_ਕਿਨਾਰਾ;
 
-template <typename T_Key, typename T_Value>
+ਸਾਂਚਾ <typename T_ਕੁੰਜੀ, typename T_ਮੁੱਲ>
 class CfgMap;
-template <typename T_Value>
-class CfgBlockMap;
-template <typename T_Value>
-class CfgEdgeMap;
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+class Cfg_ਖੰਡ_Map;
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+class Cfg_ਕਿਨਾਰਾ_Map;
 
 //######################################################################
 // CfgBlock - A basic block (verticies of the control flow graph)
 
-class CfgBlock final : public V3GraphVertex {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_ਖੰਡ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼ {
+    ਮਿੱਤਰ class Cfg_ਗ੍ਰਾਫ;
+    ਸਾਂਚਾ <typename T_ਕੁੰਜੀ, typename T_ਮੁੱਲ>
+    ਮਿੱਤਰ class CfgMap;
+    ਮਿੱਤਰ class CfgBuilder;
 
     // STATE
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgBlock is under
-    size_t m_rpoNumber = 0;  // Reverse post-order number and unique ID of this CfgBlock
+    Cfg_ਗ੍ਰਾਫ* ਅਚਲ m_cfgp;  // The control flow graph this CfgBlock is under
+    ਮਾਪ_t m_rpo_ਸੰਖਿਆ = 0;  // Reverse post-order number and unique ID of this CfgBlock
 
     // V3GraphEdge::user() is set to the unique id by CfgBuilder
-    std::vector<AstNodeStmt*> m_stmtps;  // statements in this CfgBlock
+    std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*> m_stmtps;  // statements in this CfgBlock
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline explicit CfgBlock(CfgGraph* cfgp);
-    ~CfgBlock() override = default;
+    ਸਤਰਅੰਦਰ explicit Cfg_ਖੰਡ(Cfg_ਗ੍ਰਾਫ* cfgp);
+    ~Cfg_ਖੰਡ() override = ਮੂਲ;
 
-public:
+ਜਨਤਕ:
     // PUBLIC METHODS
 
     // ID (reverse post-order number) of this block
-    inline size_t id();
-    inline size_t id() const;
+    ਸਤਰਅੰਦਰ ਮਾਪ_t id();
+    ਸਤਰਅੰਦਰ ਮਾਪ_t id() ਅਚਲ;
 
     // Is this the entry block of the CFG?
-    bool isEnter() const { return inEmpty(); }
+    bool isEnter() ਅਚਲ { ਵਾਪਸ ਵਿੱਚ_ਖਾਲੀ_ਥਾਵਾਂ(); }
     // Is this the exit block of the CFG?
-    bool isExit() const { return outEmpty(); }
+    bool isExit() ਅਚਲ { ਵਾਪਸ ਬਾਹਰਲਾ_ਖਾਲੀ_ਥਾਵਾਂ(); }
     // Is this a branching block (multiple successors)?
-    bool isBranch() const { return outEdges().hasMultipleElements(); }
+    bool isBranch() ਅਚਲ { ਵਾਪਸ ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().has_ਗੁਣਜ_Elements(); }
     // Is this a control flow convergence block (multiple predecessors)?
-    bool isJoin() const { return inEdges().hasMultipleElements(); }
+    bool isJoin() ਅਚਲ { ਵਾਪਸ ਵਿੱਚ_ਕਿਨਾਰੇ().has_ਗੁਣਜ_Elements(); }
     // Is this a join of exactly 2 paths?
-    bool isTwoWayJoin() const { return inEdges().hasTwoElements(); }
+    bool isTwoWayJoin() ਅਚਲ { ਵਾਪਸ ਵਿੱਚ_ਕਿਨਾਰੇ().hasTwoElements(); }
 
     // The edge going to the taken (or uncinditional) successor, or nullptr if exit block
-    inline CfgEdge* takenEdgep();
-    inline const CfgEdge* takenEdgep() const;
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ* ਲਿਆ_Edgep();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਕਿਨਾਰਾ* ਲਿਆ_Edgep() ਅਚਲ;
     // The edge going to the untaken successor, or nullptr if not a branch, or exit block
-    inline CfgEdge* untknEdgep();
-    inline const CfgEdge* untknEdgep() const;
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ* untknEdgep();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਕਿਨਾਰਾ* untknEdgep() ਅਚਲ;
     // The taken successor block, or nullptr if exit block
-    inline CfgBlock* takenp();
-    inline const CfgBlock* takenp() const;
+    ਸਤਰਅੰਦਰ Cfg_ਖੰਡ* takenp();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਖੰਡ* takenp() ਅਚਲ;
     // The untakens successor block, or nullptr if not a branch, or exit block
-    inline CfgBlock* untknp();
-    inline const CfgBlock* untknp() const;
+    ਸਤਰਅੰਦਰ Cfg_ਖੰਡ* untknp();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਖੰਡ* untknp() ਅਚਲ;
 
     // The first predecessor edge, or nullptr if enter block
-    inline CfgEdge* firstPredecessorEdgep();
-    inline const CfgEdge* firstPredecessorEdgep() const;
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ* ਪਹਿਲਾ_Predecessor_Edgep();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਕਿਨਾਰਾ* ਪਹਿਲਾ_Predecessor_Edgep() ਅਚਲ;
     // The last predecessor edge, or nullptr if enter block
-    inline CfgEdge* lastPredecessorEdgep();
-    inline const CfgEdge* lastPredecessorEdgep() const;
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ* ਆਖਰੀ_Predecessor_Edgep();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਕਿਨਾਰਾ* ਆਖਰੀ_Predecessor_Edgep() ਅਚਲ;
     // The first predecessor block, or nullptr if enter block
-    inline CfgBlock* firstPredecessorp();
-    inline const CfgBlock* firstPredecessorp() const;
+    ਸਤਰਅੰਦਰ Cfg_ਖੰਡ* ਪਹਿਲਾ_Predecessorp();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਖੰਡ* ਪਹਿਲਾ_Predecessorp() ਅਚਲ;
     // The last predecessor block, or nullptr if enter block
-    inline CfgBlock* lastPredecessorp();
-    inline const CfgBlock* lastPredecessorp() const;
+    ਸਤਰਅੰਦਰ Cfg_ਖੰਡ* ਆਖਰੀ_Predecessorp();
+    ਸਤਰਅੰਦਰ ਅਚਲ Cfg_ਖੰਡ* ਆਖਰੀ_Predecessorp() ਅਚਲ;
 
     // Statements in this CfgBlock
-    const std::vector<AstNodeStmt*>& stmtps() const { return m_stmtps; }
+    ਅਚਲ std::ਸਦਿਸ਼<Ast_ਗੰਢ_Stmt*>& stmtps() ਅਚਲ { ਵਾਪਸ m_stmtps; }
 
     // Ordering is done on reverese post-order numbering. For loop-free graph
     // this ensures that a block that compares less than another is not a
     // successor of the other block (it is an ancestor, or sibling).
-    bool operator<(const CfgBlock& that) const { return id() < that.id(); }
-    bool operator>(const CfgBlock& that) const { return id() > that.id(); }
-    bool operator==(const CfgBlock& that) const { return this == &that; }
+    bool ਸੰਚਾਲਕ<(ਅਚਲ Cfg_ਖੰਡ& that) ਅਚਲ { ਵਾਪਸ id() < that.id(); }
+    bool ਸੰਚਾਲਕ>(ਅਚਲ Cfg_ਖੰਡ& that) ਅਚਲ { ਵਾਪਸ id() > that.id(); }
+    bool ਸੰਚਾਲਕ==(ਅਚਲ Cfg_ਖੰਡ& that) ਅਚਲ { ਵਾਪਸ this == &that; }
 
     // Iterators
-    void forEachSuccessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : outEdges()) f(*static_cast<CfgBlock*>(edge.top()));
+    ਖਾਲੀ forEachSuccessor(std::function<ਖਾਲੀ(ਅਚਲ Cfg_ਖੰਡ&)> f) ਅਚਲ {
+        ਲਈ (ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ : ਬਾਹਰਲਾ_ਕਿਨਾਰੇ()) f(*static_cast<Cfg_ਖੰਡ*>(ਕਿਨਾਰਾ.ਸਿਖਰ()));
     }
-    void forEachPredecessor(std::function<void(const CfgBlock&)> f) const {
-        for (const V3GraphEdge& edge : inEdges()) f(*static_cast<CfgBlock*>(edge.fromp()));
+    ਖਾਲੀ forEachPredecessor(std::function<ਖਾਲੀ(ਅਚਲ Cfg_ਖੰਡ&)> f) ਅਚਲ {
+        ਲਈ (ਅਚਲ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ : ਵਿੱਚ_ਕਿਨਾਰੇ()) f(*static_cast<Cfg_ਖੰਡ*>(ਕਿਨਾਰਾ.fromp()));
     }
 
     // Source location for debugging
-    FileLine* fileline() const override {
-        return !m_stmtps.empty() ? m_stmtps.front()->fileline() : nullptr;
+    File_ਸਤਰ* fileline() ਅਚਲ override {
+        ਵਾਪਸ !m_stmtps.ਖਾਲੀ_ਥਾਵਾਂ() ? m_stmtps.front()->fileline() : nullptr;
     }
 
     // For Graphviz dumps only
-    std::string name() const override;
-    std::string dotShape() const override;
-    std::string dotRank() const override;
+    std::string name() ਅਚਲ override;
+    std::string dotShape() ਅਚਲ override;
+    std::string dotRank() ਅਚਲ override;
 };
 
 //######################################################################
 // CfgEdge - An edges of the control flow graph
 
-class CfgEdge final : public V3GraphEdge {
-    friend class CfgGraph;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
+class Cfg_ਕਿਨਾਰਾ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ {
+    ਮਿੱਤਰ class Cfg_ਗ੍ਰਾਫ;
+    ਸਾਂਚਾ <typename T_ਕੁੰਜੀ, typename T_ਮੁੱਲ>
+    ਮਿੱਤਰ class CfgMap;
 
     // STATE - Immutable after construction, set by CfgBuilder
-    CfgGraph* const m_cfgp;  // The control flow graph this CfgEdge is under
-    size_t m_id = 0;  // Unique ID of this vertex
+    Cfg_ਗ੍ਰਾਫ* ਅਚਲ m_cfgp;  // The control flow graph this CfgEdge is under
+    ਮਾਪ_t m_id = 0;  // Unique ID of this vertex
 
     // PRIVATE METHODS
 
     // CONSTRUCTOR/DESTRUCTOR - via CfgGraph only
-    inline CfgEdge(CfgGraph* graphp, CfgBlock* srcp, CfgBlock* dstp);
-    ~CfgEdge() override = default;
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ(Cfg_ਗ੍ਰਾਫ* graphp, Cfg_ਖੰਡ* srcp, Cfg_ਖੰਡ* dstp);
+    ~Cfg_ਕਿਨਾਰਾ() override = ਮੂਲ;
 
-public:
+ਜਨਤਕ:
     // METHODS
 
     // Unique ID of this CfgEdge - no particular meaning
-    inline size_t id();
-    inline size_t id() const;
+    ਸਤਰਅੰਦਰ ਮਾਪ_t id();
+    ਸਤਰਅੰਦਰ ਮਾਪ_t id() ਅਚਲ;
 
     // Source/destination CfgBlock
-    const CfgBlock* srcp() const { return static_cast<const CfgBlock*>(fromp()); }
-    const CfgBlock* dstp() const { return static_cast<const CfgBlock*>(top()); }
-    CfgBlock* srcp() { return static_cast<CfgBlock*>(fromp()); }
-    CfgBlock* dstp() { return static_cast<CfgBlock*>(top()); }
+    ਅਚਲ Cfg_ਖੰਡ* srcp() ਅਚਲ { ਵਾਪਸ static_cast<ਅਚਲ Cfg_ਖੰਡ*>(fromp()); }
+    ਅਚਲ Cfg_ਖੰਡ* dstp() ਅਚਲ { ਵਾਪਸ static_cast<ਅਚਲ Cfg_ਖੰਡ*>(ਸਿਖਰ()); }
+    Cfg_ਖੰਡ* srcp() { ਵਾਪਸ static_cast<Cfg_ਖੰਡ*>(fromp()); }
+    Cfg_ਖੰਡ* dstp() { ਵਾਪਸ static_cast<Cfg_ਖੰਡ*>(ਸਿਖਰ()); }
 
     // For Graphviz dumps only
-    std::string dotLabel() const override;
+    std::string dotLabel() ਅਚਲ override;
 };
 
 //######################################################################
 // CfgGraph - The control flow graph
 
-class CfgGraph final : public V3Graph {
-    friend class CfgBlock;
-    friend class CfgEdge;
-    template <typename T_Key, typename T_Value>
-    friend class CfgMap;
-    friend class CfgBuilder;
+class Cfg_ਗ੍ਰਾਫ final : ਜਨਤਕ V3_ਗ੍ਰਾਫ {
+    ਮਿੱਤਰ class Cfg_ਖੰਡ;
+    ਮਿੱਤਰ class Cfg_ਕਿਨਾਰਾ;
+    ਸਾਂਚਾ <typename T_ਕੁੰਜੀ, typename T_ਮੁੱਲ>
+    ਮਿੱਤਰ class CfgMap;
+    ਮਿੱਤਰ class CfgBuilder;
 
     // STATE
-    size_t m_nEdits = 0;  // Edit count of this graph
-    size_t m_nLastOrdered = 0;  // Last edit count blocks were ordered
-    CfgBlock* m_enterp = nullptr;  // The singular entry vertex
-    CfgBlock* m_exitp = nullptr;  // The singular exit vertex
-    size_t m_nBlocks = 0;  // Number of CfgBlocks in this CfgGraph
-    size_t m_nEdges = 0;  // Number of CfgEdges in this CfgGraph
+    ਮਾਪ_t m_nEdits = 0;  // Edit count of this graph
+    ਮਾਪ_t m_n_ਆਖਰੀ_Ordered = 0;  // Last edit count blocks were ordered
+    Cfg_ਖੰਡ* m_enterp = nullptr;  // The singular entry vertex
+    Cfg_ਖੰਡ* m_exitp = nullptr;  // The singular exit vertex
+    ਮਾਪ_t m_n_ਖੰਡਾਂ = 0;  // Number of CfgBlocks in this CfgGraph
+    ਮਾਪ_t m_n_ਕਿਨਾਰੇ = 0;  // Number of CfgEdges in this CfgGraph
 
     // PRIVATE METHODS
 
     // Compute reverse post-order enumeration of blocks, and sort them
     // accordingly. Assign blocks, and edge IDs. Invalidates all previous IDs.
-    void rpoBlocks();
+    ਖਾਲੀ rpo_ਖੰਡਾਂ();
 
     // Add a new CfgBlock to this graph
-    CfgBlock* addBlock() {
+    Cfg_ਖੰਡ* ਜੋੜੋ_ਖੰਡ() {
         ++m_nEdits;
-        ++m_nBlocks;
-        return new CfgBlock{this};
+        ++m_n_ਖੰਡਾਂ;
+        ਵਾਪਸ new Cfg_ਖੰਡ{this};
     }
 
     // Add a new taken (or unconditional) CfgEdge to this CFG
-    void addTakenEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    ਖਾਲੀ ਜੋੜੋ_ਲਿਆ_ਕਿਨਾਰਾ(Cfg_ਖੰਡ* srcp, Cfg_ਖੰਡ* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(!srcp->takenEdgep(), srcp, "Taken edge should be added first");
+        UASSERT_OBJ(!srcp->ਲਿਆ_Edgep(), srcp, "Taken edge should be added first");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_ਕਿਨਾਰੇ;
+        new Cfg_ਕਿਨਾਰਾ{this, srcp, dstp};
     }
 
     // Add a new untaken CfgEdge to this CFG
-    void addUntknEdge(CfgBlock* srcp, CfgBlock* dstp) {
+    ਖਾਲੀ ਜੋੜੋ_Untkn_ਕਿਨਾਰਾ(Cfg_ਖੰਡ* srcp, Cfg_ਖੰਡ* dstp) {
         UASSERT_OBJ(srcp->m_cfgp == this, srcp, "'srcp' is not in this graph");
         UASSERT_OBJ(dstp->m_cfgp == this, dstp, "'dstp' is not in this graph");
-        UASSERT_OBJ(srcp->takenEdgep(), srcp, "Untaken edge should be added second");
+        UASSERT_OBJ(srcp->ਲਿਆ_Edgep(), srcp, "Untaken edge should be added second");
         UASSERT_OBJ(srcp->takenp() != dstp, srcp, "Untaken branch targets the same block");
         //
         UASSERT_OBJ(dstp != m_enterp, dstp, "Enter block cannot have a predecessor");
         UASSERT_OBJ(srcp != m_exitp, srcp, "Exit block cannot have a successor");
         ++m_nEdits;
-        ++m_nEdges;
-        new CfgEdge{this, srcp, dstp};
+        ++m_n_ਕਿਨਾਰੇ;
+        new Cfg_ਕਿਨਾਰਾ{this, srcp, dstp};
     }
 
-    size_t idOf(const CfgBlock* bbp) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return bbp->m_rpoNumber;
+    ਮਾਪ_t id_ਦਾ(ਅਚਲ Cfg_ਖੰਡ* bbp) ਅਚਲ {
+        UASSERT_OBJ(m_nEdits == m_n_ਆਖਰੀ_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        ਵਾਪਸ bbp->m_rpo_ਸੰਖਿਆ;
     }
 
-    size_t idOf(const CfgEdge* edgep) const {
-        UASSERT_OBJ(m_nEdits == m_nLastOrdered, m_enterp, "Cfg was edited but not re-ordered");
-        return edgep->m_id;
+    ਮਾਪ_t id_ਦਾ(ਅਚਲ Cfg_ਕਿਨਾਰਾ* edgep) ਅਚਲ {
+        UASSERT_OBJ(m_nEdits == m_n_ਆਖਰੀ_Ordered, m_enterp, "Cfg was edited but not re-ordered");
+        ਵਾਪਸ edgep->m_id;
     }
 
     // Implementation for insertTwoWayJoins
-    CfgBlock* getOrCreateTwoWayJoinFor(CfgBlock* bbp);
+    Cfg_ਖੰਡ* getOrCreateTwoWayJoinFor(Cfg_ਖੰਡ* bbp);
 
     // CONSTRUCTOR - use CfgGraph::build, which might fail, so this can't be public
-    CfgGraph() = default;
+    Cfg_ਗ੍ਰਾਫ() = ਮੂਲ;
 
-public:
-    ~CfgGraph() override = default;
+ਜਨਤਕ:
+    ~Cfg_ਗ੍ਰਾਫ() override = ਮੂਲ;
 
     // STATIC FUNCTIONS
 
     // Build CFG for the given list of statements
-    static std::unique_ptr<CfgGraph> build(AstNode* stmtsp);
+    ਸਥਿਰ std::unique_ptr<Cfg_ਗ੍ਰਾਫ> build(Ast_ਗੰਢ* stmtsp);
 
     // PUBLIC METHODS
 
     // Accessors
-    const CfgBlock& enter() const { return *m_enterp; }
-    const CfgBlock& exit() const { return *m_exitp; }
+    ਅਚਲ Cfg_ਖੰਡ& enter() ਅਚਲ { ਵਾਪਸ *m_enterp; }
+    ਅਚਲ Cfg_ਖੰਡ& ਬਾਹਰ_ਨਿਕਲੋ() ਅਚਲ { ਵਾਪਸ *m_exitp; }
 
     // Number of basic blocks in this graph
-    size_t nBlocks() const { return m_nBlocks; }
+    ਮਾਪ_t n_ਖੰਡਾਂ() ਅਚਲ { ਵਾਪਸ m_n_ਖੰਡਾਂ; }
     // Number of control flow edges in this graph
-    size_t nEdges() const { return m_nEdges; }
+    ਮਾਪ_t n_ਕਿਨਾਰੇ() ਅਚਲ { ਵਾਪਸ m_n_ਕਿਨਾਰੇ; }
 
     // Create a CfgBlock map for this graph
-    template <typename T_Value>
-    inline CfgBlockMap<T_Value> makeBlockMap() const;
+    ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+    ਸਤਰਅੰਦਰ Cfg_ਖੰਡ_Map<T_ਮੁੱਲ> make_ਖੰਡ_Map() ਅਚਲ;
     // Create a CfgEdgeMap map for this graph
-    template <typename T_Value>
-    inline CfgEdgeMap<T_Value> makeEdgeMap() const;
+    ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+    ਸਤਰਅੰਦਰ Cfg_ਕਿਨਾਰਾ_Map<T_ਮੁੱਲ> make_ਕਿਨਾਰਾ_Map() ਅਚਲ;
 
     // Returns true iff the graph contains a loop (back-edge)
-    bool containsLoop() const;
+    bool ਸ਼ਾਮਲ_ਹੈ_Loop() ਅਚਲ;
 
     //------------------------------------------------------------------
     // The following methods mutate this CFG and invalidate CfgBlock and
@@ -320,101 +320,101 @@ public:
     // query instances.
 
     // Remove empty blocks, combine sequential blocks. Keeps the enter/exit block, even if empty.
-    void minimize();
+    ਖਾਲੀ minimize();
 
     // Insert empty blocks to fix critical edges (edges that have a source with
     // multiple successors, and a destination with multiple predecessors)
-    void breakCriticalEdges();
+    ਖਾਲੀ break_Critical_ਕਿਨਾਰੇ();
 
-    bool insertTwoWayJoins();
+    bool ਪਾਓ_Two_Way_Joins();
 };
 
 //######################################################################
 // CfgMap - Map from CfgBlock or CfgEdge to generic values
 
-template <typename T_Key, typename T_Value>
+ਸਾਂਚਾ <typename T_ਕੁੰਜੀ, typename T_ਮੁੱਲ>
 class CfgMap VL_NOT_FINAL {
     // As opposed to a std::map/std::unordered_map, all entries are value
     // initialized at construction, and the map is always dense. This can
     // be improved if necessary but is sufficient for our current purposes.
 
-    const CfgGraph* m_cfgp;  // The control flow graph this map is for
-    size_t m_created;  // Edit count of CFG this map was created at
-    std::vector<T_Value> m_map;  // The map, stored as a vector
+    ਅਚਲ Cfg_ਗ੍ਰਾਫ* m_cfgp;  // The control flow graph this map is for
+    ਮਾਪ_t m_created;  // Edit count of CFG this map was created at
+    std::ਸਦਿਸ਼<T_ਮੁੱਲ> m_map;  // The map, stored as a vector
 
-protected:
+ਸੁਰੱਖਿਅਤ:
     // CONSTRUCTOR
-    explicit CfgMap(const CfgGraph* cfgp, size_t size)
+    explicit CfgMap(ਅਚਲ Cfg_ਗ੍ਰਾਫ* cfgp, ਮਾਪ_t ਮਾਪ)
         : m_cfgp{cfgp}
         , m_created{cfgp->m_nEdits}
-        , m_map{size} {}
+        , m_map{ਮਾਪ} {}
 
-public:
+ਜਨਤਕ:
     // Can create an empty map
     CfgMap()
         : m_cfgp{nullptr}
         , m_created{0} {}
 
     // Copyable, movable
-    CfgMap(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap(CfgMap<T_Key, T_Value>&&) = default;
-    CfgMap<T_Key, T_Value>& operator=(const CfgMap<T_Key, T_Value>&) = default;
-    CfgMap<T_Key, T_Value>& operator=(CfgMap<T_Key, T_Value>&&) = default;
+    CfgMap(ਅਚਲ CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>&) = ਮੂਲ;
+    CfgMap(CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>&&) = ਮੂਲ;
+    CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>& ਸੰਚਾਲਕ=(ਅਚਲ CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>&) = ਮੂਲ;
+    CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>& ਸੰਚਾਲਕ=(CfgMap<T_ਕੁੰਜੀ, T_ਮੁੱਲ>&&) = ਮੂਲ;
 
-    T_Value& operator[](const T_Key& key) {
+    T_ਮੁੱਲ& ਸੰਚਾਲਕ[](ਅਚਲ T_ਕੁੰਜੀ& ਕੁੰਜੀ) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == ਕੁੰਜੀ.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        ਵਾਪਸ m_map.at(ਕੁੰਜੀ.id());
     }
-    const T_Value& operator[](const T_Key& key) const {
+    ਅਚਲ T_ਮੁੱਲ& ਸੰਚਾਲਕ[](ਅਚਲ T_ਕੁੰਜੀ& ਕੁੰਜੀ) ਅਚਲ {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
-        UASSERT_OBJ(m_cfgp == key.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(key.id());
+        UASSERT_OBJ(m_cfgp == ਕੁੰਜੀ.m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
+        ਵਾਪਸ m_map.at(ਕੁੰਜੀ.id());
     }
-    T_Value& operator[](const T_Key* keyp) {
+    T_ਮੁੱਲ& ਸੰਚਾਲਕ[](ਅਚਲ T_ਕੁੰਜੀ* keyp) {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        ਵਾਪਸ m_map.at(keyp->id());
     }
-    const T_Value& operator[](const T_Key* keyp) const {
+    ਅਚਲ T_ਮੁੱਲ& ਸੰਚਾਲਕ[](ਅਚਲ T_ਕੁੰਜੀ* keyp) ਅਚਲ {
         UASSERT_OBJ(m_created == m_cfgp->m_nEdits, m_cfgp->m_enterp, "Map is stale");
         UASSERT_OBJ(m_cfgp == keyp->m_cfgp, m_cfgp->m_enterp, "Key not in this CFG");
-        return m_map.at(keyp->id());
+        ਵਾਪਸ m_map.at(keyp->id());
     }
 };
 
-template <typename T_Value>
-class CfgBlockMap final : public CfgMap<CfgBlock, T_Value> {
-    friend class CfgGraph;
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+class Cfg_ਖੰਡ_Map final : ਜਨਤਕ CfgMap<Cfg_ਖੰਡ, T_ਮੁੱਲ> {
+    ਮਿੱਤਰ class Cfg_ਗ੍ਰਾਫ;
     // CONSTRUCTOR - Create one via CfgGraph::makeBlockMap
-    explicit CfgBlockMap(const CfgGraph* cfgp)
-        : CfgMap<CfgBlock, T_Value>{cfgp, cfgp->nBlocks()} {}
+    explicit Cfg_ਖੰਡ_Map(ਅਚਲ Cfg_ਗ੍ਰਾਫ* cfgp)
+        : CfgMap<Cfg_ਖੰਡ, T_ਮੁੱਲ>{cfgp, cfgp->n_ਖੰਡਾਂ()} {}
 
-public:
+ਜਨਤਕ:
     // Can create an empty map
-    CfgBlockMap() = default;
+    Cfg_ਖੰਡ_Map() = ਮੂਲ;
     // Copyable, movable
-    CfgBlockMap(const CfgBlockMap&) = default;
-    CfgBlockMap(CfgBlockMap&&) = default;
-    CfgBlockMap& operator=(const CfgBlockMap&) = default;
-    CfgBlockMap& operator=(CfgBlockMap&&) = default;
+    Cfg_ਖੰਡ_Map(ਅਚਲ Cfg_ਖੰਡ_Map&) = ਮੂਲ;
+    Cfg_ਖੰਡ_Map(Cfg_ਖੰਡ_Map&&) = ਮੂਲ;
+    Cfg_ਖੰਡ_Map& ਸੰਚਾਲਕ=(ਅਚਲ Cfg_ਖੰਡ_Map&) = ਮੂਲ;
+    Cfg_ਖੰਡ_Map& ਸੰਚਾਲਕ=(Cfg_ਖੰਡ_Map&&) = ਮੂਲ;
 };
 
-template <typename T_Value>
-class CfgEdgeMap final : public CfgMap<CfgEdge, T_Value> {
-    friend class CfgGraph;
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+class Cfg_ਕਿਨਾਰਾ_Map final : ਜਨਤਕ CfgMap<Cfg_ਕਿਨਾਰਾ, T_ਮੁੱਲ> {
+    ਮਿੱਤਰ class Cfg_ਗ੍ਰਾਫ;
     // CONSTRUCTOR - Create one via CfgGraph::makeEdgeMap
-    explicit CfgEdgeMap(const CfgGraph* cfgp)
-        : CfgMap<CfgEdge, T_Value>{cfgp, cfgp->nEdges()} {}
+    explicit Cfg_ਕਿਨਾਰਾ_Map(ਅਚਲ Cfg_ਗ੍ਰਾਫ* cfgp)
+        : CfgMap<Cfg_ਕਿਨਾਰਾ, T_ਮੁੱਲ>{cfgp, cfgp->n_ਕਿਨਾਰੇ()} {}
 
-public:
+ਜਨਤਕ:
     // Can create an empty map
-    CfgEdgeMap() = default;
+    Cfg_ਕਿਨਾਰਾ_Map() = ਮੂਲ;
     // Copyable, movable
-    CfgEdgeMap(const CfgEdgeMap&) = default;
-    CfgEdgeMap(CfgEdgeMap&&) = default;
-    CfgEdgeMap& operator=(const CfgEdgeMap&) = default;
-    CfgEdgeMap& operator=(CfgEdgeMap&&) = default;
+    Cfg_ਕਿਨਾਰਾ_Map(ਅਚਲ Cfg_ਕਿਨਾਰਾ_Map&) = ਮੂਲ;
+    Cfg_ਕਿਨਾਰਾ_Map(Cfg_ਕਿਨਾਰਾ_Map&&) = ਮੂਲ;
+    Cfg_ਕਿਨਾਰਾ_Map& ਸੰਚਾਲਕ=(ਅਚਲ Cfg_ਕਿਨਾਰਾ_Map&) = ਮੂਲ;
+    Cfg_ਕਿਨਾਰਾ_Map& ਸੰਚਾਲਕ=(Cfg_ਕਿਨਾਰਾ_Map&&) = ਮੂਲ;
 };
 
 //######################################################################
@@ -422,134 +422,134 @@ public:
 
 // --- CfgBlock ---
 
-CfgBlock::CfgBlock(CfgGraph* cfgp)
-    : V3GraphVertex{cfgp}
+Cfg_ਖੰਡ::Cfg_ਖੰਡ(Cfg_ਗ੍ਰਾਫ* cfgp)
+    : V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{cfgp}
     , m_cfgp{cfgp} {}
 
-size_t CfgBlock::id() { return m_cfgp->idOf(this); }
-size_t CfgBlock::id() const { return m_cfgp->idOf(this); }
+ਮਾਪ_t Cfg_ਖੰਡ::id() { ਵਾਪਸ m_cfgp->id_ਦਾ(this); }
+ਮਾਪ_t Cfg_ਖੰਡ::id() ਅਚਲ { ਵਾਪਸ m_cfgp->id_ਦਾ(this); }
 
 // Successor edges
-CfgEdge* CfgBlock::takenEdgep() {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<CfgEdge*>(outEdges().frontp());
+Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਲਿਆ_Edgep() {  // It's always the first edge
+    ਵਾਪਸ isExit() ? nullptr : static_cast<Cfg_ਕਿਨਾਰਾ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().frontp());
 }
-const CfgEdge* CfgBlock::takenEdgep() const {  // It's always the first edge
-    return isExit() ? nullptr : static_cast<const CfgEdge*>(outEdges().frontp());
+ਅਚਲ Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਲਿਆ_Edgep() ਅਚਲ {  // It's always the first edge
+    ਵਾਪਸ isExit() ? nullptr : static_cast<ਅਚਲ Cfg_ਕਿਨਾਰਾ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().frontp());
 }
-CfgEdge* CfgBlock::untknEdgep() {  // It's always the second (last) edge
-    return isBranch() ? static_cast<CfgEdge*>(outEdges().backp()) : nullptr;
+Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::untknEdgep() {  // It's always the second (last) edge
+    ਵਾਪਸ isBranch() ? static_cast<Cfg_ਕਿਨਾਰਾ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().backp()) : nullptr;
 }
-const CfgEdge* CfgBlock::untknEdgep() const {  // It's always the second (last) edge
-    return isBranch() ? static_cast<const CfgEdge*>(outEdges().backp()) : nullptr;
+ਅਚਲ Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::untknEdgep() ਅਚਲ {  // It's always the second (last) edge
+    ਵਾਪਸ isBranch() ? static_cast<ਅਚਲ Cfg_ਕਿਨਾਰਾ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().backp()) : nullptr;
 }
-CfgBlock* CfgBlock::takenp() {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+Cfg_ਖੰਡ* Cfg_ਖੰਡ::takenp() {
+    ਵਾਪਸ isExit() ? nullptr : static_cast<Cfg_ਖੰਡ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().frontp()->ਸਿਖਰ());
 }
-const CfgBlock* CfgBlock::takenp() const {
-    return isExit() ? nullptr : static_cast<CfgBlock*>(outEdges().frontp()->top());
+ਅਚਲ Cfg_ਖੰਡ* Cfg_ਖੰਡ::takenp() ਅਚਲ {
+    ਵਾਪਸ isExit() ? nullptr : static_cast<Cfg_ਖੰਡ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().frontp()->ਸਿਖਰ());
 }
-CfgBlock* CfgBlock::untknp() {
-    return isBranch() ? static_cast<CfgBlock*>(outEdges().backp()->top()) : nullptr;
+Cfg_ਖੰਡ* Cfg_ਖੰਡ::untknp() {
+    ਵਾਪਸ isBranch() ? static_cast<Cfg_ਖੰਡ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().backp()->ਸਿਖਰ()) : nullptr;
 }
-const CfgBlock* CfgBlock::untknp() const {
-    return isBranch() ? static_cast<const CfgBlock*>(outEdges().backp()->top()) : nullptr;
+ਅਚਲ Cfg_ਖੰਡ* Cfg_ਖੰਡ::untknp() ਅਚਲ {
+    ਵਾਪਸ isBranch() ? static_cast<ਅਚਲ Cfg_ਖੰਡ*>(ਬਾਹਰਲਾ_ਕਿਨਾਰੇ().backp()->ਸਿਖਰ()) : nullptr;
 }
 
 // Predecessor edges
-CfgEdge* CfgBlock::firstPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().frontp());
+Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਪਹਿਲਾ_Predecessor_Edgep() {  //
+    ਵਾਪਸ static_cast<Cfg_ਕਿਨਾਰਾ*>(ਵਿੱਚ_ਕਿਨਾਰੇ().frontp());
 }
-const CfgEdge* CfgBlock::firstPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().frontp());
+ਅਚਲ Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਪਹਿਲਾ_Predecessor_Edgep() ਅਚਲ {  //
+    ਵਾਪਸ static_cast<ਅਚਲ Cfg_ਕਿਨਾਰਾ*>(ਵਿੱਚ_ਕਿਨਾਰੇ().frontp());
 }
-CfgEdge* CfgBlock::lastPredecessorEdgep() {  //
-    return static_cast<CfgEdge*>(inEdges().backp());
+Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਆਖਰੀ_Predecessor_Edgep() {  //
+    ਵਾਪਸ static_cast<Cfg_ਕਿਨਾਰਾ*>(ਵਿੱਚ_ਕਿਨਾਰੇ().backp());
 }
-const CfgEdge* CfgBlock::lastPredecessorEdgep() const {  //
-    return static_cast<const CfgEdge*>(inEdges().backp());
+ਅਚਲ Cfg_ਕਿਨਾਰਾ* Cfg_ਖੰਡ::ਆਖਰੀ_Predecessor_Edgep() ਅਚਲ {  //
+    ਵਾਪਸ static_cast<ਅਚਲ Cfg_ਕਿਨਾਰਾ*>(ਵਿੱਚ_ਕਿਨਾਰੇ().backp());
 }
-CfgBlock* CfgBlock::firstPredecessorp() {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+Cfg_ਖੰਡ* Cfg_ਖੰਡ::ਪਹਿਲਾ_Predecessorp() {  //
+    ਵਾਪਸ isEnter() ? nullptr : ਪਹਿਲਾ_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::firstPredecessorp() const {  //
-    return isEnter() ? nullptr : firstPredecessorEdgep()->srcp();
+ਅਚਲ Cfg_ਖੰਡ* Cfg_ਖੰਡ::ਪਹਿਲਾ_Predecessorp() ਅਚਲ {  //
+    ਵਾਪਸ isEnter() ? nullptr : ਪਹਿਲਾ_Predecessor_Edgep()->srcp();
 }
-CfgBlock* CfgBlock::lastPredecessorp() {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+Cfg_ਖੰਡ* Cfg_ਖੰਡ::ਆਖਰੀ_Predecessorp() {  //
+    ਵਾਪਸ isEnter() ? nullptr : ਆਖਰੀ_Predecessor_Edgep()->srcp();
 }
-const CfgBlock* CfgBlock::lastPredecessorp() const {  //
-    return isEnter() ? nullptr : lastPredecessorEdgep()->srcp();
+ਅਚਲ Cfg_ਖੰਡ* Cfg_ਖੰਡ::ਆਖਰੀ_Predecessorp() ਅਚਲ {  //
+    ਵਾਪਸ isEnter() ? nullptr : ਆਖਰੀ_Predecessor_Edgep()->srcp();
 }
 
 // --- CfgEdge ---
 
-CfgEdge::CfgEdge(CfgGraph* cfgp, CfgBlock* srcp, CfgBlock* dstp)
-    : V3GraphEdge{cfgp, srcp, dstp, 1, false}
+Cfg_ਕਿਨਾਰਾ::Cfg_ਕਿਨਾਰਾ(Cfg_ਗ੍ਰਾਫ* cfgp, Cfg_ਖੰਡ* srcp, Cfg_ਖੰਡ* dstp)
+    : V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{cfgp, srcp, dstp, 1, false}
     , m_cfgp{cfgp} {}
 
-size_t CfgEdge::id() { return m_cfgp->idOf(this); }
-size_t CfgEdge::id() const { return m_cfgp->idOf(this); }
+ਮਾਪ_t Cfg_ਕਿਨਾਰਾ::id() { ਵਾਪਸ m_cfgp->id_ਦਾ(this); }
+ਮਾਪ_t Cfg_ਕਿਨਾਰਾ::id() ਅਚਲ { ਵਾਪਸ m_cfgp->id_ਦਾ(this); }
 
 // --- CfgGraph ---
 
-template <typename T_Value>
-CfgBlockMap<T_Value> CfgGraph::makeBlockMap() const {
-    return CfgBlockMap<T_Value>{this};
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+Cfg_ਖੰਡ_Map<T_ਮੁੱਲ> Cfg_ਗ੍ਰਾਫ::make_ਖੰਡ_Map() ਅਚਲ {
+    ਵਾਪਸ Cfg_ਖੰਡ_Map<T_ਮੁੱਲ>{this};
 }
-template <typename T_Value>
-CfgEdgeMap<T_Value> CfgGraph::makeEdgeMap() const {
-    return CfgEdgeMap<T_Value>{this};
+ਸਾਂਚਾ <typename T_ਮੁੱਲ>
+Cfg_ਕਿਨਾਰਾ_Map<T_ਮੁੱਲ> Cfg_ਗ੍ਰਾਫ::make_ਕਿਨਾਰਾ_Map() ਅਚਲ {
+    ਵਾਪਸ Cfg_ਕਿਨਾਰਾ_Map<T_ਮੁੱਲ>{this};
 }
 
 //######################################################################
 // CfgDominatorTree
 
-class CfgDominatorTree final {
+class Cfg_Dominator_ਰੁੱਖ final {
     // STATE
-    CfgBlockMap<const CfgBlock*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
+    Cfg_ਖੰਡ_Map<ਅਚਲ Cfg_ਖੰਡ*> m_bb2Idom;  // Map from CfgBlock to its immediate dominator
 
     // PRIVATE METHODS
 
     // Part of algorithm to compute m_bb2Idom, see consructor
-    const CfgBlock* intersect(const CfgBlock* ap, const CfgBlock* bp);
+    ਅਚਲ Cfg_ਖੰਡ* intersect(ਅਚਲ Cfg_ਖੰਡ* ap, ਅਚਲ Cfg_ਖੰਡ* bp);
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTOR
-    explicit CfgDominatorTree(const CfgGraph& cfg);
+    explicit Cfg_Dominator_ਰੁੱਖ(ਅਚਲ Cfg_ਗ੍ਰਾਫ& cfg);
     // Can create an empty map
-    CfgDominatorTree() = default;
+    Cfg_Dominator_ਰੁੱਖ() = ਮੂਲ;
     // Copyable, movable
-    CfgDominatorTree(const CfgDominatorTree&) = default;
-    CfgDominatorTree(CfgDominatorTree&&) = default;
-    CfgDominatorTree& operator=(const CfgDominatorTree&) = default;
-    CfgDominatorTree& operator=(CfgDominatorTree&&) = default;
+    Cfg_Dominator_ਰੁੱਖ(ਅਚਲ Cfg_Dominator_ਰੁੱਖ&) = ਮੂਲ;
+    Cfg_Dominator_ਰੁੱਖ(Cfg_Dominator_ਰੁੱਖ&&) = ਮੂਲ;
+    Cfg_Dominator_ਰੁੱਖ& ਸੰਚਾਲਕ=(ਅਚਲ Cfg_Dominator_ਰੁੱਖ&) = ਮੂਲ;
+    Cfg_Dominator_ਰੁੱਖ& ਸੰਚਾਲਕ=(Cfg_Dominator_ਰੁੱਖ&&) = ਮੂਲ;
 
     // PUBLIC METHODS
 
     // Return unique CfgBlock that dominates both of the given blocks, but does
     // not strictly dominate any other block that dominates both blocks. It
     // will return 'ap' or 'bp' if one dominates the other (or are the same)
-    const CfgBlock* closestCommonDominator(const CfgBlock* ap, const CfgBlock* bp) const {
-        while (ap != bp) {
-            if (*ap < *bp) {
+    ਅਚਲ Cfg_ਖੰਡ* closestCommonDominator(ਅਚਲ Cfg_ਖੰਡ* ap, ਅਚਲ Cfg_ਖੰਡ* bp) ਅਚਲ {
+        ਜਦੋਂ (ap != bp) {
+            ਜੇ (*ap < *bp) {
                 bp = m_bb2Idom[bp];
-            } else {
+            } ਨਹੀਂਤਾਂ {
                 ap = m_bb2Idom[ap];
             }
         }
-        return ap;
+        ਵਾਪਸ ap;
     }
 
     // Returns true if 'ap' dominates 'bp'
-    bool dominates(const CfgBlock* const ap, const CfgBlock* bp) {
+    bool dominates(ਅਚਲ Cfg_ਖੰਡ* ਅਚਲ ap, ਅਚਲ Cfg_ਖੰਡ* bp) {
         // Walk up the dominator tree from 'bp' until reaching 'ap' or the root
-        while (true) {
+        ਜਦੋਂ (true) {
             // True if 'ap' is above (or same as) 'bp'
-            if (ap == bp) return true;
+            ਜੇ (ap == bp) ਵਾਪਸ true;
             // Step up the dominator tree
             bp = m_bb2Idom[bp];
             // False if reached the root
-            if (!bp) return false;
+            ਜੇ (!bp) ਵਾਪਸ false;
         }
     }
 };
@@ -564,8 +564,8 @@ namespace V3Cfg {
 // failed due to unhandled statements involved in the CFG. The analysis is
 // conservative and may return variables that are not actually live on entry.
 // On success, returns a vector of AstVarScope nodes that might be live on entry.
-std::unique_ptr<std::vector<AstVarScope*>> liveVarScopes(const CfgGraph&);
+std::unique_ptr<std::ਸਦਿਸ਼<AstVarScope*>> ਜੀਵਤ_Var_Scopes(ਅਚਲ Cfg_ਗ੍ਰਾਫ&);
 
 }  //namespace V3Cfg
 
-#endif  // VERILATOR_V3CFG_H_
+#ਜੇ_ਅੰਤ  // VERILATOR_V3CFG_H_

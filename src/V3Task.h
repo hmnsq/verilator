@@ -14,60 +14,60 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3TASK_H_
-#define VERILATOR_V3TASK_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3TASK_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3TASK_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Container.h"
-#include "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Container.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
-#include <utility>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <utility>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 //============================================================================
 
 using V3TaskConnect = std::pair<AstVar*, AstArg*>;  // [port, pin-connects-to]
-using V3TaskConnects = std::vector<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
+using V3TaskConnects = std::ਸਦਿਸ਼<V3TaskConnect>;  // [ [port, pin-connects-to] ... ]
 
 class V3TaskConnectState final {
     VNDeleter m_deleter;  // Allow delayed deletion of nodes
     bool m_didWrap = false;  // Made a wrapper
-    using WrapMap = std::map<std::pair<AstNodeFTask*, std::string>, AstNodeFTask*>;
+    using WrapMap = std::map<std::pair<Ast_ਗੰਢ_FTask*, std::string>, Ast_ਗੰਢ_FTask*>;
     WrapMap m_wrapMap;  // Map of {old function, arguments} -> new function
-public:
-    V3TaskConnectState() = default;
-    ~V3TaskConnectState() = default;
-    void pushDeletep(AstNode* nodep) { m_deleter.pushDeletep(nodep); }
-    bool didWrap() const { return m_didWrap; }
-    void setDidWrap() { m_didWrap = true; }
-    WrapMap& wrapMap() { return m_wrapMap; }
+ਜਨਤਕ:
+    V3TaskConnectState() = ਮੂਲ;
+    ~V3TaskConnectState() = ਮੂਲ;
+    ਖਾਲੀ ਧੱਕੋ_Deletep(Ast_ਗੰਢ* nodep) { m_deleter.ਧੱਕੋ_Deletep(nodep); }
+    bool didWrap() ਅਚਲ { ਵਾਪਸ m_didWrap; }
+    ਖਾਲੀ ਸੈੱਟ_Did_Wrap() { m_didWrap = true; }
+    WrapMap& wrapMap() { ਵਾਪਸ m_wrapMap; }
 };
 
 //============================================================================
 
 class V3Task final {
-    static const char* const s_dpiTemporaryVarSuffix;
+    ਸਥਿਰ ਅਚਲ ਅੱਖਰ* ਅਚਲ s_dpiTemporaryVarSuffix;
 
-public:
-    static void taskAll(AstNetlist* nodep) VL_MT_DISABLED;
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ taskAll(AstNetlist* nodep) VL_MT_DISABLED;
     /// Return vector of [port, pin-connects-to]  (SLOW)
-    static V3TaskConnects taskConnects(AstNodeFTaskRef* nodep, AstNode* taskStmtsp,
+    ਸਥਿਰ V3TaskConnects taskConnects(Ast_ਗੰਢ_FTask_Ref* nodep, Ast_ਗੰਢ* taskStmtsp,
                                        V3TaskConnectState* statep = nullptr,
                                        bool makeChanges = true) VL_MT_DISABLED;
-    static void taskConnectWrap(AstNodeFTaskRef* nodep, const V3TaskConnects& tconnects,
+    ਸਥਿਰ ਖਾਲੀ taskConnectWrap(Ast_ਗੰਢ_FTask_Ref* nodep, ਅਚਲ V3TaskConnects& tconnects,
                                 V3TaskConnectState* statep,
-                                const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static AstNodeFTask*
-    taskConnectWrapNew(AstNodeFTask* taskp, const string& newname, const V3TaskConnects& tconnects,
-                       const VInsertionSet<const AstVar*>& argWrap) VL_MT_DISABLED;
-    static string assignInternalToDpi(AstVar* portp, bool isPtr, const string& frSuffix,
-                                      const string& toSuffix,
-                                      const string& frPrefix = "") VL_MT_DISABLED;
-    static string assignDpiToInternal(const string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
-    static const char* dpiTemporaryVarSuffix() VL_MT_SAFE { return s_dpiTemporaryVarSuffix; }
+                                ਅਚਲ VInsertion_ਸੈੱਟ<ਅਚਲ AstVar*>& argWrap) VL_MT_DISABLED;
+    ਸਥਿਰ Ast_ਗੰਢ_FTask*
+    taskConnectWrapNew(Ast_ਗੰਢ_FTask* taskp, ਅਚਲ string& newname, ਅਚਲ V3TaskConnects& tconnects,
+                       ਅਚਲ VInsertion_ਸੈੱਟ<ਅਚਲ AstVar*>& argWrap) VL_MT_DISABLED;
+    ਸਥਿਰ string ਸੌਂਪੋ_ਅੰਦਰੂਨੀ_ਮੰਜ਼ਿਲ_Dpi(AstVar* portp, bool isPtr, ਅਚਲ string& frSuffix,
+                                      ਅਚਲ string& ਮੰਜ਼ਿਲ_Suffix,
+                                      ਅਚਲ string& fr_ਅਗੇਤਰ = "") VL_MT_DISABLED;
+    ਸਥਿਰ string ਸੌਂਪੋ_Dpi_ਮੰਜ਼ਿਲ_ਅੰਦਰੂਨੀ(ਅਚਲ string& lhsName, AstVar* rhsp) VL_MT_DISABLED;
+    ਸਥਿਰ ਅਚਲ ਅੱਖਰ* dpiTemporaryVarSuffix() VL_MT_ਸੁਰੱਖਿਅਤ { ਵਾਪਸ s_dpiTemporaryVarSuffix; }
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

@@ -18,20 +18,20 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3DfgOptimizer.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3DfgOptimizer.h"
 
-#include "V3Const.h"
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Const.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Dfg.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3DfgPasses.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class DataflowOptimize final {
+ਵਰਗ DataflowOptimize final {
     // NODE STATE
     // AstVar::user1, AstVarScope::user1 -> int, used as a bit-field
     // - bit0: Read via AstVarXRef (hierarchical reference)
@@ -43,142 +43,142 @@ class DataflowOptimize final {
     // - bit31-6: Reference count, how many DfgVertexVar represent this variable
     //
     // AstNode::user2/user3/user4 can be used by various DFG algorithms
-    const VNUser1InUse m_user1InUse;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_user1_ਵਿੱਚ_Use;
 
     // STATE
     V3DfgContext m_ctx;  // The context holding values that need to persist across multiple graphs
 
-    void endOfStage(const std::string& name) {
-        if (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
+    ਖਾਲੀ ਸਿਰਾ_ਦਾ_Stage(ਅਚਲ std::string& name) {
+        ਜੇ (VL_UNLIKELY(v3Global.opt.stats())) V3Stats::statsStage("dfg-" + name);
     }
 
-    void endOfStage(const std::string& name, const DfgGraph& dfg,
-                    const std::vector<std::unique_ptr<DfgGraph>>& componentps) {
+    ਖਾਲੀ ਸਿਰਾ_ਦਾ_Stage(ਅਚਲ std::string& name, ਅਚਲ Dfg_ਗ੍ਰਾਫ& dfg,
+                    ਅਚਲ std::ਸਦਿਸ਼<std::unique_ptr<Dfg_ਗ੍ਰਾਫ>>& componentps) {
         // Dump the graphs for debugging
-        if (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
-            if (dfg.size() > 0) dfg.dumpDotFilePrefixed(name);
-            for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
-                if (componentp->size() > 0) componentp->dumpDotFilePrefixed(name);
+        ਜੇ (VL_UNLIKELY(dumpDfgLevel() >= 5)) {
+            ਜੇ (dfg.ਮਾਪ() > 0) dfg.dumpDotFilePrefixed(name);
+            ਲਈ (ਅਚਲ std::unique_ptr<Dfg_ਗ੍ਰਾਫ>& componentp : componentps) {
+                ਜੇ (componentp->ਮਾਪ() > 0) componentp->dumpDotFilePrefixed(name);
             }
         }
         // Type check the graphs
-        if (VL_UNLIKELY(v3Global.opt.debugCheck())) {
+        ਜੇ (VL_UNLIKELY(v3Global.opt.debugCheck())) {
             V3DfgPasses::typeCheck(dfg);
-            for (const std::unique_ptr<DfgGraph>& componentp : componentps) {
+            ਲਈ (ਅਚਲ std::unique_ptr<Dfg_ਗ੍ਰਾਫ>& componentp : componentps) {
                 V3DfgPasses::typeCheck(*componentp);
             }
         }
         // Dump stage stats
-        endOfStage(name);
+        ਸਿਰਾ_ਦਾ_Stage(name);
     }
 
     // Mark variables with external references
-    void markExternallyReferencedVariables(AstNetlist* netlistp) {
-        netlistp->foreach([](AstNode* nodep) {
+    ਖਾਲੀ markExternallyReferencedVariables(AstNetlist* netlistp) {
+        netlistp->foreach([](Ast_ਗੰਢ* nodep) {
             // Check variable flags
-            if (AstVarScope* const vscp = VN_CAST(nodep, VarScope)) {
-                const AstVar* const varp = vscp->varp();
+            ਜੇ (AstVarScope* ਅਚਲ vscp = VN_CAST(nodep, VarScope)) {
+                ਅਚਲ AstVar* ਅਚਲ varp = vscp->varp();
                 // Force and trace have already been processed
-                const bool hasExtRd =  //
+                ਅਚਲ ਤਾਰਕਿਕ hasExtRd =  //
                     varp->isPrimaryIO()  // Top level port - readable
-                    || varp->isSigUserRdPublic()  // Readable by user
-                    || varp->constPoolEntry()  // Held in V3ConstPool lookup cache, keep
+                    || varp->is_Sig_User_Rd_ਜਨਤਕ()  // Readable by user
+                    || varp->const_Pool_ਇੰਦਰਾਜ()  // Held in V3ConstPool lookup cache, keep
                     ;
-                const bool hasExtWr =  //
+                ਅਚਲ ਤਾਰਕਿਕ hasExtWr =  //
                     (varp->isPrimaryIO() && varp->isNonOutput())  // Top level port - writable
                     || varp->isSigUserRWPublic()  // Writable by user
                     ;
-                if (hasExtRd) DfgVertexVar::setHasExtRdRefs(vscp);
-                if (hasExtWr) DfgVertexVar::setHasExtWrRefs(vscp);
-                return;
+                ਜੇ (hasExtRd) Dfg_ਸ਼ੀਰਸ਼_Var::ਸੈੱਟ_Has_Ext_Rd_Refs(vscp);
+                ਜੇ (hasExtWr) Dfg_ਸ਼ੀਰਸ਼_Var::ਸੈੱਟ_Has_Ext_Wr_Refs(vscp);
+                ਵਾਪਸ;
             }
             // Check references
-            if (const AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-                if (refp->access().isRW()) DfgVertexVar::setHasRWRefs(refp->varScopep());
+            ਜੇ (ਅਚਲ AstVarRef* ਅਚਲ refp = VN_CAST(nodep, VarRef)) {
+                ਜੇ (refp->access().isRW()) Dfg_ਸ਼ੀਰਸ਼_Var::ਸੈੱਟ_Has_RWRefs(refp->varScopep());
                 UASSERT_OBJ(!refp->classOrPackagep(), refp, "V3Scope should have removed");
-                return;
+                ਵਾਪਸ;
             }
             UASSERT_OBJ(!VN_IS(nodep, VarXRef), nodep, "V3Scope should have removed");
             // Check cell ports
-            if (const AstCell* const cellp = VN_CAST(nodep, Cell)) {
+            ਜੇ (ਅਚਲ AstCell* ਅਚਲ cellp = VN_CAST(nodep, Cell)) {
                 // Why does this not hold?
-                UASSERT_OBJ(true || !cellp->pinsp(), cellp, "Pins should have been lowered");
-                return;
+                UASSERT_OBJ(ਸੱਚ || !cellp->pinsp(), cellp, "Pins should have been lowered");
+                ਵਾਪਸ;
             }
         });
     }
 
-    void optimize(DfgGraph& dfg) {
+    ਖਾਲੀ optimize(Dfg_ਗ੍ਰਾਫ& dfg) {
         // Remove unobservable variabels and logic that drives only such variables
         V3DfgPasses::removeUnobservable(dfg, m_ctx);
-        endOfStage("removeUnobservable", dfg, {});
+        ਸਿਰਾ_ਦਾ_Stage("removeUnobservable", dfg, {});
 
         // Synthesize DfgLogic vertices
         V3DfgPasses::synthesize(dfg, m_ctx);
-        endOfStage("synthesize", dfg, {});
+        ਸਿਰਾ_ਦਾ_Stage("synthesize", dfg, {});
 
         // Extract the cyclic sub-graphs, so breakCycles can operate on small graphs,
         // make all of them acyclic, then merge them back to the main graph
         {
-            std::vector<std::unique_ptr<DfgGraph>> comps = dfg.extractCyclicComponents("cyclic");
-            for (const auto& cp : comps) V3DfgPasses::breakCycles(*cp, m_ctx);
-            dfg.mergeGraphs(std::move(comps));
-            endOfStage("breakCycles", dfg, {});
+            std::ਸਦਿਸ਼<std::unique_ptr<Dfg_ਗ੍ਰਾਫ>> comps = dfg.ਕੱਢੋ_Cyclic_Components("cyclic");
+            ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::break_ਚੱਕਰਾਂ(*cp, m_ctx);
+            dfg.ਮਿਲਾਓ_Graphs(std::move(comps));
+            ਸਿਰਾ_ਦਾ_Stage("breakCycles", dfg, {});
         }
 
         // Split the now entirely acyclic DFG into [weakly] connected components
-        std::vector<std::unique_ptr<DfgGraph>> comps = dfg.splitIntoComponents("acyclic");
-        UASSERT(dfg.size() == 0, "DfgGraph should have become empty");
-        endOfStage("splitAcyclic", dfg, comps);
+        std::ਸਦਿਸ਼<std::unique_ptr<Dfg_ਗ੍ਰਾਫ>> comps = dfg.ਵੰਡੋ_Into_Components("acyclic");
+        UASSERT(dfg.ਮਾਪ() == 0, "DfgGraph should have become empty");
+        ਸਿਰਾ_ਦਾ_Stage("splitAcyclic", dfg, comps);
 
         // Main pass pipeline - optimize each acyclic component
         {
-            for (auto& cp : comps) V3DfgPasses::removeSelects(*cp, m_ctx.m_removeSelectsContext);
-            endOfStage("removeSelects", dfg, comps);
-            for (const auto& cp : comps) V3DfgPasses::inlineVars(*cp);
-            endOfStage("inlineVars", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext0);
-            endOfStage("cse0", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::binToOneHot(*cp, m_ctx.m_binToOneHotContext);
-            endOfStage("binToOneHot", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::peephole(*cp, m_ctx.m_peepholeContext);
-            endOfStage("peephole", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::removeSelects(*cp, m_ctx.m_removeSelectsContext);
+            ਸਿਰਾ_ਦਾ_Stage("removeSelects", dfg, comps);
+            ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::inlineVars(*cp);
+            ਸਿਰਾ_ਦਾ_Stage("inlineVars", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext0);
+            ਸਿਰਾ_ਦਾ_Stage("cse0", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::bin_ਮੰਜ਼ਿਲ_One_Hot(*cp, m_ctx.m_bin_ਮੰਜ਼ਿਲ_One_Hot_Context);
+            ਸਿਰਾ_ਦਾ_Stage("binToOneHot", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::peephole(*cp, m_ctx.m_peepholeContext);
+            ਸਿਰਾ_ਦਾ_Stage("peephole", dfg, comps);
 
             // Accumulate patterns for reporting
-            if (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
+            ਜੇ (v3Global.opt.dumpDfgPatterns()) V3DfgPasses::dumpPatterns(comps);
 
-            for (auto& cp : comps) V3DfgPasses::pushDownSels(*cp, m_ctx.m_pushDownSelsContext);
-            endOfStage("pushDownSels", dfg, comps);
-            for (auto& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext1);
-            endOfStage("cse1", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::ਧੱਕੋ_ਥੱਲੇ_Sels(*cp, m_ctx.m_ਧੱਕੋ_ਥੱਲੇ_Sels_Context);
+            ਸਿਰਾ_ਦਾ_Stage("pushDownSels", dfg, comps);
+            ਲਈ (ਸਵੈਚਾਲਿਤ& cp : comps) V3DfgPasses::cse(*cp, m_ctx.m_cseContext1);
+            ਸਿਰਾ_ਦਾ_Stage("cse1", dfg, comps);
         }
 
         // Merge everything back under the main graph
-        dfg.mergeGraphs(std::move(comps));
-        endOfStage("optimized", dfg, {});
+        dfg.ਮਿਲਾਓ_Graphs(std::move(comps));
+        ਸਿਰਾ_ਦਾ_Stage("optimized", dfg, {});
 
         // Regularize the graph after merging it all back together so all
         // references are known and we only need to iterate the Ast once
         // to replace redundant variables.
         V3DfgPasses::regularize(dfg, m_ctx.m_regularizeContext);
-        endOfStage("regularize", dfg, {});
+        ਸਿਰਾ_ਦਾ_Stage("regularize", dfg, {});
     }
 
-    void removeNeverActives(AstNetlist* netlistp) {
-        std::vector<AstActive*> neverActiveps;
-        netlistp->foreach([&](AstActive* activep) {
-            AstSenTree* const senTreep = activep->sentreep();
-            if (!senTreep) return;
-            const AstNode* const nodep = V3Const::constifyEdit(senTreep);
+    ਖਾਲੀ removeNeverActives(AstNetlist* netlistp) {
+        std::ਸਦਿਸ਼<Ast_ਸਰਗਰਮ*> neverActiveps;
+        netlistp->foreach([&](Ast_ਸਰਗਰਮ* activep) {
+            Ast_Sen_ਰੁੱਖ* ਅਚਲ senTreep = activep->sentreep();
+            ਜੇ (!senTreep) ਵਾਪਸ;
+            ਅਚਲ Ast_ਗੰਢ* ਅਚਲ nodep = V3Const::constifyEdit(senTreep);
             UASSERT_OBJ(nodep == senTreep, nodep, "Should not have been repalced");
-            if (senTreep->sensesp()->isNever()) {
+            ਜੇ (senTreep->sensesp()->isNever()) {
                 UASSERT_OBJ(!senTreep->sensesp()->nextp(), nodep,
                             "Never senitem should be alone, else the never should be eliminated.");
-                neverActiveps.emplace_back(activep);
+                neverActiveps.emplace_ਪਿੱਠ(activep);
             }
         });
-        for (AstActive* const activep : neverActiveps) {
-            VL_DO_DANGLING(activep->unlinkFrBack()->deleteTree(), activep);
+        ਲਈ (Ast_ਸਰਗਰਮ* ਅਚਲ activep : neverActiveps) {
+            VL_DO_DANGLING(activep->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), activep);
         }
     }
 
@@ -186,31 +186,31 @@ class DataflowOptimize final {
         // Mark variables with external references
         markExternallyReferencedVariables(netlistp);
         // Dump stage stats
-        endOfStage("init");
+        ਸਿਰਾ_ਦਾ_Stage("init");
         // Post V3Scope application. Run on whole netlist.
         UINFO(4, "Applying DFG optimization to entire netlist");
         // Build the DFG of the entire netlist
-        const std::unique_ptr<DfgGraph> dfgp = V3DfgPasses::astToDfg(*netlistp, m_ctx);
-        endOfStage("astToDfg", *dfgp, {});
+        ਅਚਲ std::unique_ptr<Dfg_ਗ੍ਰਾਫ> dfgp = V3DfgPasses::ast_ਮੰਜ਼ਿਲ_Dfg(*netlistp, m_ctx);
+        ਸਿਰਾ_ਦਾ_Stage("astToDfg", *dfgp, {});
         // Actually process the graph
         optimize(*dfgp);
         // Convert back to Ast
-        V3DfgPasses::dfgToAst(*dfgp, m_ctx);
-        endOfStage("dfgToAst", *dfgp, {});
+        V3DfgPasses::dfg_ਮੰਜ਼ਿਲ_Ast(*dfgp, m_ctx);
+        ਸਿਰਾ_ਦਾ_Stage("dfgToAst", *dfgp, {});
         // Some sentrees might have become constant, remove them
         removeNeverActives(netlistp);
         // Reset interned types so the corresponding Ast types can be garbage collected
-        DfgDataType::reset();
+        Dfg_ਅੰਕੜੇ_Type::reset();
         // Dump stage stats
-        endOfStage("fini");
+        ਸਿਰਾ_ਦਾ_Stage("fini");
     }
 
-public:
-    static void apply(AstNetlist* netlistp) { DataflowOptimize{netlistp}; }
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ apply(AstNetlist* netlistp) { DataflowOptimize{netlistp}; }
 };
 
-void V3DfgOptimizer::optimize(AstNetlist* netlistp) {
+ਖਾਲੀ V3DfgOptimizer::optimize(AstNetlist* netlistp) {
     UINFO(2, __FUNCTION__ << ":");
     DataflowOptimize::apply(netlistp);
-    V3Global::dumpCheckGlobalTree("dfg-optimize", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("dfg-optimize", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

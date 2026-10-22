@@ -14,32 +14,32 @@
 //
 //*************************************************************************
 
-#include "V3Hash.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Hash.h"
 
-#include <cstring>
-#include <functional>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstring>
+#ਅਨ੍ਤਰ੍ਭਾਵ <functional>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iostream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <sstream>
 
-V3Hash::V3Hash(const std::string& val)
-    : m_value{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
+V3Hash::V3Hash(ਅਚਲ std::string& val)
+    : m_ਮੁੱਲ{static_cast<uint32_t>(std::hash<std::string>{}(val))} {}
 
-V3Hash::V3Hash(double val) {
+V3Hash::V3Hash(ਦੁੱਗਣਾ val) {
     // By value, so +0.0 and -0.0, which compare equal, hash the same
-    if (val == 0.0) val = 0.0;
-    static_assert(sizeof(double) == sizeof(uint64_t), "Hashing assumes 64-bit double");
-    uint64_t bits;
-    std::memcpy(&bits, &val, sizeof(bits));
-    m_value = V3Hash{bits}.m_value;
+    ਜੇ (val == 0.0) val = 0.0;
+    static_assert(ਆਕਾਰ(ਦੁੱਗਣਾ) == ਆਕਾਰ(uint64_t), "Hashing assumes 64-bit double");
+    uint64_t ਬਿੱਟ;
+    std::ਸਮ੍ਰਿਤੀ_ਨਕਲ(&ਬਿੱਟ, &val, ਆਕਾਰ(ਬਿੱਟ));
+    m_ਮੁੱਲ = V3Hash{ਬਿੱਟ}.m_ਮੁੱਲ;
 }
 
-std::ostream& operator<<(std::ostream& os, const V3Hash& rhs) VL_MT_SAFE {
-    return os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.value();
+std::ostream& ਸੰਚਾਲਕ<<(std::ostream& os, ਅਚਲ V3Hash& rhs) VL_MT_ਸੁਰੱਖਿਅਤ {
+    ਵਾਪਸ os << 'h' << std::hex << std::setw(8) << std::setfill('0') << rhs.ਮੁੱਲ();
 }
 
-std::string V3Hash::toString() const VL_MT_SAFE {
+std::string V3Hash::ਮੰਜ਼ਿਲ_String() ਅਚਲ VL_MT_ਸੁਰੱਖਿਅਤ {
     std::ostringstream os;
-    os << *this;
-    return os.str();
+    os << *ਇਹ;
+    ਵਾਪਸ os.str();
 }

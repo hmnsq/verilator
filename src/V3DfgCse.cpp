@@ -14,372 +14,372 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Dfg.h"
-#include "V3DfgPasses.h"
-#include "V3HashTable.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Dfg.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3DfgPasses.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3HashTable.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 // Hash functor for V3HashSet - depends on vertex and all its inputs
-class DfgCseHash final {
+ਵਰਗ DfgCseHash final {
     // STATE
-    mutable DfgUserMap<V3Hash> m_cache;  // Cache for vertex hashes
+    ਬਦਲਣਯੋਗ DfgUserMap<V3Hash> m_cache;  // Cache for vertex hashes
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTOR
-    explicit DfgCseHash(DfgGraph& dfg)
+    ਸਪਸ਼ਟ DfgCseHash(Dfg_ਗ੍ਰਾਫ& dfg)
         : m_cache{dfg.makeUserMap<V3Hash>()} {
         // Pre-hash variables, these are all unique, so just set their hash to a unique value
         uint32_t fixedHash = 0;
-        for (const DfgVertexVar& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        ਲਈ (ਅਚਲ Dfg_ਸ਼ੀਰਸ਼_Var& vtx : dfg.varVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash Ast references, these are all unique like variables
-        for (const DfgVertexAst& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
+        ਲਈ (ਅਚਲ Dfg_ਸ਼ੀਰਸ਼_Ast& vtx : dfg.astVertices()) m_cache[vtx] = V3Hash{++fixedHash};
         // Pre-hash CReset and Prev vertices, these are all unique
-        for (const DfgVertex& vtx : dfg.opVertices()) {
-            if (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
+        ਲਈ (ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& vtx : dfg.opVertices()) {
+            ਜੇ (vtx.is<DfgCReset>() || vtx.is<DfgPrev>()) m_cache[vtx] = V3Hash{++fixedHash};
         }
         // Similarly pre-hash constants for speed. While we don't combine constants, we do want
         // expressions using the same constants to be combined, so we do need to hash equal
         // constants to equal values.
         ++fixedHash;
-        for (const DfgConst& vtx : dfg.constVertices()) {
-            const V3Hash hash = vtx.num().toHash() + fixedHash;
+        ਲਈ (ਅਚਲ DfgConst& vtx : dfg.constVertices()) {
+            ਅਚਲ V3Hash hash = vtx.ਅੰਕ().ਮੰਜ਼ਿਲ_Hash() + fixedHash;
             // Technically possible for a hash to be zero, 'vertexSelfHash' assumes it isn't
-            m_cache[vtx] = VL_LIKELY(hash.value()) ? hash : V3Hash{1};
+            m_cache[vtx] = VL_LIKELY(hash.ਮੁੱਲ()) ? hash : V3Hash{1};
         }
     }
 
     // METHODS
-    size_t operator()(DfgVertex* vtxp) const { return vertexHash(*vtxp).value(); }
+    ਮਾਪ_t ਸੰਚਾਲਕ()(Dfg_ਸ਼ੀਰਸ਼* vtxp) ਅਚਲ { ਵਾਪਸ ਸ਼ੀਰਸ਼_Hash(*vtxp).ਮੁੱਲ(); }
 
-private:
+ਨਿਜੀ:
     // Returns hash of vertex dependent on information internal to the vertex
-    static V3Hash vertexSelfHash(const DfgVertex& vtx) {
-        switch (vtx.type()) {
+    ਸਥਿਰ V3Hash ਸ਼ੀਰਸ਼_Self_Hash(ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& vtx) {
+        ਚੋਣ (vtx.type()) {
         // Unhandled vertices
-        case VDfgType::Logic:  // LCOV_EXCL_START
-        case VDfgType::Unresolved:  // LCOV_EXCL_STOP
+        ਹਾਲਤ VDfgType::Logic:  // LCOV_EXCL_START
+        ਹਾਲਤ VDfgType::Unresolved:  // LCOV_EXCL_STOP
             vtx.v3fatalSrc("Should not have reached CSE");
 
         // Special vertices
-        case VDfgType::Const:  // LCOV_EXCL_START
-        case VDfgType::CReset:
-        case VDfgType::VarArray:
-        case VDfgType::VarPacked:
-        case VDfgType::Prev:
-        case VDfgType::AstRd:  // LCOV_EXCL_STOP
+        ਹਾਲਤ VDfgType::Const:  // LCOV_EXCL_START
+        ਹਾਲਤ VDfgType::CReset:
+        ਹਾਲਤ VDfgType::VarArray:
+        ਹਾਲਤ VDfgType::VarPacked:
+        ਹਾਲਤ VDfgType::Prev:
+        ਹਾਲਤ VDfgType::AstRd:  // LCOV_EXCL_STOP
             vtx.v3fatalSrc("Hash should have been pre-computed");
 
         // Vertices with internal information
-        case VDfgType::Sel: return V3Hash{vtx.as<DfgSel>()->lsb()};
+        ਹਾਲਤ VDfgType::Sel: ਵਾਪਸ V3Hash{vtx.as<DfgSel>()->lsb()};
 
-        case VDfgType::SpliceArray:
-        case VDfgType::SplicePacked: {
+        ਹਾਲਤ VDfgType::SpliceArray:
+        ਹਾਲਤ VDfgType::SplicePacked: {
             V3Hash hash;
-            vtx.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {
+            vtx.as<Dfg_ਸ਼ੀਰਸ਼_Splice>()->foreachDriver([&](ਅਚਲ Dfg_ਸ਼ੀਰਸ਼&, uint32_t lo) {
                 hash += lo;
-                return false;
+                ਵਾਪਸ ਝੂਠ;
             });
-            return hash;
+            ਵਾਪਸ hash;
         }
 
         // Vertices with no internal information
-        case VDfgType::MatchMasked:
-        case VDfgType::Mux:
-        case VDfgType::UnitArray: return V3Hash{};
+        ਹਾਲਤ VDfgType::ਮੇਲ_Masked:
+        ਹਾਲਤ VDfgType::Mux:
+        ਹਾਲਤ VDfgType::UnitArray: ਵਾਪਸ V3Hash{};
 
         // Generated classes - none of them have internal information
-        case VDfgType::Add:
-        case VDfgType::And:
-        case VDfgType::ArraySel:
-        case VDfgType::Concat:
-        case VDfgType::Cond:
-        case VDfgType::CountOnes:
-        case VDfgType::Div:
-        case VDfgType::DivS:
-        case VDfgType::Eq:
-        case VDfgType::EqCase:
-        case VDfgType::EqWild:
-        case VDfgType::Extend:
-        case VDfgType::ExtendS:
-        case VDfgType::Gt:
-        case VDfgType::GtS:
-        case VDfgType::Gte:
-        case VDfgType::GteS:
-        case VDfgType::LogAnd:
-        case VDfgType::LogEq:
-        case VDfgType::LogIf:
-        case VDfgType::LogNot:
-        case VDfgType::LogOr:
-        case VDfgType::Lt:
-        case VDfgType::LtS:
-        case VDfgType::Lte:
-        case VDfgType::LteS:
-        case VDfgType::ModDiv:
-        case VDfgType::ModDivS:
-        case VDfgType::Mul:
-        case VDfgType::MulS:
-        case VDfgType::Negate:
-        case VDfgType::Neq:
-        case VDfgType::NeqCase:
-        case VDfgType::NeqWild:
-        case VDfgType::Not:
-        case VDfgType::OneHot:
-        case VDfgType::OneHot0:
-        case VDfgType::Or:
-        case VDfgType::Pow:
-        case VDfgType::PowSS:
-        case VDfgType::PowSU:
-        case VDfgType::PowUS:
-        case VDfgType::RedAnd:
-        case VDfgType::RedOr:
-        case VDfgType::RedXor:
-        case VDfgType::Rep:
-        case VDfgType::ShiftL:
-        case VDfgType::ShiftR:
-        case VDfgType::ShiftRS:
-        case VDfgType::StreamL:
-        case VDfgType::StreamR:
-        case VDfgType::Sub:
-        case VDfgType::Xor: return V3Hash{};
+        ਹਾਲਤ VDfgType::ਜੋੜੋ_2:
+        ਹਾਲਤ VDfgType::And:
+        ਹਾਲਤ VDfgType::ArraySel:
+        ਹਾਲਤ VDfgType::Concat:
+        ਹਾਲਤ VDfgType::Cond:
+        ਹਾਲਤ VDfgType::ਗਿਣਤੀ_Ones_2:
+        ਹਾਲਤ VDfgType::Div:
+        ਹਾਲਤ VDfgType::DivS:
+        ਹਾਲਤ VDfgType::Eq:
+        ਹਾਲਤ VDfgType::EqCase:
+        ਹਾਲਤ VDfgType::EqWild:
+        ਹਾਲਤ VDfgType::Extend:
+        ਹਾਲਤ VDfgType::ExtendS:
+        ਹਾਲਤ VDfgType::Gt:
+        ਹਾਲਤ VDfgType::GtS:
+        ਹਾਲਤ VDfgType::Gte:
+        ਹਾਲਤ VDfgType::GteS:
+        ਹਾਲਤ VDfgType::LogAnd:
+        ਹਾਲਤ VDfgType::LogEq:
+        ਹਾਲਤ VDfgType::LogIf:
+        ਹਾਲਤ VDfgType::LogNot:
+        ਹਾਲਤ VDfgType::LogOr:
+        ਹਾਲਤ VDfgType::Lt:
+        ਹਾਲਤ VDfgType::LtS:
+        ਹਾਲਤ VDfgType::Lte:
+        ਹਾਲਤ VDfgType::LteS:
+        ਹਾਲਤ VDfgType::ModDiv:
+        ਹਾਲਤ VDfgType::ModDivS:
+        ਹਾਲਤ VDfgType::Mul:
+        ਹਾਲਤ VDfgType::MulS:
+        ਹਾਲਤ VDfgType::Negate:
+        ਹਾਲਤ VDfgType::Neq:
+        ਹਾਲਤ VDfgType::NeqCase:
+        ਹਾਲਤ VDfgType::NeqWild:
+        ਹਾਲਤ VDfgType::Not:
+        ਹਾਲਤ VDfgType::OneHot:
+        ਹਾਲਤ VDfgType::OneHot0:
+        ਹਾਲਤ VDfgType::Or:
+        ਹਾਲਤ VDfgType::Pow:
+        ਹਾਲਤ VDfgType::PowSS:
+        ਹਾਲਤ VDfgType::PowSU:
+        ਹਾਲਤ VDfgType::PowUS:
+        ਹਾਲਤ VDfgType::RedAnd:
+        ਹਾਲਤ VDfgType::RedOr:
+        ਹਾਲਤ VDfgType::RedXor:
+        ਹਾਲਤ VDfgType::Rep:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_L:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_R:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_RS:
+        ਹਾਲਤ VDfgType::ਧਾਰਾ_L:
+        ਹਾਲਤ VDfgType::ਧਾਰਾ_R:
+        ਹਾਲਤ VDfgType::Sub:
+        ਹਾਲਤ VDfgType::Xor: ਵਾਪਸ V3Hash{};
         }
         VL_UNREACHABLE;
     }
 
     // Returns hash of vertex dependent on itself and all its inputs - memoized
-    V3Hash vertexHash(DfgVertex& vtx) const {
-        V3Hash& result = m_cache[vtx];
+    V3Hash ਸ਼ੀਰਸ਼_Hash(Dfg_ਸ਼ੀਰਸ਼& vtx) ਅਚਲ {
+        V3Hash& ਨਤੀਜਾ = m_cache[vtx];
         // Technically possible for a hash to be zero, but rare, so assume 0 means uninitialized
-        if (!result.value()) {
-            V3Hash hash{vertexSelfHash(vtx)};
+        ਜੇ (!ਨਤੀਜਾ.ਮੁੱਲ()) {
+            V3Hash hash{ਸ਼ੀਰਸ਼_Self_Hash(vtx)};
             hash += vtx.type();
-            hash += vtx.size();
-            vtx.foreachSource([&](DfgVertex& src) {
-                hash += vertexHash(src);  // Graph is acyclic, so this terminates
-                return false;
+            hash += vtx.ਮਾਪ();
+            vtx.foreach_ਸਰੋਤ([&](Dfg_ਸ਼ੀਰਸ਼& src) {
+                hash += ਸ਼ੀਰਸ਼_Hash(src);  // Graph is acyclic, so this terminates
+                ਵਾਪਸ ਝੂਠ;
             });
-            result = hash;
+            ਨਤੀਜਾ = hash;
         }
-        return result;
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 };
 
 // Equal functor for V3HashSet - depends on vertex and all its inputs
-class DfgCseEqual final {
+ਵਰਗ DfgCseEqual final {
     // TYPES
-    using VertexPair = std::pair<const DfgVertex*, const DfgVertex*>;
-    struct VertexPairHash final {
-        size_t operator()(const VertexPair& pair) const {
+    ਵਰਤੋਂ ਸ਼ੀਰਸ਼_Pair = std::pair<ਅਚਲ Dfg_ਸ਼ੀਰਸ਼*, ਅਚਲ Dfg_ਸ਼ੀਰਸ਼*>;
+    ਬਣਤਰ ਸ਼ੀਰਸ਼_Pair_Hash final {
+        ਮਾਪ_t ਸੰਚਾਲਕ()(ਅਚਲ ਸ਼ੀਰਸ਼_Pair& pair) ਅਚਲ {
             V3Hash hash;
-            hash += pair.first;
-            hash += pair.second;
-            return hash.value();
+            hash += pair.ਪਹਿਲਾ;
+            hash += pair.ਦੂਜਾ;
+            ਵਾਪਸ hash.ਮੁੱਲ();
         }
     };
 
     // STATE
-    mutable V3HashMap<VertexPair, bool, VertexPairHash> m_cache;  // Cache for vertex equality
-    mutable std::vector<uint32_t> m_driverLo;  // Low indices of drivers
-    const size_t m_size;  // Size of the graph
+    ਬਦਲਣਯੋਗ V3HashMap<ਸ਼ੀਰਸ਼_Pair, ਤਾਰਕਿਕ, ਸ਼ੀਰਸ਼_Pair_Hash> m_cache;  // Cache for vertex equality
+    ਬਦਲਣਯੋਗ std::ਸਦਿਸ਼<uint32_t> m_driverLo;  // Low indices of drivers
+    ਅਚਲ ਮਾਪ_t m_ਮਾਪ;  // Size of the graph
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit DfgCseEqual(const DfgGraph& dfg)
-        : m_size{dfg.size()} {}
+    ਸਪਸ਼ਟ DfgCseEqual(ਅਚਲ Dfg_ਗ੍ਰਾਫ& dfg)
+        : m_ਮਾਪ{dfg.ਮਾਪ()} {}
 
     // METHODS
-    bool operator()(DfgVertex* ap, DfgVertex* bp) const { return vertexEquivalent(*ap, *bp); }
+    ਤਾਰਕਿਕ ਸੰਚਾਲਕ()(Dfg_ਸ਼ੀਰਸ਼* ap, Dfg_ਸ਼ੀਰਸ਼* bp) ਅਚਲ { ਵਾਪਸ ਸ਼ੀਰਸ਼_Equivalent(*ap, *bp); }
 
-private:
+ਨਿਜੀ:
     // Compare 'a' and 'b' for equivalence based on their internal information only
-    bool vertexSelfEquivalent(const DfgVertex& a, const DfgVertex& b) const {
+    ਤਾਰਕਿਕ ਸ਼ੀਰਸ਼_Self_Equivalent(ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& a, ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& b) ਅਚਲ {
         // Note: 'a' and 'b' are of the same Vertex type, data type, and have
         // the same number of inputs with matching types. This is established
         // by 'vertexEquivalent'.
-        switch (a.type()) {
+        ਚੋਣ (a.type()) {
         // Unhandled vertices
-        case VDfgType::Logic:  // LCOV_EXCL_START
-        case VDfgType::Unresolved:  // LCOV_EXCL_STOP
+        ਹਾਲਤ VDfgType::Logic:  // LCOV_EXCL_START
+        ਹਾਲਤ VDfgType::Unresolved:  // LCOV_EXCL_STOP
             a.v3fatalSrc("Should not have reached CSE");
 
         // Not reachable via operation vertices
-        case VDfgType::AstRd:  // LCOV_EXCL_LINE
+        ਹਾਲਤ VDfgType::AstRd:  // LCOV_EXCL_LINE
             a.v3fatalSrc("Should not be reachable via operation vertices");
 
         // Special vertices
-        case VDfgType::Const: return a.as<DfgConst>()->num().isCaseEq(b.as<DfgConst>()->num());
-        case VDfgType::CReset: return false;
-        case VDfgType::Prev: return false;
+        ਹਾਲਤ VDfgType::Const: ਵਾਪਸ a.as<DfgConst>()->ਅੰਕ().isCaseEq(b.as<DfgConst>()->ਅੰਕ());
+        ਹਾਲਤ VDfgType::CReset: ਵਾਪਸ ਝੂਠ;
+        ਹਾਲਤ VDfgType::Prev: ਵਾਪਸ ਝੂਠ;
 
-        case VDfgType::VarArray:
-        case VDfgType::VarPacked:  // CSE does not combine variables
-            return false;
+        ਹਾਲਤ VDfgType::VarArray:
+        ਹਾਲਤ VDfgType::VarPacked:  // CSE does not combine variables
+            ਵਾਪਸ ਝੂਠ;
 
         // Vertices with internal information
-        case VDfgType::Sel: return a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
+        ਹਾਲਤ VDfgType::Sel: ਵਾਪਸ a.as<DfgSel>()->lsb() == b.as<DfgSel>()->lsb();
 
-        case VDfgType::SpliceArray:
-        case VDfgType::SplicePacked: {
-            const DfgVertexSplice* const ap = a.as<DfgVertexSplice>();
+        ਹਾਲਤ VDfgType::SpliceArray:
+        ਹਾਲਤ VDfgType::SplicePacked: {
+            ਅਚਲ Dfg_ਸ਼ੀਰਸ਼_Splice* ਅਚਲ ap = a.as<Dfg_ਸ਼ੀਰਸ਼_Splice>();
             // Gather indices of drivers of 'a'
             m_driverLo.clear();
             m_driverLo.reserve(ap->nInputs());
-            ap->foreachDriver([&](const DfgVertex&, uint32_t lo) {
-                m_driverLo.push_back(lo);
-                return false;
+            ap->foreachDriver([&](ਅਚਲ Dfg_ਸ਼ੀਰਸ਼&, uint32_t lo) {
+                m_driverLo.ਧੱਕੋ_ਪਿੱਠ(lo);
+                ਵਾਪਸ ਝੂਠ;
             });
             // Compare indices of drivers of 'b', equal if all match
-            uint32_t* aLop = m_driverLo.data();
-            return !b.as<DfgVertexSplice>()->foreachDriver([&](const DfgVertex&, uint32_t lo) {  //
-                return *aLop++ != lo;
+            uint32_t* aLop = m_driverLo.ਅੰਕੜੇ();
+            ਵਾਪਸ !b.as<Dfg_ਸ਼ੀਰਸ਼_Splice>()->foreachDriver([&](ਅਚਲ Dfg_ਸ਼ੀਰਸ਼&, uint32_t lo) {  //
+                ਵਾਪਸ *aLop++ != lo;
             });
         }
 
         // Vertices with no internal information
-        case VDfgType::MatchMasked:
-        case VDfgType::Mux:
-        case VDfgType::UnitArray: return true;
+        ਹਾਲਤ VDfgType::ਮੇਲ_Masked:
+        ਹਾਲਤ VDfgType::Mux:
+        ਹਾਲਤ VDfgType::UnitArray: ਵਾਪਸ ਸੱਚ;
 
         // Generated classes - none of them have internal information
-        case VDfgType::Add:
-        case VDfgType::And:
-        case VDfgType::ArraySel:
-        case VDfgType::Concat:
-        case VDfgType::Cond:
-        case VDfgType::CountOnes:
-        case VDfgType::Div:
-        case VDfgType::DivS:
-        case VDfgType::Eq:
-        case VDfgType::EqCase:
-        case VDfgType::EqWild:
-        case VDfgType::Extend:
-        case VDfgType::ExtendS:
-        case VDfgType::Gt:
-        case VDfgType::GtS:
-        case VDfgType::Gte:
-        case VDfgType::GteS:
-        case VDfgType::LogAnd:
-        case VDfgType::LogEq:
-        case VDfgType::LogIf:
-        case VDfgType::LogNot:
-        case VDfgType::LogOr:
-        case VDfgType::Lt:
-        case VDfgType::LtS:
-        case VDfgType::Lte:
-        case VDfgType::LteS:
-        case VDfgType::ModDiv:
-        case VDfgType::ModDivS:
-        case VDfgType::Mul:
-        case VDfgType::MulS:
-        case VDfgType::Negate:
-        case VDfgType::Neq:
-        case VDfgType::NeqCase:
-        case VDfgType::NeqWild:
-        case VDfgType::Not:
-        case VDfgType::OneHot:
-        case VDfgType::OneHot0:
-        case VDfgType::Or:
-        case VDfgType::Pow:
-        case VDfgType::PowSS:
-        case VDfgType::PowSU:
-        case VDfgType::PowUS:
-        case VDfgType::RedAnd:
-        case VDfgType::RedOr:
-        case VDfgType::RedXor:
-        case VDfgType::Rep:
-        case VDfgType::ShiftL:
-        case VDfgType::ShiftR:
-        case VDfgType::ShiftRS:
-        case VDfgType::StreamL:
-        case VDfgType::StreamR:
-        case VDfgType::Sub:
-        case VDfgType::Xor: return true;
+        ਹਾਲਤ VDfgType::ਜੋੜੋ_2:
+        ਹਾਲਤ VDfgType::And:
+        ਹਾਲਤ VDfgType::ArraySel:
+        ਹਾਲਤ VDfgType::Concat:
+        ਹਾਲਤ VDfgType::Cond:
+        ਹਾਲਤ VDfgType::ਗਿਣਤੀ_Ones_2:
+        ਹਾਲਤ VDfgType::Div:
+        ਹਾਲਤ VDfgType::DivS:
+        ਹਾਲਤ VDfgType::Eq:
+        ਹਾਲਤ VDfgType::EqCase:
+        ਹਾਲਤ VDfgType::EqWild:
+        ਹਾਲਤ VDfgType::Extend:
+        ਹਾਲਤ VDfgType::ExtendS:
+        ਹਾਲਤ VDfgType::Gt:
+        ਹਾਲਤ VDfgType::GtS:
+        ਹਾਲਤ VDfgType::Gte:
+        ਹਾਲਤ VDfgType::GteS:
+        ਹਾਲਤ VDfgType::LogAnd:
+        ਹਾਲਤ VDfgType::LogEq:
+        ਹਾਲਤ VDfgType::LogIf:
+        ਹਾਲਤ VDfgType::LogNot:
+        ਹਾਲਤ VDfgType::LogOr:
+        ਹਾਲਤ VDfgType::Lt:
+        ਹਾਲਤ VDfgType::LtS:
+        ਹਾਲਤ VDfgType::Lte:
+        ਹਾਲਤ VDfgType::LteS:
+        ਹਾਲਤ VDfgType::ModDiv:
+        ਹਾਲਤ VDfgType::ModDivS:
+        ਹਾਲਤ VDfgType::Mul:
+        ਹਾਲਤ VDfgType::MulS:
+        ਹਾਲਤ VDfgType::Negate:
+        ਹਾਲਤ VDfgType::Neq:
+        ਹਾਲਤ VDfgType::NeqCase:
+        ਹਾਲਤ VDfgType::NeqWild:
+        ਹਾਲਤ VDfgType::Not:
+        ਹਾਲਤ VDfgType::OneHot:
+        ਹਾਲਤ VDfgType::OneHot0:
+        ਹਾਲਤ VDfgType::Or:
+        ਹਾਲਤ VDfgType::Pow:
+        ਹਾਲਤ VDfgType::PowSS:
+        ਹਾਲਤ VDfgType::PowSU:
+        ਹਾਲਤ VDfgType::PowUS:
+        ਹਾਲਤ VDfgType::RedAnd:
+        ਹਾਲਤ VDfgType::RedOr:
+        ਹਾਲਤ VDfgType::RedXor:
+        ਹਾਲਤ VDfgType::Rep:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_L:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_R:
+        ਹਾਲਤ VDfgType::ਖਿਸਕਾਓ_RS:
+        ਹਾਲਤ VDfgType::ਧਾਰਾ_L:
+        ਹਾਲਤ VDfgType::ਧਾਰਾ_R:
+        ਹਾਲਤ VDfgType::Sub:
+        ਹਾਲਤ VDfgType::Xor: ਵਾਪਸ ਸੱਚ;
         }
         VL_UNREACHABLE;
     }
 
     // Compares the sources of 'a' and 'b' for equivalence
-    bool sourcesEquivalent(const DfgVertex& a, const DfgVertex& b) const {
-        for (size_t i = 0; i < a.nInputs(); ++i) {
-            const DfgVertex* const ap = a.inputp(i);
-            const DfgVertex* const bp = b.inputp(i);
-            if (!ap && !bp) continue;
-            if (!ap || !bp) return false;
-            if (!vertexEquivalent(*ap, *bp)) return false;  // Graph is acyclic, so this terminates
+    ਤਾਰਕਿਕ sourcesEquivalent(ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& a, ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& b) ਅਚਲ {
+        ਲਈ (ਮਾਪ_t i = 0; i < a.nInputs(); ++i) {
+            ਅਚਲ Dfg_ਸ਼ੀਰਸ਼* ਅਚਲ ap = a.inputp(i);
+            ਅਚਲ Dfg_ਸ਼ੀਰਸ਼* ਅਚਲ bp = b.inputp(i);
+            ਜੇ (!ap && !bp) ਜਾਰੀ;
+            ਜੇ (!ap || !bp) ਵਾਪਸ ਝੂਠ;
+            ਜੇ (!ਸ਼ੀਰਸ਼_Equivalent(*ap, *bp)) ਵਾਪਸ ਝੂਠ;  // Graph is acyclic, so this terminates
         }
-        return true;
+        ਵਾਪਸ ਸੱਚ;
     }
 
     // Compares 'a' and 'b' for equivalence
-    bool vertexEquivalent(const DfgVertex& a, const DfgVertex& b) const {
+    ਤਾਰਕਿਕ ਸ਼ੀਰਸ਼_Equivalent(ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& a, ਅਚਲ Dfg_ਸ਼ੀਰਸ਼& b) ਅਚਲ {
         // If same vertex, then equal
-        if (&a == &b) return true;
+        ਜੇ (&a == &b) ਵਾਪਸ ਸੱਚ;
 
         // If different type, then not equal
-        if (a.type() != b.type()) return false;
+        ਜੇ (a.type() != b.type()) ਵਾਪਸ ਝੂਠ;
 
         // If different data type, then not equal
-        if (a.dtype() != b.dtype()) return false;
+        ਜੇ (a.dtype() != b.dtype()) ਵਾਪਸ ਝੂਠ;
 
         // If different number of inputs, then not equal
-        if (a.nInputs() != b.nInputs()) return false;
+        ਜੇ (a.nInputs() != b.nInputs()) ਵਾਪਸ ਝੂਠ;
 
         // Check vertex specifics
-        if (!vertexSelfEquivalent(a, b)) return false;
+        ਜੇ (!ਸ਼ੀਰਸ਼_Self_Equivalent(a, b)) ਵਾਪਸ ਝੂਠ;
 
         // A given pair can only be reached more than once if one of the
         // vertices has multiple sinks, or if there was a hash collision.
         // Collisions are rare, so only memoize the result if it can actually
         // be looked up again through multiple paths.
-        if (!a.hasMultipleSinks() && !b.hasMultipleSinks()) return sourcesEquivalent(a, b);
+        ਜੇ (!a.has_ਗੁਣਜ_Sinks() && !b.has_ਗੁਣਜ_Sinks()) ਵਾਪਸ sourcesEquivalent(a, b);
 
         // Need to compare the source vertices, check memo
-        const VertexPair key = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
-        const auto it = m_cache.find(key);
-        if (it != m_cache.end()) return it->second;
+        ਅਚਲ ਸ਼ੀਰਸ਼_Pair ਕੁੰਜੀ = (&a < &b) ? std::make_pair(&a, &b) : std::make_pair(&b, &a);
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it = m_cache.ਲੱਭੋ(ਕੁੰਜੀ);
+        ਜੇ (it != m_cache.ਸਿਰਾ()) ਵਾਪਸ it->ਦੂਜਾ;
 
         // Not memoized yet, so compute and memoize, reserve table on first insert
-        const bool equal = sourcesEquivalent(a, b);
-        if (VL_UNLIKELY(m_cache.empty())) m_cache.reserve(m_size / 4);
-        m_cache.insert({key, equal});
+        ਅਚਲ ਤਾਰਕਿਕ equal = sourcesEquivalent(a, b);
+        ਜੇ (VL_UNLIKELY(m_cache.ਖਾਲੀ_ਥਾਵਾਂ())) m_cache.reserve(m_ਮਾਪ / 4);
+        m_cache.ਪਾਓ({ਕੁੰਜੀ, equal});
 
         // The predicate result
-        return equal;
+        ਵਾਪਸ equal;
     }
 };
 
 // Combine equivalent operation vertices
-void dfgCseCombineEquivalent(DfgGraph& dfg, V3DfgCseContext& ctx) {
+ਖਾਲੀ dfgCseCombineEquivalent(Dfg_ਗ੍ਰਾਫ& dfg, V3DfgCseContext& ctx) {
     // Delete unused constants, so the pre-hashing below need not consider them
-    for (DfgConst* const vtxp : dfg.constVertices().unlinkable()) {
-        if (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
+    ਲਈ (DfgConst* ਅਚਲ vtxp : dfg.constVertices().unlinkable()) {
+        ਜੇ (!vtxp->hasSinks()) VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
     }
 
     // Set of unique vertices. This set does all the work identifying equivalent vertices.
-    V3HashSet<DfgVertex*, DfgCseHash, DfgCseEqual> uniqueVtxps{DfgCseHash{dfg}, DfgCseEqual{dfg}};
+    V3_Hash_ਸੈੱਟ<Dfg_ਸ਼ੀਰਸ਼*, DfgCseHash, DfgCseEqual> uniqueVtxps{DfgCseHash{dfg}, DfgCseEqual{dfg}};
     // There is at most one entry per vertex
-    uniqueVtxps.reserve(dfg.size());
+    uniqueVtxps.reserve(dfg.ਮਾਪ());
 
     // Combine operation vertices
-    for (DfgVertex* const vtxp : dfg.opVertices().unlinkable()) {
+    ਲਈ (Dfg_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : dfg.opVertices().unlinkable()) {
         // Delete unused nodes while we are at it.
-        if (!vtxp->hasSinks()) {
+        ਜੇ (!vtxp->hasSinks()) {
             vtxp->unlinkDelete(dfg);
-            continue;
+            ਜਾਰੀ;
         }
         // Insert the vertex into the set, if an equivalent is found, replace the vertex with it
-        const auto pair = uniqueVtxps.insert(vtxp);
-        if (!pair.second) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = uniqueVtxps.ਪਾਓ(vtxp);
+        ਜੇ (!pair.ਦੂਜਾ) {
             ++ctx.m_eliminated;
-            vtxp->replaceWith(*pair.first);
+            vtxp->replaceWith(*pair.ਪਹਿਲਾ);
             VL_DO_DANGLING(vtxp->unlinkDelete(dfg), vtxp);
         }
     }
 }
 
-void V3DfgPasses::cse(DfgGraph& dfg, V3DfgCseContext& ctx) {
+ਖਾਲੀ V3DfgPasses::cse(Dfg_ਗ੍ਰਾਫ& dfg, V3DfgCseContext& ctx) {
     dfgCseCombineEquivalent(dfg, ctx);
-    V3DfgPasses::removeUnused(dfg);
+    V3DfgPasses::remove_ਅਣਵਰਤਿਆ(dfg);
 }

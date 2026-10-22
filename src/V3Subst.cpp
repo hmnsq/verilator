@@ -22,108 +22,108 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Subst.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Subst.h"
 
-#include "V3Const.h"
-#include "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Const.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
 
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Data strored for every variable that tracks assignments and usage
 
-class SubstVarEntry final {
-    friend class SubstValidVisitor;
+ਵਰਗ Subst_Var_ਇੰਦਰਾਜ final {
+    ਮਿੱਤਰ ਵਰਗ SubstValidVisitor;
 
     // SubstVarEntry contains a Record for each word, and one extra for the whole variable
-    struct Record final {
+    ਬਣਤਰ ਰਿਕਾਰਡ_2 final {
         // MEMBERS
-        AstNodeAssign* m_assignp;  // Last assignment to this part
-        uint32_t m_step;  // Step number of last assignment. 0 means invalid entry.
-        bool m_used;  // True if consumed. Can be set even if entry is invalid.
+        Ast_ਗੰਢ_ਸੌਂਪੋ* m_assignp;  // Last assignment to this part
+        uint32_t m_ਕਦਮ;  // Step number of last assignment. 0 means invalid entry.
+        ਤਾਰਕਿਕ m_ਵਰਤਿਆ;  // True if consumed. Can be set even if entry is invalid.
         // CONSTRUCTOR
-        Record() { invalidate(); }
+        ਰਿਕਾਰਡ_2() { invalidate(); }
         // METHODS
-        void invalidate() {
-            m_assignp = nullptr;
-            m_step = 0;
-            m_used = false;
+        ਖਾਲੀ invalidate() {
+            m_assignp = ਖਾਲੀ_ਸੂਚਕ;
+            m_ਕਦਮ = 0;
+            m_ਵਰਤਿਆ = ਝੂਠ;
         }
     };
 
     // MEMBERS
     // Variable this SubstVarEntry tracks
-    AstVar* const m_varp;
+    AstVar* ਅਚਲ m_varp;
     // The recrod for whole variable tracking
-    Record m_wholeRecord;
+    ਰਿਕਾਰਡ_2 m_ਸਾਰਾ_ਰਿਕਾਰਡ;
     // A record for each word in the variable
-    std::vector<Record> m_wordRecords{static_cast<size_t>(m_varp->widthWords()), Record{}};
+    std::ਸਦਿਸ਼<ਰਿਕਾਰਡ_2> m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ{static_cast<ਮਾਪ_t>(m_varp->ਚੌੜਾਈ_ਸ਼ਬਦ()), ਰਿਕਾਰਡ_2{}};
 
     // METHDOS
-    void deleteAssignmentIfUnused(Record& record, size_t& nAssignDeleted) {
-        if (!record.m_assignp) return;
-        if (record.m_used) return;
-        ++nAssignDeleted;
-        VL_DO_DANGLING(record.m_assignp->unlinkFrBack()->deleteTree(), record.m_assignp);
+    ਖਾਲੀ delete_Assignment_If_ਅਣਵਰਤਿਆ(ਰਿਕਾਰਡ_2& ਰਿਕਾਰਡ, ਮਾਪ_t& n_ਸੌਂਪੋ_Deleted) {
+        ਜੇ (!ਰਿਕਾਰਡ.m_assignp) ਵਾਪਸ;
+        ਜੇ (ਰਿਕਾਰਡ.m_ਵਰਤਿਆ) ਵਾਪਸ;
+        ++n_ਸੌਂਪੋ_Deleted;
+        VL_DO_DANGLING(ਰਿਕਾਰਡ.m_assignp->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), ਰਿਕਾਰਡ.m_assignp);
     }
 
-    AstNodeExpr* substRecord(Record& record);
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* subst_ਰਿਕਾਰਡ(ਰਿਕਾਰਡ_2& ਰਿਕਾਰਡ);
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit SubstVarEntry(AstVar* varp)
+    ਸਪਸ਼ਟ Subst_Var_ਇੰਦਰਾਜ(AstVar* varp)
         : m_varp{varp} {}
-    ~SubstVarEntry() = default;
+    ~Subst_Var_ਇੰਦਰਾਜ() = ਮੂਲ;
 
     // Record assignment of whole variable. The given 'assp' can be null, which means
     // the variable is known to be assigned, but to an unknown value.
-    void assignWhole(AstNodeAssign* assp, uint32_t step) {
+    ਖਾਲੀ ਸੌਂਪੋ_ਸਾਰਾ(Ast_ਗੰਢ_ਸੌਂਪੋ* assp, uint32_t ਕਦਮ) {
         // Invalidate all word records
-        for (Record& wordRecord : m_wordRecords) wordRecord.invalidate();
+        ਲਈ (ਰਿਕਾਰਡ_2& ਸ਼ਬਦ_ਰਿਕਾਰਡ : m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ) ਸ਼ਬਦ_ਰਿਕਾਰਡ.invalidate();
         // Set whole record
-        m_wholeRecord.m_assignp = assp;
-        m_wholeRecord.m_step = step;
-        m_wholeRecord.m_used = false;
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_assignp = assp;
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਕਦਮ = ਕਦਮ;
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਵਰਤਿਆ = ਝੂਠ;
     }
 
     // Like assignWhole word, but records assignment to a specific word of the variable.
-    void assignWord(AstNodeAssign* assp, uint32_t step, uint32_t word) {
+    ਖਾਲੀ ਸੌਂਪੋ_ਸ਼ਬਦ(Ast_ਗੰਢ_ਸੌਂਪੋ* assp, uint32_t ਕਦਮ, uint32_t ਸ਼ਬਦ) {
         // Invalidate whole record
-        m_wholeRecord.invalidate();
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.invalidate();
         // Set word record
-        Record& wordRecord = m_wordRecords[word];
-        wordRecord.m_assignp = assp;
-        wordRecord.m_step = step;
-        wordRecord.m_used = false;
+        ਰਿਕਾਰਡ_2& ਸ਼ਬਦ_ਰਿਕਾਰਡ = m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ[ਸ਼ਬਦ];
+        ਸ਼ਬਦ_ਰਿਕਾਰਡ.m_assignp = assp;
+        ਸ਼ਬਦ_ਰਿਕਾਰਡ.m_ਕਦਮ = ਕਦਮ;
+        ਸ਼ਬਦ_ਰਿਕਾਰਡ.m_ਵਰਤਿਆ = ਝੂਠ;
     }
 
     // Mark the whole variable as used (value consumed)
-    void usedWhole() {
-        m_wholeRecord.m_used = true;
-        for (Record& wordRecord : m_wordRecords) wordRecord.m_used = true;
+    ਖਾਲੀ ਵਰਤਿਆ_ਸਾਰਾ() {
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਵਰਤਿਆ = ਸੱਚ;
+        ਲਈ (ਰਿਕਾਰਡ_2& ਸ਼ਬਦ_ਰਿਕਾਰਡ : m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ) ਸ਼ਬਦ_ਰਿਕਾਰਡ.m_ਵਰਤਿਆ = ਸੱਚ;
     }
 
     // Mark the specific word as used (value consumed)
-    void usedWord(uint32_t word) {
-        m_wholeRecord.m_used = true;
-        m_wordRecords[word].m_used = true;
+    ਖਾਲੀ ਵਰਤਿਆ_ਸ਼ਬਦ(uint32_t ਸ਼ਬਦ) {
+        m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਵਰਤਿਆ = ਸੱਚ;
+        m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ[ਸ਼ਬਦ].m_ਵਰਤਿਆ = ਸੱਚ;
     }
 
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWhole() { return substRecord(m_wholeRecord); }
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* subst_ਸਾਰਾ() { ਵਾਪਸ subst_ਰਿਕਾਰਡ(m_ਸਾਰਾ_ਰਿਕਾਰਡ); }
     // Returns substitution of whole word, or nullptr if not known/stale
-    AstNodeExpr* substWord(uint32_t word) { return substRecord(m_wordRecords[word]); }
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* subst_ਸ਼ਬਦ(uint32_t ਸ਼ਬਦ) { ਵਾਪਸ subst_ਰਿਕਾਰਡ(m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ[ਸ਼ਬਦ]); }
 
-    void deleteUnusedAssignments(size_t& nWordAssignDeleted, size_t& nWholeAssignDeleted) {
+    ਖਾਲੀ delete_ਅਣਵਰਤਿਆ_Assignments(ਮਾਪ_t& n_ਸ਼ਬਦ_ਸੌਂਪੋ_Deleted, ਮਾਪ_t& n_ਸਾਰਾ_ਸੌਂਪੋ_Deleted) {
         // Delete assignments to temporaries if they are not used
-        if (!m_varp->isStatementTemp()) return;
-        for (Record& wordRecord : m_wordRecords)
-            deleteAssignmentIfUnused(wordRecord, nWordAssignDeleted);
-        deleteAssignmentIfUnused(m_wholeRecord, nWholeAssignDeleted);
+        ਜੇ (!m_varp->is_Statement_ਆਰਜ਼ੀ()) ਵਾਪਸ;
+        ਲਈ (ਰਿਕਾਰਡ_2& ਸ਼ਬਦ_ਰਿਕਾਰਡ : m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ)
+            delete_Assignment_If_ਅਣਵਰਤਿਆ(ਸ਼ਬਦ_ਰਿਕਾਰਡ, n_ਸ਼ਬਦ_ਸੌਂਪੋ_Deleted);
+        delete_Assignment_If_ਅਣਵਰਤਿਆ(m_ਸਾਰਾ_ਰਿਕਾਰਡ, n_ਸਾਰਾ_ਸੌਂਪੋ_Deleted);
     }
 };
 
@@ -131,212 +131,212 @@ public:
 // See if any variables in the expression we are considering to
 // substitute have changed value since we recorded the assignment.
 
-class SubstValidVisitor final : public VNVisitorConst {
+ਵਰਗ SubstValidVisitor final : ਜਨਤਕ VNVisitorConst {
     // NODE STATE
     // See SubstVisitor
 
     // STATE
-    const uint32_t m_step;  // Step number where assignment was recorded
-    bool m_valid = true;  // Is the expression we are considering to substitute valid
+    ਅਚਲ uint32_t m_ਕਦਮ;  // Step number where assignment was recorded
+    ਤਾਰਕਿਕ m_valid = ਸੱਚ;  // Is the expression we are considering to substitute valid
 
     // METHODS
-    SubstVarEntry& getEntry(AstVarRef* nodep) {
+    Subst_Var_ਇੰਦਰਾਜ& get_ਇੰਦਰਾਜ(AstVarRef* nodep) {
         // This vistor is always invoked on the RHS of an assignment we are considering to
         // substitute. Variable references must have all been recorded when visiting the
         // assignments RHS, so the SubstVarEntry must exist for each referenced variable.
-        return *nodep->varp()->user1u().to<SubstVarEntry*>();
+        ਵਾਪਸ *nodep->varp()->user1u().ਮੰਜ਼ਿਲ<Subst_Var_ਇੰਦਰਾਜ*>();
     }
 
     // VISITORS
-    void visit(AstWordSel* nodep) override {
-        if (!m_valid) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸ਼ਬਦ_Sel* nodep) override {
+        ਜੇ (!m_valid) ਵਾਪਸ;
 
-        if (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
-            if (AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
-                SubstVarEntry& entry = getEntry(refp);
+        ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(nodep->fromp(), VarRef)) {
+            ਜੇ (AstConst* ਅਚਲ idxp = VN_CAST(nodep->bitp(), Const)) {
+                Subst_Var_ਇੰਦਰਾਜ& ਇੰਦਰਾਜ = get_ਇੰਦਰਾਜ(refp);
                 // If either the whole variable, or the indexed word was written to
                 // after the original assignment was recorded, the value is invalid.
-                if (m_step < entry.m_wholeRecord.m_step) m_valid = false;
-                if (m_step < entry.m_wordRecords[idxp->toUInt()].m_step) m_valid = false;
-                return;
+                ਜੇ (m_ਕਦਮ < ਇੰਦਰਾਜ.m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਕਦਮ) m_valid = ਝੂਠ;
+                ਜੇ (m_ਕਦਮ < ਇੰਦਰਾਜ.m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ[idxp->ਮੰਜ਼ਿਲ_UInt()].m_ਕਦਮ) m_valid = ਝੂਠ;
+                ਵਾਪਸ;
             }
         }
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_valid) return;
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
+        ਜੇ (!m_valid) ਵਾਪਸ;
 
         // If either the whole variable, or any of the words were written to
         // after the original assignment was recorded, the value is invalid.
-        const SubstVarEntry& entry = getEntry(nodep);
-        if (m_step < entry.m_wholeRecord.m_step) {
-            m_valid = false;
-            return;
+        ਅਚਲ Subst_Var_ਇੰਦਰਾਜ& ਇੰਦਰਾਜ = get_ਇੰਦਰਾਜ(nodep);
+        ਜੇ (m_ਕਦਮ < ਇੰਦਰਾਜ.m_ਸਾਰਾ_ਰਿਕਾਰਡ.m_ਕਦਮ) {
+            m_valid = ਝੂਠ;
+            ਵਾਪਸ;
         }
-        for (const SubstVarEntry::Record& wordRecord : entry.m_wordRecords) {
-            if (m_step < wordRecord.m_step) {
-                m_valid = false;
-                return;
+        ਲਈ (ਅਚਲ Subst_Var_ਇੰਦਰਾਜ::ਰਿਕਾਰਡ_2& ਸ਼ਬਦ_ਰਿਕਾਰਡ : ਇੰਦਰਾਜ.m_ਸ਼ਬਦ_ਰਿਕਾਰਡਾਂ) {
+            ਜੇ (m_ਕਦਮ < ਸ਼ਬਦ_ਰਿਕਾਰਡ.m_ਕਦਮ) {
+                m_valid = ਝੂਠ;
+                ਵਾਪਸ;
             }
         }
     }
 
-    void visit(AstConst*) override {}  // Accelerate
-    void visit(AstText*) override {}  // CExpr/CStmt literal text has no variable dependencies
+    ਖਾਲੀ ਦੇਖੋ(AstConst*) override {}  // Accelerate
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਪਾਠ*) override {}  // CExpr/CStmt literal text has no variable dependencies
 
-    void visit(AstNodeExpr* nodep) override {
-        if (!m_valid) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) override {
+        ਜੇ (!m_valid) ਵਾਪਸ;
         iterateChildrenConst(nodep);
     }
 
-    void visit(AstNode* nodep) override { nodep->v3fatalSrc("Non AstNodeExpr under AstNodeExpr"); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { nodep->v3fatalSrc("Non AstNodeExpr under AstNodeExpr"); }
 
     // CONSTRUCTORS
-    explicit SubstValidVisitor(SubstVarEntry::Record& record)
-        : m_step{record.m_step} {
-        iterateConst(record.m_assignp->rhsp());
+    ਸਪਸ਼ਟ SubstValidVisitor(Subst_Var_ਇੰਦਰਾਜ::ਰਿਕਾਰਡ_2& ਰਿਕਾਰਡ)
+        : m_ਕਦਮ{ਰਿਕਾਰਡ.m_ਕਦਮ} {
+        iterateConst(ਰਿਕਾਰਡ.m_assignp->rhsp());
     }
-    ~SubstValidVisitor() override = default;
+    ~SubstValidVisitor() override = ਮੂਲ;
 
-public:
-    static bool valid(SubstVarEntry::Record& record) {
-        if (!record.m_assignp) return false;
-        return SubstValidVisitor{record}.m_valid;
+ਜਨਤਕ:
+    ਸਥਿਰ ਤਾਰਕਿਕ valid(Subst_Var_ਇੰਦਰਾਜ::ਰਿਕਾਰਡ_2& ਰਿਕਾਰਡ) {
+        ਜੇ (!ਰਿਕਾਰਡ.m_assignp) ਵਾਪਸ ਝੂਠ;
+        ਵਾਪਸ SubstValidVisitor{ਰਿਕਾਰਡ}.m_valid;
     }
 };
 
-AstNodeExpr* SubstVarEntry::substRecord(SubstVarEntry::Record& record) {
-    if (!SubstValidVisitor::valid(record)) return nullptr;
-    AstNodeExpr* const rhsp = record.m_assignp->rhsp();
-    UDEBUGONLY(UASSERT_OBJ(rhsp->isPure(), record.m_assignp, "Substituting impure expression"););
-    return rhsp;
+Ast_ਗੰਢ_ਵਿਅੰਜਕ* Subst_Var_ਇੰਦਰਾਜ::subst_ਰਿਕਾਰਡ(Subst_Var_ਇੰਦਰਾਜ::ਰਿਕਾਰਡ_2& ਰਿਕਾਰਡ) {
+    ਜੇ (!SubstValidVisitor::valid(ਰਿਕਾਰਡ)) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
+    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ rhsp = ਰਿਕਾਰਡ.m_assignp->rhsp();
+    UDEBUGONLY(UASSERT_OBJ(rhsp->is_ਸ਼ੁੱਧ(), ਰਿਕਾਰਡ.m_assignp, "Substituting impure expression"););
+    ਵਾਪਸ rhsp;
 }
 
 //######################################################################
 // Substitution visitor
 
-class SubstVisitor final : public VNVisitor {
+ਵਰਗ SubstVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE - only Under AstCFunc
     // AstVar::user1p -> SubstVarEntry* for assignment tracking. Also used by SubstValidVisitor
 
     // STATE
-    std::deque<SubstVarEntry> m_entries;  // Storage for SubstVarEntry instances
+    std::deque<Subst_Var_ਇੰਦਰਾਜ> m_entries;  // Storage for SubstVarEntry instances
     uint32_t m_ops = 0;  // Number of nodes on the RHS of an assignment
-    uint32_t m_assignStep = 0;  // Assignment number to determine variable lifetimes
-    const AstCFunc* m_funcp = nullptr;  // Current function we are under
-    size_t m_nSubst = 0;  // Number of substitutions performed - for avoiding constant folding
+    uint32_t m_ਸੌਂਪੋ_ਕਦਮ = 0;  // Assignment number to determine variable lifetimes
+    ਅਚਲ AstCFunc* m_funcp = ਖਾਲੀ_ਸੂਚਕ;  // Current function we are under
+    ਮਾਪ_t m_nSubst = 0;  // Number of substitutions performed - for avoiding constant folding
     // Statistics
-    size_t m_nWordSubstituted = 0;  // Number of words substituted
-    size_t m_nWholeSubstituted = 0;  // Number of whole variables substituted
-    size_t m_nWordAssignDeleted = 0;  // Number of word assignments deleted
-    size_t m_nWholeAssignDeleted = 0;  // Number of whole variable assignments deleted
-    size_t m_nConstWordsReinlined = 0;  // Number of constant words substituted
+    ਮਾਪ_t m_n_ਸ਼ਬਦ_Substituted = 0;  // Number of words substituted
+    ਮਾਪ_t m_n_ਸਾਰਾ_Substituted = 0;  // Number of whole variables substituted
+    ਮਾਪ_t m_n_ਸ਼ਬਦ_ਸੌਂਪੋ_Deleted = 0;  // Number of word assignments deleted
+    ਮਾਪ_t m_n_ਸਾਰਾ_ਸੌਂਪੋ_Deleted = 0;  // Number of whole variable assignments deleted
+    ਮਾਪ_t m_n_Const_ਸ਼ਬਦ_Reinlined = 0;  // Number of constant words substituted
 
-    static constexpr uint32_t SUBST_MAX_OPS_SUBST = 30;  // Maximum number of ops to substitute in
-    static constexpr uint32_t SUBST_MAX_OPS_NA = 9999;  // Not allowed to substitute
+    ਸਥਿਰ constexpr uint32_t SUBST_MAX_OPS_SUBST = 30;  // Maximum number of ops to substitute in
+    ਸਥਿਰ constexpr uint32_t SUBST_MAX_OPS_NA = 9999;  // Not allowed to substitute
 
     // METHODS
-    SubstVarEntry& getEntry(AstVarRef* nodep) {
-        AstVar* const varp = nodep->varp();
-        if (!varp->user1p()) {
-            m_entries.emplace_back(varp);
-            varp->user1p(&m_entries.back());
+    Subst_Var_ਇੰਦਰਾਜ& get_ਇੰਦਰਾਜ(AstVarRef* nodep) {
+        AstVar* ਅਚਲ varp = nodep->varp();
+        ਜੇ (!varp->user1p()) {
+            m_entries.emplace_ਪਿੱਠ(varp);
+            varp->user1p(&m_entries.ਪਿੱਠ());
         }
-        return *varp->user1u().to<SubstVarEntry*>();
+        ਵਾਪਸ *varp->user1u().ਮੰਜ਼ਿਲ<Subst_Var_ਇੰਦਰਾਜ*>();
     }
 
-    void simplify(AstNodeExpr* exprp) {
+    ਖਾਲੀ simplify(Ast_ਗੰਢ_ਵਿਅੰਜਕ* exprp) {
         // Often constant, so short circuit
-        if (VN_IS(exprp, Const)) return;
+        ਜੇ (VN_IS(exprp, Const)) ਵਾਪਸ;
         // Iterate expression, then constant fold it if anything changed
-        const size_t nSubstBefore = m_nSubst;
-        exprp = VN_AS(iterateSubtreeReturnEdits(exprp), NodeExpr);
-        if (nSubstBefore != m_nSubst) V3Const::constifyEditCpp(exprp);
+        ਅਚਲ ਮਾਪ_t nSubstBefore = m_nSubst;
+        exprp = VN_AS(iterateSubtreeReturnEdits(exprp), ਗੰਢ_ਵਿਅੰਜਕ);
+        ਜੇ (nSubstBefore != m_nSubst) V3Const::constifyEditCpp(exprp);
     }
 
     // The way the analysis algorithm works based on statement numbering only works
     // for variables that are written in the same basic block (ignoring AstCond) as
     // where they are consumed. The temporaries introduced in V3Premit are such, so
     // only substitute those for now.
-    static bool isSubstitutable(AstVar* nodep) {
-        return nodep->isStatementTemp() && !nodep->noSubst();
+    ਸਥਿਰ ਤਾਰਕਿਕ isSubstitutable(AstVar* nodep) {
+        ਵਾਪਸ nodep->is_Statement_ਆਰਜ਼ੀ() && !nodep->noSubst();
     }
 
-    void substitute(AstNode* nodep, AstNodeExpr* substp) {
-        AstNodeExpr* newp = substp->backp() ? substp->cloneTreePure(true) : substp;
-        if (!nodep->isQuad() && newp->isQuad()) {
-            newp = new AstCCast{newp->fileline(), newp, nodep};
+    ਖਾਲੀ substitute(Ast_ਗੰਢ* nodep, Ast_ਗੰਢ_ਵਿਅੰਜਕ* substp) {
+        Ast_ਗੰਢ_ਵਿਅੰਜਕ* newp = substp->backp() ? substp->clone_ਰੁੱਖ_ਸ਼ੁੱਧ(ਸੱਚ) : substp;
+        ਜੇ (!nodep->isQuad() && newp->isQuad()) {
+            newp = ਨਵਾਂ AstCCast{newp->fileline(), newp, nodep};
         }
         nodep->replaceWith(newp);
-        VL_DO_DANGLING(nodep->deleteTree(), nodep);
+        VL_DO_DANGLING(nodep->delete_ਰੁੱਖ(), nodep);
         ++m_nSubst;
     }
 
     // VISITORS
 
-    void visit(AstNetlist* nodep) override { iterateAndNextNull(nodep->modulesp()); }
+    ਖਾਲੀ ਦੇਖੋ(AstNetlist* nodep) override { iterate_And_ਅਗਲਾ_Null(nodep->modulesp()); }
 
-    void visit(AstCFunc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
         UASSERT_OBJ(!m_funcp, nodep, "Should not nest");
-        UASSERT_OBJ(m_entries.empty(), nodep, "Should not visit outside functions");
+        UASSERT_OBJ(m_entries.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Should not visit outside functions");
 
         // Process the function body
         {
             VL_RESTORER(m_funcp);
             m_funcp = nodep;
-            const VNUser1InUse m_inuser1;
+            ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
             iterateChildren(nodep);
             // Deletes unused assignments and clear entries
-            for (SubstVarEntry& entry : m_entries) {
-                entry.deleteUnusedAssignments(m_nWordAssignDeleted, m_nWholeAssignDeleted);
+            ਲਈ (Subst_Var_ਇੰਦਰਾਜ& ਇੰਦਰਾਜ : m_entries) {
+                ਇੰਦਰਾਜ.delete_ਅਣਵਰਤਿਆ_Assignments(m_n_ਸ਼ਬਦ_ਸੌਂਪੋ_Deleted, m_n_ਸਾਰਾ_ਸੌਂਪੋ_Deleted);
             }
             m_entries.clear();
         }
 
         // Constant fold here, as Ast size can likely be reduced
-        if (v3Global.opt.fConstEager()) V3Const::constifyEditCpp(nodep);
+        ਜੇ (v3Global.opt.fConstEager()) V3Const::constifyEditCpp(nodep);
     }
 
-    void visit(AstNodeAssign* nodep) override {
-        if (!m_funcp) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਸੌਂਪੋ* nodep) override {
+        ਜੇ (!m_funcp) ਵਾਪਸ;
 
-        const uint32_t ops = [&]() {
+        ਅਚਲ uint32_t ops = [&]() {
             VL_RESTORER(m_ops);
             m_ops = 0;
             // Simplify the RHS
             simplify(nodep->rhsp());
             // If the became constant, we can continue substituting it
-            return VN_IS(nodep->rhsp(), Const) ? 0 : m_ops;
+            ਵਾਪਸ VN_IS(nodep->rhsp(), Const) ? 0 : m_ops;
         }();
 
         // Assignment that defines the value, which is either this 'nodep',
         // or nullptr, if the value should not be substituted.
-        const auto getAssignp = [&](AstVarRef* refp) -> AstNodeAssign* {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ getAssignp = [&](AstVarRef* refp) -> Ast_ਗੰਢ_ਸੌਂਪੋ* {
             // If too complex, don't substitute
-            if (ops > SUBST_MAX_OPS_SUBST) return nullptr;
+            ਜੇ (ops > SUBST_MAX_OPS_SUBST) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             // AstCvtPackedToArray can't be anywhere else than on the RHS of assignment
-            if (VN_IS(nodep->rhsp(), CvtPackedToArray)) return nullptr;
+            ਜੇ (VN_IS(nodep->rhsp(), Cvt_Packed_ਮੰਜ਼ਿਲ_Array)) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             // If non-const but want const subtitutions only
-            if (refp->varp()->substConstOnly() && !VN_IS(nodep->rhsp(), Const)) return nullptr;
+            ਜੇ (refp->varp()->substConstOnly() && !VN_IS(nodep->rhsp(), Const)) ਵਾਪਸ ਖਾਲੀ_ਸੂਚਕ;
             // Otherwise can substitute based on the assignment
-            return nodep;
+            ਵਾਪਸ nodep;
         };
 
         // If LHS is a whole variable reference, track the whole variable
-        if (AstVarRef* const refp = VN_CAST(nodep->lhsp(), VarRef)) {
-            getEntry(refp).assignWhole(getAssignp(refp), ++m_assignStep);
-            return;
+        ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(nodep->lhsp(), VarRef)) {
+            get_ਇੰਦਰਾਜ(refp).ਸੌਂਪੋ_ਸਾਰਾ(getAssignp(refp), ++m_ਸੌਂਪੋ_ਕਦਮ);
+            ਵਾਪਸ;
         }
 
         // If LHS is a known word reference, track the word
-        if (const AstWordSel* const selp = VN_CAST(nodep->lhsp(), WordSel)) {
-            if (AstVarRef* const refp = VN_CAST(selp->fromp(), VarRef)) {
+        ਜੇ (ਅਚਲ Ast_ਸ਼ਬਦ_Sel* ਅਚਲ selp = VN_CAST(nodep->lhsp(), ਸ਼ਬਦ_Sel)) {
+            ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(selp->fromp(), VarRef)) {
                 // Simplify the index
                 simplify(selp->bitp());
-                if (const AstConst* const idxp = VN_CAST(selp->bitp(), Const)) {
-                    getEntry(refp).assignWord(getAssignp(refp), ++m_assignStep, idxp->toUInt());
-                    return;
+                ਜੇ (ਅਚਲ AstConst* ਅਚਲ idxp = VN_CAST(selp->bitp(), Const)) {
+                    get_ਇੰਦਰਾਜ(refp).ਸੌਂਪੋ_ਸ਼ਬਦ(getAssignp(refp), ++m_ਸੌਂਪੋ_ਕਦਮ, idxp->ਮੰਜ਼ਿਲ_UInt());
+                    ਵਾਪਸ;
                 }
             }
         }
@@ -345,51 +345,51 @@ class SubstVisitor final : public VNVisitor {
         iterate(nodep->lhsp());
     }
 
-    void visit(AstWordSel* nodep) override {
-        if (!m_funcp) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸ਼ਬਦ_Sel* nodep) override {
+        ਜੇ (!m_funcp) ਵਾਪਸ;
 
         // Simplify the index
         simplify(nodep->bitp());
 
         // If this is a known word reference, track/substitute it
-        if (AstVarRef* const refp = VN_CAST(nodep->fromp(), VarRef)) {
-            if (const AstConst* const idxp = VN_CAST(nodep->bitp(), Const)) {
-                SubstVarEntry& entry = getEntry(refp);
-                const uint32_t word = idxp->toUInt();
+        ਜੇ (AstVarRef* ਅਚਲ refp = VN_CAST(nodep->fromp(), VarRef)) {
+            ਜੇ (ਅਚਲ AstConst* ਅਚਲ idxp = VN_CAST(nodep->bitp(), Const)) {
+                Subst_Var_ਇੰਦਰਾਜ& ਇੰਦਰਾਜ = get_ਇੰਦਰਾਜ(refp);
+                ਅਚਲ uint32_t ਸ਼ਬਦ = idxp->ਮੰਜ਼ਿਲ_UInt();
 
                 // If it's a write, reset tracking as we don't know the assigned value,
                 // otherwise we would have picked it up in visit(AstNodeAssign*)
-                if (refp->access().isWriteOrRW()) {
-                    entry.assignWord(nullptr, ++m_assignStep, word);
-                    return;
+                ਜੇ (refp->access().isWriteOrRW()) {
+                    ਇੰਦਰਾਜ.ਸੌਂਪੋ_ਸ਼ਬਦ(ਖਾਲੀ_ਸੂਚਕ, ++m_ਸੌਂਪੋ_ਕਦਮ, ਸ਼ਬਦ);
+                    ਵਾਪਸ;
                 }
 
                 // Otherwise it's a read,
                 UASSERT_OBJ(refp->access().isReadOnly(), nodep, "Invalid access");
 
                 // If it's a constant pool variable, substiute with the constant word
-                AstVar* const varp = refp->varp();
-                if (varp->constPoolEntry()) {
-                    AstConst* const constp = VN_AS(varp->valuep(), Const);
-                    const uint32_t value = constp->num().edataWord(word);
-                    FileLine* const flp = nodep->fileline();
-                    ++m_nConstWordsReinlined;
-                    substitute(nodep, new AstConst{flp, AstConst::SizedEData{}, value});
-                    return;
+                AstVar* ਅਚਲ varp = refp->varp();
+                ਜੇ (varp->const_Pool_ਇੰਦਰਾਜ()) {
+                    AstConst* ਅਚਲ constp = VN_AS(varp->valuep(), Const);
+                    ਅਚਲ uint32_t ਮੁੱਲ = constp->ਅੰਕ().edata_ਸ਼ਬਦ(ਸ਼ਬਦ);
+                    File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
+                    ++m_n_Const_ਸ਼ਬਦ_Reinlined;
+                    substitute(nodep, ਨਵਾਂ AstConst{flp, AstConst::SizedEData{}, ਮੁੱਲ});
+                    ਵਾਪਸ;
                 }
 
                 // Substitute other variables if possible
-                if (isSubstitutable(refp->varp())) {
-                    if (AstNodeExpr* const substp = entry.substWord(word)) {
-                        ++m_nWordSubstituted;
+                ਜੇ (isSubstitutable(refp->varp())) {
+                    ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ substp = ਇੰਦਰਾਜ.subst_ਸ਼ਬਦ(ਸ਼ਬਦ)) {
+                        ++m_n_ਸ਼ਬਦ_Substituted;
                         substitute(nodep, substp);
-                        return;
+                        ਵਾਪਸ;
                     }
                 }
 
                 // If not substituted, mark the assignment setting this word as used
-                entry.usedWord(word);
-                return;
+                ਇੰਦਰਾਜ.ਵਰਤਿਆ_ਸ਼ਬਦ(ਸ਼ਬਦ);
+                ਵਾਪਸ;
             }
         }
 
@@ -397,72 +397,72 @@ class SubstVisitor final : public VNVisitor {
         iterate(nodep->fromp());
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_funcp) return;
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
+        ਜੇ (!m_funcp) ਵਾਪਸ;
 
-        SubstVarEntry& entry = getEntry(nodep);
+        Subst_Var_ਇੰਦਰਾਜ& ਇੰਦਰਾਜ = get_ਇੰਦਰਾਜ(nodep);
 
         // If it's a write, reset tracking as we don't know the assigned value,
         // otherwise we would have picked it up in visit(AstNodeAssign*)
-        if (nodep->access().isWriteOrRW()) {
-            entry.assignWhole(nullptr, ++m_assignStep);
-            return;
+        ਜੇ (nodep->access().isWriteOrRW()) {
+            ਇੰਦਰਾਜ.ਸੌਂਪੋ_ਸਾਰਾ(ਖਾਲੀ_ਸੂਚਕ, ++m_ਸੌਂਪੋ_ਕਦਮ);
+            ਵਾਪਸ;
         }
 
         // Otherwise it's a read, substitute it if possible
         UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Invalid access");
-        if (isSubstitutable(nodep->varp())) {
-            if (AstNodeExpr* const substp = entry.substWhole()) {
+        ਜੇ (isSubstitutable(nodep->varp())) {
+            ਜੇ (Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ substp = ਇੰਦਰਾਜ.subst_ਸਾਰਾ()) {
                 // Do not substitute a compound wide expression.
                 // The whole point of adding temporaries is to eliminate them.
-                if (!nodep->isWide() || VN_IS(substp, VarRef)) {
-                    ++m_nWholeSubstituted;
+                ਜੇ (!nodep->isWide() || VN_IS(substp, VarRef)) {
+                    ++m_n_ਸਾਰਾ_Substituted;
                     substitute(nodep, substp);
-                    return;
+                    ਵਾਪਸ;
                 }
             }
         }
 
         // If not substituted, mark the assignment setting this variable as used
-        entry.usedWhole();
+        ਇੰਦਰਾਜ.ਵਰਤਿਆ_ਸਾਰਾ();
     }
 
-    void visit(AstNodeExpr* nodep) override {
-        if (!m_funcp) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) override {
+        ਜੇ (!m_funcp) ਵਾਪਸ;
 
         // Count nodes as we descend to track complexity
         ++m_ops;
         // First iterate children, this can cache child purity
         iterateChildren(nodep);
         // Do not substitute impure expressions
-        if (!nodep->isPure()) m_ops = SUBST_MAX_OPS_NA;
+        ਜੇ (!nodep->is_ਸ਼ੁੱਧ()) m_ops = SUBST_MAX_OPS_NA;
     }
 
-    void visit(AstVar*) override {}  // Accelerate
-    void visit(AstConst*) override {}  // Accelerate
+    ਖਾਲੀ ਦੇਖੋ(AstVar*) override {}  // Accelerate
+    ਖਾਲੀ ਦੇਖੋ(AstConst*) override {}  // Accelerate
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit SubstVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ਸਪਸ਼ਟ SubstVisitor(AstNetlist* nodep) { iterate(nodep); }
     ~SubstVisitor() override {
-        V3Stats::addStat("Optimizations, Subst, Substituted temps", m_nSubst);
-        V3Stats::addStat("Optimizations, Subst, Constant words reinlined", m_nConstWordsReinlined);
-        V3Stats::addStat("Optimizations, Subst, Whole variable assignments deleted",
-                         m_nWholeAssignDeleted);
-        V3Stats::addStat("Optimizations, Subst, Whole variables substituted", m_nWholeSubstituted);
-        V3Stats::addStat("Optimizations, Subst, Word assignments deleted", m_nWordAssignDeleted);
-        V3Stats::addStat("Optimizations, Subst, Words substituted", m_nWordSubstituted);
-        UASSERT(m_entries.empty(), "Should not visit outside functions");
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Substituted temps", m_nSubst);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Constant words reinlined", m_n_Const_ਸ਼ਬਦ_Reinlined);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Whole variable assignments deleted",
+                         m_n_ਸਾਰਾ_ਸੌਂਪੋ_Deleted);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Whole variables substituted", m_n_ਸਾਰਾ_Substituted);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Word assignments deleted", m_n_ਸ਼ਬਦ_ਸੌਂਪੋ_Deleted);
+        V3Stats::ਜੋੜੋ_Stat("Optimizations, Subst, Words substituted", m_n_ਸ਼ਬਦ_Substituted);
+        UASSERT(m_entries.ਖਾਲੀ_ਥਾਵਾਂ(), "Should not visit outside functions");
     }
 };
 
 //######################################################################
 // Subst class functions
 
-void V3Subst::substituteAll(AstNetlist* nodep) {
+ਖਾਲੀ V3Subst::substituteAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SubstVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("subst", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("subst", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

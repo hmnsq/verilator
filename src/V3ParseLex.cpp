@@ -14,48 +14,48 @@
 //
 //*************************************************************************
 
-#define VL_MT_DISABLED_CODE_UNIT 1
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VL_MT_DISABLED_ਕੋਡ_UNIT 1
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3ParseImp.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3ParseImp.h"
 
-#include <fstream>
+#ਅਨ੍ਤਰ੍ਭਾਵ <fstream>
 
 //======================================================================
 // Build in LEX script
 
-#define yyFlexLexer V3LexerBase
-#include "V3Lexer.yy.cpp"
-#undef yyFlexLexer
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ yyFlexLexer V3_Lexer_ਅਧਾਰ
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Lexer.yy.cpp"
+#ਪਰਿਭਾਸ਼ਾ_ਰੱਦ yyFlexLexer
 
 //######################################################################
 // Lex-derived class
 
 /// Override the base lexer class so we can add some access functions
-class V3Lexer final : public V3LexerBase {
-public:
+ਵਰਗ V3Lexer final : ਜਨਤਕ V3_Lexer_ਅਧਾਰ {
+ਜਨਤਕ:
     // CONSTRUCTORS
     V3Lexer()
-        : V3LexerBase{nullptr} {}
-    ~V3Lexer() override = default;
+        : V3_Lexer_ਅਧਾਰ{ਖਾਲੀ_ਸੂਚਕ} {}
+    ~V3Lexer() override = ਮੂਲ;
     // METHODS
-    void unputString(const char* textp, size_t length) {
+    ਖਾਲੀ unputString(ਅਚਲ ਅੱਖਰ* textp, ਮਾਪ_t ਲੰਮਾਈ) {
         // Add characters to input stream in back-to-front order
-        const char* cp = textp;
-        for (cp += length - 1; length--; cp--) unput(*cp);
+        ਅਚਲ ਅੱਖਰ* cp = textp;
+        ਲਈ (cp += ਲੰਮਾਈ - 1; ਲੰਮਾਈ--; cp--) unput(*cp);
     }
 };
 
-void V3ParseImp::lexUnputString(const char* textp, size_t length) {
-    parsep()->m_lexerp->unputString(textp, length);
+ਖਾਲੀ V3ParseImp::lexUnputString(ਅਚਲ ਅੱਖਰ* textp, ਮਾਪ_t ਲੰਮਾਈ) {
+    parsep()->m_lexerp->unputString(textp, ਲੰਮਾਈ);
 }
 
-void V3ParseImp::yylexReadTok() {
+ਖਾਲੀ V3ParseImp::yylexReadTok() {
     // Call yylex() remembering last non-whitespace token
-    parsep()->lexFileline()->startToken();
-    const int token = parsep()->m_lexerp->yylex();
+    parsep()->lexFileline()->ਸ਼ੁਰੂ_Token();
+    ਅਚਲ ਪੂਰਨ token = parsep()->m_lexerp->yylex();
     m_lexPrevToken = token;  // Save so can find '#' to parse following number
     yylval.token = token;
 }
@@ -63,12 +63,12 @@ void V3ParseImp::yylexReadTok() {
 //######################################################################
 // Read class functions
 
-void V3ParseImp::lexNew() {
-    if (m_lexerp) delete m_lexerp;  // Restart from clean slate.
-    m_lexerp = new V3Lexer;
-    if (debugFlex() >= 9) m_lexerp->set_debug(~0);
+ਖਾਲੀ V3ParseImp::lexNew() {
+    ਜੇ (m_lexerp) ਮਿਟਾਓ m_lexerp;  // Restart from clean slate.
+    m_lexerp = ਨਵਾਂ V3Lexer;
+    ਜੇ (debugFlex() >= 9) m_lexerp->ਸੈੱਟ_debug(~0);
 }
 
-void V3ParseImp::lexDestroy() {
-    if (m_lexerp) VL_DO_CLEAR(delete m_lexerp, m_lexerp = nullptr);
+ਖਾਲੀ V3ParseImp::lexDestroy() {
+    ਜੇ (m_lexerp) VL_DO_CLEAR(ਮਿਟਾਓ m_lexerp, m_lexerp = ਖਾਲੀ_ਸੂਚਕ);
 }

@@ -24,106 +24,106 @@
 //      This transformation honors outputSplitCFuncs.
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3CCtors.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3CCtors.h"
 
-#include "V3EmitCBase.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3EmitCBase.h"
 
-#include <list>
+#ਅਨ੍ਤਰ੍ਭਾਵ <list>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
-class VCtorType final {
-public:
-    enum en : uint8_t { MODULE, CLASS, COVERAGE };
+ਵਰਗ VCtorType final {
+ਜਨਤਕ:
+    ਗਿਣਤੀ en : uint8_t { MODULE, CLASS, COVERAGE };
 
-private:
-    const enum en m_e;
+ਨਿਜੀ:
+    ਅਚਲ ਗਿਣਤੀ en m_e;
 
-public:
+ਜਨਤਕ:
     // cppcheck-suppress noExplicitConstructor
     constexpr VCtorType(en _e)
         : m_e{_e} {}
-    bool isClass() const { return m_e == CLASS; }
-    bool isCoverage() const { return m_e == COVERAGE; }
+    ਤਾਰਕਿਕ isClass() ਅਚਲ { ਵਾਪਸ m_e == CLASS; }
+    ਤਾਰਕਿਕ isCoverage() ਅਚਲ { ਵਾਪਸ m_e == COVERAGE; }
 };
 
-class V3CCtorsBuilder final {
-    AstNodeModule* const m_modp;  // Current module/class
-    const string m_basename;
-    const VCtorType m_type;  // What kind of constructor are we creating
+ਵਰਗ V3CCtorsBuilder final {
+    Ast_ਗੰਢ_Module* ਅਚਲ m_modp;  // Current module/class
+    ਅਚਲ string m_basename;
+    ਅਚਲ VCtorType m_type;  // What kind of constructor are we creating
     std::list<AstCFunc*> m_newFunctions;  // Created functions, latest is at back
-    int m_numStmts = 0;  // Number of statements output
+    ਪੂਰਨ m_ਅੰਕ_Stmts = 0;  // Number of statements output
 
     AstCFunc* makeNewFunc() {
-        const int funcNum = m_newFunctions.size();
-        const string funcName = m_basename + "_" + cvtToStr(funcNum);
-        AstCFunc* const funcp = new AstCFunc{m_modp->fileline(), funcName, nullptr, "void"};
-        funcp->isStatic(false);
+        ਅਚਲ ਪੂਰਨ func_ਅੰਕ = m_newFunctions.ਮਾਪ();
+        ਅਚਲ string funcName = m_basename + "_" + cvt_ਮੰਜ਼ਿਲ_Str(func_ਅੰਕ);
+        AstCFunc* ਅਚਲ funcp = ਨਵਾਂ AstCFunc{m_modp->fileline(), funcName, ਖਾਲੀ_ਸੂਚਕ, "void"};
+        funcp->isStatic(ਝੂਠ);
         funcp->isLoose(!m_type.isClass());
-        funcp->keepIfEmpty(true);  // TODO relax
-        funcp->declPrivate(true);
+        funcp->keep_If_ਖਾਲੀ_ਥਾਵਾਂ(ਸੱਚ);  // TODO relax
+        funcp->decl_ਨਿੱਜੀ(ਸੱਚ);
         funcp->slow(!m_type.isClass());  // Only classes construct on fast path
-        if (!m_type.isCoverage()) m_modp->ctorVarReset(true);
-        string preventUnusedStmt;
-        if (m_type.isClass()) {
+        ਜੇ (!m_type.isCoverage()) m_modp->ctorVarReset(ਸੱਚ);
+        string prevent_ਅਣਵਰਤਿਆ_Stmt;
+        ਜੇ (m_type.isClass()) {
             funcp->argTypes(EmitCUtil::symClassVar());
-            preventUnusedStmt = "(void)vlSymsp;  // Prevent unused variable warning";
-        } else if (m_type.isCoverage()) {
+            prevent_ਅਣਵਰਤਿਆ_Stmt = "(void)vlSymsp;  // Prevent unused variable warning";
+        } ਨਹੀਂਤਾਂ ਜੇ (m_type.isCoverage()) {
             funcp->argTypes("bool first");
-            preventUnusedStmt = "(void)first;  // Prevent unused variable warning";
+            prevent_ਅਣਵਰਤਿਆ_Stmt = "(void)first;  // Prevent unused variable warning";
         }
-        if (!preventUnusedStmt.empty()) {
-            funcp->addStmtsp(new AstCStmt{m_modp->fileline(), preventUnusedStmt});
+        ਜੇ (!prevent_ਅਣਵਰਤਿਆ_Stmt.ਖਾਲੀ_ਥਾਵਾਂ()) {
+            funcp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ AstCStmt{m_modp->fileline(), prevent_ਅਣਵਰਤਿਆ_Stmt});
         }
-        m_modp->addStmtsp(funcp);
-        m_numStmts = 0;
-        return funcp;
+        m_modp->ਜੋੜੋ_Stmtsp(funcp);
+        m_ਅੰਕ_Stmts = 0;
+        ਵਾਪਸ funcp;
     }
 
-public:
-    void add(AstNode* nodep) {
-        if (m_newFunctions.empty()) m_newFunctions.push_back(makeNewFunc());
-        if (v3Global.opt.outputSplitCFuncs() && m_numStmts > v3Global.opt.outputSplitCFuncs()) {
-            m_newFunctions.push_back(makeNewFunc());
+ਜਨਤਕ:
+    ਖਾਲੀ ਜੋੜੋ(Ast_ਗੰਢ* nodep) {
+        ਜੇ (m_newFunctions.ਖਾਲੀ_ਥਾਵਾਂ()) m_newFunctions.ਧੱਕੋ_ਪਿੱਠ(makeNewFunc());
+        ਜੇ (v3Global.opt.output_ਵੰਡੋ_CFuncs() && m_ਅੰਕ_Stmts > v3Global.opt.output_ਵੰਡੋ_CFuncs()) {
+            m_newFunctions.ਧੱਕੋ_ਪਿੱਠ(makeNewFunc());
         }
-        m_newFunctions.back()->addStmtsp(nodep);
-        m_numStmts += 1;
+        m_newFunctions.ਪਿੱਠ()->ਜੋੜੋ_Stmtsp(nodep);
+        m_ਅੰਕ_Stmts += 1;
     }
 
-    V3CCtorsBuilder(AstNodeModule* nodep, const string& basename, VCtorType type)
+    V3CCtorsBuilder(Ast_ਗੰਢ_Module* nodep, ਅਚਲ string& basename, VCtorType type)
         : m_modp{nodep}
         , m_basename{basename}
         , m_type{type} {
         // Expect coverage function to always exist, so must always create at least one.
-        if (m_type.isCoverage()) m_newFunctions.push_back(makeNewFunc());
+        ਜੇ (m_type.isCoverage()) m_newFunctions.ਧੱਕੋ_ਪਿੱਠ(makeNewFunc());
     }
 
     ~V3CCtorsBuilder() {
-        if (m_newFunctions.size() == 0) {
-        } else if (m_newFunctions.size() == 1) {
+        ਜੇ (m_newFunctions.ਮਾਪ() == 0) {
+        } ਨਹੀਂਤਾਂ ਜੇ (m_newFunctions.ਮਾਪ() == 1) {
             // No split was necessary, rename the one function to the basename
             m_newFunctions.front()->name(m_basename);
-        } else {
+        } ਨਹੀਂਤਾਂ {
             // Split was necessary, create root function and call all others from that
-            AstCFunc* const rootFuncp = makeNewFunc();
-            rootFuncp->name(m_basename);
-            for (AstCFunc* const funcp : m_newFunctions) {
-                AstCCall* const callp = new AstCCall{m_modp->fileline(), funcp};
-                callp->dtypeSetVoid();
-                if (m_type.isClass()) {
+            AstCFunc* ਅਚਲ ਜੜ੍ਹ_Funcp = makeNewFunc();
+            ਜੜ੍ਹ_Funcp->name(m_basename);
+            ਲਈ (AstCFunc* ਅਚਲ funcp : m_newFunctions) {
+                AstCCall* ਅਚਲ callp = ਨਵਾਂ AstCCall{m_modp->fileline(), funcp};
+                callp->dtype_ਸੈੱਟ_Void();
+                ਜੇ (m_type.isClass()) {
                     callp->argTypes("vlSymsp");
-                } else {
-                    if (m_type.isCoverage()) callp->argTypes("first");
-                    callp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
+                } ਨਹੀਂਤਾਂ {
+                    ਜੇ (m_type.isCoverage()) callp->argTypes("first");
+                    callp->self_ਸੂਚਕ(VSelf_ਸੂਚਕ_ਪਾਠ{VSelf_ਸੂਚਕ_ਪਾਠ::This{}});
                 }
-                rootFuncp->addStmtsp(callp->makeStmt());
+                ਜੜ੍ਹ_Funcp->ਜੋੜੋ_Stmtsp(callp->makeStmt());
             }
         }
     }
 
-private:
+ਨਿਜੀ:
     VL_UNCOPYABLE(V3CCtorsBuilder);
 };
 
@@ -131,31 +131,31 @@ private:
 
 // Link state, as a visitor of each AstNode
 
-class CCtorsVisitor final : public VNVisitor {
+ਵਰਗ CCtorsVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstNodeModule* m_modp = nullptr;  // Current module
-    AstCFunc* m_cfuncp = nullptr;  // Current function
-    V3CCtorsBuilder* m_varResetp = nullptr;  // Builder of _ctor_var_reset
-    std::map<AstCStmt*, const AstNodeModule*> m_ctorCalls;  // Calls to _ctor_var_reset
+    Ast_ਗੰਢ_Module* m_modp = ਖਾਲੀ_ਸੂਚਕ;  // Current module
+    AstCFunc* m_cfuncp = ਖਾਲੀ_ਸੂਚਕ;  // Current function
+    V3CCtorsBuilder* m_varResetp = ਖਾਲੀ_ਸੂਚਕ;  // Builder of _ctor_var_reset
+    std::map<AstCStmt*, ਅਚਲ Ast_ਗੰਢ_Module*> m_ctorCalls;  // Calls to _ctor_var_reset
 
     // METHODS
-    static void insertSc(AstCFunc* cfuncp, const AstNodeModule* modp, VSystemCSectionType type) {
-        const auto txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
-        if (txtAndFlp.first.empty()) return;
+    ਸਥਿਰ ਖਾਲੀ ਪਾਓ_Sc(AstCFunc* cfuncp, ਅਚਲ Ast_ਗੰਢ_Module* modp, VSystemCSectionType type) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ txtAndFlp = EmitCBaseVisitorConst::scSection(modp, type);
+        ਜੇ (txtAndFlp.ਪਹਿਲਾ.ਖਾਲੀ_ਥਾਵਾਂ()) ਵਾਪਸ;
         // Use an AstCStmtUser as this is from user input
-        AstCStmtUser* const cstmtp = new AstCStmtUser{txtAndFlp.second};
-        cstmtp->add(txtAndFlp.first);
-        cfuncp->addStmtsp(cstmtp);
+        AstCStmtUser* ਅਚਲ cstmtp = ਨਵਾਂ AstCStmtUser{txtAndFlp.ਦੂਜਾ};
+        cstmtp->ਜੋੜੋ(txtAndFlp.ਪਹਿਲਾ);
+        cfuncp->ਜੋੜੋ_Stmtsp(cstmtp);
     }
 
     // VISITORS
-    void visit(AstNodeModule* nodep) override {
-        if (nodep->isConstPool()) return;  // Special emit rules
-        if (const AstClass* const classp = VN_CAST(nodep, Class)) {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Module* nodep) override {
+        ਜੇ (nodep->isConstPool()) ਵਾਪਸ;  // Special emit rules
+        ਜੇ (ਅਚਲ AstClass* ਅਚਲ classp = VN_CAST(nodep, Class)) {
             // Interface class may only have pure virtuals and params which do not need cctor reset
-            if (classp->isInterfaceClass()) return;
+            ਜੇ (classp->isInterfaceClass()) ਵਾਪਸ;
         }
         VL_RESTORER(m_modp);
         VL_RESTORER(m_varResetp);
@@ -166,116 +166,116 @@ class CCtorsVisitor final : public VNVisitor {
         m_varResetp = &var_reset;
         iterateChildren(nodep);
 
-        if (v3Global.opt.coverage()) {
+        ਜੇ (v3Global.opt.coverage()) {
             V3CCtorsBuilder configure_coverage{nodep, "_configure_coverage", VCtorType::COVERAGE};
-            for (AstNode *np = nodep->stmtsp(), *nextp; np; np = nextp) {
+            ਲਈ (Ast_ਗੰਢ *np = nodep->stmtsp(), *nextp; np; np = nextp) {
                 nextp = np->nextp();
-                if (AstNodeCoverDecl* const coverp = VN_CAST(np, NodeCoverDecl)) {
+                ਜੇ (Ast_ਗੰਢ_Cover_Decl* ਅਚਲ coverp = VN_CAST(np, ਗੰਢ_Cover_Decl)) {
                     // ... else we don't have a static VlSym to be able to coverage insert
                     UASSERT_OBJ(!VN_IS(nodep, Class), coverp,
                                 "NodeCoverDecl should be in class's package, not class itself");
-                    configure_coverage.add(coverp->unlinkFrBack());
+                    configure_coverage.ਜੋੜੋ(coverp->unlink_Fr_ਪਿੱਠ());
                 }
             }
         }
-        if (AstClass* const classp = VN_CAST(nodep, Class)) {
-            AstCFunc* const funcp = new AstCFunc{classp->fileline(), "~", nullptr, ""};
-            funcp->isDestructor(true);
-            funcp->isStatic(false);
+        ਜੇ (AstClass* ਅਚਲ classp = VN_CAST(nodep, Class)) {
+            AstCFunc* ਅਚਲ funcp = ਨਵਾਂ AstCFunc{classp->fileline(), "~", ਖਾਲੀ_ਸੂਚਕ, ""};
+            funcp->isDestructor(ਸੱਚ);
+            funcp->isStatic(ਝੂਠ);
             // If can be referred to by base pointer, need virtual delete
             funcp->isVirtual(classp->isExtended());
-            funcp->slow(false);
-            insertSc(funcp, classp, VSystemCSectionType::DTOR);
-            classp->addStmtsp(funcp);
+            funcp->slow(ਝੂਠ);
+            ਪਾਓ_Sc(funcp, classp, VSystemCSectionType::DTOR);
+            classp->ਜੋੜੋ_Stmtsp(funcp);
         }
     }
 
-    void visit(AstCFunc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCFunc* nodep) override {
         VL_RESTORER(m_varResetp);
         VL_RESTORER(m_cfuncp);
-        m_varResetp = nullptr;
+        m_varResetp = ਖਾਲੀ_ਸੂਚਕ;
         m_cfuncp = nodep;
         iterateChildren(nodep);
-        if (nodep->name() == "new") insertSc(nodep, m_modp, VSystemCSectionType::CTOR);
+        ਜੇ (nodep->name() == "new") ਪਾਓ_Sc(nodep, m_modp, VSystemCSectionType::CTOR);
     }
-    void visit(AstCStmt* nodep) override {
-        if (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
+    ਖਾਲੀ ਦੇਖੋ(AstCStmt* nodep) override {
+        ਜੇ (nodep->stmtType() == VCStmtType::CTOR_VAR_RESET_CALL) {
             UASSERT_OBJ(m_modp, nodep, "ctor_var_reset call not under module");
             m_ctorCalls.emplace(nodep, m_modp);
         }
         iterateChildren(nodep);
     }
-    void visit(AstVar* nodep) override {
-        if (nodep->needsCReset()) {
-            AstNode* const crstp = new AstAssign{
-                nodep->fileline(), new AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
-                new AstCReset{nodep->fileline(), nodep, true}};
-            if (m_varResetp) {
-                m_varResetp->add(crstp);
-            } else if (m_cfuncp) {
-                nodep->addNextHere(crstp);
-            } else {
+    ਖਾਲੀ ਦੇਖੋ(AstVar* nodep) override {
+        ਜੇ (nodep->needsCReset()) {
+            Ast_ਗੰਢ* ਅਚਲ crstp = ਨਵਾਂ Ast_ਸੌਂਪੋ{
+                nodep->fileline(), ਨਵਾਂ AstVarRef{nodep->fileline(), nodep, VAccess::WRITE},
+                ਨਵਾਂ AstCReset{nodep->fileline(), nodep, ਸੱਚ}};
+            ਜੇ (m_varResetp) {
+                m_varResetp->ਜੋੜੋ(crstp);
+            } ਨਹੀਂਤਾਂ ਜੇ (m_cfuncp) {
+                nodep->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(crstp);
+            } ਨਹੀਂਤਾਂ {
                 nodep->v3fatalSrc("Var needs CReset but nowhere to place it");
             }
         }
     }
 
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit CCtorsVisitor(AstNode* nodep) { iterate(nodep); }
+    ਸਪਸ਼ਟ CCtorsVisitor(Ast_ਗੰਢ* nodep) { iterate(nodep); }
     ~CCtorsVisitor() override {
         // Remove CStmts to ctor_var_resets that are no longer needed
-        for (auto& itr : m_ctorCalls) {
-            AstCStmt* const nodep = itr.first;
-            const AstNodeModule* const modp = itr.second;
-            if (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlinkFrBack()->deleteTree(), nodep);
+        ਲਈ (ਸਵੈਚਾਲਿਤ& itr : m_ctorCalls) {
+            AstCStmt* ਅਚਲ nodep = itr.ਪਹਿਲਾ;
+            ਅਚਲ Ast_ਗੰਢ_Module* ਅਚਲ modp = itr.ਦੂਜਾ;
+            ਜੇ (!modp->ctorVarReset()) VL_DO_DANGLING(nodep->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ(), nodep);
         }
     }
 };
 
 //######################################################################
 
-void V3CCtors::evalAsserts() {
-    AstNodeModule* const modp = v3Global.rootp()->modulesp();  // Top module wrapper
-    AstCFunc* const funcp
-        = new AstCFunc{modp->fileline(), "_eval_debug_assertions", nullptr, "void"};
-    funcp->declPrivate(true);
-    funcp->isStatic(false);
-    funcp->isLoose(true);
-    funcp->keepIfEmpty(true);
-    funcp->slow(false);
+ਖਾਲੀ V3CCtors::evalAsserts() {
+    Ast_ਗੰਢ_Module* ਅਚਲ modp = v3Global.rootp()->modulesp();  // Top module wrapper
+    AstCFunc* ਅਚਲ funcp
+        = ਨਵਾਂ AstCFunc{modp->fileline(), "_eval_debug_assertions", ਖਾਲੀ_ਸੂਚਕ, "void"};
+    funcp->decl_ਨਿੱਜੀ(ਸੱਚ);
+    funcp->isStatic(ਝੂਠ);
+    funcp->isLoose(ਸੱਚ);
+    funcp->keep_If_ਖਾਲੀ_ਥਾਵਾਂ(ਸੱਚ);
+    funcp->slow(ਝੂਠ);
     funcp->ifdef("VL_DEBUG");
-    modp->addStmtsp(funcp);
-    for (AstNode* np = modp->stmtsp(); np; np = np->nextp()) {
-        if (AstVar* const varp = VN_CAST(np, Var)) {
-            if (varp->isPrimaryInish() && !varp->isSc()) {
-                if (const AstBasicDType* const basicp
+    modp->ਜੋੜੋ_Stmtsp(funcp);
+    ਲਈ (Ast_ਗੰਢ* np = modp->stmtsp(); np; np = np->nextp()) {
+        ਜੇ (AstVar* ਅਚਲ varp = VN_CAST(np, Var)) {
+            ਜੇ (varp->isPrimaryInish() && !varp->isSc()) {
+                ਜੇ (ਅਚਲ AstBasicDType* ਅਚਲ basicp
                     = VN_CAST(varp->dtypeSkipRefp(), BasicDType)) {
-                    const int storedWidth = basicp->widthAlignBytes() * 8;
-                    const int lastWordWidth = varp->width() % storedWidth;
-                    if (lastWordWidth != 0) {
+                    ਅਚਲ ਪੂਰਨ stored_ਚੌੜਾਈ = basicp->ਚੌੜਾਈ_Align_ਬਾਈਟਾਂ() * 8;
+                    ਅਚਲ ਪੂਰਨ ਆਖਰੀ_ਸ਼ਬਦ_ਚੌੜਾਈ = varp->ਚੌੜਾਈ() % stored_ਚੌੜਾਈ;
+                    ਜੇ (ਆਖਰੀ_ਸ਼ਬਦ_ਚੌੜਾਈ != 0) {
                         // if (signal & CONST(upper_non_clean_mask)) { fail; }
-                        AstVarRef* const vrefp
-                            = new AstVarRef{varp->fileline(), varp, VAccess::READ};
-                        vrefp->selfPointer(VSelfPointerText{VSelfPointerText::This{}});
-                        AstNodeExpr* newp = vrefp;
-                        if (varp->isWide()) {
-                            newp = new AstWordSel{
+                        AstVarRef* ਅਚਲ vrefp
+                            = ਨਵਾਂ AstVarRef{varp->fileline(), varp, VAccess::READ};
+                        vrefp->self_ਸੂਚਕ(VSelf_ਸੂਚਕ_ਪਾਠ{VSelf_ਸੂਚਕ_ਪਾਠ::This{}});
+                        Ast_ਗੰਢ_ਵਿਅੰਜਕ* newp = vrefp;
+                        ਜੇ (varp->isWide()) {
+                            newp = ਨਵਾਂ Ast_ਸ਼ਬਦ_Sel{
                                 varp->fileline(), newp,
-                                new AstConst(varp->fileline(), varp->widthWords() - 1)};
+                                ਨਵਾਂ AstConst(varp->fileline(), varp->ਚੌੜਾਈ_ਸ਼ਬਦ() - 1)};
                         }
-                        const uint64_t value = VL_MASK_Q(storedWidth) & ~VL_MASK_Q(lastWordWidth);
-                        newp = new AstAnd{varp->fileline(), newp,
-                                          new AstConst(varp->fileline(), AstConst::WidthedValue{},
-                                                       storedWidth, value)};
-                        AstNodeIf* const ifp = new AstIf{
+                        ਅਚਲ uint64_t ਮੁੱਲ = VL_ਨਕਾਬ_Q(stored_ਚੌੜਾਈ) & ~VL_ਨਕਾਬ_Q(ਆਖਰੀ_ਸ਼ਬਦ_ਚੌੜਾਈ);
+                        newp = ਨਵਾਂ AstAnd{varp->fileline(), newp,
+                                          ਨਵਾਂ AstConst(varp->fileline(), AstConst::Widthed_ਮੁੱਲ{},
+                                                       stored_ਚੌੜਾਈ, ਮੁੱਲ)};
+                        Ast_ਗੰਢ_If* ਅਚਲ ifp = ਨਵਾਂ AstIf{
                             varp->fileline(), newp,
-                            new AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
+                            ਨਵਾਂ AstCStmt{varp->fileline(), "Verilated::overWidthError(\""
                                                                + varp->prettyName() + "\");"}};
                         ifp->branchPred(VBranchPred::BP_UNLIKELY);
-                        funcp->addStmtsp(ifp);
+                        funcp->ਜੋੜੋ_Stmtsp(ifp);
                     }
                 }
             }
@@ -283,9 +283,9 @@ void V3CCtors::evalAsserts() {
     }
 }
 
-void V3CCtors::cctorsAll() {
+ਖਾਲੀ V3CCtors::cctorsAll() {
     UINFO(2, __FUNCTION__ << ":");
     evalAsserts();
     { CCtorsVisitor{v3Global.rootp()}; }
-    V3Global::dumpCheckGlobalTree("cctors", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("cctors", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

@@ -14,140 +14,140 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCPOINT_H_
-#define VERILATOR_VLCPOINT_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_VLCPOINT_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_VLCPOINT_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include <iomanip>
-#include <map>
-#include <unordered_map>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <iomanip>
+#ਅਨ੍ਤਰ੍ਭਾਵ <map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
-#ifndef V3ERROR_NO_GLOBAL_
-#define V3ERROR_NO_GLOBAL_
-#endif
-#include "verilated_cov_key.h"
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ V3ERROR_NO_GLOBAL_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ V3ERROR_NO_GLOBAL_
+#ਜੇ_ਅੰਤ
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilated_cov_key.h"
 
-#include "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
 //********************************************************************
 // VlcPoint - A coverage point (across all tests)
 
-class VlcPoint final {
+class Vlc_ਬਿੰਦੂ final {
     // MEMBERS
     string m_name;  //< Name of the point
-    uint64_t m_pointNum;  //< Point number
+    uint64_t m_ਬਿੰਦੂ_ਅੰਕ;  //< Point number
     uint64_t m_testsCovering = 0;  //< Number tests with non-zero coverage of this point
-    uint64_t m_count = 0;  //< Count of hits across all tests
+    uint64_t m_ਗਿਣਤੀ = 0;  //< Count of hits across all tests
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    VlcPoint(const string& name, uint64_t pointNum)
+    Vlc_ਬਿੰਦੂ(ਅਚਲ string& name, uint64_t ਬਿੰਦੂ_ਅੰਕ)
         : m_name{name}
-        , m_pointNum{pointNum} {}
-    ~VlcPoint() = default;
+        , m_ਬਿੰਦੂ_ਅੰਕ{ਬਿੰਦੂ_ਅੰਕ} {}
+    ~Vlc_ਬਿੰਦੂ() = ਮੂਲ;
     // ACCESSORS
-    const string& name() const { return m_name; }
-    uint64_t pointNum() const { return m_pointNum; }
-    uint64_t testsCovering() const { return m_testsCovering; }
-    void countInc(uint64_t inc) { m_count += inc; }
-    uint64_t count() const { return m_count; }
-    void testsCoveringInc() { m_testsCovering++; }
-    bool ok(unsigned annotateMin) const {
-        const std::string threshStr = thresh();
-        const unsigned threshi = !threshStr.empty() ? std::atoi(threshStr.c_str()) : annotateMin;
-        return m_count >= threshi;
+    ਅਚਲ string& name() ਅਚਲ { ਵਾਪਸ m_name; }
+    uint64_t ਬਿੰਦੂ_ਅੰਕ() ਅਚਲ { ਵਾਪਸ m_ਬਿੰਦੂ_ਅੰਕ; }
+    uint64_t testsCovering() ਅਚਲ { ਵਾਪਸ m_testsCovering; }
+    ਖਾਲੀ ਗਿਣਤੀ_Inc(uint64_t inc) { m_ਗਿਣਤੀ += inc; }
+    uint64_t ਗਿਣਤੀ_2() ਅਚਲ { ਵਾਪਸ m_ਗਿਣਤੀ; }
+    ਖਾਲੀ testsCoveringInc() { m_testsCovering++; }
+    bool ok(ਬਿਨਾਨਿਸ਼ਾਨੀ annotateMin) ਅਚਲ {
+        ਅਚਲ std::string threshStr = thresh();
+        ਅਚਲ ਬਿਨਾਨਿਸ਼ਾਨੀ threshi = !threshStr.ਖਾਲੀ_ਥਾਵਾਂ() ? std::atoi(threshStr.c_str()) : annotateMin;
+        ਵਾਪਸ m_ਗਿਣਤੀ >= threshi;
     }
     // KEY ACCESSORS
-    string filename() const { return keyExtract(VL_CIK_FILENAME, m_name.c_str()); }
-    string comment() const { return keyExtract(VL_CIK_COMMENT, m_name.c_str()); }
-    string hier() const { return keyExtract(VL_CIK_HIER, m_name.c_str()); }
-    string page() const { return keyExtract("page", m_name.c_str()); }
-    string type() const { return typeExtract(m_name.c_str()); }
+    string filename() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_FILENAME, m_name.c_str()); }
+    string comment() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_COMMENT, m_name.c_str()); }
+    string hier() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_HIER, m_name.c_str()); }
+    string ਪੰਨਾ() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ("page", m_name.c_str()); }
+    string type() ਅਚਲ { ਵਾਪਸ type_ਕੱਢੋ(m_name.c_str()); }
     // Covergroup-specific key accessors
-    string bin() const { return keyExtract(VL_CIK_BIN, m_name.c_str()); }
-    string binType() const { return keyExtract(VL_CIK_BIN_TYPE, m_name.c_str()); }
-    bool isCross() const { return !keyExtract(VL_CIK_CROSS, m_name.c_str()).empty(); }
-    string crossBins() const { return keyExtract(VL_CIK_CROSS_BINS, m_name.c_str()); }
+    string bin() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_BIN, m_name.c_str()); }
+    string binType() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_BIN_TYPE, m_name.c_str()); }
+    bool isCross() ਅਚਲ { ਵਾਪਸ !ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_CROSS, m_name.c_str()).ਖਾਲੀ_ਥਾਵਾਂ(); }
+    string crossBins() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_CROSS_BINS, m_name.c_str()); }
     // The covergroup's type_option.weight; "" for the default 1
-    string groupWeight() const { return keyExtract(VL_CIK_GROUP_WEIGHT, m_name.c_str()); }
+    string ਸਮੂਹ_ਭਾਰ() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_ਸਮੂਹ_ਭਾਰ, m_name.c_str()); }
     // The coverpoint's or cross's option.weight; "" for the default 1
-    string weight() const { return keyExtract(VL_CIK_WEIGHT, m_name.c_str()); }
-    string thresh() const {
+    string ਭਾਰ_2() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_ਭਾਰ, m_name.c_str()); }
+    string thresh() ਅਚਲ {
         // string as maybe ""
-        return keyExtract(VL_CIK_THRESH, m_name.c_str());
+        ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_THRESH, m_name.c_str());
     }
-    string linescov() const { return keyExtract(VL_CIK_LINESCOV, m_name.c_str()); }
-    bool isFsmState() const { return type() == "fsm_state"; }
-    bool isFsmArc() const { return type() == "fsm_arc"; }
+    string linescov() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_LINESCOV, m_name.c_str()); }
+    bool isFsmState() ਅਚਲ { ਵਾਪਸ type() == "fsm_state"; }
+    bool isFsmArc() ਅਚਲ { ਵਾਪਸ type() == "fsm_arc"; }
     // Arc-specific helpers are used after callers have already filtered to
     // FSM arc points, so they do not repeat the type check here.
-    string fsmVarName() const { return keyExtract(VL_CIK_FSM_VAR, m_name.c_str()); }
-    string fsmFromState() const { return keyExtract(VL_CIK_FSM_FROM, m_name.c_str()); }
-    string fsmToState() const { return keyExtract(VL_CIK_FSM_TO, m_name.c_str()); }
-    string fsmTag() const { return keyExtract(VL_CIK_FSM_TAG, m_name.c_str()); }
-    bool isFsmResetInclude() const { return fsmTag() == "reset_include"; }
-    bool isFsmResetArc() const { return fsmTag() == "reset"; }
-    bool isFsmDefaultArc() const { return fsmTag() == "default"; }
-    bool fsmIsReset() const { return isFsmResetArc() || isFsmResetInclude(); }
-    int lineno() const {
-        const string lineStr = keyExtract(VL_CIK_LINENO, m_name.c_str());
-        return std::atoi(lineStr.c_str());
+    string fsmVarName() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_FSM_VAR, m_name.c_str()); }
+    string fsmFromState() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_FSM_FROM, m_name.c_str()); }
+    string fsm_ਮੰਜ਼ਿਲ_State() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_FSM_ਮੰਜ਼ਿਲ, m_name.c_str()); }
+    string fsm_ਟੈਗ() ਅਚਲ { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_FSM_ਟੈਗ, m_name.c_str()); }
+    bool isFsmResetInclude() ਅਚਲ { ਵਾਪਸ fsm_ਟੈਗ() == "reset_include"; }
+    bool isFsmResetArc() ਅਚਲ { ਵਾਪਸ fsm_ਟੈਗ() == "reset"; }
+    bool isFsmDefaultArc() ਅਚਲ { ਵਾਪਸ fsm_ਟੈਗ() == "default"; }
+    bool fsmIsReset() ਅਚਲ { ਵਾਪਸ isFsmResetArc() || isFsmResetInclude(); }
+    ਪੂਰਨ lineno() ਅਚਲ {
+        ਅਚਲ string ਸਤਰ_Str = ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_LINENO, m_name.c_str());
+        ਵਾਪਸ std::atoi(ਸਤਰ_Str.c_str());
     }
-    int column() const {
-        const string columnStr = keyExtract(VL_CIK_COLUMN, m_name.c_str());
-        return std::atoi(columnStr.c_str());
+    ਪੂਰਨ ਕਾਲਮ_2() ਅਚਲ {
+        ਅਚਲ string ਕਾਲਮ_Str = ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_ਕਾਲਮ, m_name.c_str());
+        ਵਾਪਸ std::atoi(ਕਾਲਮ_Str.c_str());
     }
     // METHODS
-    static string typeExtract(const char* name) { return keyExtract(VL_CIK_TYPE, name); }
+    ਸਥਿਰ string type_ਕੱਢੋ(ਅਚਲ ਅੱਖਰ* name) { ਵਾਪਸ ਕੁੰਜੀ_ਕੱਢੋ(VL_CIK_TYPE, name); }
     // The value of a key of a record, as the design writes it, so without the escapes of the
     // coverage file, VerilatedCovKey::escape(), of characters that print, see unescape(); only
     // the record's name() keeps them all, so that --write writes it back as read
-    static string keyExtract(const char* shortKey, const char* name) {
+    ਸਥਿਰ string ਕੁੰਜੀ_ਕੱਢੋ(ਅਚਲ ਅੱਖਰ* short_ਕੁੰਜੀ, ਅਚਲ ਅੱਖਰ* name) {
         // Hot function
-        const size_t shortLen = std::strlen(shortKey);
-        for (const char* cp = name; *cp; ++cp) {
-            if (*cp == '\001') {
-                if (0 == std::strncmp(cp + 1, shortKey, shortLen) && cp[shortLen + 1] == '\002') {
+        ਅਚਲ ਮਾਪ_t shortLen = std::ਲੜੀ_ਲੰਬਾਈ(short_ਕੁੰਜੀ);
+        ਲਈ (ਅਚਲ ਅੱਖਰ* cp = name; *cp; ++cp) {
+            ਜੇ (*cp == '\001') {
+                ਜੇ (0 == std::ਲੜੀ_ਤੁਲਨਾ(cp + 1, short_ਕੁੰਜੀ, shortLen) && cp[shortLen + 1] == '\002') {
                     cp += shortLen + 2;  // Skip \001+short+\002
-                    const char* ep = cp;
-                    while (*ep && *ep != '\001') ++ep;
-                    return VerilatedCovKey::unescape(string(cp, ep - cp));
+                    ਅਚਲ ਅੱਖਰ* ep = cp;
+                    ਜਦੋਂ (*ep && *ep != '\001') ++ep;
+                    ਵਾਪਸ Verilated_Cov_ਕੁੰਜੀ::unescape(string(cp, ep - cp));
                 }
             }
         }
-        return "";
+        ਵਾਪਸ "";
     }
-    static void dumpHeader(std::ostream& os) {
+    ਸਥਿਰ ਖਾਲੀ dump_ਸਿਰਲੇਖ(std::ostream& os) {
         os << "Points:\n";
         os << "  Num,    TestsCover,    Count,  Name\n";
     }
-    void dump(std::ostream& os) const {
-        os << "  " << std::setw(8) << std::setfill('0') << pointNum();
+    ਖਾਲੀ dump(std::ostream& os) ਅਚਲ {
+        os << "  " << std::setw(8) << std::setfill('0') << ਬਿੰਦੂ_ਅੰਕ();
         os << ",  " << std::setw(7) << std::setfill(' ') << testsCovering();
-        os << ",  " << std::setw(7) << std::setfill(' ') << count();
+        os << ",  " << std::setw(7) << std::setfill(' ') << ਗਿਣਤੀ_2();
         os << ",  \"" << name() << "\"\n";
     }
-    void dumpAnnotate(std::ostream& os, unsigned annotateMin) const {
+    ਖਾਲੀ dumpAnnotate(std::ostream& os, ਬਿਨਾਨਿਸ਼ਾਨੀ annotateMin) ਅਚਲ {
         os << (ok(annotateMin) ? "+" : "-");
-        os << std::setw(6) << std::setfill('0') << count();
+        os << std::setw(6) << std::setfill('0') << ਗਿਣਤੀ_2();
         os << "  point: type=" << type() << " comment=" << comment() << " hier=" << hier();
         os << "\n";
-        if (isCross()) {
-            const string bins = crossBins();
-            if (!bins.empty()) {
+        ਜੇ (isCross()) {
+            ਅਚਲ string bins = crossBins();
+            ਜੇ (!bins.ਖਾਲੀ_ਥਾਵਾਂ()) {
                 os << "        //  cross: [";
-                bool first = true;
-                size_t start = 0;
-                while (true) {
-                    const size_t comma = bins.find(',', start);
-                    if (!first) os << ", ";
-                    os << bins.substr(start, comma == string::npos ? string::npos : comma - start);
-                    first = false;
-                    if (comma == string::npos) break;
-                    start = comma + 1;
+                bool ਪਹਿਲਾ = true;
+                ਮਾਪ_t ਸ਼ੁਰੂ = 0;
+                ਜਦੋਂ (true) {
+                    ਅਚਲ ਮਾਪ_t comma = bins.ਲੱਭੋ(',', ਸ਼ੁਰੂ);
+                    ਜੇ (!ਪਹਿਲਾ) os << ", ";
+                    os << bins.substr(ਸ਼ੁਰੂ, comma == string::npos ? string::npos : comma - ਸ਼ੁਰੂ);
+                    ਪਹਿਲਾ = false;
+                    ਜੇ (comma == string::npos) ਰੋਕੋ;
+                    ਸ਼ੁਰੂ = comma + 1;
                 }
                 os << "]\n";
             }
@@ -160,43 +160,43 @@ public:
 
 class VlcPoints final {
     // MEMBERS
-    using NameMap = std::map<const std::string, uint64_t>;  // Sorted by name (ordered)
+    using NameMap = std::map<ਅਚਲ std::string, uint64_t>;  // Sorted by name (ordered)
     NameMap m_nameMap;  //< Name to point-number
-    std::vector<VlcPoint> m_points;  //< List of all points
-    uint64_t m_numPoints = 0;  //< Total unique points
+    std::ਸਦਿਸ਼<Vlc_ਬਿੰਦੂ> m_points;  //< List of all points
+    uint64_t m_ਅੰਕ_Points = 0;  //< Total unique points
 
-    static int debug() { return V3Error::debugDefault(); }
+    ਸਥਿਰ ਪੂਰਨ debug() { ਵਾਪਸ V3Error::debugDefault(); }
 
-public:
+ਜਨਤਕ:
     // ITERATORS
     using ByName = NameMap;
     using iterator = ByName::iterator;
-    ByName::iterator begin() { return m_nameMap.begin(); }
-    ByName::iterator end() { return m_nameMap.end(); }
+    ByName::iterator begin() { ਵਾਪਸ m_nameMap.begin(); }
+    ByName::iterator ਸਿਰਾ() { ਵਾਪਸ m_nameMap.ਸਿਰਾ(); }
 
     // CONSTRUCTORS
-    VlcPoints() = default;
-    ~VlcPoints() = default;
+    VlcPoints() = ਮੂਲ;
+    ~VlcPoints() = ਮੂਲ;
 
     // METHODS
-    void dump() {
+    ਖਾਲੀ dump() {
         UINFO(2, "dumpPoints...");
-        VlcPoint::dumpHeader(std::cout);
-        for (const auto& i : *this) {
-            const VlcPoint& point = pointNumber(i.second);
-            point.dump(std::cout);
+        Vlc_ਬਿੰਦੂ::dump_ਸਿਰਲੇਖ(std::cout);
+        ਲਈ (ਅਚਲ ਸਵੈਚਾਲਿਤ& i : *this) {
+            ਅਚਲ Vlc_ਬਿੰਦੂ& ਬਿੰਦੂ = ਬਿੰਦੂ_ਸੰਖਿਆ(i.ਦੂਜਾ);
+            ਬਿੰਦੂ.dump(std::cout);
         }
     }
-    VlcPoint& pointNumber(uint64_t num) { return m_points[num]; }
-    uint64_t findAddPoint(const string& name, uint64_t count) {
-        const auto pair = m_nameMap.emplace(name, m_numPoints);
-        if (pair.second) m_points.emplace_back(name, m_numPoints++);
-        const uint64_t pointnum = pair.first->second;
-        m_points[pointnum].countInc(count);
-        return pointnum;
+    Vlc_ਬਿੰਦੂ& ਬਿੰਦੂ_ਸੰਖਿਆ(uint64_t ਅੰਕ) { ਵਾਪਸ m_points[ਅੰਕ]; }
+    uint64_t ਲੱਭੋ_ਜੋੜੋ_ਬਿੰਦੂ(ਅਚਲ string& name, uint64_t ਗਿਣਤੀ_2) {
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_nameMap.emplace(name, m_ਅੰਕ_Points);
+        ਜੇ (pair.ਦੂਜਾ) m_points.emplace_ਪਿੱਠ(name, m_ਅੰਕ_Points++);
+        ਅਚਲ uint64_t pointnum = pair.ਪਹਿਲਾ->ਦੂਜਾ;
+        m_points[pointnum].ਗਿਣਤੀ_Inc(ਗਿਣਤੀ_2);
+        ਵਾਪਸ pointnum;
     }
 };
 
 //######################################################################
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard

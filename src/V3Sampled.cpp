@@ -23,119 +23,119 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Sampled.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Sampled.h"
 
-#include "V3Sched.h"
-#include "V3SharedTmps.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Sched.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3SharedTmps.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Clock state, as a visitor of each AstNode
 
-class SampledVisitor final : public VNVisitor {
+ਵਰਗ SampledVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     //  AstVarScope::user1()  -> AstVarScope*. The VarScope that stores sampled value
     //  AstVarRef::user1()    -> bool. Whether already converted
-    const VNUser1InUse m_user1InUse;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_user1_ਵਿੱਚ_Use;
 
     // STATE - across all visitors
-    AstCFunc* const m_sampleFuncp;  // The 'sample' eval function assigning the sampled values
+    AstCFunc* ਅਚਲ m_sampleFuncp;  // The 'sample' eval function assigning the sampled values
     V3SharedTmps m_sampledTmps{"__Vsampled", VVarType::MODULETEMP};  // Sampled variables
     V3SharedTmps m_forceTmps{"__VsampledForce", VVarType::MODULETEMP};  // Sampled force values
     // Keys remain in the tree as the sampled variables' value expressions.
-    std::unordered_map<VNRef<AstNode>, AstVarScope*> m_forceSamples;
+    std::unordered_map<VNRef<Ast_ਗੰਢ>, AstVarScope*> m_forceSamples;
 
     // STATE - for current visit position (use VL_RESTORER)
-    AstScope* m_scopep = nullptr;  // Current scope
-    bool m_inSampled = false;  // True inside a sampled expression
+    AstScope* m_scopep = ਖਾਲੀ_ਸੂਚਕ;  // Current scope
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Sampled = ਝੂਠ;  // True inside a sampled expression
 
     // METHODS
 
     // Create a variable in the current scope, assigned 'valuep' at the start of each evaluation
-    AstVarScope* createSampledVar(V3SharedTmps& tmps, AstNodeExpr* valuep,
-                                  const std::string& name) {
-        FileLine* const flp = valuep->fileline();
-        AstVarScope* const vscp = tmps.make(flp, m_scopep, valuep->dtypep(), name);
-        vscp->varp()->sampled(true);
-        AstVarRef* const lhsp = new AstVarRef{flp, vscp, VAccess::WRITE};
-        m_sampleFuncp->addStmtsp(new AstAssign{flp, lhsp, valuep});
+    AstVarScope* createSampledVar(V3SharedTmps& tmps, Ast_ਗੰਢ_ਵਿਅੰਜਕ* valuep,
+                                  ਅਚਲ std::string& name) {
+        File_ਸਤਰ* ਅਚਲ flp = valuep->fileline();
+        AstVarScope* ਅਚਲ vscp = tmps.make(flp, m_scopep, valuep->dtypep(), name);
+        vscp->varp()->sampled(ਸੱਚ);
+        AstVarRef* ਅਚਲ lhsp = ਨਵਾਂ AstVarRef{flp, vscp, VAccess::WRITE};
+        m_sampleFuncp->ਜੋੜੋ_Stmtsp(ਨਵਾਂ Ast_ਸੌਂਪੋ{flp, lhsp, valuep});
         UINFO(4, "New Sampled: " << vscp);
-        return vscp;
+        ਵਾਪਸ vscp;
     }
 
     // VISITORS
-    void visit(AstScope* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstScope* nodep) override {
         VL_RESTORER(m_scopep);
         m_scopep = nodep;
         iterateChildren(nodep);
     }
-    void visit(AstSampled* nodep) override {
-        VL_RESTORER(m_inSampled);
-        m_inSampled = true;
+    ਖਾਲੀ ਦੇਖੋ(AstSampled* nodep) override {
+        VL_RESTORER(m_ਵਿੱਚ_Sampled);
+        m_ਵਿੱਚ_Sampled = ਸੱਚ;
         iterateChildren(nodep);
-        nodep->replaceWith(nodep->exprp()->unlinkFrBack());
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        nodep->replaceWith(nodep->exprp()->unlink_Fr_ਪਿੱਠ());
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
-    void visit(AstCMethodHard* nodep) override {
-        if (!m_inSampled || nodep->method() != VCMethod::FORCE_READ) {
+    ਖਾਲੀ ਦੇਖੋ(AstCMethodHard* nodep) override {
+        ਜੇ (!m_ਵਿੱਚ_Sampled || nodep->ਵਿਧੀ() != VCMethod::FORCE_READ) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
         // Force vectors hold pointers to live RHS shadows. Copying the vector and base
         // separately would let later writes change the sampled value (IEEE 1800-2023 16.5.1).
         // Whole-signal reads have no user expressions to evaluate at the point of use.
-        const auto pair = m_forceSamples.emplace(*nodep, nullptr);
-        AstVarScope*& vscp = pair.first->second;
-        FileLine* const flp = nodep->fileline();
+        ਅਚਲ ਸਵੈਚਾਲਿਤ pair = m_forceSamples.emplace(*nodep, ਖਾਲੀ_ਸੂਚਕ);
+        AstVarScope*& vscp = pair.ਪਹਿਲਾ->ਦੂਜਾ;
+        File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
         VNRelinker relinker;
-        nodep->unlinkFrBack(&relinker);
-        if (pair.second) {
+        nodep->unlink_Fr_ਪਿੱਠ(&relinker);
+        ਜੇ (pair.ਦੂਜਾ) {
             vscp = createSampledVar(m_forceTmps, nodep, "");
-        } else {
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        } ਨਹੀਂਤਾਂ {
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         }
-        AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::READ};
-        refp->user1SetOnce();
+        AstVarRef* ਅਚਲ refp = ਨਵਾਂ AstVarRef{flp, vscp, VAccess::READ};
+        refp->user1_ਸੈੱਟ_Once();
         relinker.relink(refp);
     }
-    void visit(AstVarRef* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
         iterateChildren(nodep);
-        if (m_inSampled && !nodep->user1SetOnce()) {
+        ਜੇ (m_ਵਿੱਚ_Sampled && !nodep->user1_ਸੈੱਟ_Once()) {
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "Should have failed in V3Access");
-            AstVarScope* const vscp = nodep->varScopep();
-            if (!vscp->user1p()) {
-                AstVarRef* const valuep = new AstVarRef{vscp->fileline(), vscp, VAccess::READ};
+            AstVarScope* ਅਚਲ vscp = nodep->varScopep();
+            ਜੇ (!vscp->user1p()) {
+                AstVarRef* ਅਚਲ valuep = ਨਵਾਂ AstVarRef{vscp->fileline(), vscp, VAccess::READ};
                 vscp->user1p(createSampledVar(m_sampledTmps, valuep, vscp->varp()->name()));
             }
-            AstVarScope* const sampledp = VN_AS(vscp->user1p(), VarScope);
-            AstNode* const newp = new AstVarRef{nodep->fileline(), sampledp, VAccess::READ};
-            newp->user1SetOnce();  // Don't sample this one
+            AstVarScope* ਅਚਲ sampledp = VN_AS(vscp->user1p(), VarScope);
+            Ast_ਗੰਢ* ਅਚਲ newp = ਨਵਾਂ AstVarRef{nodep->fileline(), sampledp, VAccess::READ};
+            newp->user1_ਸੈੱਟ_Once();  // Don't sample this one
             nodep->replaceWith(newp);
-            VL_DO_DANGLING(pushDeletep(nodep), nodep);
+            VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
         }
     }
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit SampledVisitor(AstNetlist* netlistp)
+    ਸਪਸ਼ਟ SampledVisitor(AstNetlist* netlistp)
         : m_sampleFuncp{netlistp->evalFuncp(VEval::SAMPLE)} {
         iterate(netlistp);
-        V3Sched::util::splitCheck(m_sampleFuncp);
+        V3Sched::util::ਵੰਡੋ_Check(m_sampleFuncp);
     }
-    ~SampledVisitor() override = default;
+    ~SampledVisitor() override = ਮੂਲ;
 };
 
 //######################################################################
 // Sampled class functions
 
-void V3Sampled::sampledAll(AstNetlist* nodep) {
+ਖਾਲੀ V3Sampled::sampledAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { SampledVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("sampled", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("sampled", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

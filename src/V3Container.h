@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3CONTAINER_H_
-#define VERILATOR_V3CONTAINER_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3CONTAINER_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3CONTAINER_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_map>
+#ਅਨ੍ਤਰ੍ਭਾਵ <unordered_set>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 //============================================================================
 
 // Similar to std::set, but ordered based on call order to emplace.  Used
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Keys may not be modified.  (If needed in future, m_set could contain vector positions.)
-template <typename T_Key>
-class VInsertionSet final {
-    std::vector<T_Key> m_keys;  // Elements by insertion order
-    std::unordered_set<T_Key> m_keySet;  // Elements by key
-public:
+ਸਾਂਚਾ <typename T_ਕੁੰਜੀ>
+class VInsertion_ਸੈੱਟ final {
+    std::ਸਦਿਸ਼<T_ਕੁੰਜੀ> m_ਕੁੰਜੀਆਂ;  // Elements by insertion order
+    std::unordered_ਸੈੱਟ<T_ਕੁੰਜੀ> m_ਕੁੰਜੀ_ਸੈੱਟ;  // Elements by key
+ਜਨਤਕ:
     // METHODS
-    bool insert(const T_Key& key) {
+    bool ਪਾਓ(ਅਚਲ T_ਕੁੰਜੀ& ਕੁੰਜੀ) {
         // Returns if did insertion (second pair argument of traditional emplace)
-        const auto itFoundPair = m_keySet.insert(key);
-        if (itFoundPair.second) m_keys.push_back(key);
-        return itFoundPair.second;
+        ਅਚਲ ਸਵੈਚਾਲਿਤ it_ਮਿਲਿਆ_Pair = m_ਕੁੰਜੀ_ਸੈੱਟ.ਪਾਓ(ਕੁੰਜੀ);
+        ਜੇ (it_ਮਿਲਿਆ_Pair.ਦੂਜਾ) m_ਕੁੰਜੀਆਂ.ਧੱਕੋ_ਪਿੱਠ(ਕੁੰਜੀ);
+        ਵਾਪਸ it_ਮਿਲਿਆ_Pair.ਦੂਜਾ;
     }
-    template <typename T>
-    void insert(T begin, const T end) {
-        static_assert(std::is_same<typename std::iterator_traits<T>::value_type, T_Key>::value,
+    ਸਾਂਚਾ <typename T>
+    ਖਾਲੀ ਪਾਓ(T begin, ਅਚਲ T ਸਿਰਾ) {
+        static_assert(std::is_same<typename std::iterator_traits<T>::ਮੁੱਲ_type, T_ਕੁੰਜੀ>::ਮੁੱਲ,
                       "T must be an iterator with value type T_Key");
-        while (begin != end) {
-            if (m_keySet.insert(*begin).second) m_keys.push_back(*begin);
+        ਜਦੋਂ (begin != ਸਿਰਾ) {
+            ਜੇ (m_ਕੁੰਜੀ_ਸੈੱਟ.ਪਾਓ(*begin).ਦੂਜਾ) m_ਕੁੰਜੀਆਂ.ਧੱਕੋ_ਪਿੱਠ(*begin);
             ++begin;
         }
     }
-    void clear() {
-        m_keys.clear();
-        m_keySet.clear();
+    ਖਾਲੀ clear() {
+        m_ਕੁੰਜੀਆਂ.clear();
+        m_ਕੁੰਜੀ_ਸੈੱਟ.clear();
     }
 
     // ACCESSORS
-    bool empty() const { return m_keys.empty(); }
-    size_t size() const { return m_keys.size(); }
-    bool exists(const T_Key& key) const { return m_keySet.find(key) != m_keySet.end(); }
+    bool ਖਾਲੀ_ਥਾਵਾਂ() ਅਚਲ { ਵਾਪਸ m_ਕੁੰਜੀਆਂ.ਖਾਲੀ_ਥਾਵਾਂ(); }
+    ਮਾਪ_t ਮਾਪ() ਅਚਲ { ਵਾਪਸ m_ਕੁੰਜੀਆਂ.ਮਾਪ(); }
+    bool exists(ਅਚਲ T_ਕੁੰਜੀ& ਕੁੰਜੀ) ਅਚਲ { ਵਾਪਸ m_ਕੁੰਜੀ_ਸੈੱਟ.ਲੱਭੋ(ਕੁੰਜੀ) != m_ਕੁੰਜੀ_ਸੈੱਟ.ਸਿਰਾ(); }
 
     // ITERATORS
-    using const_iterator = typename std::vector<T_Key>::const_iterator;
-    const_iterator begin() const { return m_keys.begin(); }
-    const_iterator end() const { return m_keys.end(); }
+    using const_iterator = typename std::ਸਦਿਸ਼<T_ਕੁੰਜੀ>::const_iterator;
+    const_iterator begin() ਅਚਲ { ਵਾਪਸ m_ਕੁੰਜੀਆਂ.begin(); }
+    const_iterator ਸਿਰਾ() ਅਚਲ { ਵਾਪਸ m_ਕੁੰਜੀਆਂ.ਸਿਰਾ(); }
 };
 
 //============================================================================
@@ -72,4 +72,4 @@ public:
 // when insertion order is desired (e.g. std::vector), but duplicates need removal.
 // Values may be modified.
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

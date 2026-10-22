@@ -18,110 +18,110 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderGraph.h"
-#include "V3OrderInternal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderGraph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderInternal.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // ProcessDomains class
 
-class V3OrderProcessDomains final {
+ਵਰਗ V3_ਕ੍ਰਮ_Process_Domains final {
     // STATE
-    OrderGraph& m_graph;  // The ordering graph
-    const string m_tag;  // Substring to add to generated names
+    ਕ੍ਰਮ_ਗ੍ਰਾਫ& m_ਗ੍ਰਾਫ;  // The ordering graph
+    ਅਚਲ string m_ਟੈਗ;  // Substring to add to generated names
     // This is a function provided by the invoker of the ordering that can provide additional
     // trigger indices that when set indicate the passed AstVarScope might have changed external
     // to the code being ordered, hence dependent logic needs to be evaluated.
-    const V3Order::ExternalTriggersProvider m_externalTriggers;
-    std::vector<OrderLogicVertex*> m_untriggeredps;  // Logic never triggered and can be deleted
+    ਅਚਲ V3_ਕ੍ਰਮ::ExternalTriggersProvider m_externalTriggers;
+    std::ਸਦਿਸ਼<ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼*> m_untriggeredps;  // Logic never triggered and can be deleted
 
     // METHODS
 
     // Compute the OrderDomain for combinational and hybrid logic vertices.
-    void processDomains() {
+    ਖਾਲੀ processDomains() {
         // The triggers of the current vertex
-        std::set<uint32_t> triggers;
+        std::ਸੈੱਟ<uint32_t> triggers;
 
         // The graph is already in topological order, so can walk vertices once
-        for (V3GraphVertex& it : m_graph.vertices()) {
-            OrderEitherVertex* const vtxp = it.as<OrderEitherVertex>();
+        ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& it : m_ਗ੍ਰਾਫ.vertices()) {
+            ਕ੍ਰਮ_Either_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp = it.as<ਕ੍ਰਮ_Either_ਸ਼ੀਰਸ਼>();
             // Sequential logic already has its domain set
-            if (vtxp->domainp()) continue;
+            ਜੇ (vtxp->domainp()) ਜਾਰੀ;
 
             // Reset state
             triggers.clear();
 
-            OrderLogicVertex* const lvtxp = vtxp->cast<OrderLogicVertex>();
+            ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ lvtxp = vtxp->cast<ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼>();
 
             // For logic vertices, start with the explicit hybrid sensitivities, if any
-            if (const OrderDomain* const hybridp = lvtxp ? lvtxp->hybridp() : nullptr) {
-                const std::set<uint32_t>& hybridTriggers = hybridp->triggers();
-                triggers.insert(hybridTriggers.begin(), hybridTriggers.end());
+            ਜੇ (ਅਚਲ ਕ੍ਰਮ_Domain* ਅਚਲ hybridp = lvtxp ? lvtxp->hybridp() : ਖਾਲੀ_ਸੂਚਕ) {
+                ਅਚਲ std::ਸੈੱਟ<uint32_t>& hybridTriggers = hybridp->triggers();
+                triggers.ਪਾਓ(hybridTriggers.begin(), hybridTriggers.ਸਿਰਾ());
             }
 
             // For each incoming edge, union the source vertex's domain into the current domain
-            for (V3GraphEdge& edge : vtxp->inEdges()) {
-                OrderEitherVertex* const fromVtxp = edge.fromp()->as<OrderEitherVertex>();
+            ਲਈ (V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ& ਕਿਨਾਰਾ : vtxp->ਵਿੱਚ_ਕਿਨਾਰੇ()) {
+                ਕ੍ਰਮ_Either_ਸ਼ੀਰਸ਼* ਅਚਲ fromVtxp = ਕਿਨਾਰਾ.fromp()->as<ਕ੍ਰਮ_Either_ਸ਼ੀਰਸ਼>();
                 // Cut edge
-                if (!edge.weight()) continue;
+                ਜੇ (!ਕਿਨਾਰਾ.ਭਾਰ_2()) ਜਾਰੀ;
                 // some edges can be ignored as they only encode ordering constraints
-                if (!fromVtxp->domainMatters()) continue;
+                ਜੇ (!fromVtxp->domainMatters()) ਜਾਰੀ;
 
                 // Add driver's domains
-                const OrderDomain* const fromDomainp = fromVtxp->domainp();
-                const std::set<uint32_t>& fromTriggers = fromDomainp->triggers();
-                triggers.insert(fromTriggers.begin(), fromTriggers.end());
+                ਅਚਲ ਕ੍ਰਮ_Domain* ਅਚਲ fromDomainp = fromVtxp->domainp();
+                ਅਚਲ std::ਸੈੱਟ<uint32_t>& fromTriggers = fromDomainp->triggers();
+                triggers.ਪਾਓ(fromTriggers.begin(), fromTriggers.ਸਿਰਾ());
 
                 // Add in any external domains of variables
-                if (OrderVarVertex* const varVtxp = fromVtxp->cast<OrderVarVertex>()) {
+                ਜੇ (ਕ੍ਰਮ_Var_ਸ਼ੀਰਸ਼* ਅਚਲ varVtxp = fromVtxp->cast<ਕ੍ਰਮ_Var_ਸ਼ੀਰਸ਼>()) {
                     m_externalTriggers(varVtxp->vscp(), triggers);
                 }
             }
 
             // Set the domain of the vertex
-            const OrderDomain* const domainp = m_graph.domainp(triggers);
+            ਅਚਲ ਕ੍ਰਮ_Domain* ਅਚਲ domainp = m_ਗ੍ਰਾਫ.domainp(triggers);
             vtxp->domainp(domainp);
 
             // If nothing triggers this vertex, we can delete the corresponding logic
-            if (domainp->triggers().empty() && lvtxp) m_untriggeredps.push_back(lvtxp);
+            ਜੇ (domainp->triggers().ਖਾਲੀ_ਥਾਵਾਂ() && lvtxp) m_untriggeredps.ਧੱਕੋ_ਪਿੱਠ(lvtxp);
         }
     }
 
     // CONSTRUCTOR
-    V3OrderProcessDomains(OrderGraph& graph, const string& tag,
-                          const V3Order::ExternalTriggersProvider& externalTriggers)
-        : m_graph{graph}
-        , m_tag{tag}
+    V3_ਕ੍ਰਮ_Process_Domains(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ, ਅਚਲ string& ਟੈਗ,
+                          ਅਚਲ V3_ਕ੍ਰਮ::ExternalTriggersProvider& externalTriggers)
+        : m_ਗ੍ਰਾਫ{ਗ੍ਰਾਫ}
+        , m_ਟੈਗ{ਟੈਗ}
         , m_externalTriggers{externalTriggers} {
 
         // Assign vertices to their sensitivity domains
         processDomains();
-        if (dumpGraphLevel()) m_graph.dumpDotFilePrefixed(m_tag + "_orderg_domain");
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level()) m_ਗ੍ਰਾਫ.dumpDotFilePrefixed(m_ਟੈਗ + "_orderg_domain");
 
         // Delete logic that is never triggered
-        for (OrderLogicVertex* const lVtxp : m_untriggeredps) {
-            UASSERT_OBJ(lVtxp->domainp()->triggers().empty(), lVtxp,
+        ਲਈ (ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ lVtxp : m_untriggeredps) {
+            UASSERT_OBJ(lVtxp->domainp()->triggers().ਖਾਲੀ_ਥਾਵਾਂ(), lVtxp,
                         "Deleted logic should not be triggered");
-            lVtxp->nodep()->unlinkFrBack()->deleteTree();
-            lVtxp->unlinkDelete(&m_graph);
+            lVtxp->nodep()->unlink_Fr_ਪਿੱਠ()->delete_ਰੁੱਖ();
+            lVtxp->unlinkDelete(&m_ਗ੍ਰਾਫ);
         }
     }
 
-    ~V3OrderProcessDomains() = default;
+    ~V3_ਕ੍ਰਮ_Process_Domains() = ਮੂਲ;
 
-public:
+ਜਨਤਕ:
     // Order the logic
-    static void apply(OrderGraph& graph, const string& tag,
-                      const V3Order::ExternalTriggersProvider& externalTriggers) {
-        V3OrderProcessDomains{graph, tag, externalTriggers};
+    ਸਥਿਰ ਖਾਲੀ apply(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ, ਅਚਲ string& ਟੈਗ,
+                      ਅਚਲ V3_ਕ੍ਰਮ::ExternalTriggersProvider& externalTriggers) {
+        V3_ਕ੍ਰਮ_Process_Domains{ਗ੍ਰਾਫ, ਟੈਗ, externalTriggers};
     }
 };
 
-void V3Order::processDomains(OrderGraph& graph,  //
-                             const std::string& tag,  //
-                             const ExternalTriggersProvider& externalTriggers) {
-    V3OrderProcessDomains::apply(graph, tag, externalTriggers);
+ਖਾਲੀ V3_ਕ੍ਰਮ::processDomains(ਕ੍ਰਮ_ਗ੍ਰਾਫ& ਗ੍ਰਾਫ,  //
+                             ਅਚਲ std::string& ਟੈਗ,  //
+                             ਅਚਲ ExternalTriggersProvider& externalTriggers) {
+    V3_ਕ੍ਰਮ_Process_Domains::apply(ਗ੍ਰਾਫ, ਟੈਗ, externalTriggers);
 }

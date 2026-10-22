@@ -14,49 +14,49 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3WIDTHREMOVE_H_
-#define VERILATOR_V3WIDTHREMOVE_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3WIDTHREMOVE_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3WIDTHREMOVE_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "V3Ast.h"
-#include "V3Error.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Ast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Error.h"
 
 // clang-format off
-#ifndef VERILATOR_V3WIDTH_CPP_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3_ਚੌੜਾਈ_CPP
 # error "V3WidthRemove for V3Width internal use only"
-#endif
+#ਜੇ_ਅੰਤ
 // clang-format on
 
 //######################################################################
 
-class WidthRemoveVisitor final : public VNVisitor {
+class ਚੌੜਾਈ_Remove_Visitor final : ਜਨਤਕ VNVisitor {
     // METHODS
     VL_DEFINE_DEBUG_FUNCTIONS;
 
-    void replaceWithSignedVersion(AstNode* nodep, AstNode* newp) {
+    ਖਾਲੀ replace_With_Signed_ਸੰਸਕਰਣ(Ast_ਗੰਢ* nodep, Ast_ਗੰਢ* newp) {
         UINFO(6, " Replace " << nodep << " w/ " << newp);
         nodep->replaceWithKeepDType(newp);
-        VL_DO_DANGLING(pushDeletep(nodep), nodep);
+        VL_DO_DANGLING(ਧੱਕੋ_Deletep(nodep), nodep);
     }
 
     // VISITORS
-    void visit(AstSigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    ਖਾਲੀ ਦੇਖੋ(AstSigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_ਸੰਸਕਰਣ(nodep, nodep->lhsp()->unlink_Fr_ਪਿੱਠ()), nodep);
     }
-    void visit(AstUnsigned* nodep) override {
-        VL_DO_DANGLING(replaceWithSignedVersion(nodep, nodep->lhsp()->unlinkFrBack()), nodep);
+    ਖਾਲੀ ਦੇਖੋ(AstUnsigned* nodep) override {
+        VL_DO_DANGLING(replace_With_Signed_ਸੰਸਕਰਣ(nodep, nodep->lhsp()->unlink_Fr_ਪਿੱਠ()), nodep);
     }
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    WidthRemoveVisitor() = default;
-    ~WidthRemoveVisitor() override = default;
-    AstNode* mainAcceptEdit(AstNode* nodep) { return iterateSubtreeReturnEdits(nodep); }
+    ਚੌੜਾਈ_Remove_Visitor() = ਮੂਲ;
+    ~ਚੌੜਾਈ_Remove_Visitor() override = ਮੂਲ;
+    Ast_ਗੰਢ* mainAcceptEdit(Ast_ਗੰਢ* nodep) { ਵਾਪਸ iterateSubtreeReturnEdits(nodep); }
 };
 
 //######################################################################
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

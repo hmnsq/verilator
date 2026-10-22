@@ -14,24 +14,24 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3EMITV_H_
-#define VERILATOR_V3EMITV_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3EMITV_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3EMITV_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-class AstNode;
-class AstSenTree;
+class Ast_ਗੰਢ;
+class Ast_Sen_ਰੁੱਖ;
 
 //============================================================================
 
 class V3EmitV final {
-public:
-    static void verilogForTree(const AstNode* nodep, std::ostream& os = std::cout);
-    static void debugVerilogForTree(const AstNode* nodep, std::ostream& os);
-    static std::string debugVerilogForTree(const AstNode* nodep);
-    static void emitvFiles();
-    static void debugEmitV(const string& filename);
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ verilog_For_ਰੁੱਖ(ਅਚਲ Ast_ਗੰਢ* nodep, std::ostream& os = std::cout);
+    ਸਥਿਰ ਖਾਲੀ debug_Verilog_For_ਰੁੱਖ(ਅਚਲ Ast_ਗੰਢ* nodep, std::ostream& os);
+    ਸਥਿਰ std::string debug_Verilog_For_ਰੁੱਖ(ਅਚਲ Ast_ਗੰਢ* nodep);
+    ਸਥਿਰ ਖਾਲੀ emitvFiles();
+    ਸਥਿਰ ਖਾਲੀ debugEmitV(ਅਚਲ string& filename);
 };
 
-#endif  // Guard
+#ਜੇ_ਅੰਤ  // Guard

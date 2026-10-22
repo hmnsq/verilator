@@ -61,81 +61,81 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Split.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Split.h"
 
-#include "V3Graph.h"
-#include "V3Stats.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Graph.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Stats.h"
 
-#include <string>
-#include <vector>
+#ਅਨ੍ਤਰ੍ਭਾਵ <string>
+#ਅਨ੍ਤਰ੍ਭਾਵ <vector>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Support classes
 
-class SplitNodeVertex VL_NOT_FINAL : public V3GraphVertex {
-    VL_RTTI_IMPL(SplitNodeVertex, V3GraphVertex)
-    AstNode* const m_nodep;
+ਵਰਗ ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼ VL_NOT_FINAL : ਜਨਤਕ V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼)
+    Ast_ਗੰਢ* ਅਚਲ m_nodep;
 
-protected:
-    SplitNodeVertex(V3Graph* graphp, AstNode* nodep)
-        : V3GraphVertex{graphp}
+ਸੁਰੱਖਿਅਤ:
+    ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, Ast_ਗੰਢ* nodep)
+        : V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼{graphp}
         , m_nodep{nodep} {}
     // ACCESSORS
-    std::string name() const override {
-        return cvtToHex(m_nodep) + ' ' + m_nodep->prettyTypeName();
+    std::string name() ਅਚਲ override {
+        ਵਾਪਸ cvt_ਮੰਜ਼ਿਲ_Hex(m_nodep) + ' ' + m_nodep->prettyTypeName();
     }
 
-public:
-    AstNode* nodep() const { return m_nodep; }
+ਜਨਤਕ:
+    Ast_ਗੰਢ* nodep() ਅਚਲ { ਵਾਪਸ m_nodep; }
 };
 
-class SplitImpureVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitImpureVertex, SplitNodeVertex)
+ਵਰਗ ਵੰਡੋ_Impure_ਸ਼ੀਰਸ਼ final : ਜਨਤਕ ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(ਵੰਡੋ_Impure_ਸ਼ੀਰਸ਼, ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼)
 
-    std::string name() const override { return "*IMPURE*"; }
-    std::string dotColor() const override { return "green"; }
+    std::string name() ਅਚਲ override { ਵਾਪਸ "*IMPURE*"; }
+    std::string dotColor() ਅਚਲ override { ਵਾਪਸ "green"; }
 
-public:
-    explicit SplitImpureVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+ਜਨਤਕ:
+    ਸਪਸ਼ਟ ਵੰਡੋ_Impure_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, Ast_ਗੰਢ* nodep)
+        : ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼{graphp, nodep} {}
 };
 
-class SplitStmtVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitStmtVertex, SplitNodeVertex)
+ਵਰਗ ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼ final : ਜਨਤਕ ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼, ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼)
 
-    std::string dotColor() const override { return "yellow"; }
+    std::string dotColor() ਅਚਲ override { ਵਾਪਸ "yellow"; }
 
-public:
-    SplitStmtVertex(V3Graph* graphp, AstNode* nodep)
-        : SplitNodeVertex{graphp, nodep} {}
+ਜਨਤਕ:
+    ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, Ast_ਗੰਢ* nodep)
+        : ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼{graphp, nodep} {}
 };
 
-class SplitVarStdVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarStdVertex, SplitNodeVertex)
+ਵਰਗ ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼ final : ਜਨਤਕ ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼, ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼)
 
-    std::string dotColor() const override { return "skyblue"; }
+    std::string dotColor() ਅਚਲ override { ਵਾਪਸ "skyblue"; }
 
-public:
-    SplitVarStdVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+ਜਨਤਕ:
+    ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, AstVarScope* vscp)
+        : ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼{graphp, vscp} {}
 };
 
-class SplitVarPostVertex final : public SplitNodeVertex {
-    VL_RTTI_IMPL(SplitVarPostVertex, SplitNodeVertex)
+ਵਰਗ ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼ final : ਜਨਤਕ ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼ {
+    VL_RTTI_IMPL(ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼, ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼)
 
-    std::string name() const override { return "POST "s + SplitNodeVertex::name(); }
-    std::string dotColor() const override { return "CadetBlue"; }
+    std::string name() ਅਚਲ override { ਵਾਪਸ "POST "s + ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼::name(); }
+    std::string dotColor() ਅਚਲ override { ਵਾਪਸ "CadetBlue"; }
 
-public:
-    SplitVarPostVertex(V3Graph* graphp, AstVarScope* vscp)
-        : SplitNodeVertex{graphp, vscp} {}
+ਜਨਤਕ:
+    ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼(V3_ਗ੍ਰਾਫ* graphp, AstVarScope* vscp)
+        : ਵੰਡੋ_ਗੰਢ_ਸ਼ੀਰਸ਼{graphp, vscp} {}
 };
 
-class SplitVisitor final : public VNVisitor {
+ਵਰਗ ਵੰਡੋ_Visitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE - Only under AstAlways
     // AstVarScope::user1p  -> SplitVarStdVertex*: Regular program-flow variable vertex
     // AstVarScope::user2p  -> SplitVarPostVertex*: NBA written delayed variable vertex
@@ -143,57 +143,57 @@ class SplitVisitor final : public VNVisitor {
 
     // NODE STATE
     // AstAlways::user3     -> bool: Block created by splitting, needs no further splitting
-    const VNUser3InUse m_inuser3;
+    ਅਚਲ VNUser3_ਵਿੱਚ_Use m_inuser3;
 
     // STATE
-    V3Graph* m_graphp = nullptr;  // Dependency graph to analyze statement connectivity
-    std::vector<SplitStmtVertex*> m_stmtStackps;  // Current statements being tracked
-    SplitImpureVertex* m_impureVtxp = nullptr;  // Vertex connecting impure statements
-    const char* m_noSplitWhy = nullptr;  // Reason current block cannot be split
-    bool m_inDly = false;  // Inside AstAssignDly Lhs
-    const AstIf* m_currIfp = nullptr;  // The AstIf whose condition is currently visited
+    V3_ਗ੍ਰਾਫ* m_graphp = ਖਾਲੀ_ਸੂਚਕ;  // Dependency graph to analyze statement connectivity
+    std::ਸਦਿਸ਼<ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼*> m_stmtStackps;  // Current statements being tracked
+    ਵੰਡੋ_Impure_ਸ਼ੀਰਸ਼* m_impureVtxp = ਖਾਲੀ_ਸੂਚਕ;  // Vertex connecting impure statements
+    ਅਚਲ ਅੱਖਰ* m_no_ਵੰਡੋ_Why = ਖਾਲੀ_ਸੂਚਕ;  // Reason current block cannot be split
+    ਤਾਰਕਿਕ m_ਵਿੱਚ_Dly = ਝੂਠ;  // Inside AstAssignDly Lhs
+    ਅਚਲ AstIf* m_currIfp = ਖਾਲੀ_ਸੂਚਕ;  // The AstIf whose condition is currently visited
     VDouble0 m_statSplits;  // Statistic tracking
 
     // METHODS
-    void addEdge(V3GraphVertex* fromp, V3GraphVertex* top) {
-        new V3GraphEdge{m_graphp, fromp, top, 1};
+    ਖਾਲੀ ਜੋੜੋ_ਕਿਨਾਰਾ(V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* fromp, V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਸਿਖਰ) {
+        ਨਵਾਂ V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ{m_graphp, fromp, ਸਿਖਰ, 1};
     }
 
     // Iterate the given list of statements, building the dependency graph
-    void scanBlock(AstNode* stmtsp) {
-        if (m_noSplitWhy) return;
-        for (AstNode* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
+    ਖਾਲੀ ਜਾਂਚ_ਖੰਡ(Ast_ਗੰਢ* stmtsp) {
+        ਜੇ (m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
+        ਲਈ (Ast_ਗੰਢ* stmtp = stmtsp; stmtp; stmtp = stmtp->nextp()) {
             // Skip comments. They have no dependencies at all, so would always
             // form an independent component, and hence a split block, of their
             // own, which would be subsequently deleted as it does nothing.
-            if (VN_IS(stmtp, Comment)) continue;
+            ਜੇ (VN_IS(stmtp, Comment)) ਜਾਰੀ;
             UASSERT_OBJ(!stmtp->user1p(), stmtp, "user1p should not be set");
-            SplitStmtVertex* const vtxp = new SplitStmtVertex{m_graphp, stmtp};
+            ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp = ਨਵਾਂ ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼{m_graphp, stmtp};
             stmtp->user1p(vtxp);
-            m_stmtStackps.push_back(vtxp);
+            m_stmtStackps.ਧੱਕੋ_ਪਿੱਠ(vtxp);
             iterate(stmtp);
-            m_stmtStackps.pop_back();
+            m_stmtStackps.ਕੱਢੋ_ਪਿੱਠ();
         }
     }
 
     // Remove unnecessary edges, then color to find weakly connected components
-    uint32_t colorAlwaysGraph() {
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", false);
+    uint32_t color_Always_ਗ੍ਰਾਫ() {
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_built", ਝੂਠ);
 
         // Prune duplicate edges. Not necessary for correctness, but simplifies dumps.
-        m_graphp->removeRedundantEdgesMax(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", false);
+        m_graphp->remove_Redundant_ਕਿਨਾਰੇ_Max(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nodup", ਝੂਠ);
 
         // Remove variable vertices that are not written in the block.
         // These are input-only to the block, so carry no dependency.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitVarStdVertex* const vstdp = vtxp->cast<SplitVarStdVertex>();
-            if (!vstdp || !vstdp->outEmpty()) continue;
+        ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_graphp->vertices().unlinkable()) {
+            ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼* ਅਚਲ vstdp = vtxp->cast<ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼>();
+            ਜੇ (!vstdp || !vstdp->ਬਾਹਰਲਾ_ਖਾਲੀ_ਥਾਵਾਂ()) ਜਾਰੀ;
             UINFOTREE(9, vstdp->nodep(), "", "Will remove deps on block input var:");
-            vstdp->nodep()->user1p(nullptr);  // Don't leave a dangling pointer behind
+            vstdp->nodep()->user1p(ਖਾਲੀ_ਸੂਚਕ);  // Don't leave a dangling pointer behind
             VL_DO_DANGLING(vstdp->unlinkDelete(m_graphp), vstdp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", false);
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_noinputs", ਝੂਠ);
 
         // A statement under an 'if' also has an edge to the 'if' itself, from
         // each variable it writes, so an 'if' holds its whole body together.
@@ -205,54 +205,54 @@ class SplitVisitor final : public VNVisitor {
         // condition.  This is what allows splitting within an if/else at all,
         // and is what breaks up the reset tree in the example at the top of
         // this file.
-        for (V3GraphVertex* const vtxp : m_graphp->vertices().unlinkable()) {
-            SplitStmtVertex* const stmtVtxp = vtxp->cast<SplitStmtVertex>();
-            if (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) continue;
+        ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_graphp->vertices().unlinkable()) {
+            ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ stmtVtxp = vtxp->cast<ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼>();
+            ਜੇ (!stmtVtxp || !VN_IS(stmtVtxp->nodep(), If)) ਜਾਰੀ;
             // Can't remove if dependent on a variable written in the block
-            if (!stmtVtxp->outEmpty()) continue;
+            ਜੇ (!stmtVtxp->ਬਾਹਰਲਾ_ਖਾਲੀ_ਥਾਵਾਂ()) ਜਾਰੀ;
             // Depends only on block inputs, so can be split. Remove the vertex.
-            stmtVtxp->nodep()->user1p(nullptr);
+            stmtVtxp->nodep()->user1p(ਖਾਲੀ_ਸੂਚਕ);
             stmtVtxp->unlinkDelete(m_graphp);
         }
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", false);
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_nofreeifs", ਝੂਠ);
 
         // Weak coloring to determine what must stay together in a single block
-        const uint32_t numColors = m_graphp->weaklyConnected(&V3GraphEdge::followAlwaysTrue);
-        if (dumpGraphLevel() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", false);
-        return numColors;
+        ਅਚਲ uint32_t ਅੰਕ_Colors = m_graphp->weaklyConnected(&V3_ਗ੍ਰਾਫ_ਕਿਨਾਰਾ::followAlwaysTrue);
+        ਜੇ (dump_ਗ੍ਰਾਫ_Level() >= 9) m_graphp->dumpDotFilePrefixed("splitg_colored", ਝੂਠ);
+        ਵਾਪਸ ਅੰਕ_Colors;
     }
 
     // Take the statements of the given list, and return them distributed into one list per color.
-    static std::vector<AstNode*> splitStatements(AstNode* stmtsp, uint32_t numColors) {
-        std::vector<AstNode*> result{numColors, nullptr};
-        for (AstNode *stmtp = stmtsp, *nextp = nullptr; stmtp; stmtp = nextp) {
+    ਸਥਿਰ std::ਸਦਿਸ਼<Ast_ਗੰਢ*> ਵੰਡੋ_Statements(Ast_ਗੰਢ* stmtsp, uint32_t ਅੰਕ_Colors) {
+        std::ਸਦਿਸ਼<Ast_ਗੰਢ*> ਨਤੀਜਾ{ਅੰਕ_Colors, ਖਾਲੀ_ਸੂਚਕ};
+        ਲਈ (Ast_ਗੰਢ *stmtp = stmtsp, *nextp = ਖਾਲੀ_ਸੂਚਕ; stmtp; stmtp = nextp) {
             nextp = stmtp->nextp();  // 'stmtp' is unlinked below
 
             // Comments are dropped if the block is split
-            if (VN_IS(stmtp, Comment)) continue;
+            ਜੇ (VN_IS(stmtp, Comment)) ਜਾਰੀ;
 
             // Pick up the statement vertex, which might be nullptr after pruning during analysis
-            const SplitStmtVertex* const vtxp = stmtp->user1u().to<SplitStmtVertex*>();
+            ਅਚਲ ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp = stmtp->user1u().ਮੰਜ਼ਿਲ<ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼*>();
 
             // If statements are duplicated for each split branch
-            if (AstIf* const ifp = VN_CAST(stmtp, If)) {
-                const auto thens = splitStatements(ifp->thensp(), numColors);
-                const auto elses = splitStatements(ifp->elsesp(), numColors);
-                FileLine* const flp = ifp->fileline();
+            ਜੇ (AstIf* ਅਚਲ ifp = VN_CAST(stmtp, If)) {
+                ਅਚਲ ਸਵੈਚਾਲਿਤ thens = ਵੰਡੋ_Statements(ifp->thensp(), ਅੰਕ_Colors);
+                ਅਚਲ ਸਵੈਚਾਲਿਤ elses = ਵੰਡੋ_Statements(ifp->elsesp(), ਅੰਕ_Colors);
+                File_ਸਤਰ* ਅਚਲ flp = ifp->fileline();
                 // Rebuild the 'if' for each color present in either branch
-                bool empty = true;
-                for (uint32_t color = 0; color < numColors; ++color) {
-                    if (!thens[color] && !elses[color]) continue;
-                    empty = false;
+                ਤਾਰਕਿਕ ਖਾਲੀ_ਥਾਵਾਂ = ਸੱਚ;
+                ਲਈ (uint32_t color = 0; color < ਅੰਕ_Colors; ++color) {
+                    ਜੇ (!thens[color] && !elses[color]) ਜਾਰੀ;
+                    ਖਾਲੀ_ਥਾਵਾਂ = ਝੂਠ;
                     // The condition is cloned for each color. An impure condition
                     // keeps the 'if' and all it holds in one component, so just once.
-                    AstIf* const clonep = new AstIf{flp, ifp->condp()->cloneTree(true),
+                    AstIf* ਅਚਲ clonep = ਨਵਾਂ AstIf{flp, ifp->condp()->clone_ਰੁੱਖ(ਸੱਚ),
                                                     thens[color], elses[color]};
                     // Preserve pragmas from unique if's so assertions work properly
                     clonep->uniquePragma(ifp->uniquePragma());
                     clonep->unique0Pragma(ifp->unique0Pragma());
-                    clonep->priorityPragma(ifp->priorityPragma());
-                    result[color] = AstNode::addNext(result[color], clonep);
+                    clonep->ਤਰਜੀਹ_Pragma(ifp->ਤਰਜੀਹ_Pragma());
+                    ਨਤੀਜਾ[color] = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(ਨਤੀਜਾ[color], clonep);
                 }
                 // There is nothing under the 'if' to guard. If its vertex was
                 // removed as having no dependencies at all, then its
@@ -260,208 +260,208 @@ class SplitVisitor final : public VNVisitor {
                 // 'if' can go. Otherwise the condition might have a side
                 // effect, so keep just the condition, evaluated as a
                 // statement, under the color of the 'if' itself.
-                if (empty && vtxp) {
-                    const uint32_t color = vtxp->color();
-                    AstNodeExpr* const condp = ifp->condp();
-                    condp->unlinkFrBack();
-                    result[color] = AstNode::addNext(result[color], new AstStmtExpr{flp, condp});
+                ਜੇ (ਖਾਲੀ_ਥਾਵਾਂ && vtxp) {
+                    ਅਚਲ uint32_t color = vtxp->color();
+                    Ast_ਗੰਢ_ਵਿਅੰਜਕ* ਅਚਲ condp = ifp->condp();
+                    condp->unlink_Fr_ਪਿੱਠ();
+                    ਨਤੀਜਾ[color] = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(ਨਤੀਜਾ[color], ਨਵਾਂ Ast_Stmt_ਵਿਅੰਜਕ{flp, condp});
                 }
-                continue;
+                ਜਾਰੀ;
             }
 
             // Move the leaf into its color's list
-            const uint32_t color = vtxp->color();
-            result[color] = AstNode::addNext(result[color], stmtp->unlinkFrBack());
+            ਅਚਲ uint32_t color = vtxp->color();
+            ਨਤੀਜਾ[color] = Ast_ਗੰਢ::ਜੋੜੋ_ਅਗਲਾ(ਨਤੀਜਾ[color], stmtp->unlink_Fr_ਪਿੱਠ());
         }
-        return result;
+        ਵਾਪਸ ਨਤੀਜਾ;
     }
 
     // VISITORS
-    void visit(AstAlways* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstAlways* nodep) override {
         // Skip blocks created below
-        if (nodep->user3()) return;
+        ਜੇ (nodep->user3()) ਵਾਪਸ;
 
         UASSERT_OBJ(!m_graphp, nodep, "AstAlways should not nest");
         VL_RESTORER(m_graphp);
         VL_RESTORER(m_impureVtxp);
-        VL_RESTORER(m_noSplitWhy);
-        VL_RESTORER(m_inDly);
-        V3Graph graph;
-        m_graphp = &graph;
-        m_impureVtxp = nullptr;
-        m_noSplitWhy = nullptr;
-        m_inDly = false;
-        UASSERT_OBJ(m_stmtStackps.empty(), nodep, "Statement stack not empty");
+        VL_RESTORER(m_no_ਵੰਡੋ_Why);
+        VL_RESTORER(m_ਵਿੱਚ_Dly);
+        V3_ਗ੍ਰਾਫ ਗ੍ਰਾਫ;
+        m_graphp = &ਗ੍ਰਾਫ;
+        m_impureVtxp = ਖਾਲੀ_ਸੂਚਕ;
+        m_no_ਵੰਡੋ_Why = ਖਾਲੀ_ਸੂਚਕ;
+        m_ਵਿੱਚ_Dly = ਝੂਠ;
+        UASSERT_OBJ(m_stmtStackps.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Statement stack not empty");
 
         // Build the graph
-        const VNUser1InUse user1InUse;
-        const VNUser2InUse user2InUse;
-        scanBlock(nodep->stmtsp());
+        ਅਚਲ VNUser1_ਵਿੱਚ_Use user1_ਵਿੱਚ_Use;
+        ਅਚਲ VNUser2_ਵਿੱਚ_Use user2_ਵਿੱਚ_Use;
+        ਜਾਂਚ_ਖੰਡ(nodep->stmtsp());
 
         // We might have to give up
-        if (m_noSplitWhy) {
-            UINFO(9, "  NoSplitBlock because " << m_noSplitWhy);
-            return;
+        ਜੇ (m_no_ਵੰਡੋ_Why) {
+            UINFO(9, "  NoSplitBlock because " << m_no_ਵੰਡੋ_Why);
+            ਵਾਪਸ;
         }
 
         // Color the graph to identify separable statements
-        const uint32_t numColors = colorAlwaysGraph();
+        ਅਚਲ uint32_t ਅੰਕ_Colors = color_Always_ਗ੍ਰਾਫ();
         // If the whole block is one component (or empty), then nothing to split
-        if (numColors <= 1) return;
+        ਜੇ (ਅੰਕ_Colors <= 1) ਵਾਪਸ;
 
         UINFO(6, "  splitting always " << nodep);
 
         // Count the number of new blocks inserted into the Ast: '1 -> n' split, so 'n - 1' extra
-        m_statSplits += numColors - 1;
+        m_statSplits += ਅੰਕ_Colors - 1;
 
         // Unpick the statements out of the original block, into one list per color
-        const auto lists = splitStatements(nodep->stmtsp(), numColors);
-        UASSERT_OBJ(lists.size() == numColors, nodep, "Inconsistent split");
+        ਅਚਲ ਸਵੈਚਾਲਿਤ lists = ਵੰਡੋ_Statements(nodep->stmtsp(), ਅੰਕ_Colors);
+        UASSERT_OBJ(lists.ਮਾਪ() == ਅੰਕ_Colors, nodep, "Inconsistent split");
 
         // Whatever 'splitStatements' did not take, (comments, empty ifs) is not needed any more
-        if (AstNode* const restp = nodep->stmtsp()) {
-            VL_DO_DANGLING(restp->unlinkFrBackWithNext()->deleteTree(), restp);
+        ਜੇ (Ast_ਗੰਢ* ਅਚਲ restp = nodep->stmtsp()) {
+            VL_DO_DANGLING(restp->unlink_Fr_ਪਿੱਠ_With_ਅਗਲਾ()->delete_ਰੁੱਖ(), restp);
         }
 
         // Every color has a statement in it. Reuse the original block for the
         // first color, and add a new block after it for each of the rest.
         UASSERT_OBJ(lists.front(), nodep, "Color with no statements");
-        nodep->addStmtsp(lists.front());
-        AstNode* lastp = nodep;
-        FileLine* const flp = nodep->fileline();
-        const VAlwaysKwd kwd = nodep->keyword();
-        for (size_t i = 1; i < numColors; ++i) {
-            AstNode* const stmtsp = lists[i];
+        nodep->ਜੋੜੋ_Stmtsp(lists.front());
+        Ast_ਗੰਢ* lastp = nodep;
+        File_ਸਤਰ* ਅਚਲ flp = nodep->fileline();
+        ਅਚਲ VAlwaysKwd kwd = nodep->keyword();
+        ਲਈ (ਮਾਪ_t i = 1; i < ਅੰਕ_Colors; ++i) {
+            Ast_ਗੰਢ* ਅਚਲ stmtsp = lists[i];
             UASSERT_OBJ(stmtsp, nodep, "Color with no statements");
-            AstAlways* const newp = new AstAlways{flp, kwd, nullptr, stmtsp};
+            AstAlways* ਅਚਲ newp = ਨਵਾਂ AstAlways{flp, kwd, ਖਾਲੀ_ਸੂਚਕ, stmtsp};
             newp->user3(1);  // Do not split again
-            lastp->addNextHere(newp);
+            lastp->ਜੋੜੋ_ਅਗਲਾ_ਇੱਥੇ(newp);
             lastp = newp;
         }
     }
 
-    void visit(AstIf* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    ਖਾਲੀ ਦੇਖੋ(AstIf* nodep) override {
+        ਜੇ (!m_graphp || m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
         {
             VL_RESTORER(m_currIfp);
             m_currIfp = nodep;
-            iterateAndNextNull(nodep->condp());
+            iterate_And_ਅਗਲਾ_Null(nodep->condp());
         }
-        scanBlock(nodep->thensp());
-        scanBlock(nodep->elsesp());
+        ਜਾਂਚ_ਖੰਡ(nodep->thensp());
+        ਜਾਂਚ_ਖੰਡ(nodep->elsesp());
     }
 
-    void visit(AstExprStmt* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        VL_RESTORER(m_inDly);
-        m_inDly = false;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਵਿਅੰਜਕ_Stmt* nodep) override {
+        ਜੇ (!m_graphp || m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
+        VL_RESTORER(m_ਵਿੱਚ_Dly);
+        m_ਵਿੱਚ_Dly = ਝੂਠ;
         iterateChildren(nodep);
     }
 
-    void visit(AstAssignDly* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਸੌਂਪੋ_Dly* nodep) override {
+        ਜੇ (!m_graphp || m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
         // An intra-assignment timing control does not block, but it reads variables when the NBA
         // executes, like the value
-        if (AstNode* const controlp = nodep->timingControlp()) iterateChildren(controlp);
+        ਜੇ (Ast_ਗੰਢ* ਅਚਲ controlp = nodep->timingControlp()) iterateChildren(controlp);
         iterate(nodep->rhsp());
-        VL_RESTORER(m_inDly);
-        m_inDly = true;
+        VL_RESTORER(m_ਵਿੱਚ_Dly);
+        m_ਵਿੱਚ_Dly = ਸੱਚ;
         iterate(nodep->lhsp());
     }
 
-    void visit(AstMemberSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstMemberSel* nodep) override {
         // A variable selected through a handle can be the same as one accessed otherwise, which
         // is not known here, so the accesses must be kept in order
-        if (m_graphp) m_noSplitWhy = "Handle";
-        visit(static_cast<AstNode*>(nodep));
+        ਜੇ (m_graphp) m_no_ਵੰਡੋ_Why = "Handle";
+        ਦੇਖੋ(static_cast<Ast_ਗੰਢ*>(nodep));
     }
 
-    void visit(AstJumpGo*) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        m_noSplitWhy = "JumpGo";
+    ਖਾਲੀ ਦੇਖੋ(AstJumpGo*) override {
+        ਜੇ (!m_graphp || m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
+        m_no_ਵੰਡੋ_Why = "JumpGo";
     }
 
-    void visit(AstVarRef* nodep) override {
-        if (!m_graphp || m_noSplitWhy) return;
-        UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
+        ਜੇ (!m_graphp || m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
+        UASSERT_OBJ(!m_stmtStackps.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Not under a statement");
 
         // Constant lookups can be ignored
-        if (nodep->varp()->isConst()) return;
+        ਜੇ (nodep->varp()->isConst()) ਵਾਪਸ;
 
-        AstVarScope* const vscp = nodep->varScopep();
+        AstVarScope* ਅਚਲ vscp = nodep->varScopep();
 
         // SPEEDUP: We add duplicate edges, that should be fixed
-        if (m_inDly && nodep->access().isWriteOrRW()) {
+        ਜੇ (m_ਵਿੱਚ_Dly && nodep->access().isWriteOrRW()) {
             // Delayed variable: is different from non-delayed variable, writes to it
             // are not observable while executing this block (NBA not yet committed),
             // so add only a write edge to a separate 'post' vertex.
-            if (!vscp->user2p()) vscp->user2p(new SplitVarPostVertex{m_graphp, vscp});
-            SplitVarPostVertex* const vpostp = vscp->user2u().to<SplitVarPostVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vpostp, vtxp);
-        } else if (nodep->access().isWriteOrRW()) {
+            ਜੇ (!vscp->user2p()) vscp->user2p(ਨਵਾਂ ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼{m_graphp, vscp});
+            ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼* ਅਚਲ vpostp = vscp->user2u().ਮੰਜ਼ਿਲ<ਵੰਡੋ_Var_Post_ਸ਼ੀਰਸ਼*>();
+            ਲਈ (ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_stmtStackps) ਜੋੜੋ_ਕਿਨਾਰਾ(vpostp, vtxp);
+        } ਨਹੀਂਤਾਂ ਜੇ (nodep->access().isWriteOrRW()) {
             // Regular (non-blocking) write: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vstdp, vtxp);
-        } else {
+            ਜੇ (!vscp->user1p()) vscp->user1p(ਨਵਾਂ ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼{m_graphp, vscp});
+            ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼* ਅਚਲ vstdp = vscp->user1u().ਮੰਜ਼ਿਲ<ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼*>();
+            ਲਈ (ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_stmtStackps) ਜੋੜੋ_ਕਿਨਾਰਾ(vstdp, vtxp);
+        } ਨਹੀਂਤਾਂ {
             // Regular (non-blocking) read: Need to maintain program-flow order
-            if (!vscp->user1p()) vscp->user1p(new SplitVarStdVertex{m_graphp, vscp});
-            SplitVarStdVertex* const vstdp = vscp->user1u().to<SplitVarStdVertex*>();
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) {
+            ਜੇ (!vscp->user1p()) vscp->user1p(ਨਵਾਂ ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼{m_graphp, vscp});
+            ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼* ਅਚਲ vstdp = vscp->user1u().ਮੰਜ਼ਿਲ<ਵੰਡੋ_Var_Std_ਸ਼ੀਰਸ਼*>();
+            ਲਈ (ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_stmtStackps) {
                 // If this is an if statement it only depends on refs in its
                 // own condition only (not those in its branches). For other
                 // statements, just record the referene as normal.
-                if (const AstIf* const ifp = VN_CAST(vtxp->nodep(), If)) {
-                    if (ifp != m_currIfp) continue;
+                ਜੇ (ਅਚਲ AstIf* ਅਚਲ ifp = VN_CAST(vtxp->nodep(), If)) {
+                    ਜੇ (ifp != m_currIfp) ਜਾਰੀ;
                 }
-                addEdge(vtxp, vstdp);
+                ਜੋੜੋ_ਕਿਨਾਰਾ(vtxp, vstdp);
             }
         }
     }
 
-    void visit(AstNode* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override {
         // Outside AstAlways, just descend
-        if (!m_graphp) {
+        ਜੇ (!m_graphp) {
             iterateChildren(nodep);
-            return;
+            ਵਾਪਸ;
         }
         // Early exit if decided not to split
-        if (m_noSplitWhy) return;
+        ਜੇ (m_no_ਵੰਡੋ_Why) ਵਾਪਸ;
 
-        UASSERT_OBJ(!m_stmtStackps.empty(), nodep, "Not under a statement");
+        UASSERT_OBJ(!m_stmtStackps.ਖਾਲੀ_ਥਾਵਾਂ(), nodep, "Not under a statement");
 
         // Timing control prevents splitting
-        if (nodep->isTimingControl()) {
-            m_noSplitWhy = "TimingControl";
-            return;
+        ਜੇ (nodep->isTimingControl()) {
+            m_no_ਵੰਡੋ_Why = "TimingControl";
+            ਵਾਪਸ;
         }
 
         // All impure statements must be grouped together.
-        if (!nodep->isPure()) {
-            if (!m_impureVtxp) m_impureVtxp = new SplitImpureVertex{m_graphp, nodep};
+        ਜੇ (!nodep->is_ਸ਼ੁੱਧ()) {
+            ਜੇ (!m_impureVtxp) m_impureVtxp = ਨਵਾਂ ਵੰਡੋ_Impure_ਸ਼ੀਰਸ਼{m_graphp, nodep};
             // One edge is enough to find the weakly connected components, but
             // it must point at the impure vertex, so it is an out edge (input
             // dependency) of any enclosing 'if' to prevent pruning.
-            for (SplitStmtVertex* const vtxp : m_stmtStackps) addEdge(vtxp, m_impureVtxp);
+            ਲਈ (ਵੰਡੋ_Stmt_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : m_stmtStackps) ਜੋੜੋ_ਕਿਨਾਰਾ(vtxp, m_impureVtxp);
         }
 
         iterateChildren(nodep);
     }
 
     // CONSTRUCTORS
-    explicit SplitVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~SplitVisitor() override { V3Stats::addStat("Optimizations, Split always", m_statSplits); }
-    VL_UNCOPYABLE(SplitVisitor);
+    ਸਪਸ਼ਟ ਵੰਡੋ_Visitor(AstNetlist* nodep) { iterate(nodep); }
+    ~ਵੰਡੋ_Visitor() override { V3Stats::ਜੋੜੋ_Stat("Optimizations, Split always", m_statSplits); }
+    VL_UNCOPYABLE(ਵੰਡੋ_Visitor);
 
-public:
-    static void apply(AstNetlist* nodep) { SplitVisitor{nodep}; }
+ਜਨਤਕ:
+    ਸਥਿਰ ਖਾਲੀ apply(AstNetlist* nodep) { ਵੰਡੋ_Visitor{nodep}; }
 };
 
 //######################################################################
 // Split class functions
 
-void V3Split::splitAll(AstNetlist* nodep) {
+ਖਾਲੀ V3_ਵੰਡੋ::ਵੰਡੋ_All(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
-    SplitVisitor::apply(nodep);
-    V3Global::dumpCheckGlobalTree("split", 0, dumpTreeEitherLevel() >= 3);
+    ਵੰਡੋ_Visitor::apply(nodep);
+    V3Global::dump_Check_Global_ਰੁੱਖ("split", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

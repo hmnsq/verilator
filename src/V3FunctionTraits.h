@@ -14,45 +14,45 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_V3FUNCTIONTRAITS_H_
-#define VERILATOR_V3FUNCTIONTRAITS_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_V3FUNCTIONTRAITS_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_V3FUNCTIONTRAITS_H_
 
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include <cstddef>
-#include <tuple>
-#include <type_traits>
+#ਅਨ੍ਤਰ੍ਭਾਵ <cstddef>
+#ਅਨ੍ਤਰ੍ਭਾਵ <tuple>
+#ਅਨ੍ਤਰ੍ਭਾਵ <type_traits>
 
-template <typename T>
-struct FunctionTraits;
+ਸਾਂਚਾ <typename T>
+ਬਣਤਰ FunctionTraits;
 
 // For generic types, directly use the result of the signature of its 'operator()'
-template <typename T>
-struct FunctionTraits final
-    : public FunctionTraits<decltype(&std::remove_reference<T>::type::operator())> {};
+ਸਾਂਚਾ <typename T>
+ਬਣਤਰ FunctionTraits final
+    : ਜਨਤਕ FunctionTraits<decltype(&std::remove_reference<T>::type::ਸੰਚਾਲਕ())> {};
 
 // Specialization for pointers to member function
-template <typename T_ClassType, typename T_ReturnType, typename... Args>
-struct FunctionTraits<T_ReturnType (T_ClassType::*)(Args...) const> VL_NOT_FINAL {
+ਸਾਂਚਾ <typename T_ClassType, typename T_ReturnType, typename... ਦਲੀਲਾਂ_2>
+ਬਣਤਰ FunctionTraits<T_ReturnType (T_ClassType::*)(ਦਲੀਲਾਂ_2...) ਅਚਲ> VL_NOT_FINAL {
     // Number of arguments
-    static constexpr size_t arity = sizeof...(Args);
+    ਸਥਿਰ constexpr ਮਾਪ_t arity = ਆਕਾਰ...(ਦਲੀਲਾਂ_2);
 
     // Type of result
-    using result_type = T_ReturnType;
+    using ਨਤੀਜਾ_type = T_ReturnType;
 
     // Type of arguments
-    template <std::size_t N>
-    struct arg final {
-        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+    ਸਾਂਚਾ <std::ਮਾਪ_t N>
+    ਬਣਤਰ arg final {
+        using type = typename std::tuple_element<N, std::tuple<ਦਲੀਲਾਂ_2...>>::type;
     };
 };
 
-template <typename T_Callable, size_t N_Index>
-struct FunctionArgNoPointerNoCV final {
+ਸਾਂਚਾ <typename T_Callable, ਮਾਪ_t N_ਸੂਚਕਾਂਕ>
+ਬਣਤਰ Function_Arg_No_ਸੂਚਕ_No_CV final {
     using Traits = FunctionTraits<T_Callable>;
-    using T_Arg = typename Traits::template arg<N_Index>::type;
-    using T_ArgNoPtr = typename std::remove_pointer<T_Arg>::type;
+    using T_Arg = typename Traits::ਸਾਂਚਾ arg<N_ਸੂਚਕਾਂਕ>::type;
+    using T_ArgNoPtr = typename std::remove_ਸੂਚਕ<T_Arg>::type;
     using type = typename std::remove_cv<T_ArgNoPtr>::type;
 };
 
-#endif
+#ਜੇ_ਅੰਤ

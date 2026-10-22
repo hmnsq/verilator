@@ -18,53 +18,53 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3OrderCFuncEmitter.h"
-#include "V3OrderInternal.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderCFuncEmitter.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3OrderInternal.h"
 
-#include <memory>
+#ਅਨ੍ਤਰ੍ਭਾਵ <memory>
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // OrderSerial class
 
-AstNodeStmt* V3Order::createSerial(OrderMoveGraph& moveGraph, const std::string& tag, bool slow) {
+Ast_ਗੰਢ_Stmt* V3_ਕ੍ਰਮ::createSerial(ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ& move_ਗ੍ਰਾਫ, ਅਚਲ std::string& ਟੈਗ, ਤਾਰਕਿਕ slow) {
 
-    UINFO(2, "  Constructing serial code for '" + tag + "'");
+    UINFO(2, "  Constructing serial code for '" + ਟੈਗ + "'");
 
     // Serializer
-    OrderMoveGraphSerializer serializer{moveGraph};
+    ਕ੍ਰਮ_Move_ਗ੍ਰਾਫ_Serializer serializer{move_ਗ੍ਰਾਫ};
 
     // Add initially ready vertices (those with no dependencies) to the serializer as seeds
-    for (V3GraphVertex& vtx : moveGraph.vertices()) {
-        if (vtx.inEmpty()) serializer.addSeed(vtx.as<OrderMoveVertex>());
+    ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼& vtx : move_ਗ੍ਰਾਫ.vertices()) {
+        ਜੇ (vtx.ਵਿੱਚ_ਖਾਲੀ_ਥਾਵਾਂ()) serializer.ਜੋੜੋ_ਬੀਜ(vtx.as<ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼>());
     }
 
     // Emit all logic as they become ready
-    V3OrderCFuncEmitter emitter{moveGraph.orderGraph().trigVscp(), tag, slow};
-    OrderMoveDomScope* prevDomScopep = nullptr;
-    while (OrderMoveVertex* const mVtxp = serializer.getNext()) {
+    V3_ਕ੍ਰਮ_CFunc_Emitter emitter{move_ਗ੍ਰਾਫ.ਕ੍ਰਮ_ਗ੍ਰਾਫ_2().trigVscp(), ਟੈਗ, slow};
+    ਕ੍ਰਮ_Move_Dom_Scope* prevDomScopep = ਖਾਲੀ_ਸੂਚਕ;
+    ਜਦੋਂ (ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼* ਅਚਲ mVtxp = serializer.get_ਅਗਲਾ()) {
         // We only really care about logic vertices
-        if (OrderLogicVertex* const logicp = mVtxp->logicp()) {
+        ਜੇ (ਕ੍ਰਮ_Logic_ਸ਼ੀਰਸ਼* ਅਚਲ logicp = mVtxp->logicp()) {
             // Force a new function if the domain or scope changed, for better combining.
-            OrderMoveDomScope* const domScopep = &mVtxp->domScope();
-            if (domScopep != prevDomScopep) emitter.forceNewFunction();
+            ਕ੍ਰਮ_Move_Dom_Scope* ਅਚਲ domScopep = &mVtxp->domScope();
+            ਜੇ (domScopep != prevDomScopep) emitter.forceNewFunction();
             prevDomScopep = domScopep;
             // Emit the logic under this vertex
             emitter.emitLogic(logicp);
         }
         // Can delete the vertex now
-        VL_DO_DANGLING(mVtxp->unlinkDelete(&moveGraph), mVtxp);
+        VL_DO_DANGLING(mVtxp->unlinkDelete(&move_ਗ੍ਰਾਫ), mVtxp);
     }
 
     // Delete the remaining variable vertices
-    for (V3GraphVertex* const vtxp : moveGraph.vertices().unlinkable()) {
-        if (!vtxp->as<OrderMoveVertex>()->logicp()) {
-            VL_DO_DANGLING(vtxp->unlinkDelete(&moveGraph), vtxp);
+    ਲਈ (V3_ਗ੍ਰਾਫ_ਸ਼ੀਰਸ਼* ਅਚਲ vtxp : move_ਗ੍ਰਾਫ.vertices().unlinkable()) {
+        ਜੇ (!vtxp->as<ਕ੍ਰਮ_Move_ਸ਼ੀਰਸ਼>()->logicp()) {
+            VL_DO_DANGLING(vtxp->unlinkDelete(&move_ਗ੍ਰਾਫ), vtxp);
         }
     }
 
-    return emitter.getStmts();
+    ਵਾਪਸ emitter.getStmts();
 }

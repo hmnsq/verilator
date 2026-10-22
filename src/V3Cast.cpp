@@ -37,197 +37,197 @@
 //
 //*************************************************************************
 
-#include "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3PchAstNoMT.h"  // VL_MT_DISABLED_CODE_UNIT
 
-#include "V3Cast.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "V3Cast.h"
 
 VL_DEFINE_DEBUG_FUNCTIONS;
 
 //######################################################################
 // Cast state, as a visitor of each AstNode
 
-class CastVisitor final : public VNVisitor {
+ਵਰਗ CastVisitor final : ਜਨਤਕ VNVisitor {
     // NODE STATE
     // Entire netlist:
     //   AstNode::user1()               // bool.  Node is of known size
-    const VNUser1InUse m_inuser1;
+    ਅਚਲ VNUser1_ਵਿੱਚ_Use m_inuser1;
 
     // STATE
 
     // METHODS
 
-    void insertCast(AstNodeExpr* nodep, int needsize) {  // We'll insert ABOVE passed node
+    ਖਾਲੀ ਪਾਓ_Cast(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep, ਪੂਰਨ needsize) {  // We'll insert ABOVE passed node
         VNRelinker relinkHandle;
-        nodep->unlinkFrBack(&relinkHandle);
+        nodep->unlink_Fr_ਪਿੱਠ(&relinkHandle);
         //
-        AstCCast* const castp
-            = new AstCCast{nodep->fileline(), nodep, needsize, nodep->widthMin()};
-        UINFO(4, "  MadeCast " << static_cast<void*>(castp) << " for " << nodep);
+        AstCCast* ਅਚਲ castp
+            = ਨਵਾਂ AstCCast{nodep->fileline(), nodep, needsize, nodep->ਚੌੜਾਈ_Min()};
+        UINFO(4, "  MadeCast " << static_cast<ਖਾਲੀ*>(castp) << " for " << nodep);
         relinkHandle.relink(castp);
         // UINFOTREE(9, castp, "", "castins");
         //
         ensureLower32Cast(castp);
         nodep->user1(1);  // Now must be of known size
     }
-    static int castSize(int width) {
-        if (width > VL_IDATASIZE && width <= VL_QUADSIZE) {
-            return VL_QUADSIZE;
-        } else if (width <= 8) {
-            return 8;
-        } else if (width <= 16) {
-            return 16;
-        } else {
-            return VL_IDATASIZE;
+    ਸਥਿਰ ਪੂਰਨ cast_ਮਾਪ(ਪੂਰਨ ਚੌੜਾਈ) {
+        ਜੇ (ਚੌੜਾਈ > VL_IDATASIZE && ਚੌੜਾਈ <= VL_QUADSIZE) {
+            ਵਾਪਸ VL_QUADSIZE;
+        } ਨਹੀਂਤਾਂ ਜੇ (ਚੌੜਾਈ <= 8) {
+            ਵਾਪਸ 8;
+        } ਨਹੀਂਤਾਂ ਜੇ (ਚੌੜਾਈ <= 16) {
+            ਵਾਪਸ 16;
+        } ਨਹੀਂਤਾਂ {
+            ਵਾਪਸ VL_IDATASIZE;
         }
     }
-    static int castSize(const AstNode* nodep) { return castSize(nodep->width()); }
-    void ensureCast(AstNodeExpr* nodep) {
-        if (castSize(nodep->backp()) != castSize(nodep) || !nodep->user1()) {
-            if (!nodep->isNull() && !nodep->isString() && !nodep->isDouble())
-                insertCast(nodep, castSize(nodep->backp()));
+    ਸਥਿਰ ਪੂਰਨ cast_ਮਾਪ(ਅਚਲ Ast_ਗੰਢ* nodep) { ਵਾਪਸ cast_ਮਾਪ(nodep->ਚੌੜਾਈ()); }
+    ਖਾਲੀ ensureCast(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
+        ਜੇ (cast_ਮਾਪ(nodep->backp()) != cast_ਮਾਪ(nodep) || !nodep->user1()) {
+            ਜੇ (!nodep->isNull() && !nodep->isString() && !nodep->isDouble())
+                ਪਾਓ_Cast(nodep, cast_ਮਾਪ(nodep->backp()));
         }
     }
     // Cast a constructor value to the C type of the element or member 'dtypep' it is stored in,
     // as V3Clean widened the value to its C++ width
-    void ensureCastValue(AstNodeExpr* valuep, const AstNodeDType* dtypep) {
+    ਖਾਲੀ ensure_Cast_ਮੁੱਲ(Ast_ਗੰਢ_ਵਿਅੰਜਕ* valuep, ਅਚਲ Ast_ਗੰਢ_DType* dtypep) {
         dtypep = dtypep->skipRefp();
-        if (dtypep->isIntegralOrPacked() && dtypep->width() <= VL_QUADSIZE) {
-            insertCast(valuep, castSize(dtypep->width()));
+        ਜੇ (dtypep->isIntegralOrPacked() && dtypep->ਚੌੜਾਈ() <= VL_QUADSIZE) {
+            ਪਾਓ_Cast(valuep, cast_ਮਾਪ(dtypep->ਚੌੜਾਈ()));
         }
     }
     // cppcheck-suppress constParameterPointer // lhsp might be changed
-    void ensureLower32Cast(AstCCast* nodep) {
+    ਖਾਲੀ ensureLower32Cast(AstCCast* nodep) {
         // If we have uint64 = CAST(uint64(x)) then the upcasting
         // really needs to be CAST(uint64(CAST(uint32(x))).
         // Otherwise a (uint64)(a>b) would return wrong value, as
         // less than has nondeterministic signedness.
-        if (nodep->isQuad() && !nodep->lhsp()->isQuad() && !VN_IS(nodep->lhsp(), CCast)) {
-            insertCast(nodep->lhsp(), VL_IDATASIZE);
+        ਜੇ (nodep->isQuad() && !nodep->lhsp()->isQuad() && !VN_IS(nodep->lhsp(), CCast)) {
+            ਪਾਓ_Cast(nodep->lhsp(), VL_IDATASIZE);
         }
     }
-    void ensureNullChecked(AstNodeExpr* nodep) {
+    ਖਾਲੀ ensureNullChecked(Ast_ਗੰਢ_ਵਿਅੰਜਕ* nodep) {
         // TODO optimize to track null checked values and avoid where possible
-        if (!VN_IS(nodep->backp(), NullCheck)) {
+        ਜੇ (!VN_IS(nodep->backp(), NullCheck)) {
             VNRelinker relinkHandle;
-            nodep->unlinkFrBack(&relinkHandle);
-            relinkHandle.relink(new AstNullCheck{nodep->fileline(), nodep});
+            nodep->unlink_Fr_ਪਿੱਠ(&relinkHandle);
+            relinkHandle.relink(ਨਵਾਂ AstNullCheck{nodep->fileline(), nodep});
         }
     }
 
     // VISITORS
-    void visit(AstNodeUniop* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Uniop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Lhs()) ensureCast(nodep->lhsp());
     }
-    void visit(AstNodeBiop* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Biop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Lhs()) ensureCast(nodep->lhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Rhs()) ensureCast(nodep->rhsp());
     }
-    void visit(AstCond* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCond* nodep) override {
         // All class types are castable to each other. If they are of different types,
         // a compilation error will be thrown, so an explicit cast is required. Types were
         // already checked by V3Width and dtypep of a condition operator is a type of their
         // common base class, so both classes can be safely casted.
-        const AstClassRefDType* const thenClassDtypep
+        ਅਚਲ AstClassRefDType* ਅਚਲ thenClassDtypep
             = VN_CAST(nodep->thenp()->dtypep()->skipRefp(), ClassRefDType);
-        const AstClassRefDType* const elseClassDtypep
+        ਅਚਲ AstClassRefDType* ਅਚਲ elseClassDtypep
             = VN_CAST(nodep->elsep()->dtypep()->skipRefp(), ClassRefDType);
-        const bool castRequired = thenClassDtypep && elseClassDtypep
+        ਅਚਲ ਤਾਰਕਿਕ castRequired = thenClassDtypep && elseClassDtypep
                                   && (thenClassDtypep->classp() != elseClassDtypep->classp());
-        if (castRequired) {
-            const AstClass* const commonBaseClassp
+        ਜੇ (castRequired) {
+            ਅਚਲ AstClass* ਅਚਲ common_ਅਧਾਰ_Classp
                 = VN_AS(nodep->dtypep()->skipRefp(), ClassRefDType)->classp();
-            if (thenClassDtypep->classp() != commonBaseClassp) {
-                AstNodeExpr* thenp = nodep->thenp()->unlinkFrBack();
-                nodep->thenp(new AstCCast{thenp->fileline(), thenp, nodep});
+            ਜੇ (thenClassDtypep->classp() != common_ਅਧਾਰ_Classp) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* thenp = nodep->thenp()->unlink_Fr_ਪਿੱਠ();
+                nodep->thenp(ਨਵਾਂ AstCCast{thenp->fileline(), thenp, nodep});
             }
-            if (elseClassDtypep->classp() != commonBaseClassp) {
-                AstNodeExpr* elsep = nodep->elsep()->unlinkFrBack();
-                nodep->elsep(new AstCCast{elsep->fileline(), elsep, nodep});
+            ਜੇ (elseClassDtypep->classp() != common_ਅਧਾਰ_Classp) {
+                Ast_ਗੰਢ_ਵਿਅੰਜਕ* elsep = nodep->elsep()->unlink_Fr_ਪਿੱਠ();
+                nodep->elsep(ਨਵਾਂ AstCCast{elsep->fileline(), elsep, nodep});
             }
         }
-        visit(static_cast<AstNodeTriop*>(nodep));
+        ਦੇਖੋ(static_cast<Ast_ਗੰਢ_Triop*>(nodep));
     }
-    void visit(AstNodeTriop* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Triop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
-        if (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Lhs()) ensureCast(nodep->lhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Rhs()) ensureCast(nodep->rhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Ths()) ensureCast(nodep->thsp());
     }
-    void visit(AstNodeQuadop* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ_Quadop* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1() | nodep->rhsp()->user1() | nodep->thsp()->user1()
                      | nodep->fhsp()->user1());
-        if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
-        if (nodep->sizeMattersRhs()) ensureCast(nodep->rhsp());
-        if (nodep->sizeMattersThs()) ensureCast(nodep->thsp());
-        if (nodep->sizeMattersFhs()) ensureCast(nodep->fhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Lhs()) ensureCast(nodep->lhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Rhs()) ensureCast(nodep->rhsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Ths()) ensureCast(nodep->thsp());
+        ਜੇ (nodep->ਮਾਪ_Matters_Fhs()) ensureCast(nodep->fhsp());
     }
-    void visit(AstCCast* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCCast* nodep) override {
         iterateChildren(nodep);
         ensureLower32Cast(nodep);
         nodep->user1(1);
     }
-    void visit(AstConsAssoc* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConsAssoc* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+        ਜੇ (nodep->defaultp()) {
+            ensure_Cast_ਮੁੱਲ(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
-    void visit(AstConsDynArray* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConsDynArray* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+        ਜੇ (nodep->defaultp()) {
+            ensure_Cast_ਮੁੱਲ(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
-    void visit(AstConsStructItem* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_Cons_Struct_ਵਸਤੂ* nodep) override {
         iterateChildren(nodep);
-        ensureCastValue(nodep->valuep(), nodep->memberp());
+        ensure_Cast_ਮੁੱਲ(nodep->valuep(), nodep->memberp());
     }
-    void visit(AstConsWildcard* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConsWildcard* nodep) override {
         iterateChildren(nodep);
-        if (nodep->defaultp()) {
-            ensureCastValue(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
+        ਜੇ (nodep->defaultp()) {
+            ensure_Cast_ਮੁੱਲ(nodep->defaultp(), nodep->dtypep()->skipRefp()->subDTypep());
         }
         nodep->user1(1);
     }
-    void visit(AstExprStmt* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਵਿਅੰਜਕ_Stmt* nodep) override {
         iterateChildren(nodep);
         nodep->user1(1);
     }
-    void visit(AstNegate* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstNegate* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
-        if (nodep->lhsp()->widthMin() == 1 && !nodep->lhsp()->isWide()) {
+        ਜੇ (nodep->lhsp()->ਚੌੜਾਈ_Min() == 1 && !nodep->lhsp()->isWide()) {
             // We want to avoid a GCC "converting of negative value" warning
             // from our expansion of
             //    out = {32{a<b}}  =>   out = - (a<b)
-            insertCast(nodep->lhsp(), castSize(nodep));
-        } else {
-            if (nodep->sizeMattersLhs()) ensureCast(nodep->lhsp());
+            ਪਾਓ_Cast(nodep->lhsp(), cast_ਮਾਪ(nodep));
+        } ਨਹੀਂਤਾਂ {
+            ਜੇ (nodep->ਮਾਪ_Matters_Lhs()) ensureCast(nodep->lhsp());
         }
     }
-    void visit(AstVarRef* nodep) override {
-        const AstNode* const backp = nodep->backp();
-        if (nodep->access().isReadOnly() && VN_IS(backp, NodeExpr) && !VN_IS(backp, CCast)
-            && !VN_IS(backp, NodeCCall) && !VN_IS(backp, CMethodHard) && !VN_IS(backp, SFormatF)
+    ਖਾਲੀ ਦੇਖੋ(AstVarRef* nodep) override {
+        ਅਚਲ Ast_ਗੰਢ* ਅਚਲ backp = nodep->backp();
+        ਜੇ (nodep->access().isReadOnly() && VN_IS(backp, ਗੰਢ_ਵਿਅੰਜਕ) && !VN_IS(backp, CCast)
+            && !VN_IS(backp, ਗੰਢ_CCall) && !VN_IS(backp, CMethodHard) && !VN_IS(backp, SFormatF)
             && !VN_IS(backp, ArraySel) && !VN_IS(backp, StructSel) && !VN_IS(backp, RedXor)
             && (nodep->varp()->basicp() && !nodep->varp()->basicp()->isForkSync()
                 && !nodep->varp()->basicp()->isProcessRef() && !nodep->varp()->basicp()->isEvent())
-            && backp->width() && castSize(nodep) != castSize(nodep->varp())) {
+            && backp->ਚੌੜਾਈ() && cast_ਮਾਪ(nodep) != cast_ਮਾਪ(nodep->varp())) {
             // Cast vars to IData first, else below has upper bits wrongly set
             //  CData x=3; out = (QData)(x<<30);
-            insertCast(nodep, castSize(nodep));
+            ਪਾਓ_Cast(nodep, cast_ਮਾਪ(nodep));
         }
         nodep->user1(1);
     }
-    void visit(AstConst* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstConst* nodep) override {
         // Constants are of unknown size if smaller than 33 bits, because
         // we're too lazy to wrap every constant in the universe in
         // ((IData)#).
@@ -235,46 +235,46 @@ class CastVisitor final : public VNVisitor {
     }
 
     // Null dereference protection
-    void visit(AstNullCheck* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstNullCheck* nodep) override {
         iterateChildren(nodep);
         nodep->user1(nodep->lhsp()->user1());
     }
-    void visit(AstCMethodCall* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCMethodCall* nodep) override {
         iterateChildren(nodep);
         ensureNullChecked(nodep->fromp());
-        nodep->user1(true);
+        nodep->user1(ਸੱਚ);
     }
-    void visit(AstCMethodHard* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstCMethodHard* nodep) override {
         iterateChildren(nodep);
-        nodep->user1(true);
+        nodep->user1(ਸੱਚ);
     }
-    void visit(AstMemberSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstMemberSel* nodep) override {
         iterateChildren(nodep);
         ensureNullChecked(nodep->fromp());
-        nodep->user1(true);
+        nodep->user1(ਸੱਚ);
     }
-    void visit(AstStructSel* nodep) override {
+    ਖਾਲੀ ਦੇਖੋ(AstStructSel* nodep) override {
         iterateChildren(nodep);
-        nodep->user1(true);
+        nodep->user1(ਸੱਚ);
     }
 
     // NOPs
-    void visit(AstVar*) override {}
+    ਖਾਲੀ ਦੇਖੋ(AstVar*) override {}
 
     //--------------------
-    void visit(AstNode* nodep) override { iterateChildren(nodep); }
+    ਖਾਲੀ ਦੇਖੋ(Ast_ਗੰਢ* nodep) override { iterateChildren(nodep); }
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    explicit CastVisitor(AstNetlist* nodep) { iterate(nodep); }
-    ~CastVisitor() override = default;
+    ਸਪਸ਼ਟ CastVisitor(AstNetlist* nodep) { iterate(nodep); }
+    ~CastVisitor() override = ਮੂਲ;
 };
 
 //######################################################################
 // Cast class functions
 
-void V3Cast::castAll(AstNetlist* nodep) {
+ਖਾਲੀ V3Cast::castAll(AstNetlist* nodep) {
     UINFO(2, __FUNCTION__ << ":");
     { CastVisitor{nodep}; }  // Destruct before checking
-    V3Global::dumpCheckGlobalTree("cast", 0, dumpTreeEitherLevel() >= 3);
+    V3Global::dump_Check_Global_ਰੁੱਖ("cast", 0, dump_ਰੁੱਖ_Either_Level() >= 3);
 }

@@ -14,56 +14,56 @@
 //
 //*************************************************************************
 
-#ifndef VERILATOR_VLCTOP_H_
-#define VERILATOR_VLCTOP_H_
+#ਜੇ_ਅਪਰਿਭਾਸ਼ਿਤ VERILATOR_VLCTOP_H_
+#ਪਰਿਭਾਸ਼ਿਤ_ਕਰੋ VERILATOR_VLCTOP_H_
 
-#include "config_build.h"
-#include "verilatedos.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "config_build.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "verilatedos.h"
 
-#include "VlcOptions.h"
-#include "VlcPoint.h"
-#include "VlcSource.h"
-#include "VlcTest.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "VlcOptions.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "VlcPoint.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "VlcSource.h"
+#ਅਨ੍ਤਰ੍ਭਾਵ "VlcTest.h"
 
 //######################################################################
 // VlcTop - Top level options container
 
-class VlcTop final {
-public:
+class Vlc_ਸਿਖਰ final {
+ਜਨਤਕ:
     // PUBLIC MEMBERS
     VlcOptions opt;  //< Runtime options
-private:
+ਨਿਜੀ:
     // MEMBERS
     VlcTests m_tests;  //< List of all tests (all coverage files)
     VlcPoints m_points;  //< List of all points
     VlcSources m_sources;  //< List of all source files to annotate
 
     // METHODS
-    void annotateCalc();
-    void annotateCalcNeeded();
-    void annotateOutputFiles(const string& dirname);
+    ਖਾਲੀ annotateCalc();
+    ਖਾਲੀ annotateCalcNeeded();
+    ਖਾਲੀ annotateOutputFiles(ਅਚਲ string& dirname);
 
-public:
+ਜਨਤਕ:
     // CONSTRUCTORS
-    VlcTop() = default;
-    ~VlcTop() = default;
+    Vlc_ਸਿਖਰ() = ਮੂਲ;
+    ~Vlc_ਸਿਖਰ() = ਮੂਲ;
 
     // ACCESSORS
-    VlcTests& tests() { return m_tests; }
-    VlcPoints& points() { return m_points; }
-    VlcSources& sources() { return m_sources; }
+    VlcTests& tests() { ਵਾਪਸ m_tests; }
+    VlcPoints& points() { ਵਾਪਸ m_points; }
+    VlcSources& sources() { ਵਾਪਸ m_sources; }
 
     // METHODS
-    void annotate(const string& dirname);
-    void printHierarchyReport();
-    void printTypeSummary();
-    void readCoverage(const string& filename, bool nonfatal = false);
-    void writeCoverage(const string& filename);
-    void writeInfo(const string& filename);
+    ਖਾਲੀ annotate(ਅਚਲ string& dirname);
+    ਖਾਲੀ printHierarchyReport();
+    ਖਾਲੀ printTypeSummary();
+    ਖਾਲੀ readCoverage(ਅਚਲ string& filename, bool nonfatal = false);
+    ਖਾਲੀ writeCoverage(ਅਚਲ string& filename);
+    ਖਾਲੀ writeInfo(ਅਚਲ string& filename);
 
-    void rank();
+    ਖਾਲੀ rank();
 };
 
 //######################################################################
 
-#endif  // guard
+#ਜੇ_ਅੰਤ  // guard
