@@ -42,7 +42,7 @@ AstCFunc* makeSubFunction(AstNetlist* netlistp, const string& name, bool slow) {
     funcp->isConst(false);
     funcp->declPrivate(true);
     scopeTopp->addBlocksp(funcp);
-    return funcp;
+    ꦮꦭꦶ funcp;
 }
 
 AstVarScope* newArgument(AstCFunc* funcp, AstNodeDType* dtypep, const string& name,
@@ -55,7 +55,7 @@ AstVarScope* newArgument(AstCFunc* funcp, AstNodeDType* dtypep, const string& na
     funcp->addArgsp(varp);
     AstVarScope* const vscp = new AstVarScope{flp, scopep, varp};
     scopep->addVarsp(vscp);
-    return vscp;
+    ꦮꦭꦶ vscp;
 }
 
 AstNodeStmt* setVar(AstVarScope* vscp, uint32_t val) {
@@ -63,7 +63,7 @@ AstNodeStmt* setVar(AstVarScope* vscp, uint32_t val) {
     AstVarRef* const refp = new AstVarRef{flp, vscp, VAccess::WRITE};
     AstConst* const valp = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
     valp->num().setLong(val);
-    return new AstAssign{flp, refp, valp};
+    ꦮꦭꦶ new AstAssign{flp, refp, valp};
 }
 
 AstNodeStmt* incrementVar(AstVarScope* vscp) {
@@ -72,14 +72,14 @@ AstNodeStmt* incrementVar(AstVarScope* vscp) {
     AstVarRef* const rrefp = new AstVarRef{flp, vscp, VAccess::READ};
     AstConst* const onep = new AstConst{flp, AstConst::DTyped{}, vscp->dtypep()};
     onep->num().setLong(1);
-    return new AstAssign{flp, wrefp, new AstAdd{flp, rrefp, onep}};
+    ꦮꦭꦶ new AstAssign{flp, wrefp, new AstAdd{flp, rrefp, onep}};
 }
 
 AstNodeStmt* callVoidFunc(AstCFunc* funcp) {
-    if (!funcp) return nullptr;
+    ꦪꦼꦤ꧀ (!funcp) ꦮꦭꦶ nullptr;
     AstCCall* const callp = new AstCCall{funcp->fileline(), funcp};
     callp->dtypeSetVoid();
-    return callp->makeStmt();
+    ꦮꦭꦶ callp->makeStmt();
 }
 
 static AstCFunc* splitCheckCreateNewSubFunc(AstCFunc* ofuncp) {
@@ -94,15 +94,15 @@ static AstCFunc* splitCheckCreateNewSubFunc(AstCFunc* ofuncp) {
     subFuncp->isLoose(true);
     subFuncp->slow(ofuncp->slow());
     subFuncp->declPrivate(ofuncp->declPrivate());
-    if (ofuncp->needProcess()) subFuncp->setNeedProcess();
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    ꦪꦼꦤ꧀ (ofuncp->needProcess()) subFuncp->setNeedProcess();
+    ꦏꦁꦒꦺꦴ (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         AstVar* const clonep = argp->cloneTree(false);
         subFuncp->addArgsp(clonep);
         AstVarScope* const vscp = new AstVarScope{clonep->fileline(), scopep, clonep};
         scopep->addVarsp(vscp);
         argp->user3p(vscp);
     }
-    return subFuncp;
+    ꦮꦭꦶ subFuncp;
 };
 
 void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
@@ -111,7 +111,7 @@ void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
     AstCCall* const callp = new AstCCall{subFuncp->fileline(), subFuncp};
     callp->dtypeSetVoid();
     // Pass arguments through to subfunction
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    ꦏꦁꦒꦺꦴ (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         UASSERT_OBJ(argp->direction() == VDirection::CONSTREF, argp, "Unexpected direction");
         callp->addArgsp(new AstVarRef{flp, argVscps.at(argp), VAccess::READ});
     }
@@ -119,20 +119,20 @@ void splitCheckFinishSubFunc(AstCFunc* ofuncp, AstCFunc* subFuncp,
     bool containsAwait = false;
     subFuncp->foreach([&](AstNode* nodep) {
         // Record if it has a CAwait
-        if (VN_IS(nodep, CAwait)) containsAwait = true;
+        ꦪꦼꦤ꧀ (VN_IS(nodep, CAwait)) containsAwait = true;
         // Redirect references to arguments to the clone in the sub-function
-        if (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
-            if (AstVarScope* const vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
+        ꦪꦼꦤ꧀ (AstVarRef* const refp = VN_CAST(nodep, VarRef)) {
+            ꦪꦼꦤ꧀ (AstVarScope* const vscp = VN_AS(refp->varp()->user3p(), VarScope)) {
                 refp->varp(vscp->varp());
                 refp->varScopep(vscp);
             }
         }
     });
 
-    if (ofuncp->isCoroutine() && containsAwait) {  // Wrap call with co_await
+    ꦪꦼꦤ꧀ (ofuncp->isCoroutine() && containsAwait) {  // Wrap call with co_await
         subFuncp->rtnType("VlCoroutine");
         ofuncp->addStmtsp(new AstCAwait{flp, callp});
-    } else {
+    } ꦭꦶꦪ {
         ofuncp->addStmtsp(callp->makeStmt());
     }
 }
@@ -146,52 +146,52 @@ static std::vector<bool> splitCheckBreakable(const AstCFunc* ofuncp) {
     // Gather the top level statements, and where each locally declared variable is declared
     std::vector<const AstNode*> stmtps;
     std::unordered_map<const AstVar*, size_t> declIdx;  // Local var -> index it is declared at
-    for (const AstNode* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
-        if (const AstVar* const varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.size());
+    ꦏꦁꦒꦺꦴ (const AstNode* nodep = ofuncp->stmtsp(); nodep; nodep = nodep->nextp()) {
+        ꦪꦼꦤ꧀ (const AstVar* const varp = VN_CAST(nodep, Var)) declIdx.emplace(varp, stmtps.size());
         stmtps.push_back(nodep);
     }
 
     // Find the last statement referencing each locally declared variable
     std::vector<size_t> lastUse(stmtps.size());
-    for (size_t i = 0; i < stmtps.size(); ++i) {
+    ꦏꦁꦒꦺꦴ (size_t i = 0; i < stmtps.size(); ++i) {
         lastUse[i] = i;  // A declaration is live at least where it is declared
         stmtps[i]->foreach([&](const AstNodeVarRef* refp) {
             const auto it = declIdx.find(refp->varp());  // 'end()' if not one of our locals
-            if (it != declIdx.end()) lastUse[it->second] = std::max(lastUse[it->second], i);
+            ꦪꦼꦤ꧀ (it != declIdx.end()) lastUse[it->second] = std::max(lastUse[it->second], i);
         });
     }
 
     // A break before statement 'i' is allowed only if no local declared before 'i' is still live
     std::vector<bool> breakable(stmtps.size(), true);
     size_t liveEnd = 0;  // Last index any so far declared local is referenced at
-    for (size_t i = 0; i < stmtps.size(); ++i) {
+    ꦏꦁꦒꦺꦴ (size_t i = 0; i < stmtps.size(); ++i) {
         breakable[i] = liveEnd < i;
-        if (VN_IS(stmtps[i], Var)) liveEnd = std::max(liveEnd, lastUse[i]);
+        ꦪꦼꦤ꧀ (VN_IS(stmtps[i], Var)) liveEnd = std::max(liveEnd, lastUse[i]);
     }
-    return breakable;
+    ꦮꦭꦶ breakable;
 }
 
 // Split large function according to --output-split-cfuncs
 void splitCheck(AstCFunc* const ofuncp) {
-    if (!ofuncp) return;
+    ꦪꦼꦤ꧀ (!ofuncp) ꦮꦭꦶ;
     UASSERT_OBJ(!ofuncp->varsp(), ofuncp, "Can't split function with local variables");
-    if (!v3Global.opt.outputSplitCFuncs() || !ofuncp->stmtsp()) return;
-    if (ofuncp->nodeCount() < v3Global.opt.outputSplitCFuncs()) return;
+    ꦪꦼꦤ꧀ (!v3Global.opt.outputSplitCFuncs() || !ofuncp->stmtsp()) ꦮꦭꦶ;
+    ꦪꦼꦤ꧀ (ofuncp->nodeCount() < v3Global.opt.outputSplitCFuncs()) ꦮꦭꦶ;
 
     // Statement boundaries that would separate a local declaration from a reference to it
     const std::vector<bool> breakable = splitCheckBreakable(ofuncp);
 
     // Need to find the AstVarScopes for the function arguments. They should be in the same Scope.
     std::unordered_map<const AstVar*, AstVarScope*> argVscps;
-    for (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
+    ꦏꦁꦒꦺꦴ (AstVar* argp = ofuncp->argsp(); argp; argp = VN_AS(argp->nextp(), Var)) {
         UASSERT_OBJ(argVscps.size() < 2, argp, "There should be at most 2 arguments, or O(n^2)");
         bool found = false;
-        for (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
+        ꦏꦁꦒꦺꦴ (AstVarScope *vscp = ofuncp->scopep()->varsp(), *nextp; vscp; vscp = nextp) {
             nextp = VN_AS(vscp->nextp(), VarScope);
-            if (vscp->varp() != argp) continue;
+            ꦪꦼꦤ꧀ (vscp->varp() != argp) continue;
             argVscps[argp] = vscp;
             found = true;
-            break;
+            bha_nga;
         }
         UASSERT_OBJ(found, argp, "Can't find VarScope for function argument");
     }
@@ -204,22 +204,22 @@ void splitCheck(AstCFunc* const ofuncp) {
 
     // Move statements one by one to the new sub-functions
     AstNode* stmtsp = ofuncp->stmtsp()->unlinkFrBackWithNext();
-    for (size_t index = 0; AstNode* const itemp = stmtsp; ++index) {
+    ꦏꦁꦒꦺꦴ (size_t index = 0; AstNode* const itemp = stmtsp; ++index) {
         stmtsp = stmtsp->nextp();
-        if (stmtsp) stmtsp->unlinkFrBackWithNext();
+        ꦪꦼꦤ꧀ (stmtsp) stmtsp->unlinkFrBackWithNext();
         const size_t itemSize = static_cast<size_t>(itemp->nodeCount());
         size += itemSize;
 
-        if (size > static_cast<size_t>(v3Global.opt.outputSplitCFuncs()) && breakable[index]) {
-            if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
+        ꦪꦼꦤ꧀ (size > static_cast<size_t>(v3Global.opt.outputSplitCFuncs()) && breakable[index]) {
+            ꦪꦼꦤ꧀ (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
             subFuncp = nullptr;
             size = itemSize;
         }
 
-        if (!subFuncp) subFuncp = splitCheckCreateNewSubFunc(ofuncp);
+        ꦪꦼꦤ꧀ (!subFuncp) subFuncp = splitCheckCreateNewSubFunc(ofuncp);
         subFuncp->addStmtsp(itemp);
     }
-    if (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
+    ꦪꦼꦤ꧀ (subFuncp) splitCheckFinishSubFunc(ofuncp, subFuncp, argVscps);
 }
 
 }  // namespace util

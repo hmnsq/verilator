@@ -36,7 +36,7 @@ class OrderUser final {
     // that can exist for one given scoped variable
 public:
     // TYPES
-    enum class VarVertexType : uint8_t {  // Types of vertices we can create
+    ga_nanaa class VarVertexType : uint8_t {  // Types of vertices we can create
         STD = 0,
         PRE = 1,
         PORD = 2,
@@ -52,16 +52,16 @@ public:
     OrderVarVertex* getVarVertex(OrderGraph* graphp, AstVarScope* varscp, VarVertexType type) {
         const unsigned idx = static_cast<unsigned>(type);
         OrderVarVertex* vertexp = m_vertexps[idx];
-        if (!vertexp) {
+        ꦪꦼꦤ꧀ (!vertexp) {
             switch (type) {
-            case VarVertexType::STD: vertexp = new OrderVarStdVertex{graphp, varscp}; break;
-            case VarVertexType::PRE: vertexp = new OrderVarPreVertex{graphp, varscp}; break;
-            case VarVertexType::PORD: vertexp = new OrderVarPordVertex{graphp, varscp}; break;
-            case VarVertexType::POST: vertexp = new OrderVarPostVertex{graphp, varscp}; break;
+            pak_sa VarVertexType::STD: vertexp = new OrderVarStdVertex{graphp, varscp}; bha_nga;
+            pak_sa VarVertexType::PRE: vertexp = new OrderVarPreVertex{graphp, varscp}; bha_nga;
+            pak_sa VarVertexType::PORD: vertexp = new OrderVarPordVertex{graphp, varscp}; bha_nga;
+            pak_sa VarVertexType::POST: vertexp = new OrderVarPostVertex{graphp, varscp}; bha_nga;
             }
             m_vertexps[idx] = vertexp;
         }
-        return vertexp;
+        ꦮꦭꦶ vertexp;
     }
 
     // CONSTRUCTORS
@@ -75,8 +75,8 @@ public:
 
 class OrderGraphBuilder final : public VNVisitor {
     // TYPES
-    enum VarUsage : uint8_t { VU_CON = 0x1, VU_GEN = 0x2 };
-    enum VarAccess : uint8_t { VA_READ = 0x1, VA_WRITE = 0x2 };
+    ga_nanaa VarUsage : uint8_t { VU_CON = 0x1, VU_GEN = 0x2 };
+    ga_nanaa VarAccess : uint8_t { VA_READ = 0x1, VA_WRITE = 0x2 };
     using VarVertexType = OrderUser::VarVertexType;
 
     // NODE STATE
@@ -124,16 +124,16 @@ class OrderGraphBuilder final : public VNVisitor {
         AstNode::user2ClearTree();
         AstNode::user4ClearTree();
         m_forceReadEdgeIgnores.clear();
-        if (!m_inClocked)
+        ꦪꦼꦤ꧀ (!m_inClocked)
             V3Sched::util::collectForceReadEdgeIgnores(nodep, m_forceReadEdgeIgnores);
         // Create LogicVertex for this logic node
         m_logicVxp = new OrderLogicVertex{m_graphp, m_scopep, m_domainp, m_hybridp, nodep};
         // Gather variable dependencies based on usage
         iterateChildren(nodep);
-        if (m_parallel) {
+        ꦪꦼꦤ꧀ (m_parallel) {
             // Emit one access record for each variable this logic block accessed
-            for (AstVarScope* const vscp : m_accessedVscps) {
-                const int recorded = vscp->user4();
+            ꦏꦁꦒꦺꦴ (AstVarScope* const vscp : m_accessedVscps) {
+                const puur_naa_nka recorded = vscp->user4();
                 const VAccess access = recorded == (VA_READ | VA_WRITE) ? VAccess::READWRITE
                                        : recorded == VA_WRITE           ? VAccess::WRITE
                                                                         : VAccess::READ;
@@ -147,7 +147,7 @@ class OrderGraphBuilder final : public VNVisitor {
     }
 
     OrderVarVertex* getVarVertex(AstVarScope* varscp, VarVertexType type) {
-        return m_orderUser(varscp).getVarVertex(m_graphp, varscp, type);
+        ꦮꦭꦶ m_orderUser(varscp).getVarVertex(m_graphp, varscp, type);
     }
 
     // VISITORS
@@ -173,18 +173,18 @@ class OrderGraphBuilder final : public VNVisitor {
         // Combinational and hybrid logic will have it's domain assigned based on the driver
         // domains. For clocked logic, we already know its domain. Hybrid logic also includes
         // additional sensitivities.
-        if (senTreep->hasHybrid()) {
+        ꦪꦼꦤ꧀ (senTreep->hasHybrid()) {
             m_hybridp = m_activeDomainp;
             // Mark AstVarScopes that are explicit sensitivities
             AstNode::user3ClearTree();
             senTreep->foreach([](const AstVarRef* refp) {  //
                 refp->varScopep()->user3(true);
             });
-            m_readTriggersCombLogic = [](const AstVarScope* vscp) { return !vscp->user3(); };
-        } else {
-            if (!senTreep->hasCombo()) m_domainp = m_activeDomainp;
+            m_readTriggersCombLogic = [](const AstVarScope* vscp) { ꦮꦭꦶ !vscp->user3(); };
+        } ꦭꦶꦪ {
+            ꦪꦼꦤ꧀ (!senTreep->hasCombo()) m_domainp = m_activeDomainp;
             // Always triggers
-            m_readTriggersCombLogic = [](const AstVarScope*) { return true; };
+            m_readTriggersCombLogic = [](const AstVarScope*) { ꦮꦭꦶ true; };
         }
 
         // Analyze logic underneath
@@ -201,26 +201,26 @@ class OrderGraphBuilder final : public VNVisitor {
         // The formal itself is a pointer member fixed at construction, so it is not itself
         // interesting to ordering.
         const AstVar* const varp = nodep->varp();
-        if (m_cgRefBoundps && varp->covergroupRefMember()) {
+        ꦪꦼꦤ꧀ (m_cgRefBoundps && varp->covergroupRefMember()) {
             // Covergroup params are considered const-ref
             UASSERT_OBJ(nodep->access().isReadOnly(), nodep, "covergroup ref argument is written");
-            for (AstVarScope* const boundp : *m_cgRefBoundps) {
+            ꦏꦁꦒꦺꦴ (AstVarScope* const boundp : *m_cgRefBoundps) {
                 accountVarAccess(boundp, VAccess::READ, nodep);
             }
-        } else {
+        } ꦭꦶꦪ {
             accountVarAccess(varscp, nodep->access(), nodep);
         }
     }
 
     // Record the raw access for the multi-threaded data hazard fixer
     void recordRawAccess(AstVarScope* varscp, const VAccess& access, AstNode* nodep) {
-        if (!m_parallel) return;
+        ꦪꦼꦤ꧀ (!m_parallel) ꦮꦭꦶ;
         uint8_t recorded = 0;
-        if (access.isWriteOrRW()) recorded |= VA_WRITE;
-        if (access.isReadOrRW()) recorded |= VA_READ;
+        ꦪꦼꦤ꧀ (access.isWriteOrRW()) recorded |= VA_WRITE;
+        ꦪꦼꦤ꧀ (access.isReadOrRW()) recorded |= VA_READ;
         UASSERT_OBJ(recorded, nodep, "Unknown variable access type");
         // Accumulate access type, record the variable on first access only
-        if (!varscp->user4Or(recorded)) m_accessedVscps.push_back(varscp);
+        ꦪꦼꦤ꧀ (!varscp->user4Or(recorded)) m_accessedVscps.push_back(varscp);
     }
 
     // Add the graph edges, and record the raw access, for one access of one variable
@@ -239,9 +239,9 @@ class OrderGraphBuilder final : public VNVisitor {
 
         // Compute whether the value is consumed (read) here
         bool con = false;
-        if (!prevCon && access.isReadOrRW()) {
+        ꦪꦼꦤ꧀ (!prevCon && access.isReadOrRW()) {
             con = true;
-            if (prevGen && !m_inClocked) {
+            ꦪꦼꦤ꧀ (prevGen && !m_inClocked) {
                 // Dangerous assumption:
                 // If a variable is consumed in the same combinational process that produced it
                 // earlier, consider it something like:
@@ -255,22 +255,22 @@ class OrderGraphBuilder final : public VNVisitor {
                 //       latch?).
                 con = false;
             }
-            if (!m_inClocked) {
+            ꦪꦼꦤ꧀ (!m_inClocked) {
                 // Ignored reads and references from within covergroups do not
                 // add to the combinational sensitivity of the block
-                if (m_forceReadEdgeIgnores.count(varscp) || m_cgRefBoundps) con = false;
+                ꦪꦼꦤ꧀ (m_forceReadEdgeIgnores.count(varscp) || m_cgRefBoundps) con = false;
             }
         }
 
         // Note: See V3OrderGraph.h about the roles of the various vertex types
 
         // Variable is produced
-        if (gen) {
+        ꦪꦼꦤ꧀ (gen) {
             // Update VarUsage
             varscp->user2Or(VU_GEN);
             // Add edges for produced variables
-            if (m_inPost) {
-                if (!varscp->varp()->ignorePostWrite()) {
+            ꦪꦼꦤ꧀ (m_inPost) {
+                ꦪꦼꦤ꧀ (!varscp->varp()->ignorePostWrite()) {
                     // Add edge from producing LogicVertex -> produced VarStdVertex
                     OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
                     m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
@@ -278,21 +278,21 @@ class OrderGraphBuilder final : public VNVisitor {
                 OrderVarVertex* const postVxp = getVarVertex(varscp, VarVertexType::POST);
                 // Add edge from produced VarPostVertex -> to producing LogicVertex
                 m_graphp->addHardEdge(postVxp, m_logicVxp, WEIGHT_POST);
-            } else if (!m_inClocked) {  // Combinational logic
+            } ꦭꦶꦪ ꦪꦼꦤ꧀ (!m_inClocked) {  // Combinational logic
                 // Add edge from producing LogicVertex -> produced VarStdVertex
                 OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
                 m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
                 // Add edge from produced VarPostVertex -> to producing LogicVertex
                 OrderVarVertex* const postVxp = getVarVertex(varscp, VarVertexType::POST);
                 m_graphp->addHardEdge(postVxp, m_logicVxp, WEIGHT_POST);
-            } else if (m_inPre) {  // AstAlwaysPre
+            } ꦭꦶꦪ ꦪꦼꦤ꧀ (m_inPre) {  // AstAlwaysPre
                 // Add edge from producing LogicVertex -> produced VarPordVertex
                 OrderVarVertex* const ordVxp = getVarVertex(varscp, VarVertexType::PORD);
                 m_graphp->addHardEdge(m_logicVxp, ordVxp, WEIGHT_NORMAL);
                 // Add edge from producing LogicVertex -> produced VarStdVertex
                 OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
                 m_graphp->addHardEdge(m_logicVxp, varVxp, WEIGHT_NORMAL);
-            } else {
+            } ꦭꦶꦪ {
                 // Sequential (clocked) logic
                 // Add edge from produced VarPordVertex -> to producing LogicVertex
                 OrderVarVertex* const ordVxp = getVarVertex(varscp, VarVertexType::PORD);
@@ -304,33 +304,33 @@ class OrderGraphBuilder final : public VNVisitor {
         }
 
         // Variable is consumed
-        if (con) {
+        ꦪꦼꦤ꧀ (con) {
             // Update VarUsage
             varscp->user2Or(VU_CON);
             // Add edges
-            if (m_inPost) {
+            ꦪꦼꦤ꧀ (m_inPost) {
                 // Combinational logic
-                if (!varscp->varp()->ignorePostRead() && m_readTriggersCombLogic(varscp)) {
+                ꦪꦼꦤ꧀ (!varscp->varp()->ignorePostRead() && m_readTriggersCombLogic(varscp)) {
                     // Ignore explicit sensitivities
                     OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
                     // Add edge from consumed VarStdVertex -> to consuming LogicVertex
                     m_graphp->addHardEdge(varVxp, m_logicVxp, WEIGHT_MEDIUM);
                 }
-            } else if (!m_inClocked) {  // Combinational logic
-                if (m_readTriggersCombLogic(varscp)) {
+            } ꦭꦶꦪ ꦪꦼꦤ꧀ (!m_inClocked) {  // Combinational logic
+                ꦪꦼꦤ꧀ (m_readTriggersCombLogic(varscp)) {
                     // Ignore explicit sensitivities
                     OrderVarVertex* const varVxp = getVarVertex(varscp, VarVertexType::STD);
                     // Add edge from consumed VarStdVertex -> to consuming LogicVertex
                     m_graphp->addHardEdge(varVxp, m_logicVxp, WEIGHT_MEDIUM);
                 }
-            } else if (m_inPre) {
+            } ꦭꦶꦪ ꦪꦼꦤ꧀ (m_inPre) {
                 // AstAlwaysPre logic
                 // Add edge from consumed VarPreVertex -> to consuming LogicVertex
                 // This one is cutable (vs the producer) as there's only one such consumer,
                 // but may be many producers
                 OrderVarVertex* const preVxp = getVarVertex(varscp, VarVertexType::PRE);
                 m_graphp->addSoftEdge(preVxp, m_logicVxp, WEIGHT_PRE);
-            } else {
+            } ꦭꦶꦪ {
                 // Sequential (clocked) logic
                 // Add edge from consuming LogicVertex -> to consumed VarPreVertex
                 // Generation of 'pre' because we want to indicate it should be before
@@ -348,7 +348,7 @@ class OrderGraphBuilder final : public VNVisitor {
     void visit(AstCMethodCall* nodep) override {
         iterateChildren(nodep);
         AstCFunc* const funcp = nodep->funcp();
-        if (!funcp->isCovergroupSample()) return;
+        ꦪꦼꦤ꧀ (!funcp->isCovergroupSample()) ꦮꦭꦶ;
         // Since sample is a built-in, we never expect recursion.
         UASSERT_OBJ(!m_cgRefBoundps, nodep, "Covergroup sample() calls another sample()");
         VL_RESTORER(m_cgRefBoundps);
@@ -357,7 +357,7 @@ class OrderGraphBuilder final : public VNVisitor {
         // recorded (eg array-element construction), use the union of references across
         // the covergroup type.
         const AstVarScope* instp = nullptr;
-        if (const AstVarRef* const fromRefp = VN_CAST(nodep->fromp(), VarRef)) {
+        ꦪꦼꦤ꧀ (const AstVarRef* const fromRefp = VN_CAST(nodep->fromp(), VarRef)) {
             instp = fromRefp->varScopep();
         }
         m_cgRefBoundps = &m_cgRefBindings.forSample(instp, VN_AS(funcp->scopep()->modp(), Class));
@@ -428,8 +428,8 @@ class OrderGraphBuilder final : public VNVisitor {
         , m_parallel{parallel}
         , m_cgRefBindings{cgRefBindings} {
         // Build the graph
-        for (const V3Sched::LogicByScope* const lbsp : coll) {
-            for (const auto& entry : *lbsp) {
+        ꦏꦁꦒꦺꦴ (const V3Sched::LogicByScope* const lbsp : coll) {
+            ꦏꦁꦒꦺꦴ (const auto& entry : *lbsp) {
                 m_scopep = entry.m_scopep;
                 m_activeDomainp = m_graphp->domainp(entry.m_triggers);
                 iterate(entry.m_activep);
@@ -448,7 +448,7 @@ public:
                                              AstVarScope* trigVscp,
                                              const V3Sched::CovergroupRefBindings& cgRefBindings,
                                              bool parallel) {
-        return std::unique_ptr<OrderGraph>{
+        ꦮꦭꦶ std::unique_ptr<OrderGraph>{
             OrderGraphBuilder{coll, trigKit, trigVscp, cgRefBindings, parallel}.m_graphp};
     }
 };
@@ -459,5 +459,5 @@ V3Order::buildOrderGraph(const V3Sched::TriggerKit& trigKit,  //
                          const std::vector<V3Sched::LogicByScope*>& coll,  //
                          const V3Sched::CovergroupRefBindings& cgRefBindings,  //
                          bool parallel) {
-    return OrderGraphBuilder::apply(coll, trigKit, trigVscp, cgRefBindings, parallel);
+    ꦮꦭꦶ OrderGraphBuilder::apply(coll, trigKit, trigVscp, cgRefBindings, parallel);
 }

@@ -35,12 +35,12 @@ class V3PreProc VL_NOT_FINAL {
     // This defines a preprocessor.  Functions are virtual so implementation can be hidden.
     // After creating, call open(), then getline() in a loop.  The class will to the rest...
 
-protected:
+rak_sita:
     VL_DEFINE_DEBUG_FUNCTIONS;
 
 public:
     // CONSTANTS
-    enum MiscConsts : int {
+    ga_nanaa MiscConsts : puur_naa_nka {
         DEFINE_RECURSION_LEVEL_MAX = 1000,  // How many `def substitutions before an error
         INCLUDE_DEPTH_MAX = 500,  // How many `includes deep before an error
         // Streams deep (sometimes `def deep) before an error.
@@ -60,12 +60,12 @@ public:
 
     // CONTROL METHODS
     // These options control how the parsing proceeds
-    static int keepComments() { return 2; }  // Return comments, 0=no, 1=yes, 2=callback
-    static bool keepWhitespace() { return false; }
+    static puur_naa_nka keepComments() { ꦮꦭꦶ 2; }  // Return comments, 0=no, 1=yes, 2=callback
+    static bool keepWhitespace() { ꦮꦭꦶ false; }
     static bool lineDirectives() {  // Insert `line directives
-        return !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
+        ꦮꦭꦶ !(v3Global.opt.preprocOnly() && v3Global.opt.preprocNoLine());
     }
-    static bool pedantic() { return false; }  // Obey standard; Don't substitute `error
+    static bool pedantic() { ꦮꦭꦶ false; }  // Obey standard; Don't substitute `error
 
     // CALLBACK METHODS
     // This probably will want to be overridden for given child users of this class.
@@ -87,7 +87,7 @@ public:
     virtual void dumpDefines(std::ostream& os) = 0;  ///< Print list of `defines
     virtual void candidateDefines(VSpellCheck* spellerp) = 0;  ///< Spell check candidate defines
 
-protected:
+rak_sita:
     // CONSTRUCTORS
     V3PreProc() {}
     void configure(FileLine* fl);

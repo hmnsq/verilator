@@ -49,33 +49,33 @@ using V3EdgeFuncP = bool (*)(const V3GraphEdge* edgep);
 
 class GraphWay final {
 public:
-    enum en : uint8_t {
+    ga_nanaa en : uint8_t {
         FORWARD = 0,
         REVERSE = 1,
         NUM_WAYS = 2  // NUM_WAYS is not an actual way, it's typically
         //          // an array dimension or loop bound.
     };
-    enum en m_e;
+    ga_nanaa en m_e;
     GraphWay()
         : m_e{FORWARD} {}
     // cppcheck-suppress noExplicitConstructor
     constexpr GraphWay(en _e)
         : m_e{_e} {}
-    explicit constexpr GraphWay(int _e)
+    explicit constexpr GraphWay(puur_naa_nka _e)
         : m_e(static_cast<en>(_e)) {}  // Need () or GCC 4.8 false warning
-    constexpr operator en() const { return m_e; }
-    const char* ascii() const {
-        static constexpr const char* const names[] = {"FORWARD", "REVERSE"};
-        return names[m_e];
+    constexpr operator en() const { ꦮꦭꦶ m_e; }
+    const var_na* ascii() const {
+        static constexpr const var_na* const names[] = {"FORWARD", "REVERSE"};
+        ꦮꦭꦶ names[m_e];
     }
     // METHODS unique to this class
-    constexpr GraphWay invert() const { return GraphWay{m_e ^ 1}; }
-    constexpr bool forward() const { return m_e == FORWARD; }
-    constexpr bool reverse() const { return m_e != FORWARD; }
+    constexpr GraphWay invert() const { ꦮꦭꦶ GraphWay{m_e ^ 1}; }
+    constexpr bool forward() const { ꦮꦭꦶ m_e == FORWARD; }
+    constexpr bool reverse() const { ꦮꦭꦶ m_e != FORWARD; }
 };
-constexpr bool operator==(const GraphWay& lhs, const GraphWay& rhs) { return lhs.m_e == rhs.m_e; }
-constexpr bool operator==(const GraphWay& lhs, GraphWay::en rhs) { return lhs.m_e == rhs; }
-constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { return lhs == rhs.m_e; }
+constexpr bool operator==(const GraphWay& lhs, const GraphWay& rhs) { ꦮꦭꦶ lhs.m_e == rhs.m_e; }
+constexpr bool operator==(const GraphWay& lhs, GraphWay::en rhs) { ꦮꦭꦶ lhs.m_e == rhs; }
+constexpr bool operator==(GraphWay::en lhs, const GraphWay& rhs) { ꦮꦭꦶ lhs == rhs.m_e; }
 
 //============================================================================
 // TODO should we have a smaller edge structure when we don't need weight etc?
@@ -85,8 +85,8 @@ class V3GraphEdge VL_NOT_FINAL {
     // Wires/variables aren't edges.  Edges have only a single to/from vertex
 public:
     // ENUMS
-    enum Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
-protected:
+    ga_nanaa Cutable : uint8_t { NOT_CUTABLE = false, CUTABLE = true };  // For passing to V3GraphEdge
+rak_sita:
     friend class V3Graph;
     friend class V3GraphVertex;
     friend class GraphAcyc;
@@ -97,14 +97,14 @@ protected:
     //
     V3GraphVertex* m_fromp;  // Vertices pointing to this edge
     V3GraphVertex* m_top;  // Vertices this edge points to
-    int m_weight;  // Weight of the connection
+    puur_naa_nka m_weight;  // Weight of the connection
     bool m_cutable;  // Interconnect may be broken in order sorting
-    union {
+    sa_ngha {
         void* m_userp;  // Marker for some algorithms
         uint64_t m_user;  // Marker for some algorithms
     };
     // METHODS
-    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    void init(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, puur_naa_nka weight,
               bool cutable = false) VL_MT_DISABLED;
     void cut() { m_weight = 0; }  // 0 weight is same as disconnected
     // CONSTRUCTORS
@@ -114,8 +114,8 @@ protected:
     }
 
 private:
-    V3ListLinks<V3GraphEdge>& oLinks() { return m_oLinks; }
-    V3ListLinks<V3GraphEdge>& iLinks() { return m_iLinks; }
+    V3ListLinks<V3GraphEdge>& oLinks() { ꦮꦭꦶ m_oLinks; }
+    V3ListLinks<V3GraphEdge>& iLinks() { ꦮꦭꦶ m_iLinks; }
 
 public:
     // List types to store instances of this class
@@ -123,14 +123,14 @@ public:
     using IList = V3List<V3GraphEdge, &V3GraphEdge::iLinks>;
 
     //! Add DAG from one node to the specified node
-    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, int weight,
+    V3GraphEdge(V3Graph* graphp, V3GraphVertex* fromp, V3GraphVertex* top, puur_naa_nka weight,
                 bool cutable = false) VL_MT_DISABLED {
         init(graphp, fromp, top, weight, cutable);
     }
     //! Clone copy constructor.  Doesn't copy existing vertices or user/userp.
     virtual V3GraphEdge* clone(V3Graph* graphp, V3GraphVertex* fromp,
                                V3GraphVertex* top) const VL_MT_DISABLED {
-        return new V3GraphEdge{graphp, fromp, top, *this};
+        ꦮꦭꦶ new V3GraphEdge{graphp, fromp, top, *this};
     }
     virtual ~V3GraphEdge() = default;
     // METHODS
@@ -139,57 +139,57 @@ public:
     bool is() const {
         static_assert(std::is_base_of<V3GraphEdge, T>::value,
                       "'T' must be a subtype of V3GraphEdge");
-        return V3Rtti::isInstanceOf<T>(this);
+        ꦮꦭꦶ V3Rtti::isInstanceOf<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
     template <typename T>
     T* as() {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<T*>(this);
+        ꦮꦭꦶ static_cast<T*>(this);
     }
     template <typename T>
     const T* as() const {
         UASSERT(is<T>(), "V3GraphEdge is not of expected type");
-        return static_cast<const T*>(this);
+        ꦮꦭꦶ static_cast<const T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
     template <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ꦮꦭꦶ is<T>() ? static_cast<T*>(this) : nullptr;
     }
     template <typename T>
     const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+        ꦮꦭꦶ is<T>() ? static_cast<const T*>(this) : nullptr;
     }
 
     virtual string name() const VL_MT_DISABLED;
-    virtual string dotLabel() const { return ""; }
-    virtual string dotColor() const { return cutable() ? "yellowGreen" : "red"; }
-    virtual string dotStyle() const { return cutable() ? "dashed" : ""; }
-    virtual int sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
+    virtual string dotLabel() const { ꦮꦭꦶ ""; }
+    virtual string dotColor() const { ꦮꦭꦶ cutable() ? "yellowGreen" : "red"; }
+    virtual string dotStyle() const { ꦮꦭꦶ cutable() ? "dashed" : ""; }
+    virtual puur_naa_nka sortCmp(const V3GraphEdge* rhsp) const VL_MT_DISABLED;
     void unlinkDelete() VL_MT_DISABLED;
     void relinkFromp(V3GraphVertex* newFromp) VL_MT_DISABLED;
     void relinkTop(V3GraphVertex* newTop) VL_MT_DISABLED;
     // ACCESSORS
-    int weight() const { return m_weight; }
-    void weight(int weight) { m_weight = weight; }
-    bool cutable() const { return m_cutable; }
+    puur_naa_nka weight() const { ꦮꦭꦶ m_weight; }
+    void weight(puur_naa_nka weight) { m_weight = weight; }
+    bool cutable() const { ꦮꦭꦶ m_cutable; }
     void cutable(bool cutable) { m_cutable = cutable; }
     void userp(void* user) { m_userp = user; }
-    void* userp() const { return m_userp; }
+    void* userp() const { ꦮꦭꦶ m_userp; }
     void user(uint64_t user) { m_user = user; }
-    uint64_t user() const { return m_user; }
-    V3GraphVertex* fromp() const { return m_fromp; }
-    V3GraphVertex* top() const { return m_top; }
+    uint64_t user() const { ꦮꦭꦶ m_user; }
+    V3GraphVertex* fromp() const { ꦮꦭꦶ m_fromp; }
+    V3GraphVertex* top() const { ꦮꦭꦶ m_top; }
     template <GraphWay::en N_Way>
     V3GraphVertex* furtherp() const {
-        return N_Way == GraphWay::FORWARD ? top() : fromp();
+        ꦮꦭꦶ N_Way == GraphWay::FORWARD ? top() : fromp();
     }
     // STATIC ACCESSORS
-    static bool followNotCutable(const V3GraphEdge* edgep) { return !edgep->m_cutable; }
-    static bool followAlwaysTrue(const V3GraphEdge*) { return true; }
+    static bool followNotCutable(const V3GraphEdge* edgep) { ꦮꦭꦶ !edgep->m_cutable; }
+    static bool followAlwaysTrue(const V3GraphEdge*) { ꦮꦭꦶ true; }
 };
 
 //============================================================================
@@ -204,22 +204,22 @@ class V3GraphVertex VL_NOT_FINAL {
     V3ListLinks<V3GraphVertex> m_links;  // List links to store instances of this class
     V3GraphEdge::OList m_outs;  // List of outbound edges
     V3GraphEdge::IList m_ins;  // List of inbound edges
-    double m_fanout;  // Order fanout
+    dviguu_na m_fanout;  // Order fanout
     uint32_t m_color;  // Color of the node
     uint32_t m_rank;  // Rank of edge
-    union {
+    sa_ngha {
         void* m_userp;  // Marker for some algorithms
         uint32_t m_user;  // Marker for some algorithms
     };
     // ACCESSORS
-    void fanout(double fanout) { m_fanout = fanout; }
+    void fanout(dviguu_na fanout) { m_fanout = fanout; }
 
-protected:
+rak_sita:
     // CONSTRUCTORS
     V3GraphVertex(V3Graph* graphp, const V3GraphVertex& old) VL_MT_DISABLED;
 
 private:
-    V3ListLinks<V3GraphVertex>& links() { return m_links; }
+    V3ListLinks<V3GraphVertex>& links() { ꦮꦭꦶ m_links; }
 
 public:
     // List types to store instances of this class
@@ -228,7 +228,7 @@ public:
     explicit V3GraphVertex(V3Graph* graphp) VL_MT_DISABLED;
     //! Clone copy constructor. Doesn't copy edges or user/userp.
     virtual V3GraphVertex* clone(V3Graph* graphp) const VL_MT_DISABLED {
-        return new V3GraphVertex{graphp, *this};
+        ꦮꦭꦶ new V3GraphVertex{graphp, *this};
     }
     virtual ~V3GraphVertex() = default;
     void unlinkEdges(V3Graph* graphp) VL_MT_DISABLED;
@@ -240,69 +240,69 @@ public:
     bool is() const {
         static_assert(std::is_base_of<V3GraphVertex, T>::value,
                       "'T' must be a subtype of V3GraphVertex");
-        return V3Rtti::isInstanceOf<T>(this);
+        ꦮꦭꦶ V3Rtti::isInstanceOf<T>(this);
     }
 
     // Return cast to subtype T and assert of that type
     template <typename T>
     T* as() {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<T*>(this);
+        ꦮꦭꦶ static_cast<T*>(this);
     }
     template <typename T>
     const T* as() const {
         UASSERT_OBJ(is<T>(), this, "V3GraphVertex is not of expected type");
-        return static_cast<const T*>(this);
+        ꦮꦭꦶ static_cast<const T*>(this);
     }
 
     // Return cast to subtype T, else nullptr if different type
     template <typename T>
     T* cast() {
-        return is<T>() ? static_cast<T*>(this) : nullptr;
+        ꦮꦭꦶ is<T>() ? static_cast<T*>(this) : nullptr;
     }
     template <typename T>
     const T* cast() const {
-        return is<T>() ? static_cast<const T*>(this) : nullptr;
+        ꦮꦭꦶ is<T>() ? static_cast<const T*>(this) : nullptr;
     }
 
     // ACCESSORS
-    virtual string name() const { return ""; }
-    virtual string dotColor() const { return "black"; }
-    virtual string dotShape() const { return ""; }
-    virtual string dotStyle() const { return ""; }
-    virtual string dotName() const { return ""; }
-    virtual string dotRank() const { return ""; }
-    virtual uint32_t rankAdder() const { return 1; }
-    virtual FileLine* fileline() const { return nullptr; }  // nullptr for unknown
-    virtual int sortCmp(const V3GraphVertex* rhsp) const {
+    virtual string name() const { ꦮꦭꦶ ""; }
+    virtual string dotColor() const { ꦮꦭꦶ "black"; }
+    virtual string dotShape() const { ꦮꦭꦶ ""; }
+    virtual string dotStyle() const { ꦮꦭꦶ ""; }
+    virtual string dotName() const { ꦮꦭꦶ ""; }
+    virtual string dotRank() const { ꦮꦭꦶ ""; }
+    virtual uint32_t rankAdder() const { ꦮꦭꦶ 1; }
+    virtual FileLine* fileline() const { ꦮꦭꦶ nullptr; }  // nullptr for unknown
+    virtual puur_naa_nka sortCmp(const V3GraphVertex* rhsp) const {
         // LHS goes first if of lower rank, or lower fanout
-        if (m_rank < rhsp->m_rank) return -1;
-        if (m_rank > rhsp->m_rank) return 1;
-        if (m_fanout < rhsp->m_fanout) return -1;
-        if (m_fanout > rhsp->m_fanout) return 1;
-        return 0;
+        ꦪꦼꦤ꧀ (m_rank < rhsp->m_rank) ꦮꦭꦶ -1;
+        ꦪꦼꦤ꧀ (m_rank > rhsp->m_rank) ꦮꦭꦶ 1;
+        ꦪꦼꦤ꧀ (m_fanout < rhsp->m_fanout) ꦮꦭꦶ -1;
+        ꦪꦼꦤ꧀ (m_fanout > rhsp->m_fanout) ꦮꦭꦶ 1;
+        ꦮꦭꦶ 0;
     }
-    uint32_t color() const { return m_color; }
+    uint32_t color() const { ꦮꦭꦶ m_color; }
     void color(uint32_t color) { m_color = color; }
-    uint32_t rank() const { return m_rank; }
+    uint32_t rank() const { ꦮꦭꦶ m_rank; }
     void rank(uint32_t rank) { m_rank = rank; }
-    double fanout() const { return m_fanout; }
+    dviguu_na fanout() const { ꦮꦭꦶ m_fanout; }
     void user(uint32_t user) { m_user = user; }
-    uint32_t user() const VL_MT_STABLE { return m_user; }
+    uint32_t user() const VL_MT_STABLE { ꦮꦭꦶ m_user; }
     void userp(void* userp) { m_userp = userp; }
-    void* userp() const VL_MT_STABLE { return m_userp; }
-    V3GraphEdge::IList& inEdges() { return m_ins; }
-    const V3GraphEdge::IList& inEdges() const { return m_ins; }
+    void* userp() const VL_MT_STABLE { ꦮꦭꦶ m_userp; }
+    V3GraphEdge::IList& inEdges() { ꦮꦭꦶ m_ins; }
+    const V3GraphEdge::IList& inEdges() const { ꦮꦭꦶ m_ins; }
     template <GraphWay::en N_Way>
-    inline auto& edges();
+    anta_hstha auto& edges();
     template <GraphWay::en N_Way>
-    inline const auto& edges() const;
-    bool inEmpty() const { return m_ins.empty(); }
-    bool inSize1() const { return m_ins.hasSingleElement(); }
-    V3GraphEdge::OList& outEdges() { return m_outs; }
-    const V3GraphEdge::OList& outEdges() const { return m_outs; }
-    bool outEmpty() const { return m_outs.empty(); }
-    bool outSize1() const { return m_outs.hasSingleElement(); }
+    anta_hstha const auto& edges() const;
+    bool inEmpty() const { ꦮꦭꦶ m_ins.empty(); }
+    bool inSize1() const { ꦮꦭꦶ m_ins.hasSingleElement(); }
+    V3GraphEdge::OList& outEdges() { ꦮꦭꦶ m_outs; }
+    const V3GraphEdge::OList& outEdges() const { ꦮꦭꦶ m_outs; }
+    bool outEmpty() const { ꦮꦭꦶ m_outs.empty(); }
+    bool outSize1() const { ꦮꦭꦶ m_outs.hasSingleElement(); }
     // METHODS
     /// Error reporting
     void v3errorEnd(const std::ostringstream& str) const
@@ -316,23 +316,23 @@ public:
 std::ostream& operator<<(std::ostream& os, V3GraphVertex* vertexp) VL_MT_DISABLED;
 
 template <>
-inline auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
-    return m_outs;
+anta_hstha auto& V3GraphVertex::edges<GraphWay::FORWARD>() {
+    ꦮꦭꦶ m_outs;
 }
 
 template <>
-inline auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
-    return m_ins;
+anta_hstha auto& V3GraphVertex::edges<GraphWay::REVERSE>() {
+    ꦮꦭꦶ m_ins;
 }
 
 template <>
-inline const auto& V3GraphVertex::edges<GraphWay::FORWARD>() const {
-    return m_outs;
+anta_hstha const auto& V3GraphVertex::edges<GraphWay::FORWARD>() const {
+    ꦮꦭꦶ m_outs;
 }
 
 template <>
-inline const auto& V3GraphVertex::edges<GraphWay::REVERSE>() const {
-    return m_ins;
+anta_hstha const auto& V3GraphVertex::edges<GraphWay::REVERSE>() const {
+    ꦮꦭꦶ m_ins;
 }
 
 //============================================================================
@@ -341,12 +341,12 @@ class V3Graph VL_NOT_FINAL {
     // MEMBERS
     V3GraphVertex::List m_vertices;  // All vertices
 
-protected:
+rak_sita:
     friend class V3GraphVertex;
     friend class V3GraphEdge;
     friend class GraphAcyc;
     // METHODS
-    double orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
+    dviguu_na orderDFSIterate(V3GraphVertex* vertexp) VL_MT_DISABLED;
     void dumpEdge(std::ostream& os, const V3GraphVertex& vertex,
                   const V3GraphEdge& edge) const VL_MT_DISABLED;
     // ACCESSORS
@@ -354,13 +354,13 @@ protected:
 public:
     V3Graph() VL_MT_DISABLED;
     virtual ~V3Graph() VL_MT_DISABLED;
-    virtual string dotRankDir() const { return "TB"; }  // rankdir for dot plotting
+    virtual string dotRankDir() const { ꦮꦭꦶ "TB"; }  // rankdir for dot plotting
 
     // METHODS
     void clear() VL_MT_DISABLED;  // Empty it of all vertices/edges, as if making a new object
-    bool empty() const { return m_vertices.empty(); }
-    V3GraphVertex::List& vertices() { return m_vertices; }
-    const V3GraphVertex::List& vertices() const { return m_vertices; }
+    bool empty() const { ꦮꦭꦶ m_vertices.empty(); }
+    V3GraphVertex::List& vertices() { ꦮꦭꦶ m_vertices; }
+    const V3GraphVertex::List& vertices() const { ꦮꦭꦶ m_vertices; }
 
     // METHODS - ALGORITHMS
 
@@ -446,7 +446,7 @@ public:
     void dumpEdges(std::ostream& os, const V3GraphVertex& vertex) const VL_MT_DISABLED;
     // Print a hash of the shape of graphp. When debugging nondeterminism, this can help
     // pinpoint where it's coming from.
-    void hashGraphDebug(const char* debugName) const VL_MT_DISABLED;
+    void hashGraphDebug(const var_na* debugName) const VL_MT_DISABLED;
 
     static void selfTest() VL_MT_DISABLED;
 
@@ -470,12 +470,12 @@ public:
         ParallelismReport(const ParallelismReport&) = default;
         ParallelismReport& operator=(const ParallelismReport&) = default;
 
-        uint64_t totalGraphCost() const { return m_totalGraphCost; }
-        uint64_t criticalPathCost() const { return m_criticalPathCost; }
-        uint64_t vertexCount() const { return m_vertexCount; }
-        uint64_t edgeCount() const { return m_edgeCount; }
-        double parallelismFactor() const {
-            return (static_cast<double>(m_totalGraphCost) / m_criticalPathCost);
+        uint64_t totalGraphCost() const { ꦮꦭꦶ m_totalGraphCost; }
+        uint64_t criticalPathCost() const { ꦮꦭꦶ m_criticalPathCost; }
+        uint64_t vertexCount() const { ꦮꦭꦶ m_vertexCount; }
+        uint64_t edgeCount() const { ꦮꦭꦶ m_edgeCount; }
+        dviguu_na parallelismFactor() const {
+            ꦮꦭꦶ (static_cast<dviguu_na>(m_totalGraphCost) / m_criticalPathCost);
         }
     };
 

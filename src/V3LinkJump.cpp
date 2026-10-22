@@ -61,7 +61,7 @@ class LinkJumpVisitor final : public VNVisitor {
     AstRandSequence* m_randsequencep = nullptr;  // Current randsequence
     bool m_loopInc = false;  // In loop increment
     bool m_inFork = false;  // Under fork
-    int m_modRepeatNum = 0;  // Repeat counter
+    puur_naa_nka m_modRepeatNum = 0;  // Repeat counter
     VOptionBool m_unrollFull;  // Pragma full, disable, or default unrolling
     std::vector<AstNodeBlock*> m_blockStack;  // All begin blocks above current node
     V3UniqueNames m_queueNames{
@@ -81,164 +81,164 @@ class LinkJumpVisitor final : public VNVisitor {
         UINFO(4, "Create JumpBlock for " << nodep);
 
         // Made it previously?  We always jump to the end, so this works out
-        if (endOfIter) {
-            if (nodep->user1p()) return VN_AS(nodep->user1p(), JumpBlock);
-        } else {
-            if (nodep->user2p()) return VN_AS(nodep->user2p(), JumpBlock);
+        ꦪꦼꦤ꧀ (endOfIter) {
+            ꦪꦼꦤ꧀ (nodep->user1p()) ꦮꦭꦶ VN_AS(nodep->user1p(), JumpBlock);
+        } ꦭꦶꦪ {
+            ꦪꦼꦤ꧀ (nodep->user2p()) ꦮꦭꦶ VN_AS(nodep->user2p(), JumpBlock);
         }
 
         AstNode* underp = nullptr;
         bool under_and_next = true;
-        if (AstBegin* const blockp = VN_CAST(nodep, Begin)) {
+        ꦪꦼꦤ꧀ (AstBegin* const blockp = VN_CAST(nodep, Begin)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for Begin");
             underp = blockp->stmtsp();
-        } else if (AstNodeFTask* const fTaskp = VN_CAST(nodep, NodeFTask)) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (AstNodeFTask* const fTaskp = VN_CAST(nodep, NodeFTask)) {
             UASSERT_OBJ(!endOfIter, nodep, "No endOfIter for FTask");
             underp = fTaskp->stmtsp();
-        } else if (AstForeach* const foreachp = VN_CAST(nodep, Foreach)) {
-            if (endOfIter) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (AstForeach* const foreachp = VN_CAST(nodep, Foreach)) {
+            ꦪꦼꦤ꧀ (endOfIter) {
                 underp = foreachp->bodyp();
                 // Keep a LoopTest **at the front** outside the jump block
-                if (VN_IS(underp, LoopTest)) underp = underp->nextp();
-            } else {
+                ꦪꦼꦤ꧀ (VN_IS(underp, LoopTest)) underp = underp->nextp();
+            } ꦭꦶꦪ {
                 underp = nodep;
                 under_and_next = false;  // IE we skip the entire foreach
             }
-        } else if (AstLoop* const loopp = VN_CAST(nodep, Loop)) {
-            if (endOfIter) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (AstLoop* const loopp = VN_CAST(nodep, Loop)) {
+            ꦪꦼꦤ꧀ (endOfIter) {
                 underp = loopp->stmtsp();
-            } else {
+            } ꦭꦶꦪ {
                 underp = nodep;
                 under_and_next = false;  // IE we skip the entire loop
             }
-        } else {
+        } ꦭꦶꦪ {
             nodep->v3fatalSrc("Unknown jump point for break/disable/continue");
-            return nullptr;
+            ꦮꦭꦶ nullptr;
         }
         // Skip over variables as we'll just move them in a moment
         // Also this would otherwise prevent us from using a label twice
         // see t_func_return test.
-        while (underp && VN_IS(underp, Var)) underp = underp->nextp();
+        ꦱꦼꦢꦼꦭ (underp && VN_IS(underp, Var)) underp = underp->nextp();
         UASSERT_OBJ(underp, nodep, "Break/disable/continue not under expected statement");
         UINFO(5, "  Underpoint is " << underp);
 
         // If already wrapped, we are done ...
-        if (!underp->nextp() || !under_and_next) {
-            if (AstJumpBlock* const blockp = VN_CAST(underp, JumpBlock)) return blockp;
+        ꦪꦼꦤ꧀ (!underp->nextp() || !under_and_next) {
+            ꦪꦼꦤ꧀ (AstJumpBlock* const blockp = VN_CAST(underp, JumpBlock)) ꦮꦭꦶ blockp;
         }
 
         // Move underp stuff to be under a new AstJumpBlock
         VNRelinker repHandle;
-        if (under_and_next) {
+        ꦪꦼꦤ꧀ (under_and_next) {
             underp->unlinkFrBackWithNext(&repHandle);
-        } else {
+        } ꦭꦶꦪ {
             underp->unlinkFrBack(&repHandle);
         }
         AstJumpBlock* const blockp = new AstJumpBlock{nodep->fileline(), underp};
-        if (endOfIter) {
+        ꦪꦼꦤ꧀ (endOfIter) {
             nodep->user1p(blockp);
-        } else {
+        } ꦭꦶꦪ {
             nodep->user2p(blockp);
         }
         repHandle.relink(blockp);
 
         // Keep any AstVars under the function not under the new JumpLabel
-        for (AstNode *nextp, *varp = underp; varp; varp = nextp) {
+        ꦏꦁꦒꦺꦴ (AstNode *nextp, *varp = underp; varp; varp = nextp) {
             nextp = varp->nextp();
-            if (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
+            ꦪꦼꦤ꧀ (VN_IS(varp, Var)) blockp->addHereThisAsNext(varp->unlinkFrBack());
         }
-        return blockp;
+        ꦮꦭꦶ blockp;
     }
     void addPrefixToBlocksRecurse(const std::string& prefix, AstNode* const nodep) {
         // Add a prefix to blocks
         // Used to not have blocks with duplicated names
-        if (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
-            if (beginp->name() != "") beginp->name(prefix + beginp->name());
+        ꦪꦼꦤ꧀ (AstBegin* const beginp = VN_CAST(nodep, Begin)) {
+            ꦪꦼꦤ꧀ (beginp->name() != "") beginp->name(prefix + beginp->name());
         }
 
-        if (AstNode* const refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
-        if (AstNode* const refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
+        ꦪꦼꦤ꧀ (AstNode* const refp = nodep->op1p()) addPrefixToBlocksRecurse(prefix, refp);
+        ꦪꦼꦤ꧀ (AstNode* const refp = nodep->op2p()) addPrefixToBlocksRecurse(prefix, refp);
+        ꦪꦼꦤ꧀ (AstNode* const refp = nodep->op3p()) addPrefixToBlocksRecurse(prefix, refp);
+        ꦪꦼꦤ꧀ (AstNode* const refp = nodep->op4p()) addPrefixToBlocksRecurse(prefix, refp);
+        ꦪꦼꦤ꧀ (AstNode* const refp = nodep->nextp()) addPrefixToBlocksRecurse(prefix, refp);
     }
     bool existsBlockAbove(const std::string& name) const {
-        for (const AstNodeBlock* const stackp : vlstd::reverse_view(m_blockStack)) {
-            if (stackp->name() == name) return true;
+        ꦏꦁꦒꦺꦴ (const AstNodeBlock* const stackp : vlstd::reverse_view(m_blockStack)) {
+            ꦪꦼꦤ꧀ (stackp->name() == name) ꦮꦭꦶ true;
         }
-        return false;
+        ꦮꦭꦶ false;
     }
     static AstNodeModule* findOwnerModulep(AstNode* nodep) {
-        for (AstNode* curp = nodep; curp; curp = curp->aboveLoopp()) {
-            if (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) return modp;
+        ꦏꦁꦒꦺꦴ (AstNode* curp = nodep; curp; curp = curp->aboveLoopp()) {
+            ꦪꦼꦤ꧀ (AstNodeModule* const modp = VN_CAST(curp, NodeModule)) ꦮꦭꦶ modp;
         }
         nodep->v3fatalSrc("Disable target is not under a module");
-        return nullptr;  // LCOV_EXCL_LINE
+        ꦮꦭꦶ nullptr;  // LCOV_EXCL_LINE
     }
     static std::string targetInstancePath(const AstDisable* const nodep) {
-        if (const AstVarXRef* const xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
-            return xrefp->dotted();
+        ꦪꦼꦤ꧀ (const AstVarXRef* const xrefp = VN_CAST(nodep->targetRefp(), VarXRef)) {
+            ꦮꦭꦶ xrefp->dotted();
         }
-        return "";
+        ꦮꦭꦶ "";
     }
     static std::string queueDotted(const AstDisable* const nodep,
                                    const AstVar* const processQueuep) {
-        return processQueuep->isTemp() ? targetInstancePath(nodep) : "";
+        ꦮꦭꦶ processQueuep->isTemp() ? targetInstancePath(nodep) : "";
     }
     AstBegin* innerForkBranchp(const AstNodeBlock* const targetp) const {
         AstBegin* innerForkBranchp = nullptr;
         AstNodeBlock* prevBlockp = nullptr;
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (!innerForkBranchp && VN_IS(blockp, Fork)) {
+        ꦏꦁꦒꦺꦴ (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
+            ꦪꦼꦤ꧀ (!innerForkBranchp && VN_IS(blockp, Fork)) {
                 innerForkBranchp = VN_CAST(prevBlockp, Begin);
             }
-            if (blockp == targetp) return innerForkBranchp;
+            ꦪꦼꦤ꧀ (blockp == targetp) ꦮꦭꦶ innerForkBranchp;
             prevBlockp = blockp;
         }
-        return nullptr;
+        ꦮꦭꦶ nullptr;
     }
     static AstStmtExpr* getQueuePushProcessSelfp(AstVarRef* const queueRefp) {
         // Constructs queue.push_back(std::process::self()) statement
         FileLine* const flp = queueRefp->fileline();
-        return new AstStmtExpr{
+        ꦮꦭꦶ new AstStmtExpr{
             flp,
             new AstMethodCall{flp, queueRefp, "push_back",
                               new AstArg{flp, "", v3Global.rootp()->stdPackageProcessSelfp(flp)}}};
     }
     static AstNodeVarRef* newQueueRefp(FileLine* const fl, AstVar* const processQueuep,
                                        const VAccess& access, const std::string& dotted = "") {
-        if (dotted != "") return new AstVarXRef{fl, processQueuep, dotted, access};
-        if (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
-            return new AstVarRef{fl, processQueuep, access};
+        ꦪꦼꦤ꧀ (dotted != "") ꦮꦭꦶ new AstVarXRef{fl, processQueuep, dotted, access};
+        ꦪꦼꦤ꧀ (!processQueuep->lifetime().isStatic() || processQueuep->isTemp()) {
+            ꦮꦭꦶ new AstVarRef{fl, processQueuep, access};
         }
         AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
-        return new AstVarRef{fl, topPkgp, processQueuep, access};
+        ꦮꦭꦶ new AstVarRef{fl, topPkgp, processQueuep, access};
     }
     static AstStmtExpr* getQueuePushProcessSelfp(FileLine* const fl, AstVar* const processQueuep) {
         AstVarRef* const queueWriteRefp
             = VN_AS(newQueueRefp(fl, processQueuep, VAccess::WRITE), VarRef);
-        return getQueuePushProcessSelfp(queueWriteRefp);
+        ꦮꦭꦶ getQueuePushProcessSelfp(queueWriteRefp);
     }
     static AstStmtExpr* getQueueKillStmtp(FileLine* const fl, AstVar* const processQueuep,
                                           const std::string& dotted = "") {
         AstNodeVarRef* const queueRefp
             = newQueueRefp(fl, processQueuep, VAccess::READWRITE, dotted);
         AstTaskRef* killQueueCall = nullptr;
-        for (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
+        ꦏꦁꦒꦺꦴ (AstNode* itemp = v3Global.rootp()->stdPackageProcessp()->stmtsp(); itemp;
              itemp = itemp->nextp()) {
-            if (itemp->name() == "killQueue") {
+            ꦪꦼꦤ꧀ (itemp->name() == "killQueue") {
                 killQueueCall
                     = new AstTaskRef{fl, VN_AS(itemp, Task), new AstArg{fl, "", queueRefp}};
-                break;
+                bha_nga;
             }
         }
         UASSERT(killQueueCall, "Should be found");
         killQueueCall->classOrPackagep(v3Global.rootp()->stdPackageProcessp());
-        return new AstStmtExpr{fl, killQueueCall};
+        ꦮꦭꦶ new AstStmtExpr{fl, killQueueCall};
     }
     AstBegin* getOrCreateTaskDisableBeginp(AstTask* const taskp, FileLine* const fl) {
         const auto it = m_taskDisableBegins.find(taskp);
-        if (it != m_taskDisableBegins.end()) return it->second;
+        ꦪꦼꦤ꧀ (it != m_taskDisableBegins.end()) ꦮꦭꦶ it->second;
 
         AstBegin* const taskBodyp = new AstBegin{fl, "", nullptr, false};
         // Disable-by-name rewrites kill this detached task-body process, so mark it as process
@@ -246,10 +246,10 @@ class LinkJumpVisitor final : public VNVisitor {
         taskBodyp->setNeedProcess();
         v3Global.setUsesTiming();
         // Ports stay in the task so calls see them
-        for (AstNode* stmtp = taskp->stmtsp(); stmtp;) {
+        ꦏꦁꦒꦺꦴ (AstNode* stmtp = taskp->stmtsp(); stmtp;) {
             AstNode* const nextp = stmtp->nextp();
             const AstVar* const varp = VN_CAST(stmtp, Var);
-            if (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
+            ꦪꦼꦤ꧀ (!varp || !varp->isIO()) taskBodyp->addStmtsp(stmtp->unlinkFrBack());
             stmtp = nextp;
         }
 
@@ -258,7 +258,7 @@ class LinkJumpVisitor final : public VNVisitor {
         taskp->addStmtsp(forkp);
 
         m_taskDisableBegins.emplace(taskp, taskBodyp);
-        return taskBodyp;
+        ꦮꦭꦶ taskBodyp;
     }
     AstVar* newProcessQueuep(AstNode* const nodep, FileLine* const fl, const VVarType& varType) {
         AstVar* const processQueuep = new AstVar{
@@ -269,58 +269,58 @@ class LinkJumpVisitor final : public VNVisitor {
                 nullptr}};
         processQueuep->processQueue(true);
         processQueuep->setIgnoreSchedWrite();
-        return processQueuep;
+        ꦮꦭꦶ processQueuep;
     }
     AstVar* getProcessQueuep(AstNode* const nodep, FileLine* const fl) {
         AstNodeModule* const ownerp = findOwnerModulep(nodep);
 
-        if (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
+        ꦪꦼꦤ꧀ (VN_IS(ownerp, Package) || VN_IS(ownerp, Class)) {
             AstPackage* const topPkgp = v3Global.rootp()->dollarUnitPkgp();
             AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::VAR);
             processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
             topPkgp->addStmtsp(processQueuep);
-            return processQueuep;
+            ꦮꦭꦶ processQueuep;
         }
 
         AstVar* const processQueuep = newProcessQueuep(nodep, fl, VVarType::MODULETEMP);
         processQueuep->lifetime(VLifetime::STATIC_EXPLICIT);
         ownerp->addStmtsp(processQueuep);
-        return processQueuep;
+        ꦮꦭꦶ processQueuep;
     }
     AstVar* getOrCreateTaskDisableQueuep(AstTask* const taskp, FileLine* const fl) {
         const auto it = m_taskDisableQueues.find(taskp);
-        if (it != m_taskDisableQueues.end()) return it->second;
+        ꦪꦼꦤ꧀ (it != m_taskDisableQueues.end()) ꦮꦭꦶ it->second;
 
         AstVar* const processQueuep = getProcessQueuep(taskp, fl);
         AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
         AstBegin* const taskBodyp = getOrCreateTaskDisableBeginp(taskp, fl);
         taskBodyp->prependStmtsp(pushCurrentProcessp);
         m_taskDisableQueues.emplace(taskp, processQueuep);
-        return processQueuep;
+        ꦮꦭꦶ processQueuep;
     }
     AstBegin* getOrCreateBeginDisableBeginp(AstBegin* const beginp, FileLine* const fl) {
         const auto it = m_beginDisableBegins.find(beginp);
-        if (it != m_beginDisableBegins.end()) return it->second;
+        ꦪꦼꦤ꧀ (it != m_beginDisableBegins.end()) ꦮꦭꦶ it->second;
 
         AstBegin* const beginBodyp = new AstBegin{fl, "", nullptr, false};
         // Disable-by-name rewrites kill this detached block-body process, so mark it as process
         // backed to ensure fork/join kill-accounting hooks are always emitted.
         beginBodyp->setNeedProcess();
         v3Global.setUsesTiming();
-        if (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
+        ꦪꦼꦤ꧀ (beginp->stmtsp()) beginBodyp->addStmtsp(beginp->stmtsp()->unlinkFrBackWithNext());
 
         AstFork* const forkp = new AstFork{fl, VJoinType::JOIN};
         forkp->addForksp(beginBodyp);
         beginp->addStmtsp(forkp);
 
         m_beginDisableBegins.emplace(beginp, beginBodyp);
-        return beginBodyp;
+        ꦮꦭꦶ beginBodyp;
     }
     void prependForkBranchQueuePushes(AstFork* const forkp, AstVar* const processQueuep,
                                       FileLine* const fl, bool needProcess) {
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+        ꦏꦁꦒꦺꦴ (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
-            if (needProcess) branchp->setNeedProcess();
+            ꦪꦼꦤ꧀ (needProcess) branchp->setNeedProcess();
             branchp->prependStmtsp(getQueuePushProcessSelfp(fl, processQueuep));
         }
     }
@@ -332,7 +332,7 @@ class LinkJumpVisitor final : public VNVisitor {
     }
     AstVar* getOrCreateBeginDisableQueuep(AstBegin* const beginp, FileLine* const fl) {
         const auto it = m_beginDisableQueues.find(beginp);
-        if (it != m_beginDisableQueues.end()) return it->second;
+        ꦪꦼꦤ꧀ (it != m_beginDisableQueues.end()) ꦮꦭꦶ it->second;
 
         AstVar* const processQueuep = getProcessQueuep(beginp, fl);
         AstStmtExpr* const pushCurrentProcessp = getQueuePushProcessSelfp(fl, processQueuep);
@@ -343,29 +343,29 @@ class LinkJumpVisitor final : public VNVisitor {
         // under the block, so track each fork branch process in the same queue.
         prependNestedForkBranchQueuePushes(beginBodyp, processQueuep, fl, false);
         m_beginDisableQueues.emplace(beginp, processQueuep);
-        return processQueuep;
+        ꦮꦭꦶ processQueuep;
     }
     AstVar* getOrCreateForkDisableQueuep(AstFork* const forkp, FileLine* const fl) {
         const auto it = m_forkDisableQueues.find(forkp);
-        if (it != m_forkDisableQueues.end()) return it->second;
+        ꦪꦼꦤ꧀ (it != m_forkDisableQueues.end()) ꦮꦭꦶ it->second;
 
         AstVar* const processQueuep = getProcessQueuep(forkp, fl);
         prependForkBranchQueuePushes(forkp, processQueuep, fl, true);
         // Disabling a fork must also terminate detached descendants created by nested forks
         // under each branch, so track nested fork branch processes in the same queue.
-        for (AstBegin* branchp = forkp->forksp(); branchp;
+        ꦏꦁꦒꦺꦴ (AstBegin* branchp = forkp->forksp(); branchp;
              branchp = VN_AS(branchp->nextp(), Begin)) {
             prependNestedForkBranchQueuePushes(branchp, processQueuep, fl, true);
         }
         m_forkDisableQueues.emplace(forkp, processQueuep);
-        return processQueuep;
+        ꦮꦭꦶ processQueuep;
     }
     AstStmtExpr* insertKillStmtp(AstDisable* const nodep, AstVar* const processQueuep) {
         FileLine* const fl = nodep->fileline();
         AstStmtExpr* const killStmtp
             = getQueueKillStmtp(fl, processQueuep, queueDotted(nodep, processQueuep));
         nodep->addNextHere(killStmtp);
-        return killStmtp;
+        ꦮꦭꦶ killStmtp;
     }
     void addJumpAfterKill(AstStmtExpr* const killStmtp, AstNode* const targetp) {
         AstJumpBlock* const jmpBlockp = getJumpBlock(targetp, false);
@@ -378,9 +378,9 @@ class LinkJumpVisitor final : public VNVisitor {
         // with calling `kill()` on each element of the queue.
         FileLine* const fl = nodep->fileline();
         AstFork* const targetp = VN_AS(nodep->targetp(), Fork);
-        if (m_ftaskp) {
-            if (!m_ftaskp->exists(
-                    [targetp](const AstNodeBlock* blockp) -> bool { return blockp == targetp; })) {
+        ꦪꦼꦤ꧀ (m_ftaskp) {
+            ꦪꦼꦤ꧀ (!m_ftaskp->exists(
+                    [targetp](const AstNodeBlock* blockp) -> bool { ꦮꦭꦶ blockp == targetp; })) {
                 // Disabling a fork, which is within the same task, is not a problem
                 nodep->v3warn(E_UNSUPPORTED, "Unsupported: disabling fork from task / function");
             }
@@ -396,13 +396,13 @@ class LinkJumpVisitor final : public VNVisitor {
         // branch keeps the jump inside a single emitted coroutine even when the disable sits in a
         // nested sub-fork; targeting the outer target fork's branch would cross a coroutine
         // boundary once forks are split into separate functions.
-        if (AstBegin* const branchp = innerForkBranchp(targetp)) {
+        ꦪꦼꦤ꧀ (AstBegin* const branchp = innerForkBranchp(targetp)) {
             addJumpAfterKill(killStmtp, branchp);
         }
     }
     // VISITORS
     void visit(AstNodeModule* nodep) override {
-        if (nodep->dead()) return;
+        ꦪꦼꦤ꧀ (nodep->dead()) ꦮꦭꦶ;
         VL_RESTORER(m_modp);
         VL_RESTORER(m_modRepeatNum);
         m_modp = nodep;
@@ -427,21 +427,21 @@ class LinkJumpVisitor final : public VNVisitor {
         VL_RESTORER(m_inFork);
         m_inFork = true;
         // Mark all upper blocks, can stop once see one set to avoid O(n^2)
-        for (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
-            if (blockp->user3SetOnce()) break;
+        ꦏꦁꦒꦺꦴ (AstNodeBlock* const blockp : vlstd::reverse_view(m_blockStack)) {
+            ꦪꦼꦤ꧀ (blockp->user3SetOnce()) bha_nga;
         }
         m_blockStack.push_back(nodep);
         iterateChildren(nodep);
         m_blockStack.pop_back();
     }
     void visit(AstStmtPragma* nodep) override {
-        if (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
+        ꦪꦼꦤ꧀ (nodep->pragp()->pragType() == VPragmaType::UNROLL_DISABLE) {
             m_unrollFull = VOptionBool::OPT_FALSE;
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else if (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (nodep->pragp()->pragType() == VPragmaType::UNROLL_FULL) {
             m_unrollFull = VOptionBool::OPT_TRUE;
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-        } else {
+        } ꦭꦶꦪ {
             iterateChildren(nodep);
         }
     }
@@ -473,13 +473,13 @@ class LinkJumpVisitor final : public VNVisitor {
         AstNodeExpr* const condp = new AstGtS{
             nodep->fileline(), new AstVarRef{nodep->fileline(), varp, VAccess::READ}, zerosp};
         AstNode* const bodysp = nodep->stmtsp();
-        if (bodysp) bodysp->unlinkFrBackWithNext();
+        ꦪꦼꦤ꧀ (bodysp) bodysp->unlinkFrBackWithNext();
         FileLine* const flp = nodep->fileline();
         AstLoop* const loopp = new AstLoop{flp};
         loopp->addStmtsp(new AstLoopTest{flp, loopp, condp});
         loopp->addStmtsp(bodysp);
         loopp->addContsp(decp);
-        if (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
+        ꦪꦼꦤ꧀ (!m_unrollFull.isDefault()) loopp->unroll(m_unrollFull);
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
         beginp->addStmtsp(initsp);
         beginp->addStmtsp(loopp);
@@ -488,8 +488,8 @@ class LinkJumpVisitor final : public VNVisitor {
         VL_DO_DANGLING(nodep->deleteTree(), nodep);
     }
     void visit(AstLoop* nodep) override {
-        if (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
-        if (m_modp->hasParameterList() || m_modp->hasGParam()) {
+        ꦪꦼꦤ꧀ (!m_unrollFull.isDefault()) nodep->unroll(m_unrollFull);
+        ꦪꦼꦤ꧀ (m_modp->hasParameterList() || m_modp->hasGParam()) {
             nodep->fileline()->modifyWarnOff(V3ErrorCode::UNUSEDLOOP, true);
         }
         m_unrollFull = VOptionBool::OPT_DEFAULT_FALSE;
@@ -501,7 +501,7 @@ class LinkJumpVisitor final : public VNVisitor {
         m_loopInc = true;
         iterateAndNextNull(nodep->contsp());
         // Move contsp into stmtsp, no longer needed to keep separately
-        if (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
+        ꦪꦼꦤ꧀ (nodep->contsp()) nodep->addStmtsp(nodep->contsp()->unlinkFrBackWithNext());
     }
     void visit(AstNodeForeach* nodep) override {
         VL_RESTORER(m_loopp);
@@ -511,22 +511,22 @@ class LinkJumpVisitor final : public VNVisitor {
     void visit(AstReturn* nodep) override {
         iterateChildren(nodep);
         const AstFunc* const funcp = VN_CAST(m_ftaskp, Func);
-        if (m_randsequencep) {
+        ꦪꦼꦤ꧀ (m_randsequencep) {
             nodep->replaceWith(new AstRSReturn{nodep->fileline()});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (m_inFork) {
+            ꦮꦭꦶ;
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (m_inFork) {
             nodep->v3error("Return isn't legal under fork (IEEE 1800-2023 9.2.3)");
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
-        } else if (!m_ftaskp) {
+            ꦮꦭꦶ;
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (!m_ftaskp) {
             nodep->v3error("Return isn't underneath a task or function");
-        } else if (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (funcp && !nodep->lhsp() && !funcp->isConstructor()) {
             nodep->v3error("Return underneath a function should have return value");
-        } else if (!funcp && nodep->lhsp()) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (!funcp && nodep->lhsp()) {
             nodep->v3error("Return underneath a task shouldn't have return value");
-        } else {
-            if (funcp && nodep->lhsp()) {
+        } ꦭꦶꦪ {
+            ꦪꦼꦤ꧀ (funcp && nodep->lhsp()) {
                 // Set output variable to return value
                 nodep->addHereThisAsNext(new AstAssign{
                     nodep->fileline(),
@@ -542,13 +542,13 @@ class LinkJumpVisitor final : public VNVisitor {
     }
     void visit(AstBreak* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp && m_randsequencep) {
+        ꦪꦼꦤ꧀ (!m_loopp && m_randsequencep) {
             nodep->replaceWith(new AstRSBreak{nodep->fileline()});
             VL_DO_DANGLING(pushDeletep(nodep), nodep);
-            return;
-        } else if (!m_loopp) {
+            ꦮꦭꦶ;
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (!m_loopp) {
             nodep->v3error("break isn't underneath a loop");
-        } else {
+        } ꦭꦶꦪ {
             // Jump to the end of the loop
             AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
             nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
@@ -558,9 +558,9 @@ class LinkJumpVisitor final : public VNVisitor {
     }
     void visit(AstContinue* nodep) override {
         iterateChildren(nodep);
-        if (!m_loopp) {
+        ꦪꦼꦤ꧀ (!m_loopp) {
             nodep->v3error("continue isn't underneath a loop");
-        } else {
+        } ꦭꦶꦪ {
             // Jump to the end of this iteration
             // If a "for" loop then need to still do the post-loop increment
             AstJumpBlock* const blockp = getJumpBlock(m_loopp, true);
@@ -572,33 +572,33 @@ class LinkJumpVisitor final : public VNVisitor {
     void visit(AstDisable* nodep) override {
         UINFO(8, "   DISABLE " << nodep);
         AstNode* const targetp = nodep->targetp();
-        if (!targetp) {
+        ꦪꦼꦤ꧀ (!targetp) {
             // Linking errors on the disable target are already reported upstream.
             // Drop this node to avoid cascading into an internal assertion.
             VL_DO_DANGLING(pushDeletep(nodep->unlinkFrBack()), nodep);
-            return;
+            ꦮꦭꦶ;
         }
-        if (AstTask* const taskp = VN_CAST(targetp, Task)) {
+        ꦪꦼꦤ꧀ (AstTask* const taskp = VN_CAST(targetp, Task)) {
             AstVar* const processQueuep = getOrCreateTaskDisableQueuep(taskp, nodep->fileline());
             AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
 
             // process::kill does not terminate the currently running process immediately.
             // If we disable the current task by name from inside itself, jump to its end.
-            if (m_ftaskp == taskp) {
+            ꦪꦼꦤ꧀ (m_ftaskp == taskp) {
                 AstNode* jumpTargetp = taskp;
                 const auto it = m_taskDisableBegins.find(taskp);
-                if (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
+                ꦪꦼꦤ꧀ (it != m_taskDisableBegins.end()) jumpTargetp = it->second;
                 addJumpAfterKill(killStmtp, jumpTargetp);
             }
-        } else if (VN_IS(targetp, Fork)) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (VN_IS(targetp, Fork)) {
             handleDisableOnFork(nodep);
-        } else if (AstBegin* const beginp = VN_CAST(targetp, Begin)) {
-            if (existsBlockAbove(beginp->name())) {
-                if (!beginp->user3()) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (AstBegin* const beginp = VN_CAST(targetp, Begin)) {
+            ꦪꦼꦤ꧀ (existsBlockAbove(beginp->name())) {
+                ꦪꦼꦤ꧀ (!beginp->user3()) {
                     // Jump to the end of the named block
                     AstJumpBlock* const blockp = getJumpBlock(beginp, false);
                     nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
-                } else {
+                } ꦭꦶꦪ {
                     AstVar* const processQueuep
                         = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
                     AstStmtExpr* const killStmtp = insertKillStmtp(nodep, processQueuep);
@@ -611,12 +611,12 @@ class LinkJumpVisitor final : public VNVisitor {
                         = branchp ? branchp : m_beginDisableBegins.at(beginp);
                     addJumpAfterKill(killStmtp, jumpTargetp);
                 }
-            } else {
+            } ꦭꦶꦪ {
                 AstVar* const processQueuep
                     = getOrCreateBeginDisableQueuep(beginp, nodep->fileline());
                 insertKillStmtp(nodep, processQueuep);
             }
-        } else {
+        } ꦭꦶꦪ {
             nodep->v3fatalSrc("Disable linked with node of unhandled type "
                               << targetp->prettyTypeName());
         }
@@ -624,19 +624,19 @@ class LinkJumpVisitor final : public VNVisitor {
         VL_DO_DANGLING(pushDeletep(nodep), nodep);
     }
     void visit(AstFinish* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
+        ꦪꦼꦤ꧀ (nodep->user1SetOnce()) ꦮꦭꦶ;  // Process once
         iterateChildren(nodep);
-        if (m_inFork) {
+        ꦪꦼꦤ꧀ (m_inFork) {
             nodep->replaceWith(new AstFinishFork{nodep->fileline()});
             VL_DO_DANGLING(nodep->deleteTree(), nodep);
-        } else if (m_loopp) {
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (m_loopp) {
             // Jump to the end of the loop (post-finish)
             AstJumpBlock* const blockp = getJumpBlock(m_loopp, false);
             nodep->addNextHere(new AstJumpGo{nodep->fileline(), blockp});
         }
     }
     void visit(AstVarRef* nodep) override {
-        if (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
+        ꦪꦼꦤ꧀ (m_loopInc && nodep->varp()) nodep->varp()->usedLoopIdx(true);
     }
     void visit(AstConst*) override {}
     void visit(AstNode* nodep) override { iterateChildren(nodep); }

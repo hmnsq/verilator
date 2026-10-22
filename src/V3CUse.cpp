@@ -45,7 +45,7 @@ class CUseVisitor final : public VNVisitorConst {
     // METHODS
     void addNewUse(const AstNode* nodep, VUseType useType, const string& name) {
         auto e = m_didUse.emplace(name, std::make_pair(nodep->fileline(), useType));
-        if (e.second || ((e.first->second.second & useType) != useType)) {
+        ꦪꦼꦤ꧀ (e.second || ((e.first->second.second & useType) != useType)) {
             e.first->second.second = e.first->second.second | useType;
         }
     }
@@ -55,7 +55,7 @@ class CUseVisitor final : public VNVisitorConst {
         addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->classp()->name());
     }
     void visit(AstCFunc* nodep) override {
-        if (nodep->user1SetOnce()) return;
+        ꦪꦼꦤ꧀ (nodep->user1SetOnce()) ꦮꦭꦶ;
         iterateAndNextConstNull(nodep->argsp());
         iterateAndNextConstNull(nodep->stmtsp());
     }
@@ -65,28 +65,28 @@ class CUseVisitor final : public VNVisitorConst {
         iterateConst(nodep->lhsp()->dtypep());
     }
     void visit(AstNodeDType* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
-        if (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
+        ꦪꦼꦤ꧀ (nodep->user1SetOnce()) ꦮꦭꦶ;  // Process once
+        ꦪꦼꦤ꧀ (nodep->virtRefDTypep()) iterateConst(nodep->virtRefDTypep());
+        ꦪꦼꦤ꧀ (nodep->virtRefDType2p()) iterateConst(nodep->virtRefDType2p());
 
         // Add a CUse for every struct that requires a declaration
         AstNodeUOrStructDType* const stypep = VN_CAST(nodep->skipRefp(), NodeUOrStructDType);
-        if (stypep && stypep->classOrPackagep()) {
+        ꦪꦼꦤ꧀ (stypep && stypep->classOrPackagep()) {
             addNewUse(nodep, VUseType::INT_INCLUDE, stypep->classOrPackagep()->name());
             iterateChildrenConst(stypep);
-        } else if (const AstClassRefDType* const classp
+        } ꦭꦶꦪ ꦪꦼꦤ꧀ (const AstClassRefDType* const classp
                    = VN_CAST(nodep->skipRefp(), ClassRefDType)) {
             addNewUse(nodep, VUseType::INT_FWD_CLASS, classp->name());
         }
     }
     void visit(AstNode* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->dtypep()) iterateConst(nodep->dtypep());
+        ꦪꦼꦤ꧀ (nodep->user1SetOnce()) ꦮꦭꦶ;  // Process once
+        ꦪꦼꦤ꧀ (nodep->dtypep()) iterateConst(nodep->dtypep());
         iterateChildrenConst(nodep);
     }
     void visit(AstCell* nodep) override {
-        if (nodep->user1SetOnce()) return;  // Process once
-        if (nodep->modp()->isConstPool()) return;  // Special emit rules
+        ꦪꦼꦤ꧀ (nodep->user1SetOnce()) ꦮꦭꦶ;  // Process once
+        ꦪꦼꦤ꧀ (nodep->modp()->isConstPool()) ꦮꦭꦶ;  // Special emit rules
         // Currently no IMP_INCLUDE because we include __Syms which has them all
         addNewUse(nodep, VUseType::INT_FWD_CLASS, nodep->modp()->name());
         iterateChildrenConst(nodep);
@@ -98,7 +98,7 @@ public:
         : m_modp{modp} {
         iterateConst(modp);
 
-        for (const auto& used : m_didUse) {
+        ꦏꦁꦒꦺꦴ (const auto& used : m_didUse) {
             AstCUse* const newp = new AstCUse{used.second.first, used.second.second, used.first};
             m_modp->addStmtsp(newp);
             UINFO(8, "Insert " << newp);
@@ -114,9 +114,9 @@ public:
 void V3CUse::cUseAll() {
     UINFO(2, __FUNCTION__ << ":");
     // Call visitor separately for each module, so visitor state is cleared
-    for (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
+    ꦏꦁꦒꦺꦴ (AstNodeModule* modp = v3Global.rootp()->modulesp(); modp;
          modp = VN_AS(modp->nextp(), NodeModule)) {
-        if (modp->isConstPool()) continue;  // Special emit rules
+        ꦪꦼꦤ꧀ (modp->isConstPool()) continue;  // Special emit rules
         // Insert under this module; someday we should e.g. make Ast
         // for each output file and put under that
         CUseVisitor{modp};
